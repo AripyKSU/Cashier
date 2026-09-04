@@ -26,6 +26,21 @@
 
 - 사용자가 "문서"에서 파일을 읽거나 찾으라고 요청하면 [문서 - 퍼즐게임](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.0)의 하위 문서에서 요청에 해당하는 문서를 찾아 확인한다.
 - 사용자가 개발 체크리스트를 언급하거나 개발 작업의 범위를 확인·추가하라고 요청하면 [개발 체크리스트](https://docs.google.com/spreadsheets/d/1PAsKzteDN3awiqwOH331VnG9f0Ljog7MJ6owkTJPNhE/edit?gid=0#gid=0)를 기준으로 작업한다.
+- Prefab, Addressables, `.meta`와 연관 리소스 작업은 [`PREFAB_RESOURCE_RULES.md`](PREFAB_RESOURCE_RULES.md)를 따른다.
+- CSV와 DataTable 작업은 [`DATA_RULES.md`](DATA_RULES.md)를 따른다.
+
+### 작업 요청과 지정
+
+작업 요청에는 다음 항목을 가능한 범위에서 명시한다.
+
+- 작업 목적과 대상 기능
+- 담당자 또는 AI 작업자가 권한을 대행하는 참여자
+- 적용 역할과 권한 수준
+- 허용된 파일·폴더와 생성·수정·이동·삭제 범위
+- 보호 변경 포함 여부와 필요한 검토자
+- 완료 조건과 컴파일·실행 검증 방법
+
+Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거가 아니다. 필수 정보가 빠졌더라도 안전하게 분리 가능한 일반 작업은 진행하고, 권한이 불명확한 보호 변경만 `BLOCKED`로 분리한다.
 
 ## 3. 프로그래머 규칙
 
@@ -63,6 +78,7 @@
 
 - 새 패키지는 표준 기능과 기존 의존성으로 해결할 수 없을 때만 추가한다.
 - 하위 계층이 상위 UI나 구체 저장소를 직접 참조하거나 순환 참조를 만들지 않게 한다.
+- 전역 상태·상태 소유권, 공용 manager·API, 데이터 로딩·전달 흐름, namespace 기본 정책, ScriptableObject 데이터 경로, 공용 직렬화 구조 또는 여러 기능이 의존하는 계약을 변경하면 아키텍처 변경으로 판단한다.
 
 ## 4. 리소스 역할 규칙
 
@@ -83,7 +99,7 @@
 - 프로젝트의 정수형 또는 명시적 식별자 규칙을 사용한다.
 - 신규 행 추가 전 PK 대역·중복, FK, parser, loader와 router 범위를 감사한다.
 - 기존 manager, pooling과 bundle 경로를 사용하고 개별 객체가 로더 API를 우회하지 않게 한다.
-- CSV, prefab, animator, texture와 address 등록을 같은 변경 단위에서 동기화한다.
+- 실제로 영향을 받는 CSV, prefab, animator, texture와 address 등록만 하나의 작업 단위로 추적하고 함께 검증한다.
 - 파일명 추론이나 header 검증 완화로 잘못된 routing을 숨기지 않는다.
 - 참조 대상이 준비되지 않았으면 임의 ID나 임시 문자열로 활성화하지 않는다.
 - 신규 ID 대역은 사용 현황과 예상 필요량을 근거로 책임자와 협의한다.
@@ -290,13 +306,13 @@
 - CSV·데이터 수정: header, PK, FK, parser·loader routing과 Addressables 연결을 확인한다.
 - package·render 설정 수정: 설정 파일 diff와 영향을 받는 platform·Scene을 확인한다.
 
-### C. 자동 테스트
+### C. 컴파일과 최소 실행 검증
 
-- 비자명한 분기, parser, 상태 전이, 비동기 수명, 회귀 bug에는 최소 하나의 자동 검사를 추가하거나 기존 관련 suite를 실행한다.
-- 순수 로직과 Editor 데이터 검사는 EditMode에서 실행한다.
-- Scene, MonoBehaviour 수명, 입력, physics, rendering, 실제 Addressables 흐름은 PlayMode에서 검증한다.
-- 테스트는 정확한 suite 이름과 `Started / Passed / Failed / Skipped`를 보고한다.
-- 실행 수가 0이거나 결과가 오래됐거나 다른 suite 결과만 있으면 PASS가 아니다.
+- 이 프로젝트는 Unity Test Runner와 별도 unit test를 기본 완료 조건으로 사용하지 않는다.
+- Unity reimport와 compilation 종료 후 compile error 0을 확인한다.
+- 변경 기능을 재현하는 가장 작은 Scene·진입 경로에서 최소 실행 검증을 수행한다.
+- 기존 자동 검사가 있거나 작업에서 별도로 요구한 경우에만 해당 검사를 추가로 실행한다.
+- 검증 환경이 없다는 이유로 새 test assembly나 framework를 임의로 도입하지 않는다.
 
 ### D. Console과 런타임
 
@@ -311,12 +327,13 @@
 - 임시 route, debug flag, placeholder, test fixture를 제거하거나 유지 결정을 기록한다.
 - `git diff --check`를 통과시키고 commit·push·merge 여부를 각각 구분해 보고한다.
 
-검증 상태는 다음 네 가지로만 표현한다.
+검증 상태는 다음 다섯 가지로만 표현한다.
 
-- `PASS`: 요청된 자동·runtime·사용자 검증까지 완료
-- `STATIC PASS`: 구조·참조·컴파일은 통과했으나 runtime 검증 미실행
+- `PASS`: compile error가 없고 요청된 최소 실행 검증까지 완료
+- `STATIC PASS`: 구조·참조·컴파일은 통과했으나 실행 검증 미실행
 - `PARTIAL`: 유효한 결과와 미완료 항목이 함께 존재
 - `BLOCKED`: 필수 환경·자료·권한 부족으로 안전하게 진행 불가
+- `FAIL`: compile error, 실행 오류 또는 필수 데이터·참조 실패가 확인됨
 
 ## 11. 보류 항목
 
@@ -348,6 +365,9 @@
 - 역할별 승인 범위는 권위 규칙으로 유지하되, 다른 작업과 분리된 작업 branch에서는 사전 허가보다 기본 branch 통합 전 검토 게이트로 적용한다.
 - 프로그래머 `Primary`는 작업 branch에서 공용 manager, 공용 API와 아키텍처 변경을 구현·검증하고 local commit할 수 있다.
 - 해당 변경을 기본 branch에 반영하기 전 작업자 외 프로그래머 `Primary` 1명 이상의 코드 리뷰를 받고, 리뷰에 참여한 프로그래머끼리 변경 반영에 명시적으로 동의해야 한다.
+- 명시적 승인과 동의는 PR 댓글 또는 현재 작업 명세에 기록한다. 구두 합의나 Git 작성자 정보만으로 승인된 것으로 판단하지 않는다.
+- 작업자와 승인권자가 같은 보호 변경은 자기 승인만으로 완료하지 않는다. 관련 역할의 다른 `Primary` 1명이 교차 검토하고, 다른 `Primary`가 없으면 해당 역할의 `Shared` 1명이 검토한다. 검토자를 지정할 수 없으면 프로젝트 책임자가 판단한다.
+- 프로젝트 책임자가 직접 수행한 보호 변경도 가능한 관련 역할 `Primary`의 교차 검토를 받는다.
 - 리뷰 참여자 간 동의가 결렬되면 이견과 영향을 기록하고 프로젝트 책임자가 최종 반영 여부를 결정한다. 단, 필수 검증 실패나 데이터 손실·보안 위험은 책임자 판단만으로 면제할 수 없다.
 - 배정된 기능과 허용 경로 안의 일반 변경은 담당자 1인이 작업·commit하고 통합할 수 있다.
 - package, ProjectSettings, Addressables group·address, 원본 자산 삭제처럼 영향이 크거나 복구 비용이 높은 변경은 branch 분리 여부와 관계없이 작업 전에 승인을 받는다.
@@ -364,4 +384,5 @@
 - 공용 파일은 소비자와 영향 범위를 조사하고 해당 역할의 `Primary` 또는 프로젝트 책임자 승인을 받는다.
 - 역할별 선행 결과가 필요한 작업은 의존 순서대로 진행한다.
 - 병렬 작업은 수정 파일이 겹치지 않고 독립적으로 검증 가능한 경우에만 허용한다.
+- 병합 직전에 최신 기본 branch를 기준으로 CSV ID, Addressables address, GUID와 공용 직렬화 파일의 중복·충돌을 다시 확인한다. branch 분리만으로 승인이나 충돌 검사를 생략하지 않는다.
 - 완료 보고에는 변경 파일, 검증 결과, 소유 경계 밖에서 보류한 항목, 다음 담당자를 명시한다.
