@@ -1,0 +1,26 @@
+name: Discord Push Notification
+
+on:
+  push:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: github.event.deleted == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out notification script
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+
+      - name: Send push summary to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python3 .github/scripts/notify_discord.py
