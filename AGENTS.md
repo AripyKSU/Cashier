@@ -26,8 +26,9 @@
 
 - 사용자가 "문서"에서 파일을 읽거나 찾으라고 요청하면 [문서 - 퍼즐게임](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.0)의 하위 문서에서 요청에 해당하는 문서를 찾아 확인한다.
 - 사용자가 개발 체크리스트를 언급하거나 개발 작업의 범위를 확인·추가하라고 요청하면 [개발 체크리스트](https://docs.google.com/spreadsheets/d/1PAsKzteDN3awiqwOH331VnG9f0Ljog7MJ6owkTJPNhE/edit?gid=0#gid=0)를 기준으로 작업한다.
-- Prefab, Addressables, `.meta`와 연관 리소스 작업은 [`PREFAB_RESOURCE_RULES.md`](PREFAB_RESOURCE_RULES.md)를 따른다.
-- CSV와 DataTable 작업은 [`DATA_RULES.md`](DATA_RULES.md)를 따른다.
+- 목적 중심의 자연어 요청을 실행 프롬프트로 구체화할 때는 [`doc/AGENT_REQUEST_GUIDE.md`](doc/AGENT_REQUEST_GUIDE.md)를 따른다.
+- Prefab, Addressables, `.meta`와 연관 리소스 작업은 [`doc/PREFAB_RESOURCE_RULES.md`](doc/PREFAB_RESOURCE_RULES.md)를 따른다.
+- CSV와 DataTable 작업은 [`doc/DATA_RULES.md`](doc/DATA_RULES.md)를 따른다.
 
 ### 작업 요청과 지정
 
@@ -84,35 +85,19 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 
 리소스 역할은 승인된 기획과 기술 명세를 프로젝트 자산으로 제작·가공·연결해 인계한다. 프로그래머 역할이 소유한 게임 로직과 판정·타이밍은 임의로 변경하거나 이미지 frame에 고정하지 않는다.
 
-### 작업 시작과 파일 관리
+### 공통 원칙
 
-- 대상 리소스, 사용 위치, 규격, 수정 범위, 완료 조건, 원본·라이선스·출처와 수정 가능 여부를 확인한다.
-- 기존 material, sprite, prefab, animation, audio를 먼저 검색해 명세를 충족하는 가장 저비용 선택을 한다.
-- downstream에 필요한 데이터와 원본이 준비되지 않았으면 제작을 시작하지 않는다.
-- 기존 폴더와 이름 규칙을 따르고 파일명에 역할·대상·동작·variant를 일관된 순서로 표현한다.
-- 대소문자만 다른 파일이나 같은 목적의 단수·복수 폴더를 만들지 않는다.
-- 원본, 작업 파일, 최종 export를 구분하고 임시·도구 출력 파일을 제품 자산 폴더에 남기지 않는다.
-- 파일 이동·이름 변경 시 참조와 metadata 식별자가 유지되는지 확인한다.
+- 작업 전에 대상 리소스, 사용 위치, 허용 범위, 완료 조건과 필요한 선행 자료를 확인한다.
+- 기존 자산과 공용 시스템을 먼저 검색하고 명세를 충족하는 가장 작은 변경을 선택한다.
+- 원본, 라이선스, 출처와 수정 가능 범위를 확인한다.
+- 기존 폴더와 이름 규칙을 따르고 원본, 작업 파일과 최종 export를 구분한다.
+- 준비되지 않은 참조를 임의 ID, 임시 문자열 또는 placeholder로 활성화하지 않는다.
+- 사용하지 않는 임시·중복 자산도 승인 없이 삭제하지 않는다.
 
-### 데이터와 리소스 연결
+### 기술 규격
 
-- 프로젝트의 정수형 또는 명시적 식별자 규칙을 사용한다.
-- 신규 행 추가 전 PK 대역·중복, FK, parser, loader와 router 범위를 감사한다.
-- 기존 manager, pooling과 bundle 경로를 사용하고 개별 객체가 로더 API를 우회하지 않게 한다.
-- 실제로 영향을 받는 CSV, prefab, animator, texture와 address 등록만 하나의 작업 단위로 추적하고 함께 검증한다.
-- 파일명 추론이나 header 검증 완화로 잘못된 routing을 숨기지 않는다.
-- 참조 대상이 준비되지 않았으면 임의 ID나 임시 문자열로 활성화하지 않는다.
-- 신규 ID 대역은 사용 현황과 예상 필요량을 근거로 책임자와 협의한다.
-
-### Bundle, Address와 구조 검수
-
-- 기존 group, label, address 이름 규칙을 따른다.
-- 동일 address, 중복 entry, 잘못된 GUID와 누락 dependency를 확인한다.
-- address 변경 시 모든 소비자와 migration 영향을 확인한다.
-- 원본과 metadata 파일의 1:1 존재, GUID 중복·변경, prefab·data의 직렬화 참조를 확인한다.
-- 사용하지 않는 임시·중복 자산은 식별하되 승인 없이 삭제하지 않는다.
-- 로컬 파일 존재만으로 runtime load 성공을 주장하지 않는다.
-- 생성 성공 응답만으로 완료하지 말고 실제 규격·방향·alpha·framing·slicing·import 상태를 시각 검수한다.
+- CSV와 DataTable 작업은 [`doc/DATA_RULES.md`](doc/DATA_RULES.md)를 따른다.
+- Prefab, Addressables, `.meta`, Texture와 Animation 작업은 [`doc/PREFAB_RESOURCE_RULES.md`](doc/PREFAB_RESOURCE_RULES.md)를 따른다.
 
 ### 인계
 
@@ -120,10 +105,8 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 
 - 제작·수정한 파일과 경로
 - 원본과 라이선스 정보
-- 해상도, frame 수, PPU, pivot, 방향과 import 설정
 - prefab·animator·data·address 연결 관계
 - PK·FK·GUID·중복 검사 결과
-- 시각 검수 기준과 결과
 - 컴파일·Console·runtime 검증 상태
 - placeholder, 미완성, 사용자 확인 대기 항목과 downstream의 다음 단계
 
@@ -374,7 +357,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 - 별도 작업 branch를 사용하지 않고 기본 branch에서 직접 작업하면 공용·보호 변경은 commit 전에 같은 리뷰와 동의 절차를 적용한다.
 - PM, QA와 문서 작업자는 현재 독립 역할로 지정하지 않는다. 요구사항 승인, 검증과 문서 갱신은 작업별로 명시된 담당자가 수행한다.
 
-실제 참여자와 복수 역할의 단일 권위는 [`TEAM_ROLES.md`](TEAM_ROLES.md)다. Git name과 email은 명부 조회 키일 뿐 권한 인증 수단이 아니다. 명부와 현재 identity가 일치하지 않거나 경로·작업 종류가 명시되지 않았으면 권한을 추측하지 않는다.
+실제 참여자와 복수 역할의 단일 권위는 [`doc/TEAM_ROLES.md`](doc/TEAM_ROLES.md)다. Git name과 email은 명부 조회 키일 뿐 권한 인증 수단이 아니다. 명부와 현재 identity가 일치하지 않거나 경로·작업 종류가 명시되지 않았으면 권한을 추측하지 않는다.
 
 ### 작업 배정 규칙
 

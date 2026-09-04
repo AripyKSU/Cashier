@@ -1,6 +1,6 @@
 # CSV와 DataTable 작업 규격
 
-이 문서는 CSV 데이터의 생성·수정, 검증과 runtime 연결 기준을 정의한다. 공통 권한과 승인 절차는 [`AGENTS_GUIDE.md`](AGENTS_GUIDE.md), 역할 명부는 [`TEAM_ROLES.md`](TEAM_ROLES.md)를 따른다.
+이 문서는 CSV 데이터의 생성·수정, 검증과 runtime 연결 기준을 정의한다. 공통 권한과 승인 절차는 [`AGENTS.md`](../AGENTS.md), 역할 명부는 [`TEAM_ROLES.md`](TEAM_ROLES.md)를 따른다.
 
 ## 기존 구현 우선
 
@@ -58,4 +58,4 @@
 - CsvHelper와 기존 loader가 오류 없이 읽는가?
 - Unity compile과 최소 실행 검증을 완료했는가?
 
-실행 검증을 하지 못했다면 `PASS` 대신 `STATIC PASS`, `PARTIAL` 또는 `BLOCKED`로 보고한다.
+실행 검증을 하지 못했다면 `PASS` 대신 `STATIC PASS`, `PARTIAL` 또는 `BLOCKED`로 보고하고, compile error·실행 오류 또는 필수 데이터·참조 실패가 확인되면 `FAIL`로 보고한다.
