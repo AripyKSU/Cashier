@@ -11,7 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/InitScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/InitScene.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Finance/EconomyRuntime.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Finance/EconomyRuntime.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Manager/GameSessionManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Manager/GameSessionManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/SCENE_WORKFLOW.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/SCENE_WORKFLOW.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,8 +32,15 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/12946b1662c9498696423b6ab1860792e200/cd/fd171c22/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/25011cde5a374a438373a6383dfa0ea8e200/4f/a7fe66f9/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/25011cde5a374a438373a6383dfa0ea8e200/fd/e88c2125/0200000Fpdb7.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/2bb0f5725e4b4dd5ad26e704c002448212400/9d/41d62fa5/0200002Apdb33.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/25/c777b0e2/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/50/4ab4421c/02000012pdb10.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/5c/e4e8c4ed/02000011pdb9.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/cb/c6ba4c70/0200002Cpdb35.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/ef/60cc4414/0200000Fpdb7.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/62d455233bb343fd86934ddc025d3104e200/83/54f250b0/0200000Fpdb7.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/62d455233bb343fd86934ddc025d3104e200/fd/6dcb238a/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/6dfc39632b934e5f897b6880e20aded812600/43/337fef97/02000017pdb15.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/a7038b37a005424586087cac2b34c35a10400/a9/3dff487f/02000027pdb30.il" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="McpProjectServerCommands">
@@ -170,7 +181,7 @@
       <option name="presentableId" value="Default" />
       <updated>1788487159994</updated>
       <workItem from="1788487160146" duration="3893000" />
-      <workItem from="1788743272615" duration="4207000" />
+      <workItem from="1788743272615" duration="5759000" />
     </task>
     <servers />
   </component>

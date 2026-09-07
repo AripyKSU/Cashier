@@ -4,8 +4,11 @@ using System.Collections.Generic;
 /// <summary>
 /// 현재 게임 세션에서 사용하는 경제 설정과 경제 서비스 인스턴스를 소유합니다.
 /// </summary>
-public sealed class EconomyRuntime
+public sealed class EconomyRuntime : IDisposable
 {
+    // 내부 이벤트 구독을 이미 해제했는지 나타냅니다.
+    private bool isDisposed;
+
     /// <summary>
     /// 현재 세션에 적용된 경제 밸런스 설정입니다.
     /// </summary>
@@ -25,6 +28,11 @@ public sealed class EconomyRuntime
     /// 회차별 상납금 조회와 납부를 처리하는 서비스입니다.
     /// </summary>
     public MaintenanceService MaintenanceService { get; }
+
+    /// <summary>
+    /// 세션 중 발생한 잔고 변경 기록을 수집하는 로그 서비스입니다.
+    /// </summary>
+    public EconomyLogService LogService { get; }
 
     /// <summary>
     /// UI와 표현 계층에 최신 경제 상태를 읽기 전용으로 제공하는 조회 서비스입니다.
@@ -50,6 +58,23 @@ public sealed class EconomyRuntime
         this.MaintenanceService = new MaintenanceService(
             this.FinanceService,
             this.Settings.MaintenanceAmounts);
+        this.LogService = new EconomyLogService(this.FinanceService);
         this.QueryService = new EconomyQueryService(this);
+    }
+
+    /// <summary>
+    /// 세션 내부 서비스의 이벤트 구독을 해제합니다.
+    /// 여러 번 호출해도 한 번만 정리합니다.
+    /// </summary>
+    public void Dispose()
+    {
+        if (this.isDisposed)
+        {
+            return;
+        }
+
+        // Runtime이 소유한 로그 구독을 정리하고 기록 자체는 조회 가능 상태로 둡니다.
+        this.LogService.Dispose();
+        this.isDisposed = true;
     }
 }

@@ -61,6 +61,8 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// </summary>
     protected override void OnSingletonDestroyed()
     {
+        // Scene 또는 세션 수명이 끝날 때 경제 이벤트 구독을 정리합니다.
+        this.economy?.Dispose();
         this.economy = null;
         this.IsInitialized = false;
         base.OnSingletonDestroyed();
