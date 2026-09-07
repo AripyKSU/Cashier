@@ -15,12 +15,17 @@ public enum DataTableType : uint
 {
     None = 0,
     
-    // [1순위: 기반 공용 데이터]
-    Resource = 1,         // 1순위: Addressable 에셋 리소스 데이터 (1001~)
-    Text = 2,             // 2순위: 다국어/표기 텍스트 데이터 (2001~)
+    // CSV_RULES.md의 종류 ID. 숫자 순서는 로딩 의존 순서를 의미하지 않는다.
+    Product = 1,          // 상품: 1001~1999
+    Balance = 2,          // 밸런스: 2001~2999, CSV·로더는 아직 미구현
+    Resource = 3,         // Addressable 리소스: 3001~3999
     
     // [2순위: 유닛 파생/개별 데이터]
     PlayerData = 4,       // 4순위: 플레이어 파생 데이터 (4001~)
+    CustomerAppearance = 5, // 손님 외형: 5001~5999
+    CustomerDisposition = 6, // 손님 성향: 6001~6999
+    ProductCategory = 7,     // 상품군: 7001~7999
+    Text = 8,               // 명시적 문자열 테이블: 8001~8999
     
     DataTableType_End
 }
@@ -62,26 +67,30 @@ public static class CommonConstants
 }
 
 /// <summary>
-/// Addressable 에셋 참조 데이터 (ResourceData.csv 1:1 매핑, Type 1: 1001~)
+/// Addressable 에셋 참조 데이터 (ResourceData.csv 1:1 매핑, Type 3: 3001~)
 /// </summary>
 [Serializable]
 public class ResourceData
 {
+    /// <summary>현재 리소스 PK, 3001~3999.</summary>
     [Name("idx")]
     public uint Idx { get; set; }
 
+    /// <summary>명시적으로 문자열을 허용하는 Addressables 키.</summary>
     [Name("path")]
     public string Path { get; set; } // Addressable Key ("Player", "GaronAnimatorController" 등)
 }
 
 /// <summary>
-/// 텍스트 데이터 (TextData.csv 1:1 매핑, Type 2: 2001~)
+/// 표시 문자열의 단일 원본 (TextData.csv, Type 8: 8001~). 다른 CSV는 nameidx로 참조한다.
 /// </summary>
 [Serializable]
 public class TextData
 {
+    /// <summary>표시 문자열 PK, 8001~8999.</summary>
     [Name("idx")]
     public uint Idx { get; set; }
-    [Name("kr")]
-    public string Kr { get; set; }
+    /// <summary>실제 표시 문구. 명시적으로 문자열을 허용하는 text 열.</summary>
+    [Name("text")]
+    public string Text { get; set; }
 }

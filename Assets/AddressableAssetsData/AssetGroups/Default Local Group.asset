@@ -15,10 +15,34 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 8b33f272d3e835b4b830c65a3bf5d1cb
   m_SerializeEntries:
+  - m_GUID: 4071d61b90def654988de31d2cd72a52
+    m_Address: TextData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 47d6251c8dcee0b4ba29b55b27857e90
     m_Address: HubScene
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4867a884e8129fe4d8fac39199fd3cd6
+    m_Address: CustomerDispositionData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5eaac064b2c60914da2f8d9c6e69fabd
+    m_Address: ProductCategoryData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7d1a9c18bf088a4488c3515f0b019dea
+    m_Address: ProductData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8e73b28ef3a099a4488cb2518dcc4102
     m_Address: MainScene
@@ -32,6 +56,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d7aebc67a8a48b04fb3a3bd8447461d7
     m_Address: ResourceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ed046d641c8d5a348b00bdb720940b73
+    m_Address: CustomerAppearanceData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
