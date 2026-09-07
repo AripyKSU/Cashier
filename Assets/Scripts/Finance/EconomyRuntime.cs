@@ -27,6 +27,11 @@ public sealed class EconomyRuntime
     public MaintenanceService MaintenanceService { get; }
 
     /// <summary>
+    /// UI와 표현 계층에 최신 경제 상태를 읽기 전용으로 제공하는 조회 서비스입니다.
+    /// </summary>
+    public EconomyQueryService QueryService { get; }
+
+    /// <summary>
     /// 로드된 경제 데이터로 현재 세션의 경제 런타임을 구성합니다.
     /// </summary>
     /// <param name="balanceData">CSV에서 읽고 검증한 경제 기본 설정입니다.</param>
@@ -45,5 +50,6 @@ public sealed class EconomyRuntime
         this.MaintenanceService = new MaintenanceService(
             this.FinanceService,
             this.Settings.MaintenanceAmounts);
+        this.QueryService = new EconomyQueryService(this);
     }
 }
