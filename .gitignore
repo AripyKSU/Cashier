@@ -6,6 +6,9 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 .utmp/
+# PC-local development scenes and their metadata.
+/Assets/Scenes/Local/
+/Assets/Scenes/Local.meta
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
