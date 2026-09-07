@@ -1,5 +1,7 @@
 # 일반 손님 생성과 로컬 테스트
 
+> 이전 구현 기록입니다. 아래 구형 CSV 스키마·가격 판정 미구현 설명·검증 수치는 현재 계약이 아닙니다. `214df99` 이후 공개 API와 MainScene 통합은 [CUSTOMER_INTEGRATION.md](CUSTOMER_INTEGRATION.md)를 먼저 확인하세요.
+
 - 범위: `Assets/Scripts/Customer/`의 생성 로직, 실제 CSV·로더, 개인 씬의 사각형 외형·PK·구매 목록·생성 버튼. 가격 판정·대사·재방문은 제외한다.
 - `CustomerDispositionData`: 성향별 구매 설정. 기본 종류 1~3종, 수량 1~3개, 선호군 선택 90%.
 - `CustomerGenerator.Generate`: 검증된 외형 ID 후보, 성향 후보, 판매 가능 상품 ID → 상품군 ID 사전을 받는다. 외형과 성향 후보는 현재 균등 선정한다.
