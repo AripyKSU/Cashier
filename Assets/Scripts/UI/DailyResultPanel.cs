@@ -60,6 +60,14 @@ public class DailyResultPanel : MonoBehaviour
     // =========================================================================
 
     /// <summary>
+    /// 계약 규격의 DailySettlementViewData를 받아 화면에 렌더링하고 패널을 엽니다.
+    /// </summary>
+    public void ShowResult(DailySettlementViewData viewData)
+    {
+        this.ShowResult(viewData.SaleIncome, viewData.Expenses, viewData.ReputationDelta);
+    }
+
+    /// <summary>
     /// 정산 데이터를 받아 화면에 렌더링하고 패널을 엽니다.
     /// </summary>
     /// <param name="totalSales">오늘 총 매출</param>

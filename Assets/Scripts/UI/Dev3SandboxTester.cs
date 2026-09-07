@@ -84,6 +84,14 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private readonly Image[] waiting = new Image[2];
     private Button confirmButton;
 
+    // Architecture Presenters (UI Presentation Contract)
+    private EconomyStatusPresenter economyPresenter;
+    private GameDayPresenter gameDayPresenter;
+    private BusinessTimerPresenter timerPresenter;
+    private CustomerPresenter customerPresenter;
+    private PriceInputPresenter priceInputPresenter;
+    private DailySettlementPresenter settlementPresenter;
+
     private string amount = "";
     private bool invalidAmount;
     private int drawnRevision = -1;
@@ -857,6 +865,39 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.makeButton(this.tradingRoot.transform, "Digit00", "00", 1149, 605, 88, 33, this.doubleZero, 18, new Color(0.25f, 0.34f, 0.44f));
 
         this.confirmButton = this.makeButton(this.tradingRoot.transform, "Confirm", "CONFIRM SALE [Enter]", 961, 646, 276, 44, this.confirm, 18, new Color(0.28f, 0.55f, 0.42f));
+
+        // Attach & Bind Presenters conforming to UI Presentation Layer Contract
+        this.economyPresenter = this.tradingRoot.AddComponent<EconomyStatusPresenter>();
+        this.economyPresenter.Bind(this.cashText);
+
+        this.gameDayPresenter = this.tradingRoot.AddComponent<GameDayPresenter>();
+        this.gameDayPresenter.Bind(this.dayText, this.goalHintText, this.statusText);
+
+        this.timerPresenter = this.tradingRoot.AddComponent<BusinessTimerPresenter>();
+        this.timerPresenter.Bind(null, this.gaugeText);
+
+        this.customerPresenter = this.tradingRoot.AddComponent<CustomerPresenter>();
+        this.customerPresenter.Bind(this.portrait.gameObject, this.portrait, this.dialogueText, this.basketRoot);
+
+        this.priceInputPresenter = this.tradingRoot.AddComponent<PriceInputPresenter>();
+        this.priceInputPresenter.Bind(this.inputText, this.reasonText, this.confirmButton);
+        this.priceInputPresenter.OnPriceConfirmed += (price) => {
+            if (this.Session != null && this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused)
+            {
+                this.Session.Confirm(price.ToString());
+                this.amount = "";
+                this.invalidAmount = false;
+                this.refreshTradingView();
+            }
+        };
+        this.priceInputPresenter.OnInputCancelled += () => {
+            this.amount = "";
+            this.invalidAmount = false;
+            this.showAmount();
+        };
+
+        this.settlementPresenter = this.tradingRoot.AddComponent<DailySettlementPresenter>();
+        this.settlementPresenter.OnNextStepRequested += this.completeTradingDayAndReturnToHub;
     }
 
     private void handleTradingInput()
@@ -1045,6 +1086,82 @@ public sealed class Dev3SandboxTester : MonoBehaviour
                 this.reasonText.text = this.Session.Reason;
                 this.alertUntil = Time.unscaledTime + 3f;
             }
+        }
+
+        // =========================================================================
+        // Dispatch to Architecture Presenters via Read-Only ViewData Snapshots
+        // =========================================================================
+
+        // 1. EconomyStatusViewData -> EconomyStatusPresenter
+        if (this.economyPresenter != null)
+        {
+            this.economyPresenter.UpdateView(new EconomyStatusViewData(this.Session.Cash, this.Session.Revenue));
+        }
+
+        // 2. GameDayViewData -> GameDayPresenter
+        if (this.gameDayPresenter != null)
+        {
+            GameDayPhase phase = this.Session.Phase switch
+            {
+                CashierPhase.PriceGuide => GameDayPhase.PriceGuide,
+                CashierPhase.Trading => GameDayPhase.Operating,
+                CashierPhase.Result => GameDayPhase.TradingResult,
+                CashierPhase.Settlement => GameDayPhase.DailySettlement,
+                CashierPhase.Tribute => GameDayPhase.Tribute,
+                _ => GameDayPhase.Operating
+            };
+            this.gameDayPresenter.UpdateView(new GameDayViewData(this.Session.Day, this.Session.DaysUntilTribute, this.Session.DaysUntilTribute == 0, phase));
+        }
+
+        // 3. BusinessTimerViewData -> BusinessTimerPresenter
+        if (this.timerPresenter != null)
+        {
+            this.timerPresenter.UpdateView(new BusinessTimerViewData(this.Session.Gauge, Mathf.Clamp01(this.Session.Gauge / 100f), this.Session.IsPaused));
+        }
+
+        // 4. CustomerViewData -> CustomerPresenter
+        if (this.customerPresenter != null)
+        {
+            if (this.Session.Customer != null && this.Session.Phase != CashierPhase.PriceGuide)
+            {
+                var basketItems = new List<CustomerBasketItemViewData>();
+                foreach (var line in this.Session.Customer.basket)
+                {
+                    basketItems.Add(new CustomerBasketItemViewData(
+                        line.product.idx != 0 ? line.product.idx : (uint)line.product.name.GetHashCode(),
+                        line.product.name,
+                        line.quantity,
+                        line.product.sprite,
+                        line.product.price
+                    ));
+                }
+
+                Color custColor = this.Session.Phase == CashierPhase.Result && !this.Session.LastAccepted
+                    ? new Color(0.60f, 0.25f, 0.25f)
+                    : new Color(0.16f, 0.20f, 0.26f, 0.95f);
+
+                string dialogue = this.Session.Phase == CashierPhase.Result
+                    ? this.Session.Feedback
+                    : this.Session.Customer.isPoor
+                        ? "<color=#FFAB91>\"My child is waiting at home... This is all the money I have.\"</color>"
+                        : "\"Please ring these up. How much is it?\"";
+
+                this.customerPresenter.UpdateView(new CustomerViewData(true, custColor, null, dialogue, basketItems));
+            }
+            else
+            {
+                this.customerPresenter.UpdateView(CustomerViewData.Empty);
+            }
+        }
+
+        // 5. PriceInputViewData -> PriceInputPresenter
+        if (this.priceInputPresenter != null)
+        {
+            long? curInput = long.TryParse(this.amount, out long pVal) ? pVal : null;
+            bool canConfirm = this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused && !string.IsNullOrEmpty(this.amount);
+            bool isInputEnabled = this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused;
+            string validationMsg = this.invalidAmount ? "Digits only - DEL to clear" : (this.Session.Phase == CashierPhase.Result ? this.Session.Reason : null);
+            this.priceInputPresenter.UpdateView(new PriceInputViewData(curInput, canConfirm, isInputEnabled, validationMsg));
         }
 
         this.renderBasket();

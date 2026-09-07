@@ -118,6 +118,13 @@ public class KeypadController : MonoBehaviour
         this.updateDisplay();
     }
 
+    /// <summary>전체 지우기 (Clear) 버튼 클릭 시 호출</summary>
+    public void OnClearButtonClick()
+    {
+        this.currentPrice = 0;
+        this.updateDisplay();
+    }
+
     /// <summary>결제 / 가격 확정 (Enter) 버튼 클릭 시 호출</summary>
     public void OnConfirmButtonClick()
     {

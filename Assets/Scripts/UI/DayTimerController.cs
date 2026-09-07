@@ -98,6 +98,28 @@ public class DayTimerController : MonoBehaviour
     // =========================================================================
 
     /// <summary>
+    /// 계약 규격의 BusinessTimerViewData를 전달받아 슬라이더와 시계 UI를 동기화합니다.
+    /// </summary>
+    public void UpdateFromViewData(BusinessTimerViewData viewData)
+    {
+        this.remainingSeconds = viewData.RemainingSeconds;
+        this.isRunning = !viewData.IsPaused;
+
+        if (this.timeSlider != null)
+        {
+            this.timeSlider.value = Mathf.Clamp01(viewData.NormalizedTime);
+        }
+
+        if (this.timeText != null)
+        {
+            int totalSec = Mathf.Max(0, Mathf.CeilToInt(viewData.RemainingSeconds));
+            int min = totalSec / 60;
+            int sec = totalSec % 60;
+            this.timeText.text = $"{min:00}:{sec:00}";
+        }
+    }
+
+    /// <summary>
     /// 지정된 영업시간(초)으로 카운트다운 타이머를 시작합니다.
     /// </summary>
     public void StartTimer(float businessTimeSeconds)
