@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using CsvHelper.Configuration.Attributes;
-using CsvHelper.TypeConversion;
-using UnityEngine;
-
 // =========================================================================
 // 1. ENUMS (열거형 데이터 - None = 0 ~ TypeName_End 규칙)
 // =========================================================================
@@ -64,33 +58,4 @@ public static class CommonConstants
     public const string AddressableLabelAnims = "Anims";
     public const string AddressableLabelPrefabs = "Prefabs";
     public const float ParryWindowDuration = 0.15f;
-}
-
-/// <summary>
-/// Addressable 에셋 참조 데이터. 종류 배정은 CSV_RULES.md의 권위 문서를 따른다.
-/// </summary>
-[Serializable]
-public class ResourceData
-{
-    /// <summary>현재 리소스 PK.</summary>
-    [Name("idx")]
-    public uint Idx { get; set; }
-
-    /// <summary>명시적으로 문자열을 허용하는 Addressables 키.</summary>
-    [Name("path")]
-    public string Path { get; set; } // Addressable Key ("Player", "GaronAnimatorController" 등)
-}
-
-/// <summary>
-/// 표시 문자열의 단일 원본 (TextData.csv, Type 8: 8001~). 다른 CSV는 nameidx로 참조한다.
-/// </summary>
-[Serializable]
-public class TextData
-{
-    /// <summary>표시 문자열 PK, 8001~8999.</summary>
-    [Name("idx")]
-    public uint Idx { get; set; }
-    /// <summary>실제 표시 문구. 명시적으로 문자열을 허용하는 text 열.</summary>
-    [Name("text")]
-    public string Text { get; set; }
 }

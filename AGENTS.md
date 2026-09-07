@@ -176,6 +176,8 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/Plugins/` | 외부·vendor 코드 | 직접 수정 금지. wrapper 또는 상위 코드에서 대응 |
 | `Assets/TextMesh Pro/` | TMP 기본 리소스 | 프로젝트 UI 정책 변경이 아니면 수정 금지 |
 
+공용 CSV DTO·DataTable과 상품 분류 변환기는 `Assets/Scripts/Commons/Data/`, 손님 전용 데이터와 catalog는 `Assets/Scripts/Customer/Data/`, 경제 CSV DTO·DataTable은 `Assets/Scripts/Finance/Data/`에 둔다. Data와 DataTable은 같은 폴더에 배치하고 `DataTableManager`는 `Manager/`에 유지한다.
+
 ### 신규 C# 파일 결정 순서
 
 1. 기존 클래스의 책임에 포함되면 새 파일을 만들지 않고 기존 파일을 수정한다.

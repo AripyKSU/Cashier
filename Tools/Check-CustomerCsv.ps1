@@ -7,26 +7,29 @@ string disposition = File.ReadAllText(root + "CustomerDispositionData.csv");
 string category = File.ReadAllText(root + "ProductCategoryData.csv");
 string product = File.ReadAllText(root + "ProductData.csv");
 string texts = File.ReadAllText("Assets/Datas/TextData.csv");
+var textTables = new Dictionary<CustomerCatalog, TextDataTable>();
 Func<CustomerCatalog> load = () => {
- var c = new CustomerCatalog();
+ var c = new CustomerCatalog(new CustomerAppearanceDataTable(), new CustomerDispositionDataTable(), new ProductCategoryDataTable(), new ProductDataTable());
+ textTables.Add(c, new TextDataTable());
  c.Appearances.LoadData(appearance); c.Dispositions.LoadData(disposition);
  c.Categories.LoadData(category); c.Products.LoadData(product);
- c.Texts.LoadData(texts);
+ textTables[c].LoadData(texts);
  return c;
 };
 var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
-valid.ValidateAndCommit();
-if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || valid.Texts.GetDataCount() != 41) throw new Exception("Unexpected sample counts");
-if (valid.Texts.Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
+valid.ValidateAndCommit(textTables[valid]);
+if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
+if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || textTables[valid].GetDataCount() != 41) throw new Exception("Unexpected sample counts");
+if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text || Enum.IsDefined(typeof(DataTableType), Util.GetDataTableType(9001))) throw new Exception("Routing failed");
 if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) throw new Exception("Probability migration failed");
 int rejected = 0;
 Action<string, Action<CustomerCatalog>> reject = (name, mutate) => {
  var c = load();
- try { mutate(c); c.ValidateAndCommit(); }
+ try { mutate(c); c.ValidateAndCommit(textTables[c]); }
  catch (Exception) {
-  if (c.Products.GetDataCount() != 0 || c.Appearances.GetDataCount() != 0 || c.Texts.GetDataCount() != 0) throw new Exception("Invalid data published: " + name);
+  if (c.Products.GetDataCount() != 0 || c.Appearances.GetDataCount() != 0 || textTables[c].GetDataCount() != 0) throw new Exception("Invalid data published: " + name);
   rejected++; return;
  }
  throw new Exception("Invalid data accepted: " + name);
@@ -45,9 +48,9 @@ reject("product nameidx", c => c.Products.LoadData(product.Replace("1001,8012", 
 reject("appearance nameidx", c => c.Appearances.LoadData(appearance.Replace("5001,8001", "5001,8999")));
 reject("disposition nameidx", c => c.Dispositions.LoadData(disposition.Replace("6001,8005", "6001,0")));
 reject("category nameidx", c => c.Categories.LoadData(category.Replace("7001,8008", "7001,8999")));
-reject("empty text", c => c.Texts.LoadData(texts.Replace("8012,물", "8012,")));
-reject("duplicate text", c => c.Texts.LoadData(texts.TrimEnd() + "\n8012,duplicate\n"));
-reject("missing text table", c => c.Texts.Release());
+reject("empty text", c => textTables[c].LoadData(texts.Replace("8012,물", "8012,")));
+reject("duplicate text", c => textTables[c].LoadData(texts.TrimEnd() + "\n8012,duplicate\n"));
+reject("missing text table", c => textTables[c].Release());
 reject("enum string", c => c.Products.LoadData(product.Replace("1001,8012,1,", "1001,8012,Water,")));
 reject("duplicate category type", c => c.Categories.LoadData(category.Replace("7002,8009,2", "7002,8009,1")));
 reject("missing category display", c => c.Categories.LoadData(category.Replace("7004,8011,4", "")));

@@ -28,6 +28,8 @@ FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 
 
 ## 통합과 검증
 
+- 여러 branch의 최종 결과물을 조립할 때 사용자가 참조를 요청하면 [BRANCH_INTEGRATION_RULES.md](BRANCH_INTEGRATION_RULES.md)의 자산 우선순위와 로직 통합 기준을 적용한다.
+
 - 개인 씬 파일을 Git 병합하는 대신 검증된 코드·Prefab·데이터·배치를 MainScene에 반영한다. 기능 담당자와 통합 작업자를 정해 순서대로 반영한다.
 - MainScene과 `.meta`, Addressables의 `MainScene` entry는 함께 관리한다.
 - 공용 manager·Addressables 변경은 AGENTS.md의 교차 리뷰 절차를 따른다.

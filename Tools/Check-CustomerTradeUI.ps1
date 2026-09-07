@@ -11,6 +11,7 @@ var input = (UnityEngine.UI.InputField)field("offerInput");
 var dialog = (UnityEngine.UI.Text)field("dialogText");
 var root = (UnityEngine.RectTransform)field("productRoot");
 var catalog = DataTableManager.Instance.Customers;
+var texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
 Action<UnityEngine.UI.Button> click = button => {
     if (!button.IsInteractable()) throw new Exception("Button disabled: " + button.name);
     UnityEngine.EventSystems.ExecuteEvents.Execute(button.gameObject,
@@ -23,13 +24,13 @@ var dispositions = new System.Collections.Generic.HashSet<uint>();
 for (int i = 0; i < 20; i++) {
     var visit = sandbox.CurrentVisit;
     dispositions.Add(visit.DispositionIdx);
-    if (visit.State != CustomerState.AwaitingOffer || dialog.text != catalog.Texts.Rows[visit.EntryTextIdx].Text) throw new Exception("Entry state or dialog failed");
+    if (visit.State != CustomerState.AwaitingOffer || dialog.text != texts.Rows[visit.EntryTextIdx].Text) throw new Exception("Entry state or dialog failed");
     sandbox.GenerateCustomer();
     if (!ReferenceEquals(visit, sandbox.CurrentVisit)) throw new Exception("Pending visit replaced");
     var cards = root.GetComponentsInChildren<UnityEngine.UI.Image>();
     if (cards.Length != visit.Items.Count || cards.Any(x => x.sprite == null || x.color != UnityEngine.Color.white)) throw new Exception("White product cards failed");
     foreach (var item in visit.Items) {
-        string name = catalog.Texts.Rows[catalog.Products.Rows[item.ProductIdx].NameIdx].Text;
+        string name = texts.Rows[catalog.Products.Rows[item.ProductIdx].NameIdx].Text;
         if (!root.GetComponentsInChildren<UnityEngine.UI.Text>().Any(x => x.text.Contains(name))) throw new Exception("Product name missing");
     }
     foreach (string bad in new[] { "", "0", "-1", "1.5", " 1", "1,000", "9223372036854775808" }) {
@@ -38,7 +39,7 @@ for (int i = 0; i < 20; i++) {
     }
     long total = visit.AllowedTotal + (i % 2);
     input.text = total.ToString(System.Globalization.CultureInfo.InvariantCulture); click(submit);
-    if (visit.WasAccepted != (i % 2 == 0) || dialog.text != catalog.Texts.Rows[visit.FeedbackTextIdx].Text || submit.IsInteractable()) throw new Exception("Feedback or result failed");
+    if (visit.WasAccepted != (i % 2 == 0) || dialog.text != texts.Rows[visit.FeedbackTextIdx].Text || submit.IsInteractable()) throw new Exception("Feedback or result failed");
     input.text = "1"; sandbox.SubmitPrice();
     if (visit.OfferedTotal != total) throw new Exception("Repeated submission changed result");
     input.text = total.ToString(System.Globalization.CultureInfo.InvariantCulture);

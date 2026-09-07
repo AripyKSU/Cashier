@@ -35,6 +35,8 @@ public sealed class CustomerSandbox : MonoBehaviour
     private readonly CustomerGenerator generator = new CustomerGenerator(new System.Random());
     /// <summary>로딩 성공 후 사용하는 manager 소유 데이터.</summary>
     private CustomerCatalog catalog;
+    // DataTableManager가 소유하는 게임 전체 공용 텍스트를 참조한다.
+    private TextDataTable texts;
     /// <summary>이 화면 수명 동안 소유하는 테스트 Sprite.</summary>
     private Sprite squareSprite;
     /// <summary>로컬 PC 글꼴. 프로젝트에 글꼴 파일을 복사하지 않는다.</summary>
@@ -94,6 +96,7 @@ public sealed class CustomerSandbox : MonoBehaviour
                 if (sprite == null) throw new InvalidOperationException($"상품 image_resource_idx={imageIdx}: Sprite 로드 실패");
             }
             catalog = loadedCatalog;
+            texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
             updateControls();
             identityText.text = "외형 PK / 성향 PK";
             orderText.text = "버튼을 눌러 손님을 생성하세요.";
@@ -144,7 +147,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             appearanceImage.enabled = true;
             identityText.text = $"외형 {visit.AppearanceIdx} + 성향 {visit.DispositionIdx}";
             orderText.text = $"경과 {elapsedDays}일 · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개\n정가 합계 {visit.BaseTotal:N0}";
-            dialogText.text = catalog.Texts.Rows[visit.EntryTextIdx].Text;
+            dialogText.text = texts.Rows[visit.EntryTextIdx].Text;
             showProducts(visit);
             offerInput.text = string.Empty;
             visit.BeginOffer();
@@ -170,7 +173,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             return;
         }
         bool accepted = CurrentVisit.SubmitOffer(total);
-        dialogText.text = catalog.Texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
+        dialogText.text = texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
         statusText.text = $"{(accepted ? "거래 수락" : "거래 거절")} · 제안 {total:N0} · 다음 손님 버튼으로 퇴장·교체";
         updateControls();
     }
@@ -222,7 +225,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             label.color = Color.black;
             label.alignment = TextAnchor.MiddleCenter;
             label.raycastTarget = false;
-            label.text = $"{catalog.Texts.Rows[product.NameIdx].Text}\n{catalog.Texts.Rows[category.NameIdx].Text}\n{item.UnitPrice:N0} × {item.Quantity}";
+            label.text = $"{texts.Rows[product.NameIdx].Text}\n{texts.Rows[category.NameIdx].Text}\n{item.UnitPrice:N0} × {item.Quantity}";
         }
     }
 

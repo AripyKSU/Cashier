@@ -24,7 +24,7 @@ public class DataTableManager : Singleton<DataTableManager>
     private bool isLoaded = false;
 
     /// <summary>EnsureDataLoadedAsync 성공 후 접근하는 검증된 손님 데이터.</summary>
-    public CustomerCatalog Customers { get; } = new CustomerCatalog();
+    public CustomerCatalog Customers { get; private set; }
 
 
     // =========================================================================
@@ -76,11 +76,17 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.EconomyBalance] = new EconomyBalanceDataTable();
         this.dataList[DataTableType.MaintenanceBalance] = new MaintenanceBalanceDataTable();
         this.dataList[DataTableType.Resource] = new ResourceDataTable();
-        this.dataList[DataTableType.CustomerAppearance] = Customers.Appearances;
-        this.dataList[DataTableType.CustomerDisposition] = Customers.Dispositions;
-        this.dataList[DataTableType.ProductCategory] = Customers.Categories;
-        this.dataList[DataTableType.Product] = Customers.Products;
-        this.dataList[DataTableType.Text] = Customers.Texts;
+        this.dataList[DataTableType.CustomerAppearance] = new CustomerAppearanceDataTable();
+        this.dataList[DataTableType.CustomerDisposition] = new CustomerDispositionDataTable();
+        this.dataList[DataTableType.ProductCategory] = new ProductCategoryDataTable();
+        this.dataList[DataTableType.Product] = new ProductDataTable();
+        this.dataList[DataTableType.Text] = new TextDataTable();
+
+        Customers = new CustomerCatalog(
+            GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
+            GetDB<CustomerDispositionDataTable>(DataTableType.CustomerDisposition),
+            GetDB<ProductCategoryDataTable>(DataTableType.ProductCategory),
+            GetDB<ProductDataTable>(DataTableType.Product));
 
         this.preloadDataTablesAsync().Forget();
     }
@@ -123,7 +129,7 @@ public class DataTableManager : Singleton<DataTableManager>
                 Debug.LogWarning("[DataTableManager] Datas 라벨이 비어 있습니다. 기존 Resources fallback을 검사합니다.");
                 this.fallbackLoadFromResources();
             }
-            Customers.ValidateAndCommit(GetDB<ResourceDataTable>(DataTableType.Resource));
+            Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource));
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }

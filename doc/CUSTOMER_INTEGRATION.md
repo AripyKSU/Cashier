@@ -4,7 +4,7 @@
 
 ## 1. 통합 범위와 책임
 
-- 재사용 대상: `Assets/Scripts/Customer/`의 생성기, 방문·거래 판정, CSV DTO·catalog와 기존 DataTableManager/ResourceManager.
+- 재사용 대상: `Assets/Scripts/Customer/`의 생성기·방문·거래 판정, `Customer/Data/`의 손님 DTO·DataTable·catalog, `Commons/Data/`의 공용 상품·텍스트·리소스 DTO·DataTable과 기존 DataTableManager/ResourceManager. 경제 CSV DTO·DataTable은 `Finance/Data/`에 둔다. 세 하위 경로 모두 `Assets/Scripts/` 기준이다.
 - 구현 완료 범위: 방문마다 외형·성향 조합, 구매 목록 생성, 등장 일수 필터, 총액 제안 1회, 수락·거절 판정, 입장·결과 대사 선택.
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.
 - 미구현: 자금 증감, 재고 차감·예약, 매출 기록, 저장·복구, 손님 이동·대기열, 재방문 인물 관리. `Accepted`는 가격 수락이지 결제·재고 반영 완료가 아니다.
@@ -19,7 +19,7 @@
 |---|---|
 | `DataTableManager.Instance.EnsureDataLoadedAsync()` | CSV 파싱·참조 검증 완료까지 대기. 실패는 예외로 전달되며 생성·입력을 활성화하지 않는다. 씬 수명 token은 `AttachExternalCancellation(token)`으로 연결한다. |
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
-| `catalog.Appearances/Dispositions/Categories/Products/Texts.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
+| `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
 | `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0)` | 검증된 catalog 후보를 전달한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
@@ -27,6 +27,12 @@
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |
 
 `ValidateAndCommit`, CSV `LoadData`·`Release`는 loader/manager 소유 작업이다. MainScene 소비자가 직접 호출하지 않는다. 현재 런타임 hot reload는 제공하지 않는다.
+
+### 전용 DataTable 구조
+
+`CustomerCsvTable<T>`는 제거하고 `CustomerAppearanceDataTable`, `CustomerDispositionDataTable`, `ProductCategoryDataTable`, `ProductDataTable`, `TextDataTable`이 각각 `IDataLoad`를 직접 구현한다. Finance·Resource처럼 테이블 안에서 파싱·행 검증·사전 조회를 처리하며 `TryGetData(uint idx, out DTO data)`로 조회할 수 있다. `Rows` 조회 API는 유지한다. 공용 텍스트는 `DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text)`로 조회하며 CustomerCatalog에 Texts 속성을 두지 않는다.
+
+DataTableManager가 각 DataTable을 `new`로 직접 생성·등록한다. CustomerCatalog는 등록된 외형·성향·상품 분류·상품 테이블을 생성자로 전달받아 참조한다. 게임 전체 TextData는 manager 소유이며 FK 검증 시 `ValidateAndCommit(texts, resources)`에 전달한다. 별도 인스턴스를 중복 생성하지 않는다. Customer 데이터는 상호 FK가 있으므로 `LoadData` 성공만으로 공개하지 않고 catalog 전체 검증 후 공개한다. 이 점은 독립적인 Finance·Resource 테이블과 의도적으로 다르다. CSV header·PK·FK·GUID는 변경하지 않았다.
 
 ### 방문에서 읽는 값
 
@@ -36,7 +42,7 @@
 | `Items` | 읽기 전용 구매 목록. 각 `CustomerOrderItem`의 `ProductIdx`, `Quantity`, `UnitPrice` 사용. 동일 상품은 한 줄에 수량으로 표현한다. |
 | `BaseTotal`, `PriceTolerance`, `AllowedTotal` | 방문 생성 시 고정된 정가 합계·허용 배율·수락 상한. 상한을 UI에 자동 노출하지 않는다. |
 | `State`, `OfferedTotal`, `WasAccepted` | 방문 상태, 제안 총액, 수락 여부. 판정 전 마지막 두 값은 null. 퇴장 후에도 결과 유지. |
-| `EntryTextIdx`, `FeedbackTextIdx` | `catalog.Texts.Rows[idx].Text`로 표시. 제안 전 Feedback은 입장 대사, 제안 후 수락·거절 대사. |
+| `EntryTextIdx`, `FeedbackTextIdx` | `texts.Rows[idx].Text`로 표시. 제안 전 Feedback은 입장 대사, 제안 후 수락·거절 대사. |
 
 방문과 주문 항목 생성자는 internal이다. 통합 코드는 생성기를 사용하고 상태를 직접 덮어쓰지 않는다. 상태는 `Entering → AwaitingOffer → Accepted 또는 Rejected → Departed` 순서다.
 
@@ -50,6 +56,7 @@ await DataTableManager.Instance.EnsureDataLoadedAsync()
     .AttachExternalCancellation(token);
 token.ThrowIfCancellationRequested();
 var catalog = DataTableManager.Instance.Customers;
+var texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
 var generator = new CustomerGenerator(new System.Random()); // 초기화 시 한 번
 
 // 손님 입장 요청 시
@@ -58,13 +65,13 @@ var visit = generator.Generate(
     catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(),
     catalog.Products.Rows, elapsedDays);
 if (visit == null) return; // 정상적인 판매 후보 부재: 대기/안내 처리
-string entryText = catalog.Texts.Rows[visit.EntryTextIdx].Text;
+string entryText = texts.Rows[visit.EntryTextIdx].Text;
 // 외형·상품·entryText 표시 후
 visit.BeginOffer();
 
 // 이후 사용자 입력 callback에서, 양의 정수 검증과 상태 확인 후
 bool accepted = visit.SubmitOffer(total);
-string feedback = catalog.Texts.Rows[visit.FeedbackTextIdx].Text;
+string feedback = texts.Rows[visit.FeedbackTextIdx].Text;
 // feedback 표시 및 승인된 후속 처리 완료 후
 visit.Depart();
 ```

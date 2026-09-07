@@ -6,18 +6,20 @@
 
 ## 1. 스크립트 개요 및 디렉터리 구성
 
-현재 프로젝트의 스크립트는 `Assets/Scripts/` 하위에 위치하며, 기능 및 책임에 따라 4대 권위 폴더(`Commons`, `Manager`, `Scene`, `Utils`)와 에디터 도구(`Scene/Editor`), 루트 임시 스크립트로 분리되어 있습니다.
+현재 프로젝트의 스크립트는 `Assets/Scripts/` 하위에 위치합니다. 공용 데이터는 `Commons/Data/`, 손님 데이터는 `Customer/Data/`, 경제 CSV 데이터는 `Finance/Data/`에 DTO와 DataTable을 함께 배치합니다. 아래는 주요 공용 스크립트 중심의 구조 요약입니다.
 
 ### 디렉터리 구조 요약
 
 ```text
 Assets/Scripts/
 ├── Commons/
-│   └── Commons.cs               # 공용 enum, 인터페이스, DTO, 상수
+│   ├── Commons.cs               # 공용 enum, 인터페이스, 상수
+│   └── Data/                    # 공용 Resource·Text·Product DTO와 DataTable
+├── Customer/Data/              # 손님 DTO·DataTable·CustomerCatalog
+├── Finance/Data/               # EconomyBalance·MaintenanceBalance DTO와 DataTable
 ├── Manager/
 │   ├── DataTableManager.cs      # CSV 데이터 테이블 로딩·캐싱 관리자 (Singleton)
 │   ├── GameSceneManager.cs      # 씬 전환 및 로딩 제어 관리자 (Singleton)
-│   ├── ResourceDataTable.cs     # 리소스 키 매핑 데이터 테이블 (IDataLoad 구현)
 │   ├── ResourceManager.cs       # Addressables 기반 리소스 로딩/인스턴스화/캐싱 (Singleton)
 │   └── SimplePoolManager.cs     # 오브젝트 풀 컨테이너 관리자 (Singleton)
 ├── Scene/
@@ -43,10 +45,11 @@ Assets/Scripts/
 
 | 파일 경로 | 주요 클래스/타입 | 상속 / 구현 | 핵심 역할 |
 |---|---|---|---|
-| `Commons/Commons.cs` | `DataTableType`, `IDataLoad`, `CommonConstants`, `ResourceData`, `TextData` | - / `IDataLoad` | 전역 enum, CSV 로더 인터페이스, DTO 및 전역 상수 정의 |
+| `Commons/Commons.cs` | `DataTableType`, `IDataLoad`, `CommonConstants` | - | 전역 enum, CSV 로더 인터페이스 및 전역 상수 정의 |
+| `Commons/Data/ResourceData.cs`, `Commons/Data/TextData.cs` | `ResourceData`, `TextData` | - | 공용 CSV DTO |
 | `Manager/ResourceManager.cs` | `ResourceManager` | `Singleton<ResourceManager>` | Addressables 초기화, 카탈로그 업데이트, 의존성 다운로드, 에셋 로드 및 인스턴스화, SpriteAtlas 연동 |
 | `Manager/DataTableManager.cs` | `DataTableManager` | `Singleton<DataTableManager>` | CSV 데이터 비동기 로딩, 파싱, 캐싱 총괄. `idx` 기반 데이터 테이블 자동 식별 |
-| `Manager/ResourceDataTable.cs` | `ResourceDataTable` | `IDataLoad` | Addressable 에셋 키 참조 테이블 (`ResourceData.csv` 1:1 매핑) |
+| `Commons/Data/ResourceDataTable.cs` | `ResourceDataTable` | `IDataLoad` | Addressable 에셋 키 참조 테이블 (`ResourceData.csv` 1:1 매핑) |
 | `Manager/GameSceneManager.cs` | `GameSceneManager` | `Singleton<GameSceneManager>` | Addressables 기반 씬 전환, `LoadingScene` 경유 전환, 로컬 개인 씬 분기 처리 |
 | `Manager/SimplePoolManager.cs` | `SimplePoolManager` | `Singleton<SimplePoolManager>` | Addressables 및 일반 프리팹 기반의 풀 생성, 대여(`Get`), 반환(`Release`), 해제 관리 |
 | `Scene/InitScene.cs` | `InitScene` | `MonoBehaviour` | 게임 기동 시 최초 실행되는 부트 컴포넌트. 필수 매니저 및 데이터 준비 후 Hub 씬으로 전환 |

@@ -8,18 +8,8 @@ using UnityEngine;
 [Serializable]
 public sealed class CashierSettings
 {
-    public CashierProduct[] products = {
-        new CashierProduct("Bottled Water", 1000, 1),
-        new CashierProduct("Hardtack", 1500, 1),
-        new CashierProduct("Canned Food", 2500, 1),
-        new CashierProduct("Instant Rice", 2000, 1),
-        new CashierProduct("Bandage", 3000, 3),
-        new CashierProduct("Painkiller", 4000, 3),
-        new CashierProduct("Battery", 3500, 3),
-        new CashierProduct("Soap", 1000, 5),
-        new CashierProduct("Dust Mask", 2000, 5),
-        new CashierProduct("Fuel Can", 5000, 5)
-    };
+    /// <summary>구형 세션의 명시적 입력. 하드코딩 상품 기본값은 제공하지 않는다. MainScene은 ProductData를 직접 사용한다.</summary>
+    public CashierProduct[] products = Array.Empty<CashierProduct>();
 
     public int citizenshipPrice = 300000;
     public int firstTribute = 50000;
