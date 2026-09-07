@@ -14,14 +14,14 @@ using UnityEngine;
 public enum DataTableType : uint
 {
     None = 0,
-    
-    // [1순위: 기반 공용 데이터]
-    Resource = 1,         // 1순위: Addressable 에셋 리소스 데이터 (1001~)
-    Text = 2,             // 2순위: 다국어/표기 텍스트 데이터 (2001~)
-    
-    // [2순위: 유닛 파생/개별 데이터]
-    PlayerData = 4,       // 4순위: 플레이어 파생 데이터 (4001~)
-    
+
+    Item = 1,
+    EconomyBalance = 2,
+    MaintenanceBalance = 3,
+    Resource = 4,
+    Text = 5,
+    PlayerData = 6,
+
     DataTableType_End
 }
 
@@ -62,7 +62,7 @@ public static class CommonConstants
 }
 
 /// <summary>
-/// Addressable 에셋 참조 데이터 (ResourceData.csv 1:1 매핑, Type 1: 1001~)
+/// Addressable 에셋 참조 데이터 (ResourceData.csv 1:1 매핑, Type 4: 4001~)
 /// </summary>
 [Serializable]
 public class ResourceData
@@ -75,7 +75,7 @@ public class ResourceData
 }
 
 /// <summary>
-/// 텍스트 데이터 (TextData.csv 1:1 매핑, Type 2: 2001~)
+/// 텍스트 데이터 (TextData.csv 1:1 매핑, Type 5: 5001~)
 /// </summary>
 [Serializable]
 public class TextData

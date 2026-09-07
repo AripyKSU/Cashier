@@ -5,7 +5,7 @@ using System.Globalization;
 using UnityEngine;
 
 /// <summary>
-/// Addressable 키 리소스 참조 데이터 테이블 (Type 1: 1001~)
+/// Addressable 키 리소스 참조 데이터 테이블 (Type 4: 4001~)
 /// </summary>
 public class ResourceDataTable : IDataLoad
 {
