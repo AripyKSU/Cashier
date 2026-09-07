@@ -221,19 +221,48 @@ MonoBehaviour:
   daughter: {fileID: 21300000, guid: e4dd2b06ebb59a14b9fe472c625c82c7, type: 3}
   inspector: {fileID: 21300000, guid: 7465887855830f24e9762658c9bab3c7, type: 3}
   midBackground: {fileID: 21300000, guid: 0675361a18134594e9e942f04ff98660, type: 3}
-  crowd: {fileID: 21300000, guid: 26d6bf1c76ce1984da914d8370314ac8, type: 3}
   leftWatchTower: {fileID: 21300000, guid: 1ca5f6632c398c14ba179258cead1796, type: 3}
   rightWatchTower: {fileID: 21300000, guid: e00f255da7894164497dfd5df66938dd, type: 3}
   canopy: {fileID: 21300000, guid: 6978fa40aee53b643836c083c2dd4d52, type: 3}
+  crowdRows:
+  - {fileID: 21300000, guid: 7c746110a1d6bff44bb5e422328cb82c, type: 3}
+  - {fileID: 21300000, guid: 27ea243b3280a6d48a50257d78565fb9, type: 3}
+  - {fileID: 21300000, guid: 38fc8765ba9bcc14e9475d993dc60520, type: 3}
+  watchGuard: {fileID: 21300000, guid: 72f801b7e9d8ad44c8b4fe24b01f89f4, type: 3}
+  leftWatchGuardRect:
+    serializedVersion: 2
+    x: 141
+    y: 174
+    width: 44
+    height: 34
+  rightWatchGuardRect:
+    serializedVersion: 2
+    x: 1154
+    y: 232
+    width: 32
+    height: 24
+  dailyLedger: {fileID: 0}
+  dailyInstruction: {fileID: 0}
+  uiFont: {fileID: 0}
+  guardTone: {fileID: 2100000, guid: 5e537d872b1f4b928229e214b072484d, type: 2}
+  leftTowerTone: {fileID: 2100000, guid: fe2e76b0754f4f01a56673cb38ceaae2, type: 2}
+  rightTowerTone: {fileID: 2100000, guid: 19e943c669fd498b883e67c0e88be232, type: 2}
+  chimneySmokeFrames:
+  - {fileID: 21300000, guid: 8146c36afd06422a92ae965371323f2e, type: 3}
+  - {fileID: 21300000, guid: a732901af7a142c68d5ff1e17b15dc79, type: 3}
+  - {fileID: 21300000, guid: 9ee90dc6331641169fb2748b57111bac, type: 3}
+  - {fileID: 21300000, guid: 06504071d22a47b386d3a3a7053d2364, type: 3}
   barricade: {fileID: 21300000, guid: c10c73fc054ac19498fffbbacf16b031, type: 3}
   fogBack: {fileID: 21300000, guid: ef4c55532956466b9df1c26a4fd8fc4e, type: 3}
-  fogBackMaterial: {fileID: 2100000, guid: 25184aa25fc6458993180d5b1b7fabeb, type: 2}
   fogMid: {fileID: 21300000, guid: 224e6b0c3cfb4a32a560db7fbde73e52, type: 3}
-  fogMidMaterial: {fileID: 2100000, guid: d48fa113cbdd44fe88d4786f7d954897, type: 2}
   fogFront: {fileID: 21300000, guid: 5f176efe93944680a2c22cc7bbc8ae11, type: 3}
+  fogBackMaterial: {fileID: 2100000, guid: 25184aa25fc6458993180d5b1b7fabeb, type: 2}
+  fogMidMaterial: {fileID: 2100000, guid: d48fa113cbdd44fe88d4786f7d954897, type: 2}
   fogFrontMaterial: {fileID: 2100000, guid: df82a218fe354b8ead6163ea40ea1821, type: 2}
   customers:
   - {fileID: 21300000, guid: 475588eff93a49a1bb6368d7b6a6f2ae, type: 3}
+  maleCustomers: []
+  femaleCustomers: []
 --- !u!4 &1111119869
 Transform:
   m_ObjectHideFlags: 0
@@ -259,6 +288,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2115207241}
   - component: {fileID: 2115207240}
+  - component: {fileID: 2115207242}
   m_Layer: 0
   m_Name: DystopiaCamera
   m_TagString: Untagged
@@ -332,6 +362,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2115207242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2115207239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
+  m_Version: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

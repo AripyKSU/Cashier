@@ -67,7 +67,16 @@ public static class DystopiaTools
         serialized.FindProperty("background").objectReferenceValue=Art("FARBACKGROUND");
         serialized.FindProperty("counter").objectReferenceValue=Art("BoothCounter");
         serialized.FindProperty("midBackground").objectReferenceValue=Art("MidBackground");
-        serialized.FindProperty("crowd").objectReferenceValue=Art("Crowd");
+        var crowdRows=serialized.FindProperty("crowdRows"); crowdRows.arraySize=3;
+        crowdRows.GetArrayElementAtIndex(0).objectReferenceValue=Art("CrowdBack");
+        crowdRows.GetArrayElementAtIndex(1).objectReferenceValue=Art("CrowdMiddle");
+        crowdRows.GetArrayElementAtIndex(2).objectReferenceValue=Art("CrowdFront");
+        serialized.FindProperty("watchGuard").objectReferenceValue=Art("WatchGuard");
+        serialized.FindProperty("guardTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/GuardNeutral.mat");
+        serialized.FindProperty("leftTowerTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/LeftTowerNeutral.mat");
+        serialized.FindProperty("rightTowerTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/RightTowerNeutral.mat");
+        var smokeFrames=serialized.FindProperty("chimneySmokeFrames"); smokeFrames.arraySize=4;
+        for(int i=0;i<smokeFrames.arraySize;i++) smokeFrames.GetArrayElementAtIndex(i).objectReferenceValue=Art("ChimneySmoke"+i);
         serialized.FindProperty("leftWatchTower").objectReferenceValue=Art("LeftWatchTower");
         serialized.FindProperty("rightWatchTower").objectReferenceValue=Art("RightWatchTower");
         serialized.FindProperty("canopy").objectReferenceValue=Art("BoothCanopy");
