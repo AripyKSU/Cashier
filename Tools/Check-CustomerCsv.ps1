@@ -1,4 +1,4 @@
-# 원본 CSV를 바꾸지 않고 메모리 사본의 파싱·FK 실패를 검사한다. 예상 LogError 16건이 발생한다.
+# 원본 CSV를 바꾸지 않고 메모리 사본의 파싱·FK 실패를 검사한다. 의도적인 LogError는 제품 오류와 구분한다.
 $ErrorActionPreference = 'Stop'
 $checkCode = @'
 string root = "Assets/Datas/Customer/";
@@ -17,9 +17,10 @@ Func<CustomerCatalog> load = () => {
 var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit();
-if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || valid.Texts.GetDataCount() != 23) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || valid.Texts.GetDataCount() != 41) throw new Exception("Unexpected sample counts");
 if (valid.Texts.Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
-if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.Balance || Util.GetDataTableType(3001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
+if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.Balance || Util.GetDataTableType(3001) != DataTableType.Tribute || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text || Enum.IsDefined(typeof(DataTableType), Util.GetDataTableType(9001))) throw new Exception("Routing failed");
+if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) throw new Exception("Probability migration failed");
 int rejected = 0;
 Action<string, Action<CustomerCatalog>> reject = (name, mutate) => {
  var c = load();
@@ -30,13 +31,16 @@ Action<string, Action<CustomerCatalog>> reject = (name, mutate) => {
  }
  throw new Exception("Invalid data accepted: " + name);
 };
-reject("header", c => c.Products.LoadData(product.Replace("category_idx", "missing_category")));
-reject("PK duplicate", c => c.Products.LoadData(product.TrimEnd() + "\n1001,8012,7001,1\n"));
+reject("old probability header", c => c.Dispositions.LoadData(disposition.Replace("preferred_selection_chance", "preferred_selection_percent")));
+reject("negative probability", c => c.Dispositions.LoadData(disposition.Replace(",900,", ",-1,")));
+reject("probability overflow", c => c.Dispositions.LoadData(disposition.Replace(",900,", ",1001,")));
+reject("header", c => c.Products.LoadData(product.Replace("product_type", "category_idx")));
+reject("PK duplicate", c => c.Products.LoadData(product.TrimEnd() + "\n1001,8012,1,1,100,0,\n"));
 reject("PK range", c => c.Products.LoadData(product.Replace("1001,", "9001,")));
-reject("product FK", c => c.Products.LoadData(product.Replace("1001,8012,7001", "1001,8012,7999")));
-reject("disposition FK", c => c.Dispositions.LoadData(disposition.Replace("7003", "7999")));
-reject("boolean", c => c.Products.LoadData(product.Replace("1001,8012,7001,1", "1001,8012,7001,2")));
-reject("quantity", c => c.Dispositions.LoadData(disposition.Replace(",90,1,3,1,3", ",90,1,3,0,3")));
+reject("product enum", c => c.Products.LoadData(product.Replace("1001,8012,1", "1001,8012,99")));
+reject("disposition enum", c => c.Dispositions.LoadData(disposition.Replace("8006,3,", "8006,99,")));
+reject("boolean", c => c.Products.LoadData(product.Replace("1001,8012,1,1", "1001,8012,1,2")));
+reject("quantity", c => c.Dispositions.LoadData(disposition.Replace(",900,1,3,1,3", ",900,1,3,0,3")));
 reject("product nameidx", c => c.Products.LoadData(product.Replace("1001,8012", "1001,8999")));
 reject("appearance nameidx", c => c.Appearances.LoadData(appearance.Replace("5001,8001", "5001,8999")));
 reject("disposition nameidx", c => c.Dispositions.LoadData(disposition.Replace("6001,8005", "6001,0")));
@@ -44,17 +48,31 @@ reject("category nameidx", c => c.Categories.LoadData(category.Replace("7001,800
 reject("empty text", c => c.Texts.LoadData(texts.Replace("8012,물", "8012,")));
 reject("duplicate text", c => c.Texts.LoadData(texts.TrimEnd() + "\n8012,duplicate\n"));
 reject("missing text table", c => c.Texts.Release());
+reject("enum string", c => c.Products.LoadData(product.Replace("1001,8012,1,", "1001,8012,Water,")));
+reject("duplicate category type", c => c.Categories.LoadData(category.Replace("7002,8009,2", "7002,8009,1")));
+reject("missing category display", c => c.Categories.LoadData(category.Replace("7004,8011,4", "")));
+reject("base price", c => c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,0,0,")));
+reject("negative day", c => c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,100,-1,")));
+reject("zero image", c => c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,100,0,0")));
+reject("image FK", c => c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,100,0,4999")));
+reject("entry dialog FK", c => c.Dispositions.LoadData(disposition.Replace("8024_8025", "8999")));
+reject("empty entry", c => c.Dispositions.LoadData(disposition.Replace("8024_8025", "")));
+reject("duplicate entry", c => c.Dispositions.LoadData(disposition.Replace("8024_8025", "8024_8024")));
+reject("accept dialog FK", c => c.Dispositions.LoadData(disposition.Replace("8026_8027", "8999")));
+reject("reject dialog FK", c => c.Dispositions.LoadData(disposition.Replace("8028_8029", "8999")));
+reject("price tolerance", c => c.Dispositions.LoadData(disposition.Replace(",1100,", ",0,")));
+if (valid.Products.Rows.Values.Any(x => x.ImageResourceIdx.HasValue || x.AvailableDay != 0 || x.BasePrice == 0)) throw new Exception("Test product defaults failed");
 try { valid.Appearances.LoadData(appearance.Replace("101,184", "256,184")); }
 catch (Exception) { rejected++; }
 var resources = new ResourceDataTable();
 string resourceCsv = File.ReadAllText("Assets/Datas/ResourceData.csv");
 resources.LoadData(resourceCsv);
 int resourceCount = resources.GetDataCount();
-if (resources.GetResourcePath(3001) != "Unit_3001" || resources.TryGetResource(1001, out _)) throw new Exception("Resource migration failed");
-try { resources.LoadData(resourceCsv.Replace("3001,Unit_3001", "1001,Unit_3001")); }
+if (resources.GetResourcePath(4001) != "Unit_3001" || resources.TryGetResource(3001, out _) || resources.TryGetResource(1001, out _)) throw new Exception("Resource migration failed");
+try { resources.LoadData(resourceCsv.Replace("4001,Unit_3001", "3001,Unit_3001")); }
 catch (Exception) { rejected++; }
-if (rejected != 16 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed");
-return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/23, rejected=16/16, routing and nameidx checked, resources=" + resourceCount + "; expected LogError=16";
+if (rejected != 32 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
+return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/41, rejected=32/32, enum/dialog/image/price/day/routing checked, resources=" + resourceCount + "; expected LogError=32";
 '@
 $result = $checkCode | & unity-cli exec 2>&1
 $result | ForEach-Object { Write-Output $_ }

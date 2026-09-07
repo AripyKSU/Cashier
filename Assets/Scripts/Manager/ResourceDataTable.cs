@@ -5,7 +5,7 @@ using System.Globalization;
 using UnityEngine;
 
 /// <summary>
-/// Addressable 키 리소스 참조 데이터 테이블 (Type 3: 3001~3999).
+/// Addressable 키 리소스 참조 데이터 테이블. DataTableType.Resource 대역을 검사한다.
 /// </summary>
 public class ResourceDataTable : IDataLoad
 {

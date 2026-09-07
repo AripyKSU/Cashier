@@ -30,7 +30,7 @@
 | CSV (`Assets/Datas/Customer/`) | 필수 열 (순서 유지) |
 |---|---|
 | CustomerAppearanceData.csv | idx, nameidx, color_r, color_g, color_b, color_a |
-| CustomerDispositionData.csv | idx, nameidx, preferred_category_ids, preferred_selection_percent, min_product_kinds, max_product_kinds, min_quantity, max_quantity |
+| CustomerDispositionData.csv | idx, nameidx, preferred_category_ids, preferred_selection_chance, min_product_kinds, max_product_kinds, min_quantity, max_quantity |
 | ProductCategoryData.csv | idx, nameidx |
 | ProductData.csv | idx, nameidx, category_idx, is_available |
 | ../TextData.csv | idx, text |
@@ -46,8 +46,8 @@
 
 - `idx`, `nameidx`, `category_idx`: `uint`, 0 금지. idx는 테이블 안에서 고유하며 FK는 대상 행이 존재해야 한다.
 - `preferred_category_ids`: `IReadOnlyList<uint>`로 읽는 `_` 구분 숫자 배열. 빈 셀은 선호군 없음이며 0·중복 원소는 금지한다. 각 원소는 ProductCategoryData.idx를 참조한다.
-- `preferred_selection_percent`: `int`, 0~100. CSV에서는 필수이며 DTO 초기값 90을 누락·빈 셀의 대체값으로 사용하지 않는다.
-- 확률의 신규 공통 기준은 [CSV_RULES.md 6절](CSV_RULES.md)의 `1000 = 100%`다. 현재 손님 구현의 `preferred_selection_percent`는 기존 0~100 계약이며 이번 문서 변경만으로 재해석하지 않는다. 후속 승인된 migration에서 `preferred_selection_permille`, 기본값 900, 범위 0~1000과 난수 분모 1000으로 CSV·DTO·생성기·검사를 함께 전환한다. 현재 컬럼에 900을 입력하면 검증 실패다.
+- `preferred_selection_chance`: `int`, 0~1000 (1000 = 100%). CSV에서는 필수이며 DTO 초기값 900을 누락·빈 셀의 대체값으로 사용하지 않는다.
+- 확률은 [CSV_RULES.md 6절](CSV_RULES.md)을 따른다. 기존 `preferred_selection_percent`를 `preferred_selection_chance`로 바꾸고 세 행의 90을 900으로 이관했다. DTO·난수 분모·검사도 1000 기준이며 UI는 10.0으로 나눠 %를 표시한다. 이전 header는 거부하고 값의 단위를 자동 추측하지 않는다. 복구 기준은 commit `0a3e006`이며 되돌릴 때 CSV·코드·검사를 함께 복구한다. PK·FK·GUID는 변경하지 않는다.
 - `min_product_kinds`/`max_product_kinds`, `min_quantity`/`max_quantity`: `int`, 1 이상·min≤max·max<int.MaxValue. CSV 누락·빈 셀은 거부한다. 생성 시 종류 수만 판매 가능 종류 수로 제한한다.
 - `color_r/g/b/a`: `byte`, 위 색상 범위 적용. `is_available`: 기존 ZeroOneBooleanConverter로 읽는 `bool`, CSV에서는 0/1만 허용한다.
 - `text`: `string`, 실제 표시 문구이므로 허용한다. 빈값·공백만 있는 값은 금지하며 원래 문구를 보존한다.
@@ -80,7 +80,14 @@ Unity Editor가 이 프로젝트를 열고 컴파일을 끝낸 후 PowerShell에
 ./Tools/Check-CustomerCsv.ps1
 ```
 
-생성기 검사용 ID는 메모리 안에서만 사용한다. CSV 검사는 실제 원본을 읽고 메모리 사본만 변형하며, 정상 동작에서 예상 LogError 16건을 출력한다. 이 오류들은 제품 실행 오류와 구분한다. 검사는 Test Runner·test assembly를 추가하지 않는다.
+생성기 검사용 ID는 메모리 안에서만 사용한다. CSV 검사는 실제 원본을 읽고 메모리 사본만 변형하며, 정상 동작에서 예상 LogError 19건을 출력한다. 이 오류들은 제품 실행 오류와 구분한다. 검사는 Test Runner·test assembly를 추가하지 않는다.
+
+### 확률 1000 기준 전환 검증
+
+- 컴파일 완료, compileFailed=False. 생성기 검사 통과: 900 설정의 선호 선택 8,953/10,000, 0·1000 경계 및 -1·1001 거부.
+- 실제 CSV의 세 성향 값 900 확인, CSV 실패 검사 19/19 통과 (예상 LogError 19건). 구형 확률 header와 범위 밖 값도 거부한다.
+- GameplaySandbox 직접 Play에서 방문 생성과 UI의 `90%` 표시 확인, 제품 Console 오류·경고 0건. Init 경로의 첫 자동 확인은 씬 로드 전에 실행되어 검사 자체가 실패했고, 개인 씬 직접 Play에서 재확인했다.
+- Play 중지 후 기존 InitScene과 runInBackground=false로 복구했다. 이번 전환은 아직 commit·push하지 않았다.
 
 ### ID·nameidx 이관 검증
 

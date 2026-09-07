@@ -18,16 +18,16 @@ public enum DataTableType : uint
     // CSV_RULES.md의 종류 ID. 숫자 순서는 로딩 의존 순서를 의미하지 않는다.
     Product = 1,          // 상품: 1001~1999
     Balance = 2,          // 밸런스: 2001~2999, CSV·로더는 아직 미구현
-    Resource = 3,         // Addressable 리소스: 3001~3999
+    Tribute = 3,          // 회차별 상납금: 예약, 이 브랜치에 CSV·로더 없음
+    Resource = 4,         // Addressable 리소스
     
     // [2순위: 유닛 파생/개별 데이터]
-    PlayerData = 4,       // 4순위: 플레이어 파생 데이터 (4001~)
     CustomerAppearance = 5, // 손님 외형: 5001~5999
     CustomerDisposition = 6, // 손님 성향: 6001~6999
     ProductCategory = 7,     // 상품군: 7001~7999
     Text = 8,               // 명시적 문자열 테이블: 8001~8999
     
-    DataTableType_End
+    DataTableType_End = 10 // 삭제한 종류 값 9를 종료 표식으로 재해석하지 않는다.
 }
 
 
@@ -67,12 +67,12 @@ public static class CommonConstants
 }
 
 /// <summary>
-/// Addressable 에셋 참조 데이터 (ResourceData.csv 1:1 매핑, Type 3: 3001~)
+/// Addressable 에셋 참조 데이터. 종류 배정은 CSV_RULES.md의 권위 문서를 따른다.
 /// </summary>
 [Serializable]
 public class ResourceData
 {
-    /// <summary>현재 리소스 PK, 3001~3999.</summary>
+    /// <summary>현재 리소스 PK.</summary>
     [Name("idx")]
     public uint Idx { get; set; }
 

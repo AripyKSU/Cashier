@@ -1,11 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>개인 씬의 CSV 기반 손님 생성 실험 화면. 거래·가격·대사 시스템은 포함하지 않는다.</summary>
+/// <summary>개인 씬에서 상품·입장 대사·한 번의 총액 제안·결과 피드백을 검증한다. 실제 자금·재고는 변경하지 않는다.</summary>
 public sealed class CustomerSandbox : MonoBehaviour
 {
     /// <summary>임시 사각형 Sprite와 외형 CSV 색상을 표시할 Image.</summary>
@@ -18,6 +19,18 @@ public sealed class CustomerSandbox : MonoBehaviour
     [SerializeField] private Text statusText;
     /// <summary>매 클릭마다 새로운 일반 방문을 생성하는 버튼.</summary>
     [SerializeField] private Button generateButton;
+    /// <summary>전체 구매 목록의 제안 총액 입력.</summary>
+    [SerializeField] private InputField offerInput;
+    /// <summary>손님당 한 번의 가격 제안 버튼.</summary>
+    [SerializeField] private Button offerButton;
+    /// <summary>입장·수락·거절 대사 표시.</summary>
+    [SerializeField] private Text dialogText;
+    /// <summary>상품별 정사각형 이미지와 이름을 배치할 영역.</summary>
+    [SerializeField] private RectTransform productRoot;
+    /// <summary>실제 날짜 시스템 연결 전 개인 씬에서 사용하는 경과 일수. 다음 방문부터 적용.</summary>
+    [SerializeField, Min(0)] private int elapsedDays;
+    /// <summary>화면에서 생성한 상품 카드만 소유하고 교체 시 제거한다.</summary>
+    private readonly List<GameObject> productCards = new List<GameObject>();
     /// <summary>방문마다 재시드하지 않고 같은 난수 흐름을 사용한다.</summary>
     private readonly CustomerGenerator generator = new CustomerGenerator(new System.Random());
     /// <summary>로딩 성공 후 사용하는 manager 소유 데이터.</summary>
@@ -37,7 +50,8 @@ public sealed class CustomerSandbox : MonoBehaviour
     {
         if (generateButton == null) return;
         generateButton.onClick.AddListener(GenerateCustomer);
-        generateButton.interactable = catalog != null;
+        if (offerButton != null) offerButton.onClick.AddListener(SubmitPrice);
+        updateControls();
     }
 
     /// <summary>Init 진입과 개인 씬 직접 Play 모두 기존 manager 로더를 사용한다.</summary>
@@ -46,7 +60,8 @@ public sealed class CustomerSandbox : MonoBehaviour
         try
         {
             if (appearanceImage == null || identityText == null || orderText == null ||
-                statusText == null || generateButton == null)
+                statusText == null || generateButton == null || offerInput == null ||
+                offerButton == null || dialogText == null || productRoot == null)
                 throw new InvalidOperationException("CustomerSandbox Inspector 연결이 누락되었습니다.");
             statusText.text = "CSV 로딩 및 참조 검사 중…";
             // 테스트 전용 사각형. 정식 아트 도입 시 Sprite/리소스 계약으로 교체한다.
@@ -68,10 +83,21 @@ public sealed class CustomerSandbox : MonoBehaviour
                 new GameObject("DataTableManager").AddComponent<DataTableManager>();
             await DataTableManager.Instance.EnsureDataLoadedAsync().AttachExternalCancellation(token);
             token.ThrowIfCancellationRequested();
-            catalog = DataTableManager.Instance.Customers;
-            generateButton.interactable = isActiveAndEnabled;
+            var loadedCatalog = DataTableManager.Instance.Customers;
+            var resourcesTable = DataTableManager.Instance.GetDB<ResourceDataTable>(DataTableType.Resource);
+            foreach (uint imageIdx in loadedCatalog.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue)
+                .Select(x => x.ImageResourceIdx.Value).Distinct())
+            {
+                string path = resourcesTable.GetResourcePath(imageIdx);
+                var sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(path).AttachExternalCancellation(token);
+                token.ThrowIfCancellationRequested();
+                if (sprite == null) throw new InvalidOperationException($"상품 image_resource_idx={imageIdx}: Sprite 로드 실패");
+            }
+            catalog = loadedCatalog;
+            updateControls();
             identityText.text = "외형 PK / 성향 PK";
             orderText.text = "버튼을 눌러 손님을 생성하세요.";
+            dialogText.text = "손님 입장 대기";
             statusText.text = $"준비 완료 · 외형 {catalog.Appearances.Rows.Count} / 성향 {catalog.Dispositions.Rows.Count} / 상품 {catalog.Products.Rows.Count}";
         }
         catch (OperationCanceledException) { /* 씬 종료는 정상 취소다. */ }
@@ -80,6 +106,8 @@ public sealed class CustomerSandbox : MonoBehaviour
             if (this == null) return;
             if (statusText != null) statusText.text = "로드 실패 · Console을 확인하세요.";
             if (generateButton != null) generateButton.interactable = false;
+            if (offerButton != null) offerButton.interactable = false;
+            catalog = null;
             Debug.LogException(exception, this);
         }
     }
@@ -88,30 +116,24 @@ public sealed class CustomerSandbox : MonoBehaviour
     public void GenerateCustomer()
     {
         if (catalog == null || !isActiveAndEnabled) return;
+        if (CurrentVisit != null && (CurrentVisit.State == CustomerState.Entering || CurrentVisit.State == CustomerState.AwaitingOffer)) return;
         try
         {
-            var available = catalog.Products.Rows.Values.Where(x => x.IsAvailable)
-                .ToDictionary(x => x.Idx, x => x.CategoryIdx);
+            if (elapsedDays < 0) throw new InvalidOperationException("경과 일수는 0 이상이어야 합니다.");
             var visit = generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
-                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), available);
+                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, (uint)elapsedDays);
+            if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
+            clearProducts();
             if (visit == null)
             {
                 CurrentVisit = null;
                 appearanceImage.enabled = false;
                 identityText.text = "생성된 손님 없음";
                 orderText.text = "현재 판매 가능한 상품이 없습니다.";
+                dialogText.text = "등장 날짜와 활성 여부를 확인하세요.";
                 statusText.text = "판매 가능 상품 0개 · CSV 수정 후 Play를 다시 시작하세요.";
+                updateControls();
                 return;
-            }
-            var disposition = catalog.Dispositions.Rows[visit.DispositionIdx];
-            var text = new StringBuilder();
-            text.AppendLine($"성향: {catalog.Texts.Rows[disposition.NameIdx].Text}");
-            text.AppendLine("선호: " + string.Join(", ", disposition.PreferredCategoryIds.Select(x => catalog.Texts.Rows[catalog.Categories.Rows[x].NameIdx].Text)));
-            text.AppendLine($"선호 선택 {disposition.PreferredSelectionPercent}%\n");
-            foreach (var item in visit.Items)
-            {
-                var product = catalog.Products.Rows[item.ProductIdx];
-                text.AppendLine($"{catalog.Texts.Rows[product.NameIdx].Text} × {item.Quantity}  [PK {item.ProductIdx}]");
             }
             var appearance = catalog.Appearances.Rows[visit.AppearanceIdx];
             var color = new Color32(appearance.ColorR, appearance.ColorG, appearance.ColorB, appearance.ColorA);
@@ -121,21 +143,101 @@ public sealed class CustomerSandbox : MonoBehaviour
             appearanceImage.color = color;
             appearanceImage.enabled = true;
             identityText.text = $"외형 {visit.AppearanceIdx} + 성향 {visit.DispositionIdx}";
-            orderText.text = text.ToString();
-            statusText.text = $"생성 #{++generationCount} · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개";
+            orderText.text = $"경과 {elapsedDays}일 · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개\n정가 합계 {visit.BaseTotal:N0}";
+            dialogText.text = catalog.Texts.Rows[visit.EntryTextIdx].Text;
+            showProducts(visit);
+            offerInput.text = string.Empty;
+            visit.BeginOffer();
+            statusText.text = $"입장 #{++generationCount} · 전체 물품의 총액을 제안하세요.";
+            updateControls();
         }
         catch (Exception exception)
         {
             generateButton.interactable = false;
+            offerButton.interactable = false;
             statusText.text = "생성 실패 · Console을 확인하세요.";
             Debug.LogException(exception, this);
         }
+    }
+
+    /// <summary>숫자 문자열을 경계에서 검사하고 방문당 한 번 판정한다.</summary>
+    public void SubmitPrice()
+    {
+        if (CurrentVisit == null || CurrentVisit.State != CustomerState.AwaitingOffer || !isActiveAndEnabled) return;
+        if (!long.TryParse(offerInput.text, NumberStyles.None, CultureInfo.InvariantCulture, out long total) || total <= 0)
+        {
+            statusText.text = "총액은 1 이상의 정수로 입력하세요. 공백·소수점·기호는 사용할 수 없습니다.";
+            return;
+        }
+        bool accepted = CurrentVisit.SubmitOffer(total);
+        dialogText.text = catalog.Texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
+        statusText.text = $"{(accepted ? "거래 수락" : "거래 거절")} · 제안 {total:N0} · 다음 손님 버튼으로 퇴장·교체";
+        updateControls();
+    }
+
+    /// <summary>입력·버튼의 활성 상태를 방문 상태에 맞춘다.</summary>
+    private void updateControls()
+    {
+        bool ready = catalog != null && isActiveAndEnabled;
+        bool waiting = CurrentVisit?.State == CustomerState.AwaitingOffer;
+        if (generateButton != null) generateButton.interactable = ready && !waiting && CurrentVisit?.State != CustomerState.Entering;
+        if (offerButton != null) offerButton.interactable = ready && waiting;
+        if (offerInput != null) offerInput.interactable = ready && waiting;
+    }
+
+    /// <summary>상품별 흰 정사각형 또는 등록 이미지 위에 상품명을 표시한다.</summary>
+    /// <param name="visit">확정된 구매 목록.</param>
+    private void showProducts(CustomerVisit visit)
+    {
+        productRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Math.Max(220, ((visit.Items.Count + 2) / 3) * 205));
+        productRoot.anchoredPosition = Vector2.zero;
+        var resources = DataTableManager.Instance.GetDB<ResourceDataTable>(DataTableType.Resource);
+        for (int i = 0; i < visit.Items.Count; i++)
+        {
+            var item = visit.Items[i];
+            var product = catalog.Products.Rows[item.ProductIdx];
+            var card = new GameObject("Product " + item.ProductIdx, typeof(RectTransform), typeof(Image));
+            productCards.Add(card);
+            var rect = card.GetComponent<RectTransform>();
+            rect.SetParent(productRoot, false);
+            rect.anchorMin = rect.anchorMax = new Vector2(0, 1);
+            rect.pivot = new Vector2(0, 1);
+            rect.anchoredPosition = new Vector2((i % 3) * 205, -(i / 3) * 205);
+            rect.sizeDelta = new Vector2(180, 180);
+            var image = card.GetComponent<Image>();
+            image.raycastTarget = false;
+            image.sprite = product.ImageResourceIdx.HasValue
+                ? ResourceManager.Instance.GetResource<Sprite>(resources.GetResourcePath(product.ImageResourceIdx.Value)) : squareSprite;
+            if (image.sprite == null) throw new InvalidOperationException($"상품 {product.Idx}: 이미지 미준비");
+            image.color = Color.white;
+            var category = catalog.Categories.Rows.Values.Single(x => x.ProductType == product.ProductType);
+            var label = new GameObject("Name", typeof(RectTransform), typeof(Text)).GetComponent<Text>();
+            label.transform.SetParent(rect, false);
+            label.rectTransform.anchorMin = Vector2.zero;
+            label.rectTransform.anchorMax = Vector2.one;
+            label.rectTransform.offsetMin = new Vector2(5, 5);
+            label.rectTransform.offsetMax = new Vector2(-5, -5);
+            label.font = displayFont;
+            label.fontSize = 22;
+            label.color = Color.black;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            label.text = $"{catalog.Texts.Rows[product.NameIdx].Text}\n{catalog.Texts.Rows[category.NameIdx].Text}\n{item.UnitPrice:N0} × {item.Quantity}";
+        }
+    }
+
+    /// <summary>다음 방문 표시 전 이 화면 소유 상품 카드만 정리한다.</summary>
+    private void clearProducts()
+    {
+        foreach (var card in productCards) { card.SetActive(false); Destroy(card); }
+        productCards.Clear();
     }
 
     /// <summary>비활성화 중 버튼 callback이 남지 않도록 해제한다.</summary>
     private void OnDisable()
     {
         if (generateButton != null) generateButton.onClick.RemoveListener(GenerateCustomer);
+        if (offerButton != null) offerButton.onClick.RemoveListener(SubmitPrice);
     }
 
     /// <summary>이 화면이 생성한 임시 표시 리소스만 해제한다.</summary>

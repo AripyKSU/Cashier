@@ -21,6 +21,8 @@ public static class CustomerSandboxSetup
         foreach (var root in scene.GetRootGameObjects())
             if (root.GetComponentInChildren<CustomerSandbox>(true) != null)
             {
+                configureTrade(root.GetComponentInChildren<CustomerSandbox>(true));
+                EditorSceneManager.MarkSceneDirty(scene);
                 Selection.activeGameObject = root;
                 return;
             }
@@ -61,6 +63,7 @@ public static class CustomerSandboxSetup
         serialized.FindProperty("statusText").objectReferenceValue = status;
         serialized.FindProperty("generateButton").objectReferenceValue = button;
         serialized.ApplyModifiedPropertiesWithoutUndo();
+        configureTrade(sandbox);
         if (UnityEngine.Object.FindFirstObjectByType<EventSystem>() == null)
         {
             var events = new GameObject("Customer Sandbox EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
@@ -68,6 +71,71 @@ public static class CustomerSandboxSetup
         }
         EditorSceneManager.MarkSceneDirty(scene);
         Selection.activeGameObject = canvasObject;
+    }
+
+    /// <summary>기존 개인 씬 UI를 보존하고 누락된 거래 입력·표시만 추가한다.</summary>
+    /// <param name="sandbox">현재 씬의 테스트 화면.</param>
+    private static void configureTrade(CustomerSandbox sandbox)
+    {
+        var serialized = new SerializedObject(sandbox);
+        var parent = sandbox.transform;
+        var order = (Text)serialized.FindProperty("orderText").objectReferenceValue;
+        order.rectTransform.anchoredPosition = new Vector2(240, 180);
+        order.rectTransform.sizeDelta = new Vector2(620, 100);
+        order.fontSize = 24;
+        var status = (Text)serialized.FindProperty("statusText").objectReferenceValue;
+        status.rectTransform.anchoredPosition = new Vector2(0, -320);
+        status.rectTransform.sizeDelta = new Vector2(1140, 60);
+        status.fontSize = 18;
+        var generate = (Button)serialized.FindProperty("generateButton").objectReferenceValue;
+        ((RectTransform)generate.transform).anchoredPosition = new Vector2(370, -245);
+        generate.GetComponentInChildren<Text>().text = "다음 손님 입장";
+        if (serialized.FindProperty("dialogText").objectReferenceValue == null)
+            serialized.FindProperty("dialogText").objectReferenceValue = CreateText("Dialog", parent,
+                new Vector2(-310, -190), new Vector2(500, 90), "손님 입장 대기", 23, TextAnchor.MiddleCenter);
+        if (serialized.FindProperty("productRoot").objectReferenceValue == null)
+        {
+            var viewport = CreateRect("Products View", parent, new Vector2(240, 10), new Vector2(620, 220));
+            viewport.gameObject.AddComponent<Image>().color = Color.clear;
+            viewport.gameObject.AddComponent<RectMask2D>();
+            var scroll = viewport.gameObject.AddComponent<ScrollRect>();
+            var content = CreateRect("Products", viewport, Vector2.zero, new Vector2(620, 220));
+            content.anchorMin = content.anchorMax = new Vector2(0, 1);
+            content.pivot = new Vector2(0, 1);
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30;
+            serialized.FindProperty("productRoot").objectReferenceValue = content;
+        }
+        if (serialized.FindProperty("offerInput").objectReferenceValue == null)
+        {
+            CreateText("Offer Label", parent, new Vector2(70, -150), new Vector2(280, 40), "전체 물품 제안 총액", 22, TextAnchor.MiddleLeft);
+            var rect = CreateRect("Offer Input", parent, new Vector2(60, -205), new Vector2(280, 60));
+            var background = rect.gameObject.AddComponent<Image>();
+            background.color = Color.white;
+            var input = rect.gameObject.AddComponent<InputField>();
+            var text = CreateText("Value", rect, Vector2.zero, new Vector2(260, 55), "", 25, TextAnchor.MiddleLeft);
+            text.color = Color.black;
+            input.targetGraphic = background;
+            input.textComponent = text;
+            input.contentType = InputField.ContentType.Standard;
+            input.lineType = InputField.LineType.SingleLine;
+            input.characterLimit = 32;
+            serialized.FindProperty("offerInput").objectReferenceValue = input;
+        }
+        if (serialized.FindProperty("offerButton").objectReferenceValue == null)
+        {
+            var rect = CreateRect("Submit Offer", parent, new Vector2(370, -165), new Vector2(340, 60));
+            var image = rect.gameObject.AddComponent<Image>();
+            image.color = new Color(0.15f, 0.5f, 0.3f);
+            var button = rect.gameObject.AddComponent<Button>();
+            button.targetGraphic = image;
+            CreateText("Label", rect, Vector2.zero, new Vector2(330, 60), "가격 제안", 24, TextAnchor.MiddleCenter);
+            serialized.FindProperty("offerButton").objectReferenceValue = button;
+        }
+        serialized.ApplyModifiedProperties();
     }
 
     /// <summary>중앙 기준 UI 사각 영역을 생성한다.</summary>

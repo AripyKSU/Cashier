@@ -121,7 +121,7 @@ public class DataTableManager : Singleton<DataTableManager>
                 Debug.LogWarning("[DataTableManager] Datas 라벨이 비어 있습니다. 기존 Resources fallback을 검사합니다.");
                 this.fallbackLoadFromResources();
             }
-            Customers.ValidateAndCommit();
+            Customers.ValidateAndCommit(GetDB<ResourceDataTable>(DataTableType.Resource));
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }
