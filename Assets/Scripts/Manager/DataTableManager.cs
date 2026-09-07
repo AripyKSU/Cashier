@@ -73,6 +73,8 @@ public class DataTableManager : Singleton<DataTableManager>
         base.OnSingletonAwake();
 
         // [우선순위 순서 정렬 등록]
+        this.dataList[DataTableType.EconomyBalance] = new EconomyBalanceDataTable();
+        this.dataList[DataTableType.MaintenanceBalance] = new MaintenanceBalanceDataTable();
         this.dataList[DataTableType.Resource] = new ResourceDataTable();
         this.dataList[DataTableType.CustomerAppearance] = Customers.Appearances;
         this.dataList[DataTableType.CustomerDisposition] = Customers.Dispositions;

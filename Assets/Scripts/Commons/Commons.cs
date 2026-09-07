@@ -17,8 +17,8 @@ public enum DataTableType : uint
     
     // CSV_RULES.md의 종류 ID. 숫자 순서는 로딩 의존 순서를 의미하지 않는다.
     Product = 1,          // 상품: 1001~1999
-    Balance = 2,          // 밸런스: 2001~2999, CSV·로더는 아직 미구현
-    Tribute = 3,          // 회차별 상납금: 예약, 이 브랜치에 CSV·로더 없음
+    EconomyBalance = 2,   // 경제 기본 설정
+    MaintenanceBalance = 3, // 회차별 상납금
     Resource = 4,         // Addressable 리소스
     
     // [2순위: 유닛 파생/개별 데이터]

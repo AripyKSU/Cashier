@@ -66,6 +66,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f4a19c06d8e42a3b57c91e5f0236dab
+    m_Address: MaintenanceBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2c8d56a4b1f47f29a0c6d38f7512b4e
+    m_Address: EconomyBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 3d7d68aee2954494ba965a3f231eb7a8, type: 2}
   m_SchemaSet:
