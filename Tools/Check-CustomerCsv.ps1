@@ -19,7 +19,7 @@ if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK
 valid.ValidateAndCommit();
 if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || valid.Texts.GetDataCount() != 41) throw new Exception("Unexpected sample counts");
 if (valid.Texts.Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
-if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.Balance || Util.GetDataTableType(3001) != DataTableType.Tribute || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text || Enum.IsDefined(typeof(DataTableType), Util.GetDataTableType(9001))) throw new Exception("Routing failed");
+if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text || Enum.IsDefined(typeof(DataTableType), Util.GetDataTableType(9001))) throw new Exception("Routing failed");
 if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) throw new Exception("Probability migration failed");
 int rejected = 0;
 Action<string, Action<CustomerCatalog>> reject = (name, mutate) => {
