@@ -20,6 +20,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f4a19c06d8e42a3b57c91e5f0236dab
+    m_Address: MaintenanceBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8e73b28ef3a099a4488cb2518dcc4102
     m_Address: MainScene
     m_ReadOnly: 0
@@ -32,6 +38,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d7aebc67a8a48b04fb3a3bd8447461d7
     m_Address: ResourceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2c8d56a4b1f47f29a0c6d38f7512b4e
+    m_Address: EconomyBalanceData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
