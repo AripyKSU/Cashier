@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using System.Globalization;
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -46,10 +49,27 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     /// <summary>Scale factor from 1280x720 prototype coordinate space to 1920x1080 Full HD.</summary>
     private const float S = 1.5f;
 
-    [SerializeField] private CashierSettings settings = new CashierSettings();
+    // CSV 행 참조만 정렬해 보관한다. 이름·가격·이미지는 별도 상품 모델에 복제하지 않는다.
+    private ProductData[] products = Array.Empty<ProductData>();
 
-    public CashierSession Session { get; private set; }
-    public CashierSettings Settings => this.settings;
+    /// <summary>거래 상태는 CustomerVisit, 금액은 EconomyRuntime이 소유한다.</summary>
+    public CustomerVisit CurrentVisit { get; private set; }
+    private CustomerCatalog catalog;
+    // DataTableManager가 소유하는 게임 전체 공용 텍스트를 참조한다.
+    private TextDataTable texts;
+    private EconomyRuntime economy;
+    private readonly CustomerGenerator generator = new CustomerGenerator(new System.Random());
+    private readonly Dictionary<uint, Sprite> productSprites = new Dictionary<uint, Sprite>();
+    private bool ready, paused, faulted, showingGuide;
+    private int day = 1;
+    private long closedRevenue;
+    private Button nextCustomerButton, endDayButton;
+    private Sprite squareSprite;
+    private TMP_FontAsset displayFont;
+    /// <summary>임시 수동 날짜. 저장·실제 날짜 시스템 연결 전 씬 수명에 한정한다.</summary>
+    public int Day => day;
+    private bool canOffer => ready && !faulted && !paused && !showingGuide
+        && economy.DailyAggregationService.IsDayOpen && CurrentVisit?.State == CustomerState.AwaitingOffer;
 
     // =========================================================================
     // 2. STATE & DATA
@@ -84,21 +104,10 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private readonly Image[] waiting = new Image[2];
     private Button confirmButton;
 
-    // Architecture Presenters (UI Presentation Contract)
-    private EconomyStatusPresenter economyPresenter;
-    private GameDayPresenter gameDayPresenter;
-    private BusinessTimerPresenter timerPresenter;
-    private CustomerPresenter customerPresenter;
-    private PriceInputPresenter priceInputPresenter;
-    private DailySettlementPresenter settlementPresenter;
-
     private string amount = "";
     private bool invalidAmount;
-    private int drawnRevision = -1;
     private float alertUntil;
 
-    private CashierCustomer laidOutCustomer;
-    private int basketLayoutSeed;
     private readonly List<GameObject> activeBasketCards = new List<GameObject>();
 
 
@@ -106,53 +115,18 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     // 3. UNITY LIFECYCLE
     // =========================================================================
 
+    /// <summary>MainScene 통합 화면의 Awake 처리를 수행한다.</summary>
     private void Awake()
     {
-        this.ensureValidEventSystem();
-
-        // Load existing save data or default
-        this.currentSaveData = CashierSaveManager.Load();
-
-        this.buildAllScreens();
-        this.setViewState(GameViewState.Title);
+        ensureValidEventSystem();
+        // 저장은 통합 범위 밖이며 기존 PlayerPrefs를 읽거나 덮어쓰지 않는다.
+        currentSaveData = GameSaveData.CreateNewGame();
     }
 
+    /// <summary>MainScene 통합 화면의 Update 처리를 수행한다.</summary>
     private void Update()
     {
-        if (this.currentViewState == GameViewState.Trading)
-        {
-            this.handleTradingInput();
-
-            if (this.Session != null)
-            {
-                this.Session.Tick(Time.unscaledDeltaTime);
-
-                if (this.drawnRevision != this.Session.Revision)
-                {
-                    this.refreshTradingView();
-                }
-
-                // Real-time Queue Gauge Update
-                if (this.gaugeFill != null)
-                {
-                    float fillRatio = Mathf.Clamp01(this.Session.Gauge / 100f);
-                    this.gaugeFill.rectTransform.sizeDelta = new Vector2(300f * S * fillRatio, 8f * S);
-                    this.gaugeFill.color = this.Session.Gauge >= this.settings.greenThreshold ? new Color(0.54f, 0.72f, 0.65f) :
-                                           this.Session.Gauge > 30f ? new Color(0.78f, 0.64f, 0.38f) :
-                                           new Color(0.85f, 0.35f, 0.30f);
-                }
-
-                if (this.gaugeText != null)
-                {
-                    this.gaugeText.text = $"QUEUE  {this.Session.Gauge:0}%";
-                }
-
-                if (this.Session.Phase == CashierPhase.Trading && Time.unscaledTime > this.alertUntil && this.reasonText != null)
-                {
-                    this.reasonText.text = "Num keys: Amount | Enter: Confirm | Backspace: Erase | Esc: Pause";
-                }
-            }
-        }
+        if (ready && currentViewState == GameViewState.Trading) handleTradingInput();
     }
 
 
@@ -176,17 +150,17 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         }
     }
 
+    /// <summary>MainScene 통합 화면의 onNewGameClicked 처리를 수행한다.</summary>
     private void onNewGameClicked()
     {
-        this.currentSaveData = GameSaveData.CreateNewGame();
-        CashierSaveManager.Save(this.currentSaveData);
-        this.setViewState(GameViewState.Tutorial);
+        if (!ready || economy.DailyAggregationService.IsDayOpen) return;
+        setViewState(GameViewState.Tutorial);
     }
 
+    /// <summary>MainScene 통합 화면의 onContinueClicked 처리를 수행한다.</summary>
     private void onContinueClicked()
     {
-        this.currentSaveData = CashierSaveManager.Load();
-        this.setViewState(GameViewState.MainHub);
+        // 저장 복원이 구현될 때까지 비활성화한다.
     }
 
     private void onTutorialNextClicked()
@@ -194,16 +168,14 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.setViewState(GameViewState.MainHub);
     }
 
+    /// <summary>MainScene 통합 화면의 launchTradingSession 처리를 수행한다.</summary>
     private void launchTradingSession()
     {
-        // Start or resume session with current save day & cash
-        this.Session = new CashierSession(this.settings, Environment.TickCount);
-        this.amount = "";
-        this.invalidAmount = false;
-        this.drawnRevision = -1;
-
-        this.setViewState(GameViewState.Trading);
-        this.refreshTradingView();
+        if (!ready || faulted || economy.DailyAggregationService.IsDayOpen) return;
+        showingGuide = true;
+        amount = "";
+        setViewState(GameViewState.Trading);
+        refreshTradingView();
     }
 
 
@@ -255,10 +227,10 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.label(this.titleRoot.transform, "SubtitleText", "DISTRICT 9 RATION STALL SIMULATOR", 140, 220, 1000, 35, 18, new Color(0.65f, 0.72f, 0.80f), TextAlignmentOptions.Center);
 
         // Action Buttons
-        this.makeButton(this.titleRoot.transform, "BtnNewGame", "NEW GAME", 490, 360, 300, 52, this.onNewGameClicked, 22, new Color(0.22f, 0.55f, 0.38f));
+        this.makeButton(this.titleRoot.transform, "BtnNewGame", "START SESSION", 490, 360, 300, 52, this.onNewGameClicked, 22, new Color(0.22f, 0.55f, 0.38f));
 
         var continueBtn = this.makeButton(this.titleRoot.transform, "BtnContinue", "CONTINUE", 490, 430, 300, 52, this.onContinueClicked, 22, new Color(0.24f, 0.42f, 0.65f));
-        continueBtn.interactable = CashierSaveManager.HasSave();
+        continueBtn.interactable = false;
 
         this.label(this.titleRoot.transform, "VerText", "v1.0 Local Sandbox Prototype | FHD 1080p", 490, 580, 300, 25, 13, new Color(0.45f, 0.50f, 0.55f), TextAlignmentOptions.Center);
     }
@@ -357,21 +329,11 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.buildQuitConfirmModal();
     }
 
+    /// <summary>MainScene 통합 화면의 refreshMainHubHeader 처리를 수행한다.</summary>
     private void refreshMainHubHeader()
     {
-        if (this.currentSaveData == null) return;
-
-        int daysLeft = 7 - ((this.currentSaveData.currentDay - 1) % 7);
-        if (daysLeft == 7) daysLeft = 0;
-
-        if (daysLeft == 0)
-        {
-            this.hubBusinessBtnSubtext.text = "<color=#FF4444>[ TODAY: TRIBUTE INSPECTION ]</color>";
-        }
-        else
-        {
-            this.hubBusinessBtnSubtext.text = $"(Tribute in {daysLeft} Days)";
-        }
+        if (hubBusinessBtnText != null) hubBusinessBtnText.text = $"START DAY {day}";
+        if (hubBusinessBtnSubtext != null) hubBusinessBtnSubtext.text = ready ? $"Cash: {economy.QueryService.CurrentBalance:N0} G" : "Loading";
     }
 
     public void selectHubTab(HubTab tab)
@@ -428,14 +390,14 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             this.label(coverCard.transform, "BannerTxt", "SPECIAL STORE NOTICE: MANDATORY RATION DISTRIBUTION", 30, 25, 1080, 45, 20, Color.white, TextAlignmentOptions.Center);
 
             // Featured Product Highlight Box
-            var featProduct = this.settings.products[0];
+            var featProduct = products[0];
             var featBox = this.panel(coverCard.transform, "FeatBox", 380, 100, 380, 320, new Color(0.94f, 0.96f, 0.98f));
             this.panel(featBox.transform, "BoxBorder", 0, 0, 380, 320, new Color(0.70f, 0.75f, 0.82f));
 
-            if (featProduct.sprite != null)
+            if (productSprites[featProduct.Idx] != null)
             {
                 var img = this.panel(featBox.transform, "FeatImg", 20, 20, 340, 180, Color.white);
-                img.sprite = featProduct.sprite;
+                img.sprite = productSprites[featProduct.Idx];
                 img.preserveAspect = true;
             }
             else
@@ -443,8 +405,8 @@ public sealed class Dev3SandboxTester : MonoBehaviour
                 this.label(featBox.transform, "FeatIcon", "[ESSENTIAL RATION]", 20, 60, 340, 40, 24, new Color(0.40f, 0.55f, 0.70f), TextAlignmentOptions.Center);
             }
 
-            this.label(featBox.transform, "FeatName", featProduct.name, 20, 215, 340, 35, 22, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.Center);
-            this.label(featBox.transform, "FeatPrice", $"{featProduct.price:N0} G", 20, 255, 340, 40, 26, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
+            this.label(featBox.transform, "FeatName", texts.Rows[featProduct.NameIdx].Text, 20, 215, 340, 35, 22, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.Center);
+            this.label(featBox.transform, "FeatPrice", $"{featProduct.BasePrice:N0} G", 20, 255, 340, 40, 26, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
 
             // Page 1 Navigation (Folded corner next button)
             this.label(coverCard.transform, "PageNum", "1 / 4", 520, 435, 100, 30, 16, new Color(0.50f, 0.55f, 0.60f), TextAlignmentOptions.Center);
@@ -461,17 +423,17 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
             // Left Page (Products 0, 1, 2)
             this.label(spreadCard.transform, "LeftPageHeader", "BASIC FOOD SUPPLIES", 30, 15, 500, 30, 16, new Color(0.30f, 0.35f, 0.45f), TextAlignmentOptions.Center);
-            for (int i = 0; i < 3 && i < this.settings.products.Length; i++)
+            for (int i = 0; i < 3 && i < products.Length; i++)
             {
-                var prod = this.settings.products[i];
+                var prod = products[i];
                 float y = 55 + i * 115;
                 var slot = this.panel(spreadCard.transform, $"Slot_{i}", 40, y, 480, 100, new Color(0.95f, 0.97f, 0.99f));
                 this.panel(slot.transform, "SlotBorder", 0, 0, 480, 100, new Color(0.80f, 0.84f, 0.88f));
 
-                if (prod.sprite != null)
+                if (productSprites[prod.Idx] != null)
                 {
                     var img = this.panel(slot.transform, "Img", 10, 10, 100, 80, Color.white);
-                    img.sprite = prod.sprite;
+                    img.sprite = productSprites[prod.Idx];
                     img.preserveAspect = true;
                 }
                 else
@@ -479,24 +441,24 @@ public sealed class Dev3SandboxTester : MonoBehaviour
                     this.label(slot.transform, "Token", "[ITEM]", 10, 30, 100, 35, 16, new Color(0.45f, 0.55f, 0.68f), TextAlignmentOptions.Center);
                 }
 
-                this.label(slot.transform, "Name", prod.name, 130, 20, 240, 30, 18, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
-                this.label(slot.transform, "Tag", $"Available Day {prod.firstDay}", 130, 52, 240, 25, 13, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.MidlineLeft);
-                this.label(slot.transform, "Price", $"{prod.price:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
+                this.label(slot.transform, "Name", texts.Rows[prod.NameIdx].Text, 130, 20, 240, 30, 18, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
+                this.label(slot.transform, "Tag", $"Available Day {((long)prod.AvailableDay + 1)}", 130, 52, 240, 25, 13, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.MidlineLeft);
+                this.label(slot.transform, "Price", $"{prod.BasePrice:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
             }
 
             // Right Page (Products 3, 4, 5)
             this.label(spreadCard.transform, "RightPageHeader", "MEDICAL & UTILITY", 610, 15, 500, 30, 16, new Color(0.30f, 0.35f, 0.45f), TextAlignmentOptions.Center);
-            for (int i = 3; i < 6 && i < this.settings.products.Length; i++)
+            for (int i = 3; i < 6 && i < products.Length; i++)
             {
-                var prod = this.settings.products[i];
+                var prod = products[i];
                 float y = 55 + (i - 3) * 115;
                 var slot = this.panel(spreadCard.transform, $"Slot_{i}", 620, y, 480, 100, new Color(0.95f, 0.97f, 0.99f));
                 this.panel(slot.transform, "SlotBorder", 0, 0, 480, 100, new Color(0.80f, 0.84f, 0.88f));
 
-                if (prod.sprite != null)
+                if (productSprites[prod.Idx] != null)
                 {
                     var img = this.panel(slot.transform, "Img", 10, 10, 100, 80, Color.white);
-                    img.sprite = prod.sprite;
+                    img.sprite = productSprites[prod.Idx];
                     img.preserveAspect = true;
                 }
                 else
@@ -504,9 +466,9 @@ public sealed class Dev3SandboxTester : MonoBehaviour
                     this.label(slot.transform, "Token", "[ITEM]", 10, 30, 100, 35, 16, new Color(0.45f, 0.55f, 0.68f), TextAlignmentOptions.Center);
                 }
 
-                this.label(slot.transform, "Name", prod.name, 130, 20, 240, 30, 18, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
-                this.label(slot.transform, "Tag", $"Available Day {prod.firstDay}", 130, 52, 240, 25, 13, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.MidlineLeft);
-                this.label(slot.transform, "Price", $"{prod.price:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
+                this.label(slot.transform, "Name", texts.Rows[prod.NameIdx].Text, 130, 20, 240, 30, 18, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
+                this.label(slot.transform, "Tag", $"Available Day {((long)prod.AvailableDay + 1)}", 130, 52, 240, 25, 13, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.MidlineLeft);
+                this.label(slot.transform, "Price", $"{prod.BasePrice:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
             }
 
             // Navigation
@@ -523,17 +485,17 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             this.label(p4Card.transform, "P4Title", "SPECIAL ADVANCED RATIONS & INSPECTOR RULES", 30, 18, 1080, 30, 18, new Color(0.18f, 0.22f, 0.30f), TextAlignmentOptions.Center);
 
             // Remaining products 6..9
-            for (int i = 6; i < this.settings.products.Length && i < 10; i++)
+            for (int i = 6; i < products.Length && i < 10; i++)
             {
-                var prod = this.settings.products[i];
+                var prod = products[i];
                 float colX = 50 + (i - 6) * 265;
                 var slot = this.panel(p4Card.transform, $"Slot_{i}", colX, 65, 245, 180, new Color(0.95f, 0.97f, 0.99f));
                 this.panel(slot.transform, "SlotBorder", 0, 0, 245, 180, new Color(0.80f, 0.84f, 0.88f));
 
-                if (prod.sprite != null)
+                if (productSprites[prod.Idx] != null)
                 {
                     var img = this.panel(slot.transform, "Img", 10, 10, 225, 90, Color.white);
-                    img.sprite = prod.sprite;
+                    img.sprite = productSprites[prod.Idx];
                     img.preserveAspect = true;
                 }
                 else
@@ -541,8 +503,8 @@ public sealed class Dev3SandboxTester : MonoBehaviour
                     this.label(slot.transform, "Token", "[SPECIAL]", 10, 35, 225, 30, 16, new Color(0.45f, 0.55f, 0.68f), TextAlignmentOptions.Center);
                 }
 
-                this.label(slot.transform, "Name", prod.name, 10, 110, 225, 28, 16, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.Center);
-                this.label(slot.transform, "Price", $"{prod.price:N0} G", 10, 140, 225, 30, 19, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
+                this.label(slot.transform, "Name", texts.Rows[prod.NameIdx].Text, 10, 110, 225, 28, 16, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.Center);
+                this.label(slot.transform, "Price", $"{prod.BasePrice:N0} G", 10, 140, 225, 30, 19, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
             }
 
             // Rules Box
@@ -566,56 +528,10 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     // 10. TAB 2: LEDGER NOTEBOOK VIEW (Scrollable Historical Records)
     // =========================================================================
 
+    /// <summary>별도 장부 상태 없이 현재 Finance 금액과 마지막 정산만 표시한다.</summary>
     private void renderLedgerNotebook()
     {
-        this.label(this.hubContentContainer, "LedgerTitle", "ACCOUNTING LEDGER & DAILY SETTLEMENT HISTORY", 40, 18, 1140, 32, 22, new Color(0.15f, 0.20f, 0.28f), TextAlignmentOptions.MidlineLeft);
-
-        var ledgerFrame = this.panel(this.hubContentContainer, "LedgerPaper", 40, 58, 1140, 500, Color.white);
-        this.panel(ledgerFrame.transform, "Border", 0, 0, 1140, 500, new Color(0.75f, 0.80f, 0.86f));
-
-        // Spreadsheet Column Header Row
-        var head = this.panel(ledgerFrame.transform, "HeaderRow", 20, 15, 1100, 40, new Color(0.16f, 0.22f, 0.28f));
-        this.label(head.transform, "Col1", "DATE", 15, 8, 120, 24, 15, Color.white, TextAlignmentOptions.MidlineLeft);
-        this.label(head.transform, "Col2", "MAINTENANCE", 150, 8, 160, 24, 15, Color.white, TextAlignmentOptions.MidlineLeft);
-        this.label(head.transform, "Col3", "UPGRADE EXP", 320, 8, 160, 24, 15, Color.white, TextAlignmentOptions.MidlineLeft);
-        this.label(head.transform, "Col4", "DAILY REVENUE", 490, 8, 170, 24, 15, Color.white, TextAlignmentOptions.MidlineLeft);
-        this.label(head.transform, "Col5", "NET CASH", 680, 8, 180, 24, 15, Color.white, TextAlignmentOptions.MidlineLeft);
-        this.label(head.transform, "Col6", "REPUTATION", 880, 8, 200, 24, 15, Color.white, TextAlignmentOptions.MidlineLeft);
-
-        // Historical Rows (Shows up to 8 recent historical records with clean table layout)
-        var history = this.currentSaveData.ledgerHistory;
-        int displayCount = Mathf.Min(8, history.Count);
-
-        if (displayCount == 0)
-        {
-            this.label(ledgerFrame.transform, "EmptyMsg", "No settled business days recorded yet. Press [START BUSINESS] to begin Day 01.", 40, 180, 1060, 40, 17, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.Center);
-        }
-        else
-        {
-            for (int i = 0; i < displayCount; i++)
-            {
-                var rec = history[history.Count - 1 - i]; // Recent first
-                float rowY = 62 + i * 44;
-                Color rowBg = i % 2 == 0 ? new Color(0.96f, 0.98f, 1f) : Color.white;
-
-                var row = this.panel(ledgerFrame.transform, $"Row_{i}", 20, rowY, 1100, 40, rowBg);
-                this.panel(row.transform, "RowLine", 0, 39, 1100, 1, new Color(0.85f, 0.88f, 0.92f));
-
-                this.label(row.transform, "Val1", $"Day {rec.day:00}", 15, 8, 120, 24, 15, new Color(0.15f, 0.20f, 0.28f), TextAlignmentOptions.MidlineLeft);
-                this.label(row.transform, "Val2", $"-{rec.maintenanceFee:N0} G", 150, 8, 160, 24, 15, new Color(0.75f, 0.25f, 0.25f), TextAlignmentOptions.MidlineLeft);
-                this.label(row.transform, "Val3", rec.upgradeExpense > 0 ? $"-{rec.upgradeExpense:N0} G" : "0 G", 320, 8, 160, 24, 15, new Color(0.50f, 0.55f, 0.62f), TextAlignmentOptions.MidlineLeft);
-                this.label(row.transform, "Val4", $"+{rec.revenue:N0} G", 490, 8, 170, 24, 15, new Color(0.20f, 0.60f, 0.35f), TextAlignmentOptions.MidlineLeft);
-                this.label(row.transform, "Val5", $"{rec.netCash:N0} G", 680, 8, 180, 24, 15, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
-                this.label(row.transform, "Val6", $"{rec.reputationChange:+0;-0;0} (Total {rec.netReputation})", 880, 8, 200, 24, 15, new Color(0.24f, 0.45f, 0.65f), TextAlignmentOptions.MidlineLeft);
-            }
-        }
-
-        // Official Signature & Ledger Stamp Section (Notes sketch: "날짜, 서명, 도장")
-        var stampArea = this.panel(ledgerFrame.transform, "StampArea", 20, 425, 1100, 60, new Color(0.94f, 0.96f, 0.98f));
-        this.panel(stampArea.transform, "SBorder", 0, 0, 1100, 60, new Color(0.80f, 0.84f, 0.90f));
-
-        this.label(stampArea.transform, "SigLabel", $"Official District Audit: Day {this.currentSaveData.currentDay:00} | Cashier Identity Verified", 25, 18, 600, 26, 15, new Color(0.25f, 0.32f, 0.42f));
-        this.label(stampArea.transform, "StampSeal", "[ CERTIFIED OFFICIAL ACCOUNTING RECORD ]", 650, 16, 420, 28, 15, new Color(0.80f, 0.28f, 0.25f), TextAlignmentOptions.MidlineRight);
+        label(hubContentContainer, "FinanceSummary", $"Cash: {economy.QueryService.CurrentBalance:N0} G\nLast closed revenue: {closedRevenue:N0} G\nPersistent ledger: disabled", 40, 40, 1100, 160, 24, Color.black);
     }
 
 
@@ -623,26 +539,10 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     // 11. TAB 3: BUILDING UPGRADE VIEW (Isometric Tier Progression)
     // =========================================================================
 
+    /// <summary>MainScene 통합 화면의 renderBuildingUpgrade 처리를 수행한다.</summary>
     private void renderBuildingUpgrade()
     {
-        this.label(this.hubContentContainer, "UpTitle", "STALL FACILITY & TIER UPGRADE", 40, 18, 1140, 32, 22, new Color(0.15f, 0.20f, 0.28f), TextAlignmentOptions.MidlineLeft);
-
-        var upFrame = this.panel(this.hubContentContainer, "UpPaper", 40, 58, 1140, 500, Color.white);
-        this.panel(upFrame.transform, "Border", 0, 0, 1140, 500, new Color(0.75f, 0.80f, 0.86f));
-
-        this.label(upFrame.transform, "CurrentCash", $"Available Treasury: <color=#D48800><b>{this.currentSaveData.cash:N0} G</b></color>", 40, 20, 600, 30, 20, new Color(0.15f, 0.20f, 0.28f));
-
-        // 3 Tiers Side by Side
-        int currentTier = this.currentSaveData.buildingTier;
-
-        // TIER 1
-        this.renderTierCard(upFrame.transform, 1, "Tier 1: Temporary Stall", "Capacity: 8 Customers\nQueue Decay: 2.0/s\nBasic Wooden Barrier", 0, currentTier >= 1, 40, 75, 335, 380);
-
-        // TIER 2
-        this.renderTierCard(upFrame.transform, 2, "Tier 2: Reinforced Stand", "Capacity: 10 Customers\nQueue Decay: 1.6/s (-20%)\nMetal Awning & Sound Insulation", 15000, currentTier >= 2, 400, 75, 335, 380);
-
-        // TIER 3
-        this.renderTierCard(upFrame.transform, 3, "Tier 3: Modern Kiosk", "Capacity: 12 Customers\nQueue Decay: 1.2/s (-40%)\nProtected District License", 40000, currentTier >= 3, 760, 75, 335, 380);
+        label(hubContentContainer, "Unavailable", "Not connected in this integration.", 40, 40, 1100, 60, 22);
     }
 
     private void renderTierCard(Transform parent, int tier, string title, string perks, int cost, bool isOwned, float x, float y, float width, float height)
@@ -678,27 +578,10 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         }
     }
 
+    /// <summary>MainScene 통합 화면의 purchaseUpgrade 처리를 수행한다.</summary>
     private void purchaseUpgrade(int nextTier, int cost)
     {
-        if (this.currentSaveData.cash >= cost)
-        {
-            this.currentSaveData.cash -= cost;
-            this.currentSaveData.buildingTier = nextTier;
-
-            // Log into ledger expenses
-            this.currentSaveData.ledgerHistory.Add(new LedgerRecord(
-                this.currentSaveData.currentDay,
-                0,
-                cost,
-                0,
-                this.currentSaveData.cash,
-                0,
-                this.currentSaveData.reputation
-            ));
-
-            CashierSaveManager.Save(this.currentSaveData);
-            this.renderBuildingUpgrade();
-        }
+        // 업그레이드와 별도 자금 저장은 통합 범위 밖이다.
     }
 
 
@@ -706,52 +589,10 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     // 12. TAB 4: OPTIONS SETTINGS VIEW
     // =========================================================================
 
+    /// <summary>MainScene 통합 화면의 renderOptionsSettings 처리를 수행한다.</summary>
     private void renderOptionsSettings()
     {
-        this.label(this.hubContentContainer, "OptTitle", "GAME & AUDIO SETTINGS", 40, 18, 1140, 32, 22, new Color(0.15f, 0.20f, 0.28f), TextAlignmentOptions.MidlineLeft);
-
-        var optFrame = this.panel(this.hubContentContainer, "OptPaper", 320, 80, 580, 440, Color.white);
-        this.panel(optFrame.transform, "Border", 0, 0, 580, 440, new Color(0.75f, 0.80f, 0.86f));
-
-        // BGM Control
-        this.label(optFrame.transform, "BGMLabel", "BGM Volume", 40, 40, 200, 30, 18, new Color(0.15f, 0.20f, 0.28f));
-        int bgmPct = Mathf.RoundToInt(this.currentSaveData.bgmVolume * 100f);
-        var bgmText = this.label(optFrame.transform, "BGMVal", $"{bgmPct}%", 240, 40, 100, 30, 18, new Color(0.24f, 0.45f, 0.65f), TextAlignmentOptions.Center);
-
-        this.makeButton(optFrame.transform, "BGMDown", "-", 360, 38, 48, 36, () => {
-            this.currentSaveData.bgmVolume = Mathf.Clamp01(this.currentSaveData.bgmVolume - 0.1f);
-            CashierSaveManager.Save(this.currentSaveData);
-            bgmText.text = $"{Mathf.RoundToInt(this.currentSaveData.bgmVolume * 100f)}%";
-        }, 20);
-
-        this.makeButton(optFrame.transform, "BGMUp", "+", 420, 38, 48, 36, () => {
-            this.currentSaveData.bgmVolume = Mathf.Clamp01(this.currentSaveData.bgmVolume + 0.1f);
-            CashierSaveManager.Save(this.currentSaveData);
-            bgmText.text = $"{Mathf.RoundToInt(this.currentSaveData.bgmVolume * 100f)}%";
-        }, 20);
-
-        // SFX Control
-        this.label(optFrame.transform, "SFXLabel", "SFX Volume", 40, 120, 200, 30, 18, new Color(0.15f, 0.20f, 0.28f));
-        int sfxPct = Mathf.RoundToInt(this.currentSaveData.sfxVolume * 100f);
-        var sfxText = this.label(optFrame.transform, "SFXVal", $"{sfxPct}%", 240, 120, 100, 30, 18, new Color(0.24f, 0.45f, 0.65f), TextAlignmentOptions.Center);
-
-        this.makeButton(optFrame.transform, "SFXDown", "-", 360, 118, 48, 36, () => {
-            this.currentSaveData.sfxVolume = Mathf.Clamp01(this.currentSaveData.sfxVolume - 0.1f);
-            CashierSaveManager.Save(this.currentSaveData);
-            sfxText.text = $"{Mathf.RoundToInt(this.currentSaveData.sfxVolume * 100f)}%";
-        }, 20);
-
-        this.makeButton(optFrame.transform, "SFXUp", "+", 420, 118, 48, 36, () => {
-            this.currentSaveData.sfxVolume = Mathf.Clamp01(this.currentSaveData.sfxVolume + 0.1f);
-            CashierSaveManager.Save(this.currentSaveData);
-            sfxText.text = $"{Mathf.RoundToInt(this.currentSaveData.sfxVolume * 100f)}%";
-        }, 20);
-
-        // Screen Resolution Spec
-        this.label(optFrame.transform, "ResLabel", "Target Resolution", 40, 200, 200, 30, 18, new Color(0.15f, 0.20f, 0.28f));
-        this.label(optFrame.transform, "ResVal", "1920 x 1080 (Full HD)", 240, 200, 280, 30, 18, new Color(0.40f, 0.45f, 0.55f));
-
-        this.makeButton(optFrame.transform, "BtnDone", "SAVE & CLOSE", 190, 340, 200, 48, () => this.selectHubTab(HubTab.Flyer), 18, new Color(0.22f, 0.55f, 0.38f));
+        label(hubContentContainer, "Unavailable", "Not connected in this integration.", 40, 40, 1100, 60, 22);
     }
 
 
@@ -766,11 +607,11 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         var box = this.panel(this.quitConfirmModal.transform, "Box", 380, 220, 520, 260, Color.white);
         this.panel(box.transform, "Border", 0, 0, 520, 260, new Color(0.70f, 0.75f, 0.82f));
 
-        this.label(box.transform, "Prompt", "Do you want to save your progress\nand return to the Title Screen?", 30, 40, 460, 60, 20, new Color(0.15f, 0.20f, 0.28f), TextAlignmentOptions.Center);
+        this.label(box.transform, "Prompt", "Return to Title? Saving is disabled.", 30, 40, 460, 60, 20, new Color(0.15f, 0.20f, 0.28f), TextAlignmentOptions.Center);
 
         // Yes: Save & Return to Title
-        this.makeButton(box.transform, "BtnYes", "YES (SAVE & EXIT)", 70, 150, 180, 48, () => {
-            CashierSaveManager.Save(this.currentSaveData);
+        this.makeButton(box.transform, "BtnYes", "RETURN TO TITLE", 70, 150, 180, 48, () => {
+            // Persistence disabled in integrated scene.
             this.quitConfirmModal.SetActive(false);
             this.setViewState(GameViewState.Title);
         }, 16, new Color(0.22f, 0.55f, 0.38f));
@@ -827,7 +668,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.statusText = this.label(this.tradingRoot.transform, "Status", "", 330, 48, 270, 24, 15, null, TextAlignmentOptions.MidlineLeft);
 
         this.cashText = this.label(this.tradingRoot.transform, "Cash", "", 655, 14, 240, 30, 25, new Color(1f, 0.85f, 0.35f), TextAlignmentOptions.MidlineLeft);
-        this.goalHintText = this.label(this.tradingRoot.transform, "GoalHint", $"Safe Zone Pass: {this.settings.citizenshipPrice:N0} G", 655, 49, 265, 23, 14, new Color(0.70f, 0.75f, 0.80f), TextAlignmentOptions.MidlineLeft);
+        this.goalHintText = this.label(this.tradingRoot.transform, "GoalHint", "Citizenship: disabled", 655, 49, 265, 23, 14, new Color(0.70f, 0.75f, 0.80f), TextAlignmentOptions.MidlineLeft);
 
         this.gaugeText = this.label(this.tradingRoot.transform, "GaugeText", "", 945, 14, 240, 25, 18, null, TextAlignmentOptions.MidlineLeft);
         this.panel(this.tradingRoot.transform, "GaugeRail", 945, 51, 300, 8, new Color(0.16f, 0.20f, 0.22f));
@@ -846,6 +687,8 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         // Instructions
         this.reasonText = this.label(this.tradingRoot.transform, "Feedback", "", 273, 674, 655, 35, 14, new Color(0.70f, 0.75f, 0.80f), TextAlignmentOptions.Center);
 
+        nextCustomerButton = makeButton(tradingRoot.transform, "NextCustomer", "NEXT CUSTOMER", 30, 150, 220, 40, GenerateCustomer, 18);
+        endDayButton = makeButton(tradingRoot.transform, "EndDay", "END DAY", 30, 195, 220, 40, endDay, 18);
         // POS Keypad
         this.panel(this.tradingRoot.transform, "RegisterBorder", 945, 403, 309, 304, new Color(0.24f, 0.30f, 0.36f));
         this.panel(this.tradingRoot.transform, "Register", 947, 405, 305, 300, new Color(0.045f, 0.065f, 0.075f, 0.98f));
@@ -865,39 +708,6 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.makeButton(this.tradingRoot.transform, "Digit00", "00", 1149, 605, 88, 33, this.doubleZero, 18, new Color(0.25f, 0.34f, 0.44f));
 
         this.confirmButton = this.makeButton(this.tradingRoot.transform, "Confirm", "CONFIRM SALE [Enter]", 961, 646, 276, 44, this.confirm, 18, new Color(0.28f, 0.55f, 0.42f));
-
-        // Attach & Bind Presenters conforming to UI Presentation Layer Contract
-        this.economyPresenter = this.tradingRoot.AddComponent<EconomyStatusPresenter>();
-        this.economyPresenter.Bind(this.cashText);
-
-        this.gameDayPresenter = this.tradingRoot.AddComponent<GameDayPresenter>();
-        this.gameDayPresenter.Bind(this.dayText, this.goalHintText, this.statusText);
-
-        this.timerPresenter = this.tradingRoot.AddComponent<BusinessTimerPresenter>();
-        this.timerPresenter.Bind(null, this.gaugeText);
-
-        this.customerPresenter = this.tradingRoot.AddComponent<CustomerPresenter>();
-        this.customerPresenter.Bind(this.portrait.gameObject, this.portrait, this.dialogueText, this.basketRoot);
-
-        this.priceInputPresenter = this.tradingRoot.AddComponent<PriceInputPresenter>();
-        this.priceInputPresenter.Bind(this.inputText, this.reasonText, this.confirmButton);
-        this.priceInputPresenter.OnPriceConfirmed += (price) => {
-            if (this.Session != null && this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused)
-            {
-                this.Session.Confirm(price.ToString());
-                this.amount = "";
-                this.invalidAmount = false;
-                this.refreshTradingView();
-            }
-        };
-        this.priceInputPresenter.OnInputCancelled += () => {
-            this.amount = "";
-            this.invalidAmount = false;
-            this.showAmount();
-        };
-
-        this.settlementPresenter = this.tradingRoot.AddComponent<DailySettlementPresenter>();
-        this.settlementPresenter.OnNextStepRequested += this.completeTradingDayAndReturnToHub;
     }
 
     private void handleTradingInput()
@@ -908,7 +718,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
         if (kb.escapeKey.wasPressedThisFrame) this.pause();
 
-        if (this.Session != null && this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused)
+        if (canOffer)
         {
             if (kb.minusKey.wasPressedThisFrame || kb.numpadMinusKey.wasPressedThisFrame ||
                 kb.periodKey.wasPressedThisFrame || kb.numpadPeriodKey.wasPressedThisFrame)
@@ -932,7 +742,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 #else
         if (Input.GetKeyDown(KeyCode.Escape)) this.pause();
 
-        if (this.Session != null && this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused)
+        if (canOffer)
         {
             if (Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus) ||
                 Input.GetKeyDown(KeyCode.Period) || Input.GetKeyDown(KeyCode.KeypadPeriod))
@@ -957,8 +767,8 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
     public void digit(string d)
     {
-        if (this.Session == null || this.Session.Phase != CashierPhase.Trading || this.Session.IsPaused || this.invalidAmount) return;
-        if (d.Length != 1 || d[0] < '0' || d[0] > '9' || this.amount.Length >= 7) return;
+        if (!canOffer || this.invalidAmount) return;
+        if (d == null || d.Length != 1 || d[0] < '0' || d[0] > '9' || this.amount.Length >= 18) return;
         if (this.amount == "0") this.amount = "";
         this.amount += d;
         this.alertUntil = 0;
@@ -967,9 +777,9 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
     public void doubleZero()
     {
-        if (this.Session == null || this.Session.Phase != CashierPhase.Trading || this.Session.IsPaused || this.invalidAmount) return;
+        if (!canOffer || this.invalidAmount) return;
         if (string.IsNullOrEmpty(this.amount) || this.amount == "0") return;
-        if (this.amount.Length + 2 > 7) return;
+        if (this.amount.Length + 2 > 18) return;
         this.amount += "00";
         this.alertUntil = 0;
         this.showAmount();
@@ -977,7 +787,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
     public void erase()
     {
-        if (this.Session == null || this.Session.Phase != CashierPhase.Trading || this.Session.IsPaused) return;
+        if (!canOffer) return;
         if (this.invalidAmount)
         {
             this.invalidAmount = false;
@@ -992,32 +802,28 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.showAmount();
     }
 
+    /// <summary>MainScene 통합 화면의 confirm 처리를 수행한다.</summary>
     public void confirm()
     {
-        if (this.invalidAmount || this.Session == null) return;
-
-        if (this.Session.Confirm(this.amount))
+        if (!canOffer || !long.TryParse(amount, NumberStyles.None, CultureInfo.InvariantCulture, out long total) || total <= 0) return;
+        try
         {
-            this.amount = "";
-            this.refreshTradingView();
+            // Customer가 판정하고 Finance만 금액을 변경한다. 재호출은 방문 상태로 차단한다.
+            bool accepted = CurrentVisit.SubmitOffer(total);
+            if (accepted && !economy.DailyAggregationService.TryApplyTransaction(new TransactionResult(total, 0)))
+                throw new InvalidOperationException("영업 종료로 거래 수입 반영이 거부되었습니다.");
+            amount = "";
+            refreshTradingView();
         }
-        else if (this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused)
-        {
-            if (this.reasonText != null)
-            {
-                this.reasonText.text = "Please enter an amount of 1 G or more.";
-                this.alertUntil = Time.unscaledTime + 2f;
-            }
-        }
+        catch (Exception exception) { fail(exception); }
     }
 
+    /// <summary>MainScene 통합 화면의 pause 처리를 수행한다.</summary>
     public void pause()
     {
-        if (this.Session != null)
-        {
-            this.Session.TogglePause();
-            this.refreshTradingView();
-        }
+        if (!ready || faulted) return;
+        paused = !paused;
+        refreshTradingView();
     }
 
     private void showAmount()
@@ -1026,390 +832,98 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.inputText.fontSize = (this.invalidAmount ? 16f : 30f) * S;
         this.inputText.text = this.invalidAmount ? "Digits only - DEL to clear" :
                               string.IsNullOrEmpty(this.amount) ? "<color=#777777>0 G</color>" :
-                              $"{int.Parse(this.amount):N0} G";
+                              $"{long.Parse(this.amount, CultureInfo.InvariantCulture):N0} G";
     }
 
+    /// <summary>MainScene 통합 화면의 refreshTradingView 처리를 수행한다.</summary>
     private void refreshTradingView()
     {
-        if (this.Session == null) return;
-        this.drawnRevision = this.Session.Revision;
-
-        if (this.dayText != null) this.dayText.text = $"DAY {this.Session.Day:00} / OPERATING";
-        if (this.cashText != null) this.cashText.text = $"{this.Session.Cash:N0} G";
-        if (this.statusText != null) this.statusText.text = $"Rep: {this.Session.Reputation}   |   Morality: {this.Session.Morality}";
-        if (this.queueText != null) this.queueText.text = $"Today's Visitors: {this.Session.Visitors} | Remaining: {this.Session.Remaining}";
-
-        if (this.confirmButton != null)
+        if (!ready) return;
+        dayText.text = $"DAY {day:00}";
+        cashText.text = $"{economy.QueryService.CurrentBalance:N0} G";
+        statusText.text = faulted ? "ERROR - CHECK CONSOLE" : "Finance / Customer connected";
+        goalHintText.text = "Save / reputation / citizenship: disabled";
+        queueText.text = "Manual visits - schedule deferred";
+        gaugeText.text = paused ? "PAUSED" : "QUEUE DISABLED";
+        gaugeFill.gameObject.SetActive(false);
+        foreach (var image in waiting) image.gameObject.SetActive(false);
+        confirmButton.interactable = canOffer;
+        nextCustomerButton.interactable = !faulted && !paused && !showingGuide && economy.QueryService.IsDayOpen
+            && (CurrentVisit == null || CurrentVisit.State == CustomerState.Accepted || CurrentVisit.State == CustomerState.Rejected);
+        endDayButton.interactable = !faulted && !paused && !showingGuide && economy.QueryService.IsDayOpen
+            && CurrentVisit?.State != CustomerState.AwaitingOffer;
+        dialogueText.text = CurrentVisit == null ? "" : texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
+        reasonText.text = CurrentVisit?.WasAccepted.HasValue == true
+            ? (CurrentVisit.WasAccepted.Value ? "ACCEPTED - income applied" : "REJECTED - no income") : "Enter the whole basket total";
+        if (CurrentVisit != null)
         {
-            this.confirmButton.interactable = this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused;
+            var appearance = catalog.Appearances.Rows[CurrentVisit.AppearanceIdx];
+            var inner = portrait.transform.Find("CustInner").GetComponent<Image>();
+            inner.color = new Color32(appearance.ColorR, appearance.ColorG, appearance.ColorB, appearance.ColorA);
+            var identity = portrait.transform.Find("CustomerTag").GetComponent<TextMeshProUGUI>();
+            identity.rectTransform.anchoredPosition = new Vector2(50 * S, -20 * S);
+            identity.color = Color.black;
+            identity.text = $"{CurrentVisit.AppearanceIdx} + {CurrentVisit.DispositionIdx}";
         }
-
-        this.showAmount();
-
-        if (this.portrait != null)
-        {
-            this.portrait.color = this.Session.Phase == CashierPhase.Result && !this.Session.LastAccepted ?
-                                  new Color(0.60f, 0.25f, 0.25f) :
-                                  new Color(0.16f, 0.20f, 0.26f, 0.95f);
-        }
-
-        for (int i = 0; i < this.waiting.Length; i++)
-        {
-            if (this.waiting[i] != null)
-            {
-                this.waiting[i].gameObject.SetActive(this.Session.Remaining > i + 1);
-            }
-        }
-
-        if (this.dialogueText != null)
-        {
-            if (this.Session.Phase == CashierPhase.Result)
-            {
-                this.dialogueText.text = this.Session.Feedback;
-            }
-            else if (this.Session.Customer != null)
-            {
-                this.dialogueText.text = this.Session.Customer.isPoor ?
-                    "<color=#FFAB91>\"My child is waiting at home... This is all the money I have.\"</color>" :
-                    "\"Please ring these up. How much is it?\"";
-            }
-            else
-            {
-                this.dialogueText.text = "";
-            }
-        }
-
-        if (this.reasonText != null)
-        {
-            if (this.Session.Phase == CashierPhase.Result || this.Session.Departed > 0)
-            {
-                this.reasonText.text = this.Session.Reason;
-                this.alertUntil = Time.unscaledTime + 3f;
-            }
-        }
-
-        // =========================================================================
-        // Dispatch to Architecture Presenters via Read-Only ViewData Snapshots
-        // =========================================================================
-
-        // 1. EconomyStatusViewData -> EconomyStatusPresenter
-        if (this.economyPresenter != null)
-        {
-            this.economyPresenter.UpdateView(new EconomyStatusViewData(this.Session.Cash, this.Session.Revenue));
-        }
-
-        // 2. GameDayViewData -> GameDayPresenter
-        if (this.gameDayPresenter != null)
-        {
-            GameDayPhase phase = this.Session.Phase switch
-            {
-                CashierPhase.PriceGuide => GameDayPhase.PriceGuide,
-                CashierPhase.Trading => GameDayPhase.Operating,
-                CashierPhase.Result => GameDayPhase.TradingResult,
-                CashierPhase.Settlement => GameDayPhase.DailySettlement,
-                CashierPhase.Tribute => GameDayPhase.Tribute,
-                _ => GameDayPhase.Operating
-            };
-            this.gameDayPresenter.UpdateView(new GameDayViewData(this.Session.Day, this.Session.DaysUntilTribute, this.Session.DaysUntilTribute == 0, phase));
-        }
-
-        // 3. BusinessTimerViewData -> BusinessTimerPresenter
-        if (this.timerPresenter != null)
-        {
-            this.timerPresenter.UpdateView(new BusinessTimerViewData(this.Session.Gauge, Mathf.Clamp01(this.Session.Gauge / 100f), this.Session.IsPaused));
-        }
-
-        // 4. CustomerViewData -> CustomerPresenter
-        if (this.customerPresenter != null)
-        {
-            if (this.Session.Customer != null && this.Session.Phase != CashierPhase.PriceGuide)
-            {
-                var basketItems = new List<CustomerBasketItemViewData>();
-                foreach (var line in this.Session.Customer.basket)
-                {
-                    basketItems.Add(new CustomerBasketItemViewData(
-                        line.product.idx != 0 ? line.product.idx : (uint)line.product.name.GetHashCode(),
-                        line.product.name,
-                        line.quantity,
-                        line.product.sprite,
-                        line.product.price
-                    ));
-                }
-
-                Color custColor = this.Session.Phase == CashierPhase.Result && !this.Session.LastAccepted
-                    ? new Color(0.60f, 0.25f, 0.25f)
-                    : new Color(0.16f, 0.20f, 0.26f, 0.95f);
-
-                string dialogue = this.Session.Phase == CashierPhase.Result
-                    ? this.Session.Feedback
-                    : this.Session.Customer.isPoor
-                        ? "<color=#FFAB91>\"My child is waiting at home... This is all the money I have.\"</color>"
-                        : "\"Please ring these up. How much is it?\"";
-
-                this.customerPresenter.UpdateView(new CustomerViewData(true, custColor, null, dialogue, basketItems));
-            }
-            else
-            {
-                this.customerPresenter.UpdateView(CustomerViewData.Empty);
-            }
-        }
-
-        // 5. PriceInputViewData -> PriceInputPresenter
-        if (this.priceInputPresenter != null)
-        {
-            long? curInput = long.TryParse(this.amount, out long pVal) ? pVal : null;
-            bool canConfirm = this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused && !string.IsNullOrEmpty(this.amount);
-            bool isInputEnabled = this.Session.Phase == CashierPhase.Trading && !this.Session.IsPaused;
-            string validationMsg = this.invalidAmount ? "Digits only - DEL to clear" : (this.Session.Phase == CashierPhase.Result ? this.Session.Reason : null);
-            this.priceInputPresenter.UpdateView(new PriceInputViewData(curInput, canConfirm, isInputEnabled, validationMsg));
-        }
-
-        this.renderBasket();
-        this.renderTradingModal();
+        showAmount();
+        renderBasket();
+        renderTradingModal();
     }
 
+    /// <summary>MainScene 통합 화면의 renderBasket 처리를 수행한다.</summary>
     private void renderBasket()
     {
-        foreach (var card in this.activeBasketCards)
+        foreach (var card in activeBasketCards) { card.SetActive(false); Destroy(card); }
+        activeBasketCards.Clear();
+        if (CurrentVisit == null || showingGuide) return;
+        for (int i = 0; i < CurrentVisit.Items.Count; i++)
         {
-            if (card != null) Destroy(card);
-        }
-        this.activeBasketCards.Clear();
-
-        if (this.basketRoot == null || this.Session.Customer == null || this.Session.Phase == CashierPhase.PriceGuide) return;
-
-        var units = new List<(CashierProduct product, int unitIndex, int totalOfSame)>();
-        foreach (var line in this.Session.Customer.basket)
-        {
-            for (int u = 0; u < line.quantity; u++)
-            {
-                units.Add((line.product, u, line.quantity));
-            }
-        }
-
-        int totalUnits = units.Count;
-        if (totalUnits == 0) return;
-
-        if (totalUnits <= 5)
-        {
-            float itemWidth = totalUnits <= 3 ? 105f : totalUnits == 4 ? 96f : 88f;
-            float itemHeight = 110f;
-            float spacing = Mathf.Min(24f, (615f - (totalUnits * itemWidth)) / Mathf.Max(1, totalUnits + 1));
-            float totalWidth = totalUnits * itemWidth + (totalUnits - 1) * spacing;
-            float startX = (635f - totalWidth) / 2f;
-            float y = 14f;
-
-            for (int i = 0; i < totalUnits; i++)
-            {
-                float x = startX + i * (itemWidth + spacing);
-                this.renderIndividualItemUnit(units[i].product, units[i].unitIndex, units[i].totalOfSame, i, x, y, itemWidth, itemHeight, false);
-            }
-        }
-        else
-        {
-            int r1Count = (totalUnits + 1) / 2;
-            int r2Count = totalUnits - r1Count;
-            float itemWidth = 88f;
-            float itemHeight = 56f;
-            float spacing1 = (615f - r1Count * itemWidth) / Mathf.Max(1, r1Count + 1);
-            float spacing2 = (615f - r2Count * itemWidth) / Mathf.Max(1, r2Count + 1);
-
-            float totalW1 = r1Count * itemWidth + (r1Count - 1) * spacing1;
-            float startX1 = (635f - totalW1) / 2f;
-            for (int i = 0; i < r1Count; i++)
-            {
-                float x = startX1 + i * (itemWidth + spacing1);
-                this.renderIndividualItemUnit(units[i].product, units[i].unitIndex, units[i].totalOfSame, i, x, 8f, itemWidth, itemHeight, true);
-            }
-
-            float totalW2 = r2Count * itemWidth + (r2Count - 1) * spacing2;
-            float startX2 = (635f - totalW2) / 2f;
-            for (int i = 0; i < r2Count; i++)
-            {
-                int idx = r1Count + i;
-                float x = startX2 + i * (itemWidth + spacing2);
-                this.renderIndividualItemUnit(units[idx].product, units[idx].unitIndex, units[idx].totalOfSame, idx, x, 72f, itemWidth, itemHeight, true);
-            }
+            var item = CurrentVisit.Items[i];
+            var product = catalog.Products.Rows[item.ProductIdx];
+            var card = panel(basketRoot, $"Product_{item.ProductIdx}", (i % 4) * 150, (i / 4) * 100, 130, 130, Color.white);
+            card.sprite = productSprites[item.ProductIdx];
+            card.preserveAspect = true;
+            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}",
+                4, 35, 122, 60, 16, Color.black, TextAlignmentOptions.Center);
+            activeBasketCards.Add(card.gameObject);
         }
     }
 
-    private void renderIndividualItemUnit(CashierProduct product, int unitIndex, int totalOfSame, int globalSlot, float x, float y, float width, float height, bool isCompact)
-    {
-        var unitPanel = this.panel(this.basketRoot, $"Unit_{globalSlot}_{product.name}", x, y, width, height, new Color(0.12f, 0.16f, 0.22f, 0.95f));
-        this.panel(unitPanel.transform, "Border", 0, 0, width, height, new Color(0.28f, 0.35f, 0.44f, 0.85f));
 
-        if (product.sprite != null)
-        {
-            float imgHeight = isCompact ? height - 18f : height - 26f;
-            var img = this.panel(unitPanel.transform, "Sprite", 3, 3, width - 6, imgHeight, Color.white);
-            img.sprite = product.sprite;
-            img.preserveAspect = true;
-
-            string tagText = totalOfSame > 1 ? $"{product.name} #{unitIndex + 1}" : product.name;
-            this.label(unitPanel.transform, "Label", tagText, 2, height - (isCompact ? 16f : 22f), width - 4, 16, isCompact ? 10 : 12, new Color(0.85f, 0.90f, 0.95f), TextAlignmentOptions.Center);
-        }
-        else
-        {
-            if (isCompact)
-            {
-                this.label(unitPanel.transform, "Name", product.name, 2, 6, width - 4, 22, 13, Color.white, TextAlignmentOptions.Center);
-                string tag = totalOfSame > 1 ? $"#{unitIndex + 1}" : "[ITEM]";
-                this.label(unitPanel.transform, "UnitTag", tag, 2, 30, width - 4, 20, 12, new Color(0.40f, 0.85f, 0.55f), TextAlignmentOptions.Center);
-            }
-            else
-            {
-                this.label(unitPanel.transform, "Icon", "[ITEM]", 2, 12, width - 4, 26, 15, new Color(0.60f, 0.75f, 0.90f), TextAlignmentOptions.Center);
-                this.label(unitPanel.transform, "Name", product.name, 2, 42, width - 4, 32, 14, Color.white, TextAlignmentOptions.Center);
-                string tag = totalOfSame > 1 ? $"Item #{unitIndex + 1}" : "x 1";
-                this.label(unitPanel.transform, "UnitTag", tag, 2, 76, width - 4, 20, 12, new Color(0.40f, 0.85f, 0.55f), TextAlignmentOptions.Center);
-            }
-        }
-
-        this.activeBasketCards.Add(unitPanel.gameObject);
-    }
-
+    /// <summary>MainScene 통합 화면의 renderTradingModal 처리를 수행한다.</summary>
     private void renderTradingModal()
     {
-        if (this.tradingModal != null)
+        if (tradingModal != null) { tradingModal.gameObject.SetActive(false); Destroy(tradingModal.gameObject); tradingModal = null; }
+        if (faulted) { createTradingModalWindow("INTEGRATION ERROR", "Check Console. Input is disabled; no automatic retry."); return; }
+        if (paused)
         {
-            this.tradingModal.gameObject.SetActive(false);
-            Destroy(this.tradingModal.gameObject);
-            this.tradingModal = null;
-        }
-
-        if (this.Session.IsPaused)
-        {
-            this.createTradingModalWindow("PAUSED", "Time and queue are frozen.");
-            this.makeButton(this.tradingModal, "Resume", "RESUME", 190, 320, 360, 48, this.pause, 21, new Color(0.22f, 0.45f, 0.65f));
-            this.makeButton(this.tradingModal, "Restart", "RESTART", 190, 380, 360, 44, this.restartTradingDay, 18, new Color(0.50f, 0.25f, 0.25f));
+            createTradingModalWindow("PAUSED", "No transaction input.");
+            makeButton(tradingModal, "Resume", "RESUME", 190, 320, 360, 48, pause, 18);
             return;
         }
-
-        switch (this.Session.Phase)
+        if (showingGuide)
         {
-            case CashierPhase.PriceGuide:
-                this.createTradingModalWindow(
-                    this.Session.Day == 1 ? "BEFORE BUSINESS: MEMORIZE THE PRICES" : "NEW PRODUCTS INTRODUCED",
-                    "Once business begins, the price list cannot be viewed again."
-                );
-
-                var dayProducts = new List<CashierProduct>();
-                foreach (var product in this.settings.products)
-                {
-                    if (product.firstDay == this.Session.Day)
-                    {
-                        dayProducts.Add(product);
-                    }
-                }
-
-                int prodCount = dayProducts.Count;
-                if (prodCount <= 4)
-                {
-                    float cardWidth = prodCount == 1 ? 190f : prodCount == 2 ? 175f : 155f;
-                    float cardHeight = 160f;
-                    float spacing = prodCount == 1 ? 0f : prodCount == 2 ? 35f : 20f;
-                    float totalRowWidth = prodCount * cardWidth + (prodCount - 1) * spacing;
-                    float startX = (740f - totalRowWidth) / 2f;
-
-                    for (int i = 0; i < prodCount; i++)
-                    {
-                        var product = dayProducts[i];
-                        float x = startX + i * (cardWidth + spacing);
-                        this.renderProductGuideCard(this.tradingModal, product, i, x, 140f, cardWidth, cardHeight, false);
-                    }
-                }
-                else
-                {
-                    int r1Count = (prodCount + 1) / 2;
-                    int r2Count = prodCount - r1Count;
-                    float cardWidth = 140f;
-                    float cardHeight = 110f;
-                    float spacing = 16f;
-
-                    float totalRow1 = r1Count * cardWidth + (r1Count - 1) * spacing;
-                    float startX1 = (740f - totalRow1) / 2f;
-                    for (int i = 0; i < r1Count; i++)
-                    {
-                        var product = dayProducts[i];
-                        float x = startX1 + i * (cardWidth + spacing);
-                        this.renderProductGuideCard(this.tradingModal, product, i, x, 125f, cardWidth, cardHeight, true);
-                    }
-
-                    float totalRow2 = r2Count * cardWidth + (r2Count - 1) * spacing;
-                    float startX2 = (740f - totalRow2) / 2f;
-                    for (int i = 0; i < r2Count; i++)
-                    {
-                        var product = dayProducts[r1Count + i];
-                        float x = startX2 + i * (cardWidth + spacing);
-                        this.renderProductGuideCard(this.tradingModal, product, r1Count + i, x, 245f, cardWidth, cardHeight, true);
-                    }
-                }
-
-                this.label(this.tradingModal, "Narrative",
-                    $"In {this.Session.DaysUntilTribute} days, the Inspector will collect the tribute.\nGather enough cash to reach the Safe Zone with your daughter.",
-                    35, 366, 670, 56, 17, new Color(0.85f, 0.88f, 0.85f), TextAlignmentOptions.TopLeft);
-
-                this.makeButton(this.tradingModal, "OpenShop", "I MEMORIZED - OPEN STORE", 170, 435, 400, 46, () => { this.Session.OpenShop(); this.refreshTradingView(); }, 20, new Color(0.20f, 0.55f, 0.35f));
-                break;
-
-            case CashierPhase.Tribute:
-                this.createTradingModalWindow(
-                    "INSPECTOR'S VISIT",
-                    "\"Stall fee, protection tax, my cut. You haven't forgotten, have you?\""
-                );
-
-                this.label(this.tradingModal, "TributeInfo",
-                    $"Due Tribute Today: <color=#FF5533>{this.Session.TributeAmount:N0} G</color>\nCurrent Cash: <b>{this.Session.Cash:N0} G</b>\n\nCitizenship pass can be purchased after tribute is paid.",
-                    40, 200, 650, 100, 21, new Color(0.9f, 0.9f, 0.9f));
-
-                this.makeButton(this.tradingModal, "PayTribute", "PAY TRIBUTE", 80, 420, 400, 48, () => { this.Session.PayTribute(); this.refreshTradingView(); }, 21, new Color(0.70f, 0.28f, 0.28f));
-                break;
-
-            case CashierPhase.Settlement:
-                this.createTradingModalWindow(
-                    $"DAY {this.Session.Day:00} SETTLEMENT",
-                    $"Revenue: +{this.Session.Revenue:N0} G    |    Cash Balance: {this.Session.Cash:N0} G"
-                );
-
-                this.label(this.tradingModal, "Summary",
-                    $"Successful Sales: <b>{this.Session.Sold}</b>    Refused: <b>{this.Session.Refused}</b>    Departed: <b>{this.Session.Departed}</b>\n\n" +
-                    $"Reputation: <b>{this.Session.ReputationChange:+0;-0;0}</b>      Morality: <b>{this.Session.MoralityChange:+0;-0;0}</b>\n\n" +
-                    $"Next tribute inspection in <b>{this.Session.DaysUntilTribute} days</b>\n" +
-                    $"Remaining to Citizenship Pass: <b>{Math.Max(0, this.settings.citizenshipPrice - this.Session.Cash):N0} G</b>",
-                    40, 160, 650, 210, 22, new Color(0.90f, 0.93f, 0.90f));
-
-                // NEXT DAY -> Commit record to Ledger & Return to Main Hub!
-                this.makeButton(this.tradingModal, "NextDay", "COMPLETE DAY >", 390, 420, 300, 48, this.completeTradingDayAndReturnToHub, 20, new Color(0.20f, 0.55f, 0.35f));
-
-                var buyBtn = this.makeButton(this.tradingModal, "BuyCitizenship", "BUY CITIZENSHIP", 40, 420, 320, 48, () => { this.Session.BuyCitizenship(); this.refreshTradingView(); }, 20, new Color(0.25f, 0.45f, 0.75f));
-                buyBtn.interactable = this.Session.CanBuy;
-                break;
-
-            case CashierPhase.Goal:
-                this.createTradingModalWindow(
-                    "TO THE SAFE ZONE",
-                    "\"Dad, can we finally sleep in a warm bed now?\""
-                );
-
-                this.label(this.tradingModal, "Ending",
-                    "You have obtained the Citizenship Pass.\n\nYour fair pricing decisions and endurance brought you here.\n\nRemembering the reputation, morality, and those left behind.",
-                    50, 185, 640, 195, 22, new Color(0.90f, 0.93f, 0.90f));
-
-                this.makeButton(this.tradingModal, "RestartGoal", "START NEW JOURNEY", 170, 420, 400, 48, this.onNewGameClicked, 20, new Color(0.20f, 0.55f, 0.35f));
-                break;
-
-            case CashierPhase.Failed:
-                this.createTradingModalWindow(
-                    "THE STALL HAS CLOSED",
-                    "\"No tribute? Then clear out of here.\""
-                );
-
-                this.label(this.tradingModal, "Failure",
-                    $"Required Tribute: <color=#FF5533>{this.Session.TributeAmount:N0} G</color>\nYour Cash: {this.Session.Cash:N0} G\n\nThe stall was seized by district enforcers.\nReview your prices and try again.",
-                    40, 190, 470, 170, 21, new Color(0.95f, 0.75f, 0.75f));
-
-                this.makeButton(this.tradingModal, "RestartFail", "TRY AGAIN", 80, 420, 400, 48, this.onNewGameClicked, 20, new Color(0.65f, 0.25f, 0.25f));
-                break;
+            createTradingModalWindow("PRODUCT PRICES", "CSV catalogue - available products");
+            var products = catalog.Products.Rows.Values.Where(p => p.IsAvailable && p.AvailableDay <= day - 1).OrderBy(p => p.Idx).ToArray();
+            for (int i = 0; i < products.Length; i++)
+            {
+                var p = products[i];
+                label(tradingModal, $"Price_{p.Idx}", texts.Rows[p.NameIdx].Text + $"  {p.BasePrice:N0}",
+                    25 + (i % 4) * 175, 140 + (i / 4) * 55, 170, 50, 15);
+            }
+            makeButton(tradingModal, "OpenShop", "OPEN STORE", 170, 435, 400, 46, openShop, 18);
+        }
+        else if (!economy.QueryService.IsDayOpen)
+        {
+            createTradingModalWindow($"DAY {day} SETTLEMENT", $"Revenue: {closedRevenue:N0} G / Cash: {economy.QueryService.CurrentBalance:N0} G");
+            bool due = day % economy.QueryService.MaintenanceCycleDays == 0
+                && economy.MaintenanceService.LastPaidRound < day / economy.QueryService.MaintenanceCycleDays;
+            if (due && economy.QueryService.TryGetNextMaintenanceAmount(out long required))
+            {
+                label(tradingModal, "Maintenance", $"Maintenance: {required:N0} G", 40, 180, 650, 60, 22);
+                makeButton(tradingModal, "PayTribute", "PAY MAINTENANCE", 80, 420, 400, 48, payMaintenance, 18);
+            }
+            else makeButton(tradingModal, "NextDay", "COMPLETE DAY", 190, 420, 360, 48, completeTradingDayAndReturnToHub, 18);
         }
     }
 
@@ -1422,71 +936,129 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         this.label(this.tradingModal, "ModalSubtitle", subtitle, 35, 85, 670, 55, 18, new Color(0.70f, 0.75f, 0.80f), TextAlignmentOptions.TopLeft);
     }
 
-    private void renderProductGuideCard(Transform parent, CashierProduct product, int index, float x, float y, float width, float height, bool isCompact)
-    {
-        var card = this.panel(parent, $"GuideCard_{index}", x, y, width, height, new Color(0.13f, 0.17f, 0.22f, 1f));
-        this.panel(card.transform, "CardBorder", 0, 0, width, height, new Color(0.28f, 0.35f, 0.44f, 0.85f));
 
-        if (product.sprite != null)
-        {
-            float imgH = isCompact ? height - 44f : height - 54f;
-            var img = this.panel(card.transform, "Sprite", 4, 4, width - 8, imgH, Color.white);
-            img.sprite = product.sprite;
-            img.preserveAspect = true;
-        }
-        else
-        {
-            this.label(card.transform, "Icon", "[ITEM]", 2, isCompact ? 10 : 20, width - 4, 26, isCompact ? 14 : 18, new Color(0.65f, 0.75f, 0.85f), TextAlignmentOptions.Center);
-        }
-
-        this.label(card.transform, "Name", product.name, 4, height - (isCompact ? 40f : 50f), width - 8, 20, isCompact ? 14 : 16, Color.white, TextAlignmentOptions.Center);
-        this.label(card.transform, "Price", $"{product.price:N0} G", 4, height - (isCompact ? 22f : 26f), width - 8, 22, isCompact ? 16 : 19, new Color(1f, 0.85f, 0.35f), TextAlignmentOptions.Center);
-    }
-
+    /// <summary>MainScene 통합 화면의 restartTradingDay 처리를 수행한다.</summary>
     private void restartTradingDay()
     {
-        this.Session = new CashierSession(this.settings, Environment.TickCount);
-        this.amount = "";
-        this.invalidAmount = false;
-        this.drawnRevision = -1;
-        this.refreshTradingView();
+        // 경제 상태를 복제하거나 초기화하지 않는다. 재시작은 미연결이다.
     }
 
+    /// <summary>MainScene 통합 화면의 completeTradingDayAndReturnToHub 처리를 수행한다.</summary>
     private void completeTradingDayAndReturnToHub()
     {
-        // 1. Commit day record to ledger history
-        int maintenance = 500;
-        int revenue = this.Session.Revenue;
-        int netCash = this.Session.Cash;
-        int repChange = this.Session.ReputationChange;
-        int netRep = this.Session.Reputation;
-
-        this.currentSaveData.ledgerHistory.Add(new LedgerRecord(
-            this.Session.Day,
-            maintenance,
-            0,
-            revenue,
-            netCash,
-            repChange,
-            netRep
-        ));
-
-        // 2. Increment save state day & balances
-        this.currentSaveData.currentDay = this.Session.Day + 1;
-        this.currentSaveData.cash = netCash;
-        this.currentSaveData.reputation = netRep;
-        this.currentSaveData.morality = this.Session.Morality;
-
-        CashierSaveManager.Save(this.currentSaveData);
-
-        // 3. Return to Main Hub
-        this.setViewState(GameViewState.MainHub);
+        if (faulted || paused || economy.QueryService.IsDayOpen || currentViewState != GameViewState.Trading) return;
+        day = checked(day + 1);
+        CurrentVisit = null;
+        setViewState(GameViewState.MainHub);
     }
 
 
     // =========================================================================
     // 15. EVENT SYSTEM & UTILITY HELPERS
     // =========================================================================
+
+
+    /// <summary>InitScene이 소유한 manager의 준비를 기다린 뒤 UI를 만든다. 직접 Main 실행은 거부한다.</summary>
+    private async void Start()
+    {
+        try
+        {
+            var token = this.GetCancellationTokenOnDestroy();
+            if (DataTableManager.Instance == null || GameSessionManager.Instance == null)
+                throw new InvalidOperationException("InitScene부터 실행하세요.");
+            await DataTableManager.Instance.EnsureDataLoadedAsync().AttachExternalCancellation(token);
+            if (!GameSessionManager.Instance.IsInitialized) throw new InvalidOperationException("경제 세션이 준비되지 않았습니다.");
+            catalog = DataTableManager.Instance.Customers;
+            texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
+            economy = GameSessionManager.Instance.Economy;
+            squareSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 2, 2), new Vector2(0.5f, 0.5f));
+            // 한국어는 실행 환경 글꼴로 표시한다. TMP 기본 자산은 변경하지 않는다.
+            displayFont = TMP_FontAsset.CreateFontAsset("Malgun Gothic", "Regular", 32);
+            if (displayFont == null) throw new InvalidOperationException("통합 테스트 UI에는 Malgun Gothic 글꼴이 필요합니다.");
+            var resources = DataTableManager.Instance.GetDB<ResourceDataTable>(DataTableType.Resource);
+            foreach (var p in catalog.Products.Rows.Values)
+            {
+                Sprite sprite = squareSprite;
+                if (p.ImageResourceIdx.HasValue)
+                    sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(p.ImageResourceIdx.Value)).AttachExternalCancellation(token);
+                token.ThrowIfCancellationRequested();
+                if (sprite == null) throw new InvalidOperationException($"상품 이미지 실패: {p.Idx}");
+                productSprites.Add(p.Idx, sprite);
+            }
+            products = catalog.Products.Rows.Values.OrderBy(p => p.Idx).ToArray();
+            ready = true;
+            buildAllScreens();
+            setViewState(GameViewState.Title);
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception exception) { fail(exception); }
+    }
+
+    /// <summary>영업 시작은 Finance 집계에 한 번 전달한다.</summary>
+    private void openShop()
+    {
+        if (!ready || faulted || paused || !showingGuide) return;
+        economy.DailyAggregationService.BeginDay();
+        showingGuide = false;
+        GenerateCustomer();
+    }
+
+    /// <summary>방문 규칙 확정 전 수동 버튼으로만 다음 손님을 생성한다.</summary>
+    public void GenerateCustomer()
+    {
+        if (!ready || faulted || paused || showingGuide || !economy.QueryService.IsDayOpen
+            || CurrentVisit?.State == CustomerState.AwaitingOffer) return;
+        try
+        {
+            if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
+            CurrentVisit = generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
+                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, (uint)(day - 1));
+            CurrentVisit?.BeginOffer();
+            amount = "";
+            refreshTradingView();
+        }
+        catch (Exception exception) { fail(exception); }
+    }
+
+    /// <summary>미판정 손님이 없을 때 일일 집계를 닫는다.</summary>
+    private void endDay()
+    {
+        if (!ready || faulted || paused || showingGuide || !economy.QueryService.IsDayOpen
+            || CurrentVisit?.State == CustomerState.AwaitingOffer) return;
+        if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
+        closedRevenue = economy.DailyAggregationService.EndDay().SaleIncome;
+        refreshTradingView();
+    }
+
+    /// <summary>Finance가 정한 순서와 금액으로 납부한다. 부족하면 재시도 가능한 상태를 유지한다.</summary>
+    private void payMaintenance()
+    {
+        if (!ready || faulted || paused || economy.QueryService.IsDayOpen) return;
+        int round = day / economy.QueryService.MaintenanceCycleDays;
+        if (day % economy.QueryService.MaintenanceCycleDays != 0 || round != economy.MaintenanceService.LastPaidRound + 1) return;
+        if (!economy.MaintenanceService.TryPay(round, out _))
+        {
+            reasonText.text = "Insufficient funds - maintenance not paid.";
+            return;
+        }
+        refreshTradingView();
+    }
+
+    /// <summary>거래가 부분 실패하면 재시도 없이 멈춰 중복 입금을 방지한다.</summary>
+    /// <param name="exception">원본 오류.</param>
+    private void fail(Exception exception)
+    {
+        faulted = true;
+        Debug.LogException(exception, this);
+        if (ready && tradingRoot != null) refreshTradingView();
+    }
+
+    /// <summary>화면이 생성한 표시 리소스만 정리한다.</summary>
+    private void OnDestroy()
+    {
+        if (squareSprite != null) Destroy(squareSprite);
+        if (displayFont != null) Destroy(displayFont);
+    }
 
     private void ensureValidEventSystem()
     {
@@ -1541,6 +1113,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     {
         var r = this.rect(parent, name, x, y, width, height);
         var tmp = r.gameObject.AddComponent<TextMeshProUGUI>();
+        if (displayFont != null) tmp.font = displayFont;
         tmp.text = text;
         tmp.fontSize = fontSize * S;
         tmp.color = color ?? new Color(0.91f, 0.93f, 0.91f);

@@ -29,6 +29,7 @@
 - 목적 중심의 자연어 요청을 실행 프롬프트로 구체화할 때는 [`doc/AGENT_REQUEST_GUIDE.md`](doc/AGENT_REQUEST_GUIDE.md)를 따른다.
 - Prefab, Addressables, `.meta`와 연관 리소스 작업은 [`doc/PREFAB_RESOURCE_RULES.md`](doc/PREFAB_RESOURCE_RULES.md)를 따른다.
 - CSV와 DataTable 작업은 [`doc/DATA_RULES.md`](doc/DATA_RULES.md)를 따른다.
+- CSV 종류 ID와 문자열 허용 경계는 [`doc/CSV_RULES.md`](doc/CSV_RULES.md)를 따른다. 표시 이름은 `nameidx`로 연결한다.
 
 ### 작업 요청과 지정
 
@@ -160,6 +161,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/Scripts/Commons/` | 공용 enum, interface, DTO, 상수 | 둘 이상의 시스템이 공유하고 안정된 계약만 배치 |
 | `Assets/Scripts/Manager/` | 전역 수명과 공용 서비스 | 기존 manager 책임을 확장할 때만 배치 |
 | `Assets/Scripts/Scene/` | Scene 진입·전환·표현 | 특정 Scene의 수명에 종속된 component 배치 |
+| `Assets/Scripts/Customer/` | 손님 생성·구매 목록과 관련 데이터 검증 | 손님 기능 코드. `Editor/`의 설치 도구는 개인 씬만 변경 |
 | `Assets/Scripts/Utils/` | 상태를 소유하지 않는 범용 도구 | 특정 도메인 규칙을 넣지 않음 |
 | `Assets/Datas/` | 런타임 데이터 원본 | 기존 식별자·loader·Addressables 규칙 준수 |
 | `Assets/Prefabs/` | prefab과 직렬화 연결 | 기능별 하위 폴더를 사용하고 공용 prefab은 실제 공유 시에만 분리 |
@@ -173,6 +175,8 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/Settings/` | URP와 renderer 설정 | 프로그래머 `Primary` 또는 프로젝트 책임자 승인 필요 |
 | `Assets/Plugins/` | 외부·vendor 코드 | 직접 수정 금지. wrapper 또는 상위 코드에서 대응 |
 | `Assets/TextMesh Pro/` | TMP 기본 리소스 | 프로젝트 UI 정책 변경이 아니면 수정 금지 |
+
+공용 CSV DTO·DataTable과 상품 분류 변환기는 `Assets/Scripts/Commons/Data/`, 손님 전용 데이터와 catalog는 `Assets/Scripts/Customer/Data/`, 경제 CSV DTO·DataTable은 `Assets/Scripts/Finance/Data/`에 둔다. Data와 DataTable은 같은 폴더에 배치하고 `DataTableManager`는 `Manager/`에 유지한다.
 
 ### 신규 C# 파일 결정 순서
 

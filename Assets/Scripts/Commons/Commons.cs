@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using CsvHelper.Configuration.Attributes;
-using CsvHelper.TypeConversion;
-using UnityEngine;
-
 // =========================================================================
 // 1. ENUMS (열거형 데이터 - None = 0 ~ TypeName_End 규칙)
 // =========================================================================
@@ -15,14 +9,19 @@ public enum DataTableType : uint
 {
     None = 0,
     
-    // [1순위: 기반 공용 데이터]
-    Resource = 1,         // 1순위: Addressable 에셋 리소스 데이터 (1001~)
-    Text = 2,             // 2순위: 다국어/표기 텍스트 데이터 (2001~)
+    // CSV_RULES.md의 종류 ID. 숫자 순서는 로딩 의존 순서를 의미하지 않는다.
+    Product = 1,          // 상품: 1001~1999
+    EconomyBalance = 2,   // 경제 기본 설정
+    MaintenanceBalance = 3, // 회차별 상납금
+    Resource = 4,         // Addressable 리소스
     
     // [2순위: 유닛 파생/개별 데이터]
-    PlayerData = 4,       // 4순위: 플레이어 파생 데이터 (4001~)
+    CustomerAppearance = 5, // 손님 외형: 5001~5999
+    CustomerDisposition = 6, // 손님 성향: 6001~6999
+    ProductCategory = 7,     // 상품군: 7001~7999
+    Text = 8,               // 명시적 문자열 테이블: 8001~8999
     
-    DataTableType_End
+    DataTableType_End = 10 // 삭제한 종류 값 9를 종료 표식으로 재해석하지 않는다.
 }
 
 
@@ -59,29 +58,4 @@ public static class CommonConstants
     public const string AddressableLabelAnims = "Anims";
     public const string AddressableLabelPrefabs = "Prefabs";
     public const float ParryWindowDuration = 0.15f;
-}
-
-/// <summary>
-/// Addressable 에셋 참조 데이터 (ResourceData.csv 1:1 매핑, Type 1: 1001~)
-/// </summary>
-[Serializable]
-public class ResourceData
-{
-    [Name("idx")]
-    public uint Idx { get; set; }
-
-    [Name("path")]
-    public string Path { get; set; } // Addressable Key ("Player", "GaronAnimatorController" 등)
-}
-
-/// <summary>
-/// 텍스트 데이터 (TextData.csv 1:1 매핑, Type 2: 2001~)
-/// </summary>
-[Serializable]
-public class TextData
-{
-    [Name("idx")]
-    public uint Idx { get; set; }
-    [Name("kr")]
-    public string Kr { get; set; }
 }

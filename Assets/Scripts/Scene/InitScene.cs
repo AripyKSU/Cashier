@@ -18,6 +18,7 @@ public class InitScene : MonoBehaviour
         this.ensureManagerExists<GameSceneManager>("GameSceneManager");
         this.ensureManagerExists<ResourceManager>("ResourceManager");
         this.ensureManagerExists<DataTableManager>("DataTableManager");
+        this.ensureGameSessionManagerExists();
 
         // 2. ResourceManager 초기화 (Addressables 및 카탈로그 수신)
         if (ResourceManager.Instance != null)
@@ -33,6 +34,16 @@ public class InitScene : MonoBehaviour
             Debug.Log("[InitScene] DataTableManager 모든 CSV 데이터 로드 완료.");
         }
 
+        // 검증된 CSV 데이터를 사용해 Scene 전환 전에 새 게임 세션을 구성합니다.
+        if (GameSessionManager.Instance == null || DataTableManager.Instance == null)
+        {
+            Debug.LogError("[InitScene] 게임 세션 초기화에 필요한 Manager가 없습니다.");
+            return;
+        }
+
+        GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance);
+        Debug.Log("[InitScene] GameSessionManager 새 게임 세션 초기화 완료.");
+
         Debug.Log($"<color=green><b>[InitScene] 부팅 프로세스 완료! {nextScene} 씬으로 전환합니다.</b></color>");
 
         // 4. 다음 씬(MainScene)으로 전환
@@ -45,5 +56,21 @@ public class InitScene : MonoBehaviour
         {
             Debug.LogWarning($"[InitScene] '{typeof(T).Name}' 매니저가 씬 상에 사전 배치되어 있지 않습니다.");
         }
+    }
+
+    /// <summary>
+    /// 새 게임 세션을 소유할 GameSessionManager가 없으면 부트 시점에 생성합니다.
+    /// </summary>
+    private void ensureGameSessionManagerExists()
+    {
+        if (GameSessionManager.Instance != null
+            || UnityEngine.Object.FindFirstObjectByType<GameSessionManager>() != null)
+        {
+            return;
+        }
+
+        // 별도 Scene 또는 Prefab 수정 없이 전역 게임 세션 수명 객체를 한 번만 생성합니다.
+        GameObject managerObject = new GameObject("GameSessionManager");
+        managerObject.AddComponent<GameSessionManager>();
     }
 }

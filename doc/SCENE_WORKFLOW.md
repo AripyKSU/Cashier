@@ -9,6 +9,8 @@ Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
 MainScene은 통합·실행 검증용 공용 씬이다. 현재는 기존 Hub의 카메라 구성을 복제한 빈 진입 씬이며, 게임 콘텐츠는 기능별 결과물 통합 시 추가한다.
 
+FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 경제 런타임 구조](FINANCE_SCENE_WORKFLOW.md)를 따른다. FinanceScene은 현재 InitScene을 거치지 않고 직접 실행하는 검증 씬이며, 실제 GameSessionManager 통합은 별도 작업 범위다.
+
 ## 개인 작업
 
 1. Unity에서 `Assets/Scenes/Local/` 폴더를 만들고 개인 씬을 저장한다. 예: `Assets/Scenes/Local/MyGameplay.unity`.
@@ -25,6 +27,8 @@ MainScene은 통합·실행 검증용 공용 씬이다. 현재는 기존 Hub의 
 공유 자산에서 개인 씬이나 Local 내부 자산을 참조하지 않는다. 제외 규칙은 `git add -f`를 막지는 않으므로 강제 stage하지 않는다.
 
 ## 통합과 검증
+
+- 여러 branch의 최종 결과물을 조립할 때 사용자가 참조를 요청하면 [BRANCH_INTEGRATION_RULES.md](BRANCH_INTEGRATION_RULES.md)의 자산 우선순위와 로직 통합 기준을 적용한다.
 
 - 개인 씬 파일을 Git 병합하는 대신 검증된 코드·Prefab·데이터·배치를 MainScene에 반영한다. 기능 담당자와 통합 작업자를 정해 순서대로 반영한다.
 - MainScene과 `.meta`, Addressables의 `MainScene` entry는 함께 관리한다.
