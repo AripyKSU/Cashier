@@ -29,16 +29,11 @@ CSV에서 ID를 숫자형으로 읽으면 앞쪽의 `0`은 값에 포함되지 �
 - 새로운 CSV 종류를 추가하기 전에 기존 종류 ID와 예약된 범위를 확인한다.
 - 배정된 종류 ID는 코드의 `DataTableType` 값 및 로더 분류 규칙과 일치해야 한다.
 
-목표 데이터 구조에서 배정할 종류 ID는 다음과 같다.
+종류 ID의 실제 배정과 예약 현황은 Google Docs의 [CSV 종류 ID](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.kh9qpvlz4raf) 문서를 단일 권위 목록으로 사용한다.
 
-| 종류 ID | 데이터 종류 |
-|---:|---|
-| `001` | 물품 리스트 |
-| `002` | 밸런스 데이터 |
-
-종류가 추가되거나 변경되면 구현과 같은 작업에서 이 표를 갱신한다.
-
-> 현재 코드의 `DataTableType`은 `001`을 Resource, `002`를 Text로 사용하고 있어 위 목표 배정과 충돌한다. 물품 및 밸런스 CSV를 연결하기 전에 기존 ID의 유지·이동 여부를 결정하고 `DataTableType`, 기존 CSV와 로더를 함께 정리해야 한다.
+- 새로운 종류 ID를 배정하거나 기존 배정을 변경할 때는 해당 Google Docs 문서를 갱신한다.
+- CSV, `DataTableType` 또는 loader를 구현하기 전에 해당 문서에서 종류 ID의 중복과 예약 여부를 확인한다.
+- 저장소의 규칙 문서나 개별 코드 주석에 종류 ID 목록을 별도로 복제하지 않는다.
 
 ## 4. 종류별 고유 ID
 
