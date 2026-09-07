@@ -2,7 +2,7 @@
 $ErrorActionPreference = 'Stop'
 $checkCode = @'
 var config = new CustomerDispositionData { Idx = 1, PreferredProductTypes = new[] { ProductType.Water },
-    EntryTextIdxs = new uint[] { 1 }, AcceptTextIdxs = new uint[] { 2 }, RejectTextIdxs = new uint[] { 3 } };
+    EntryTextIdxs = new uint[] { 1 }, RegularSaleTextIdxs = new uint[] { 2 }, DiscountSaleTextIdxs = new uint[] { 4 }, ExploitativeSaleTextIdxs = new uint[] { 5 }, RejectTextIdxs = new uint[] { 3 } };
 var products = Enumerable.Range(1, 4).ToDictionary(x => (uint)x, x => new ProductData {
     Idx = (uint)x, ProductType = x <= 2 ? ProductType.Water : ProductType.Food, BasePrice = 101, IsAvailable = true });
 var appearances = new uint[] { 1, 2 };
@@ -67,7 +67,7 @@ foreach (long invalid in new long[] { 0, -1 }) {
     try { trade.SubmitOffer(invalid); } catch (ArgumentOutOfRangeException) { blocked = true; }
     if (!blocked || trade.State != CustomerState.AwaitingOffer || trade.OfferedTotal != null) throw new Exception("Invalid input consumed offer");
 }
-if (!trade.SubmitOffer(111) || trade.State != CustomerState.Accepted || trade.FeedbackTextIdx != 2) throw new Exception("Boundary acceptance failed");
+if (!trade.SubmitOffer(111) || trade.State != CustomerState.Accepted || trade.FeedbackTextIdx != 5) throw new Exception("Boundary acceptance failed");
 bool secondBlocked = false;
 try { trade.SubmitOffer(1); } catch (InvalidOperationException) { secondBlocked = true; }
 if (!secondBlocked || trade.OfferedTotal != 111) throw new Exception("Second offer accepted");
@@ -77,6 +77,25 @@ products[3].BasePrice = 101; config.PriceTolerance = 1100;
 var refusal = generator.Generate(appearances, configs, one, 2); refusal.BeginOffer();
 if (refusal.SubmitOffer(112) || refusal.State != CustomerState.Rejected || refusal.FeedbackTextIdx != 3) throw new Exception("Over-limit rejection failed");
 refusal.Depart();
+foreach (long offered in new long[] { 100, 101, 102, 111, 112 }) {
+    var visit = generator.Generate(appearances, configs, one, 2);
+    visit.BeginOffer();
+    visit.SubmitOffer(offered);
+    var expected = offered > 111 ? CustomerTradeOutcome.PaymentRefused
+        : offered < 101 ? CustomerTradeOutcome.DiscountSale
+        : offered == 101 ? CustomerTradeOutcome.RegularSale : CustomerTradeOutcome.ExploitativeSale;
+    uint expectedText = expected == CustomerTradeOutcome.PaymentRefused ? 3u
+        : expected == CustomerTradeOutcome.DiscountSale ? 4u
+        : expected == CustomerTradeOutcome.RegularSale ? 2u : 5u;
+    if (visit.Outcome != expected || visit.FeedbackTextIdx != expectedText) throw new Exception("Outcome boundary/dialog failed: " + offered);
+    visit.Depart();
+    if (visit.Outcome != expected) throw new Exception("Departure lost outcome");
+}
+config.PriceTolerance = 900;
+var cheapRefusal = generator.Generate(appearances, configs, one, 2);
+cheapRefusal.BeginOffer(); cheapRefusal.SubmitOffer(100);
+if (cheapRefusal.Outcome != CustomerTradeOutcome.PaymentRefused) throw new Exception("Tolerance must precede discount classification");
+config.PriceTolerance = 1100;
 config.MinQuantity = config.MaxQuantity = 3;
 var multiple = generator.Generate(appearances, configs, one, 2);
 if (multiple.BaseTotal != 303 || multiple.AllowedTotal != 333 || multiple.Items.Count != 1) throw new Exception("Whole-list total failed");

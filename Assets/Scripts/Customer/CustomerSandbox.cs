@@ -172,9 +172,9 @@ public sealed class CustomerSandbox : MonoBehaviour
             statusText.text = "총액은 1 이상의 정수로 입력하세요. 공백·소수점·기호는 사용할 수 없습니다.";
             return;
         }
-        bool accepted = CurrentVisit.SubmitOffer(total);
+        CurrentVisit.SubmitOffer(total);
         dialogText.text = texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
-        statusText.text = $"{(accepted ? "거래 수락" : "거래 거절")} · 제안 {total:N0} · 다음 손님 버튼으로 퇴장·교체";
+        statusText.text = $"{CurrentVisit.OutcomeLabel} (판정값: {(int)CurrentVisit.Outcome}) · 제안 {total:N0} · 다음 손님 버튼으로 퇴장·교체";
         updateControls();
     }
 
@@ -225,7 +225,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             label.color = Color.black;
             label.alignment = TextAnchor.MiddleCenter;
             label.raycastTarget = false;
-            label.text = $"{texts.Rows[product.NameIdx].Text}\n{texts.Rows[category.NameIdx].Text}\n{item.UnitPrice:N0} × {item.Quantity}";
+            label.text = $"{texts.Rows[product.NameIdx].Text}\n정가: {item.UnitPrice:N0} / 개\n{texts.Rows[category.NameIdx].Text} × {item.Quantity}";
         }
     }
 

@@ -68,7 +68,7 @@ public sealed class CustomerCatalog
                 foreach (var type in pair.Value.PreferredProductTypes)
                     if (!types.Contains(type))
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, preferred_product_types 표시 참조 실패");
-                foreach (uint textIdx in pair.Value.EntryTextIdxs.Concat(pair.Value.AcceptTextIdxs).Concat(pair.Value.RejectTextIdxs))
+                foreach (uint textIdx in pair.Value.EntryTextIdxs.Concat(pair.Value.RegularSaleTextIdxs).Concat(pair.Value.DiscountSaleTextIdxs).Concat(pair.Value.ExploitativeSaleTextIdxs).Concat(pair.Value.RejectTextIdxs))
                     if (!texts.PendingRows.ContainsKey(textIdx))
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, dialog text FK={textIdx} -> TextData.idx 참조 실패");
             }

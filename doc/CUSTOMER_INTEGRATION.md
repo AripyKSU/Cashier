@@ -4,6 +4,15 @@
 
 ## 1. 통합 범위와 책임
 
+### 거래 결과 4단계
+
+- `CustomerVisit.Outcome`은 `None / RegularSale / DiscountSale / ExploitativeSale / PaymentRefused`이며 퇴장 후에도 보존한다. `WasAccepted`는 결과에서 파생된다.
+- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 정가 합계보다 낮으면 저가 판매, 같으면 정가 판매, 높으면 착취 판매다. 정가보다 1만 높아도 착취 판매다.
+- 성사된 세 유형만 제안 총액을 Finance에 한 번 반영한다. 시스템 반영 실패는 손님의 결제 거부와 별개다. 명성 변화는 기존 0을 유지한다.
+- 성향 CSV의 `accept_text_idxs`를 `regular_sale_text_idxs`, `discount_sale_text_idxs`, `exploitative_sale_text_idxs`로 교체했다. 모두 필수 uint 배열이며 TextData FK를 검증한다. 구형 CSV는 새 loader에서 거부한다.
+- 초기 migration은 각 성향의 기존 수락 대사 ID를 세 컬럼에 동일하게 복사했다. 신규 TextData ID·문구는 추가하지 않았다. 저가·착취 전용 문구가 승인되면 해당 컬럼만 교체한다.
+- 테스트 결과명은 `OutcomeLabel`로 표시한다. 정식 UI 현지화 시 결과명도 TextData로 이관한다.
+
 - 재사용 대상: `Assets/Scripts/Customer/`의 생성기·방문·거래 판정, `Customer/Data/`의 손님 DTO·DataTable·catalog, `Commons/Data/`의 공용 상품·텍스트·리소스 DTO·DataTable과 기존 DataTableManager/ResourceManager. 경제 CSV DTO·DataTable은 `Finance/Data/`에 둔다. 세 하위 경로 모두 `Assets/Scripts/` 기준이다.
 - 구현 완료 범위: 방문마다 외형·성향 조합, 구매 목록 생성, 등장 일수 필터, 총액 제안 1회, 수락·거절 판정, 입장·결과 대사 선택.
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.

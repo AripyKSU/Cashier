@@ -1,4 +1,4 @@
-idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds,max_product_kinds,min_quantity,max_quantity,price_tolerance,entry_text_idxs,accept_text_idxs,reject_text_idxs
-6001,8005,1_2,900,1,3,1,3,1100,8024_8025,8026_8027,8028_8029
-6002,8006,3,900,1,3,1,3,1300,8030_8031,8032_8033,8034_8035
-6003,8007,4,900,1,3,1,3,1000,8036_8037,8038_8039,8040_8041
+idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds,max_product_kinds,min_quantity,max_quantity,price_tolerance,entry_text_idxs,regular_sale_text_idxs,discount_sale_text_idxs,exploitative_sale_text_idxs,reject_text_idxs
+6001,8005,1_2,900,1,3,1,3,1100,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029
+6002,8006,3,900,1,3,1,3,1300,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035
+6003,8007,4,900,1,3,1,3,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041

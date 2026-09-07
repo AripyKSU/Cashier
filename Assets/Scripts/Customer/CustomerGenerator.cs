@@ -84,7 +84,9 @@ public sealed class CustomerGenerator
         }
         return new CustomerVisit(appearanceIdx, disposition.Idx, items, disposition.PriceTolerance,
             disposition.EntryTextIdxs[random.Next(disposition.EntryTextIdxs.Count)],
-            disposition.AcceptTextIdxs[random.Next(disposition.AcceptTextIdxs.Count)],
+            disposition.RegularSaleTextIdxs[random.Next(disposition.RegularSaleTextIdxs.Count)],
+            disposition.DiscountSaleTextIdxs[random.Next(disposition.DiscountSaleTextIdxs.Count)],
+            disposition.ExploitativeSaleTextIdxs[random.Next(disposition.ExploitativeSaleTextIdxs.Count)],
             disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)]);
     }
 }

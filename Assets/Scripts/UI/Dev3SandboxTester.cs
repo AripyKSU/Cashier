@@ -854,7 +854,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             && CurrentVisit?.State != CustomerState.AwaitingOffer;
         dialogueText.text = CurrentVisit == null ? "" : texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
         reasonText.text = CurrentVisit?.WasAccepted.HasValue == true
-            ? (CurrentVisit.WasAccepted.Value ? "ACCEPTED - income applied" : "REJECTED - no income") : "Enter the whole basket total";
+            ? ($"{CurrentVisit.OutcomeLabel} (판정값: {(int)CurrentVisit.Outcome})" + (CurrentVisit.WasAccepted.Value ? " - income applied" : " - no income")) : "Enter the whole basket total";
         if (CurrentVisit != null)
         {
             var appearance = catalog.Appearances.Rows[CurrentVisit.AppearanceIdx];
@@ -883,7 +883,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             var card = panel(basketRoot, $"Product_{item.ProductIdx}", (i % 4) * 150, (i / 4) * 100, 130, 130, Color.white);
             card.sprite = productSprites[item.ProductIdx];
             card.preserveAspect = true;
-            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}",
+            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}\n정가: {item.UnitPrice:N0} / 개",
                 4, 35, 122, 60, 16, Color.black, TextAlignmentOptions.Center);
             activeBasketCards.Add(card.gameObject);
         }

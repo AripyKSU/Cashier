@@ -11,11 +11,25 @@ public enum CustomerState
     Departed
 }
 
+/// <summary>진행 상태와 별개로 퇴장 후에도 보존하는 가격 판정 결과.</summary>
+public enum CustomerTradeOutcome
+{
+    None = 0,
+    RegularSale = 1,
+    DiscountSale = 2,
+    ExploitativeSale = 3,
+    PaymentRefused = 4
+}
+
 /// <summary>한 방문에서 확정된 손님 조합과 변경 불가능한 구매 목록.</summary>
 public sealed class CustomerVisit
 {
     /// <summary>생성 시 선택한 수락 대사.</summary>
-    private readonly uint acceptTextIdx;
+    private readonly uint regularSaleTextIdx;
+    /// <summary>생성 시 선택한 저가 판매 대사.</summary>
+    private readonly uint discountSaleTextIdx;
+    /// <summary>생성 시 선택한 착취 판매 대사.</summary>
+    private readonly uint exploitativeSaleTextIdx;
     /// <summary>생성 시 선택한 거절 대사.</summary>
     private readonly uint rejectTextIdx;
     /// <summary>방문의 현재 상태. 이 객체의 API만 변경한다.</summary>
@@ -29,11 +43,29 @@ public sealed class CustomerVisit
     /// <summary>유효한 제안 총액. 미제안 상태는 null.</summary>
     public long? OfferedTotal { get; private set; }
     /// <summary>제안 후 결과. 퇴장 후에도 유지하며 판정 전은 null이다.</summary>
-    public bool? WasAccepted => OfferedTotal.HasValue ? OfferedTotal.Value <= AllowedTotal : (bool?)null;
+    public bool? WasAccepted => Outcome == CustomerTradeOutcome.None ? (bool?)null : Outcome != CustomerTradeOutcome.PaymentRefused;
+    /// <summary>제안 시 확정하고 퇴장 후에도 유지하는 거래 결과.</summary>
+    public CustomerTradeOutcome Outcome { get; private set; }
+    /// <summary>테스트 UI용 결과명. 정식 현지화는 TextData로 이관한다.</summary>
+    public string OutcomeLabel => Outcome switch
+    {
+        CustomerTradeOutcome.RegularSale => "정가 판매",
+        CustomerTradeOutcome.DiscountSale => "저가 판매",
+        CustomerTradeOutcome.ExploitativeSale => "착취 판매",
+        CustomerTradeOutcome.PaymentRefused => "결제 거부",
+        _ => "판정 대기"
+    };
     /// <summary>입장 대사의 TextData FK.</summary>
     public uint EntryTextIdx { get; }
     /// <summary>현재 결과에 대응하는 대사. 제안 전은 입장 대사다.</summary>
-    public uint FeedbackTextIdx => WasAccepted.HasValue ? (WasAccepted.Value ? acceptTextIdx : rejectTextIdx) : EntryTextIdx;
+    public uint FeedbackTextIdx => Outcome switch
+    {
+        CustomerTradeOutcome.RegularSale => regularSaleTextIdx,
+        CustomerTradeOutcome.DiscountSale => discountSaleTextIdx,
+        CustomerTradeOutcome.ExploitativeSale => exploitativeSaleTextIdx,
+        CustomerTradeOutcome.PaymentRefused => rejectTextIdx,
+        _ => EntryTextIdx
+    };
     /// <summary>이번 방문의 외형 ID. 동일 외형의 재등장은 동일 인물을 뜻하지 않는다.</summary>
     public uint AppearanceIdx { get; }
     /// <summary>이번 방문 생성에 사용한 성향 ID.</summary>
@@ -47,18 +79,22 @@ public sealed class CustomerVisit
     /// <param name="items">중복 없는 검증된 구매 목록.</param>
     /// <param name="priceTolerance">검증된 양수 가격 배율.</param>
     /// <param name="entryTextIdx">입장 대사.</param>
-    /// <param name="acceptTextIdx">수락 대사.</param>
+    /// <param name="regularSaleTextIdx">수락 대사.</param>
+    /// <param name="discountSaleTextIdx">저가 판매 대사.</param>
+    /// <param name="exploitativeSaleTextIdx">착취 판매 대사.</param>
     /// <param name="rejectTextIdx">거절 대사.</param>
     /// <exception cref="OverflowException">지원 가능한 총액 범위 초과.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
-        int priceTolerance, uint entryTextIdx, uint acceptTextIdx, uint rejectTextIdx)
+        int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx)
     {
         AppearanceIdx = appearanceIdx;
         DispositionIdx = dispositionIdx;
         Items = new List<CustomerOrderItem>(items).AsReadOnly();
         PriceTolerance = priceTolerance;
         EntryTextIdx = entryTextIdx;
-        this.acceptTextIdx = acceptTextIdx;
+        this.regularSaleTextIdx = regularSaleTextIdx;
+        this.discountSaleTextIdx = discountSaleTextIdx;
+        this.exploitativeSaleTextIdx = exploitativeSaleTextIdx;
         this.rejectTextIdx = rejectTextIdx;
         long total = 0;
         foreach (var item in Items) total = checked(total + (long)item.UnitPrice * item.Quantity);
@@ -85,7 +121,12 @@ public sealed class CustomerVisit
         if (State != CustomerState.AwaitingOffer) throw new InvalidOperationException("가격을 다시 제안할 수 없습니다.");
         if (total <= 0) throw new ArgumentOutOfRangeException(nameof(total), "양의 정수 총액이 필요합니다.");
         OfferedTotal = total;
-        State = total <= AllowedTotal ? CustomerState.Accepted : CustomerState.Rejected;
+        // 허용 상한을 먼저 검사한다. 정가보다 싼 제안도 상한 초과 시 거부한다.
+        Outcome = total > AllowedTotal ? CustomerTradeOutcome.PaymentRefused
+            : total < BaseTotal ? CustomerTradeOutcome.DiscountSale
+            : total == BaseTotal ? CustomerTradeOutcome.RegularSale
+            : CustomerTradeOutcome.ExploitativeSale;
+        State = WasAccepted.Value ? CustomerState.Accepted : CustomerState.Rejected;
         return WasAccepted.Value;
     }
 

@@ -21,8 +21,14 @@ public sealed class CustomerDispositionData
     [Name("entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
     public IReadOnlyList<uint> EntryTextIdxs { get; set; } = new uint[0];
     /// <summary>수락 대사 TextData FK 목록.</summary>
-    [Name("accept_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
-    public IReadOnlyList<uint> AcceptTextIdxs { get; set; } = new uint[0];
+    [Name("regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> RegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>저가 판매 대사 TextData FK 목록.</summary>
+    [Name("discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> DiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>착취 판매 대사 TextData FK 목록.</summary>
+    [Name("exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> ExploitativeSaleTextIdxs { get; set; } = new uint[0];
     /// <summary>거절 대사 TextData FK 목록.</summary>
     [Name("reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
     public IReadOnlyList<uint> RejectTextIdxs { get; set; } = new uint[0];
@@ -55,7 +61,9 @@ public sealed class CustomerDispositionData
             if (category == ProductType.None || !Enum.IsDefined(typeof(ProductType), category) || !categories.Add(category))
                 throw new ArgumentException($"성향 {Idx}: preferred_product_types는 정의된 고유 분류여야 합니다.");
         validateDialog(EntryTextIdxs, "entry_text_idxs");
-        validateDialog(AcceptTextIdxs, "accept_text_idxs");
+        validateDialog(RegularSaleTextIdxs, "regular_sale_text_idxs");
+        validateDialog(DiscountSaleTextIdxs, "discount_sale_text_idxs");
+        validateDialog(ExploitativeSaleTextIdxs, "exploitative_sale_text_idxs");
         validateDialog(RejectTextIdxs, "reject_text_idxs");
     }
 
