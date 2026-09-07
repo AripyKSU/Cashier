@@ -216,15 +216,24 @@ MonoBehaviour:
     normalBudgetMinPercent: 110
     normalBudgetMaxPercent: 150
     resultSeconds: 0.85
-  background: {fileID: 21300000, guid: 2d245b103625d8f41a647418200e586e, type: 3}
-  counter: {fileID: 21300000, guid: b8b405d086908a542a68b296eb646229, type: 3}
+  background: {fileID: 21300000, guid: 8828d23a57ac09d4db48ac618820ad7b, type: 3}
+  counter: {fileID: 21300000, guid: dec0edb6a0a29eb4ba990f92dff08f2b, type: 3}
   daughter: {fileID: 21300000, guid: e4dd2b06ebb59a14b9fe472c625c82c7, type: 3}
   inspector: {fileID: 21300000, guid: 7465887855830f24e9762658c9bab3c7, type: 3}
+  midBackground: {fileID: 21300000, guid: 0675361a18134594e9e942f04ff98660, type: 3}
+  crowd: {fileID: 21300000, guid: 26d6bf1c76ce1984da914d8370314ac8, type: 3}
+  leftWatchTower: {fileID: 21300000, guid: 1ca5f6632c398c14ba179258cead1796, type: 3}
+  rightWatchTower: {fileID: 21300000, guid: e00f255da7894164497dfd5df66938dd, type: 3}
+  canopy: {fileID: 21300000, guid: 6978fa40aee53b643836c083c2dd4d52, type: 3}
+  barricade: {fileID: 21300000, guid: c10c73fc054ac19498fffbbacf16b031, type: 3}
+  fogBack: {fileID: 21300000, guid: ef4c55532956466b9df1c26a4fd8fc4e, type: 3}
+  fogBackMaterial: {fileID: 2100000, guid: 25184aa25fc6458993180d5b1b7fabeb, type: 2}
+  fogMid: {fileID: 21300000, guid: 224e6b0c3cfb4a32a560db7fbde73e52, type: 3}
+  fogMidMaterial: {fileID: 2100000, guid: d48fa113cbdd44fe88d4786f7d954897, type: 2}
+  fogFront: {fileID: 21300000, guid: 5f176efe93944680a2c22cc7bbc8ae11, type: 3}
+  fogFrontMaterial: {fileID: 2100000, guid: df82a218fe354b8ead6163ea40ea1821, type: 2}
   customers:
-  - {fileID: 21300000, guid: fbececfc13177c342aeb75c95ffc30ef, type: 3}
-  - {fileID: 21300000, guid: f5f605715540afb4e82839a9df1b46c4, type: 3}
-  - {fileID: 21300000, guid: abc64b1cfe3459341bf5f53d46517021, type: 3}
-  - {fileID: 21300000, guid: 7c2d4ae0a0f3c8844ab49b6306b6cd88, type: 3}
+  - {fileID: 21300000, guid: 475588eff93a49a1bb6368d7b6a6f2ae, type: 3}
 --- !u!4 &1111119869
 Transform:
   m_ObjectHideFlags: 0

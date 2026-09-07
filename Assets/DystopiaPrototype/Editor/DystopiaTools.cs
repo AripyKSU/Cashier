@@ -59,16 +59,29 @@ public static class DystopiaTools
         }
     }
 
-    /// <summary>Scene所有の実在するSprite参照だけを設定します。</summary>
+    /// <summary>개별 배급소 레이어와 기존 인물·상품 Sprite를 씬에 직접 연결합니다.</summary>
+    /// <param name="screen">참조를 저장할 전용 씬의 화면 컴포넌트입니다.</param>
     private static void AssignArt(DystopiaScreen screen)
     {
         var serialized=new SerializedObject(screen);
-        serialized.FindProperty("background").objectReferenceValue=Art("Seoul");
-        serialized.FindProperty("counter").objectReferenceValue=Art("Counter");
+        serialized.FindProperty("background").objectReferenceValue=Art("FARBACKGROUND");
+        serialized.FindProperty("counter").objectReferenceValue=Art("BoothCounter");
+        serialized.FindProperty("midBackground").objectReferenceValue=Art("MidBackground");
+        serialized.FindProperty("crowd").objectReferenceValue=Art("Crowd");
+        serialized.FindProperty("leftWatchTower").objectReferenceValue=Art("LeftWatchTower");
+        serialized.FindProperty("rightWatchTower").objectReferenceValue=Art("RightWatchTower");
+        serialized.FindProperty("canopy").objectReferenceValue=Art("BoothCanopy");
+        serialized.FindProperty("barricade").objectReferenceValue=Art("BoothBarricade");
+        serialized.FindProperty("fogBack").objectReferenceValue=Art("FogBack");
+        serialized.FindProperty("fogMid").objectReferenceValue=Art("FogMid");
+        serialized.FindProperty("fogFront").objectReferenceValue=Art("FogFront");
+        serialized.FindProperty("fogBackMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogBack.mat");
+        serialized.FindProperty("fogMidMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogMid.mat");
+        serialized.FindProperty("fogFrontMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogFront.mat");
         serialized.FindProperty("daughter").objectReferenceValue=Art("Daughter");
         serialized.FindProperty("inspector").objectReferenceValue=Art("Inspector");
-        var customers=serialized.FindProperty("customers"); customers.arraySize=4;
-        for(int i=0;i<4;i++) customers.GetArrayElementAtIndex(i).objectReferenceValue=Art("Customer"+i);
+        var customers=serialized.FindProperty("customers"); customers.arraySize=1;
+        customers.GetArrayElementAtIndex(0).objectReferenceValue=Art("MaleCustomer0");
         var products=serialized.FindProperty("settings").FindPropertyRelative("products");
         for(int i=0;i<products.arraySize;i++) products.GetArrayElementAtIndex(i).FindPropertyRelative("sprite").objectReferenceValue=Art(Products[i]);
         serialized.ApplyModifiedPropertiesWithoutUndo();

@@ -12,13 +12,26 @@ public sealed class DystopiaScreen : MonoBehaviour
     [SerializeField] private DystopiaSettings settings = new DystopiaSettings();
     /// <summary>프로젝트 안에 저장된 배경, 가판, 딸, 감독관 참조입니다.</summary>
     [SerializeField] private Sprite background, counter, daughter, inspector;
-    /// <summary>같은 기준선으로 표시하는 손님 외형 4종입니다.</summary>
-    [SerializeField] private Sprite[] customers = new Sprite[4];
+    /// <summary>배급소 원본의 투명 여백을 유지하는 중경·군중·감시탑·가림막 레이어입니다.</summary>
+    [SerializeField] private Sprite midBackground, crowd, leftWatchTower, rightWatchTower, canopy;
+    /// <summary>군중과 응대 손님 사이를 막는 전경 바리케이드 원본입니다.</summary>
+    [SerializeField] private Sprite barricade;
+    /// <summary>원본 PNG를 보존한 후경·중경·전경 안개입니다.</summary>
+    [SerializeField] private Sprite fogBack, fogMid, fogFront;
+    /// <summary>uGUI용 개별 설정을 저장한 공유 Fog Material이며 런타임 복제하지 않습니다.</summary>
+    [SerializeField] private Material fogBackMaterial, fogMidMaterial, fogFrontMaterial;
+    /// <summary>사용자가 지정한 남성 손님 한 종류입니다.</summary>
+    [SerializeField] private Sprite[] customers = new Sprite[1];
     private Font font;
     private RectTransform root, modal, basketRoot;
     private Text cashText, dayText, statusText, gaugeText, inputText, dialogue, reasonText, queueText;
     private Image gaugeFill, portrait;
     private Image[] waiting = new Image[2];
+    // 씬 수명 동안 군중·대기 손님 둘·응대 손님의 기준 위치를 보존합니다.
+    private readonly RectTransform[] idlePeople = new RectTransform[4];
+    private readonly Vector2[] idleOrigins = new Vector2[4];
+    // 일시정지 중에는 누적하지 않는 시각 연출 전용 경과 시간(초)입니다.
+    private float idleSeconds;
     private Button confirmButton;
     private string amount = "";
     // 잘못된 부호/소수 입력을 정수 금액으로 오인하여 결제하지 않게 합니다.
@@ -66,6 +79,7 @@ public sealed class DystopiaScreen : MonoBehaviour
             }
         }
         Session.Tick(Time.unscaledDeltaTime);
+        AnimatePeople();
         if (drawnRevision != Session.Revision) Refresh();
         gaugeFill.rectTransform.sizeDelta = new Vector2(300 * Session.Gauge / 100, 8);
         gaugeFill.color = Session.Gauge >= settings.greenThreshold ? new Color(.54f,.72f,.65f) : Session.Gauge > 30 ? new Color(.78f,.64f,.38f) : new Color(.85f,.35f,.30f);
@@ -75,6 +89,29 @@ public sealed class DystopiaScreen : MonoBehaviour
 
     /// <summary>런타임에 생성한 폰트 객체의 수명을 끝냅니다.</summary>
     private void OnDestroy() { if (font != null) Destroy(font); }
+
+    /// <summary>군중은 작게 흔들고 손님은 하단을 고정해 짧은 들숨과 긴 날숨으로 수축시킵니다.</summary>
+    private void AnimatePeople()
+    {
+        if (Session.IsPaused) return;
+        idleSeconds += Time.unscaledDeltaTime;
+        for (int i = 0; i < idlePeople.Length; i++)
+        {
+            if (i == 0)
+            {
+                float phase = idleSeconds * 1.1f;
+                idlePeople[i].anchoredPosition = idleOrigins[i] + new Vector2(
+                    Mathf.Round(Mathf.Sin(phase) * 2), Mathf.Round(Mathf.Sin(phase * .73f) * 3));
+                continue;
+            }
+            float cycle = Mathf.Repeat(idleSeconds / (2.8f + i * .25f) + i * .27f, 1);
+            float breath = cycle < .3f ? cycle / .3f : 1 - (cycle - .3f) / .7f;
+            breath = Mathf.SmoothStep(0, 1, breath);
+            // 중심·하단 pivot을 유지해 좌우 이동 없이 어깨가 내려앉고 몸이 조금 수축합니다.
+            idlePeople[i].anchoredPosition = idleOrigins[i];
+            idlePeople[i].localScale = new Vector3(Mathf.Lerp(.995f, 1, breath), Mathf.Lerp(.982f, 1, breath), 1);
+        }
+    }
 
     /// <summary>기존 Scene을 참조하지 않고 모든 런 상태를 새로 시작합니다.</summary>
     public void Restart()
@@ -134,12 +171,38 @@ public sealed class DystopiaScreen : MonoBehaviour
         scaler.referenceResolution = new Vector2(1280,720);
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
         root = canvasObject.GetComponent<RectTransform>();
-        Picture(root,"Seoul",background,0,0,1280,720,false);
-        waiting[0] = Picture(root,"WaitingLeft",customers[0],185,170,215,350,true);
-        waiting[1] = Picture(root,"WaitingRight",customers[0],780,170,215,350,true);
+        Picture(root,"FarBackground",background,0,0,1280,720,false);
+        // 원본 비율을 유지한 채 위로 올려 안개 영역을 상단 330픽셀까지로 제한합니다.
+        // 세 레이어 모두 중경·군중·손님보다 뒤에서 원경 도시 위에만 겹칩니다.
+        Picture(root,"Fog_Back",fogBack,0,-390,1280,720,false).material = fogBackMaterial;
+        Picture(root,"Fog_Mid",fogMid,0,-390,1280,720,false).material = fogMidMaterial;
+        Picture(root,"Fog_Front",fogFront,0,-390,1280,720,false).material = fogFrontMaterial;
+        // 참고 구도의 철책 높이에 맞추고 원경 도시가 철책 위로 보이게 합니다.
+        Picture(root,"MidBackground",midBackground,0,-46,1280,576,false);
+        // 머리 높이는 유지하면서 군중 하단을 상판 뒤까지 내려 투명 경계가 드러나지 않게 합니다.
+        // 좌우 여유를 두어 군중이 움직여도 화면 가장자리가 비지 않게 합니다.
+        idlePeople[0] = Picture(root,"Crowd",crowd,-4,-119,1288,979,false).rectTransform;
+        Picture(root,"LeftWatchTower",leftWatchTower,0,0,1280,720,false);
+        Picture(root,"RightWatchTower",rightWatchTower,0,0,1280,720,false);
+        // 원본의 투명 여백을 포함해 배치하고 바리케이드 하단은 가판 뒤에 숨깁니다.
+        Picture(root,"Barricade",barricade,-14,305,1308,270,false);
+        waiting[0] = Picture(root,"WaitingLeft",customers[0],117.5f,190,350,350,true);
+        waiting[1] = Picture(root,"WaitingRight",customers[0],712.5f,190,350,350,true);
         foreach (var item in waiting) item.color = new Color(.60f,.65f,.70f,1);
-        portrait = Picture(root,"Customer",customers[0],405,82,400,550,true);
-        Picture(root,"Counter",counter,0,215,1280,535,false);
+        portrait = Picture(root,"Customer",customers[0],330,82,550,550,true);
+        idlePeople[1] = waiting[0].rectTransform;
+        idlePeople[2] = waiting[1].rectTransform;
+        idlePeople[3] = portrait.rectTransform;
+        for (int i = 1; i < idlePeople.Length; i++)
+        {
+            var person = idlePeople[i];
+            person.pivot = new Vector2(.5f, 0);
+            person.anchoredPosition += new Vector2(person.sizeDelta.x * .5f, -person.sizeDelta.y);
+        }
+        for (int i = 0; i < idlePeople.Length; i++) idleOrigins[i] = idlePeople[i].anchoredPosition;
+        // 원본 전체 캔버스로 배치하여 가판 상판과 기둥의 앵커를 일치시킵니다.
+        Picture(root,"Canopy",canopy,0,0,1280,720,false);
+        Picture(root,"Counter",counter,0,0,1280,720,false);
         Picture(root,"Daughter",daughter,-65,565,400,620,true);
         Panel(root,"TopBar",0,0,1280,83,new Color(.045f,.065f,.075f,.97f));
         Label(root,"Title","프로젝트 디스토피아",25,12,270,28,22);
@@ -155,7 +218,7 @@ public sealed class DystopiaScreen : MonoBehaviour
         Panel(root,"DialoguePanel",320,359,560,70,new Color(.04f,.055f,.065f,.94f));
         dialogue = Label(root,"Dialogue","",337,370,525,49,19);
         reasonText = Label(root,"Feedback","",273,674,655,35,14);
-        basketRoot = Rect(root,"Basket",275,442,635,138);
+        basketRoot = Rect(root,"Basket",275,477,635,138);
         Panel(root,"Register",947,405,305,300,new Color(.045f,.065f,.075f,.97f));
         Label(root,"PriceHeading","받을 금액",962,416,120,23,16);
         inputText = Label(root,"PriceInput","금액 입력",962,443,276,40,30);
@@ -188,12 +251,12 @@ public sealed class DystopiaScreen : MonoBehaviour
         queueText.text = $"오늘 방문 {Session.Visitors}명 · 남은 손님 {Session.Remaining}명";
         confirmButton.interactable = Session.Phase == DystopiaPhase.Trading && !Session.IsPaused;
         ShowAmount();
-        portrait.sprite = customers[Mathf.Clamp(Session.Customer.appearance,0,customers.Length-1)];
+        portrait.sprite = customers[0];
         portrait.color = Session.Phase == DystopiaPhase.Result && !Session.LastAccepted ? new Color(.8f,.6f,.6f) : Color.white;
         for (int i=0;i<waiting.Length;i++)
         {
             waiting[i].gameObject.SetActive(Session.Remaining > i+1);
-            waiting[i].sprite = customers[(Session.Customer.appearance+i+1)%customers.Length];
+            waiting[i].sprite = customers[0];
         }
         dialogue.text = Session.Phase == DystopiaPhase.Result ? Session.Feedback : Session.Customer.isPoor ?
             "집에 아이가 기다리고 있어요. 가진 돈이 얼마 없어요…" : "이 물건들로 주세요. 얼마나 드리면 될까요?";
