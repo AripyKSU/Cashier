@@ -206,6 +206,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 
 - type, enum, interface, public property, public/protected method: `PascalCase`
 - interface: `I` 접두사 사용 (`IDataLoad`)
+- private method: `camelCase`
 - private·protected field와 local variable: `camelCase`, `_` 접두사 없음
 - `const`: `PascalCase`
 - 비동기 method: 가능한 경우 `Async` 접미사
@@ -252,9 +253,9 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 ### 주석과 문서
 
 - 새로 작성하거나 수정하는 class, struct, interface와 enum에는 역할과 책임을 설명하는 XML 문서 주석(`/// <summary>`)을 작성한다.
-- 새로 작성하거나 수정하는 method에는 목적을 설명하는 XML 문서 주석을 작성하고, 해당하는 `/// <param>`, `/// <returns>`, `/// <exception>`을 함께 작성한다.
-- 필드에는 용도, 생명주기, 단위, 허용 범위 또는 Unity Inspector 연결 의도가 드러나도록 주석을 작성한다. public API와 직렬화 필드는 XML 문서 주석을 우선한다.
-- method 내부의 핵심 분기, 상태 전이, 알고리즘, Unity 생명주기 의존성, 부작용과 비직관적인 처리에는 이유를 설명하는 주석을 작성한다.
+- 새로 작성하거나 수정하는 method와 property에는 목적과 역할을 설명하는 XML 문서 주석을 작성하고, method에는 해당하는 `/// <param>`, `/// <returns>`, `/// <exception>`을 함께 작성한다.
+- 중요한 필드에는 용도, 생명주기, 단위, 허용 범위 또는 Unity Inspector 연결 의도가 드러나는 한 줄 주석을 작성한다. public API와 직렬화 필드는 XML 문서 주석을 우선한다.
+- 중요한 함수 내부의 주요 기능, 핵심 분기, 상태 전이, 알고리즘, Unity 생명주기 의존성, 부작용과 비직관적인 처리에는 이유를 설명하는 한 줄 주석을 작성한다.
 - 코드를 그대로 읽어주는 주석은 피한다.
 - 기존 코드를 수정할 때는 변경 범위에 포함된 class, method와 필드의 누락된 문서화도 보완한다.
 - TODO에는 적용 조건과 제거 기준을 적는다.
