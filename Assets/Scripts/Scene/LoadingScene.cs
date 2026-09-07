@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
 
+/// <summary>로딩 진행 UI를 표시하고 씬 수명에 맞춰 tween과 등록을 정리한다.</summary>
 public class LoadingScene : MonoBehaviour
 {
     [Header("UI Elements")]
@@ -33,12 +34,11 @@ public class LoadingScene : MonoBehaviour
         if (progressText != null) progressText.text = (p * 100f).ToString("F0") + "%";
     }
 
+    /// <summary>Single 씬 전환으로 파괴되기 전에 tween과 진행률 등록을 해제한다.</summary>
     private void OnDisable()
     {
-        // fade‑out (0.2s)
-        canvasGroup.DOFade(0f, 0.2f).SetEase(Ease.InQuad).OnComplete(() =>
-        {
-            LoadingBarController.Instance?.Unregister();
-        });
+        // 비활성화 이후의 fade-out은 파괴된 CanvasGroup을 접근하므로 여기서는 정리만 한다.
+        if (canvasGroup != null) canvasGroup.DOKill();
+        LoadingBarController.Instance?.Unregister();
     }
 }

@@ -169,6 +169,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/Resources/` | 기존 Resources fallback 자산 | 신규 기본 경로로 사용하지 않고 기존 fallback과의 호환에만 사용 |
 | `Assets/AddressableAssetsData/` | Addressables 설정과 group | 작업별 승인권을 받은 리소스 담당자 또는 프로젝트 책임자 승인 없이 직접 편집 금지 |
 | `Assets/Scenes/` | Unity Scene | 현재 작업의 지정 담당자 또는 프로젝트 책임자 승인 후 생성·이동 |
+| `Assets/Scenes/Local/` | 개인 개발 씬 (Git 제외) | Editor 전용. 공유 자산에서 참조하거나 Build Settings·Addressables에 등록하지 않음 |
 | `Assets/Settings/` | URP와 renderer 설정 | 프로그래머 `Primary` 또는 프로젝트 책임자 승인 필요 |
 | `Assets/Plugins/` | 외부·vendor 코드 | 직접 수정 금지. wrapper 또는 상위 코드에서 대응 |
 | `Assets/TextMesh Pro/` | TMP 기본 리소스 | 프로젝트 UI 정책 변경이 아니면 수정 금지 |
@@ -272,6 +273,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 - Addressables 로딩은 기존 `ResourceManager`와 `DataTableManager` 경로를 우선하고 소비자가 임의로 중복 구현하지 않는다.
 - pooling은 기존 `SimplePool`과 `SimplePoolManager`의 소유·반환 규칙을 따른다.
 - Scene 전환은 기존 `GameSceneManager` 책임을 우회하지 않는다.
+- 개인 씬 선택과 MainScene 통합은 [`doc/SCENE_WORKFLOW.md`](doc/SCENE_WORKFLOW.md)를 따른다.
 - singleton은 기존 전역 수명 manager에만 제한하고 기능 component에 새로 확산하지 않는다.
 
 ## 10. 검증 절차와 실행 시점
