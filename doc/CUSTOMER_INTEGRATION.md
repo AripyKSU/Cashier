@@ -4,6 +4,18 @@
 
 ## 1. 통합 범위와 책임
 
+### 정가 인정 범위·판매 지침 구조 (3차)
+
+- 성향 CSV 마지막에 필수 int `regular_price_min_rate`, `regular_price_max_rate`를 추가한다. DTO `RegularPriceMinRate`/`RegularPriceMaxRate` 기본값과 기존 세 행은 모두 1000/1000이다. 단위는 1000=100%이며 `0 < min <= 1000 <= max`를 검증한다. 기존 셀·가격 허용도는 보존하고 빈 셀·구형 header는 거부한다. CSV와 소비 코드를 함께 배포·복구한다.
+- 두 배율은 방문 생성 시 getter-only 값 복사다. 기존 `PriceTolerance > 0` 계약은 그대로이며 `max <= PriceTolerance`는 강제하지 않는다. 결제 거부 판정이 항상 우선하고, 수락 범위 안에서만 정가 인정 범위가 의미 있다.
+- 수락 시 `(decimal)offeredTotal * 1000`과 `(decimal)ReferenceTotal * min/max`를 비교한다. 하한 미만은 저가, 상한 초과는 착취, 양끝 포함 안쪽은 정가 판매다. 하한·상한 금액을 먼저 floor하지 않는다. 예: 기준액 101, 배율 950~1050은 95 저가·96~106 정가·107 착취(각각 결제 허용 범위 내일 때). 1000/1000은 기존 4판정을 유지한다.
+- `SaleRestriction(RequiredAttributes, ProductType)`은 필요 속성을 **모두** 가진 손님에 대한 해당 분류 판매 제한이다. None·미정의·배타 속성, None·미정의 상품 분류 및 같은 속성+분류의 중복 규칙을 거부한다. 정식 지침 ID·CSV·기호품 분류·실제 규칙은 아직 없다.
+- `Generator.Generate` 마지막 선택 인자 `Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null`을 통해 제출 시 유효 규칙을 공급할 수 있다. 생성 시에는 호출하지 않는다. 현재 UI/manager는 공급하지 않아 **미연결** 상태다. 향후 원본·효력 수명은 공급자가 책임진다.
+- 가격 수락 경로에서 공급자를 제출당 한 번 호출하고 목록 복사·전체 검증 후 최종 합산 판매 목록과 방문 `Attributes`를 검사한다. 최초 희망 목록이나 외형을 사용하지 않는다. 규칙-상품당 `SaleRestrictionViolation(Restriction, ProductId, Quantity)` 한 건을 기록하며 Quantity는 최종 합산 수량이다. 위반은 결제를 막거나 매출·명성·벌금을 변경하지 않는다.
+- `TransactionResult.WereRestrictionsEvaluated`와 `RestrictionViolations`로 평가 여부·불변 기록을 조회한다. 공급자 null/거부/legacy/default는 false+빈 목록, 공급된 빈 목록은 true+빈 목록이다. 공급자의 null 반환·예외·잘못된 규칙/상품 분류는 오류다. 지침 결과 및 원가 합산까지 모두 성공한 뒤에만 방문 상태를 확정하므로 실패 후 정상 재제출이 가능하다. 결과 이후 원본 규칙목록·상품분류 변경은 과거 기록에 영향이 없다.
+- 검사: 기존 생성기 검사에 정가 범위 양끝·작은/큰 총액·snapshot·tolerance<1000 거부 우선, 지침 AND·불일치·다상품·합산수량·중복/default/오류 공급자·1회 조회·거부 미조회·미연결/빈목록·불변·원가 overflow 포함 실패 원자성/재시도를 추가했다. CSV 검사는 56개 오류를 의도적으로 발생시킨다. 실제 지침 미연결이므로 지침 검증은 기존 분류를 사용한 메모리 입력 검사이며 제품 규칙 활성화 증거가 아니다.
+- 3차 검증(2026-09-08): compilation 완료·failed=False, Check-CustomerGenerator/CustomerCsv(56/56, 의도된 LogError 56건)/CustomerQueue 통과. InitScene → GameplaySandbox initialized=True 확인 후 Check-CustomerOutcomes의 실제 UI 4판정·대사·매출·중복방지·퇴장 통과, Console 오류 0건. MainScene 자산·구형 CustomerSandbox 화면·실제 지침 공급은 미검증/미연결이며 가격 이벤트·라디오 검사는 이번에 재실행하지 않았다. Play 종료·runInBackground 원복 완료. 원본 CSV는 각 행 끝에 승인된 두 컬럼만 추가됐음을 HEAD 문자열 비교로 확인했다.
+
 ### 성향 타입·개별 상품 선호·방문 속성 (2차)
 
 - `CustomerDispositionType`은 None=0(사용 금지), Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4다. 마지막 `CustomerDispositionType_End`는 자동 증가 종료 표식이며 데이터로 사용하지 않는다.
@@ -44,7 +56,7 @@ unity-cli console --type error --lines 3 --stacktrace none
 ### 거래 결과 4단계
 
 - `CustomerVisit.Outcome`은 `None / RegularSale / DiscountSale / ExploitativeSale / PaymentRefused`이며 퇴장 후에도 보존한다. `WasAccepted`는 결과에서 파생된다.
-- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 방문 현재가 합계보다 낮으면 저가 판매, 같으면 기준가 판매, 높으면 착취 판매다. 기준 총액보다 1만 높아도 착취 판매다. RegularSale enum 값은 유지한다.
+- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 위 3차 정가 인정 범위로 판정한다. 초기 1000/1000 데이터에서는 기준 총액보다 1만 높아도 착취 판매다. RegularSale enum 값은 유지한다.
 - 성사된 세 유형만 제안 총액을 Finance에 한 번 반영한다. 시스템 반영 실패는 손님의 결제 거부와 별개다. 명성 변화는 기존 0을 유지한다.
 - 성향 CSV의 `accept_text_idxs`를 `regular_sale_text_idxs`, `discount_sale_text_idxs`, `exploitative_sale_text_idxs`로 교체했다. 모두 필수 uint 배열이며 TextData FK를 검증한다. 구형 CSV는 새 loader에서 거부한다.
 - 초기 migration은 각 성향의 기존 수락 대사 ID를 세 컬럼에 동일하게 복사했다. 신규 TextData ID·문구는 추가하지 않았다. 저가·착취 전용 문구가 승인되면 해당 컬럼만 교체한다.
@@ -67,7 +79,7 @@ unity-cli console --type error --lines 3 --stacktrace none
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
-| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint,uint>> getCurrentPrices = null)` | 런타임은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`를 전달한다. null은 거부하며 생성 시 가격표 캡처·누락 기본가 대체는 금지한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·타입·타입 내 설정은 각각 균등 선정한다. |
+| `Generate(appearanceIds, dispositions, products, elapsedDays = 0, getCurrentPrices = null, getSaleRestrictions = null)` | 런타임 현재가 공급은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`이며 null은 거부한다. 지침 공급자만 optional/null 허용하며 의미는 위 3차 계약을 따른다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·타입·타입 내 설정은 각각 균등 선정한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
 | `CustomerVisit.SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)` | 최종 목록과 양의 정수 총액. 최초 희망 목록과 달라도 허용한다. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |

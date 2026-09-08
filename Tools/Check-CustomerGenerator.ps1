@@ -166,7 +166,76 @@ foreach(var bad in new IReadOnlyList<uint>[] {null,new uint[]{0},new uint[]{1,1}
 }
 pref.PreferredProductIdxs=Array.Empty<uint>();pref.DispositionType=CustomerDispositionType.Wealthy;
 if(combined.DispositionType!=CustomerDispositionType.Normal || combined.PriceTolerance!=1000 || combined.Attributes==CustomerAttributes.None)throw new Exception("Profile snapshot changed");
-return "CUSTOMER_CHECK_PASS: generation, probability, final replacement four outcomes, latest price once, immutable lists/prices/cost, duplicates, rejection, invalid/lookup/overflow atomicity, resubmit, legacy, profile type/flags, OR preference, sorted seed, six attributes; preferred="+preferred+"/10000; normal="+normalCount+"/12000";
+// 3차: 초기 범위 호환은 위 4판정으로 검사하고 여기서는 정수 경계·지침 구조만 검사한다.
+var rangeConfig=profile(1,CustomerDispositionType.Normal,1);
+rangeConfig.PriceTolerance=1200;rangeConfig.RegularPriceMinRate=950;rangeConfig.RegularPriceMaxRate=1050;
+var rangeProducts=new Dictionary<uint,ProductData>{
+ {1,new ProductData{Idx=1,ProductType=ProductType.Water,BasePrice=101,CostPrice=1,IsAvailable=true}},
+ {2,new ProductData{Idx=2,ProductType=ProductType.Water,BasePrice=101,CostPrice=1,IsAvailable=true}},
+ {3,new ProductData{Idx=3,ProductType=ProductType.Food,BasePrice=101,CostPrice=1,IsAvailable=true}}};
+var rangePrices=rangeProducts.ToDictionary(x=>x.Key,x=>101u);
+Func<Func<IReadOnlyList<SaleRestriction>>,CustomerVisit> makeRestricted=supply=>new CustomerGenerator(new System.Random(71)).Generate(new uint[]{1},new[]{rangeConfig},rangeProducts,getCurrentPrices:()=>rangePrices,getSaleRestrictions:supply);
+Action<Action> mustThrow=action=>{bool failed=false;try{action();}catch(Exception){failed=true;}if(!failed)throw new Exception("Expected rejection");};
+foreach(long offer in new long[]{95,96,106,107,122}){
+ var v=makeRestricted(null);v.BeginOffer();v.SubmitOffer(offer,new[]{new SaleItem(1,1)});
+ var expected=offer==95?CustomerTradeOutcome.DiscountSale:offer==107?CustomerTradeOutcome.ExploitativeSale:offer==122?CustomerTradeOutcome.PaymentRefused:CustomerTradeOutcome.RegularSale;
+ if(v.Outcome!=expected || v.Result.Value.WereRestrictionsEvaluated || v.Result.Value.RestrictionViolations.Count!=0)throw new Exception("Small total/range/offline");
+}
+rangePrices[1]=100;
+foreach(long offer in new long[]{94,95,105,106}){
+ var v=makeRestricted(null);v.BeginOffer();v.SubmitOffer(offer,new[]{new SaleItem(1,1)});
+ if(v.Outcome!=(offer<95?CustomerTradeOutcome.DiscountSale:offer>105?CustomerTradeOutcome.ExploitativeSale:CustomerTradeOutcome.RegularSale))throw new Exception("Inclusive exact range");
+}
+var rangeSnapshot=makeRestricted(null);rangeConfig.RegularPriceMinRate=1000;rangeConfig.RegularPriceMaxRate=1000;
+if(rangeSnapshot.RegularPriceMinRate!=950 || rangeSnapshot.RegularPriceMaxRate!=1050)throw new Exception("Mutable range snapshot");
+rangeConfig.PriceTolerance=900;int restrictionReads=0;
+var refused=makeRestricted(()=>{restrictionReads++;throw new Exception("must not read");});refused.BeginOffer();refused.SubmitOffer(100,new[]{new SaleItem(1,1)});
+if(refused.Outcome!=CustomerTradeOutcome.PaymentRefused || restrictionReads!=0 || refused.Result.Value.WereRestrictionsEvaluated || refused.Result.Value.RestrictionViolations.Count!=0)throw new Exception("Refusal first/below1000");
+foreach(int badMin in new[]{-1,0,1001}){rangeConfig.RegularPriceMinRate=badMin;mustThrow(()=>makeRestricted(null));}
+rangeConfig.RegularPriceMinRate=1000;rangeConfig.RegularPriceMaxRate=999;mustThrow(()=>makeRestricted(null));
+rangeConfig.RegularPriceMaxRate=int.MaxValue;rangeConfig.PriceTolerance=1000;rangePrices[1]=uint.MaxValue;
+var huge=makeRestricted(null);huge.BeginOffer();long hugeTotal=checked((long)uint.MaxValue*int.MaxValue);huge.SubmitOffer(hugeTotal,new[]{new SaleItem(1,int.MaxValue)});
+if(huge.Outcome!=CustomerTradeOutcome.RegularSale)throw new Exception("Large cross product");
+rangeConfig.RegularPriceMaxRate=1000;rangePrices[1]=101;
+var restrictionList=new List<SaleRestriction>();
+Func<IReadOnlyList<SaleRestriction>> provider=()=>{restrictionReads++;return restrictionList;};
+var restricted=makeRestricted(provider);
+// 필요 속성 전체 일치 + 단일 성별 조건을 함께 사용한다. 원본은 생성 후 공급한다.
+var gender=restricted.Attributes & (CustomerAttributes.Male|CustomerAttributes.Female);
+var otherGender=gender==CustomerAttributes.Male?CustomerAttributes.Female:CustomerAttributes.Male;
+var full=restricted.Attributes;
+restrictionList.Add(new SaleRestriction(full,ProductType.Water));
+if(full!=gender)restrictionList.Add(new SaleRestriction(gender,ProductType.Water));
+restrictionList.Add(new SaleRestriction(otherGender,ProductType.Water));
+restrictionList.Add(new SaleRestriction(full,ProductType.Medicine));
+var ageBits=full & (CustomerAttributes.Child|CustomerAttributes.Elderly);
+restrictionList.Add(new SaleRestriction(ageBits==0?gender|CustomerAttributes.Child:otherGender|ageBits,ProductType.Water));
+restricted.BeginOffer();int readsBefore=restrictionReads;
+restricted.SubmitOffer(606,new[]{new SaleItem(1,1),new SaleItem(1,2),new SaleItem(2,1),new SaleItem(3,2)});
+var restrictionResult=restricted.Result.Value;int matchingRules=full==gender?1:2;
+if(restrictionReads!=readsBefore+1 || !restrictionResult.WereRestrictionsEvaluated || restrictionResult.RestrictionViolations.Count!=matchingRules*2 || restrictionResult.SaleIncome!=606 || restrictionResult.ReputationDelta!=0 || restricted.Outcome!=CustomerTradeOutcome.RegularSale)throw new Exception("Restriction evaluation/income");
+if(restrictionResult.RestrictionViolations.Any(x=>x.Quantity!=(x.ProductId==1?3:1) || x.ProductId==3))throw new Exception("Final aggregated quantities");
+restrictionList.Clear();rangeProducts[1].ProductType=ProductType.Food;
+if(restrictionResult.RestrictionViolations.Count!=matchingRules*2 || restrictionResult.RestrictionViolations[0].Restriction.ProductType!=ProductType.Water)throw new Exception("Mutable violation snapshot");
+var emptyRules=makeRestricted(provider);emptyRules.BeginOffer();emptyRules.SubmitOffer(101,new[]{new SaleItem(1,1)});
+if(!emptyRules.Result.Value.WereRestrictionsEvaluated || emptyRules.Result.Value.RestrictionViolations.Count!=0)throw new Exception("Explicit empty rules");
+foreach(var invalidMask in new[]{CustomerAttributes.None,CustomerAttributes.Male|CustomerAttributes.Female,CustomerAttributes.Child|CustomerAttributes.Elderly,(CustomerAttributes)16})mustThrow(()=>new SaleRestriction(invalidMask,ProductType.Water));
+mustThrow(()=>new SaleRestriction(CustomerAttributes.Child,ProductType.None));mustThrow(()=>new SaleRestriction(CustomerAttributes.Child,(ProductType)99));
+bool providerThrows=false;bool providerNull=false;
+var retry=makeRestricted(()=>{restrictionReads++;if(providerThrows)throw new InvalidOperationException("provider failure");return providerNull?null:restrictionList;});retry.BeginOffer();
+Action verifyUntouched=()=>{if(retry.Result.HasValue || retry.AllowedTotal.HasValue || retry.OfferedTotal.HasValue || retry.Outcome!=CustomerTradeOutcome.None || retry.State!=CustomerState.AwaitingOffer)throw new Exception("Restriction failure published state");};
+restrictionList.Add(default);mustThrow(()=>retry.SubmitOffer(101,new[]{new SaleItem(1,1)}));verifyUntouched();
+restrictionList.Clear();restrictionList.Add(new SaleRestriction(CustomerAttributes.Child,ProductType.Water));restrictionList.Add(restrictionList[0]);
+mustThrow(()=>retry.SubmitOffer(101,new[]{new SaleItem(1,1)}));verifyUntouched();restrictionList.Clear();
+providerNull=true;mustThrow(()=>retry.SubmitOffer(101,new[]{new SaleItem(1,1)}));verifyUntouched();providerNull=false;
+providerThrows=true;mustThrow(()=>retry.SubmitOffer(101,new[]{new SaleItem(1,1)}));verifyUntouched();providerThrows=false;
+rangeProducts[1].ProductType=(ProductType)99;mustThrow(()=>retry.SubmitOffer(101,new[]{new SaleItem(1,1)}));verifyUntouched();rangeProducts[1].ProductType=ProductType.Water;
+rangeProducts[1].CostPrice=uint.MaxValue;rangeProducts[2].CostPrice=uint.MaxValue;
+mustThrow(()=>retry.SubmitOffer(1,new[]{new SaleItem(1,int.MaxValue),new SaleItem(2,int.MaxValue)}));verifyUntouched();
+rangeProducts[1].CostPrice=1;rangeProducts[2].CostPrice=1;
+retry.SubmitOffer(101,new[]{new SaleItem(1,1)});if(!retry.Result.Value.WereRestrictionsEvaluated)throw new Exception("Restriction valid retry");
+if(legacy.WereRestrictionsEvaluated || legacy.RestrictionViolations.Count!=0 || default(TransactionResult).WereRestrictionsEvaluated || default(TransactionResult).RestrictionViolations.Count!=0)throw new Exception("Legacy/default restriction state");
+return "CUSTOMER_CHECK_PASS: generation, probability, final replacement four outcomes, latest price once, immutable lists/prices/cost, duplicates, rejection, invalid/lookup/overflow atomicity, resubmit, legacy, profile type/flags, OR preference, sorted seed, six attributes, regular range boundaries/snapshot, restriction AND/final items/snapshot/failures/retry; preferred="+preferred+"/10000; normal="+normalCount+"/12000";
 
 '@
 $result = $checkCode | & unity-cli exec 2>&1

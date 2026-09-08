@@ -88,8 +88,13 @@ foreach(string badType in new[]{"0","5","99","Normal",""})
 foreach(string badProducts in new[]{"0","1001_1001","1999"})
  reject("preferred product "+badProducts,c=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,1,"+badProducts)));
 if(!valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.DispositionType).SequenceEqual(new[]{CustomerDispositionType.Normal,CustomerDispositionType.Hasty,CustomerDispositionType.PriceSensitive}) || valid.Dispositions.Rows.Values.Any(x=>x.PreferredProductIdxs.Count!=0))throw new Exception("Profile migration");
-if (rejected != 48 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
-return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=48/48, enum/dialog/image/price/cost/day/routing/queue/profile checked, resources=" + resourceCount + "; expected LogError=48";
+reject("regular min header",c=>c.Dispositions.LoadData(disposition.Replace("regular_price_min_rate","missing_min")));
+reject("regular max header",c=>c.Dispositions.LoadData(disposition.Replace("regular_price_max_rate","missing_max")));
+foreach(string badMin in new[]{"0","-1","1001",""})reject("regular min "+badMin,c=>c.Dispositions.LoadData(disposition.Replace("8051,1,,1000,1000","8051,1,,"+badMin+",1000")));
+foreach(string badMax in new[]{"999",""})reject("regular max "+badMax,c=>c.Dispositions.LoadData(disposition.Replace("8051,1,,1000,1000","8051,1,,1000,"+badMax)));
+if(valid.Dispositions.Rows.Values.Any(x=>x.RegularPriceMinRate!=1000 || x.RegularPriceMaxRate!=1000))throw new Exception("Regular range migration");
+if (rejected != 56 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
+return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=56/56, enum/dialog/image/price/cost/day/routing/queue/profile/range checked, resources=" + resourceCount + "; expected LogError=56";
 '@
 $result = $checkCode | & unity-cli exec 2>&1
 $result | ForEach-Object { Write-Output $_ }

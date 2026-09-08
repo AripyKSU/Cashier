@@ -22,11 +22,13 @@ public sealed class CustomerGenerator
     /// <param name="products">상품 ID → 상품 데이터. 비활성·미등장 상품은 제외한다.</param>
     /// <param name="elapsedDays">게임 시작 후 경과 일수. 0은 시작일.</param>
     /// <param name="getCurrentPrices">현재 가격표 조회 함수. 생성 시 희망 목록 표시, 제출 시 최신 가격 확정에 각각 사용한다.</param>
+    /// <param name="getSaleRestrictions">수락 가능한 제출 시 조회할 지침 공급자. null이면 미연결이며 생성 시 호출하지 않는다.</param>
     /// <returns>판매 가능 상품이 없으면 null. 나머지는 확정된 방문 데이터.</returns>
     /// <exception cref="ArgumentException">필수 후보 누락, 0·중복 ID 또는 잘못된 설정 범위.</exception>
     public CustomerVisit Generate(IReadOnlyList<uint> appearanceIds,
         IReadOnlyList<CustomerDispositionData> dispositions,
-        IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices = null)
+        IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices = null,
+        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null)
     {
         if (getCurrentPrices == null) throw new ArgumentNullException(nameof(getCurrentPrices));
         var currentPrices = getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
@@ -106,6 +108,6 @@ public sealed class CustomerGenerator
             disposition.DiscountSaleTextIdxs[random.Next(disposition.DiscountSaleTextIdxs.Count)],
             disposition.ExploitativeSaleTextIdxs[random.Next(disposition.ExploitativeSaleTextIdxs.Count)],
             disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)], products, getCurrentPrices,
-            disposition.DispositionType, attributes);
+            disposition.DispositionType, attributes, disposition.RegularPriceMinRate, disposition.RegularPriceMaxRate, getSaleRestrictions);
     }
 }

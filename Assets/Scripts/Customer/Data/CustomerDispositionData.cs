@@ -37,6 +37,12 @@ public sealed class CustomerDispositionData
     /// <summary>가격 허용 배율. 1000=정가의 100%, 확률과 달리 1000 초과 허용.</summary>
     [Name("price_tolerance")]
     public int PriceTolerance { get; set; } = 1000;
+    /// <summary>정가 인정 하한 배율. 1000=100%, 0보다 크고 1000 이하.</summary>
+    [Name("regular_price_min_rate")]
+    public int RegularPriceMinRate { get; set; } = 1000;
+    /// <summary>정가 인정 상한 배율. 1000 이상이며 결제 거부 상한과 별개다.</summary>
+    [Name("regular_price_max_rate")]
+    public int RegularPriceMaxRate { get; set; } = 1000;
     /// <summary>입장 시 선택할 대사 TextData FK 목록. 필수이며 중복 금지.</summary>
     [Name("entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
     public IReadOnlyList<uint> EntryTextIdxs { get; set; } = new uint[0];
@@ -80,6 +86,8 @@ public sealed class CustomerDispositionData
     /// <exception cref="ArgumentException">확률·수량 범위 또는 선호 상품군 ID가 잘못된 경우.</exception>
     public void ValidatePurchaseSettings()
     {
+        if (RegularPriceMinRate <= 0 || RegularPriceMinRate > 1000 || RegularPriceMaxRate < 1000)
+            throw new ArgumentException($"성향 {Idx}: 0 < regular_price_min_rate <= 1000 <= regular_price_max_rate 필요");
         CustomerProfileValidation.ValidateType(DispositionType);
         if (PreferredProductIdxs == null) throw new ArgumentException($"성향 {Idx}: preferred_product_idxs null");
         var productIds = new HashSet<uint>();

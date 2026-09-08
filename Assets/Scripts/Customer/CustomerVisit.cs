@@ -28,9 +28,9 @@ public sealed class CustomerVisit
 {
     private readonly IReadOnlyDictionary<uint, ProductData> products;
     private readonly Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices;
+    /// <summary>제출 시 한 번 조회하는 지침 공급자. null은 미연결이며 방문이 수명을 소유하지 않는다.</summary>
+    private readonly Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions;
     private bool isSubmitting;
-    /// <summary>제출 완료 결과. null은 미판정이며 재정 반영 완료를 의미하지 않는다.</summary>
-    public TransactionResult? Result { get; private set; }
     /// <summary>생성 시 선택한 수락 대사.</summary>
     private readonly uint regularSaleTextIdx;
     /// <summary>생성 시 선택한 저가 판매 대사.</summary>
@@ -39,12 +39,18 @@ public sealed class CustomerVisit
     private readonly uint exploitativeSaleTextIdx;
     /// <summary>생성 시 선택한 거절 대사.</summary>
     private readonly uint rejectTextIdx;
+    /// <summary>제출 완료 결과. null은 미판정이며 재정 반영 완료를 의미하지 않는다.</summary>
+    public TransactionResult? Result { get; private set; }
     /// <summary>방문의 현재 상태. 이 객체의 API만 변경한다.</summary>
     public CustomerState State { get; private set; } = CustomerState.Entering;
     /// <summary>최종 목록의 제출 시점 기준 총액. 제출 전 null.</summary>
     public long? BaseTotal => Result?.ReferenceTotal;
     /// <summary>입장 시 고정한 가격 허용 배율. 1000=100%.</summary>
     public int PriceTolerance { get; }
+    /// <summary>방문 생성 시 복사한 정가 인정 하한. 1000=100%.</summary>
+    public int RegularPriceMinRate { get; }
+    /// <summary>방문 생성 시 복사한 정가 인정 상한. 결제 거부 판정이 우선한다.</summary>
+    public int RegularPriceMaxRate { get; }
     /// <summary>제출 시 확정한 수락 상한. 제출 전 null이며 UI에 자동 노출하지 않는다.</summary>
     public long? AllowedTotal { get; private set; }
     /// <summary>유효한 제안 총액. 미제안 상태는 null.</summary>
@@ -98,11 +104,15 @@ public sealed class CustomerVisit
     /// <param name="getCurrentPrices">최신 현재가 조회 함수. 생성 시 가격표를 캡처하지 않는다.</param>
     /// <param name="dispositionType">검증 후 복사할 성향 타입.</param>
     /// <param name="attributes">검증 후 복사할 독립 속성.</param>
+    /// <param name="regularPriceMinRate">생성기가 검증한 정가 인정 하한 배율.</param>
+    /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
+    /// <param name="getSaleRestrictions">제출 시 지침 조회. null은 미연결.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
         int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
-        CustomerDispositionType dispositionType, CustomerAttributes attributes)
+        CustomerDispositionType dispositionType, CustomerAttributes attributes,
+        int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions)
     {
         CustomerProfileValidation.ValidateType(dispositionType);
         CustomerProfileValidation.ValidateAttributes(attributes);
@@ -112,6 +122,8 @@ public sealed class CustomerVisit
         DispositionIdx = dispositionIdx;
         Items = new List<CustomerOrderItem>(items).AsReadOnly();
         PriceTolerance = priceTolerance;
+        RegularPriceMinRate = regularPriceMinRate;
+        RegularPriceMaxRate = regularPriceMaxRate;
         EntryTextIdx = entryTextIdx;
         this.regularSaleTextIdx = regularSaleTextIdx;
         this.discountSaleTextIdx = discountSaleTextIdx;
@@ -119,6 +131,7 @@ public sealed class CustomerVisit
         this.rejectTextIdx = rejectTextIdx;
         this.products = products;
         this.getCurrentPrices = getCurrentPrices;
+        this.getSaleRestrictions = getSaleRestrictions;
     }
 
     /// <summary>입장 피드백을 표시한 뒤 한 번만 가격 제안 대기로 전환한다.</summary>
@@ -153,7 +166,7 @@ public sealed class CustomerVisit
     /// <returns>수락 여부.</returns>
     /// <exception cref="ArgumentOutOfRangeException">0 또는 음수 입력.</exception>
     /// <exception cref="InvalidOperationException">대기 상태가 아닌 방문.</exception>
-    /// <exception cref="ArgumentException">빈 목록·잘못된 상품·수량.</exception>
+    /// <exception cref="ArgumentException">빈 목록·잘못된 상품·수량·지침 조건 또는 중복 지침.</exception>
     /// <exception cref="OverflowException">합산 수량·기준액·허용액·원가 범위 초과.</exception>
     public bool SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
@@ -187,9 +200,13 @@ public sealed class CustomerVisit
             }
             long allowed = checked((long)decimal.Floor((decimal)reference * PriceTolerance / 1000m));
             var outcome = offeredTotal > allowed ? CustomerTradeOutcome.PaymentRefused
-                : offeredTotal < reference ? CustomerTradeOutcome.DiscountSale
-                : offeredTotal == reference ? CustomerTradeOutcome.RegularSale : CustomerTradeOutcome.ExploitativeSale;
-            var result = new TransactionResult(outcome, offeredTotal, sold);
+                : (decimal)offeredTotal * 1000m < (decimal)reference * RegularPriceMinRate ? CustomerTradeOutcome.DiscountSale
+                : (decimal)offeredTotal * 1000m > (decimal)reference * RegularPriceMaxRate ? CustomerTradeOutcome.ExploitativeSale
+                : CustomerTradeOutcome.RegularSale;
+            // 정상 위반은 수락을 취소하지 않는다. 조회·검증 실패는 공개 상태 확정 전에 전파한다.
+            bool evaluated = outcome != CustomerTradeOutcome.PaymentRefused && getSaleRestrictions != null;
+            IReadOnlyList<SaleRestrictionViolation> violations = evaluated ? evaluateRestrictions(sold) : Array.Empty<SaleRestrictionViolation>();
+            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;
@@ -207,6 +224,34 @@ public sealed class CustomerVisit
         if (State != CustomerState.Accepted && State != CustomerState.Rejected)
             throw new InvalidOperationException("거래 판정 후에만 퇴장할 수 있습니다.");
         State = CustomerState.Departed;
+    }
+
+    /// <summary>지침을 한 번 복사·검증한 뒤 최종 상품과 방문 속성의 AND 조건을 검사한다.</summary>
+    /// <param name="sold">중복 합산·가격 검증을 마친 최종 판매 후보.</param>
+    /// <returns>조건-상품별 한 건의 불변 값 기록. 빈 지침은 빈 결과다.</returns>
+    /// <exception cref="InvalidOperationException">지침 목록 또는 상품 분류 조회 실패. 공급자의 예외도 그대로 전달한다.</exception>
+    /// <exception cref="ArgumentException">지침 조건 오류 또는 중복.</exception>
+    private IReadOnlyList<SaleRestrictionViolation> evaluateRestrictions(IReadOnlyList<SoldItem> sold)
+    {
+        var restrictions = new List<SaleRestriction>(getSaleRestrictions() ?? throw new InvalidOperationException("판매 지침 조회가 null을 반환했습니다."));
+        var seen = new HashSet<(CustomerAttributes, ProductType)>();
+        foreach (var restriction in restrictions)
+        {
+            restriction.Validate();
+            if (!seen.Add((restriction.RequiredAttributes, restriction.ProductType)))
+                throw new ArgumentException("동일 속성·분류의 판매 지침이 중복되었습니다.");
+        }
+        var violations = new List<SaleRestrictionViolation>();
+        foreach (var item in sold)
+        {
+            if (!products.TryGetValue(item.ProductId, out var product) || product == null || product.Idx != item.ProductId ||
+                product.ProductType == ProductType.None || !Enum.IsDefined(typeof(ProductType), product.ProductType))
+                throw new InvalidOperationException($"상품 {item.ProductId}: 판매 지침 분류 참조 오류");
+            foreach (var restriction in restrictions)
+                if ((Attributes & restriction.RequiredAttributes) == restriction.RequiredAttributes && product.ProductType == restriction.ProductType)
+                    violations.Add(new SaleRestrictionViolation(restriction, item.ProductId, item.Quantity));
+        }
+        return violations;
     }
 }
 
