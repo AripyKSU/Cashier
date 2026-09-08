@@ -12,6 +12,9 @@ public enum DayProgressState
     /// <summary>제한시간 안에서 손님 거래를 진행하는 상태입니다.</summary>
     Operating,
 
+    /// <summary>손님 물품을 판매 또는 판매 안함으로 분류하고 가격 입력을 기다리는 상태입니다.</summary>
+    Sorting,
+
     /// <summary>거래 결과를 표시하고 확인을 기다리는 상태입니다.</summary>
     TransactionResult,
 

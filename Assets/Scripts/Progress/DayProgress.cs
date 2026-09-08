@@ -75,7 +75,7 @@ public sealed class DayProgress
 
     /// <summary>현재 손님에게 가격을 확정할 수 있는지 나타냅니다.</summary>
     public bool CanSubmitOffer =>
-        (this.State == DayProgressState.Operating || this.State == DayProgressState.Closing)
+        (this.State == DayProgressState.Sorting || this.State == DayProgressState.Closing)
         && this.currentVisit != null
         && this.currentVisit.State == CustomerState.AwaitingOffer;
 
@@ -221,6 +221,7 @@ public sealed class DayProgress
 
         if (this.isPaused
             || (this.State != DayProgressState.Operating
+                && this.State != DayProgressState.Sorting
                 && this.State != DayProgressState.TransactionResult))
         {
             return;
@@ -269,6 +270,20 @@ public sealed class DayProgress
         return wasAccepted;
     }
 
+    /// <summary>손님 정면 등장과 물품 쏟기 연출을 마치고 판매 분류 상태로 진입합니다.</summary>
+    /// <exception cref="InvalidOperationException">현재 손님이 없거나 영업 상태가 아닌 경우 발생합니다.</exception>
+    public void BeginSorting()
+    {
+        if (this.State != DayProgressState.Operating
+            || this.currentVisit == null
+            || this.currentVisit.State != CustomerState.AwaitingOffer)
+        {
+            throw new InvalidOperationException("활성 손님의 등장 연출이 끝난 뒤에만 물품 분류를 시작할 수 있습니다.");
+        }
+
+        this.changeState(DayProgressState.Sorting);
+    }
+
     /// <summary>
     /// 현재 거래 결과 확인을 마치고 손님을 퇴장시킵니다.
     /// </summary>
@@ -308,6 +323,7 @@ public sealed class DayProgress
     {
         if (this.isPaused
             || (this.State != DayProgressState.Operating
+                && this.State != DayProgressState.Sorting
                 && this.State != DayProgressState.TransactionResult))
         {
             throw new InvalidOperationException("현재 상태에서는 영업을 일시정지할 수 없습니다.");
@@ -324,6 +340,7 @@ public sealed class DayProgress
     {
         if (!this.isPaused || this.remainingSeconds <= 0f
             || (this.State != DayProgressState.Operating
+                && this.State != DayProgressState.Sorting
                 && this.State != DayProgressState.TransactionResult))
         {
             throw new InvalidOperationException("현재 상태에서는 영업을 재개할 수 없습니다.");

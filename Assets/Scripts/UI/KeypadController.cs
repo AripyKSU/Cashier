@@ -7,7 +7,8 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// 계산대 포스기 키패드 입력 및 가격 검증 컨트롤러 (개발자 3 담당).
-/// 마우스 클릭/터치 버튼 입력뿐만 아니라 키보드(숫자키, NumPad, -, ., Backspace, Enter) 입력을 지원합니다.
+/// 마우스 클릭/터치 버튼 입력뿐만 아니라 키보드(숫자키, NumPad, -, ., Backspace) 입력을 지원합니다.
+/// Enter는 게임 진행 상태를 아는 GameInputRouter가 단독으로 처리합니다.
 /// </summary>
 public class KeypadController : MonoBehaviour
 {
@@ -148,6 +149,22 @@ public class KeypadController : MonoBehaviour
         this.updateDisplay();
     }
 
+    /// <summary>'000' 버튼 클릭 시 현재 금액 뒤에 0을 세 개 추가합니다.</summary>
+    public void OnTripleZeroButtonClick()
+    {
+        if (!this.isInputEnabled || this.currentPrice == 0) return;
+
+        long nextValue = this.currentPrice * 1000;
+        if (nextValue.ToString().Length > this.maxDigits)
+        {
+            Debug.LogWarning($"[Keypad] '000' 입력 시 최대 자릿수({this.maxDigits}자리)를 초과합니다.");
+            return;
+        }
+
+        this.currentPrice = nextValue;
+        this.updateDisplay();
+    }
+
     /// <summary>
     /// Progress가 결정한 현재 거래 입력 가능 상태를 적용합니다.
     /// 입력을 닫을 때 남은 가격을 지워 다음 거래로 전달되지 않게 합니다.
@@ -220,11 +237,6 @@ public class KeypadController : MonoBehaviour
             this.OnBackspaceButtonClick();
         }
 
-        // 4. Enter / NumPad Enter (결제 확정)
-        if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame)
-        {
-            this.OnConfirmButtonClick();
-        }
 #else
         // 레거시 입력 폴백
         for (int i = 0; i <= 9; i++)
@@ -247,10 +259,6 @@ public class KeypadController : MonoBehaviour
             this.OnBackspaceButtonClick();
         }
 
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            this.OnConfirmButtonClick();
-        }
 #endif
     }
 }

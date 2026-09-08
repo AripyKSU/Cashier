@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 진행용 개인 씬의 진행 로직과 UI Presenter를 연결하는 Scene 수명 조립 컴포넌트입니다.
+/// 게임 진행 로직과 UI 계층을 연결하는 게임 화면 수명 조립 컴포넌트입니다.
 /// 진행 규칙은 GameProgress와 DayProgress에 위임하고 이 클래스는 입력·ViewData·화면 수명만 담당합니다.
 /// </summary>
-public sealed class ProgressSceneController : MonoBehaviour
+public sealed class GameUIController : MonoBehaviour
 {
     private GameProgress gameProgress;
     private DayProgress subscribedDay;
@@ -26,6 +27,8 @@ public sealed class ProgressSceneController : MonoBehaviour
     [SerializeField] private PriceInputPresenter priceInputPresenter;
     [SerializeField] private DailySettlementPresenter dailySettlementPresenter;
     [SerializeField] private KeypadController keypadController;
+    [SerializeField] private GameInputRouter gameInputRouter;
+    [SerializeField] private SaleSortingPanel saleSortingPanel;
 
     [Header("Progress panels")]
     [SerializeField] private GameObject preOpenPanel;
@@ -191,6 +194,8 @@ public sealed class ProgressSceneController : MonoBehaviour
             || this.priceInputPresenter == null
             || this.dailySettlementPresenter == null
             || this.keypadController == null
+            || this.gameInputRouter == null
+            || this.saleSortingPanel == null
             || this.preOpenPanel == null
             || this.operatingPanel == null
             || this.settlementPanel == null
@@ -200,7 +205,7 @@ public sealed class ProgressSceneController : MonoBehaviour
             || this.transactionContinueButton == null
             || this.maintenanceButton == null)
         {
-            throw new InvalidOperationException("ProgressScene의 Presenter 또는 패널 참조가 누락되었습니다.");
+            throw new InvalidOperationException("게임 UI의 Presenter, 입력 라우터 또는 패널 참조가 누락되었습니다.");
         }
     }
 
@@ -213,6 +218,10 @@ public sealed class ProgressSceneController : MonoBehaviour
         this.businessTimerPresenter.OnResumeRequested += this.handleResumeRequested;
         this.dailySettlementPresenter.OnNextStepRequested += this.handleSettlementNextRequested;
         this.keypadController.OnPriceChanged += this.handlePriceChanged;
+        this.gameInputRouter.OnConfirmRequested += this.handleKeyboardConfirmRequested;
+        this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
+        this.saleSortingPanel.CalculatorVisibilityChanged += this.handleCalculatorVisibilityChanged;
+        this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
         this.transactionContinueButton.onClick.AddListener(this.handleTransactionContinueClicked);
         this.maintenanceButton.onClick.AddListener(this.handleMaintenanceClicked);
@@ -241,6 +250,16 @@ public sealed class ProgressSceneController : MonoBehaviour
         if (this.keypadController != null)
         {
             this.keypadController.OnPriceChanged -= this.handlePriceChanged;
+        }
+        if (this.gameInputRouter != null)
+        {
+            this.gameInputRouter.OnConfirmRequested -= this.handleKeyboardConfirmRequested;
+            this.gameInputRouter.OnContinueRequested -= this.handleTransactionContinueClicked;
+        }
+        if (this.saleSortingPanel != null)
+        {
+            this.saleSortingPanel.CalculatorVisibilityChanged -= this.handleCalculatorVisibilityChanged;
+            this.saleSortingPanel.SortingStarted -= this.handleSortingStarted;
         }
 
         if (this.openBusinessButton != null)
@@ -359,7 +378,9 @@ public sealed class ProgressSceneController : MonoBehaviour
     /// <param name="visit">가격 입력을 기다리는 새 손님 방문입니다.</param>
     private void handleCustomerStarted(CustomerVisit visit)
     {
-        this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
+        CustomerViewData viewData = this.viewDataFactory.CreateCustomerViewData(visit);
+        this.customerPresenter.UpdateView(viewData);
+        this.saleSortingPanel.BeginCustomer(viewData.Basket);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = "Enter the total price for the basket.";
         this.refreshRuntimeViews();
@@ -369,6 +390,7 @@ public sealed class ProgressSceneController : MonoBehaviour
     /// <param name="visit">수락 또는 거절 판정이 완료된 손님 방문입니다.</param>
     private void handleTransactionCompleted(CustomerVisit visit)
     {
+        this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
         this.transactionContinueButton.gameObject.SetActive(true);
         this.transactionStatusText.text = visit.WasAccepted == true
@@ -412,11 +434,13 @@ public sealed class ProgressSceneController : MonoBehaviour
             return;
         }
 
-        this.runProgressAction(() =>
+        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems))
         {
-            this.gameProgress.SubmitOffer(offeredTotal);
-            this.keypadController.OnClearButtonClick();
-        });
+            Debug.LogWarning("[GameUIController] 모든 물품을 판매 또는 판매 안함 영역으로 옮긴 뒤 확정해야 합니다.", this);
+            return;
+        }
+
+        this.runProgressAction(() => this.submitSelectedOffer(offeredTotal, saleItems));
     }
 
     /// <summary>가격 입력 취소 후 입력 ViewData를 갱신합니다.</summary>
@@ -431,6 +455,60 @@ public sealed class ProgressSceneController : MonoBehaviour
     private void handlePriceChanged(long currentPrice)
     {
         this.refreshPriceInputView(currentPrice);
+        this.refreshInputRouting(currentPrice);
+    }
+
+    /// <summary>키보드 Confirm 요청을 현재 Keypad의 단일 확정 경로로 전달합니다.</summary>
+    private void handleKeyboardConfirmRequested()
+    {
+        this.keypadController.OnConfirmButtonClick();
+    }
+
+    /// <summary>계산기 표시 상태가 바뀌면 가격 입력과 Enter 라우팅을 즉시 갱신합니다.</summary>
+    /// <param name="isOpen">계산기 패널이 열려 있으면 true입니다.</param>
+    private void handleCalculatorVisibilityChanged(bool isOpen)
+    {
+        if (!this.isReady || this.subscribedDay == null) return;
+        this.refreshRuntimeViews();
+    }
+
+    /// <summary>상품 쏟기 연출 완료를 DayProgress의 분류 상태로 전달합니다.</summary>
+    private void handleSortingStarted()
+    {
+        if (this.subscribedDay == null || this.subscribedDay.State != DayProgressState.Operating) return;
+        this.runProgressAction(this.gameProgress.BeginCustomerSorting);
+    }
+
+    /// <summary>
+    /// 판매 상품 목록을 받는 진행 API가 합쳐지면 해당 오버로드로 거래 요청을 전달합니다.
+    /// 현재 브랜치에는 아직 계약이 없으므로 판정 코드를 수정하지 않고 명시적인 연결 실패를 보고합니다.
+    /// </summary>
+    /// <param name="offeredTotal">플레이어가 입력한 판매 가격입니다.</param>
+    /// <param name="saleItems">판매 영역에서 상품 ID별로 집계한 수량입니다.</param>
+    /// <exception cref="MissingMethodException">진행 계층에 새 판매 목록 오버로드가 아직 없는 경우 발생합니다.</exception>
+    /// <exception cref="TargetInvocationException">연결된 진행 계층이 거래 판정 중 실패한 경우 발생합니다.</exception>
+    private void submitSelectedOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
+    {
+        MethodInfo submitMethod = this.gameProgress.GetType().GetMethod(
+            nameof(GameProgress.SubmitOffer),
+            new[] { typeof(long), typeof(IReadOnlyList<SaleItem>) });
+        if (submitMethod == null)
+        {
+            throw new MissingMethodException(
+                "GameProgress.SubmitOffer(long, IReadOnlyList<SaleItem>) 연결이 아직 합쳐지지 않았습니다.");
+        }
+
+        try
+        {
+            submitMethod.Invoke(this.gameProgress, new object[] { offeredTotal, saleItems });
+        }
+        catch (TargetInvocationException exception) when (exception.InnerException != null)
+        {
+            throw exception.InnerException;
+        }
+
+        this.saleSortingPanel.LockSelection();
+        this.keypadController.OnClearButtonClick();
     }
 
     /// <summary>거래 결과 확인 요청을 하루 진행에 전달합니다.</summary>
@@ -542,7 +620,10 @@ public sealed class ProgressSceneController : MonoBehaviour
             && (this.subscribedDay.State == DayProgressState.TransactionResult
                 || this.subscribedDay.State == DayProgressState.Closing);
         this.transactionContinueButton.gameObject.SetActive(canContinueTransaction);
-        this.setKeypadInteractable(this.subscribedDay.CanSubmitOffer);
+        this.setKeypadInteractable(this.subscribedDay.CanSubmitOffer
+            && this.saleSortingPanel.IsSorting
+            && this.saleSortingPanel.IsCalculatorOpen);
+        this.refreshInputRouting(currentPrice, canContinueTransaction);
     }
 
     /// <summary>현재 가격과 거래 상태만 가격 입력 Presenter에 전달합니다.</summary>
@@ -559,6 +640,30 @@ public sealed class ProgressSceneController : MonoBehaviour
             currentPrice > 0,
             this.subscribedDay.CanSubmitOffer,
             this.hasError ? this.errorText.text : this.validationText.text));
+    }
+
+    /// <summary>현재 진행과 가격 상태를 Enter 입력 라우터에 전달합니다.</summary>
+    /// <param name="currentPrice">현재 Keypad 입력 가격입니다.</param>
+    /// <param name="canContinueOverride">이미 계산한 거래 결과 확인 가능 상태입니다.</param>
+    private void refreshInputRouting(long currentPrice, bool? canContinueOverride = null)
+    {
+        if (this.gameInputRouter == null || this.subscribedDay == null)
+        {
+            return;
+        }
+
+        bool canContinue = canContinueOverride ?? (this.subscribedDay.CurrentVisit != null
+            && (this.subscribedDay.CurrentVisit.State == CustomerState.Accepted
+                || this.subscribedDay.CurrentVisit.State == CustomerState.Rejected)
+            && (this.subscribedDay.State == DayProgressState.TransactionResult
+                || this.subscribedDay.State == DayProgressState.Closing));
+        this.gameInputRouter.SetState(
+            this.subscribedDay.CanSubmitOffer
+                && this.saleSortingPanel.IsSorting
+                && this.saleSortingPanel.IsCalculatorOpen
+                && this.saleSortingPanel.CanConfirm
+                && currentPrice > 0,
+            canContinue);
     }
 
     /// <summary>프레임 경과에 따라 실제로 변하는 타이머 표시만 갱신합니다.</summary>
@@ -585,6 +690,7 @@ public sealed class ProgressSceneController : MonoBehaviour
     {
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;
         bool operating = this.subscribedDay.State == DayProgressState.Operating
+            || this.subscribedDay.State == DayProgressState.Sorting
             || this.subscribedDay.State == DayProgressState.TransactionResult
             || this.subscribedDay.State == DayProgressState.Closing;
         bool settlement = this.subscribedDay.State == DayProgressState.Settlement;
@@ -619,6 +725,7 @@ public sealed class ProgressSceneController : MonoBehaviour
         {
             DayProgressState.PreOpen => GameDayPhase.PreOpen,
             DayProgressState.Operating => GameDayPhase.Operating,
+            DayProgressState.Sorting => GameDayPhase.Operating,
             DayProgressState.TransactionResult => GameDayPhase.TradingResult,
             DayProgressState.Closing => GameDayPhase.Closing,
             DayProgressState.Settlement => GameDayPhase.DailySettlement,
@@ -653,6 +760,7 @@ public sealed class ProgressSceneController : MonoBehaviour
             && this.subscribedDay != null
             && !this.subscribedDay.IsPaused
             && (this.subscribedDay.State == DayProgressState.Operating
+                || this.subscribedDay.State == DayProgressState.Sorting
                 || this.subscribedDay.State == DayProgressState.TransactionResult);
     }
 
@@ -665,6 +773,7 @@ public sealed class ProgressSceneController : MonoBehaviour
             && this.subscribedDay != null
             && this.subscribedDay.IsPaused
             && (this.subscribedDay.State == DayProgressState.Operating
+                || this.subscribedDay.State == DayProgressState.Sorting
                 || this.subscribedDay.State == DayProgressState.TransactionResult);
     }
 

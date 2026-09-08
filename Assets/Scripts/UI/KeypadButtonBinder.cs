@@ -16,10 +16,12 @@ public sealed class KeypadButtonBinder : MonoBehaviour
 
     [Header("Editing buttons")]
     [SerializeField] private Button doubleZeroButton;
+    [SerializeField] private Button tripleZeroButton;
     [SerializeField] private Button backspaceButton;
 
     private UnityAction[] numberActions;
     private UnityAction doubleZeroAction;
+    private UnityAction tripleZeroAction;
     private UnityAction backspaceAction;
 
     /// <summary>씬 버튼 이벤트를 키패드 입력 API에 연결합니다.</summary>
@@ -59,6 +61,13 @@ public sealed class KeypadButtonBinder : MonoBehaviour
             this.backspaceAction = this.keypadController.OnBackspaceButtonClick;
             this.backspaceButton.onClick.AddListener(this.backspaceAction);
         }
+
+
+        if (this.tripleZeroButton != null)
+        {
+            this.tripleZeroAction = this.keypadController.OnTripleZeroButtonClick;
+            this.tripleZeroButton.onClick.AddListener(this.tripleZeroAction);
+        }
     }
 
     /// <summary>씬이 제거될 때 버튼 이벤트 구독을 해제합니다.</summary>
@@ -89,6 +98,12 @@ public sealed class KeypadButtonBinder : MonoBehaviour
         if (this.backspaceButton != null && this.backspaceAction != null)
         {
             this.backspaceButton.onClick.RemoveListener(this.backspaceAction);
+        }
+
+
+        if (this.tripleZeroButton != null && this.tripleZeroAction != null)
+        {
+            this.tripleZeroButton.onClick.RemoveListener(this.tripleZeroAction);
         }
     }
 }

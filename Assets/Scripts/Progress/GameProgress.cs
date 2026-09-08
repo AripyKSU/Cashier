@@ -149,6 +149,13 @@ public sealed class GameProgress
         return this.currentDayProgress.SubmitOffer(offeredTotal);
     }
 
+    /// <summary>현재 손님의 등장 연출을 마치고 물품 분류 단계로 진행합니다.</summary>
+    public void BeginCustomerSorting()
+    {
+        this.requireDayInProgress();
+        this.currentDayProgress.BeginSorting();
+    }
+
     /// <summary>현재 거래 결과 화면을 닫고 다음 거래 또는 마감으로 진행합니다.</summary>
     public void CompleteTransactionResult()
     {
