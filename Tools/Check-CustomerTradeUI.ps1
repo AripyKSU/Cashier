@@ -2,6 +2,8 @@
 $ErrorActionPreference = 'Stop'
 $checkCode = @'
 if (!UnityEditor.EditorApplication.isPlaying) throw new Exception("PlayMode required");
+Func<CustomerVisit,long> reference = v => v.Items.Sum(x => checked((long)x.Quantity * GameSessionManager.Instance.EnsureDailyPrices().Prices[x.ProductIdx]));
+Func<CustomerVisit,long> allowed = v => checked((long)decimal.Floor((decimal)reference(v)*v.PriceTolerance/1000m));
 var sandbox = UnityEngine.Object.FindFirstObjectByType<CustomerSandbox>();
 if (sandbox == null) throw new Exception("CustomerSandbox required");
 Func<string, object> field = name => typeof(CustomerSandbox).GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(sandbox);
@@ -37,7 +39,7 @@ for (int i = 0; i < 20; i++) {
         input.text = bad; click(submit);
         if (visit.State != CustomerState.AwaitingOffer || visit.OfferedTotal.HasValue) throw new Exception("Invalid input consumed visit");
     }
-    long total = visit.AllowedTotal + (i % 2);
+    long total = allowed(visit) + (i % 2);
     input.text = total.ToString(System.Globalization.CultureInfo.InvariantCulture); click(submit);
     if (visit.WasAccepted != (i % 2 == 0) || dialog.text != texts.Rows[visit.FeedbackTextIdx].Text || submit.IsInteractable()) throw new Exception("Feedback or result failed");
     input.text = "1"; sandbox.SubmitPrice();

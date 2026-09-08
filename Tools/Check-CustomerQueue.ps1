@@ -5,7 +5,7 @@ var products=Util.ParseFromCSV<ProductData>(File.ReadAllText("Assets/Datas/Custo
 var config=dispositions[6002]; // 9초: 3초에 재촉
 var generator=new CustomerGenerator(new System.Random(1));
 uint price=100;int created=0;
-var q=new CustomerQueue(()=>{created++;return generator.Generate(new uint[]{5001},new[]{config},products,0,products.ToDictionary(x=>x.Key,x=>price));},dispositions);
+var q=new CustomerQueue(()=>{created++;return generator.Generate(new uint[]{5001},new[]{config},products,0,()=>products.ToDictionary(x=>x.Key,x=>price));},dispositions);
 q.Start();q.TryAdd();var first=q.Waiting[0];
 q.Advance(200,true);if(q.Waiting.Count!=1 || first.Visit.State!=CustomerState.Queued)throw new Exception("Pause");
 q.Advance(2,false);if(q.GetSpeech(first)!=0)throw new Exception("Early warning");

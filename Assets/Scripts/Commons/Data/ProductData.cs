@@ -16,6 +16,9 @@ public sealed class ProductData
     /// <summary>상품 하나의 정가. 양수 정수 통화 단위.</summary>
     [Name("base_price")]
     public uint BasePrice { get; set; }
+    /// <summary>상품 단위 원가. 양수이며 기본가격보다 작아야 한다는 일반 제한은 없다.</summary>
+    [Name("cost_price")]
+    public uint CostPrice { get; set; }
     /// <summary>등장하는 게임 경과 일수. 0은 게임 시작일이다.</summary>
     [Name("available_day")]
     public uint AvailableDay { get; set; }
@@ -30,8 +33,8 @@ public sealed class ProductData
     /// <exception cref="ArgumentException">필수 가격·분류·리소스 대역 오류.</exception>
     public void Validate()
     {
-        if (Idx == 0 || BasePrice == 0 || ProductType == ProductType.None || !Enum.IsDefined(typeof(ProductType), ProductType))
-            throw new ArgumentException($"ProductData.csv PK={Idx}: base_price 또는 product_type 오류");
+        if (Idx == 0 || BasePrice == 0 || CostPrice == 0 || ProductType == ProductType.None || !Enum.IsDefined(typeof(ProductType), ProductType))
+            throw new ArgumentException($"ProductData.csv PK={Idx}: base_price, cost_price 또는 product_type 오류");
         if (ImageResourceIdx.HasValue && (ImageResourceIdx.Value % 1000 == 0 ||
             Util.GetDataTableType(ImageResourceIdx.Value) != DataTableType.Resource))
             throw new ArgumentException($"ProductData.csv PK={Idx}, image_resource_idx={ImageResourceIdx}: Resource FK 대역 오류");

@@ -124,7 +124,7 @@ public sealed class CustomerSandbox : MonoBehaviour
         {
             var dailyPrices = GameSessionManager.Instance.EnsureDailyPrices();
             var visit = generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
-                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, dailyPrices.ElapsedDays, dailyPrices.Prices);
+                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, dailyPrices.ElapsedDays, () => GameSessionManager.Instance.EnsureDailyPrices().Prices);
             if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
             clearProducts();
             if (visit == null)
@@ -146,7 +146,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             appearanceImage.color = color;
             appearanceImage.enabled = true;
             identityText.text = $"외형 {visit.AppearanceIdx} + 성향 {visit.DispositionIdx}";
-            orderText.text = $"경과 {dailyPrices.ElapsedDays}일 · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개\n현재가 합계 {visit.BaseTotal:N0}";
+            orderText.text = $"경과 {dailyPrices.ElapsedDays}일 · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개\n희망 목록 표시 합계 {visit.Items.Sum(x => (long)x.Quantity * x.UnitPrice):N0} · 최종액 미확정";
             dialogText.text = texts.Rows[visit.EntryTextIdx].Text;
             showProducts(visit);
             offerInput.text = string.Empty;
@@ -172,7 +172,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             statusText.text = "총액은 1 이상의 정수로 입력하세요. 공백·소수점·기호는 사용할 수 없습니다.";
             return;
         }
-        CurrentVisit.SubmitOffer(total);
+        CurrentVisit.SubmitOffer(total, CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
         dialogText.text = texts.Rows[CurrentVisit.FeedbackTextIdx].Text;
         statusText.text = $"{CurrentVisit.OutcomeLabel} (판정값: {(int)CurrentVisit.Outcome}) · 제안 {total:N0} · 다음 손님 버튼으로 퇴장·교체";
         updateControls();
@@ -225,7 +225,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             label.color = Color.black;
             label.alignment = TextAnchor.MiddleCenter;
             label.raycastTarget = false;
-            label.text = $"{texts.Rows[product.NameIdx].Text}\n기본: {product.BasePrice:N0} / 현재: {item.UnitPrice:N0}\n{texts.Rows[category.NameIdx].Text} × {item.Quantity}";
+            label.text = $"{texts.Rows[product.NameIdx].Text}\n기본: {product.BasePrice:N0} / 희망시: {item.UnitPrice:N0}\n{texts.Rows[category.NameIdx].Text} × {item.Quantity}";
         }
     }
 

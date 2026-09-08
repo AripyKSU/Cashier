@@ -26,6 +26,11 @@ public enum CustomerTradeOutcome
 /// <summary>한 방문에서 확정된 손님 조합과 변경 불가능한 구매 목록.</summary>
 public sealed class CustomerVisit
 {
+    private readonly IReadOnlyDictionary<uint, ProductData> products;
+    private readonly Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices;
+    private bool isSubmitting;
+    /// <summary>제출 완료 결과. null은 미판정이며 재정 반영 완료를 의미하지 않는다.</summary>
+    public TransactionResult? Result { get; private set; }
     /// <summary>생성 시 선택한 수락 대사.</summary>
     private readonly uint regularSaleTextIdx;
     /// <summary>생성 시 선택한 저가 판매 대사.</summary>
@@ -36,12 +41,12 @@ public sealed class CustomerVisit
     private readonly uint rejectTextIdx;
     /// <summary>방문의 현재 상태. 이 객체의 API만 변경한다.</summary>
     public CustomerState State { get; private set; } = CustomerState.Entering;
-    /// <summary>입장 시 고정한 기준 총액.</summary>
-    public long BaseTotal { get; }
+    /// <summary>최종 목록의 제출 시점 기준 총액. 제출 전 null.</summary>
+    public long? BaseTotal => Result?.ReferenceTotal;
     /// <summary>입장 시 고정한 가격 허용 배율. 1000=100%.</summary>
     public int PriceTolerance { get; }
-    /// <summary>소수점 이하를 버린 수락 상한. UI에 자동 노출하지 않는다.</summary>
-    public long AllowedTotal { get; }
+    /// <summary>제출 시 확정한 수락 상한. 제출 전 null이며 UI에 자동 노출하지 않는다.</summary>
+    public long? AllowedTotal { get; private set; }
     /// <summary>유효한 제안 총액. 미제안 상태는 null.</summary>
     public long? OfferedTotal { get; private set; }
     /// <summary>제안 후 결과. 퇴장 후에도 유지하며 판정 전은 null이다.</summary>
@@ -85,9 +90,11 @@ public sealed class CustomerVisit
     /// <param name="discountSaleTextIdx">저가 판매 대사.</param>
     /// <param name="exploitativeSaleTextIdx">착취 판매 대사.</param>
     /// <param name="rejectTextIdx">거절 대사.</param>
-    /// <exception cref="OverflowException">지원 가능한 총액 범위 초과.</exception>
+    /// <param name="products">최종 목록의 상품·원가를 조회할 catalog.</param>
+    /// <param name="getCurrentPrices">최신 현재가 조회 함수. 생성 시 가격표를 캡처하지 않는다.</param>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
-        int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx)
+        int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
+        IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices)
     {
         AppearanceIdx = appearanceIdx;
         DispositionIdx = dispositionIdx;
@@ -98,11 +105,8 @@ public sealed class CustomerVisit
         this.discountSaleTextIdx = discountSaleTextIdx;
         this.exploitativeSaleTextIdx = exploitativeSaleTextIdx;
         this.rejectTextIdx = rejectTextIdx;
-        long total = 0;
-        foreach (var item in Items) total = checked(total + (long)item.UnitPrice * item.Quantity);
-        BaseTotal = total;
-        // decimal 중간값은 long 곱셈 overflow와 부동소수점 반올림을 피한다.
-        AllowedTotal = checked((long)decimal.Floor((decimal)total * priceTolerance / 1000m));
+        this.products = products;
+        this.getCurrentPrices = getCurrentPrices;
     }
 
     /// <summary>입장 피드백을 표시한 뒤 한 번만 가격 제안 대기로 전환한다.</summary>
@@ -132,22 +136,56 @@ public sealed class CustomerVisit
     }
 
     /// <summary>전체 구매 목록의 총액을 한 번 판정한다. 입력 오류는 기회를 소모하지 않는다.</summary>
-    /// <param name="total">양의 정수 제안 총액.</param>
+    /// <param name="offeredTotal">양의 정수 제안 총액.</param>
+    /// <param name="saleItems">최종 상품·수량. 최초 희망 목록과 달라도 허용한다.</param>
     /// <returns>수락 여부.</returns>
     /// <exception cref="ArgumentOutOfRangeException">0 또는 음수 입력.</exception>
     /// <exception cref="InvalidOperationException">대기 상태가 아닌 방문.</exception>
-    public bool SubmitOffer(long total)
+    /// <exception cref="ArgumentException">빈 목록·잘못된 상품·수량.</exception>
+    /// <exception cref="OverflowException">합산 수량·기준액·허용액·원가 범위 초과.</exception>
+    public bool SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
-        if (State != CustomerState.AwaitingOffer) throw new InvalidOperationException("가격을 다시 제안할 수 없습니다.");
-        if (total <= 0) throw new ArgumentOutOfRangeException(nameof(total), "양의 정수 총액이 필요합니다.");
-        OfferedTotal = total;
-        // 허용 상한을 먼저 검사한다. 정가보다 싼 제안도 상한 초과 시 거부한다.
-        Outcome = total > AllowedTotal ? CustomerTradeOutcome.PaymentRefused
-            : total < BaseTotal ? CustomerTradeOutcome.DiscountSale
-            : total == BaseTotal ? CustomerTradeOutcome.RegularSale
-            : CustomerTradeOutcome.ExploitativeSale;
-        State = WasAccepted.Value ? CustomerState.Accepted : CustomerState.Rejected;
-        return WasAccepted.Value;
+        if (State != CustomerState.AwaitingOffer || isSubmitting) throw new InvalidOperationException("가격을 다시 제안할 수 없습니다.");
+        if (offeredTotal <= 0) throw new ArgumentOutOfRangeException(nameof(offeredTotal));
+        if (saleItems == null || saleItems.Count == 0) throw new ArgumentException("최종 판매 목록이 필요합니다.", nameof(saleItems));
+        isSubmitting = true;
+        try
+        {
+            var quantities = new Dictionary<uint, int>();
+            foreach (var item in saleItems)
+            {
+                if (item.ProductId == 0 || item.Quantity <= 0 || !products.ContainsKey(item.ProductId))
+                    throw new ArgumentException("상품 또는 수량 오류", nameof(saleItems));
+                quantities.TryGetValue(item.ProductId, out int count);
+                quantities[item.ProductId] = checked(count + item.Quantity);
+            }
+            // 조회 callback은 제출당 한 번만 호출한다. 검증 중 실패하면 공개 상태를 변경하지 않는다.
+            var prices = getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
+            var sold = new List<SoldItem>(quantities.Count);
+            long reference = 0;
+            foreach (var pair in quantities)
+            {
+                if (!prices.TryGetValue(pair.Key, out uint price) || price == 0)
+                    throw new InvalidOperationException($"상품 {pair.Key}: 현재가 누락 또는 0");
+                var product = products[pair.Key];
+                if (product == null || product.Idx != pair.Key || product.CostPrice == 0)
+                    throw new InvalidOperationException($"상품 {pair.Key}: 원가 또는 상품 참조 오류");
+                sold.Add(new SoldItem(pair.Key, pair.Value, price, product.CostPrice));
+                reference = checked(reference + (long)price * pair.Value);
+            }
+            long allowed = checked((long)decimal.Floor((decimal)reference * PriceTolerance / 1000m));
+            var outcome = offeredTotal > allowed ? CustomerTradeOutcome.PaymentRefused
+                : offeredTotal < reference ? CustomerTradeOutcome.DiscountSale
+                : offeredTotal == reference ? CustomerTradeOutcome.RegularSale : CustomerTradeOutcome.ExploitativeSale;
+            var result = new TransactionResult(outcome, offeredTotal, sold);
+            Result = result;
+            AllowedTotal = allowed;
+            OfferedTotal = offeredTotal;
+            Outcome = outcome;
+            State = outcome == CustomerTradeOutcome.PaymentRefused ? CustomerState.Rejected : CustomerState.Accepted;
+            return State == CustomerState.Accepted;
+        }
+        finally { isSubmitting = false; }
     }
 
     /// <summary>결과 확인 후 퇴장한다. 결과·가격 snapshot은 유지한다.</summary>

@@ -29,7 +29,7 @@ for (int i=0;i<1000;i++) {
 if (seen.Count!=2 || radioCount!=1000) throw new Exception("Radio candidate selection failed");
 var newspaperOnly = schedules.Where(x => x.Value.Channel == PriceEventChannel.Newspaper).ToDictionary(x => x.Key, x => x.Value);
 if (new PriceEventScheduler(new System.Random(1)).CreateDay(0,events,newspaperOnly,products).RadioEventIdx.HasValue) throw new Exception("Radio without candidates");
-var one = new Dictionary<uint, ProductData> { [1001] = new ProductData { Idx=1001, NameIdx=8012, ProductType=ProductType.Water, BasePrice=101, IsAvailable=true } };
+var one = new Dictionary<uint, ProductData> { [1001] = new ProductData { Idx=1001, NameIdx=8012, ProductType=ProductType.Water, BasePrice=101, CostPrice=50, IsAvailable=true } };
 var effect = new PriceEventData { Idx=9001, NameIdx=8042, DescriptionIdx=8043, ProductIdxs=new uint[]{1001}, ProductTypes=new[]{ProductType.Water}, ChangeTypeValue=1, ChangeValue=-200 };
 var fx = new Dictionary<uint, PriceEventData>{ [9001]=effect };
 var rows = new Dictionary<uint, PriceEventScheduleData>{ [10001]=new PriceEventScheduleData{Idx=10001, EventIdx=9001, ChannelValue=1, StartDay=0, SelectionWeight=1} };

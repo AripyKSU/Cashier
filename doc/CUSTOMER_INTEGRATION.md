@@ -4,7 +4,29 @@
 
 ## 1. 통합 범위와 책임
 
-대기열·5초 입장·성향별 재촉/이탈·FIFO 인계의 최신 계약과 추가 성향 컬럼은 [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다. 줄 합류 시 방문 가격을 고정한다.
+### 제출 시 거래 확정 계약
+
+- `SaleItem(ProductId, Quantity)`는 최종 입력, `SoldItem(ProductId, Quantity, UnitPrice, UnitCostPrice)`는 확정 내역이다. 중복 수량은 checked 합산한다. `Items`는 최초 희망 목록을 유지한다.
+- `CustomerVisit.Result`는 제출 전 null이며 판정 완료 시 불변 `TransactionResult`를 보관한다. Outcome, OfferedTotal, ReferenceTotal, SaleIncome, SoldItems, CostTotal을 제공한다. 수락 매출은 제시액, 원가는 판매 항목에서 합산한다. 거부는 매출·원가 0과 빈 판매 목록이며 제시액·기준액은 보존한다.
+- `ProductData.cost_price`는 필수 양수 uint다. 기존 Product CSV 끝에 추가하며 테스트값은 `max(1, floor(base_price / 2))`다. 일반 규칙으로 원가<기본가를 강제하지 않는다. 정식 원가 승인 시 테스트값을 교체한다. CSV·DTO·loader를 함께 배포하며 구형 header는 실패한다.
+- 기존 `TransactionResult(long, int)`는 재정 단독 검사 호환으로만 유지한다. 상세 미확정은 Outcome=None, OfferedTotal/ReferenceTotal=null, SoldItems 비움으로 표현한다. 새 UI 흐름은 방문이 만든 Result를 전달하며 재생성하지 않는다.
+- 판정 완료와 재정 반영 완료는 별개다. 일일집계 접수 실패 시 오류 중단하고 자동 재시도하지 않는다. 명성 변화는 0, 원가 실제 차감·일일 원가 집계는 미연결이다.
+- 최종 상품 선택 UI는 아직 없다. 현재 UI는 최초 Items를 SaleItem으로 변환한다. 별도 선택 버튼은 추가하지 않았으며 다른 최종 목록은 직접 API 검사로 검증한다.
+- 검증: Check-CustomerGenerator의 최종 목록 교체 4판정·최신 가격·외부 변경 불변·수량/원가 합계·실패 원자성, Check-CustomerCsv 38/38 오류 거부, Check-CustomerQueue/Check-PriceEvents 회귀 통과. GameplaySandbox에서 Check-CustomerOutcomes·Check-RadioTiming·Check-MainSceneIntegration 실행 통과. 마지막 검사는 의도된 재정 접수 실패 LogError 1건을 발생시키며 판정 보존·미입금·재시도 차단을 확인한다. 구형 CustomerSandbox UI 검사 스크립트는 호출자만 이행했고 해당 화면 실행은 미검증이다.
+
+대기열·5초 입장·성향별 재촉/이탈·FIFO 인계의 최신 계약과 추가 성향 컬럼은 [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다. 줄 합류 시 최초 희망 목록의 표시 단가만 고정한다. 최종 거래 단가·기준액·허용액·원가는 SubmitOffer 시점에 확정한다.
+
+#### GameplaySandbox 검증 재현 범위
+
+Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했다. Check-MainSceneIntegration은 실제 실행 씬이 GameplaySandbox였으므로 파일을 변경하지 않고 실행 메모리에서 씬 이름 조건만 대체했다. 나머지 검사는 그대로 실행했으며 MainScene 자산 자체를 실행한 증거는 아니다.
+
+```powershell
+$saleIntegration = (Get-Content Tools/Check-MainSceneIntegration.ps1 -Raw).Replace('!= "MainScene"','!= "GameplaySandbox"')
+Invoke-Expression $saleIntegration
+unity-cli console --type error --lines 3 --stacktrace none
+```
+
+실행 출력: `MAIN_INTEGRATION_PASS: button input, accepted/rejected, one income, departure, settlement, next day, failed settlement stops without retry (expected LogError=1)`. Console에는 의도된 접수 실패 `InvalidOperationException: 영업 종료로 거래 수입 반영이 거부되었습니다.` 1건이 있었다. 출력은 작업 실행 기록에 있으며 별도 로그 파일은 저장하지 않았다. Check-RadioTiming은 최초 초기화 전 실행이 실패했고 GameplaySandbox의 initialized=True 확인 후 재실행한 성공 결과다.
 
 ### 거래 결과 4단계
 
@@ -32,9 +54,9 @@
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
-| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, IReadOnlyDictionary<uint, uint> currentPrices = null)` | 런타임은 세션의 일간 현재가를 전달한다. null은 독립 검사 호환용 기본가 경로다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
+| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint,uint>> getCurrentPrices = null)` | 런타임은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`를 전달한다. null은 거부하며 생성 시 가격표 캡처·누락 기본가 대체는 금지한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
-| `CustomerVisit.SubmitOffer(long total)` | 전체 목록에 대한 양의 정수 총액. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
+| `CustomerVisit.SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)` | 최종 목록과 양의 정수 총액. 최초 희망 목록과 달라도 허용한다. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |
 
 `ValidateAndCommit`, CSV `LoadData`·`Release`는 loader/manager 소유 작업이다. MainScene 소비자가 직접 호출하지 않는다. 현재 런타임 hot reload는 제공하지 않는다.
@@ -51,7 +73,7 @@ DataTableManager가 각 DataTable을 `new`로 직접 생성·등록한다. Custo
 |---|---|
 | `AppearanceIdx`, `DispositionIdx` | 외형·성향 데이터 조회. 같은 조합이 다시 나와도 같은 인물을 뜻하지 않는다. |
 | `Items` | 읽기 전용 구매 목록. 각 `CustomerOrderItem`의 `ProductIdx`, `Quantity`, `UnitPrice` 사용. 동일 상품은 한 줄에 수량으로 표현한다. |
-| `BaseTotal`, `PriceTolerance`, `AllowedTotal` | 방문 생성 시 고정된 현재 단가×수량 합계·허용 배율·수락 상한. BaseTotal은 CSV 기본가 합계가 아니다. 상한을 UI에 자동 노출하지 않는다. |
+| `BaseTotal`, `PriceTolerance`, `AllowedTotal` | BaseTotal·AllowedTotal은 제출 전 null, 제출 시 최종 목록의 최신 단가로 확정한다. PriceTolerance는 성향의 기존 배율이다. 상한을 UI에 자동 노출하지 않는다. |
 | `State`, `OfferedTotal`, `WasAccepted` | 방문 상태, 제안 총액, 수락 여부. 판정 전 마지막 두 값은 null. 퇴장 후에도 결과 유지. |
 | `EntryTextIdx`, `FeedbackTextIdx` | `texts.Rows[idx].Text`로 표시. 제안 전 Feedback은 입장 대사, 제안 후 수락·거절 대사. |
 
@@ -75,14 +97,16 @@ var dailyPrices = GameSessionManager.Instance.EnsureDailyPrices();
 var visit = generator.Generate(
     catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
     catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(),
-    catalog.Products.Rows, dailyPrices.ElapsedDays, dailyPrices.Prices);
+    catalog.Products.Rows, dailyPrices.ElapsedDays, () => GameSessionManager.Instance.EnsureDailyPrices().Prices);
 if (visit == null) return; // 정상적인 판매 후보 부재: 대기/안내 처리
 string entryText = texts.Rows[visit.EntryTextIdx].Text;
 // 외형·상품·entryText 표시 후
 visit.BeginOffer();
 
 // 이후 사용자 입력 callback에서, 양의 정수 검증과 상태 확인 후
-bool accepted = visit.SubmitOffer(total);
+var saleItems = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray(); // 실제 선택 UI 미구현 호환
+bool accepted = visit.SubmitOffer(total, saleItems);
+// 수락 시 기존 일일집계에 visit.Result.Value를 한 번 전달한다.
 string feedback = texts.Rows[visit.FeedbackTextIdx].Text;
 // feedback 표시 및 승인된 후속 처리 완료 후
 visit.Depart();
@@ -90,7 +114,7 @@ visit.Depart();
 
 - `total`은 별도 입력 callback이 전달하는 long이다. 위 코드를 한 프레임에 모두 실행하지 않는다.
 - 입력 검사는 기존 `CustomerSandbox.SubmitPrice()` 참고: `long.TryParse` + `NumberStyles.None` + `InvariantCulture`, 값 > 0. 공백·소수·부호·구분자·overflow는 거부하고 재입력을 허용한다.
-- 수락 판정은 `total <= floor(BaseTotal × PriceTolerance / 1000)`이다. 금액·수량은 방문 snapshot을 사용하며 현재 CSV 단가로 다시 계산하지 않는다. 금액 범위 초과는 실패로 처리한다.
+- 수락 판정은 `total <= floor(BaseTotal × PriceTolerance / 1000)`이다. 최종 목록과 제출 순간 현재가·원가를 복사한다. 이후 외부 목록·가격 변경은 확정 결과에 영향을 주지 않는다. 금액 범위 초과는 실패로 처리한다.
 - 확률과 배율은 1000=100%. 현재 테스트 선호 확률 900, 허용 배율 1100/1300/1000이다. 단위 규칙은 [CSV_RULES.md](CSV_RULES.md)를 따른다.
 - 결과 event나 결제 API는 아직 없다. 통합 호출자가 반환값·방문 상태를 읽는다. 나중에 자금·재고를 연결할 때 중복 반영 방지와 실패 처리 책임을 해당 시스템 담당자와 먼저 정한다.
 
@@ -131,4 +155,4 @@ Resource PK는 현재 4000+n이며 이전 3000+n 참조는 통합 전에 점검�
 
 기존 확인 도구: `Tools/Check-CustomerGenerator.ps1`, `Tools/Check-CustomerCsv.ps1` (프로젝트를 연 Unity와 unity-cli 필요), `Tools/Check-CustomerTradeUI.ps1` (설정된 Sandbox Play 필요). 마지막 도구는 MainScene acceptance를 대신하지 않는다. CSV 음성 검사는 의도된 LogError를 발생시키므로 제품 오류와 구분한다.
 
-이 인계 문서 작성에서는 코드·Scene을 변경하거나 컴파일·Play 검증을 새로 실행하지 않았다. MainScene 통합 완료 판정은 위 항목을 실제 통합 후 확인하고 AGENTS.md의 검증 상태로 보고한다.
+초기 인계 문서 작성 당시에는 컴파일·Play 검증을 수행하지 않았다. 이후 거래 확정 구현의 검증 결과와 실제 실행 범위는 1절에 기록했다. 이번 리뷰 문구 정정만을 위한 검증 재실행은 하지 않았다. MainScene 자산 자체의 통합 완료 판정은 실제 통합 후 별도로 확인한다.

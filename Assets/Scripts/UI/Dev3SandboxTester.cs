@@ -842,8 +842,8 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         try
         {
             // Customer가 판정하고 Finance만 금액을 변경한다. 재호출은 방문 상태로 차단한다.
-            bool accepted = CurrentVisit.SubmitOffer(total);
-            if (accepted && !economy.DailyAggregationService.TryApplyTransaction(new TransactionResult(total, 0)))
+            bool accepted = CurrentVisit.SubmitOffer(total, CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+            if (accepted && !economy.DailyAggregationService.TryApplyTransaction(CurrentVisit.Result.Value))
                 throw new InvalidOperationException("영업 종료로 거래 수입 반영이 거부되었습니다.");
             amount = "";
             resultRemainingSeconds = 3;
@@ -918,7 +918,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             var card = panel(basketRoot, $"Product_{item.ProductIdx}", (i % 4) * 150, (i / 4) * 100, 130, 130, Color.white);
             card.sprite = productSprites[item.ProductIdx];
             card.preserveAspect = true;
-            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}\n기본: {product.BasePrice:N0}\n현재: {item.UnitPrice:N0} / 개",
+            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}\n기본: {product.BasePrice:N0}\n희망시: {item.UnitPrice:N0} / 개",
                 4, 35, 122, 60, 16, Color.black, TextAlignmentOptions.Center);
             activeBasketCards.Add(card.gameObject);
         }
@@ -1072,7 +1072,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     /// <returns>판매 후보가 없으면 null.</returns>
     private CustomerVisit createQueuedVisit() => generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
         catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows,
-        (uint)(day - 1), GameSessionManager.Instance.EnsureDailyPrices().Prices);
+        (uint)(day - 1), () => GameSessionManager.Instance.EnsureDailyPrices().Prices);
 
     /// <summary>고정된 10개 슬롯을 재사용한다. 이탈자는 줄에서 제거하고 불만 텍스트만 잠시 남긴다.</summary>
     private void renderQueue()

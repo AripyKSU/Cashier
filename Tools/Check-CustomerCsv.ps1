@@ -79,8 +79,10 @@ reject("queue patience", c => c.Dispositions.LoadData(disposition.Replace("12,80
 reject("queue warning FK", c => c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8999,8051")));
 reject("queue leave FK", c => c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8050,8999")));
 reject("queue header", c => c.Dispositions.LoadData(disposition.Replace("queue_patience_seconds", "missing_queue_patience")));
-if (rejected != 36 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
-return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=36/36, enum/dialog/image/price/day/routing/queue checked, resources=" + resourceCount + "; expected LogError=36";
+reject("cost header", c => c.Products.LoadData(product.Replace("cost_price", "missing_cost")));
+reject("zero cost", c => c.Products.LoadData(product.Replace("1001,8012,1,1,100,0,,50", "1001,8012,1,1,100,0,,0")));
+if (rejected != 38 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
+return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=38/38, enum/dialog/image/price/cost/day/routing/queue checked, resources=" + resourceCount + "; expected LogError=38";
 '@
 $result = $checkCode | & unity-cli exec 2>&1
 $result | ForEach-Object { Write-Output $_ }
