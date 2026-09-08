@@ -1,6 +1,6 @@
 # 손님·상품 시스템 MainScene 인계
 
-기준: `customer_sys`의 `214df99` 구현. 이 문서는 기존 공개 API와 통합 시 필요한 작업을 설명한다. MainScene 연결 자체가 완료됐다는 의미는 아니다. 이전 `CUSTOMER_SYSTEM.md`의 구형 스키마·미구현 설명 대신 이 문서와 실제 코드를 확인한다.
+기준: `customer_sys`의 `5ad5fa8`까지 반영된 3차 구현과 이후 Test Runner 전환. 이 문서는 손님 공개 API·데이터의 상세 권위다. 최신 자동 검증 및 병합 의존은 [TESTING.md](TESTING.md)를 따른다. 아래 단계별 검증 기록은 당시 결과이며 삭제된 Check 스크립트의 현재 실행 안내가 아니다.
 
 ## 1. 통합 범위와 책임
 
@@ -45,11 +45,7 @@
 
 Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했다. Check-MainSceneIntegration은 실제 실행 씬이 GameplaySandbox였으므로 파일을 변경하지 않고 실행 메모리에서 씬 이름 조건만 대체했다. 나머지 검사는 그대로 실행했으며 MainScene 자산 자체를 실행한 증거는 아니다.
 
-```powershell
-$saleIntegration = (Get-Content Tools/Check-MainSceneIntegration.ps1 -Raw).Replace('!= "MainScene"','!= "GameplaySandbox"')
-Invoke-Expression $saleIntegration
-unity-cli console --type error --lines 3 --stacktrace none
-```
+당시에는 기존 검사 내용을 메모리에서만 변경해 GameplaySandbox 조건으로 실행했다. 해당 셸 파일은 Test Runner 전환 후 제거했으므로 현재 재현 명령으로 사용하지 않는다.
 
 실행 출력: `MAIN_INTEGRATION_PASS: button input, accepted/rejected, one income, departure, settlement, next day, failed settlement stops without retry (expected LogError=1)`. Console에는 의도된 접수 실패 `InvalidOperationException: 영업 종료로 거래 수입 반영이 거부되었습니다.` 1건이 있었다. 출력은 작업 실행 기록에 있으며 별도 로그 파일은 저장하지 않았다. Check-RadioTiming은 최초 초기화 전 실행이 실패했고 GameplaySandbox의 initialized=True 확인 후 재실행한 성공 결과다.
 
@@ -65,8 +61,8 @@ unity-cli console --type error --lines 3 --stacktrace none
 - 재사용 대상: `Assets/Scripts/Customer/`의 생성기·방문·거래 판정, `Customer/Data/`의 손님 DTO·DataTable·catalog, `Commons/Data/`의 공용 상품·텍스트·리소스 DTO·DataTable과 기존 DataTableManager/ResourceManager. 경제 CSV DTO·DataTable은 `Finance/Data/`에 둔다. 세 하위 경로 모두 `Assets/Scripts/` 기준이다.
 - 구현 완료 범위: 방문마다 외형·성향 조합, 구매 목록 생성, 등장 일수 필터, 총액 제안 1회, 수락·거절 판정, 입장·결과 대사 선택.
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.
-- 미구현: 자금 증감, 재고 차감·예약, 매출 기록, 저장·복구, 손님 이동·대기열, 재방문 인물 관리. `Accepted`는 가격 수락이지 결제·재고 반영 완료가 아니다.
-- `CustomerSandbox`는 개인 씬의 테스트 화면이다. 정식 공용 prefab이나 MainScene 설치기가 아니다. `CustomerSandboxSetup`은 Local 씬에서만 사용한다.
+- 현재 연결: Dev3SandboxTester가 수락 결과를 기존 Finance에 한 번 전달하고 대기열을 구동한다. 미연결: 원가 차감·일일 원가 집계·명성 계산·지침 공급·최종 목록 선택 UI. 재고 예약·저장 복구·재방문 인물·이동 연출은 미구현이다. `Accepted`는 가격 수락이지 후속 반영 완료가 아니다.
+- `CustomerSandbox`와 `CustomerSandboxSetup`은 `Assets/Scripts/Local/`의 개인 코드이며 Git 제외다. 다른 checkout이나 공유 assembly에서 존재를 가정하지 않는다. MainScene의 Dev3SandboxTester는 공유 유지한다.
 - 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [AGENTS.md 12절](../AGENTS.md)을 따른다.
 
 ## 2. 초기화와 공개 API
@@ -138,10 +134,10 @@ visit.Depart();
 ```
 
 - `total`은 별도 입력 callback이 전달하는 long이다. 위 코드를 한 프레임에 모두 실행하지 않는다.
-- 입력 검사는 기존 `CustomerSandbox.SubmitPrice()` 참고: `long.TryParse` + `NumberStyles.None` + `InvariantCulture`, 값 > 0. 공백·소수·부호·구분자·overflow는 거부하고 재입력을 허용한다.
+- 입력 규격: `long.TryParse` + `NumberStyles.None` + `InvariantCulture`, 값 > 0. 공백·소수·부호·구분자·overflow는 거부하고 재입력을 허용한다.
 - 수락 판정은 `total <= floor(BaseTotal × PriceTolerance / 1000)`이다. 최종 목록과 제출 순간 현재가·원가를 복사한다. 이후 외부 목록·가격 변경은 확정 결과에 영향을 주지 않는다. 금액 범위 초과는 실패로 처리한다.
 - 확률과 배율은 1000=100%. 현재 테스트 선호 확률 900, 허용 배율 1100/1300/1000이다. 단위 규칙은 [CSV_RULES.md](CSV_RULES.md)를 따른다.
-- 결과 event나 결제 API는 아직 없다. 통합 호출자가 반환값·방문 상태를 읽는다. 나중에 자금·재고를 연결할 때 중복 반영 방지와 실패 처리 책임을 해당 시스템 담당자와 먼저 정한다.
+- 방문 결과 event는 없다. 통합 호출자가 Result를 읽어 영업 중인 `Economy.DailyAggregationService.TryApplyTransaction`에 한 번 전달한다. 집계 API 자체에 거래 ID 기반 중복 방지는 없으므로 호출자 소유의 한 번 반영 상태가 필요하다. false/예외는 반영 실패이며 재제안·자동 재입금으로 우회하지 않는다.
 
 ## 4. 데이터와 표시 연결
 
@@ -151,7 +147,7 @@ visit.Depart();
 | 상품 이름 | `Products.Rows[item.ProductIdx].NameIdx → Texts.Rows[idx].Text` |
 | 상품 종류 | `ProductData.ProductType` enum. `Categories.Rows.Values`에서 동일 ProductType 행을 찾아 `NameIdx → Text`로 UI 표시. enum 이름을 표시명이나 내부 문자열 키로 쓰지 않는다. |
 | 상품 이미지 | `ImageResourceIdx`가 null이면 흰색 기본 사각형+상품 이름. 값이 있으면 `GetDB<ResourceDataTable>(DataTableType.Resource).GetResourcePath(idx)` → `ResourceManager.LoadAssetAsync<Sprite>(path)`. |
-| 대사 | 성향의 entry/accept/reject TextIdx 배열에서 방문 생성 시 각 1개 추첨. 실제 문장은 TextData에만 저장. |
+| 대사 | 성향의 entry/regular_sale/discount_sale/exploitative_sale/reject TextIdx 배열에서 방문 생성 시 각 1개 추첨. 실제 문장은 TextData에만 저장. |
 | 등장 조건 | `IsAvailable && AvailableDay <= elapsedDays`. 실제 재고 보유량 필터는 아직 없음. |
 
 이미지 FK의 0은 빈값이 아니다. CSV 빈 셀만 null이며, 잘못된 FK·Sprite 로드 실패를 기본 이미지로 숨기지 않는다. 비동기 로딩에는 씬 수명 취소를 붙이고 성공 후 표시한다. ResourceManager 소유 공유 자산을 화면 종료 시 임의 Destroy/전체 Release하지 않는다. 화면이 직접 만든 사각형 Sprite와 임시 글꼴만 화면이 정리한다.
@@ -163,6 +159,8 @@ visit.Depart();
 Resource PK는 현재 4000+n이며 이전 3000+n 참조는 통합 전에 점검한다. 기존 ResourceData.path와 GUID는 유지했다. PlayerData는 미사용으로 제거했다. 이 설명은 신규 ID 배정 권한이 아니며 충돌 검사는 [DATA_RULES.md](DATA_RULES.md)와 [CSV_RULES.md](CSV_RULES.md)를 따른다.
 
 ## 5. 테스트 UI와 정식 통합의 경계
+
+아래는 Git 제외 개인 코드가 로컬에 있는 경우만 적용한다. 공유 설치 요구사항이 아니다.
 
 `CustomerSandbox` 공개 API는 `CurrentVisit`, `GenerateCustomer()`, `SubmitPrice()`다. `SubmitPrice()`는 Inspector에 연결된 InputField를 읽는 테스트 callback이지 총액 인자를 받는 게임 서비스가 아니다. 상태 갱신 후 UI를 함께 바꾸므로 외부에서 `CurrentVisit`만 변경하면 화면과 어긋날 수 있다. 정식 UI는 생성기·방문 API를 직접 연결한다.
 
@@ -178,6 +176,6 @@ Resource PK는 현재 4000+n이며 이전 3000+n 참조는 통합 전에 점검�
 6. 씬 이탈 중 로딩 취소, 재진입·반복 방문에서 오류·객체·구독 누적 확인. 정식 이미지가 추가됐다면 빈값 테스트와 별도로 실제 Sprite 로드를 검증한다.
 7. Unity 컴파일 오류와 제품 Console 오류를 분리해 보고. Player 빌드는 Editor 실행과 별도 검증. 보호 변경은 기본 branch 반영 전 교차 리뷰·명시적 동의 기록.
 
-기존 확인 도구: `Tools/Check-CustomerGenerator.ps1`, `Tools/Check-CustomerCsv.ps1` (프로젝트를 연 Unity와 unity-cli 필요), `Tools/Check-CustomerTradeUI.ps1` (설정된 Sandbox Play 필요). 마지막 도구는 MainScene acceptance를 대신하지 않는다. CSV 음성 검사는 의도된 LogError를 발생시키므로 제품 오류와 구분한다.
+현재 자동 API 검사는 [TESTING.md](TESTING.md)의 Test Runner를 사용한다. 이전 개별 셸은 제거했으며 UI 동작은 위 수동 완료 체크로 확인한다. CSV 음성 검사의 기대 LogError를 제품 오류와 구분한다.
 
-초기 인계 문서 작성 당시에는 컴파일·Play 검증을 수행하지 않았다. 이후 거래 확정 구현의 검증 결과와 실제 실행 범위는 1절에 기록했다. 이번 리뷰 문구 정정만을 위한 검증 재실행은 하지 않았다. MainScene 자산 자체의 통합 완료 판정은 실제 통합 후 별도로 확인한다.
+초기 인계 문서 작성 당시에는 컴파일·Play 검증을 수행하지 않았다. 이후 거래 확정 구현의 검증 결과와 실제 실행 범위는 1절에 기록했다. Test Runner 전환 후 실행 증거는 TESTING.md에 분리했다. MainScene 자산 자체의 통합 완료 판정은 실제 통합 후 별도로 확인한다.

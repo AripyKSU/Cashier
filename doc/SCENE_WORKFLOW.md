@@ -23,7 +23,10 @@ FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 
 개인 씬은 Editor 전용 API로 로드하므로 Build Settings·Addressables에 등록하지 않는다.
 
 `Assets/Scenes/Local/` 내부 전체와 `Local.meta`는 Git에서 제외한다. 개인 씬은 Git으로 백업되지 않으므로 필요한 백업은 별도로 관리한다.
-개발 코드와 공유할 Prefab·데이터는 기존의 추적되는 기능 경로에 작성하고 개인 씬에는 조립·배치만 둔다.
+개인 씬에서만 사용하는 임시 화면·실험 코드는 `Assets/Scripts/Local/`, 해당 Editor 도구는 `Assets/Scripts/Local/Editor/`에 둔다. 이 폴더 전체와 `Local.meta`도 Git에서 제외하며 로컬 파일과 기존 GUID는 보존한다. 이미 추적되던 파일은 ignore 추가만으로 제외되지 않으므로 원래 추적 경로의 삭제 변경도 함께 반영해야 한다.
+제품 기능 코드와 공유할 Prefab·데이터는 기존의 추적되는 기능 경로에 둔다. 개인 씬에서 실행했다는 이유만으로 공유 API·manager·도메인 코드를 제외하지 않는다. 공유 코드·테스트·자산은 개인 코드에 의존하지 않는다.
+개인 Editor 코드는 런타임 asmdef에 포함하지 않는다. 상위 runtime asmdef가 있는 경우 개인 `Editor/`에도 Editor 전용 asmdef를 두며 이 설정 역시 개인 폴더와 함께 제외한다.
+현재 `CustomerSandbox`와 `CustomerSandboxSetup`은 개인 코드다. `Dev3SandboxTester`는 공유 `MainScene`에서 참조하므로 공유 코드로 유지한다. 이를 개인 코드로 전환하려면 먼저 공용 씬의 소비 경로를 별도 작업으로 정리해야 한다.
 공유 자산에서 개인 씬이나 Local 내부 자산을 참조하지 않는다. 제외 규칙은 `git add -f`를 막지는 않으므로 강제 stage하지 않는다.
 
 ## 통합과 검증
@@ -45,6 +48,7 @@ FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 
 2. Local에 MainScene 복사본을 저장하고 선택한 뒤 Init에서 Play: 개인 씬에 도착해야 한다.
 3. 선택한 개인 씬을 Local 밖으로 이동한 뒤 Init에서 Play: Hub에서 명시적 오류를 보고하고 멈춰야 한다. 이후 씬을 원위치하고 재선택한다.
 4. `git check-ignore Assets/Scenes/Local/MyGameplay.unity Assets/Scenes/Local/MyGameplay.unity.meta Assets/Scenes/Local.meta`로 제외를 확인한다.
+5. `git check-ignore Assets/Scripts/Local/CustomerSandbox.cs Assets/Scripts/Local/CustomerSandbox.cs.meta Assets/Scripts/Local/Editor/CustomerSandboxSetup.cs Assets/Scripts/Local.meta`로 개인 코드와 metadata 제외를 확인한다. 개인 코드가 없는 새 checkout에서도 공유 코드·테스트가 컴파일되어야 한다.
 
 ## 2026-09-07 검증 기록
 

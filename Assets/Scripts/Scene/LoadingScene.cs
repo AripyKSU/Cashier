@@ -21,10 +21,12 @@ public class LoadingScene : MonoBehaviour
         canvasGroup.alpha = 0f; // start invisible
     }
 
+    /// <summary>DLL API로 같은 CanvasGroup 대상의 fade-in을 등록한다.</summary>
     private void OnEnable()
     {
         // fade‑in (0.3s)
-        canvasGroup.DOFade(1f, 0.3f).SetEase(Ease.OutQuad);
+        DOTween.To(() => canvasGroup.alpha, value => canvasGroup.alpha = value, 1f, 0.3f)
+            .SetTarget(canvasGroup).SetEase(Ease.OutQuad);
         LoadingBarController.Instance?.Register(this);
     }
 
@@ -38,7 +40,7 @@ public class LoadingScene : MonoBehaviour
     private void OnDisable()
     {
         // 비활성화 이후의 fade-out은 파괴된 CanvasGroup을 접근하므로 여기서는 정리만 한다.
-        if (canvasGroup != null) canvasGroup.DOKill();
+        if (canvasGroup != null) DOTween.Kill(canvasGroup);
         LoadingBarController.Instance?.Unregister();
     }
 }

@@ -34,7 +34,7 @@
 - `Waiting` / `Leaving` / `GetSpeech`: 읽기 전용 대기·이탈 표시 데이터. 이탈 기록은 논리적 정원에 포함하지 않는다.
 - `CustomerState` 기존 숫자는 보존하고 `Queued=5`, `Abandoned=6`을 뒤에 추가한다. 만료 이탈은 거래 결과 None이며 수입을 발생시키지 않는다.
 - `Dev3SandboxTester.Queue`: 통합 화면 소유 대기열 조회. Update가 시계를 진행하며 고정 10개 색상 사각형을 재사용한다. 테스트 배치는 계산대 왼쪽 2열이며 최종 공간상 줄 배치는 아트/UI 통합 시 교체할 수 있다.
-- 화면 파괴와 영업 종료 시 Stop. 영업 중 씬 재진입·세이브 복원은 기존 제한을 유지한다. 구형 CustomerSandbox는 독립 손님 테스트용이며 대기열을 사용하지 않는다.
+- 화면 파괴와 영업 종료 시 Stop. 영업 중 씬 재진입·세이브 복원은 기존 제한을 유지한다. 구형 CustomerSandbox는 Git 제외 Local 개인 코드이며 공유 설치에 필요하지 않다.
 
 ## 사용법·검증
 
@@ -42,10 +42,10 @@
 2. 계산 중인 손님을 그대로 두면 5초 간격으로 대기열이 증가한다. 최대 10명을 넘지 않는다.
 3. 급함 성향은 합류 3초 후 재촉, 9초 후 이탈한다. 평범은 6/12초, 가격 민감은 12/18초다. 입장 간격 5초·대사/결과 표시 3초·라디오 시간은 유지한다.
 4. 거래를 판정하면 3초 후 다음 대기 손님이 계산대로 이동한다. 종료하려면 결과 표시 중 END DAY를 누른다.
-5. `Tools/Check-CustomerQueue.ps1`: 대기열 시간·정원·FIFO·가격 snapshot·계산대 제외·영업 종료·긴 프레임 경계 검사.
-6. `Tools/Check-CustomerCsv.ps1`: 정상 55개 텍스트 로드, 오류 36/36 거부. 의도된 LogError를 남긴다.
+5. 자동 API 검사는 [TESTING.md](TESTING.md)의 CustomerQueueTests/CustomerCsvTests를 사용한다. 기존 셸은 제거했다. 정확한 최신 건수·증거는 해당 문서를 따른다.
+6. 위 화면·버튼·말풍선 사용법은 사용자 수동 검증이며 자동 API 통과와 별개다.
 
-검증: PASS. 순수 로직·CSV·기존 CustomerGenerator 회귀 통과. Unity 컴파일 통과. GameplaySandbox에서 10명 색상·PK 표시, 재촉·이탈 표시, 3초 결과 이후 자동 FIFO 인계, 기존 거래 수락/거부·중복 수입 방지·정산·다음 날 전환 통과. Console error 0. 시간 경계 검사는 Advance로 시간을 주입했고 자동 인계는 실제 Update 경과로 확인했다. 최종 아트·공간상 줄 배치는 미작업이다.
+이전 개인 씬 구현 검증 기록(현재 Test Runner 실행과 별개): PASS. 순수 로직·CSV·기존 CustomerGenerator 회귀 통과. Unity 컴파일 통과. GameplaySandbox에서 10명 색상·PK 표시, 재촉·이탈 표시, 3초 결과 이후 자동 FIFO 인계, 기존 거래 수락/거부·중복 수입 방지·정산·다음 날 전환 통과. Console error 0. 시간 경계 검사는 Advance로 시간을 주입했고 자동 인계는 실제 Update 경과로 확인했다. 최종 아트·공간상 줄 배치는 미작업이다.
 
 ## 병합 주의
 
@@ -54,3 +54,6 @@
 - 공용 가격 이벤트·Finance API를 복제하지 않는다. 최초 희망 표시와 제출 시점 확정 단가를 구분하고 기존 거래의 한 번 입금 계약을 유지한다.
 - UI branch의 NEXT CUSTOMER·Update·영업 시작/종료 변경과 의미 충돌을 검토한다. 초기 영업 안내·대기 손님의 희망 목록 표시 단가와 제출 시 확정 거래 단가는 라디오 발생 이후 서로 다를 수 있다.
 - 신규 스크립트의 Unity 생성 .meta를 함께 병합한다. 기존 TMP fallback font 변경은 이 기능과 무관하다.
+
+
+현재 성향 CSV에는 이후 추가된 disposition_type/preferred_product_idxs/regular_price_min_rate/regular_price_max_rate도 존재한다. 위 3열 migration만 복사해 최신 후속 열을 잃지 않는다. 실제 헤더와 [CUSTOMER_INTEGRATION.md](CUSTOMER_INTEGRATION.md)를 함께 반영한다. Test Runner assembly/meta 및 Local 제외 의존은 [TESTING.md](TESTING.md)를 따른다.

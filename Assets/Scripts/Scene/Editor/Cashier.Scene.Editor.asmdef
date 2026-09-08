@@ -1,0 +1,5 @@
+{
+  "name": "Cashier.Scene.Editor",
+  "references": ["Cashier.Runtime"],
+  "includePlatforms": ["Editor"]
+}

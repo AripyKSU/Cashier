@@ -173,6 +173,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/AddressableAssetsData/` | Addressables 설정과 group | 작업별 승인권을 받은 리소스 담당자 또는 프로젝트 책임자 승인 없이 직접 편집 금지 |
 | `Assets/Scenes/` | Unity Scene | 현재 작업의 지정 담당자 또는 프로젝트 책임자 승인 후 생성·이동 |
 | `Assets/Scenes/Local/` | 개인 개발 씬 (Git 제외) | Editor 전용. 공유 자산에서 참조하거나 Build Settings·Addressables에 등록하지 않음 |
+| `Assets/Scripts/Local/` | 개인 씬 전용 실험·임시 화면 코드 (Git 제외) | Editor 도구는 하위 `Editor/`에 분리. 공유 코드·테스트·자산에서 참조 금지. 제품 기능·manager·공유 API는 기존 추적 경로에 유지 |
 | `Assets/Settings/` | URP와 renderer 설정 | 프로그래머 `Primary` 또는 프로젝트 책임자 승인 필요 |
 | `Assets/Plugins/` | 외부·vendor 코드 | 직접 수정 금지. wrapper 또는 상위 코드에서 대응 |
 | `Assets/TextMesh Pro/` | TMP 기본 리소스 | 프로젝트 UI 정책 변경이 아니면 수정 금지 |
@@ -188,7 +189,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 5. 테스트를 새로 도입할 때는 runtime 코드와 분리해 `Assets/Tests/EditMode/`, `Assets/Tests/PlayMode/`를 사용하고 필요한 `.asmdef`를 함께 검토한다.
 6. 새 asset과 script에는 Unity가 생성한 `.meta`를 포함하고 파일 이동으로 GUID가 바뀌지 않게 한다.
 
-프로젝트에는 현재 자체 코드용 `.asmdef`와 자체 테스트 파일이 확인되지 않았다. 이를 이미 존재한다고 가정하지 말고, 최초 도입은 프로그래머 `Primary` 또는 프로젝트 책임자의 승인을 받는다.
+자체 runtime 경계는 `Assets/Scripts/Cashier.Runtime.asmdef`, 공유 Editor 경계는 `Scene/Editor/Cashier.Scene.Editor.asmdef`다. API 테스트는 `Assets/Tests/EditMode/`와 `Assets/Tests/PlayMode/`의 별도 테스트 assembly에 둔다. 개인 코드의 `Local/Editor/` 경계는 로컬 소유이며 공유 테스트가 참조하지 않는다. 새 assembly·의존성 확대는 기존 승인 절차를 따른다.
 
 자산 하위 폴더는 작업 기능을 기준으로 생성한다. 예를 들어 같은 기능은 `Datas/<Feature>/`, `Prefabs/<Feature>/`, `Anims/<Feature>/`, `Textures/<Feature>/`처럼 이름을 맞춘다. `Common` 또는 `Shared`는 둘 이상의 기능이 실제로 사용하는 자산에만 사용한다.
 
@@ -307,11 +308,11 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 
 ### C. 컴파일과 최소 실행 검증
 
-- 이 프로젝트는 Unity Test Runner와 별도 unit test를 기본 완료 조건으로 사용하지 않는다.
+- API·CSV/parser·생성·큐·거래·금액·지침·이벤트 계약은 설치된 Unity Test Framework의 NUnit EditMode로 검증한다. 실제 Unity 수명·비동기·ResourceManager·pool API는 필요한 경우에만 PlayMode로 검증한다.
 - Unity reimport와 compilation 종료 후 compile error 0을 확인한다.
-- 변경 기능을 재현하는 가장 작은 Scene·진입 경로에서 최소 실행 검증을 수행한다.
-- 기존 자동 검사가 있거나 작업에서 별도로 요구한 경우에만 해당 검사를 추가로 실행한다.
-- 검증 환경이 없다는 이유로 새 test assembly나 framework를 임의로 도입하지 않는다.
+- 관련 기존 테스트와 변경 경계를 검증하고 실행 개수·실패·skip·미완료를 보고한다. total=0, skip 또는 미완료를 PASS로 판단하지 않는다. 실행과 XML·로그 보관은 [`doc/TESTING.md`](doc/TESTING.md)를 따른다.
+- UI 버튼·문구·배치·사용감은 사용자 수동 확인 대상이다. API 테스트 성공을 화면·UX 성공으로 확대하지 않고 사용자 확인 전까지 미확인으로 보고한다. 자동 검사를 위해 개인 씬이나 공유 Scene을 변경하지 않는다.
+- 검증 환경이 없다는 이유로 신규 framework나 package를 추가하지 않는다. 승인된 테스트 assembly와 기존 설치 의존성을 재사용한다.
 
 ### D. Console과 런타임
 

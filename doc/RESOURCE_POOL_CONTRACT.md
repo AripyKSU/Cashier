@@ -34,22 +34,15 @@
 
 ## 검증 방법
 
-기존 로컬 Unity CLI connector가 연결된 Cashier를 InitScene에서 Play Mode로 실행한 후:
+[TESTING.md](TESTING.md)의 PlayMode ResourcePoolTests를 실행한다. 별도 InitScene Play 또는 ValidateResourcePool 셸은 사용하지 않는다. 표준 Test Runner의 임시 씬에서 테스트 소유 manager·provider·locator·객체만 만들고 정리한다.
 
-```powershell
-./doc/ValidateResourcePool.ps1 -Port 8090
-```
+공유 로드·개별 취소·타입 충돌·해제 후 재요청·실패/retry·callback/Task·종료·로컬/Addressables 풀을 검사한다. 의도한 오류는 LogAssert.Expect로 소비하며 미예상 오류는 실패다. 실제 원격 다운로드 장애·Player build·제품 prefab은 이 fixture의 범위 밖이다.
 
-검사는 런타임에만 임시 provider·locator·객체를 만들고 finally에서 정리한다. 원본 Scene·Prefab·Addressables group을 저장하거나 새 test assembly를 도입하지 않는다.
-공유 로드, 개별 취소, 타입 충돌, 해제 후 재요청, 로드 실패와 재요청, callback/Task 공유, manager 종료, 로컬·Addressables 풀과 실패 정리를 확인한다.
-예상 실패 주입은 Console에 `ResourcePoolCheck` 키를 포함한 오류를 남긴다. 이 오류와 일반 제품 오류를 구분해야 한다.
-실행 중 background 프레임 진행을 잠시 허용하고 원래 값을 복원한다. Unity 컴파일 완료·compile error 0과 제품 Console 오류는 별도로 확인한다.
-
-### 2026-09-08 검증 기록
+### 2026-09-08 이전 셸 검증 기록 (당시 결과)
 
 - Cashier Unity 6000.3.18f1, 로컬 connector 8090, PID 11092에서 재컴파일 완료와 compile error 0 확인.
 - InitScene에서 시작하여 기존 개인 씬 GameplaySandbox로 진입, GameSessionManager 초기화 완료 확인.
-- 위 재현 검사 PASS: provider 로드 10건, 의도한 실패 1건, 성공 자산 해제 9건.
+- 당시 셸 검사 PASS: provider 로드 10건, 의도한 실패 1건, 성공 자산 해제 9건.
 - Console 오류 3건은 의도한 provider 실패·준비 중 풀 종료·Component 누락 검사에서 발생. 일반 제품 오류는 확인되지 않음.
 - 종료 후 검사용 객체 0개, provider 0개, background 설정 false 복원 확인. PlayMode 종료.
 - 실제 Addressables API에 임시 provider로 결과를 공급한 검사다. 원격 다운로드 장애나 플랫폼별 빌드 검증을 대신하지 않는다.

@@ -1,0 +1,4 @@
+{
+  "name": "Cashier.Runtime",
+  "references": ["UniTask", "UniTask.Addressables", "Unity.Addressables", "Unity.ResourceManager", "Unity.ugui", "Unity.TextMeshPro", "Unity.InputSystem"]
+}
