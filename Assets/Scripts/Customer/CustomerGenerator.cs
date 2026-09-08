@@ -20,11 +20,12 @@ public sealed class CustomerGenerator
     /// <param name="dispositions">외부에서 상품군 참조를 검증한 성향 후보.</param>
     /// <param name="products">상품 ID → 상품 데이터. 비활성·미등장 상품은 제외한다.</param>
     /// <param name="elapsedDays">게임 시작 후 경과 일수. 0은 시작일.</param>
+    /// <param name="currentPrices">당일 전 상품 현재가. null은 기존 단독 검사에서 기본가격을 사용하는 경우에만 허용한다.</param>
     /// <returns>판매 가능 상품이 없으면 null. 나머지는 확정된 방문 데이터.</returns>
     /// <exception cref="ArgumentException">필수 후보 누락, 0·중복 ID 또는 잘못된 설정 범위.</exception>
     public CustomerVisit Generate(IReadOnlyList<uint> appearanceIds,
         IReadOnlyList<CustomerDispositionData> dispositions,
-        IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0)
+        IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, IReadOnlyDictionary<uint, uint> currentPrices = null)
     {
         if (appearanceIds == null || appearanceIds.Count == 0)
             throw new ArgumentException("외형 후보가 필요합니다.", nameof(appearanceIds));
@@ -50,6 +51,8 @@ public sealed class CustomerGenerator
             if (product.Value == null || product.Key != product.Value.Idx)
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
             product.Value.Validate();
+            if (currentPrices != null && (!currentPrices.TryGetValue(product.Key, out uint price) || price == 0))
+                throw new ArgumentException($"상품 PK={product.Key}: 현재가 누락 또는 0", nameof(currentPrices));
             if (product.Value.IsAvailable && product.Value.AvailableDay <= elapsedDays)
                 availableProducts.Add(product.Key, product.Value);
         }
@@ -79,7 +82,8 @@ public sealed class CustomerGenerator
             var candidates = usePreferred ? preferred : others;
             int index = random.Next(candidates.Count);
             items.Add(new CustomerOrderItem(candidates[index],
-                random.Next(disposition.MinQuantity, disposition.MaxQuantity + 1), availableProducts[candidates[index]].BasePrice));
+                random.Next(disposition.MinQuantity, disposition.MaxQuantity + 1),
+                currentPrices == null ? availableProducts[candidates[index]].BasePrice : currentPrices[candidates[index]]));
             candidates.RemoveAt(index);
         }
         return new CustomerVisit(appearanceIdx, disposition.Idx, items, disposition.PriceTolerance,

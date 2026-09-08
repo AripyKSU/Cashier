@@ -49,7 +49,7 @@ public sealed class CustomerVisit
     /// <summary>테스트 UI용 결과명. 정식 현지화는 TextData로 이관한다.</summary>
     public string OutcomeLabel => Outcome switch
     {
-        CustomerTradeOutcome.RegularSale => "정가 판매",
+        CustomerTradeOutcome.RegularSale => "기준가 판매",
         CustomerTradeOutcome.DiscountSale => "저가 판매",
         CustomerTradeOutcome.ExploitativeSale => "착취 판매",
         CustomerTradeOutcome.PaymentRefused => "결제 거부",

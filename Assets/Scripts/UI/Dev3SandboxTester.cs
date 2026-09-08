@@ -61,7 +61,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private readonly CustomerGenerator generator = new CustomerGenerator(new System.Random());
     private readonly Dictionary<uint, Sprite> productSprites = new Dictionary<uint, Sprite>();
     private bool ready, paused, faulted, showingGuide;
-    private int day = 1;
+    private int day => checked((int)GameSessionManager.Instance.ElapsedDays + 1);
     private long closedRevenue;
     private Button nextCustomerButton, endDayButton;
     private Sprite squareSprite;
@@ -127,6 +127,13 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private void Update()
     {
         if (ready && currentViewState == GameViewState.Trading) handleTradingInput();
+        if (!ready || faulted || currentViewState != GameViewState.Trading) return;
+        try
+        {
+            if (GameSessionManager.Instance.AdvanceTradingTime(Time.unscaledDeltaTime, paused || Time.timeScale == 0))
+                refreshTradingView();
+        }
+        catch (Exception exception) { fail(exception); }
     }
 
 
@@ -374,6 +381,17 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     // 9. TAB 1: FLYER BOOKLET VIEW (4-Page Magazine Style)
     // =========================================================================
 
+    /// <summary>선정된 신문의 제목과 설명을 조회한다. 조회는 재추첨하지 않는다.</summary>
+    /// <returns>신문 문구 또는 뉴스 부재 안내.</returns>
+    private string newspaperText()
+    {
+        var state = GameSessionManager.Instance.EnsureDailyPrices();
+        if (!state.NewspaperEventIdx.HasValue) return "오늘의 신문 이벤트 없음";
+        var item = DataTableManager.Instance.GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Rows[state.NewspaperEventIdx.Value];
+        return texts.Rows[item.NameIdx].Text + " — " + texts.Rows[item.DescriptionIdx].Text;
+    }
+
+    /// <summary>현재일 신문과 가격표를 기존 전단지 화면에 표시한다.</summary>
     private void renderFlyerBooklet()
     {
         // Flyer Booklet Header Title
@@ -387,7 +405,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
             // Special Event Banner
             this.panel(coverCard.transform, "NoticeBanner", 20, 20, 1100, 55, new Color(0.85f, 0.35f, 0.30f, 0.95f));
-            this.label(coverCard.transform, "BannerTxt", "SPECIAL STORE NOTICE: MANDATORY RATION DISTRIBUTION", 30, 25, 1080, 45, 20, Color.white, TextAlignmentOptions.Center);
+            this.label(coverCard.transform, "BannerTxt", newspaperText(), 30, 25, 1080, 45, 20, Color.white, TextAlignmentOptions.Center);
 
             // Featured Product Highlight Box
             var featProduct = products[0];
@@ -406,7 +424,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             }
 
             this.label(featBox.transform, "FeatName", texts.Rows[featProduct.NameIdx].Text, 20, 215, 340, 35, 22, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.Center);
-            this.label(featBox.transform, "FeatPrice", $"{featProduct.BasePrice:N0} G", 20, 255, 340, 40, 26, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
+            this.label(featBox.transform, "FeatPrice", $"현재가 {GameSessionManager.Instance.EnsureDailyPrices().Prices[featProduct.Idx]:N0} G", 20, 255, 340, 40, 26, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
 
             // Page 1 Navigation (Folded corner next button)
             this.label(coverCard.transform, "PageNum", "1 / 4", 520, 435, 100, 30, 16, new Color(0.50f, 0.55f, 0.60f), TextAlignmentOptions.Center);
@@ -443,7 +461,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
                 this.label(slot.transform, "Name", texts.Rows[prod.NameIdx].Text, 130, 20, 240, 30, 18, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
                 this.label(slot.transform, "Tag", $"Available Day {((long)prod.AvailableDay + 1)}", 130, 52, 240, 25, 13, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.MidlineLeft);
-                this.label(slot.transform, "Price", $"{prod.BasePrice:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
+                this.label(slot.transform, "Price", $"{GameSessionManager.Instance.EnsureDailyPrices().Prices[prod.Idx]:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
             }
 
             // Right Page (Products 3, 4, 5)
@@ -468,7 +486,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
                 this.label(slot.transform, "Name", texts.Rows[prod.NameIdx].Text, 130, 20, 240, 30, 18, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.MidlineLeft);
                 this.label(slot.transform, "Tag", $"Available Day {((long)prod.AvailableDay + 1)}", 130, 52, 240, 25, 13, new Color(0.55f, 0.60f, 0.68f), TextAlignmentOptions.MidlineLeft);
-                this.label(slot.transform, "Price", $"{prod.BasePrice:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
+                this.label(slot.transform, "Price", $"{GameSessionManager.Instance.EnsureDailyPrices().Prices[prod.Idx]:N0} G", 370, 32, 90, 35, 20, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.MidlineRight);
             }
 
             // Navigation
@@ -504,7 +522,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
                 }
 
                 this.label(slot.transform, "Name", texts.Rows[prod.NameIdx].Text, 10, 110, 225, 28, 16, new Color(0.12f, 0.16f, 0.22f), TextAlignmentOptions.Center);
-                this.label(slot.transform, "Price", $"{prod.BasePrice:N0} G", 10, 140, 225, 30, 19, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
+                this.label(slot.transform, "Price", $"{GameSessionManager.Instance.EnsureDailyPrices().Prices[prod.Idx]:N0} G", 10, 140, 225, 30, 19, new Color(0.85f, 0.55f, 0.10f), TextAlignmentOptions.Center);
             }
 
             // Rules Box
@@ -883,7 +901,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             var card = panel(basketRoot, $"Product_{item.ProductIdx}", (i % 4) * 150, (i / 4) * 100, 130, 130, Color.white);
             card.sprite = productSprites[item.ProductIdx];
             card.preserveAspect = true;
-            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}\n정가: {item.UnitPrice:N0} / 개",
+            label(card.transform, "Name", texts.Rows[product.NameIdx].Text + $" × {item.Quantity}\n기본: {product.BasePrice:N0}\n현재: {item.UnitPrice:N0} / 개",
                 4, 35, 122, 60, 16, Color.black, TextAlignmentOptions.Center);
             activeBasketCards.Add(card.gameObject);
         }
@@ -908,7 +926,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             for (int i = 0; i < products.Length; i++)
             {
                 var p = products[i];
-                label(tradingModal, $"Price_{p.Idx}", texts.Rows[p.NameIdx].Text + $"  {p.BasePrice:N0}",
+                label(tradingModal, $"Price_{p.Idx}", texts.Rows[p.NameIdx].Text + $"  {GameSessionManager.Instance.EnsureDailyPrices().Prices[p.Idx]:N0}",
                     25 + (i % 4) * 175, 140 + (i / 4) * 55, 170, 50, 15);
             }
             makeButton(tradingModal, "OpenShop", "OPEN STORE", 170, 435, 400, 46, openShop, 18);
@@ -947,9 +965,14 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private void completeTradingDayAndReturnToHub()
     {
         if (faulted || paused || economy.QueryService.IsDayOpen || currentViewState != GameViewState.Trading) return;
-        day = checked(day + 1);
-        CurrentVisit = null;
-        setViewState(GameViewState.MainHub);
+        try
+        {
+            GameSessionManager.Instance.CompleteDay((uint)(day - 1));
+            GameSessionManager.Instance.EnsureDailyPrices();
+            CurrentVisit = null;
+            setViewState(GameViewState.MainHub);
+        }
+        catch (Exception exception) { fail(exception); }
     }
 
 
@@ -971,6 +994,8 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             catalog = DataTableManager.Instance.Customers;
             texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
             economy = GameSessionManager.Instance.Economy;
+            if (economy.QueryService.IsDayOpen) throw new InvalidOperationException("영업 중 씬 재진입은 아직 지원하지 않습니다.");
+            GameSessionManager.Instance.EnsureDailyPrices();
             squareSprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 2, 2), new Vector2(0.5f, 0.5f));
             // 한국어는 실행 환경 글꼴로 표시한다. TMP 기본 자산은 변경하지 않는다.
             displayFont = TMP_FontAsset.CreateFontAsset("Malgun Gothic", "Regular", 32);
@@ -998,9 +1023,13 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private void openShop()
     {
         if (!ready || faulted || paused || !showingGuide) return;
-        economy.DailyAggregationService.BeginDay();
-        showingGuide = false;
-        GenerateCustomer();
+        try
+        {
+            GameSessionManager.Instance.BeginTradingDay();
+            showingGuide = false;
+            GenerateCustomer();
+        }
+        catch (Exception exception) { fail(exception); }
     }
 
     /// <summary>방문 규칙 확정 전 수동 버튼으로만 다음 손님을 생성한다.</summary>
@@ -1012,7 +1041,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         {
             if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
             CurrentVisit = generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
-                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, (uint)(day - 1));
+                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, (uint)(day - 1), GameSessionManager.Instance.EnsureDailyPrices().Prices);
             CurrentVisit?.BeginOffer();
             amount = "";
             refreshTradingView();
@@ -1026,7 +1055,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         if (!ready || faulted || paused || showingGuide || !economy.QueryService.IsDayOpen
             || CurrentVisit?.State == CustomerState.AwaitingOffer) return;
         if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
-        closedRevenue = economy.DailyAggregationService.EndDay().SaleIncome;
+        closedRevenue = GameSessionManager.Instance.EndTradingDay();
         refreshTradingView();
     }
 

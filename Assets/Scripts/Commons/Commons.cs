@@ -21,7 +21,9 @@ public enum DataTableType : uint
     ProductCategory = 7,     // 상품군: 7001~7999
     Text = 8,               // 명시적 문자열 테이블: 8001~8999
     
-    DataTableType_End = 10 // 삭제한 종류 값 9를 종료 표식으로 재해석하지 않는다.
+    PriceEvent = 9,
+    PriceEventSchedule = 10,
+    DataTableType_End
 }
 
 

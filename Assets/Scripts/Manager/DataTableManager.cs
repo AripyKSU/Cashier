@@ -81,6 +81,8 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.ProductCategory] = new ProductCategoryDataTable();
         this.dataList[DataTableType.Product] = new ProductDataTable();
         this.dataList[DataTableType.Text] = new TextDataTable();
+        this.dataList[DataTableType.PriceEvent] = new PriceEventDataTable();
+        this.dataList[DataTableType.PriceEventSchedule] = new PriceEventScheduleDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -129,7 +131,10 @@ public class DataTableManager : Singleton<DataTableManager>
                 Debug.LogWarning("[DataTableManager] Datas 라벨이 비어 있습니다. 기존 Resources fallback을 검사합니다.");
                 this.fallbackLoadFromResources();
             }
+            validatePriceEvents();
             Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource));
+            GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
+            GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Commit();
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }
@@ -146,6 +151,27 @@ public class DataTableManager : Singleton<DataTableManager>
         {
             if (locationsHandle.IsValid()) Addressables.Release(locationsHandle);
         }
+    }
+
+    /// <summary>공개 전 뉴스·대상·스케줄 FK를 모두 검사한다. 실패는 상위 로딩 경계에서 기록한다.</summary>
+    /// <exception cref="InvalidDataException">필수 이벤트 CSV 또는 FK 누락.</exception>
+    private void validatePriceEvents()
+    {
+        var events = GetDB<PriceEventDataTable>(DataTableType.PriceEvent).PendingRows;
+        var schedules = GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).PendingRows;
+        var texts = GetDB<TextDataTable>(DataTableType.Text).PendingRows;
+        var products = GetDB<ProductDataTable>(DataTableType.Product).PendingRows;
+        if (events == null || schedules == null || texts == null || products == null)
+            throw new InvalidDataException("가격 이벤트·스케줄·Text·Product CSV가 필요합니다.");
+        foreach (var row in events.Values)
+        {
+            if (!texts.ContainsKey(row.NameIdx) || !texts.ContainsKey(row.DescriptionIdx))
+                throw new InvalidDataException($"PriceEvent PK={row.Idx}: nameidx/descriptionidx Text FK 실패");
+            foreach (uint idx in row.ProductIdxs)
+                if (!products.ContainsKey(idx)) throw new InvalidDataException($"PriceEvent PK={row.Idx}: product FK={idx} 실패");
+        }
+        foreach (var row in schedules.Values)
+            if (!events.ContainsKey(row.EventIdx)) throw new InvalidDataException($"PriceEventSchedule PK={row.Idx}: event FK={row.EventIdx} 실패");
     }
 
     /// <summary>CSV 첫 PK로 등록된 로더를 선택한다. 파싱 오류는 상위 완료 경계로 전달한다.</summary>

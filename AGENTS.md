@@ -162,6 +162,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/Scripts/Manager/` | 전역 수명과 공용 서비스 | 기존 manager 책임을 확장할 때만 배치 |
 | `Assets/Scripts/Scene/` | Scene 진입·전환·표현 | 특정 Scene의 수명에 종속된 component 배치 |
 | `Assets/Scripts/Customer/` | 손님 생성·구매 목록과 관련 데이터 검증 | 손님 기능 코드. `Editor/`의 설치 도구는 개인 씬만 변경 |
+| `Assets/Scripts/Events/` | 일간 가격 이벤트 선정·현재가 계산 | 상태 수명과 날짜 권위는 기존 GameSessionManager에 유지. CSV DTO·DataTable은 Commons/Data에 배치 |
 | `Assets/Scripts/Utils/` | 상태를 소유하지 않는 범용 도구 | 특정 도메인 규칙을 넣지 않음 |
 | `Assets/Datas/` | 런타임 데이터 원본 | 기존 식별자·loader·Addressables 규칙 준수 |
 | `Assets/Prefabs/` | prefab과 직렬화 연결 | 기능별 하위 폴더를 사용하고 공용 prefab은 실제 공유 시에만 분리 |
@@ -218,6 +219,14 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 - 단위가 중요한 값은 이름에 단위를 포함한다 (`delaySeconds`, `sizePixels`).
 - 매직 넘버는 의미가 반복되거나 조정 대상일 때만 `PascalCase` 상수로 승격한다.
 - 기존 파일의 일관된 스타일이 다르면 기능 변경과 무관한 전체 rename을 하지 않는다.
+
+### Enum 종료 표식
+
+- enum에 종료 표식이 필요하면 마지막에 `<EnumType>_End` 형식으로 선언한다.
+- `_End` 또는 `_end` 종료 항목에는 `= 숫자`를 명시하지 않고 C# 자동 증가값을 사용한다.
+- 종료 표식은 유효한 데이터 종류·상태가 아니다. CSV ID 배정, 저장값, loader 등록에 사용하지 않는다.
+- 종료 표식도 `Enum.IsDefined`에는 포함되므로 해당 검사만으로 데이터 유효성을 판단하지 않는다. 종료 표식 제외와 실제 등록·허용값을 함께 확인한다.
+- 실제 데이터 항목의 승인된 숫자값은 유지한다. 종료 표식 규칙을 이유로 기존 ID를 재번호화하지 않는다.
 
 ### 구성원 배치
 

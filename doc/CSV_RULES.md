@@ -29,7 +29,7 @@ CSV에서 ID를 숫자형으로 읽으면 앞쪽의 `0`은 값에 포함되지 �
 - 새로운 CSV 종류를 추가하기 전에 기존 종류 ID와 예약된 범위를 확인한다.
 - 배정된 종류 ID는 코드의 `DataTableType` 값 및 로더 분류 규칙과 일치해야 한다.
 
-종류 ID의 실제 배정과 예약 현황은 Google Docs의 [CSV 종류 ID](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.kh9qpvlz4raf) 문서를 단일 권위 목록으로 사용한다.
+종류 ID의 실제 배정과 예약 현황은 Google Docs의 [CSV 종류 ID](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?pli=1&tab=t.ccpln6m1g4kv) 문서를 단일 권위 목록으로 사용한다.
 
 - 새로운 종류 ID를 배정하거나 기존 배정을 변경할 때는 해당 Google Docs 문서를 갱신한다.
 - CSV, `DataTableType` 또는 loader를 구현하기 전에 해당 문서에서 종류 ID의 중복과 예약 여부를 확인한다.

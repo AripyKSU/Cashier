@@ -7,7 +7,7 @@
 ### 거래 결과 4단계
 
 - `CustomerVisit.Outcome`은 `None / RegularSale / DiscountSale / ExploitativeSale / PaymentRefused`이며 퇴장 후에도 보존한다. `WasAccepted`는 결과에서 파생된다.
-- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 정가 합계보다 낮으면 저가 판매, 같으면 정가 판매, 높으면 착취 판매다. 정가보다 1만 높아도 착취 판매다.
+- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 방문 현재가 합계보다 낮으면 저가 판매, 같으면 기준가 판매, 높으면 착취 판매다. 기준 총액보다 1만 높아도 착취 판매다. RegularSale enum 값은 유지한다.
 - 성사된 세 유형만 제안 총액을 Finance에 한 번 반영한다. 시스템 반영 실패는 손님의 결제 거부와 별개다. 명성 변화는 기존 0을 유지한다.
 - 성향 CSV의 `accept_text_idxs`를 `regular_sale_text_idxs`, `discount_sale_text_idxs`, `exploitative_sale_text_idxs`로 교체했다. 모두 필수 uint 배열이며 TextData FK를 검증한다. 구형 CSV는 새 loader에서 거부한다.
 - 초기 migration은 각 성향의 기존 수락 대사 ID를 세 컬럼에 동일하게 복사했다. 신규 TextData ID·문구는 추가하지 않았다. 저가·착취 전용 문구가 승인되면 해당 컬럼만 교체한다.
@@ -30,7 +30,7 @@
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
-| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0)` | 검증된 catalog 후보를 전달한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
+| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, IReadOnlyDictionary<uint, uint> currentPrices = null)` | 런타임은 세션의 일간 현재가를 전달한다. null은 독립 검사 호환용 기본가 경로다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
 | `CustomerVisit.SubmitOffer(long total)` | 전체 목록에 대한 양의 정수 총액. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |
@@ -49,7 +49,7 @@ DataTableManager가 각 DataTable을 `new`로 직접 생성·등록한다. Custo
 |---|---|
 | `AppearanceIdx`, `DispositionIdx` | 외형·성향 데이터 조회. 같은 조합이 다시 나와도 같은 인물을 뜻하지 않는다. |
 | `Items` | 읽기 전용 구매 목록. 각 `CustomerOrderItem`의 `ProductIdx`, `Quantity`, `UnitPrice` 사용. 동일 상품은 한 줄에 수량으로 표현한다. |
-| `BaseTotal`, `PriceTolerance`, `AllowedTotal` | 방문 생성 시 고정된 정가 합계·허용 배율·수락 상한. 상한을 UI에 자동 노출하지 않는다. |
+| `BaseTotal`, `PriceTolerance`, `AllowedTotal` | 방문 생성 시 고정된 현재 단가×수량 합계·허용 배율·수락 상한. BaseTotal은 CSV 기본가 합계가 아니다. 상한을 UI에 자동 노출하지 않는다. |
 | `State`, `OfferedTotal`, `WasAccepted` | 방문 상태, 제안 총액, 수락 여부. 판정 전 마지막 두 값은 null. 퇴장 후에도 결과 유지. |
 | `EntryTextIdx`, `FeedbackTextIdx` | `texts.Rows[idx].Text`로 표시. 제안 전 Feedback은 입장 대사, 제안 후 수락·거절 대사. |
 
@@ -69,10 +69,11 @@ var texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
 var generator = new CustomerGenerator(new System.Random()); // 초기화 시 한 번
 
 // 손님 입장 요청 시
+var dailyPrices = GameSessionManager.Instance.EnsureDailyPrices();
 var visit = generator.Generate(
     catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
     catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(),
-    catalog.Products.Rows, elapsedDays);
+    catalog.Products.Rows, dailyPrices.ElapsedDays, dailyPrices.Prices);
 if (visit == null) return; // 정상적인 판매 후보 부재: 대기/안내 처리
 string entryText = texts.Rows[visit.EntryTextIdx].Text;
 // 외형·상품·entryText 표시 후

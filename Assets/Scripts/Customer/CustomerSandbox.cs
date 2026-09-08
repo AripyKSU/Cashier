@@ -27,8 +27,6 @@ public sealed class CustomerSandbox : MonoBehaviour
     [SerializeField] private Text dialogText;
     /// <summary>상품별 정사각형 이미지와 이름을 배치할 영역.</summary>
     [SerializeField] private RectTransform productRoot;
-    /// <summary>실제 날짜 시스템 연결 전 개인 씬에서 사용하는 경과 일수. 다음 방문부터 적용.</summary>
-    [SerializeField, Min(0)] private int elapsedDays;
     /// <summary>화면에서 생성한 상품 카드만 소유하고 교체 시 제거한다.</summary>
     private readonly List<GameObject> productCards = new List<GameObject>();
     /// <summary>방문마다 재시드하지 않고 같은 난수 흐름을 사용한다.</summary>
@@ -97,6 +95,8 @@ public sealed class CustomerSandbox : MonoBehaviour
             }
             catalog = loadedCatalog;
             texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
+            if (GameSessionManager.Instance == null) new GameObject("GameSessionManager").AddComponent<GameSessionManager>();
+            if (!GameSessionManager.Instance.IsInitialized) GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance);
             updateControls();
             identityText.text = "외형 PK / 성향 PK";
             orderText.text = "버튼을 눌러 손님을 생성하세요.";
@@ -122,9 +122,9 @@ public sealed class CustomerSandbox : MonoBehaviour
         if (CurrentVisit != null && (CurrentVisit.State == CustomerState.Entering || CurrentVisit.State == CustomerState.AwaitingOffer)) return;
         try
         {
-            if (elapsedDays < 0) throw new InvalidOperationException("경과 일수는 0 이상이어야 합니다.");
+            var dailyPrices = GameSessionManager.Instance.EnsureDailyPrices();
             var visit = generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
-                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, (uint)elapsedDays);
+                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, dailyPrices.ElapsedDays, dailyPrices.Prices);
             if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
             clearProducts();
             if (visit == null)
@@ -146,7 +146,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             appearanceImage.color = color;
             appearanceImage.enabled = true;
             identityText.text = $"외형 {visit.AppearanceIdx} + 성향 {visit.DispositionIdx}";
-            orderText.text = $"경과 {elapsedDays}일 · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개\n정가 합계 {visit.BaseTotal:N0}";
+            orderText.text = $"경과 {dailyPrices.ElapsedDays}일 · {visit.Items.Count}종 / 총 {visit.Items.Sum(x => (long)x.Quantity)}개\n현재가 합계 {visit.BaseTotal:N0}";
             dialogText.text = texts.Rows[visit.EntryTextIdx].Text;
             showProducts(visit);
             offerInput.text = string.Empty;
@@ -225,7 +225,7 @@ public sealed class CustomerSandbox : MonoBehaviour
             label.color = Color.black;
             label.alignment = TextAnchor.MiddleCenter;
             label.raycastTarget = false;
-            label.text = $"{texts.Rows[product.NameIdx].Text}\n정가: {item.UnitPrice:N0} / 개\n{texts.Rows[category.NameIdx].Text} × {item.Quantity}";
+            label.text = $"{texts.Rows[product.NameIdx].Text}\n기본: {product.BasePrice:N0} / 현재: {item.UnitPrice:N0}\n{texts.Rows[category.NameIdx].Text} × {item.Quantity}";
         }
     }
 
