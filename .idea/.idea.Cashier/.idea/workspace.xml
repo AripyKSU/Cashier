@@ -12,13 +12,19 @@
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AddressableAssetsData/AddressableAssetSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AddressableAssetsData/AddressableAssetSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/Customer/ProductData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/Customer/ProductData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/ResourceData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/ResourceData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/CustomerBasketItem.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/CustomerBasketItem.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/OperatingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/OperatingPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/SettlementPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/SettlementPanel.prefab" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgress.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgress.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgress.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgress.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgressState.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgressState.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/GameProgress.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/GameProgress.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/GameProgressState.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/GameProgressState.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/GameDayPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/GameDayPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Progress/ProgressSceneController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/Progress/ProgressSceneController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/KeypadController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/KeypadController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerBasketItemPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerBasketItemPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +47,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/2dd92ca01bce43c6adc1b8303ef804091d000/82/b921822d/02000006pdb2.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/4ce6dae97d1f44c6a725b09ce62278d02b200/7b/e83a8a82/02000013pdb13.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/5c5e72811f314750a5046117b14297a812e00/be/d8d9f756/0200002Epdb37.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/5f3bc12416074e3a8068b1ae6fdbf88831000/13/db10a73b/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/25/c777b0e2/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/50/4ab4421c/02000012pdb10.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60ea4934efe54f0e82d2b9902208f20312e00/5c/e4e8c4ed/02000011pdb9.il" root0="FORCE_HIGHLIGHTING" />
@@ -49,6 +56,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/62d455233bb343fd86934ddc025d3104e200/83/54f250b0/0200000Fpdb7.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/62d455233bb343fd86934ddc025d3104e200/fd/6dcb238a/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/6dfc39632b934e5f897b6880e20aded812600/43/337fef97/02000017pdb15.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/89c6389f27a64ab49ba199b8067880fa31000/4a/2e2b3049/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/a7038b37a005424586087cac2b34c35a10400/a9/3dff487f/02000027pdb30.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/aef6e3fff45444e2bb8f8d13ff0eaf0312e00/92/2a0254db/02000012pdb10.il" root0="FORCE_HIGHLIGHTING" />
   </component>

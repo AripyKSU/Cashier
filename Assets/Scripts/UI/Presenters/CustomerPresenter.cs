@@ -117,20 +117,28 @@ public class CustomerPresenter : MonoBehaviour
             return;
         }
 
-        var occupiedAreas = new List<Rect>(basket.Count);
-        for (int index = 0; index < basket.Count; index++)
+        int totalQuantity = this.getTotalQuantity(basket);
+        var occupiedAreas = new List<Rect>(totalQuantity);
+        int instanceIndex = 0;
+        for (int basketIndex = 0; basketIndex < basket.Count; basketIndex++)
         {
-            if (index >= this.basketItems.Count)
+            CustomerBasketItemViewData basketItem = basket[basketIndex];
+            for (int quantityIndex = 0; quantityIndex < basketItem.Quantity; quantityIndex++)
             {
-                this.basketItems.Add(Instantiate(this.basketItemPrefab, this.basketContainer));
-            }
+                if (instanceIndex >= this.basketItems.Count)
+                {
+                    this.basketItems.Add(Instantiate(this.basketItemPrefab, this.basketContainer));
+                }
 
-            CustomerBasketItemPresenter itemPresenter = this.basketItems[index];
-            itemPresenter.gameObject.SetActive(true);
-            itemPresenter.UpdateView(basket[index]);
-            if (shouldPlaceItems)
-            {
-                this.placeBasketItem(itemPresenter, index, basket.Count, occupiedAreas);
+                CustomerBasketItemPresenter itemPresenter = this.basketItems[instanceIndex];
+                itemPresenter.gameObject.SetActive(true);
+                itemPresenter.UpdateView(basketItem);
+                if (shouldPlaceItems)
+                {
+                    this.placeBasketItem(itemPresenter, instanceIndex, totalQuantity, occupiedAreas);
+                }
+
+                instanceIndex++;
             }
         }
 
@@ -252,5 +260,19 @@ public class CustomerPresenter : MonoBehaviour
 
             return signature;
         }
+    }
+
+    /// <summary>장바구니에 표시할 개별 상품 이미지의 총개수를 계산합니다.</summary>
+    /// <param name="basket">수량이 확정된 장바구니 스냅샷입니다.</param>
+    /// <returns>모든 상품 수량의 합계입니다.</returns>
+    private int getTotalQuantity(IReadOnlyList<CustomerBasketItemViewData> basket)
+    {
+        int totalQuantity = 0;
+        foreach (CustomerBasketItemViewData item in basket)
+        {
+            totalQuantity = checked(totalQuantity + Mathf.Max(0, item.Quantity));
+        }
+
+        return totalQuantity;
     }
 }

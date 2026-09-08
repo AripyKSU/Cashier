@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public sealed class DayProgress
 {
     /// <summary>기본 MVP 영업시간(초)입니다.</summary>
-    public const float DefaultBusinessDurationSeconds = 180f;
+    public const float DefaultBusinessDurationSeconds = 30f;
 
     // 현재 하루를 식별하는 표시용 날짜입니다.
     private readonly int day;

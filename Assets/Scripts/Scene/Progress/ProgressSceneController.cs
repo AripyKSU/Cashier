@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -71,7 +72,11 @@ public sealed class ProgressSceneController : MonoBehaviour
                 throw new InvalidOperationException("손님 또는 텍스트 데이터가 준비되지 않았습니다.");
             }
 
-            this.viewDataFactory = new ProgressViewDataFactory(this.customerCatalog, this.textData);
+            IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadProductSpritesAsync();
+            this.viewDataFactory = new ProgressViewDataFactory(
+                this.customerCatalog,
+                this.textData,
+                productSprites);
 
             this.validateUiReferences();
             this.subscribeUi();
@@ -116,6 +121,58 @@ public sealed class ProgressSceneController : MonoBehaviour
         }
     }
 
+    /// <summary>상품 데이터 FK를 따라 장바구니 표시용 Sprite를 한 번씩 로드합니다.</summary>
+    /// <returns>모든 상품 ID에 대응하는 로드 완료 Sprite 사전입니다.</returns>
+    /// <exception cref="InvalidOperationException">리소스 시스템, FK 또는 Sprite 로드가 실패한 경우 발생합니다.</exception>
+    private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadProductSpritesAsync()
+    {
+        if (ResourceManager.Instance == null)
+        {
+            throw new InvalidOperationException("ResourceManager가 준비되지 않았습니다.");
+        }
+
+        ResourceDataTable resources = DataTableManager.Instance.GetDB<ResourceDataTable>(DataTableType.Resource);
+        if (resources == null)
+        {
+            throw new InvalidOperationException("ResourceDataTable이 준비되지 않았습니다.");
+        }
+
+        var spritesByResource = new Dictionary<uint, Sprite>();
+        var spritesByProduct = new Dictionary<uint, Sprite>();
+        foreach (ProductData product in this.customerCatalog.Products.Rows.Values)
+        {
+            if (!product.ImageResourceIdx.HasValue)
+            {
+                throw new InvalidOperationException($"상품 {product.Idx}의 image_resource_idx가 비어 있습니다.");
+            }
+
+            uint resourceId = product.ImageResourceIdx.Value;
+            if (!spritesByResource.TryGetValue(resourceId, out Sprite sprite))
+            {
+                string address = resources.GetResourcePath(resourceId);
+                if (string.IsNullOrWhiteSpace(address))
+                {
+                    throw new InvalidOperationException(
+                        $"상품 {product.Idx}의 ResourceData FK {resourceId}를 찾을 수 없습니다.");
+                }
+
+                sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address)
+                    .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
+                if (sprite == null)
+                {
+                    throw new InvalidOperationException(
+                        $"상품 {product.Idx}의 Sprite를 로드하지 못했습니다. Resource {resourceId}, Address {address}");
+                }
+
+                spritesByResource.Add(resourceId, sprite);
+            }
+
+            spritesByProduct.Add(product.Idx, sprite);
+        }
+
+        return spritesByProduct;
+    }
+
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
     private void OnDestroy()
     {
@@ -155,6 +212,7 @@ public sealed class ProgressSceneController : MonoBehaviour
         this.businessTimerPresenter.OnPauseRequested += this.handlePauseRequested;
         this.businessTimerPresenter.OnResumeRequested += this.handleResumeRequested;
         this.dailySettlementPresenter.OnNextStepRequested += this.handleSettlementNextRequested;
+        this.keypadController.OnPriceChanged += this.handlePriceChanged;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
         this.transactionContinueButton.onClick.AddListener(this.handleTransactionContinueClicked);
         this.maintenanceButton.onClick.AddListener(this.handleMaintenanceClicked);
@@ -178,6 +236,11 @@ public sealed class ProgressSceneController : MonoBehaviour
         if (this.dailySettlementPresenter != null)
         {
             this.dailySettlementPresenter.OnNextStepRequested -= this.handleSettlementNextRequested;
+        }
+
+        if (this.keypadController != null)
+        {
+            this.keypadController.OnPriceChanged -= this.handlePriceChanged;
         }
 
         if (this.openBusinessButton != null)
@@ -343,6 +406,12 @@ public sealed class ProgressSceneController : MonoBehaviour
     /// <param name="offeredTotal">플레이어가 확정한 전체 판매 가격입니다.</param>
     private void handlePriceConfirmed(long offeredTotal)
     {
+        // 거래 전환 직후 도착한 연속 입력은 사용자 입력 경계에서 멱등하게 무시합니다.
+        if (this.subscribedDay == null || !this.subscribedDay.CanSubmitOffer)
+        {
+            return;
+        }
+
         this.runProgressAction(() =>
         {
             this.gameProgress.SubmitOffer(offeredTotal);
@@ -355,6 +424,13 @@ public sealed class ProgressSceneController : MonoBehaviour
     {
         this.validationText.text = string.Empty;
         this.refreshRuntimeViews();
+    }
+
+    /// <summary>키패드 입력값 변경을 가격 입력 UI의 활성 상태에 즉시 반영합니다.</summary>
+    /// <param name="currentPrice">변경된 현재 입력 가격입니다.</param>
+    private void handlePriceChanged(long currentPrice)
+    {
+        this.refreshPriceInputView(currentPrice);
     }
 
     /// <summary>거래 결과 확인 요청을 하루 진행에 전달합니다.</summary>
@@ -458,11 +534,7 @@ public sealed class ProgressSceneController : MonoBehaviour
             this.canResume()));
 
         long currentPrice = this.keypadController == null ? 0 : this.keypadController.CurrentPrice;
-        this.priceInputPresenter.UpdateView(new PriceInputViewData(
-            currentPrice > 0 ? currentPrice : (long?)null,
-            currentPrice > 0,
-            this.subscribedDay.CanSubmitOffer,
-            this.hasError ? this.errorText.text : this.validationText.text));
+        this.refreshPriceInputView(currentPrice);
 
         bool canContinueTransaction = this.subscribedDay.CurrentVisit != null
             && (this.subscribedDay.CurrentVisit.State == CustomerState.Accepted
@@ -471,6 +543,22 @@ public sealed class ProgressSceneController : MonoBehaviour
                 || this.subscribedDay.State == DayProgressState.Closing);
         this.transactionContinueButton.gameObject.SetActive(canContinueTransaction);
         this.setKeypadInteractable(this.subscribedDay.CanSubmitOffer);
+    }
+
+    /// <summary>현재 가격과 거래 상태만 가격 입력 Presenter에 전달합니다.</summary>
+    /// <param name="currentPrice">키패드에 입력된 0 이상의 가격입니다.</param>
+    private void refreshPriceInputView(long currentPrice)
+    {
+        if (!this.isReady || this.subscribedDay == null || this.priceInputPresenter == null)
+        {
+            return;
+        }
+
+        this.priceInputPresenter.UpdateView(new PriceInputViewData(
+            currentPrice > 0 ? currentPrice : (long?)null,
+            currentPrice > 0,
+            this.subscribedDay.CanSubmitOffer,
+            this.hasError ? this.errorText.text : this.validationText.text));
     }
 
     /// <summary>프레임 경과에 따라 실제로 변하는 타이머 표시만 갱신합니다.</summary>
@@ -542,6 +630,11 @@ public sealed class ProgressSceneController : MonoBehaviour
     /// <param name="isInteractable">키패드 입력 허용 여부입니다.</param>
     private void setKeypadInteractable(bool isInteractable)
     {
+        if (this.keypadController != null)
+        {
+            this.keypadController.SetInputEnabled(isInteractable);
+        }
+
         foreach (Button button in this.keypadButtons)
         {
             if (button != null)

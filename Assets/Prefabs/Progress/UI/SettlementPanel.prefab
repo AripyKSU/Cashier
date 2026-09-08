@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -360, y: 90}
-  m_SizeDelta: {x: 500, y: 34}
+  m_AnchoredPosition: {x: -312.17987, y: 90.478195}
+  m_SizeDelta: {x: 404.3597, y: 33.0436}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1079143614501067461
 CanvasRenderer:
@@ -87,7 +87,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -171,8 +171,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -360, y: 45}
-  m_SizeDelta: {x: 500, y: 34}
+  m_AnchoredPosition: {x: -312.17987, y: 43.565407}
+  m_SizeDelta: {x: 404.36, y: 36.8692}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8960086186657943012
 CanvasRenderer:
@@ -224,7 +224,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -308,8 +308,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -360, y: 145}
-  m_SizeDelta: {x: 900, y: 38}
+  m_AnchoredPosition: {x: -214.62689, y: 142.13077}
+  m_SizeDelta: {x: 609.2538, y: 43.7384}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7614330515998049641
 CanvasRenderer:
@@ -361,7 +361,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -445,8 +445,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -360, y: 0}
-  m_SizeDelta: {x: 500, y: 34}
+  m_AnchoredPosition: {x: -312.18, y: -0.4782}
+  m_SizeDelta: {x: 404.36, y: 34.9564}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2923738420425804235
 CanvasRenderer:
@@ -498,7 +498,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -756,7 +756,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -840,8 +840,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -360, y: -45}
-  m_SizeDelta: {x: 500, y: 34}
+  m_AnchoredPosition: {x: -312.18, y: -44.043602}
+  m_SizeDelta: {x: 404.36, y: 32.0872}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8474048150341396162
 CanvasRenderer:
@@ -893,7 +893,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -961,7 +961,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1092466335543891087
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1081,8 +1081,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -360, y: -95}
-  m_SizeDelta: {x: 760, y: 34}
+  m_AnchoredPosition: {x: -247.17993, y: -94.521805}
+  m_SizeDelta: {x: 534.36, y: 33.0436}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6169856268549680803
 CanvasRenderer:
@@ -1134,7 +1134,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2

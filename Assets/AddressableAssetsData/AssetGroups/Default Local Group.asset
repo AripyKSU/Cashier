@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 8b33f272d3e835b4b830c65a3bf5d1cb
   m_SerializeEntries:
+  - m_GUID: 0bd04b7017c4fa84094c818943317338
+    m_Address: Product_1004_Can
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2ed767a5d47f8114088e0e9fae6c333f
+    m_Address: Product_1001_Water
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4071d61b90def654988de31d2cd72a52
     m_Address: TextData
     m_ReadOnly: 0
@@ -38,14 +48,40 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 76950be1f78988945ac0d3b21da802bb
+    m_Address: Product_1009_Painkiller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7d1a9c18bf088a4488c3515f0b019dea
     m_Address: ProductData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f4a19c06d8e42a3b57c91e5f0236dab
+    m_Address: MaintenanceBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8069bb89ee203344c971ee1652958c1c
+    m_Address: Product_Placeholder
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 80a3439022bd3054ab1d7a3a9a33cc0f
+    m_Address: Product_1006_Crackers
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8e73b28ef3a099a4488cb2518dcc4102
     m_Address: MainScene
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a1890a0fe547b394496e7e56a7bc8f98
+    m_Address: Product_1010_Battery
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -60,23 +96,22 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2c8d56a4b1f47f29a0c6d38f7512b4e
+    m_Address: EconomyBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ed046d641c8d5a348b00bdb720940b73
     m_Address: CustomerAppearanceData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 7f4a19c06d8e42a3b57c91e5f0236dab
-    m_Address: MaintenanceBalanceData
+  - m_GUID: ff2c923cbd38d8f408f1263c99b8ea2b
+    m_Address: Product_1007_Bandage
     m_ReadOnly: 0
-    m_SerializedLabels:
-    - Datas
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e2c8d56a4b1f47f29a0c6d38f7512b4e
-    m_Address: EconomyBalanceData
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Datas
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 3d7d68aee2954494ba965a3f231eb7a8, type: 2}

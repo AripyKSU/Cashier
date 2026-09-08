@@ -10,15 +10,21 @@ public sealed class ProgressViewDataFactory
 {
     private readonly CustomerCatalog customerCatalog;
     private readonly TextDataTable textData;
+    private readonly IReadOnlyDictionary<uint, Sprite> productSprites;
 
     /// <summary>검증된 카탈로그와 텍스트 테이블로 변환기를 생성합니다.</summary>
     /// <param name="customerCatalog">손님과 상품 데이터의 권위 카탈로그입니다.</param>
     /// <param name="textData">표시 문자열의 권위 테이블입니다.</param>
+    /// <param name="productSprites">상품 ID별로 미리 로드된 표시 Sprite입니다.</param>
     /// <exception cref="ArgumentNullException">필수 데이터가 null인 경우 발생합니다.</exception>
-    public ProgressViewDataFactory(CustomerCatalog customerCatalog, TextDataTable textData)
+    public ProgressViewDataFactory(
+        CustomerCatalog customerCatalog,
+        TextDataTable textData,
+        IReadOnlyDictionary<uint, Sprite> productSprites)
     {
         this.customerCatalog = customerCatalog ?? throw new ArgumentNullException(nameof(customerCatalog));
         this.textData = textData ?? throw new ArgumentNullException(nameof(textData));
+        this.productSprites = productSprites ?? throw new ArgumentNullException(nameof(productSprites));
     }
 
     /// <summary>지정된 날짜에 판매 가능한 상품의 가격표 문자열을 만듭니다.</summary>
@@ -80,11 +86,16 @@ public sealed class ProgressViewDataFactory
                 ? productText.Text
                 : $"Product {item.ProductIdx}";
             int unitPrice = item.UnitPrice > int.MaxValue ? int.MaxValue : (int)item.UnitPrice;
+            if (!this.productSprites.TryGetValue(item.ProductIdx, out Sprite icon) || icon == null)
+            {
+                throw new InvalidOperationException($"상품 {item.ProductIdx}의 표시 Sprite가 준비되지 않았습니다.");
+            }
+
             basket.Add(new CustomerBasketItemViewData(
                 item.ProductIdx,
                 name,
                 item.Quantity,
-                null,
+                icon,
                 unitPrice));
         }
 
