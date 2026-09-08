@@ -48,6 +48,7 @@ public class BusinessTimerPresenter : MonoBehaviour
     /// <summary>
     /// 외부 영업시간 진행 시스템에서 전달된 시간 스냅샷을 기반으로 UI를 갱신합니다.
     /// </summary>
+    /// <param name="viewData">남은 시간과 입력 가능 상태를 담은 스냅샷입니다.</param>
     public void UpdateView(BusinessTimerViewData viewData)
     {
         if (this.timeSlider != null)
@@ -70,14 +71,19 @@ public class BusinessTimerPresenter : MonoBehaviour
 
         if (this.pauseButton != null && this.resumeButton != null)
         {
-            this.pauseButton.gameObject.SetActive(!viewData.IsPaused);
-            this.resumeButton.gameObject.SetActive(viewData.IsPaused);
+            this.pauseButton.gameObject.SetActive(viewData.CanPause);
+            this.resumeButton.gameObject.SetActive(viewData.CanResume);
         }
     }
 
     /// <summary>
     /// 코드로 동적 생성된 UI 요소를 바인딩할 때 사용하는 헬퍼 메서드
     /// </summary>
+    /// <param name="slider">시간 진행률을 표시하는 슬라이더입니다.</param>
+    /// <param name="textDisplay">남은 시간을 표시하는 텍스트입니다.</param>
+    /// <param name="pauseBtn">일시정지 요청 버튼입니다.</param>
+    /// <param name="resumeBtn">재개 요청 버튼입니다.</param>
+    /// <param name="pauseInd">일시정지 상태 표시 오브젝트입니다.</param>
     public void Bind(Slider slider, TextMeshProUGUI textDisplay, Button pauseBtn = null, Button resumeBtn = null, GameObject pauseInd = null)
     {
         this.timeSlider = slider;

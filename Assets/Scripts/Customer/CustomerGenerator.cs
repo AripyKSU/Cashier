@@ -50,7 +50,7 @@ public sealed class CustomerGenerator
             if (product.Value == null || product.Key != product.Value.Idx)
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
             product.Value.Validate();
-            if (product.Value.IsAvailable && product.Value.AvailableDay <= elapsedDays)
+            if (CustomerProductAvailability.IsAvailable(product.Value, elapsedDays))
                 availableProducts.Add(product.Key, product.Value);
         }
 

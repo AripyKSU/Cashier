@@ -250,8 +250,9 @@ public sealed class DayProgress
         bool wasAccepted = this.currentVisit.SubmitOffer(offeredTotal);
         if (wasAccepted)
         {
-            // 현재 TransactionResult는 재정 시스템의 임시 계약이므로 한 곳에서만 변환합니다.
-            this.applyAcceptedTransaction(offeredTotal);
+            // CustomerVisit의 판정 결과 중 확정 판매 값만 임시 재정 계약으로 변환합니다.
+            TransactionResult transactionResult = this.createTransactionResult(this.currentVisit);
+            this.applyTransactionResult(transactionResult);
             this.successfulSales = checked(this.successfulSales + 1);
         }
         else
@@ -418,11 +419,35 @@ public sealed class DayProgress
         this.SettlementStarted?.Invoke(this.aggregationResult.Value);
     }
 
-    /// <summary>수락된 거래를 현재 일일 재정 집계에 반영합니다.</summary>
-    /// <param name="offeredTotal">손님이 수락한 판매 가격입니다.</param>
-    private void applyAcceptedTransaction(long offeredTotal)
+    /// <summary>
+    /// CustomerVisit의 확정 판정에서 판매 수입만 현재 임시 TransactionResult로 변환합니다.
+    /// 거래 결과 계약이 확정되면 이 변환 지점을 함께 교체할 수 있도록 진행 로직의 경계를 유지합니다.
+    /// </summary>
+    /// <param name="visit">수락 판정이 완료된 손님 방문입니다.</param>
+    /// <returns>판매 수입과 현재 정책상 명성 변화량을 담은 거래 결과입니다.</returns>
+    /// <exception cref="ArgumentNullException">방문이 null인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">수락 또는 판매 금액이 확정되지 않은 경우 발생합니다.</exception>
+    private TransactionResult createTransactionResult(CustomerVisit visit)
     {
-        var transactionResult = new TransactionResult(offeredTotal, 0);
+        if (visit == null)
+        {
+            throw new ArgumentNullException(nameof(visit));
+        }
+
+        if (visit.State != CustomerState.Accepted || !visit.OfferedTotal.HasValue)
+        {
+            throw new InvalidOperationException("수락이 확정된 방문만 거래 결과로 변환할 수 있습니다.");
+        }
+
+        // 행복도·명성 규칙은 확정 전이므로 현재는 판매 값만 반영하고 명성 변화는 0으로 둡니다.
+        return new TransactionResult(visit.OfferedTotal.Value, 0);
+    }
+
+    /// <summary>변환된 거래 결과를 현재 일일 재정 집계에 반영합니다.</summary>
+    /// <param name="transactionResult">반영할 거래 결과입니다.</param>
+    /// <exception cref="InvalidOperationException">종료된 일일 집계에 반영하려는 경우 발생합니다.</exception>
+    private void applyTransactionResult(TransactionResult transactionResult)
+    {
         if (!this.economy.DailyAggregationService.TryApplyTransaction(transactionResult))
         {
             throw new InvalidOperationException("종료된 일일 집계에는 거래를 반영할 수 없습니다.");

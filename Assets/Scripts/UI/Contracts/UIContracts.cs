@@ -17,9 +17,10 @@ using UnityEngine;
 public enum GameDayPhase
 {
     PreOpen,         // 영업 전 (메인 허브)
-    PriceGuide,      // 가격표 안내
+    PriceGuide,      // 가격표 안내 (레거시 호환; 신규 진행은 PreOpen에 통합)
     Operating,       // 영업 진행 중 (손님 거래)
     TradingResult,   // 거래 결과 확인
+    Closing,         // 제한시간 만료 후 마지막 거래 마감
     DailySettlement, // 일일 정산
     Tribute          // 상납/공물
 }
@@ -69,12 +70,27 @@ public struct BusinessTimerViewData
     public float RemainingSeconds; // 현재 영업에 남은 시간(초)
     public float NormalizedTime;    // UI 게이지에 사용할 0~1 범위 진행값
     public bool IsPaused;          // 영업 시간이 일시정지된 상태인지 여부
+    public bool CanPause;          // 현재 진행 상태가 일시정지를 허용하는지 여부
+    public bool CanResume;         // 현재 진행 상태가 재개를 허용하는지 여부
 
-    public BusinessTimerViewData(float remainingSeconds, float normalizedTime, bool isPaused)
+    /// <summary>영업시간 표시와 입력 가능 상태를 생성합니다.</summary>
+    /// <param name="remainingSeconds">남은 영업시간(초)입니다.</param>
+    /// <param name="normalizedTime">게이지에 표시할 0~1 진행값입니다.</param>
+    /// <param name="isPaused">현재 일시정지 여부입니다.</param>
+    /// <param name="canPause">일시정지 입력 허용 여부입니다.</param>
+    /// <param name="canResume">재개 입력 허용 여부입니다.</param>
+    public BusinessTimerViewData(
+        float remainingSeconds,
+        float normalizedTime,
+        bool isPaused,
+        bool canPause,
+        bool canResume)
     {
         this.RemainingSeconds = remainingSeconds;
         this.NormalizedTime = normalizedTime;
         this.IsPaused = isPaused;
+        this.CanPause = canPause;
+        this.CanResume = canResume;
     }
 }
 

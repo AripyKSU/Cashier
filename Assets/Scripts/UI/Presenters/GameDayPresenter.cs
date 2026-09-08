@@ -64,6 +64,7 @@ public class GameDayPresenter : MonoBehaviour
             GameDayPhase.PriceGuide => "Catalog Briefing",
             GameDayPhase.Operating => "Shop Open",
             GameDayPhase.TradingResult => "Trade Result",
+            GameDayPhase.Closing => "Closing",
             GameDayPhase.DailySettlement => "Daily Settlement",
             GameDayPhase.Tribute => "Tribute Due",
             _ => phase.ToString()
