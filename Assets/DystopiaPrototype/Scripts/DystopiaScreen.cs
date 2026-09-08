@@ -6,8 +6,21 @@ using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 /// <summary>전용 Scene의 독립 Sprite 화면, 실제 버튼 입력 및 런 수명을 관리합니다.</summary>
-public sealed class DystopiaScreen : MonoBehaviour
+public sealed partial class DystopiaScreen : MonoBehaviour
 {
+    /// <summary>외형별 호흡 연출 분류입니다. 게임 능력이나 건강 판정에는 사용하지 않습니다.</summary>
+    private enum BreathStyle { Normal, Heavy, Elderly }
+    /// <summary>남성 Sprite 배열과 같은 순서의 호흡 분류입니다.</summary>
+    [SerializeField] private BreathStyle[] maleBreathing = {
+        BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Elderly, BreathStyle.Normal, BreathStyle.Heavy, BreathStyle.Normal,
+        BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Heavy, BreathStyle.Heavy, BreathStyle.Elderly, BreathStyle.Normal,
+        BreathStyle.Heavy, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Heavy, BreathStyle.Normal,
+        BreathStyle.Heavy, BreathStyle.Elderly, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Heavy };
+    /// <summary>여성 Sprite 배열과 같은 순서의 호흡 분류입니다.</summary>
+    [SerializeField] private BreathStyle[] femaleBreathing = {
+        BreathStyle.Normal, BreathStyle.Heavy, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Elderly, BreathStyle.Normal,
+        BreathStyle.Elderly, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Heavy, BreathStyle.Normal,
+        BreathStyle.Elderly, BreathStyle.Normal, BreathStyle.Normal, BreathStyle.Heavy };
     /// <summary>탑다운 계산기와 정면 시계에 공유하는 사용자 제공 UI 이미지입니다.</summary>
     [SerializeField] private Sprite calculatorArtwork, calculatorToggleArtwork, counterClockArtwork;
     public Sprite CalculatorArtwork => calculatorArtwork;
@@ -71,6 +84,8 @@ public sealed class DystopiaScreen : MonoBehaviour
     private DystopiaCustomer displayedCustomer;
     private Coroutine queueMovement;
     private readonly Vector2[] idleOrigins = new Vector2[3];
+    // 숨쉬기와 줄 이동 애니메이션은 편집된 원래 크기에 상대적으로 적용합니다.
+    private readonly Vector3[] placedPeopleScales = { Vector3.one, Vector3.one, Vector3.one };
     // 일시정지 중에는 누적하지 않는 시각 연출 전용 경과 시간(초)입니다.
     private float idleSeconds;
     /// <summary>씬 수명 동안 줄별·인물 위치별 움직임을 갱신할 군중 이미지입니다.</summary>
@@ -135,6 +150,7 @@ public sealed class DystopiaScreen : MonoBehaviour
     /// <summary>Windows PC 프로토타입의 설치된 한글 폰트와 UI를 구성합니다.</summary>
     private void Awake()
     {
+        if (Session != null) return;
 #if UNITY_EDITOR
         BindEditorSmokeFrames();
         // 이미 열려 있던 씬의 신규 참조만 보완하며 Inspector의 기존 연결은 유지합니다.
@@ -201,12 +217,9 @@ public sealed class DystopiaScreen : MonoBehaviour
         StopAllCoroutines();
         queueMovement = null;
         displayedCustomer = null;
-        foreach (Transform child in transform)
-        {
-            if (child.name != "DystopiaCanvas" && child.name != "DystopiaEventSystem") continue;
-            child.gameObject.SetActive(false);
-            Destroy(child.gameObject);
-        }
+        // 저장된 배치는 보존하고 동적인 장바구니만 다시 구성합니다.
+        var savedBasket = transform.Find("DystopiaCanvas/Basket");
+        if (savedBasket != null) ClearChildren(savedBasket);
         if (ownsRuntimeFont && font != null) Destroy(font);
         ownsRuntimeFont = false;
         Awake();
@@ -217,7 +230,7 @@ public sealed class DystopiaScreen : MonoBehaviour
     private void OnDestroy() { if (ownsRuntimeFont && font != null) Destroy(font); }
 
     /// <summary>군중·손님의 대기 동작과 경비병의 좌우 경계·간헐적인 외곽 사격을 갱신합니다.</summary>
-    private void AnimatePeople()
+    internal void AnimatePeople()
     {
         if (Session.IsPaused) return;
         idleSeconds += Time.unscaledDeltaTime;
@@ -258,12 +271,25 @@ public sealed class DystopiaScreen : MonoBehaviour
         for (int i = 0; i < idlePeople.Length; i++)
         {
             if (queueMovement != null) continue;
-            float cycle = Mathf.Repeat(idleSeconds / (2.8f + (i + 1) * .25f) + (i + 1) * .27f, 1);
-            float breath = cycle < .3f ? cycle / .3f : 1 - (cycle - .3f) / .7f;
-            breath = Mathf.SmoothStep(0, 1, breath);
-            // 중심·하단 pivot을 유지해 좌우 이동 없이 어깨가 내려앉고 몸이 조금 수축합니다.
-            idlePeople[i].anchoredPosition = idleOrigins[i];
-            idlePeople[i].localScale = new Vector3(Mathf.Lerp(.995f, 1, breath), Mathf.Lerp(.982f, 1, breath), 1);
+            var sprite = idlePeople[i].GetComponent<Image>().sprite;
+            int maleIndex = Array.IndexOf(maleCustomers, sprite);
+            int femaleIndex = Array.IndexOf(femaleCustomers, sprite);
+            BreathStyle style = maleIndex >= 0 && maleIndex < maleBreathing.Length ? maleBreathing[maleIndex] :
+                femaleIndex >= 0 && femaleIndex < femaleBreathing.Length ? femaleBreathing[femaleIndex] : BreathStyle.Normal;
+            float seed = (maleIndex >= 0 ? maleIndex + 1 : femaleIndex + 31) * .618f + i * .37f;
+            float variation = Mathf.Repeat(seed, 1);
+            float period = (style == BreathStyle.Heavy ? 1.75f : style == BreathStyle.Elderly ? 3.7f : 2.9f) * Mathf.Lerp(.88f, 1.12f, variation);
+            float cycle = Mathf.Repeat(idleSeconds / period + seed, 1);
+            float inhale = style == BreathStyle.Elderly ? .25f : .38f;
+            float breath = Mathf.SmoothStep(0, 1, cycle < inhale ? cycle / inhale : 1 - (cycle - inhale) / (1 - inhale));
+            // 노년형은 짧게 들이쉬고 길게 내려앉으며 호기 중 작은 떨림을 더합니다.
+            if (style == BreathStyle.Elderly) breath = Mathf.Clamp01(breath + Mathf.Sin(idleSeconds * 8f + seed) * .045f * (1 - breath));
+            float depth = style == BreathStyle.Elderly ? .035f : style == BreathStyle.Heavy ? .028f : .018f;
+            float width = style == BreathStyle.Heavy ? .022f : .007f;
+            float relativeSize = idlePeople[i].rect.height / 550f;
+            float sway = Mathf.Sin(idleSeconds / period * 2.1f + seed) * (style == BreathStyle.Elderly ? .7f : .3f);
+            idlePeople[i].anchoredPosition = idleOrigins[i] + new Vector2(sway, (breath - .5f) * (style == BreathStyle.Elderly ? 5f : 3f) * relativeSize);
+            idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i], new Vector3(1 + (breath - .5f) * width, 1 - (1 - breath) * depth, 1));
         }
     }
 
@@ -323,6 +349,7 @@ public sealed class DystopiaScreen : MonoBehaviour
     /// <summary>16:9 기준 좌표의 배경·독립 인물·가판·UI를 만듭니다.</summary>
     private void BuildScreen()
     {
+        if (BindPlacedScreen()) return;
         var canvasObject = new GameObject("DystopiaCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
         canvasObject.transform.SetParent(transform, false);
         var canvas = canvasObject.GetComponent<Canvas>();
@@ -419,6 +446,7 @@ public sealed class DystopiaScreen : MonoBehaviour
         Panel(root,"Register",947,405,305,300,new Color(.045f,.065f,.075f,.97f));
         Label(root,"PriceHeading","받을 금액",962,416,120,23,16);
         dailyInstructionButton = MakeButton(root,"DailyInstructionButton","오늘 지침",1110,413,127,28,OpenDailyInstruction,14);
+        dailyInstructionButton.gameObject.SetActive(false);
         inputText = Label(root,"PriceInput","금액 입력",962,443,276,40,30);
         for (int i = 1; i <= 9; i++)
         {
@@ -539,7 +567,7 @@ public sealed class DystopiaScreen : MonoBehaviour
         // 실제 접지점이 가까운 상품을 나중에 그려 겹침의 앞뒤 관계를 맞춥니다.
         Array.Sort(placedItems, (a, b) => b.anchoredPosition.y.CompareTo(a.anchoredPosition.y));
         foreach (var item in placedItems) item.SetAsLastSibling();
-        if (modal != null) { modal.gameObject.SetActive(false); Destroy(modal.gameObject); }
+        if (modal != null) { modal.gameObject.SetActive(false); }
         modal = null;
         if (Session.IsPaused)
         {
@@ -604,7 +632,7 @@ public sealed class DystopiaScreen : MonoBehaviour
                 Vector2 start = i == 2 ? idleOrigins[0] : i == 0 ? idleOrigins[1] : idleOrigins[1] + new Vector2(-65, 12);
                 float size = i == 2 ? 340f / 550 : i == 0 ? 240f / 340 : .8f;
                 idlePeople[i].anchoredPosition = Vector2.Lerp(start, idleOrigins[i], t);
-                idlePeople[i].localScale = Vector3.one * Mathf.Lerp(size, 1, t);
+                idlePeople[i].localScale = placedPeopleScales[i] * Mathf.Lerp(size, 1, t);
             }
             yield return null;
         }
@@ -867,12 +895,26 @@ public sealed class DystopiaScreen : MonoBehaviour
     /// <summary>자식들을 즉시 숨긴 뒤 프레임 끝에 해제합니다.</summary>
     private void ClearChildren(Transform parent)
     {
-        foreach(Transform child in parent) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
+        for(int i=parent.childCount-1;i>=0;i--)
+        {
+            var child=parent.GetChild(i).gameObject; child.SetActive(false);
+            if(Application.isPlaying) Destroy(child); else DestroyImmediate(child);
+        }
     }
 
     /// <summary>좌상단 기준의 고정 reference-resolution 영역을 만듭니다.</summary>
     private RectTransform Rect(Transform parent,string name,float x,float y,float width,float height)
     {
+        bool isBasketItem = basketRoot != null && (parent == basketRoot || parent.IsChildOf(basketRoot));
+        var existing = isBasketItem ? null : parent.Find(name) as RectTransform;
+        if (existing != null)
+        {
+            if (parent == root && (name == "DailyInstruction" || name == "DailyLedger" || name == "Modal"))
+                foreach (Transform child in existing.GetComponentsInChildren<Transform>(true))
+                    if (child != existing) child.gameObject.SetActive(false);
+            existing.gameObject.SetActive(true);
+            return existing;
+        }
         var rect=new GameObject(name,typeof(RectTransform)).GetComponent<RectTransform>();
         rect.SetParent(parent,false); rect.anchorMin=rect.anchorMax=new Vector2(0,1); rect.pivot=new Vector2(0,1);
         rect.anchoredPosition=new Vector2(x,-y); rect.sizeDelta=new Vector2(width,height);
@@ -882,14 +924,18 @@ public sealed class DystopiaScreen : MonoBehaviour
     /// <summary>단색 UI 영역을 만듭니다.</summary>
     private Image Panel(Transform parent,string name,float x,float y,float width,float height,Color color)
     {
-        var image=Rect(parent,name,x,y,width,height).gameObject.AddComponent<Image>(); image.color=color; image.raycastTarget=false; return image;
+        var rect=Rect(parent,name,x,y,width,height);
+        var image=rect.GetComponent<Image>();
+        if (image == null) { image=rect.gameObject.AddComponent<Image>(); image.color=color; image.raycastTarget=false; }
+        return image;
     }
 
     /// <summary>독립적인 Sprite 참조를 UI에 표시합니다.</summary>
     private Image Picture(Transform parent,string name,Sprite sprite,float x,float y,float width,float height,bool preserve)
     {
-        var image=Panel(parent,name,x,y,width,height,Color.white); image.sprite=sprite; image.preserveAspect=preserve;
-        if(sprite==null) image.color=Color.clear;
+        var image=Panel(parent,name,x,y,width,height,Color.white);
+        if (image.sprite == null) { image.sprite=sprite; image.preserveAspect=preserve; }
+        if(image.sprite==null) image.color=Color.clear;
         return image;
     }
 
@@ -905,8 +951,13 @@ public sealed class DystopiaScreen : MonoBehaviour
     /// <summary>한국어 텍스트를 이미지와 분리하여 표시합니다.</summary>
     private Text Label(Transform parent,string name,string value,float x,float y,float width,float height,int size,Color? color=null)
     {
-        var text=Rect(parent,name,x,y,width,height).gameObject.AddComponent<Text>(); text.font=font; text.text=value; text.fontSize=size;
-        text.color=color??new Color(.91f,.93f,.91f); text.raycastTarget=false; text.verticalOverflow=VerticalWrapMode.Overflow;
+        var rect=Rect(parent,name,x,y,width,height);
+        var text=rect.GetComponent<Text>();
+        bool created=text==null;
+        if (created) { text=rect.gameObject.AddComponent<Text>(); text.font=font; text.fontSize=size; }
+        text.text=value;
+        if (created) text.color=color??new Color(.91f,.93f,.91f);
+        text.raycastTarget=false; text.verticalOverflow=VerticalWrapMode.Overflow;
         return text;
     }
 
@@ -914,8 +965,13 @@ public sealed class DystopiaScreen : MonoBehaviour
     private Button MakeButton(Transform parent,string name,string value,float x,float y,float width,float height,UnityEngine.Events.UnityAction action,int size)
     {
         var image=Panel(parent,name,x,y,width,height,Color.white); image.raycastTarget=true;
-        var button=image.gameObject.AddComponent<Button>(); button.targetGraphic=image;
-        var colors=button.colors; colors.normalColor=new Color(.19f,.25f,.28f); colors.highlightedColor=new Color(.30f,.39f,.42f); colors.pressedColor=new Color(.42f,.50f,.51f); button.colors=colors;
+        var button=image.GetComponent<Button>();
+        if (button == null)
+        {
+            button=image.gameObject.AddComponent<Button>();
+            var colors=button.colors; colors.normalColor=new Color(.19f,.25f,.28f); colors.highlightedColor=new Color(.30f,.39f,.42f); colors.pressedColor=new Color(.42f,.50f,.51f); button.colors=colors;
+        }
+        button.onClick.RemoveAllListeners(); button.targetGraphic=image;
         button.navigation=new Navigation {mode=Navigation.Mode.None}; button.onClick.AddListener(action);
         var label=Label(image.transform,"Label",value,4,0,width-8,height,size); label.alignment=TextAnchor.MiddleCenter;
         return button;

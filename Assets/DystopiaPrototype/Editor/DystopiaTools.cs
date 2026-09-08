@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using UnityEditor.U2D.Sprites;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -8,6 +10,90 @@ using UnityEngine.SceneManagement;
 /// <summary>승인된 전용 경로에서만 Scene을 제작하고 검사하는 Editor 진입점입니다.</summary>
 public static class DystopiaTools
 {
+    /// <summary>프리팹 내부 대사를 박스의 자식으로 저장합니다.</summary>
+    [MenuItem("Dystopia/Fix Dialogue Prefab Layout")]
+    public static void FixDialoguePrefabLayout()
+    {
+        const string path = "Assets/DystopiaPrototype/Prefabs/FrontView.prefab";
+        var root = PrefabUtility.LoadPrefabContents(path);
+        try
+        {
+            var panel = root.GetComponentsInChildren<UnityEngine.UI.Image>(true).Single(x => x.name == "DialoguePanel");
+            var text = root.GetComponentsInChildren<UnityEngine.UI.Text>(true).Single(x => x.name == "Dialogue");
+            var rect = text.rectTransform;
+            rect.SetParent(panel.transform, false);
+            rect.localScale = Vector3.one; rect.localRotation = Quaternion.identity;
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one; rect.pivot = new Vector2(.5f,.5f);
+            rect.anchoredPosition = Vector2.zero; rect.sizeDelta = new Vector2(-36,-20);
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true; text.resizeTextMinSize = 12; text.resizeTextMaxSize = text.fontSize;
+            PrefabUtility.SaveAsPrefabAsset(root,path);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
+    }
+    /// <summary>사용자 대사창을 9-slice Sprite로 임포트하고 대사를 박스 중앙에 연결합니다.</summary>
+    [MenuItem("Dystopia/Apply Dialogue Frame")]
+    public static void ApplyDialogueFrame()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
+        const string path = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
+        AssetDatabase.ImportAsset(path);
+        var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+        importer.textureType = TextureImporterType.Sprite;
+        importer.spriteImportMode = SpriteImportMode.Multiple;
+        importer.spritePixelsPerUnit = 100;
+        importer.filterMode = FilterMode.Point;
+        importer.mipmapEnabled = false;
+        importer.textureCompression = TextureImporterCompression.Uncompressed;
+        importer.maxTextureSize = 4096;
+        importer.SaveAndReimport();
+        var factory = new SpriteDataProviderFactories();
+        factory.Init();
+        var provider = factory.GetSpriteEditorDataProviderFromObject(importer);
+        provider.InitSpriteEditorDataProvider();
+        var old = provider.GetSpriteRects();
+        var rect = new SpriteRect { name = "DialogueFrame", rect = new Rect(78, 212, 2016, 306), pivot = new Vector2(.5f,.5f), alignment = SpriteAlignment.Center,
+            border = new Vector4(48,48,48,48), spriteID = old.Length > 0 ? old[0].spriteID : GUID.Generate() };
+        provider.SetSpriteRects(new[] { rect });
+        provider.GetDataProvider<ISpriteNameFileIdDataProvider>().SetNameFileIdPairs(new[] { new SpriteNameFileIdPair(rect.name, rect.spriteID) });
+        provider.Apply();
+        importer.SaveAndReimport();
+        var sprite = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().Single();
+        int count = 0;
+        foreach (var image in UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Image>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (image.name != "DialoguePanel") continue;
+            var text = image.transform.parent.Find("Dialogue")?.GetComponent<UnityEngine.UI.Text>();
+            if (text == null) text = image.GetComponentInChildren<UnityEngine.UI.Text>(true);
+            if (text == null) continue;
+            Undo.RecordObject(image, "Apply dialogue frame");
+            image.sprite = sprite; image.type = UnityEngine.UI.Image.Type.Sliced;
+            image.preserveAspect = false; image.pixelsPerUnitMultiplier = 4;
+            image.color = Color.white; image.raycastTarget = false;
+            Undo.SetTransformParent(text.transform, image.transform, "Center dialogue");
+            text.rectTransform.localScale = Vector3.one;
+            text.rectTransform.localRotation = Quaternion.identity;
+            text.rectTransform.pivot = new Vector2(.5f,.5f);
+            text.rectTransform.anchorMin = Vector2.zero; text.rectTransform.anchorMax = Vector2.one;
+            text.rectTransform.offsetMin = new Vector2(18,10); text.rectTransform.offsetMax = new Vector2(-18,-10);
+            text.alignment = TextAnchor.MiddleCenter;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Truncate;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMaxSize = text.fontSize;
+            text.resizeTextMinSize = Mathf.Min(12, text.fontSize);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(image);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(text);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(text.rectTransform);
+            EditorUtility.SetDirty(image); EditorUtility.SetDirty(text);
+            EditorSceneManager.MarkSceneDirty(image.gameObject.scene);
+            count++;
+        }
+        if (count == 0) throw new InvalidOperationException("No dialogue panels found in the open scene.");
+        EditorSceneManager.SaveOpenScenes();
+        Debug.Log($"Dialogue 9-slice applied: {count} centered panels.");
+    }
     private const string Root = "Assets/DystopiaPrototype/";
     private const string ScenePath = Root + "Scenes/DystopiaVerticalSlice.unity";
     private static readonly string[] Products = {"Water","Crackers","Can","Rice","Bandage","Painkiller","Battery","Soap","Mask","Fuel"};
@@ -172,6 +258,22 @@ public class DystopiaLayoutInspector : Editor
     /// <summary>실제 배치 소유자의 값을 편집하고 1280×720 미리보기를 즉시 그립니다.</summary>
     public override void OnInspectorGUI()
     {
+        var component = (MonoBehaviour)target;
+        if (component.transform.Find("DystopiaCanvas") != null || component.transform.Find("TopDownTestCanvas") != null)
+        {
+            EditorGUILayout.HelpBox("배치는 Hierarchy의 실제 오브젝트에서 Rect Transform / Image로 편집합니다. 판매·제외 영역은 TopDownCheckout의 Box Collider 2D를 편집하세요. 물품 크기·이미지는 Prefabs/Product0~3에서 바꿀 수 있습니다.", MessageType.Info);
+            if (!Application.isPlaying)
+            {
+                if (GUILayout.Button("정면 배치 표시")) DystopiaSceneLayout.ShowLayout(false);
+                if (GUILayout.Button("탑다운 배치 표시")) DystopiaSceneLayout.ShowLayout(true);
+                if (GUILayout.Button("지침서 배치 표시")) DystopiaSceneLayout.ShowDocument("DailyInstruction");
+                if (GUILayout.Button("가계부 배치 표시")) DystopiaSceneLayout.ShowDocument("DailyLedger");
+            }
+            serializedObject.Update();
+            DrawPropertiesExcluding(serializedObject, "calculatorLayout", "calculatorToggleLayout", "counterClockLayout");
+            serializedObject.ApplyModifiedProperties();
+            return;
+        }
         var topDown = target as DystopiaTopDownTest;
         UnityEngine.Object owner = topDown != null && topDown.LayoutOwner != null ? topDown.LayoutOwner : target;
         var layoutObject = owner == target ? serializedObject : new SerializedObject(owner);
@@ -223,3 +325,37 @@ public class DystopiaLayoutInspector : Editor
 /// <summary>독립 탑다운 Scene에서도 동일한 배치 편집과 미리보기를 제공합니다.</summary>
 [CustomEditor(typeof(DystopiaTopDownTest))]
 public sealed class DystopiaTopDownLayoutInspector : DystopiaLayoutInspector { }
+
+/// <summary>Scene에 저장된 정면과 탑다운 배치의 편집 표시를 전환합니다.</summary>
+public static class DystopiaSceneLayout
+{
+    /// <summary>편집 화면 표시만 바꾸며 실행 시에는 세션이 표시 상태를 결정합니다.</summary>
+    public static void ShowLayout(bool topDown)
+    {
+        var screen=UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>(FindObjectsInactive.Include);
+        var top=UnityEngine.Object.FindFirstObjectByType<DystopiaTopDownTest>(FindObjectsInactive.Include);
+        if (screen == null || top == null) return;
+        screen.transform.Find("DystopiaCanvas").gameObject.SetActive(!topDown);
+        foreach(string name in new[]{"DailyInstruction","DailyLedger","Modal"})
+            screen.transform.Find("DystopiaCanvas/"+name).gameObject.SetActive(false);
+        top.transform.Find("TopDownCamera").gameObject.SetActive(topDown);
+        top.transform.Find("TopDownWorkbench").gameObject.SetActive(topDown);
+        var canvas=top.transform.Find("TopDownTestCanvas");
+        canvas.Find("FrontView").gameObject.SetActive(!topDown);
+        canvas.Find("CounterClock").gameObject.SetActive(!topDown);
+        canvas.Find("WorkViewUI").gameObject.SetActive(topDown);
+        canvas.Find("WorkViewUI/PouringContainer").gameObject.SetActive(topDown);
+        SceneView.RepaintAll();
+    }
+
+    /// <summary>저장된 지침서 또는 가계부를 선택해 편집할 수 있도록 표시합니다.</summary>
+    /// <param name="name">정면 Canvas의 문서 오브젝트 이름입니다.</param>
+    public static void ShowDocument(string name)
+    {
+        ShowLayout(false);
+        var screen=UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>(FindObjectsInactive.Include);
+        screen.transform.Find("DystopiaCanvas/"+name).gameObject.SetActive(true);
+        SceneView.RepaintAll();
+    }
+
+}

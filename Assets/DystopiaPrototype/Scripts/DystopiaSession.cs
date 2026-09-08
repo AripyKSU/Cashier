@@ -346,9 +346,9 @@ public sealed class DystopiaSession
         LastCancelled = false;
         Gauge = settings.gaugeStart;
         Feedback = Reason = "";
-        Customer = CreateCustomer();
+        Customer = CreateCustomer(Customer);
         waitingCustomers.Clear();
-        for (int i = 1; i < Visitors; i++) waitingCustomers.Add(CreateCustomer());
+        for (int i = 1; i < Visitors; i++) waitingCustomers.Add(CreateCustomer(i == 1 ? Customer : waitingCustomers[i - 2]));
         Phase = DystopiaPhase.PriceGuide;
         Revision++;
     }
@@ -367,14 +367,19 @@ public sealed class DystopiaSession
         Revision++;
     }
 
-    /// <summary>導入済み商品の重複しない組合せと客の経済状況を生成します。</summary>
+    /// <summary>앞 손님과 다른 외형을 선택하고 구매 품목과 경제 상황을 생성합니다.</summary>
+    /// <param name="previous">실제 대기 순서에서 바로 앞에 있는 손님입니다. 첫 생성에는 null입니다.</param>
     /// <returns>購入商品と非公開予算を持つ客。</returns>
-    private DystopiaCustomer CreateCustomer()
+    private DystopiaCustomer CreateCustomer(DystopiaCustomer previous)
     {
         var customer = new DystopiaCustomer { isPoor = random.NextDouble() < settings.poorChance };
         int toleranceType = customer.isPoor ? 0 : random.Next(1, 4);
         customer.IsMale = random.Next(2) == 0;
-        customer.appearance = random.Next(customer.IsMale ? MaleAppearanceCount : FemaleAppearanceCount);
+        int appearanceCount = customer.IsMale ? MaleAppearanceCount : FemaleAppearanceCount;
+        bool skipPrevious = previous != null && previous.IsMale == customer.IsMale;
+        // 이전 외형을 후보에서 제외하여 재추첨 반복 없이 연속 중복을 막습니다.
+        customer.appearance = random.Next(appearanceCount - (skipPrevious ? 1 : 0));
+        if (skipPrevious && customer.appearance >= previous.appearance) customer.appearance++;
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
         int count = random.Next(1, Day < 3 ? 3 : 4);

@@ -12,6 +12,47 @@ using UnityEngine.SceneManagement;
 [InitializeOnLoad]
 public static class DystopiaTopDownTestTools
 {
+    /// <summary>현재 가판 Scene에 사용자 구분봉을 임포트·배치하고 입력 참조를 연결합니다.</summary>
+    [MenuItem("Dystopia/Connect Divider Bar")]
+    public static void ConnectDividerBar()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode before connecting the saved divider.");
+        var checkout = UnityEngine.Object.FindFirstObjectByType<DystopiaTopDownTest>(FindObjectsInactive.Include);
+        if (checkout == null) throw new InvalidOperationException("Open the checkout scene first.");
+        const string path = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
+        AssetDatabase.ImportAsset(path);
+        var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+        importer.textureType = TextureImporterType.Sprite;
+        importer.spriteImportMode = SpriteImportMode.Single;
+        importer.spritePixelsPerUnit = 500;
+        importer.filterMode = FilterMode.Point;
+        importer.mipmapEnabled = false;
+        importer.textureCompression = TextureImporterCompression.Uncompressed;
+        importer.SaveAndReimport();
+        var existing = checkout.transform.Find("DividerBar");
+        var go = existing != null ? existing.gameObject : new GameObject("DividerBar");
+        if (existing == null) { Undo.RegisterCreatedObjectUndo(go, "Connect divider"); go.transform.SetParent(checkout.transform, false); }
+        var controller = go.GetComponent<DividerBarController2D>() ?? go.AddComponent<DividerBarController2D>();
+        var renderer = go.GetComponent<SpriteRenderer>();
+        renderer.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        renderer.sortingOrder = 100;
+        var capsule = go.GetComponent<CapsuleCollider2D>();
+        capsule.direction = CapsuleDirection2D.Horizontal;
+        capsule.size = new Vector2(3.1f, .32f);
+        var fields = new SerializedObject(controller);
+        fields.FindProperty("pushableLayers").intValue = 1;
+        fields.FindProperty("useMovementBounds").boolValue = true;
+        var bounds = checkout.transform.Find("MovementArea").GetComponent<BoxCollider2D>().bounds;
+        fields.FindProperty("minWorldPosition").vector2Value = bounds.min;
+        fields.FindProperty("maxWorldPosition").vector2Value = bounds.max;
+        fields.ApplyModifiedProperties();
+        var owner = new SerializedObject(checkout);
+        owner.FindProperty("dividerBar").objectReferenceValue = controller;
+        owner.ApplyModifiedProperties();
+        EditorSceneManager.MarkSceneDirty(checkout.gameObject.scene);
+        EditorSceneManager.SaveScene(checkout.gameObject.scene);
+        Debug.Log("Divider connected: sprite, collider, bounds and checkout input saved.", go);
+    }
     private const string TestRoot = "Assets/DystopiaPrototype/TopDownTest";
     private const string ScenePath = TestRoot + "/Scenes/DystopiaTopDownTest.unity";
     private const string EvidencePath = TestRoot + "/Evidence/TopDownPlayVerification.txt";
