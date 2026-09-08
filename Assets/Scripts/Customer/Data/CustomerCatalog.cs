@@ -65,6 +65,9 @@ public sealed class CustomerCatalog
             }
             foreach (var pair in Dispositions.PendingRows)
             {
+                foreach (uint idx in pair.Value.PreferredProductIdxs)
+                    if (!Products.PendingRows.ContainsKey(idx))
+                        throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, preferred_product_idxs FK={idx} -> ProductData.idx 참조 실패");
                 foreach (uint idx in new[] { pair.Value.QueueWarningTextIdx, pair.Value.QueueLeaveTextIdx })
                     if (!texts.PendingRows.ContainsKey(idx))
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, queue dialog FK={idx} -> TextData.idx 참조 실패");

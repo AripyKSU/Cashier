@@ -81,8 +81,15 @@ reject("queue leave FK", c => c.Dispositions.LoadData(disposition.Replace("12,80
 reject("queue header", c => c.Dispositions.LoadData(disposition.Replace("queue_patience_seconds", "missing_queue_patience")));
 reject("cost header", c => c.Products.LoadData(product.Replace("cost_price", "missing_cost")));
 reject("zero cost", c => c.Products.LoadData(product.Replace("1001,8012,1,1,100,0,,50", "1001,8012,1,1,100,0,,0")));
-if (rejected != 38 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
-return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=38/38, enum/dialog/image/price/cost/day/routing/queue checked, resources=" + resourceCount + "; expected LogError=38";
+reject("type header", c => c.Dispositions.LoadData(disposition.Replace("disposition_type", "missing_type")));
+reject("product preference header", c => c.Dispositions.LoadData(disposition.Replace("preferred_product_idxs", "missing_products")));
+foreach(string badType in new[]{"0","5","99","Normal",""})
+ reject("type "+badType,c=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,"+badType+",")));
+foreach(string badProducts in new[]{"0","1001_1001","1999"})
+ reject("preferred product "+badProducts,c=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,1,"+badProducts)));
+if(!valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.DispositionType).SequenceEqual(new[]{CustomerDispositionType.Normal,CustomerDispositionType.Hasty,CustomerDispositionType.PriceSensitive}) || valid.Dispositions.Rows.Values.Any(x=>x.PreferredProductIdxs.Count!=0))throw new Exception("Profile migration");
+if (rejected != 48 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
+return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=48/48, enum/dialog/image/price/cost/day/routing/queue/profile checked, resources=" + resourceCount + "; expected LogError=48";
 '@
 $result = $checkCode | & unity-cli exec 2>&1
 $result | ForEach-Object { Write-Output $_ }

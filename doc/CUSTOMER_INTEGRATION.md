@@ -4,6 +4,19 @@
 
 ## 1. 통합 범위와 책임
 
+### 성향 타입·개별 상품 선호·방문 속성 (2차)
+
+- `CustomerDispositionType`은 None=0(사용 금지), Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4다. 마지막 `CustomerDispositionType_End`는 자동 증가 종료 표식이며 데이터로 사용하지 않는다.
+- 기존 성향 CSV 끝에 `disposition_type`, `preferred_product_idxs`를 순서대로 추가했다. 기존 6001/6002/6003은 각각 1/2/3으로 매핑하며 다른 셀·PK·대사·가격·대기 수치는 보존한다. Wealthy는 타입만 정의하며 실제 행이 없어 등장하지 않는다.
+- `disposition_type`은 필수 uint 숫자로 읽고 검증한 enum을 `DispositionType`으로 제공한다. 빈값·문자열·None·종료값·미정의 값은 거부한다. `preferred_product_idxs`는 필수 header, 빈 셀은 선호 없음이며 기존 `UIntArrayConverter`의 `_` 구분 uint 배열을 사용한다. 0·중복·null과 ProductData.idx FK 누락은 거부한다. 기존 세 행은 빈 셀이다.
+- 추첨은 실제 후보 타입을 정렬해 균등 선택한 뒤 그 타입의 설정을 Idx 순으로 정렬해 균등 선택한다. 따라서 타입별 행 개수는 타입 출현율을 바꾸지 않는다. 같은 seed·외형 후보 순서·후보 집합에서 재현되며 데이터·추첨 방식 변경 전 버전과의 난수열 호환은 보장하지 않는다.
+- 선호 풀은 품목 `preferred_product_types` **OR** 개별 `preferred_product_idxs`다. 둘 다 해당해도 상품은 한 번만 포함된다. 비활성·미등장 상품 제외, 기존 0~1000 선호 확률과 한쪽 풀 소진 시 fallback은 유지한다.
+- `CustomerAttributes`는 Male=1/Female=2 중 하나와 성인(연령 비트 없음)/Child=4/Elderly=8 중 하나를 각각 균등 추첨한 6조합이다. 외형·성향과 독립이다. None=0은 표현만 허용하고 생성하지 않는다. 미정의 비트, 남녀 동시 또는 아이·노인 동시는 거부한다.
+- 방문의 getter-only `DispositionType`·`Attributes`는 생성 시 값 복사이며 원본 DTO 변경에 영향받지 않는다. 타입·속성으로 가격 허용도·대기 시간을 자동 보정하지 않는다. 기존 UI는 PK 표시를 유지하며 새 정보는 공개 API로 조회한다.
+- 배포 시 CSV와 DTO·생성기를 함께 반영한다. 구형 header는 오류로 차단한다. 런타임 저장 형식은 추가하지 않았다. 복구 시 이 스키마 변경과 소비자를 함께 되돌리고 기존 자산 GUID를 유지한다.
+- 검사: `Tools/Check-CustomerGenerator.ps1`은 타입별 3:1 설정 후보의 타입 균등성·행 균등성, 같은 외형의 6속성, OR 선호·중복·미등장 제외·스냅샷과 기존 최종 거래를 검사한다. `Tools/Check-CustomerCsv.ps1`은 새 header/enum/FK를 포함해 48개 오류를 거부한다(의도된 LogError 48건).
+- 2차 검증(2026-09-08): compile failed=False, 생성기 선호 9014/10000·Normal 5936/12000, CSV 48/48, Queue·PriceEvents 통과. InitScene → GameplaySandbox의 initialized=True 확인 후 CustomerOutcomes(실제 UI 4판정·대사·매출·중복 방지) 및 별도 새 Play 세션의 RadioTiming 통과, 각 Console 오류 0건. 초기 연결 heartbeat 지연으로 준비 조회가 늦었지만 복구 후 새 세션에서 검사했다. MainScene 자산 및 구형 CustomerSandbox UI는 이번에 실행하지 않았다. Play 종료와 runInBackground 원래 값 복원을 확인했다.
+
 ### 제출 시 거래 확정 계약
 
 - `SaleItem(ProductId, Quantity)`는 최종 입력, `SoldItem(ProductId, Quantity, UnitPrice, UnitCostPrice)`는 확정 내역이다. 중복 수량은 checked 합산한다. `Items`는 최초 희망 목록을 유지한다.
@@ -54,7 +67,7 @@ unity-cli console --type error --lines 3 --stacktrace none
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
-| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint,uint>> getCurrentPrices = null)` | 런타임은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`를 전달한다. null은 거부하며 생성 시 가격표 캡처·누락 기본가 대체는 금지한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
+| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint,uint>> getCurrentPrices = null)` | 런타임은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`를 전달한다. null은 거부하며 생성 시 가격표 캡처·누락 기본가 대체는 금지한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·타입·타입 내 설정은 각각 균등 선정한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
 | `CustomerVisit.SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)` | 최종 목록과 양의 정수 총액. 최초 희망 목록과 달라도 허용한다. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |

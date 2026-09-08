@@ -1,7 +1,7 @@
 # Unity 안에서 순수 생성 로직을 실행한다. 임시 ID는 실제 데이터에 등록하지 않는다.
 $ErrorActionPreference = 'Stop'
 $checkCode = @'
-var config = new CustomerDispositionData { Idx = 1, PreferredProductTypes = new[] { ProductType.Water },
+var config = new CustomerDispositionData { Idx = 1, DispositionType = CustomerDispositionType.Normal, PreferredProductTypes = new[] { ProductType.Water },
     EntryTextIdxs = new uint[] { 1 }, RegularSaleTextIdxs = new uint[] { 2 }, DiscountSaleTextIdxs = new uint[] { 4 }, ExploitativeSaleTextIdxs = new uint[] { 5 }, RejectTextIdxs = new uint[] { 3 } };
 var products = Enumerable.Range(1, 4).ToDictionary(x => (uint)x, x => new ProductData {
     Idx = (uint)x, ProductType = x <= 2 ? ProductType.Water : ProductType.Food, BasePrice = 101, CostPrice = 50, IsAvailable = true });
@@ -116,7 +116,57 @@ try{limit.SubmitOffer(1,new[]{new SaleItem(3,int.MaxValue)});}catch(OverflowExce
 if(!blocked || limit.Result.HasValue || limit.AllowedTotal.HasValue)throw new Exception("Allowed overflow");
 var legacy=new TransactionResult(10,2);
 if(legacy.Outcome!=CustomerTradeOutcome.None || legacy.ReferenceTotal.HasValue || legacy.OfferedTotal.HasValue || legacy.SoldItems.Count!=0 || legacy.SaleIncome!=10)throw new Exception("Legacy result");
-return "CUSTOMER_CHECK_PASS: generation, probability, final replacement four outcomes, latest price once, immutable lists/prices/cost, duplicates, rejection, invalid/lookup/overflow atomicity, resubmit, legacy; preferred="+preferred+"/10000";
+for(int value=-1;value<=5;value++){
+ bool validType=true;try{CustomerProfileValidation.ValidateType((CustomerDispositionType)value);}catch(ArgumentOutOfRangeException){validType=false;}
+ if(validType!=(value>=1 && value<=4))throw new Exception("Disposition type boundary");
+}
+var validAttributeValues=new HashSet<int>{0,1,2,4,5,6,8,9,10};
+for(int bits=-1;bits<=31;bits++){
+ bool validAttributes=true;try{CustomerProfileValidation.ValidateAttributes((CustomerAttributes)bits);}catch(ArgumentException){validAttributes=false;}
+ if(validAttributes!=validAttributeValues.Contains(bits))throw new Exception("Attribute mask/exclusion: "+bits);
+}
+// 실제 CSV ID를 추가하지 않고 동일 타입 내 서로 다른 상품 선호를 검사한다.
+Func<uint,CustomerDispositionType,uint,CustomerDispositionData> profile=(id,type,productId)=>new CustomerDispositionData {
+ Idx=id,DispositionType=type,PreferredProductIdxs=new[]{productId},PreferredSelectionChance=1000,
+ MinProductKinds=1,MaxProductKinds=1,MinQuantity=1,MaxQuantity=1,
+ EntryTextIdxs=new uint[]{1},RegularSaleTextIdxs=new uint[]{2},DiscountSaleTextIdxs=new uint[]{3},ExploitativeSaleTextIdxs=new uint[]{4},RejectTextIdxs=new uint[]{5}
+};
+var rows=new[]{profile(1,CustomerDispositionType.Normal,1),profile(2,CustomerDispositionType.Normal,2),
+ profile(3,CustomerDispositionType.Normal,1),profile(4,CustomerDispositionType.Hasty,2)};
+products[3].AvailableDay=0;products[4].IsAvailable=true;
+Func<IReadOnlyDictionary<uint,uint>> priceMap=()=>products.ToDictionary(x=>x.Key,x=>x.Value.BasePrice);
+var rngA=new CustomerGenerator(new System.Random(73));var rngB=new CustomerGenerator(new System.Random(73));
+var profileCounts=new Dictionary<uint,int>();var attributeCounts=new Dictionary<CustomerAttributes,int>();int normalCount=0;
+for(int i=0;i<12000;i++){
+ var left=rngA.Generate(new uint[]{1},rows,products,getCurrentPrices:priceMap);
+ var right=rngB.Generate(new uint[]{1},rows.Reverse().ToArray(),products,getCurrentPrices:priceMap);
+ if(left.DispositionIdx!=right.DispositionIdx || left.Attributes!=right.Attributes || !left.Items.Select(x=>(x.ProductIdx,x.Quantity,x.UnitPrice)).SequenceEqual(right.Items.Select(x=>(x.ProductIdx,x.Quantity,x.UnitPrice))))throw new Exception("Sorted seed reproducibility");
+ if(left.AppearanceIdx!=1 || left.DispositionType==CustomerDispositionType.Wealthy || left.DispositionType==CustomerDispositionType.PriceSensitive)throw new Exception("Absent type appeared");
+ if(left.Items.Single().ProductIdx!=rows.Single(x=>x.Idx==left.DispositionIdx).PreferredProductIdxs.Single())throw new Exception("Same type different preference");
+ if(left.DispositionType==CustomerDispositionType.Normal)normalCount++;
+ profileCounts.TryGetValue(left.DispositionIdx,out int pc);profileCounts[left.DispositionIdx]=pc+1;
+ attributeCounts.TryGetValue(left.Attributes,out int ac);attributeCounts[left.Attributes]=ac+1;
+}
+if(normalCount<5700 || normalCount>6300 || profileCounts.Count!=4 || profileCounts.Where(x=>x.Key<=3).Any(x=>x.Value<1750 || x.Value>2250))throw new Exception("Type then row uniformity");
+if(attributeCounts.Count!=6 || attributeCounts.ContainsKey(CustomerAttributes.None) || attributeCounts.Values.Any(x=>x<1750 || x>2250))throw new Exception("Six independent combinations");
+var pref=rows[0];pref.PreferredProductTypes=new[]{ProductType.Water};pref.PreferredProductIdxs=new uint[]{1,3};
+foreach(int chance in new[]{0,1000}){
+ pref.PreferredSelectionChance=chance;var selected=new HashSet<uint>();
+ for(int i=0;i<200;i++)selected.Add(rngA.Generate(new uint[]{1},new[]{pref},products,getCurrentPrices:priceMap).Items.Single().ProductIdx);
+ if(!selected.SetEquals(chance==0?new uint[]{4}:new uint[]{1,2,3}))throw new Exception("OR preference endpoints");
+}
+pref.MinProductKinds=pref.MaxProductKinds=4;
+var combined=rngA.Generate(new uint[]{1},new[]{pref},products,getCurrentPrices:priceMap);
+if(combined.Items.Select(x=>x.ProductIdx).Distinct().Count()!=4)throw new Exception("OR duplicate/fallback");
+products[3].AvailableDay=1;products[4].IsAvailable=false;
+if(rngA.Generate(new uint[]{1},new[]{pref},products,getCurrentPrices:priceMap).Items.Any(x=>x.ProductIdx>=3))throw new Exception("Unavailable preferred product");
+foreach(var bad in new IReadOnlyList<uint>[] {null,new uint[]{0},new uint[]{1,1},new uint[]{9999}}){
+ pref.PreferredProductIdxs=bad;bool denied=false;try{rngA.Generate(new uint[]{1},new[]{pref},products,getCurrentPrices:priceMap);}catch(ArgumentException){denied=true;}
+ if(!denied)throw new Exception("Invalid preferred product accepted");
+}
+pref.PreferredProductIdxs=Array.Empty<uint>();pref.DispositionType=CustomerDispositionType.Wealthy;
+if(combined.DispositionType!=CustomerDispositionType.Normal || combined.PriceTolerance!=1000 || combined.Attributes==CustomerAttributes.None)throw new Exception("Profile snapshot changed");
+return "CUSTOMER_CHECK_PASS: generation, probability, final replacement four outcomes, latest price once, immutable lists/prices/cost, duplicates, rejection, invalid/lookup/overflow atomicity, resubmit, legacy, profile type/flags, OR preference, sorted seed, six attributes; preferred="+preferred+"/10000; normal="+normalCount+"/12000";
 
 '@
 $result = $checkCode | & unity-cli exec 2>&1

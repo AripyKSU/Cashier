@@ -18,6 +18,19 @@ public sealed class CustomerDispositionData
     /// <summary>성향 표시 이름의 TextData.idx FK.</summary>
     [Name("nameidx")]
     public uint NameIdx { get; set; }
+    /// <summary>CSV의 숫자 전용 성향 타입. 빈값·문자열은 uint 변환에서 거부한다.</summary>
+    [Name("disposition_type")]
+    public uint DispositionTypeValue { get; set; }
+    /// <summary>개별 성향 PK와 별개인 타입. 유효성은 구매 설정 검증에서 확인한다.</summary>
+    [Ignore]
+    public CustomerDispositionType DispositionType
+    {
+        get => (CustomerDispositionType)DispositionTypeValue;
+        set => DispositionTypeValue = (uint)value;
+    }
+    /// <summary>품목 선호와 OR로 적용하는 ProductData.idx 목록. 빈 목록 허용, 0·중복 금지.</summary>
+    [Name("preferred_product_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> PreferredProductIdxs { get; set; } = new uint[0];
     /// <summary>주로 선택하는 enum 분류. 빈 목록은 선호 없음이다.</summary>
     [Name("preferred_product_types"), TypeConverter(typeof(ProductTypeArrayConverter))]
     public IReadOnlyList<ProductType> PreferredProductTypes { get; set; } = new ProductType[0];
@@ -67,6 +80,12 @@ public sealed class CustomerDispositionData
     /// <exception cref="ArgumentException">확률·수량 범위 또는 선호 상품군 ID가 잘못된 경우.</exception>
     public void ValidatePurchaseSettings()
     {
+        CustomerProfileValidation.ValidateType(DispositionType);
+        if (PreferredProductIdxs == null) throw new ArgumentException($"성향 {Idx}: preferred_product_idxs null");
+        var productIds = new HashSet<uint>();
+        foreach (uint idx in PreferredProductIdxs)
+            if (idx == 0 || !productIds.Add(idx))
+                throw new ArgumentException($"성향 {Idx}: preferred_product_idxs 중복 또는 0");
         if (PreferredProductTypes == null || PreferredSelectionChance < 0 || PreferredSelectionChance > 1000 || PriceTolerance <= 0 ||
             MinProductKinds < 1 || MaxProductKinds < MinProductKinds || MaxProductKinds == int.MaxValue ||
             MinQuantity < 1 || MaxQuantity < MinQuantity || MaxQuantity == int.MaxValue)

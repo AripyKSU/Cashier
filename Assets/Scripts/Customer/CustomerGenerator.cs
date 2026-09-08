@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>외부에서 받은 유효 후보로 일반 손님의 방문과 구매 목록을 생성한다.</summary>
 public sealed class CustomerGenerator
@@ -15,7 +16,7 @@ public sealed class CustomerGenerator
         this.random = random ?? throw new ArgumentNullException(nameof(random));
     }
 
-    /// <summary>외형·성향을 균등 선정하고 중복 없는 상품과 수량을 확정한다.</summary>
+    /// <summary>외형·타입·타입 내 설정과 독립 속성을 균등 선정하고 중복 없는 상품·수량을 확정한다.</summary>
     /// <param name="appearanceIds">외부에서 리소스 참조를 검증한 외형 ID 후보.</param>
     /// <param name="dispositions">외부에서 상품군 참조를 검증한 성향 후보.</param>
     /// <param name="products">상품 ID → 상품 데이터. 비활성·미등장 상품은 제외한다.</param>
@@ -46,6 +47,9 @@ public sealed class CustomerGenerator
             if (data == null || data.Idx == 0 || !ids.Add(data.Idx))
                 throw new ArgumentException("성향 ID 또는 구매 설정 범위가 잘못되었습니다.", nameof(dispositions));
             data.ValidatePurchaseSettings();
+            foreach (uint idx in data.PreferredProductIdxs)
+                if (!products.ContainsKey(idx))
+                    throw new ArgumentException($"성향 {data.Idx}: preferred_product_idxs FK={idx} 참조 실패", nameof(dispositions));
         }
         var availableProducts = new Dictionary<uint, ProductData>();
         foreach (var product in products)
@@ -63,12 +67,20 @@ public sealed class CustomerGenerator
         if (availableProducts.Count == 0) return null;
 
         uint appearanceIdx = appearanceIds[random.Next(appearanceIds.Count)];
-        var disposition = dispositions[random.Next(dispositions.Count)];
+        // 타입별 설정 개수가 달라도 타입 출현율은 같으며 입력 행 순서에 의존하지 않는다.
+        var groups = dispositions.GroupBy(x => x.DispositionType).OrderBy(x => x.Key).ToArray();
+        var candidatesByType = groups[random.Next(groups.Length)].OrderBy(x => x.Idx).ToArray();
+        var disposition = candidatesByType[random.Next(candidatesByType.Length)];
+        var attributes = random.Next(2) == 0 ? CustomerAttributes.Male : CustomerAttributes.Female;
+        int age = random.Next(3);
+        if (age == 1) attributes |= CustomerAttributes.Child;
+        else if (age == 2) attributes |= CustomerAttributes.Elderly;
         var preferredCategories = new HashSet<ProductType>(disposition.PreferredProductTypes);
+        var preferredProducts = new HashSet<uint>(disposition.PreferredProductIdxs);
         var preferred = new List<uint>();
         var others = new List<uint>();
         foreach (var product in availableProducts)
-            (preferredCategories.Contains(product.Value.ProductType) ? preferred : others).Add(product.Key);
+            (preferredCategories.Contains(product.Value.ProductType) || preferredProducts.Contains(product.Key) ? preferred : others).Add(product.Key);
         // Dictionary 삽입 순서가 달라도 같은 seed와 후보 집합으로 같은 상품을 고른다.
         preferred.Sort();
         others.Sort();
@@ -93,6 +105,7 @@ public sealed class CustomerGenerator
             disposition.RegularSaleTextIdxs[random.Next(disposition.RegularSaleTextIdxs.Count)],
             disposition.DiscountSaleTextIdxs[random.Next(disposition.DiscountSaleTextIdxs.Count)],
             disposition.ExploitativeSaleTextIdxs[random.Next(disposition.ExploitativeSaleTextIdxs.Count)],
-            disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)], products, getCurrentPrices);
+            disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)], products, getCurrentPrices,
+            disposition.DispositionType, attributes);
     }
 }
