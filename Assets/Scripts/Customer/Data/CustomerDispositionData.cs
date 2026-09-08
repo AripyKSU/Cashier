@@ -12,13 +12,6 @@ public sealed class CustomerDispositionData
     /// <summary>이탈 불만 대사의 TextData FK.</summary>
     [Name("queue_leave_textidx")] public uint QueueLeaveTextIdx { get; set; }
 
-    /// <summary>대기열 데이터의 필수값을 검증한다. 독립 구매 테스트와 별도 계약이다.</summary>
-    /// <exception cref="ArgumentException">대기 한도 또는 대사 참조가 잘못됨.</exception>
-    public void ValidateQueueSettings()
-    {
-        if (QueuePatienceSeconds <= 6 || QueueWarningTextIdx == 0 || QueueLeaveTextIdx == 0)
-            throw new ArgumentException($"성향 {Idx}: queue_patience_seconds > 6 및 대사 FK가 필요합니다.");
-    }
     /// <summary>승인된 성향 데이터 ID.</summary>
     [Name("idx")]
     public uint Idx { get; set; }
@@ -61,6 +54,14 @@ public sealed class CustomerDispositionData
     /// <summary>상품별 구매 수량 최댓값, 포함 상한.</summary>
     [Name("max_quantity")]
     public int MaxQuantity { get; set; } = 3;
+
+    /// <summary>대기열 데이터의 필수값을 검증한다. 독립 구매 테스트와 별도 계약이다.</summary>
+    /// <exception cref="ArgumentException">대기 한도 또는 대사 참조가 잘못됨.</exception>
+    public void ValidateQueueSettings()
+    {
+        if (QueuePatienceSeconds <= 6 || QueueWarningTextIdx == 0 || QueueLeaveTextIdx == 0)
+            throw new ArgumentException($"성향 {Idx}: queue_patience_seconds > 6 및 대사 FK가 필요합니다.");
+    }
 
     /// <summary>생성기와 CSV 로더가 공유하는 구매 설정의 불변 조건을 검사한다.</summary>
     /// <exception cref="ArgumentException">확률·수량 범위 또는 선호 상품군 ID가 잘못된 경우.</exception>
