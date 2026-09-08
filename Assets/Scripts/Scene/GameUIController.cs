@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 /// <summary>
 /// 게임 진행 로직과 UI 계층을 연결하는 게임 화면 수명 조립 컴포넌트입니다.
@@ -53,6 +55,7 @@ public sealed class GameUIController : MonoBehaviour
 
     private bool isReady;
     private bool hasError;
+    private Sprite productPlaceholderSprite;
 
     /// <summary>Scene 진입 후 부트스트랩된 런타임을 확인하고 UI와 진행을 초기화합니다.</summary>
     private async void Start()
@@ -115,6 +118,10 @@ public sealed class GameUIController : MonoBehaviour
             if (this.gameProgress.State == GameProgressState.DayInProgress)
             {
                 this.gameProgress.Tick(Time.deltaTime);
+                if (this.isTransactionResultAwaitingAdvance() && this.wasPointerClickThisFrame())
+                {
+                    this.runProgressAction(this.gameProgress.CompleteTransactionResult);
+                }
                 this.refreshFrameViews();
             }
         }
@@ -125,8 +132,8 @@ public sealed class GameUIController : MonoBehaviour
     }
 
     /// <summary>상품 데이터 FK를 따라 장바구니 표시용 Sprite를 한 번씩 로드합니다.</summary>
-    /// <returns>모든 상품 ID에 대응하는 로드 완료 Sprite 사전입니다.</returns>
-    /// <exception cref="InvalidOperationException">리소스 시스템, FK 또는 Sprite 로드가 실패한 경우 발생합니다.</exception>
+    /// <returns>모든 상품 ID에 대응하는 로드 완료 Sprite 사전입니다. 이미지가 없으면 임시 흰색 Sprite를 사용합니다.</returns>
+    /// <exception cref="InvalidOperationException">리소스 시스템 또는 ResourceDataTable이 준비되지 않은 경우 발생합니다.</exception>
     private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadProductSpritesAsync()
     {
         if (ResourceManager.Instance == null)
@@ -146,7 +153,11 @@ public sealed class GameUIController : MonoBehaviour
         {
             if (!product.ImageResourceIdx.HasValue)
             {
-                throw new InvalidOperationException($"상품 {product.Idx}의 image_resource_idx가 비어 있습니다.");
+                Debug.LogWarning(
+                    $"[GameUIController] 상품 {product.Idx}의 image_resource_idx가 비어 있어 임시 흰색 이미지를 사용합니다.",
+                    this);
+                spritesByProduct.Add(product.Idx, this.getProductPlaceholderSprite());
+                continue;
             }
 
             uint resourceId = product.ImageResourceIdx.Value;
@@ -155,16 +166,39 @@ public sealed class GameUIController : MonoBehaviour
                 string address = resources.GetResourcePath(resourceId);
                 if (string.IsNullOrWhiteSpace(address))
                 {
-                    throw new InvalidOperationException(
-                        $"상품 {product.Idx}의 ResourceData FK {resourceId}를 찾을 수 없습니다.");
+                    Debug.LogWarning(
+                        $"[GameUIController] 상품 {product.Idx}의 ResourceData FK {resourceId}를 찾을 수 없어 임시 흰색 이미지를 사용합니다.",
+                        this);
+                    sprite = this.getProductPlaceholderSprite();
                 }
-
-                sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address)
-                    .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
-                if (sprite == null)
+                else
                 {
-                    throw new InvalidOperationException(
-                        $"상품 {product.Idx}의 Sprite를 로드하지 못했습니다. Resource {resourceId}, Address {address}");
+                    try
+                    {
+                        sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address)
+                            .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        throw;
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.LogWarning(
+                            $"[GameUIController] 상품 {product.Idx}의 Sprite 로드에 실패해 임시 흰색 이미지를 사용합니다. "
+                            + $"Resource {resourceId}, Address {address}, 원인: {exception.Message}",
+                            this);
+                        sprite = this.getProductPlaceholderSprite();
+                    }
+
+                    if (sprite == null)
+                    {
+                        Debug.LogWarning(
+                            $"[GameUIController] 상품 {product.Idx}의 Sprite가 비어 있어 임시 흰색 이미지를 사용합니다. "
+                            + $"Resource {resourceId}, Address {address}",
+                            this);
+                        sprite = this.getProductPlaceholderSprite();
+                    }
                 }
 
                 spritesByResource.Add(resourceId, sprite);
@@ -176,11 +210,34 @@ public sealed class GameUIController : MonoBehaviour
         return spritesByProduct;
     }
 
+    /// <summary>상품 이미지 누락 시 사용할 임시 흰색 Sprite를 생성하고 재사용합니다.</summary>
+    /// <returns>1x1 흰색 텍스처를 기반으로 한 임시 Sprite입니다.</returns>
+    private Sprite getProductPlaceholderSprite()
+    {
+        if (this.productPlaceholderSprite == null)
+        {
+            Texture2D texture = Texture2D.whiteTexture;
+            this.productPlaceholderSprite = Sprite.Create(
+                texture,
+                new Rect(0f, 0f, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f),
+                100f);
+            this.productPlaceholderSprite.name = "TemporaryProductPlaceholder";
+        }
+
+        return this.productPlaceholderSprite;
+    }
+
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
     private void OnDestroy()
     {
         this.unsubscribeProgress();
         this.unsubscribeUi();
+        if (this.productPlaceholderSprite != null)
+        {
+            Destroy(this.productPlaceholderSprite);
+            this.productPlaceholderSprite = null;
+        }
     }
 
     /// <summary>씬에 직렬화된 Presenter와 진행 필수 UI 참조가 연결됐는지 확인합니다.</summary>
@@ -386,13 +443,13 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshRuntimeViews();
     }
 
-    /// <summary>거래 결과를 손님 대사와 결과 확인 버튼에 반영합니다.</summary>
+    /// <summary>거래 결과를 손님 대사에 반영하고 마우스 또는 Enter 입력을 기다립니다.</summary>
     /// <param name="visit">수락 또는 거절 판정이 완료된 손님 방문입니다.</param>
     private void handleTransactionCompleted(CustomerVisit visit)
     {
         this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
-        this.transactionContinueButton.gameObject.SetActive(true);
+        this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = visit.WasAccepted == true
             ? "ACCEPTED · income applied"
             : "REJECTED · no income";
@@ -434,9 +491,10 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
-        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems))
+        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems)
+            || saleItems.Count == 0)
         {
-            Debug.LogWarning("[GameUIController] 모든 물품을 판매 또는 판매 안함 영역으로 옮긴 뒤 확정해야 합니다.", this);
+            Debug.LogWarning("[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.", this);
             return;
         }
 
@@ -479,33 +537,12 @@ public sealed class GameUIController : MonoBehaviour
         this.runProgressAction(this.gameProgress.BeginCustomerSorting);
     }
 
-    /// <summary>
-    /// 판매 상품 목록을 받는 진행 API가 합쳐지면 해당 오버로드로 거래 요청을 전달합니다.
-    /// 현재 브랜치에는 아직 계약이 없으므로 판정 코드를 수정하지 않고 명시적인 연결 실패를 보고합니다.
-    /// </summary>
+    /// <summary>선택한 판매 상품 목록과 가격을 제출하고 거래 결과 화면을 엽니다.</summary>
     /// <param name="offeredTotal">플레이어가 입력한 판매 가격입니다.</param>
     /// <param name="saleItems">판매 영역에서 상품 ID별로 집계한 수량입니다.</param>
-    /// <exception cref="MissingMethodException">진행 계층에 새 판매 목록 오버로드가 아직 없는 경우 발생합니다.</exception>
-    /// <exception cref="TargetInvocationException">연결된 진행 계층이 거래 판정 중 실패한 경우 발생합니다.</exception>
     private void submitSelectedOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
-        MethodInfo submitMethod = this.gameProgress.GetType().GetMethod(
-            nameof(GameProgress.SubmitOffer),
-            new[] { typeof(long), typeof(IReadOnlyList<SaleItem>) });
-        if (submitMethod == null)
-        {
-            throw new MissingMethodException(
-                "GameProgress.SubmitOffer(long, IReadOnlyList<SaleItem>) 연결이 아직 합쳐지지 않았습니다.");
-        }
-
-        try
-        {
-            submitMethod.Invoke(this.gameProgress, new object[] { offeredTotal, saleItems });
-        }
-        catch (TargetInvocationException exception) when (exception.InnerException != null)
-        {
-            throw exception.InnerException;
-        }
+        this.gameProgress.SubmitOffer(offeredTotal, saleItems);
 
         this.saleSortingPanel.LockSelection();
         this.keypadController.OnClearButtonClick();
@@ -614,12 +651,8 @@ public sealed class GameUIController : MonoBehaviour
         long currentPrice = this.keypadController == null ? 0 : this.keypadController.CurrentPrice;
         this.refreshPriceInputView(currentPrice);
 
-        bool canContinueTransaction = this.subscribedDay.CurrentVisit != null
-            && (this.subscribedDay.CurrentVisit.State == CustomerState.Accepted
-                || this.subscribedDay.CurrentVisit.State == CustomerState.Rejected)
-            && (this.subscribedDay.State == DayProgressState.TransactionResult
-                || this.subscribedDay.State == DayProgressState.Closing);
-        this.transactionContinueButton.gameObject.SetActive(canContinueTransaction);
+        bool canContinueTransaction = this.isTransactionResultAwaitingAdvance();
+        this.transactionContinueButton.gameObject.SetActive(false);
         this.setKeypadInteractable(this.subscribedDay.CanSubmitOffer
             && this.saleSortingPanel.IsSorting
             && this.saleSortingPanel.IsCalculatorOpen);
@@ -664,6 +697,29 @@ public sealed class GameUIController : MonoBehaviour
                 && this.saleSortingPanel.CanConfirm
                 && currentPrice > 0,
             canContinue);
+    }
+
+    /// <summary>거래 결과 화면에서 다음 손님으로 이동할 수 있는지 확인합니다.</summary>
+    /// <returns>결과가 확정됐고 거래 결과 확인 단계에 있으면 true입니다.</returns>
+    private bool isTransactionResultAwaitingAdvance()
+    {
+        return this.subscribedDay != null
+            && this.subscribedDay.CurrentVisit != null
+            && (this.subscribedDay.CurrentVisit.State == CustomerState.Accepted
+                || this.subscribedDay.CurrentVisit.State == CustomerState.Rejected)
+            && (this.subscribedDay.State == DayProgressState.TransactionResult
+                || this.subscribedDay.State == DayProgressState.Closing);
+    }
+
+    /// <summary>이번 프레임에 마우스 왼쪽 버튼이 눌렸는지 확인합니다.</summary>
+    /// <returns>이번 프레임에 마우스 클릭이 시작됐으면 true입니다.</returns>
+    private bool wasPointerClickThisFrame()
+    {
+#if ENABLE_INPUT_SYSTEM
+        return Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
+#else
+        return Input.GetMouseButtonDown(0);
+#endif
     }
 
     /// <summary>프레임 경과에 따라 실제로 변하는 타이머 표시만 갱신합니다.</summary>

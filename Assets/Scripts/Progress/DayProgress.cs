@@ -235,20 +235,21 @@ public sealed class DayProgress
     }
 
     /// <summary>
-    /// 현재 손님에게 전체 장바구니 가격을 한 번 제안합니다.
+    /// 현재 손님에게 판매 상품 목록과 전체 장바구니 가격을 한 번 제안합니다.
     /// </summary>
     /// <param name="offeredTotal">플레이어가 입력한 양의 가격입니다.</param>
+    /// <param name="saleItems">플레이어가 판매 대상으로 선택한 상품별 수량입니다.</param>
     /// <returns>손님이 가격을 수락하면 true입니다.</returns>
     /// <exception cref="ArgumentOutOfRangeException">가격이 0 이하인 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">현재 상태에서 가격을 입력할 수 없는 경우 발생합니다.</exception>
-    public bool SubmitOffer(long offeredTotal)
+    public bool SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
         if (!this.CanSubmitOffer)
         {
             throw new InvalidOperationException("현재 상태에서는 가격을 확정할 수 없습니다.");
         }
 
-        bool wasAccepted = this.currentVisit.SubmitOffer(offeredTotal);
+        bool wasAccepted = this.currentVisit.SubmitOffer(offeredTotal, saleItems);
         if (wasAccepted)
         {
             // CustomerVisit의 판정 결과 중 확정 판매 값만 임시 재정 계약으로 변환합니다.
@@ -261,7 +262,8 @@ public sealed class DayProgress
             this.refusedCustomers = checked(this.refusedCustomers + 1);
         }
 
-        if (this.State == DayProgressState.Operating)
+        if (this.State == DayProgressState.Operating
+            || this.State == DayProgressState.Sorting)
         {
             this.changeState(DayProgressState.TransactionResult);
         }
@@ -386,7 +388,8 @@ public sealed class DayProgress
             this.appearanceIds,
             this.dispositions,
             this.customerCatalog.Products.Rows,
-            checked((uint)(this.day - 1)));
+            checked((uint)(this.day - 1)),
+            () => GameSessionManager.Instance.EnsureDailyPrices().Prices);
 
         if (visit == null)
         {

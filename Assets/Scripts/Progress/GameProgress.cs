@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// 현재 날짜와 하루 진행 수명을 관리하고 주기적인 상납 결과를 전체 진행에 반영합니다.
@@ -140,13 +141,14 @@ public sealed class GameProgress
         this.currentDayProgress.Tick(deltaSeconds);
     }
 
-    /// <summary>현재 손님에게 가격을 확정합니다.</summary>
+    /// <summary>현재 손님에게 판매 상품 목록과 가격을 확정합니다.</summary>
     /// <param name="offeredTotal">플레이어가 제안한 양의 가격입니다.</param>
+    /// <param name="saleItems">플레이어가 판매 대상으로 선택한 상품별 수량입니다.</param>
     /// <returns>손님이 수락하면 true입니다.</returns>
-    public bool SubmitOffer(long offeredTotal)
+    public bool SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
         this.requireDayInProgress();
-        return this.currentDayProgress.SubmitOffer(offeredTotal);
+        return this.currentDayProgress.SubmitOffer(offeredTotal, saleItems);
     }
 
     /// <summary>현재 손님의 등장 연출을 마치고 물품 분류 단계로 진행합니다.</summary>
