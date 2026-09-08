@@ -30,6 +30,20 @@ public sealed class DystopiaTopDownItem : MonoBehaviour
         Body = body;
         State = TopDownItemState.Working;
     }
+
+    /// <summary>회전하는 물품의 충돌을 받아 바깥으로 튕기며 회전도 전달받습니다.</summary>
+    /// <param name="collision">물품 사이의 물리 접촉입니다.</param>
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        var other = collision.gameObject.GetComponent<DystopiaTopDownItem>();
+        if (State == TopDownItemState.Excluded || other == null || other.State == TopDownItemState.Excluded) return;
+        float spin = other.Body.angularVelocity;
+        if (Mathf.Abs(spin) < 90) return;
+        Vector2 away = (Body.position - other.Body.position).normalized;
+        Body.AddForce(away * Mathf.Min(Mathf.Abs(spin) / 360f, 1.5f), ForceMode2D.Impulse);
+        Body.angularVelocity = Mathf.Clamp(Body.angularVelocity - spin * .65f, -720, 720);
+        WasStirred |= other.WasStirred;
+    }
 }
 
 /// <summary>기존 정면 거래와 경제 권위를 재사용하는 별도 탑다운 분류 테스트 화면입니다.</summary>
@@ -71,13 +85,18 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     [SerializeField] private Font uiFont;
 
     private static readonly Rect ExcludedZone = new Rect(-6.25f, -2.85f, 0.95f, 5.7f);
-    private static readonly Rect SaleZone = new Rect(3.25f, 0.55f, 2.65f, 2.45f);
+    // 오른쪽 트레이의 테두리를 포함한 전체 표시 영역에 대응합니다.
+    private static readonly Rect SaleZone = new Rect(2.1f, -3.3f, 4.2f, 6.55f);
     private readonly List<DystopiaTopDownItem> items = new List<DystopiaTopDownItem>();
     private readonly RaycastHit2D[] sweepHits = new RaycastHit2D[32];
+    // 한 번의 스윕에서 같은 물품의 충격을 중복 적용하지 않습니다.
+    private readonly HashSet<Rigidbody2D> currentCursorContacts = new HashSet<Rigidbody2D>();
     private static DystopiaScreen pendingHostScreen;
     private ViewState state;
     private DystopiaScreen hostScreen;
     private GameObject hostBasketRoot;
+    // 착지 순간에만 표시하는 저해상도 먼지 조각이며 정면 UI와 수명을 공유합니다.
+    private readonly Image[] landingDust = new Image[10];
     private bool isEmbeddedInFrontScene;
     private Camera worldCamera;
     private Transform itemRoot;
@@ -92,6 +111,21 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     private Text inputText;
     private Text noticeText;
     private Text clockText;
+    // 사용자 UI 자산과 런타임에 잘라 쓰는 버튼 Sprite의 소유권입니다.
+    [SerializeField] private Sprite calculatorArtwork, calculatorToggleArtwork, counterClockArtwork;
+    private readonly List<Sprite> uiSlices = new List<Sprite>();
+    private RectTransform clockRoot;
+    private bool calculatorOpen = true;
+    private float calculatorSlide;
+    /// <summary>독립 테스트 Scene의 계산기와 토글 배치입니다. 정면 연결 시 DystopiaScreen 값을 사용합니다.</summary>
+    [SerializeField] private Rect calculatorLayout = new Rect(900, 310, 360, 360);
+    [SerializeField] private Rect calculatorToggleLayout = new Rect(1214, 659, 54, 58);
+    /// <summary>독립 테스트의 정면 시계 위치와 크기이며 연결 모드에서는 DystopiaScreen 값을 사용합니다.</summary>
+    [SerializeField] private Rect counterClockLayout = new Rect(1090, 380, 180, 180);
+    private RectTransform calculatorToggleRect;
+    // 날짜가 바뀌면 영업 시각을 09:00으로 초기화합니다.
+    private int clockDay;
+
     private RectTransform keypadRect;
     private GameObject transitionBlock;
     private GameObject ownedEventSystem;
@@ -108,6 +142,8 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     public bool IsSorting => state == ViewState.Sorting;
     public bool IsClosed => state == ViewState.Closed;
     public float BusinessMinute => businessMinute;
+    /// <summary>연결 모드에서 실제 UI 배치 값을 소유하는 정면 화면입니다.</summary>
+    public DystopiaScreen LayoutOwner => hostScreen;
     public string EnteredAmount => amount;
 
     /// <summary>기존 정면 화면의 세션을 그대로 사용하도록 런타임 테스트 브리지를 붙입니다.</summary>
@@ -131,8 +167,9 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
             settings = hostScreen.Settings;
             foreach (RectTransform child in hostScreen.GetComponentsInChildren<RectTransform>(true))
             {
-                if (child.name != "Basket") continue;
+                if (child.name != "Basket" || !child.parent.gameObject.activeInHierarchy) continue;
                 hostBasketRoot = child.gameObject;
+                hostBasketRoot.SetActive(false);
                 break;
             }
         }
@@ -140,6 +177,12 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         BindEditorAssets();
 #endif
         if (!isEmbeddedInFrontScene) DisableOtherScenesDuringPlay();
+        if (isEmbeddedInFrontScene)
+        {
+            calculatorArtwork = hostScreen.CalculatorArtwork;
+            calculatorToggleArtwork = hostScreen.CalculatorToggleArtwork;
+            counterClockArtwork = hostScreen.CounterClockArtwork;
+        }
         BuildWorld();
         BuildUi();
         Session = isEmbeddedInFrontScene ? hostScreen.Session : CreateSessionWithUsefulBasket();
@@ -173,12 +216,43 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     /// <summary>커서 이동, 평면 물리 제한, 분류와 영업시간을 실제 프레임에서 갱신합니다.</summary>
     private void Update()
     {
+        // 16:9 작업대가 실제 화면을 채우도록 하여 넓은 창에서도 뒤쪽 Scene이 드러나지 않게 합니다.
+        if (worldCamera != null)
+            worldCamera.orthographicSize = Mathf.Min(3.6f, 6.4f / Mathf.Max(.01f, worldCamera.aspect));
+        if (Session == null)
+        {
+            RestoreAfterReload();
+            return;
+        }
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) SetPaused(!isPaused);
+        Rect layout = hostScreen != null ? hostScreen.CalculatorLayout : calculatorLayout;
+        Rect toggleLayout = hostScreen != null ? hostScreen.CalculatorToggleLayout : calculatorToggleLayout;
+        float targetSlide = calculatorOpen ? 0 : Mathf.Max(0, 1300 - layout.x);
+        calculatorSlide = Mathf.MoveTowards(calculatorSlide, targetSlide, Time.unscaledDeltaTime * 1600);
+        if (keypadRect != null)
+        {
+            keypadRect.anchoredPosition = new Vector2(layout.x + calculatorSlide, -layout.y);
+            keypadRect.localScale = new Vector3(Mathf.Max(1, layout.width) / 360, Mathf.Max(1, layout.height) / 360, 1);
+        }
+        if (calculatorToggleRect != null)
+        {
+            calculatorToggleRect.anchoredPosition = new Vector2(toggleLayout.x, -toggleLayout.y);
+            calculatorToggleRect.sizeDelta = new Vector2(Mathf.Max(1, toggleLayout.width), Mathf.Max(1, toggleLayout.height));
+        }
+        if (clockRoot != null)
+        {
+            Rect clockLayout = hostScreen != null ? hostScreen.CounterClockLayout : counterClockLayout;
+            clockRoot.anchoredPosition = new Vector2(clockLayout.x, -clockLayout.y);
+            clockRoot.localScale = new Vector3(Mathf.Max(1, clockLayout.width) / 180, Mathf.Max(1, clockLayout.height) / 180, 1);
+            clockRoot.gameObject.SetActive(!workUiRoot.activeSelf && !transitionBlock.activeSelf);
+        }
+        if (clockDay != Session.Day) { clockDay = Session.Day; businessMinute = 9 * 60; }
         if (isPaused) return;
         float deltaSeconds = Time.unscaledDeltaTime;
+        if (Session.Phase == DystopiaPhase.Trading && !Session.IsPaused)
+            businessMinute = Mathf.Min(21 * 60, businessMinute + deltaSeconds * gameMinutesPerRealSecond);
         if (state == ViewState.Sorting)
         {
-            businessMinute += deltaSeconds * gameMinutesPerRealSecond;
             Session.Tick(deltaSeconds);
             if (businessMinute >= 21 * 60) CloseBusiness();
             else
@@ -192,6 +266,36 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         RefreshUi();
     }
 
+    /// <summary>재컴파일 뒤 소실된 세션과 코루틴을 정면 화면의 새 세션에 다시 연결합니다.</summary>
+    private void RestoreAfterReload()
+    {
+        StopAllCoroutines();
+        // 이 컴포넌트가 만든 작업대·물품·UI만 제거합니다. Scene 자산은 수정하지 않습니다.
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
+            Destroy(child.gameObject);
+        }
+        foreach (Sprite slice in uiSlices) if (slice != null) Destroy(slice);
+        uiSlices.Clear();
+        items.Clear();
+        currentCursorContacts.Clear();
+        hasCursorSample = false;
+        isPaused = false;
+        businessMinute = 9 * 60;
+        amount = "";
+        if (hostScreen == null)
+            hostScreen = FindFirstObjectByType<DystopiaScreen>(FindObjectsInactive.Include);
+        if (hostScreen != null)
+        {
+            hostScreen.RestoreAfterReload();
+            hostScreen.gameObject.SetActive(true);
+            hostScreen.enabled = true;
+        }
+        pendingHostScreen = hostScreen;
+        Awake();
+    }
+
     /// <summary>포커스 복귀 직후의 큰 커서 속도 표본을 버립니다.</summary>
     private void OnApplicationFocus(bool hasFocus)
     {
@@ -202,6 +306,7 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     private void OnDestroy()
     {
         if (hostBasketRoot != null) hostBasketRoot.SetActive(true);
+        foreach (Sprite slice in uiSlices) if (slice != null) Destroy(slice);
     }
 
     /// <summary>에디터에서 테스트 전용 이미지와 기존 배경·손님·폰트를 연결합니다.</summary>
@@ -293,53 +398,74 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         var scaler = canvasObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1280, 720);
-        scaler.matchWidthOrHeight = .5f;
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Shrink;
         canvasObject.AddComponent<GraphicRaycaster>();
         if (isEmbeddedInFrontScene || FindFirstObjectByType<EventSystem>() == null)
         {
             var eventObject = new GameObject("EventSystem");
+            // 정면의 시작 버튼을 처리하는 EventSystem과 동시에 등록되지 않도록
+            // 컴포넌트의 OnEnable이 실행되기 전에 비활성화합니다.
+            if (isEmbeddedInFrontScene) eventObject.SetActive(false);
             eventObject.transform.SetParent(transform, false);
             eventObject.AddComponent<EventSystem>();
             eventObject.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
             ownedEventSystem = eventObject;
-            if (isEmbeddedInFrontScene) ownedEventSystem.SetActive(false);
         }
 
         frontRoot = Rect(canvasObject.transform, "FrontView", 0, 0, 1280, 720).gameObject;
         if (isEmbeddedInFrontScene)
         {
             Panel(frontRoot.transform, "ExistingInputBlocker", 0, 0, 1280, 720, new Color(0, 0, 0, .001f));
-            frontContainerImage = Picture(frontRoot.transform, "FrontContainer", frontContainerMale, 356, 322, 568, 350, true);
+            frontContainerImage = Picture(frontRoot.transform, "FrontContainer", frontContainerMale, 460, 405, 360, 240, true);
         }
         else
         {
             Picture(frontRoot.transform, "FrontBackground", frontBackground, 0, 0, 1280, 720, false);
             customerImage = Picture(frontRoot.transform, "Customer", null, 365, 55, 550, 550, true);
-            frontContainerImage = Picture(frontRoot.transform, "FrontContainer", frontContainerMale, 382, 355, 516, 310, true);
+            frontContainerImage = Picture(frontRoot.transform, "FrontContainer", frontContainerMale, 460, 405, 360, 240, true);
             Panel(frontRoot.transform, "DialoguePanel", 320, 585, 640, 62, new Color(.035f, .045f, .05f, .95f));
             dialogueText = Label(frontRoot.transform, "Dialogue", "물품을 가져왔습니다.", 340, 600, 600, 34, 21, Color.white);
             Picture(frontRoot.transform, "Counter", frontCounter, 0, 0, 1280, 720, false);
         }
 
+        for (int i = 0; i < landingDust.Length; i++)
+        {
+            var dust = Panel(frontRoot.transform, "LandingDust" + i, 0, 0, 12 + i % 3 * 4, 6 + i % 2 * 4, Color.clear);
+            landingDust[i] = dust.GetComponent<Image>();
+            landingDust[i].raycastTarget = false;
+            dust.SetSiblingIndex(frontContainerImage.transform.GetSiblingIndex());
+        }
         workUiRoot = Rect(canvasObject.transform, "WorkViewUI", 0, 0, 1280, 720).gameObject;
         clueText = Label(workUiRoot.transform, "CustomerClue", "", 28, 20, 440, 54, 20, new Color(.87f, .86f, .79f));
-        clockText = Label(workUiRoot.transform, "BusinessClock", "09:00", 1065, 22, 170, 42, 24, new Color(.84f, .84f, .78f));
+        clockRoot = Picture(canvasObject.transform, "CounterClock", counterClockArtwork, 1090, 380, 180, 180, false).rectTransform;
+        clockText = Label(clockRoot, "BusinessClock", "09:00", 27, 77, 125, 38, 26, new Color(.40f,.58f,.43f));
+        clockText.alignment = TextAnchor.MiddleCenter;
         noticeText = Label(workUiRoot.transform, "Notice", "", 315, 640, 620, 44, 20, new Color(.92f, .77f, .55f));
         noticeText.alignment = TextAnchor.MiddleCenter;
-        var register = Panel(workUiRoot.transform, "Register", 982, 392, 276, 306, new Color(.055f, .065f, .068f, .97f));
+        var register = Picture(workUiRoot.transform, "Register", calculatorArtwork, 900, 310, 360, 360, false).rectTransform;
+        register.GetComponent<Image>().raycastTarget = true;
         keypadRect = register;
-        Label(register, "Heading", "받을 금액", 18, 12, 150, 28, 17, new Color(.84f, .84f, .78f));
-        inputText = Label(register, "PriceInput", "금액 입력", 18, 43, 240, 42, 29, Color.white);
+        inputText = Label(register, "PriceInput", "0", 51, 50, 250, 51, 25, new Color(.40f,.58f,.43f));
+        inputText.alignment = TextAnchor.MiddleRight;
         for (int i = 1; i <= 9; i++)
         {
             string digit = i.ToString();
-            MakeButton(register, "Digit" + digit, digit, 17 + ((i - 1) % 3) * 82, 94 + ((i - 1) / 3) * 45, 74, 38, () => Digit(digit));
+            ArtworkButton(register, "Digit" + digit, 147 + (i - 1) % 3 * 243, 428 + (i - 1) / 3 * 166, 214, 151, () => Digit(digit));
         }
-        MakeButton(register, "Backspace", "한 칸", 17, 229, 74, 38, Backspace);
-        MakeButton(register, "Digit0", "0", 99, 229, 74, 38, () => Digit("0"));
-        MakeButton(register, "Clear", "전체", 181, 229, 74, 38, ClearAmount);
-        MakeButton(register, "Confirm", "확인", 17, 273, 238, 27, ConfirmSale);
-        pouringContainerImage = Picture(workUiRoot.transform, "PouringContainer", tiltedContainer, 40, 150, 310, 310, true);
+        ArtworkButton(register, "Backspace", 877, 428, 214, 151, Backspace);
+        ArtworkButton(register, "Digit000", 877, 594, 214, 151, () => Digit("000"));
+        ArtworkButton(register, "Digit00", 877, 760, 214, 151, () => Digit("00"));
+        ArtworkButton(register, "Clear", 147, 922, 454, 191, ClearAmount);
+        ArtworkButton(register, "Confirm", 635, 922, 456, 191, ConfirmSale);
+        var toggleSprite = SliceUi(calculatorToggleArtwork, new Rect(343, 357, 552, 601));
+        var toggleImage = Picture(workUiRoot.transform, "CalculatorToggle", toggleSprite, 1214, 659, 54, 58, false);
+        calculatorToggleRect = toggleImage.rectTransform;
+        toggleImage.raycastTarget = true;
+        var toggle = toggleImage.gameObject.AddComponent<Button>();
+        toggle.transition = Selectable.Transition.None;
+        toggle.onClick.AddListener(() => calculatorOpen = !calculatorOpen);
+        toggleImage.gameObject.AddComponent<DystopiaKeyFeedback>();
+        pouringContainerImage = Picture(workUiRoot.transform, "PouringContainer", tiltedContainer, 40, 150, 450, 450, true);
         transitionBlock = Panel(canvasObject.transform, "Transition", 0, 0, 1280, 720, Color.black).gameObject;
         transitionBlock.SetActive(false);
         workUiRoot.SetActive(false);
@@ -349,23 +475,100 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     private IEnumerator CustomerFlow()
     {
         ShowFront("물품을 가져왔습니다. 확인해 주세요.");
-        yield return WaitUnscaled(frontArrivalSeconds);
+        yield return PlaceContainer();
+        yield return WaitUnscaled(Mathf.Max(0, frontArrivalSeconds - .85f));
         state = ViewState.Transition;
-        transitionBlock.SetActive(true);
-        yield return WaitUnscaled(transitionSeconds);
+        yield return ScrollToWork();
         ShowWork();
         transitionBlock.SetActive(false);
         state = ViewState.Pouring;
         yield return PourItems();
         state = ViewState.Sorting;
-        pouringContainerImage.sprite = emptyContainer;
+        pouringContainerImage.gameObject.SetActive(false);
         ResetCursorSample();
         RefreshUi();
+    }
+
+    /// <summary>상자를 내려놓고 바닥을 고정한 채 짧게 눌렀다 복원하며 픽셀 먼지를 흩뿌립니다.</summary>
+    private IEnumerator PlaceContainer()
+    {
+        RectTransform box = frontContainerImage.rectTransform;
+        Vector2 rest = box.anchoredPosition;
+        float elapsed = 0;
+        while (elapsed < .85f)
+        {
+            if (!isPaused) elapsed += Time.unscaledDeltaTime;
+            float drop = Mathf.Clamp01(elapsed / .3f);
+            float impact = Mathf.Clamp01((elapsed - .3f) / .55f);
+            float squash = Mathf.Sin(impact * Mathf.PI * 2) * Mathf.Exp(-impact * 4) * .10f;
+            float scaleX = 1 + squash;
+            float scaleY = 1 - squash;
+            box.localScale = new Vector3(scaleX, scaleY, 1);
+            box.anchoredPosition = rest + new Vector2(box.sizeDelta.x * (1 - scaleX) * .5f,
+                38 * (1 - drop * drop) - box.sizeDelta.y * (1 - scaleY));
+            for (int i = 0; i < landingDust.Length; i++)
+            {
+                float side = i % 2 == 0 ? -1 : 1;
+                float spread = 80 + i / 2 * 13 + impact * (35 + i * 3);
+                landingDust[i].rectTransform.anchoredPosition = new Vector2(
+                    Mathf.Round((640 + side * spread) / 2) * 2,
+                    -Mathf.Round((633 - Mathf.Sin(impact * Mathf.PI * .5f) * (12 + i % 3 * 5)) / 2) * 2);
+                landingDust[i].color = new Color(.34f, .32f, .28f,
+                    elapsed > .3f ? (1 - impact) * .42f : 0);
+            }
+            yield return null;
+        }
+        box.anchoredPosition = rest;
+        box.localScale = Vector3.one;
+        foreach (Image dust in landingDust) dust.color = Color.clear;
+    }
+
+    /// <summary>작업대 전환 위로 상자가 왼쪽 밖에서 더 천천히 들어와 감속합니다.</summary>
+    private IEnumerator ScrollToWork()
+    {
+        var cover = transitionBlock.GetComponent<Image>();
+        var coverRect = cover.rectTransform;
+        frontContainerImage.gameObject.SetActive(false);
+        var box = pouringContainerImage.rectTransform;
+        Transform originalParent = box.parent;
+        int originalIndex = box.GetSiblingIndex();
+        // 작업대와 분리해 화면 밖에서 들어오는 상자의 이동과 감속을 충분히 보여 줍니다.
+        box.SetParent(coverRect.parent, false);
+        box.anchoredPosition = new Vector2(-40, -150);
+        box.sizeDelta = new Vector2(450, 450);
+        box.localRotation = Quaternion.Euler(0, 0, -90);
+        pouringContainerImage.sprite = tiltedContainer;
+        pouringContainerImage.gameObject.SetActive(true);
+        cover.sprite = workbench;
+        cover.color = Color.white;
+        coverRect.anchoredPosition = new Vector2(-1280, 0);
+        transitionBlock.SetActive(true);
+        box.SetAsLastSibling();
+        float elapsed = 0;
+        float slideSeconds = Mathf.Max(.85f, transitionSeconds);
+        while (elapsed < slideSeconds)
+        {
+            if (!isPaused) elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.SmoothStep(0, 1, Mathf.Clamp01(elapsed / Mathf.Max(.01f, transitionSeconds)));
+            coverRect.anchoredPosition = new Vector2(Mathf.Lerp(-1280, 0, progress), 0);
+            float slide = Mathf.Clamp01(elapsed / slideSeconds);
+            float easeOut = 1 - Mathf.Pow(1 - slide, 3);
+            box.anchoredPosition = new Vector2(Mathf.Lerp(-40, 350, easeOut), -150);
+            yield return null;
+        }
+        // 도착한 자세를 쏟기 화면에 그대로 넘기고 전환 덮개만 복구합니다.
+        box.SetParent(originalParent, false);
+        box.SetSiblingIndex(originalIndex);
+        transitionBlock.SetActive(false);
+        coverRect.anchoredPosition = Vector2.zero;
+        cover.sprite = null;
+        cover.color = Color.black;
     }
 
     /// <summary>손님 정면 이미지와 철재통을 기존 성별·외형 데이터로 표시합니다.</summary>
     private void ShowFront(string message)
     {
+        frontContainerImage.gameObject.SetActive(true);
         state = ViewState.Front;
         worldCamera.gameObject.SetActive(false);
         workbenchObject.SetActive(false);
@@ -404,10 +607,10 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         pouringContainerImage.gameObject.SetActive(true);
         pouringContainerImage.sprite = tiltedContainer;
         RectTransform pouringRect = pouringContainerImage.rectTransform;
-        Vector2 pourStart = new Vector2(40, -150);
-        Vector2 pourEnd = new Vector2(265, -165);
+        Vector2 pourStart = new Vector2(350, -150);
+        Vector2 pourEnd = new Vector2(400, -165);
         pouringRect.anchoredPosition = pourStart;
-        pouringRect.localRotation = Quaternion.identity;
+        pouringRect.localRotation = Quaternion.Euler(0, 0, -90);
         StartCoroutine(AnimatePourContainer(pouringRect, pourStart, pourEnd));
         var random = new System.Random(Session.Revision * 7919 + 17);
         int totalUnits = 0;
@@ -421,20 +624,31 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
             {
                 float delay = totalUnits <= 1 ? 0 : pourSpreadSeconds * created / (totalUnits - 1f);
                 if (delay > 0) yield return WaitUnscaled(pourSpreadSeconds / Mathf.Max(1, totalUnits - 1));
-                float y = Mathf.Lerp(1.45f, -1.25f, (float)random.NextDouble());
-                var item = CreateItem(productId, lineIndex, unitIndex, new Vector2(-3.75f + created * .06f, y));
-                float angle = Mathf.Lerp(-22f, 24f, (float)random.NextDouble());
-                Vector2 direction = Quaternion.Euler(0, 0, angle) * Vector2.right;
-                item.Body.linearVelocity = direction * Mathf.Lerp(pourForce * .68f, pourForce * 1.25f, (float)random.NextDouble());
-                item.Body.angularVelocity = Mathf.Lerp(-150f, 150f, (float)random.NextDouble());
+                // 제공 이미지의 위쪽 여백을 제외한 입구를 화면 좌표에서 물리 좌표로 옮깁니다.
+                Vector3 mouth = pouringRect.TransformPoint(new Vector3(pouringRect.rect.center.x,
+                    pouringRect.rect.yMax - pouringRect.rect.height * .13f, 0));
+                Vector2 mouthScreen = RectTransformUtility.WorldToScreenPoint(null, mouth);
+                Vector3 mouthWorld = worldCamera.ScreenToWorldPoint(new Vector3(mouthScreen.x, mouthScreen.y, -worldCamera.transform.position.z));
+                var item = CreateItem(productId, lineIndex, unitIndex,
+                    new Vector2(mouthWorld.x, mouthWorld.y + Mathf.Lerp(-.35f, .35f, (float)random.NextDouble())));
+                // 쏟는 동안 마찰을 낮춰 입구에 뭉치지 않고 중앙의 서로 다른 지점으로 미끄러지게 합니다.
+                Vector2 destination = new Vector2(Mathf.Lerp(-1.8f, -.5f, (float)random.NextDouble()),
+                    Mathf.Lerp(-.65f, .65f, (float)random.NextDouble()));
+                item.Body.linearDamping = Mathf.Min(itemFriction, 1f);
+                item.Body.linearVelocity = Vector2.ClampMagnitude(
+                    (destination - item.Body.position) * (pourForce * .64f), maximumItemSpeed);
+                item.Body.angularVelocity = Mathf.Lerp(-65f, 65f, (float)random.NextDouble());
                 created++;
             }
         }
+        // 마지막 물품이 나온 즉시 정면·쏟기 상자를 모두 숨깁니다.
+        frontContainerImage.gameObject.SetActive(false);
+        pouringContainerImage.gameObject.SetActive(false);
         float remaining = Mathf.Max(0, pourDuration - pourSpreadSeconds);
         yield return WaitUnscaled(remaining);
-        pouringContainerImage.sprite = emptyContainer;
-        yield return WaitUnscaled(.2f);
-        pouringContainerImage.gameObject.SetActive(false);
+        // 중앙으로 흘러간 뒤에는 기존 조작용 마찰로 복귀해 물품이 계속 떠다니지 않게 합니다.
+        foreach (DystopiaTopDownItem item in items) item.Body.linearDamping = itemFriction;
+
     }
 
     /// <summary>쏟는 동안 사각 철재통을 왼쪽에서 오른쪽으로 옮기며 조금 더 기울입니다.</summary>
@@ -446,7 +660,7 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
             if (!isPaused) elapsed += Time.unscaledDeltaTime;
             float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(elapsed / Mathf.Max(.01f, pourDuration)));
             rect.anchoredPosition = Vector2.LerpUnclamped(from, to, t);
-            rect.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, -16f, t));
+            rect.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(-90, -100f, t));
             yield return null;
         }
     }
@@ -459,11 +673,14 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         itemObject.transform.localPosition = position;
         var renderer = itemObject.AddComponent<SpriteRenderer>();
         renderer.sprite = productSprites[productId];
+        // 저해상도 import 크기와 무관하게 긴 변을 가판 기준 180픽셀로 표시합니다.
+        Vector2 spriteSize = renderer.sprite.bounds.size;
+        itemObject.transform.localScale = Vector3.one * (1.8f / Mathf.Max(spriteSize.x, spriteSize.y));
         renderer.sortingOrder = 10 + nextInstanceId;
         var body = itemObject.AddComponent<Rigidbody2D>();
         body.gravityScale = 0;
         body.linearDamping = itemFriction;
-        body.angularDamping = rotationDamping;
+        body.angularDamping = rotationDamping * .2f;
         body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         body.interpolation = RigidbodyInterpolation2D.Interpolate;
         var collider = itemObject.AddComponent<BoxCollider2D>();
@@ -503,7 +720,11 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         previousCursorWorld = worldPosition;
     }
 
-    /// <summary>이전 위치부터 현재 위치까지 원형 스윕을 검사하고 속도에 비례한 충격을 줍니다.</summary>
+    /// <summary>커서 이동에 비례한 충격과 회전을 접촉한 물품에 계속 전달합니다.</summary>
+    /// <param name="from">이전 커서의 월드 위치입니다.</param>
+    /// <param name="to">현재 커서의 월드 위치입니다.</param>
+    /// <param name="deltaSeconds">표본 사이의 경과 초입니다.</param>
+    /// <returns>이번 표본에서 새 충격을 받은 물품 수입니다.</returns>
     public int ApplyCursorSweep(Vector2 from, Vector2 to, float deltaSeconds)
     {
         if (state != ViewState.Sorting || isPaused || deltaSeconds <= 0) return 0;
@@ -511,24 +732,34 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         float distance = delta.magnitude;
         Vector2 velocity = delta / deltaSeconds;
         int count = Physics2D.CircleCastNonAlloc(from, cursorRadius, distance > .0001f ? delta / distance : Vector2.right, sweepHits, distance);
-        var affected = new HashSet<Rigidbody2D>();
+        currentCursorContacts.Clear();
+        int affected = 0;
         for (int i = 0; i < count; i++)
         {
             Rigidbody2D body = sweepHits[i].rigidbody;
             var item = body != null ? body.GetComponent<DystopiaTopDownItem>() : null;
-            if (item == null || item.State != TopDownItemState.Working || !affected.Add(body)) continue;
+            if (item == null || item.State == TopDownItemState.Excluded || !currentCursorContacts.Add(body)) continue;
+            // 커서 속도를 따라가게 하지 않고 현재 커서에서 바깥으로 밀어냅니다.
+            // 정지한 커서와 겹쳐도 최소 이탈 속도를 주되 이미 멀어지는 물품에는 힘을 누적하지 않습니다.
+            Vector2 away = body.position - to;
+            if (away.sqrMagnitude < .000001f) away = distance > .0001f ? delta : Vector2.right;
+            away.Normalize();
+            float escapeSpeed = Mathf.Clamp(2.8f + velocity.magnitude * cursorForce, 2.8f, maximumItemSpeed);
+            float speedToAdd = escapeSpeed - Vector2.Dot(body.linearVelocity, away);
+            if (speedToAdd <= 0) continue;
+            affected++;
             item.WasStirred = true;
-            Vector2 impulse = Vector2.ClampMagnitude(velocity * cursorForce, maximumItemSpeed * .55f);
-            body.AddForce(impulse, ForceMode2D.Impulse);
-            body.AddTorque(Vector2.SignedAngle(Vector2.right, delta) * .0025f, ForceMode2D.Impulse);
+            body.AddForce(away * speedToAdd * body.mass, ForceMode2D.Impulse);
+            float spinDirection = Vector2.SignedAngle(Vector2.right, away) < 0 ? -1 : 1;
+            body.angularVelocity = Mathf.Clamp(body.angularVelocity + spinDirection * 540, -720, 720);
         }
-        return affected.Count;
+        return affected;
     }
 
     /// <summary>포인터가 계산기나 다른 UI를 통과할 때 물리 입력을 막습니다.</summary>
     private bool PointerOverUi(Vector2 screenPosition)
     {
-        if (keypadRect != null && RectTransformUtility.RectangleContainsScreenPoint(keypadRect, screenPosition)) return true;
+        if (keypadRect != null && keypadRect.gameObject.activeInHierarchy && RectTransformUtility.RectangleContainsScreenPoint(keypadRect, screenPosition)) return true;
         return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
     }
 
@@ -537,29 +768,31 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     {
         foreach (DystopiaTopDownItem item in items)
         {
-            if (item.State != TopDownItemState.Working) continue;
+            if (item.State == TopDownItemState.Excluded) continue;
             item.Body.linearVelocity = Vector2.ClampMagnitude(item.Body.linearVelocity, maximumItemSpeed);
+            item.Body.angularVelocity = Mathf.Clamp(item.Body.angularVelocity, -720, 720);
             Vector2 position = item.transform.localPosition;
             item.transform.localPosition = new Vector3(Mathf.Clamp(position.x, -5.95f, 5.95f), Mathf.Clamp(position.y, -3.15f, 3.15f), 0);
         }
     }
 
-    /// <summary>쏟기 뒤 사용자가 움직인 물품의 중심이 영역 안에 들어왔을 때 한 번만 분류합니다.</summary>
+    /// <summary>현재 위치로 판매 후보를 갱신하고 영역 밖으로 나오면 미분류로 되돌립니다.</summary>
     private void ClassifySettledItems()
     {
         foreach (DystopiaTopDownItem item in items)
         {
-            if (item.State != TopDownItemState.Working || !item.WasStirred) continue;
+            if (item.State == TopDownItemState.Excluded) continue;
             Vector2 center = item.transform.localPosition;
-            if (ExcludedZone.Contains(center)) TryClassify(item, TopDownItemState.Excluded);
-            else if (SaleZone.Contains(center)) TryClassify(item, TopDownItemState.ForSale);
+            if (item.WasStirred && ExcludedZone.Contains(center)) TryClassify(item, TopDownItemState.Excluded);
+            else if (SaleZone.Contains(center)) item.State = TopDownItemState.ForSale;
+            else item.State = TopDownItemState.Working;
         }
     }
 
-    /// <summary>개별 물품을 제외 또는 판매 후보로 한 번만 확정합니다.</summary>
+    /// <summary>분류 상태를 바꾸되 판매 영역 안에서도 물리 움직임을 유지합니다.</summary>
     public bool TryClassify(DystopiaTopDownItem item, TopDownItemState target)
     {
-        if (state != ViewState.Sorting || isPaused || item == null || item.State != TopDownItemState.Working) return false;
+        if (state != ViewState.Sorting || isPaused || item == null || item.State == TopDownItemState.Excluded) return false;
         if (target == TopDownItemState.Excluded)
         {
             if (!Session.ToggleBasketUnit(item.LineIndex, item.UnitIndex)) return false;
@@ -569,19 +802,17 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         else if (target == TopDownItemState.ForSale)
         {
             item.State = target;
-            item.Body.linearVelocity = Vector2.zero;
-            item.Body.angularVelocity = 0;
-            item.Body.bodyType = RigidbodyType2D.Kinematic;
+
         }
         else return false;
         RefreshUi();
         return true;
     }
 
-    /// <summary>키패드 한 자리 입력을 기존 최대 7자리 규칙에 맞게 보관합니다.</summary>
+    /// <summary>키패드의 한 자리 또는 00·000 입력 전체를 최대 7자리 안에서 추가합니다.</summary>
     private void Digit(string digit)
     {
-        if (state != ViewState.Sorting || isPaused || amount.Length >= 7) return;
+        if (state != ViewState.Sorting || isPaused || amount.Length + digit.Length > 7) return;
         amount += digit;
         noticeText.text = "";
         RefreshUi();
@@ -613,6 +844,7 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
     public bool TryConfirm(string input)
     {
         if (state != ViewState.Sorting || isPaused || businessMinute >= 21 * 60) return false;
+        ClassifySettledItems();
         foreach (DystopiaTopDownItem item in items)
         {
             if (item.State == TopDownItemState.Working)
@@ -649,7 +881,7 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
             frontRoot.SetActive(false);
             if (ownedEventSystem != null) ownedEventSystem.SetActive(false);
             hostScreen.gameObject.SetActive(true);
-            if (hostBasketRoot != null) hostBasketRoot.SetActive(true);
+            if (hostBasketRoot != null) hostBasketRoot.SetActive(false);
             hostScreen.enabled = true;
             while (Session.Phase == DystopiaPhase.Result) yield return null;
         }
@@ -663,7 +895,7 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         {
             if (hostScreen != null)
             {
-                if (hostBasketRoot != null) hostBasketRoot.SetActive(true);
+                if (hostBasketRoot != null) hostBasketRoot.SetActive(false);
                 hostScreen.enabled = true;
             }
             CloseBusiness();
@@ -770,6 +1002,32 @@ public sealed class DystopiaTopDownTest : MonoBehaviour
         businessMinute = minute;
     }
 
+    /// <summary>원본 UI 이미지의 필요한 영역을 Point Sprite로 사용합니다.</summary>
+    private Sprite SliceUi(Sprite source, Rect topLeftRect)
+    {
+        if (source == null) return null;
+        Rect rect = new Rect(topLeftRect.x, source.texture.height - topLeftRect.y - topLeftRect.height, topLeftRect.width, topLeftRect.height);
+        Sprite slice = Sprite.Create(source.texture, rect, new Vector2(.5f,.5f), 100);
+        uiSlices.Add(slice);
+        return slice;
+    }
+
+    /// <summary>그림의 버튼 위치에 같은 이미지 조각과 눌림 반응을 연결합니다.</summary>
+    private void ArtworkButton(Transform parent, string name, float x, float y, float width, float height, Action action)
+    {
+        const float scale = 360f / 1254f;
+        // 원본 버튼을 덮어 축소될 때 바닥 그림이 중복으로 비치지 않게 합니다.
+        var socket = Panel(parent, name, x*scale, y*scale, width*scale, height*scale, new Color(.035f,.035f,.032f));
+        var graphic = Picture(socket, "Key", SliceUi(calculatorArtwork, new Rect(x,y,width,height)), 0,0,width*scale,height*scale,false);
+        graphic.rectTransform.pivot = new Vector2(.5f,.5f);
+        graphic.rectTransform.anchoredPosition = new Vector2(width*scale*.5f,-height*scale*.5f);
+        var button = socket.gameObject.AddComponent<Button>();
+        button.transition = Selectable.Transition.None;
+        button.targetGraphic = graphic;
+        button.onClick.AddListener(() => action());
+        socket.gameObject.AddComponent<DystopiaKeyFeedback>().Visual = graphic.rectTransform;
+    }
+
     /// <summary>UI RectTransform을 좌상단 기준 픽셀 좌표로 만듭니다.</summary>
     private static RectTransform Rect(Transform parent, string name, float x, float y, float width, float height)
     {
@@ -845,4 +1103,24 @@ public static class DystopiaTopDownRuntimeBootstrap
         if (screen == null) return;
         DystopiaTopDownTest.AttachToExistingScreen(screen);
     }
+}
+
+/// <summary>계산기 키를 가볍게 밝히고 누를 때 축소한 뒤 복원합니다.</summary>
+public sealed class DystopiaKeyFeedback : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
+{
+    public RectTransform Visual;
+    private bool hovered, pressed;
+    private void Update()
+    {
+        if (Visual == null) Visual = transform as RectTransform;
+        float scale = pressed ? .91f : hovered ? 1.025f : 1;
+        Visual.localScale = Vector3.Lerp(Visual.localScale, Vector3.one * scale, 1 - Mathf.Exp(-24 * Time.unscaledDeltaTime));
+        var graphic = Visual.GetComponent<Image>();
+        if (graphic != null) graphic.color = pressed ? new Color(.78f,.82f,.75f) : hovered ? new Color(1,.96f,.82f) : Color.white;
+    }
+    public void OnPointerEnter(PointerEventData e) { hovered = true; }
+    public void OnPointerExit(PointerEventData e) { hovered = false; pressed = false; }
+    public void OnPointerDown(PointerEventData e) { if (e.button == PointerEventData.InputButton.Left) pressed = true; }
+    public void OnPointerUp(PointerEventData e) { pressed = false; }
+    private void OnDisable() { hovered = pressed = false; if (Visual != null) Visual.localScale = Vector3.one; }
 }

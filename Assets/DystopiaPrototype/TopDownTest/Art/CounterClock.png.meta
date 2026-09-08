@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 0bd04b7017c4fa84094c818943317338
+guid: 594304eb42c84524a1909e1dd7546641
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7032184553362833509
-    second: Can_0
-  - first:
-      213: 8933446878427001378
-    second: Can_1
-  - first:
-      213: 7035461132062161893
-    second: Can_2
+      213: 1409351318531976679
+    second: CounterClock_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,7 +34,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 128
+  maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -57,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 128
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -78,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -91,7 +85,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -104,7 +98,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: WebGL
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -119,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Can_0
+      name: CounterClock_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1225
-        height: 1116
+        x: 36
+        y: 110
+        width: 444
+        height: 302
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -134,52 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5604e2ad796579160800000000000000
-      internalID: 7032184553362833509
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Can_1
-      rect:
-        serializedVersion: 2
-        x: 150
-        y: 780
-        width: 6
-        height: 130
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 222b670ca9af9fb70800000000000000
-      internalID: 8933446878427001378
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Can_2
-      rect:
-        serializedVersion: 2
-        x: 900
-        y: 53
-        width: 14
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 5ebf1a7cf9af2a160800000000000000
-      internalID: 7035461132062161893
+      spriteID: 7eda3d0ae850f8310800000000000000
+      internalID: 1409351318531976679
       vertices: []
       indices: 
       edges: []
@@ -198,9 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Can_0: 7032184553362833509
-      Can_1: 8933446878427001378
-      Can_2: 7035461132062161893
+      CounterClock_0: 1409351318531976679
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

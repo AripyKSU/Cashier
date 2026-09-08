@@ -116,6 +116,10 @@ public sealed class DystopiaSession
     private static readonly string[] ProductNames = { "생수", "건빵", "통조림", "즉석밥" };
     private readonly DystopiaSettings settings;
     private readonly System.Random random;
+    // 당일 방문 순서를 보존해 화면의 대기 손님과 실제 거래 손님을 일치시킵니다.
+    private readonly List<DystopiaCustomer> waitingCustomers = new List<DystopiaCustomer>();
+    /// <summary>현재 손님 뒤의 실제 대기 순서입니다.</summary>
+    public IReadOnlyList<DystopiaCustomer> WaitingCustomers => waitingCustomers;
     private readonly DystopiaProduct[] activeProducts;
     private readonly List<string> ruleViolationHistory = new List<string>();
     private float resultRemaining;
@@ -223,6 +227,7 @@ public sealed class DystopiaSession
         // 活性客は残し、後ろの待機客だけを一度に最大2人除きます。
         int count = Math.Min(settings.departureCount, Remaining - 1);
         Remaining -= count;
+        waitingCustomers.RemoveRange(waitingCustomers.Count - count, count);
         Departed += count;
         Reputation = Mathf.Clamp(Reputation + settings.departureReputation, 0, 100);
         Gauge = settings.departureRecovery;
@@ -342,6 +347,8 @@ public sealed class DystopiaSession
         Gauge = settings.gaugeStart;
         Feedback = Reason = "";
         Customer = CreateCustomer();
+        waitingCustomers.Clear();
+        for (int i = 1; i < Visitors; i++) waitingCustomers.Add(CreateCustomer());
         Phase = DystopiaPhase.PriceGuide;
         Revision++;
     }
@@ -351,7 +358,12 @@ public sealed class DystopiaSession
     {
         Remaining--;
         if (Remaining <= 0) Phase = Day % 7 == 0 ? DystopiaPhase.Tribute : DystopiaPhase.Settlement;
-        else { Customer = CreateCustomer(); Phase = DystopiaPhase.Trading; }
+        else
+        {
+            Customer = waitingCustomers[0];
+            waitingCustomers.RemoveAt(0);
+            Phase = DystopiaPhase.Trading;
+        }
         Revision++;
     }
 

@@ -80,3 +80,12 @@ Play 진입에 따라 DOTweenSettings.asset의 줄바꿈만 LF로 재직렬화�
 핵심 루프는 플레이 가능합니다. 20종 파츠 손님, 운영 장비, 특수 이벤트, 거래 규정은 문서의 확장 범위로 미구현입니다. 오디오는 추가하지 않았습니다.
 18장 모두 실제 생성·연결한 아트이며 단순 도형 placeholder는 없습니다. 생성 원본은 큰 픽셀 클러스터 이미지로, 640×360 기준 수작업 픽셀 밀도 통일·인물 다양성 확대는 남아 있습니다.
 한국어는 Windows에 설치된 맑은 고딕을 사용하며 폰트 파일을 재배포하지 않습니다. 별도 실행 파일 빌드, 다른 OS, WebGL 및 사람의 물리 키보드/마우스 체감 시험은 미검증입니다. 재미는 사용자가 직접 판단해야 합니다.
+
+
+### 2026-09-08 Calculator and counter clock
+- User-provided Calculator, CalculatorToggle and CounterClock PNGs copied unchanged into TopDownTest/Art; Point, no mipmaps, uncompressed import settings. Scene sprite references added for standalone and embedded modes.
+- Calculator artwork keys have hover tint and press shrink; 00/000 append atomically within the seven-digit limit. Clear and sale keep existing transaction behavior.
+- Lower-right toggle slides the calculator offscreen so covered items can be reached. The front screen hides its legacy calculator controls.
+- Muted green clock appears only in front mode, shows 09:00 through 21:00, and resets on day change.
+- Existing runtime-built Canvas architecture retained; future prefab authoring migration is outside this change.
+- Standalone C# compile and static asset-reference checks completed; Unity import, actual layout and pointer interaction remain unverified. No UI control, commit or push.

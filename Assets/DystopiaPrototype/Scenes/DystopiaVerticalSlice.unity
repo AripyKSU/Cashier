@@ -243,6 +243,9 @@ MonoBehaviour:
     height: 24
   dailyLedger: {fileID: 0}
   dailyInstruction: {fileID: 0}
+  calculatorArtwork: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
+  calculatorToggleArtwork: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}
+  counterClockArtwork: {fileID: 21300000, guid: 594304eb42c84524a1909e1dd7546641, type: 3}
   uiFont: {fileID: 0}
   guardTone: {fileID: 2100000, guid: 5e537d872b1f4b928229e214b072484d, type: 2}
   leftTowerTone: {fileID: 2100000, guid: fe2e76b0754f4f01a56673cb38ceaae2, type: 2}

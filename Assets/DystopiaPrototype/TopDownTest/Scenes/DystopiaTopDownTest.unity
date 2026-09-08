@@ -282,6 +282,9 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  calculatorArtwork: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
+  calculatorToggleArtwork: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}
+  counterClockArtwork: {fileID: 21300000, guid: 594304eb42c84524a1909e1dd7546641, type: 3}
   uiFont: {fileID: 0}
 --- !u!4 &874349466
 Transform:

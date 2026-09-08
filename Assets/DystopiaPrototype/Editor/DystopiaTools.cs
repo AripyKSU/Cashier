@@ -161,3 +161,65 @@ public static class DystopiaTools
     [MenuItem("Dystopia/Stop Play")]
     public static void Stop() { EditorApplication.isPlaying=false; }
 }
+
+/// <summary>실행 전에도 배치 수치를 확인할 수 있는 UI 전용 Inspector 미리보기입니다.</summary>
+[CustomEditor(typeof(DystopiaScreen))]
+public class DystopiaLayoutInspector : Editor
+{
+    // 표시 모드만 보관하며 실제 배치 값은 Scene 컴포넌트에 직렬화합니다.
+    private bool showClock;
+
+    /// <summary>실제 배치 소유자의 값을 편집하고 1280×720 미리보기를 즉시 그립니다.</summary>
+    public override void OnInspectorGUI()
+    {
+        var topDown = target as DystopiaTopDownTest;
+        UnityEngine.Object owner = topDown != null && topDown.LayoutOwner != null ? topDown.LayoutOwner : target;
+        var layoutObject = owner == target ? serializedObject : new SerializedObject(owner);
+        layoutObject.Update();
+        EditorGUILayout.LabelField("UI 위치 · 크기 (즉시 미리보기)", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox("X는 오른쪽, Y는 아래쪽입니다. Play 전에는 아래 미리보기에서 확인하세요. Play 중 변경은 종료하면 되돌아갑니다.", MessageType.Info);
+        if (owner != target) EditorGUILayout.ObjectField("현재 배치 설정", owner, typeof(DystopiaScreen), true);
+        EditorGUILayout.PropertyField(layoutObject.FindProperty("calculatorLayout"), new GUIContent("계산기 위치 / 크기"));
+        EditorGUILayout.PropertyField(layoutObject.FindProperty("calculatorToggleLayout"), new GUIContent("토글 위치 / 크기"));
+        EditorGUILayout.PropertyField(layoutObject.FindProperty("counterClockLayout"), new GUIContent("시계 위치 / 크기"));
+        layoutObject.ApplyModifiedProperties();
+        showClock = GUILayout.Toolbar(showClock ? 1 : 0, new[] { "탑다운 계산기", "정면 시계" }) == 1;
+        Rect area = GUILayoutUtility.GetAspectRect(1280f / 720f);
+        EditorGUI.DrawRect(area, new Color(.08f,.08f,.08f));
+        string art = "Assets/DystopiaPrototype/";
+        Texture2D background = AssetDatabase.LoadAssetAtPath<Texture2D>(art + (showClock ? "Art/BoothCounter.png" : "TopDownTest/Art/TopDownWorkbench.png"));
+        if (background != null) GUI.DrawTexture(area, background, ScaleMode.StretchToFill);
+        GUI.BeginClip(area);
+        float scale = area.width / 1280;
+        if (showClock)
+            DrawArtwork(layoutObject, "counterClockLayout", "CounterClock", scale, new Rect(0,0,1,1));
+        else
+        {
+            DrawArtwork(layoutObject, "calculatorLayout", "Calculator", scale, new Rect(0,0,1,1));
+            DrawArtwork(layoutObject, "calculatorToggleLayout", "CalculatorToggle", scale, new Rect(343f/1254,296f/1254,552f/1254,601f/1254));
+        }
+        GUI.EndClip();
+        EditorGUILayout.Space();
+        serializedObject.Update();
+        DrawPropertiesExcluding(serializedObject, "calculatorLayout", "calculatorToggleLayout", "counterClockLayout");
+        serializedObject.ApplyModifiedProperties();
+    }
+
+    /// <summary>실제 UI와 같은 위치·크기 및 텍스처 영역을 표시합니다.</summary>
+    /// <param name="data">배치 소유자의 직렬화 데이터입니다.</param>
+    /// <param name="field">Rect 필드 이름입니다.</param>
+    /// <param name="asset">UI 이미지 이름입니다.</param>
+    /// <param name="scale">미리보기의 기준 해상도 배율입니다.</param>
+    /// <param name="uv">이미지에서 표시할 영역입니다.</param>
+    private static void DrawArtwork(SerializedObject data, string field, string asset, float scale, Rect uv)
+    {
+        Rect layout = data.FindProperty(field).rectValue;
+        Rect display = new Rect(layout.x*scale,layout.y*scale,Mathf.Max(1,layout.width)*scale,Mathf.Max(1,layout.height)*scale);
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/TopDownTest/Art/"+asset+".png");
+        if (texture != null) GUI.DrawTextureWithTexCoords(display,texture,uv);
+    }
+}
+
+/// <summary>독립 탑다운 Scene에서도 동일한 배치 편집과 미리보기를 제공합니다.</summary>
+[CustomEditor(typeof(DystopiaTopDownTest))]
+public sealed class DystopiaTopDownLayoutInspector : DystopiaLayoutInspector { }
