@@ -6,20 +6,18 @@
 
 ## 1. 스크립트 개요 및 디렉터리 구성
 
-현재 프로젝트의 스크립트는 `Assets/Scripts/` 하위에 위치합니다. 공용 데이터는 `Commons/Data/`, 손님 데이터는 `Customer/Data/`, 경제 CSV 데이터는 `Finance/Data/`에 DTO와 DataTable을 함께 배치합니다. 아래는 주요 공용 스크립트 중심의 구조 요약입니다.
+현재 프로젝트의 스크립트는 `Assets/Scripts/` 하위에 위치하며, 기능 및 책임에 따라 공용 계약(`Commons`), 핵심 서비스 매니저(`Manager`), 씬 수명 컴포넌트(`Scene`), 프론트엔드 UI 및 인터랙션(`UI`), 범용 유틸리티(`Utils`), 에디터 도구(`Scene/Editor`) 및 루트 임시 스크립트로 구성되어 있습니다.
 
 ### 디렉터리 구조 요약
 
 ```text
 Assets/Scripts/
 ├── Commons/
-│   ├── Commons.cs               # 공용 enum, 인터페이스, 상수
-│   └── Data/                    # 공용 Resource·Text·Product DTO와 DataTable
-├── Customer/Data/              # 손님 DTO·DataTable·CustomerCatalog
-├── Finance/Data/               # EconomyBalance·MaintenanceBalance DTO와 DataTable
+│   └── Commons.cs               # 공용 enum, 인터페이스, DTO, 상수
 ├── Manager/
 │   ├── DataTableManager.cs      # CSV 데이터 테이블 로딩·캐싱 관리자 (Singleton)
 │   ├── GameSceneManager.cs      # 씬 전환 및 로딩 제어 관리자 (Singleton)
+│   ├── ResourceDataTable.cs     # 리소스 키 매핑 데이터 테이블 (IDataLoad 구현)
 │   ├── ResourceManager.cs       # Addressables 기반 리소스 로딩/인스턴스화/캐싱 (Singleton)
 │   └── SimplePoolManager.cs     # 오브젝트 풀 컨테이너 관리자 (Singleton)
 ├── Scene/
@@ -28,6 +26,24 @@ Assets/Scripts/
 │   ├── HubScene.cs              # 부트 후 게임 씬 분기 진입점
 │   └── Editor/
 │       └── GameplaySceneSettings.cs # 개인 개발 씬 설정 및 진입 검증 에디터 윈도우
+├── UI/
+│   ├── Contracts/
+│   │   └── UIContracts.cs           # UI 표현 계층 데이터 계약 (ViewData 스냅샷 구조체군 & GameDayPhase)
+│   ├── Presenters/
+│   │   ├── BusinessTimerPresenter.cs # 영업시간 표시 및 일시정지/재개 요청 Presenter
+│   │   ├── CustomerPresenter.cs      # 손님 외형, 대사, 장바구니 표시 Presenter
+│   │   ├── DailySettlementPresenter.cs # 일일 정산 표시 및 다음 단계 요청 Presenter
+│   │   ├── EconomyStatusPresenter.cs # 재정 상태(보유금, 일일 판매수입) 표시 Presenter
+│   │   ├── GameDayPresenter.cs       # 날짜, 정산일 여부, 진행 상태 표시 Presenter
+│   │   └── PriceInputPresenter.cs    # 포스기 키패드 입력 및 가격 확정/취소 요청 Presenter
+│   ├── CashierSaveData.cs       # 일일 장부(LedgerRecord), 세이브 데이터 컨테이너 및 PlayerPrefs 관리자
+│   ├── CashierSession.cs        # 코어 세션 엔진 (Phase, 손님 생성, 바구니, 게이지, 가격 판정, 공물)
+│   ├── DailyResultPanel.cs      # 영업 종료 후 일일 정산 UI 패널 (DailySettlementViewData 지원)
+│   ├── DayTimerController.cs    # 실시간 영업시간 카운트다운 게이지 및 시계 타이머 (BusinessTimerViewData 지원)
+│   ├── Dev3SandboxTester.cs     # 개발자 3 전용 단일 씬 통합 UI 테스터 및 샌드박스 코디네이터
+│   ├── KeypadController.cs      # 포스기 숫자 키패드 (마우스/키보드 입력, 자릿수 검증, 확정 이벤트)
+│   ├── PriceItemSlot.cs         # 가격표 개별 상품 항목 1줄 UI 슬롯 (이름, 가격, 특이사항 뱃지, 아이콘)
+│   └── PriceListPanel.cs        # 가격표(전단지/카탈로그) 팝업 패널 제어기
 ├── Utils/
 │   ├── CollectionExtensions.cs  # 컬렉션 셔플 확장 메서드
 │   ├── FloatArrayConverter.cs   # CsvHelper: string -> float[] 변환기 ('_')
@@ -45,17 +61,31 @@ Assets/Scripts/
 
 | 파일 경로 | 주요 클래스/타입 | 상속 / 구현 | 핵심 역할 |
 |---|---|---|---|
-| `Commons/Commons.cs` | `DataTableType`, `IDataLoad`, `CommonConstants` | - | 전역 enum, CSV 로더 인터페이스 및 전역 상수 정의 |
-| `Commons/Data/ResourceData.cs`, `Commons/Data/TextData.cs` | `ResourceData`, `TextData` | - | 공용 CSV DTO |
+| `Commons/Commons.cs` | `DataTableType`, `IDataLoad`, `CommonConstants`, `ResourceData`, `TextData` | - / `IDataLoad` | 전역 enum, CSV 로더 인터페이스, DTO 및 전역 상수 정의 |
 | `Manager/ResourceManager.cs` | `ResourceManager` | `Singleton<ResourceManager>` | Addressables 초기화, 카탈로그 업데이트, 의존성 다운로드, 에셋 로드 및 인스턴스화, SpriteAtlas 연동 |
 | `Manager/DataTableManager.cs` | `DataTableManager` | `Singleton<DataTableManager>` | CSV 데이터 비동기 로딩, 파싱, 캐싱 총괄. `idx` 기반 데이터 테이블 자동 식별 |
-| `Commons/Data/ResourceDataTable.cs` | `ResourceDataTable` | `IDataLoad` | Addressable 에셋 키 참조 테이블 (`ResourceData.csv` 1:1 매핑) |
+| `Manager/ResourceDataTable.cs` | `ResourceDataTable` | `IDataLoad` | Addressable 에셋 키 참조 테이블 (`ResourceData.csv` 1:1 매핑) |
 | `Manager/GameSceneManager.cs` | `GameSceneManager` | `Singleton<GameSceneManager>` | Addressables 기반 씬 전환, `LoadingScene` 경유 전환, 로컬 개인 씬 분기 처리 |
 | `Manager/SimplePoolManager.cs` | `SimplePoolManager` | `Singleton<SimplePoolManager>` | Addressables 및 일반 프리팹 기반의 풀 생성, 대여(`Get`), 반환(`Release`), 해제 관리 |
 | `Scene/InitScene.cs` | `InitScene` | `MonoBehaviour` | 게임 기동 시 최초 실행되는 부트 컴포넌트. 필수 매니저 및 데이터 준비 후 Hub 씬으로 전환 |
 | `Scene/LoadingScene.cs` | `LoadingScene` | `MonoBehaviour` | 씬 전환 도중 로딩 프로그레스 바 및 텍스트 표시, DOTween 페이드 연출 |
 | `Scene/HubScene.cs` | `HubScene` | `MonoBehaviour` | 부트스트랩 완료 후 개인 씬 또는 `MainScene`으로 게임플레이 진입 위임 |
 | `Scene/Editor/GameplaySceneSettings.cs` | `GameplaySceneSettings` | `EditorWindow` | Git에 커밋되지 않는 로컬 개인 씬(`Assets/Scenes/Local/`) 선택 및 진입 검증 도구 |
+| `UI/Contracts/UIContracts.cs` | `EconomyStatusViewData`, `GameDayViewData`, `BusinessTimerViewData`, `ItemPriceViewData`, `CustomerViewData`, `PriceInputViewData`, `DailySettlementViewData`, `GameDayPhase` | - | UI 표현 계층 데이터 계약 스냅샷 DTO 및 진행 Phase 열거형 |
+| `UI/Presenters/EconomyStatusPresenter.cs` | `EconomyStatusPresenter` | `MonoBehaviour` | 상단 HUD 재정 상태(보유금, 일일 판매수입) 표시 Presenter |
+| `UI/Presenters/GameDayPresenter.cs` | `GameDayPresenter` | `MonoBehaviour` | 날짜, 상납/정산일까지 남은 일수, 정산일 여부, 진행 상태 표시 Presenter |
+| `UI/Presenters/BusinessTimerPresenter.cs` | `BusinessTimerPresenter` | `MonoBehaviour` | 영업시간 타이머 게이지 및 시계 표시, 일시정지/재개 요청 Presenter |
+| `UI/Presenters/CustomerPresenter.cs` | `CustomerPresenter` | `MonoBehaviour` | 손님 외형(컬러/스프라이트), 대사, 장바구니 품목 표시 Presenter |
+| `UI/Presenters/PriceInputPresenter.cs` | `PriceInputPresenter` | `MonoBehaviour` | 포스기 키패드 입력값 및 검증 상태 표시, 가격 확정/취소 요청 Presenter |
+| `UI/Presenters/DailySettlementPresenter.cs` | `DailySettlementPresenter` | `MonoBehaviour` | 일일 정산(매출, 지출, 순익, 잔액, 평판, 손님 통계) 표시 및 다음 단계 요청 Presenter |
+| `UI/Dev3SandboxTester.cs` | `Dev3SandboxTester`, `GameViewState` | `MonoBehaviour` | 개발자 3 통합 샌드박스 UI 제어기. Full HD 1920x1080 동적 캔버스 생성 및 타이틀·튜토리얼·메인 허브(전단지/장부/증축/설정)·포스기 화면 총괄 |
+| `UI/KeypadController.cs` | `KeypadController` | `MonoBehaviour` | 포스기 키패드 입력 컨트롤러. 마우스/키보드(0~9, -, ., Backspace, Enter) 입력 처리, 자릿수 유효성 검증 및 `OnPriceConfirmed` 이벤트 발신 |
+| `UI/PriceListPanel.cs` | `PriceListPanel`, `ItemPriceInfo` | `MonoBehaviour` | 가격표(전단지) 팝업 패널. 상품 목록 동적 생성, 열기/닫기/토글 및 샘플 데이터 바인딩 |
+| `UI/PriceItemSlot.cs` | `PriceItemSlot` | `MonoBehaviour` | 가격표 내 개별 상품 1개 행 슬롯 UI. 상품명, 가격, 특이사항 뱃지(세일/이벤트), 아이콘 표시 |
+| `UI/DayTimerController.cs` | `DayTimerController` | `MonoBehaviour` | 실시간 영업시간 카운트다운 타이머. 슬라이더 게이지 및 디지털 시계 UI 갱신, `OnBusinessDayEnded` 이벤트 발신 |
+| `UI/DailyResultPanel.cs` | `DailyResultPanel` | `MonoBehaviour` | 일일 정산 및 경영 피드백 패널. 총매출, 지출, 순이익, 명성도 변화 표시 및 '다음 날로 진행' 이벤트 연동 |
+| `UI/CashierSession.cs` | `CashierSession`, `CashierSettings`, `CashierProduct`, `CashierCustomer`, `CashierBasketLine`, `CashierPhase` | - | 프로토타입 기반 순수 C# 세션 엔진. 7단계 Phase, 손님 및 장바구니 생성, 인내심 게이지, 가격 판정 및 공물(Tribute) 규칙 관리 |
+| `UI/CashierSaveData.cs` | `LedgerRecord`, `GameSaveData`, `CashierSaveManager` | - | 세이브 데이터 컨테이너 및 영구 저장 관리자. 일자별 회계 장부 이력, 소지금, 명성도, 증축 티어 직렬화 및 PlayerPrefs 저장 |
 | `Utils/Singleton.cs` | `Singleton<T>` | `MonoBehaviour` | `DontDestroyOnLoad` 및 중복 방지 로직이 포함된 제네릭 싱글톤 기반 추상 클래스 |
 | `Utils/Util.cs` | `Util` | - | `idx` 기반 테이블/아이디 추출, CsvHelper 파싱 헬퍼, 난수 추첨, UI 좌표 변환, 베지어 곡선 |
 | `Utils/SimplePool.cs` | `IPool`, `SimplePool<T>` | `IPool` | 큐 기반 제네릭 오브젝트 풀. 인스턴스 소유권 추적, 용량 제한, 사전 생성(`Prewarm`) 지원 |
@@ -230,7 +260,101 @@ Assets/Scripts/
 
 ---
 
-### 2.5 루트 스크립트 (`Assets/Scripts/`)
+### 2.5 UI 계층 (`Assets/Scripts/UI/`)
+
+개발자 3(이규영 님)이 담당하는 프론트엔드 UI, 인터랙션, 입력 및 가격표·장부 시스템 스크립트 군입니다.
+모든 화면은 Full HD(1920x1080) 해상도 기준 캔버스 스케일링을 준수하며, **UI 표현 계층 책임과 데이터 계약**에 따라 순수 **MVP(Model-View-Presenter)** 아키텍처를 따릅니다.
+게임 규칙, 날짜 진행, 거래 판정, 재정 계산과 데이터 저장은 UI 계층에 포함하지 않으며, Presenter는 외부에서 주입받은 읽기 전용 `ViewData` 스냅샷만 렌더링하고 사용자 입력을 요청 이벤트로 전달합니다.
+
+#### 2.5.1 데이터 계약 (`Assets/Scripts/UI/Contracts/UIContracts.cs`)
+- **책임**: UI 시스템과 외부 도메인 로직(Finance, 진행, 손님 시스템) 간의 읽기 전용 스냅샷 DTO 정의.
+- **주요 타입**:
+  - `EconomyStatusViewData`: `CurrentBalance`, `DailySaleIncome`
+  - `GameDayViewData`: `CurrentDay`, `DaysUntilSettlement`, `IsSettlementDay`, `GameDayPhase`
+  - `BusinessTimerViewData`: `RemainingSeconds`, `NormalizedTime`, `IsPaused`
+  - `ItemPriceViewData`: `ItemId`, `DisplayName`, `Price`, `SpecialNote`, `Icon`, `IsAvailable`
+  - `CustomerBasketItemViewData`: `ItemId`, `DisplayName`, `Quantity`, `Icon`, `UnitPrice`
+  - `CustomerViewData`: `HasCustomer`, `AppearanceColor`, `AppearanceSprite`, `DialogueText`, `Basket`
+  - `PriceInputViewData`: `InputAmount`, `CanConfirm`, `IsInputEnabled`, `ValidationMessage`
+  - `TransactionViewData`: `WasAccepted`, `OfferedPrice`, `FeedbackMessage`
+  - `DailySettlementViewData`: `Day`, `SaleIncome`, `Expenses`, `NetProfit`, `CurrentBalance`, `ReputationDelta`, `SuccessfulSales`, `RefusedCustomers`, `DepartedCustomers`
+
+#### 2.5.2 Presenter 컴포넌트군 (`Assets/Scripts/UI/Presenters/`)
+- **`EconomyStatusPresenter.cs`**: 상단 HUD에 현재 재정 상태 표시 (`UpdateView(EconomyStatusViewData)`).
+- **`GameDayPresenter.cs`**: 현재 날짜, 정산일까지 남은 일수, 정산일 여부, 진행 단계 표시 (`UpdateView(GameDayViewData)`).
+- **`BusinessTimerPresenter.cs`**: 남은 시간 및 게이지 표시, `OnPauseRequested` / `OnResumeRequested` 이벤트 발신 (`UpdateView(BusinessTimerViewData)`).
+- **`CustomerPresenter.cs`**: 손님 외형(스프라이트/색상), 대사, 장바구니 품목 표시, 손님 부재 시 UI 숨김 (`UpdateView(CustomerViewData)`).
+- **`PriceInputPresenter.cs`**: 키패드 입력 금액, 유효성 메시지 표시, `OnPriceConfirmed(long)` / `OnInputCancelled` 이벤트 발신 (`UpdateView(PriceInputViewData)`).
+- **`DailySettlementPresenter.cs`**: 하루 영업 마감 후 일일 정산 표시, `OnNextStepRequested` 이벤트 발신 (`UpdateView(DailySettlementViewData)`).
+
+#### 2.5.3 View 및 오케스트레이터 (`Assets/Scripts/UI/`)
+
+#### `Dev3SandboxTester.cs`
+- **책임**: 개발자 3의 단일 씬 완결형 UI 샌드박스 테스터로, 게임 전체 흐름을 한 화면에서 검증하는 메인 오케스트레이터입니다.
+- **주요 특징**:
+  - `GameViewState` 4단계 뷰 상태 머신 관리 (`Title` → `Tutorial` → `MainHub` → `Trading`).
+  - **Full HD 동적 캔버스**: 씬 시작 시 `Canvas`, `CanvasScaler`(1920x1080, `matchWidthOrHeight = 0.5f`), `GraphicRaycaster`를 자동 생성.
+  - **MainHubView (화이트/라이트 감성)**:
+    - **Tab 1 (FLYER)**: 4페이지 넘김식 카탈로그 책자 모달 (표지 추천 상품, 2~3페이지 전면 2단 그리드, 4페이지 고난도 품목 및 규칙).
+    - **Tab 2 (LEDGER)**: Day 1부터 현재 날짜까지 누적된 스크롤 회계 장부(유지비, 증축비, 매출, 순익, 명성) 및 도장/서명 인장 연출.
+    - **Tab 3 (UPGRADE)**: 가판대 Tier 1~3 아이소메트릭 카드, 혜택 안내 및 소지금 차감 후 장부에 자동 기입되는 증축 구매 시스템.
+    - **Tab 4 (OPTIONS)**: BGM 및 SFX 음량 조절 (+ / -) 및 음소거 제어.
+    - **Tab 5 (QUIT)**: 세이브 저장 및 종료 확인 모달.
+    - **중앙 [START BUSINESS]**: 공물 납부일까지 남은 일수 카운트다운(`(Tribute in N Days)`) 및 납부 당일 경고 빨간색 하이라이트 표시.
+  - **TradingSessionView (영업 및 계산대)**:
+    - **동적 가격표 모달 (PriceGuide)**: 품목 수에 따라 1~4개는 1행 가로 중앙 정렬, 5개 이상은 2행 그리드로 유연하게 자동 재배치.
+    - **0% 오버랩 진열대 (`renderBasket`)**: 줄바꿈 품목(`x 2`)을 실제 물리 단위 개별 오브젝트로 평탄화하여 겹침 없이 깔끔하게 진열.
+    - **포스기 키패드 통합**: 마우스 클릭 및 키보드 입력(숫자, Backspace, Enter, 00)을 바인딩하여 가격 확정 전달.
+    - **정산 및 복귀**: 손님 큐 종료 후 당일 정산 결과를 `currentSaveData.ledgerHistory`에 누적 기록하고 허브로 복귀.
+
+#### `KeypadController.cs`
+- **책임**: 계산대 포스기 숫자 키패드 입력 처리 및 가격 검증 컨트롤러입니다.
+- **주요 특징**:
+  - 마우스 클릭 및 키보드(숫자 0~9, NumPad, `-`/`.` 00키, Backspace, Enter) 입력을 모두 지원.
+  - 선행 0 방지(0원 상태에서 0 추가 입력 무시), 최대 자릿수(`maxDigits = 6`, 최대 999,999원) 제한, 0원 결제 시도 차단.
+- **주요 API**:
+  - `OnNumberButtonClick(int number)`: 0~9 숫자 입력.
+  - `OnDoubleZeroButtonClick()`: 00 추가.
+  - `OnBackspaceButtonClick()`: 한 자리 지우기.
+  - `OnConfirmButtonClick()`: 가격 확정 및 `OnPriceConfirmed(long price)` 이벤트 발행.
+
+#### `PriceListPanel.cs` & `PriceItemSlot.cs`
+- **책임**: 상품 목록과 가격, 특이사항(세일, 1+1)을 표시하는 가격표/전단지 UI 패널과 개별 행 슬롯입니다.
+- **주요 특징**:
+  - `PriceListPanel.SetPriceList(IEnumerable<ItemPriceInfo>)`를 통해 외부 데이터나 CSV 목록을 받아 동적으로 슬롯 생성.
+  - `PriceItemSlot.SetData(itemName, price, specialNote, icon)`로 상품 아이콘, 천 단위 콤마 가격, 특이사항 뱃지 활성화.
+  - 열기/닫기/토글(`Open`, `Close`, `Toggle`) 지원.
+
+#### `DayTimerController.cs`
+- **책임**: 영업시간 카운트다운 타이머 및 상단 게이지 표시기입니다.
+- **주요 특징**:
+  - 슬라이더 게이지 FillAmount 및 `mm:ss` 디지털 시계 텍스트 실시간 갱신.
+  - 0초 도달 시 `OnBusinessDayEnded` 이벤트를 발생시켜 영업 종료 알림.
+  - `StartTimer(float seconds)`, `PauseTimer()`, `ResumeTimer()`, `StopTimer()` 제어 지원.
+
+#### `DailyResultPanel.cs`
+- **책임**: 하루 영업 종료 후 일일 정산 및 경영 피드백 화면 패널입니다.
+- **주요 특징**:
+  - `ShowResult(long totalSales, long totalExpenses, int reputationChange)`를 호출하여 오늘 총매출, 지출, 순이익, 명성도 변화량을 색상 태그와 함께 시각화.
+  - '다음 날로 진행' 버튼 클릭 시 `OnNextDayClicked` 이벤트 발생.
+
+#### `CashierSession.cs`
+- **책임**: 프로토타입(`DystopiaSession`) 기반의 순수 C# 게임플레이 세션 엔진입니다.
+- **주요 특징**:
+  - 7단계 Phase 관리: `PriceGuide`, `Trading`, `Result`, `Settlement`, `Tribute`, `Goal`, `Failed`.
+  - 손님 생성, 장바구니(`CashierBasketLine`), 예산, 인내심 게이지 감쇠, 이탈 판정, 수용률에 따른 명성도·도덕성 변화 계산.
+  - `DATA_RULES.md`를 준수하도록 `CashierProduct`에 PK `idx`, 식별자 `id`, 리소스 번호 `resourceIdx`, Addressables 경로 `resourcePath`, `Sprite` 참조를 포함하여 데이터 확장성 확보.
+
+#### `CashierSaveData.cs`
+- **책임**: 일자별 회계 장부 이력 및 게임 상태 영구 저장을 담당하는 데이터 컨테이너와 매니저입니다.
+- **주요 구성 요소**:
+  - `LedgerRecord`: 일차(`day`), 유지비(`maintenanceFee`), 증축비(`upgradeExpense`), 매출(`revenue`), 순현금(`netCash`), 명성 변화량(`reputationChange`), 최종 명성(`netReputation`) 직렬화 DTO.
+  - `GameSaveData`: 현재 일자, 소지금, 명성도, 도덕성, 가판대 티어, 오디오 설정 및 `List<LedgerRecord>` 장부 이력 저장 컨테이너.
+  - `CashierSaveManager`: `JsonUtility`와 `PlayerPrefs`를 활용한 정적 세이브/로드 도구 (`Save`, `Load`, `HasSave`, `DeleteSave`).
+
+---
+
+### 2.6 루트 스크립트 (`Assets/Scripts/`)
 
 #### `Test.cs`
 - **책임**: `Start()` 시점에 `"Test"` 콘솔 로그를 출력하는 최소 테스트 컴포넌트입니다.
@@ -302,6 +426,35 @@ stateDiagram-v2
     InUse --> InPool: SimplePool.Release() / onRelease 콜백
     InUse --> Destroyed: 타 풀 오브젝트 반환 시 Destroy (교차 반환 방지)
     InPool --> [*]: SimplePool.Clear() / ResourceManager.ReleaseInstance
+```
+
+### 3.4 UI 및 샌드박스 라이프사이클 흐름
+
+```mermaid
+stateDiagram-v2
+    [*] --> TitleView: 게임 기동 / Title
+    TitleView --> TutorialModal: NEW GAME 클릭
+    TitleView --> MainHubView: CONTINUE 클릭 (세이브 데이터 로드)
+    TutorialModal --> MainHubView: START JOURNEY > 클릭
+
+    state MainHubView {
+        [*] --> TabFlyer: 1. FLYER (4페이지 책자 카탈로그)
+        TabFlyer --> TabLedger: 2. LEDGER (일자별 누적 회계 장부)
+        TabLedger --> TabUpgrade: 3. UPGRADE (가판대 증축 & 비용 반영)
+        TabUpgrade --> TabOptions: 4. OPTIONS (BGM/SFX 음량 제어)
+        TabOptions --> ModalQuit: 5. QUIT (저장 및 타이틀 복귀)
+    }
+
+    MainHubView --> TradingSessionView: [START BUSINESS] 영업 시작 클릭
+    
+    state TradingSessionView {
+        [*] --> DynamicPriceGuide: 가격표 모달 (중앙 정렬)
+        DynamicPriceGuide --> CounterTrading: OPEN SHOP 클릭
+        CounterTrading --> CounterTrading: 손님 대기열 & 비오버랩 물품 진열 & POS 키패드 입력
+        CounterTrading --> DailySettlement: 영업시간 종료 / 모든 손님 응대
+    }
+
+    TradingSessionView --> MainHubView: 정산 확인 후 허브 복귀 (Day+1, 장부 누적 기록, Save)
 ```
 
 ---

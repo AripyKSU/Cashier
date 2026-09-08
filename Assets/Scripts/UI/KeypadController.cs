@@ -7,7 +7,8 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// 계산대 포스기 키패드 입력 및 가격 검증 컨트롤러 (개발자 3 담당).
-/// 마우스 클릭/터치 버튼 입력뿐만 아니라 키보드(숫자키, NumPad, -, ., Backspace, Enter) 입력을 지원합니다.
+/// 마우스 클릭/터치 버튼 입력뿐만 아니라 키보드(숫자키, NumPad, -, ., Backspace) 입력을 지원합니다.
+/// Enter는 게임 진행 상태를 아는 GameInputRouter가 단독으로 처리합니다.
 /// </summary>
 public class KeypadController : MonoBehaviour
 {
@@ -34,6 +35,9 @@ public class KeypadController : MonoBehaviour
     /// <summary>가격 확정 시 외부(판정 시스템 등)로 확정 금액을 전달하는 이벤트</summary>
     public event Action<long> OnPriceConfirmed;
 
+    /// <summary>숫자 입력, 삭제 또는 초기화로 현재 가격이 변경된 뒤 발생합니다.</summary>
+    public event Action<long> OnPriceChanged;
+
     /// <summary>현재 입력된 금액</summary>
     public long CurrentPrice => this.currentPrice;
 
@@ -43,6 +47,7 @@ public class KeypadController : MonoBehaviour
     // =========================================================================
 
     private long currentPrice = 0;
+    private bool isInputEnabled;
 
 
     // =========================================================================
@@ -71,6 +76,7 @@ public class KeypadController : MonoBehaviour
     /// <param name="number">입력할 숫자 (0~9)</param>
     public void OnNumberButtonClick(int number)
     {
+        if (!this.isInputEnabled) return;
         if (number < 0 || number > 9) return;
 
         // 선행 0 방지 (현재 0원인데 또 0을 누르면 무시)
@@ -94,6 +100,7 @@ public class KeypadController : MonoBehaviour
     /// </summary>
     public void OnDoubleZeroButtonClick()
     {
+        if (!this.isInputEnabled) return;
         // 0원 상태에서는 00을 추가할 수 없음
         if (this.currentPrice == 0) return;
 
@@ -112,18 +119,25 @@ public class KeypadController : MonoBehaviour
     /// <summary>Backspace(한 자리 지우기) 버튼 클릭 시 호출</summary>
     public void OnBackspaceButtonClick()
     {
+        if (!this.isInputEnabled) return;
         if (this.currentPrice <= 0) return;
 
         this.currentPrice /= 10;
         this.updateDisplay();
     }
 
+    /// <summary>전체 지우기 (Clear) 버튼 클릭 시 호출</summary>
+    public void OnClearButtonClick()
+    {
+        this.currentPrice = 0;
+        this.updateDisplay();
+    }
+
     /// <summary>결제 / 가격 확정 (Enter) 버튼 클릭 시 호출</summary>
     public void OnConfirmButtonClick()
     {
-        if (this.currentPrice <= 0)
+        if (!this.isInputEnabled || this.currentPrice <= 0)
         {
-            Debug.LogWarning("[Keypad] 0원은 결제할 수 없습니다!");
             return;
         }
 
@@ -133,6 +147,42 @@ public class KeypadController : MonoBehaviour
         // 결제 완료 후 입력창은 자동으로 0으로 비움
         this.currentPrice = 0;
         this.updateDisplay();
+    }
+
+    /// <summary>'000' 버튼 클릭 시 현재 금액 뒤에 0을 세 개 추가합니다.</summary>
+    public void OnTripleZeroButtonClick()
+    {
+        if (!this.isInputEnabled || this.currentPrice == 0) return;
+
+        long nextValue = this.currentPrice * 1000;
+        if (nextValue.ToString().Length > this.maxDigits)
+        {
+            Debug.LogWarning($"[Keypad] '000' 입력 시 최대 자릿수({this.maxDigits}자리)를 초과합니다.");
+            return;
+        }
+
+        this.currentPrice = nextValue;
+        this.updateDisplay();
+    }
+
+    /// <summary>
+    /// Progress가 결정한 현재 거래 입력 가능 상태를 적용합니다.
+    /// 입력을 닫을 때 남은 가격을 지워 다음 거래로 전달되지 않게 합니다.
+    /// </summary>
+    /// <param name="isEnabled">숫자·삭제·가격 확정 입력 허용 여부입니다.</param>
+    public void SetInputEnabled(bool isEnabled)
+    {
+        if (this.isInputEnabled == isEnabled)
+        {
+            return;
+        }
+
+        this.isInputEnabled = isEnabled;
+        if (!isEnabled && this.currentPrice != 0)
+        {
+            this.currentPrice = 0;
+            this.updateDisplay();
+        }
     }
 
 
@@ -147,10 +197,17 @@ public class KeypadController : MonoBehaviour
             // Currency display in English (e.g., 1,500 G)
             this.priceDisplayText.text = $"{this.currentPrice:N0} G";
         }
+
+        this.OnPriceChanged?.Invoke(this.currentPrice);
     }
 
     private void handleKeyboardInput()
     {
+        if (!this.isInputEnabled)
+        {
+            return;
+        }
+
 #if ENABLE_INPUT_SYSTEM
         var kb = Keyboard.current;
         if (kb == null) return;
@@ -180,11 +237,6 @@ public class KeypadController : MonoBehaviour
             this.OnBackspaceButtonClick();
         }
 
-        // 4. Enter / NumPad Enter (결제 확정)
-        if (kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame)
-        {
-            this.OnConfirmButtonClick();
-        }
 #else
         // 레거시 입력 폴백
         for (int i = 0; i <= 9; i++)
@@ -207,10 +259,6 @@ public class KeypadController : MonoBehaviour
             this.OnBackspaceButtonClick();
         }
 
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            this.OnConfirmButtonClick();
-        }
 #endif
     }
 }
