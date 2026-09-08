@@ -11,47 +11,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownCan.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownCan.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownCrackers.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownCrackers.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownRiceRound.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownRiceRound.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownWater.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownWater.png.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/CommonHUD.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/CommonHUD.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/CustomerBasketItem.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/CustomerBasketItem.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/ErrorPanel.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/ErrorPanel.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/FailurePanel.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/FailurePanel.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/OperatingPanel.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/OperatingPanel.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/PreOpenPanel.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/PreOpenPanel.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/SettlementPanel.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/SettlementPanel.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/TributePanel.prefab" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Progress/UI/TributePanel.prefab.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Progress.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Progress/ProgressSceneController.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Progress/ProgressSceneController.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/KeypadController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/KeypadController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Editor/SaleSortingPrefabSetup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Editor/SaleSortingPrefabSetup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +28,8 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionDataTable.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/FinanceChangeReason.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/FinanceChangeResult.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/FinanceService.cs" root0="FORCE_HIGHLIGHTING" />
@@ -96,6 +64,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/89c6389f27a64ab49ba199b8067880fa31000/4a/2e2b3049/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/a7038b37a005424586087cac2b34c35a10400/a9/3dff487f/02000027pdb30.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/aef6e3fff45444e2bb8f8d13ff0eaf0312e00/92/2a0254db/02000012pdb10.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/05/3bec2414/0200003Bpdb51.il" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="McpProjectServerCommands">
     <commands />

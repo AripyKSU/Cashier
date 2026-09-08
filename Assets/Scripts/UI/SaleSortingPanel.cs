@@ -263,15 +263,32 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         this.state = ViewState.Transition;
         if (this.frontView != null) this.frontView.SetActive(true);
-        if (this.sortingView != null) this.sortingView.SetActive(false);
-        if (this.transitionOverlay != null) this.transitionOverlay.SetActive(true);
-        yield return this.waitUnscaled(this.transitionSeconds);
+        if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
+
+        RectTransform sortingRect = this.sortingView == null
+            ? null
+            : this.sortingView.transform as RectTransform;
+        if (sortingRect != null)
+        {
+            this.sortingView.SetActive(true);
+            float screenWidth = Mathf.Max(1f, sortingRect.rect.width);
+            sortingRect.anchoredPosition = new Vector2(-screenWidth, 0f);
+            float slideElapsed = 0f;
+            float slideSeconds = Mathf.Max(0.01f, this.transitionSeconds);
+            while (slideElapsed < slideSeconds)
+            {
+                slideElapsed += Time.unscaledDeltaTime;
+                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(slideElapsed / slideSeconds));
+                sortingRect.anchoredPosition = new Vector2(Mathf.Lerp(-screenWidth, 0f, progress), 0f);
+                yield return null;
+            }
+
+            sortingRect.anchoredPosition = Vector2.zero;
+        }
 
         if (this.frontView != null) this.frontView.SetActive(false);
-        if (this.sortingView != null) this.sortingView.SetActive(true);
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(this.isCalculatorOpen);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(true);
-        if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
         if (this.containerImage != null)
         {
             this.containerImage.sprite = this.tiltedContainerSprite;

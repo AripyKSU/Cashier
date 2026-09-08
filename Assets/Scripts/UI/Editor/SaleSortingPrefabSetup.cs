@@ -14,7 +14,8 @@ public static class SaleSortingPrefabSetup
 {
     private const string GameUiPrefabPath = "Assets/Prefabs/GameUI/GameUI.prefab";
     private const string OperatingPrefabPath = "Assets/Prefabs/GameUI/OperatingPanel.prefab";
-    private const string MainScenePath = "Assets/Scenes/MainScene.unity";
+    private const string PreOpenPrefabPath = "Assets/Prefabs/GameUI/PreOpenPanel.prefab";
+    private const string ProgressScenePath = "Assets/Scenes/Local/ProgressScene.unity";
     private const string WorkbenchPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png";
     private const string CalculatorPath = "Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png";
     private const string CalculatorTogglePath = "Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png";
@@ -34,11 +35,13 @@ public static class SaleSortingPrefabSetup
     private const string BarricadePath = "Assets/DystopiaPrototype/Art/BoothBarricade.png";
     private const string CanopyPath = "Assets/DystopiaPrototype/Art/BoothCanopy.png";
     private const string CounterPath = "Assets/DystopiaPrototype/Art/BoothCounter.png";
+    private const string DailyInstructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]
     public static void Setup()
     {
+        setupPriceGuidePrefab();
         setupCalculatorPrefab();
         GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
         try
@@ -48,6 +51,16 @@ public static class SaleSortingPrefabSetup
             if (operating == null || gameUiController == null)
             {
                 throw new InvalidOperationException("GameUI Prefab의 OperatingPanel 또는 GameUIController를 찾을 수 없습니다.");
+            }
+
+            stretch((RectTransform)operating);
+            CanvasScaler canvasScaler = root.GetComponentInChildren<CanvasScaler>(true);
+            if (canvasScaler != null)
+            {
+                canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                canvasScaler.referenceResolution = new Vector2(1280f, 720f);
+                canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                canvasScaler.matchWidthOrHeight = 0.5f;
             }
 
             Transform existing = operating.Find("SaleSortingUI");
@@ -92,13 +105,6 @@ public static class SaleSortingPrefabSetup
             containerImage.sprite = loadSprite(TiltedContainerPath);
             containerImage.preserveAspect = true;
             containerImage.raycastTarget = false;
-
-            RectTransform overlay = createRect("TransitionOverlay", sortingRoot, Vector2.zero, Vector2.zero);
-            stretch(sortingtRoot: overlay);
-            Image overlayImage = overlay.gameObject.AddComponent<Image>();
-            overlayImage.color = Color.black;
-            overlay.SetAsLastSibling();
-            overlay.gameObject.SetActive(false);
 
             RectTransform calculator = findChild(operating, "PriceInput") as RectTransform;
             if (calculator == null)
@@ -145,7 +151,7 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "itemRoot", itemRoot);
             setObject(panelObject, "excludedZone", excluded);
             setObject(panelObject, "saleZone", sale);
-            setObject(panelObject, "transitionOverlay", overlay.gameObject);
+            setObject(panelObject, "transitionOverlay", null);
             setObject(panelObject, "containerImage", containerImage);
             setObject(panelObject, "tiltedContainerSprite", loadSprite(TiltedContainerPath));
             setObject(panelObject, "emptyContainerSprite", loadSprite(EmptyContainerPath));
@@ -163,6 +169,7 @@ public static class SaleSortingPrefabSetup
             setFloat(panelObject, "maximumSpeedPixels", 230f);
             setFloat(panelObject, "frictionPerSecond", 6.5f);
             setFloat(panelObject, "itemRestitution", 0.1f);
+            setFloat(panelObject, "transitionSeconds", 1f);
             panelObject.ApplyModifiedPropertiesWithoutUndo();
 
             SerializedObject controllerObject = new SerializedObject(gameUiController);
@@ -195,6 +202,12 @@ public static class SaleSortingPrefabSetup
         try
         {
             setupFrontView(root.transform);
+
+            Image operatingBackground = root.GetComponent<Image>();
+            if (operatingBackground != null)
+            {
+                operatingBackground.raycastTarget = false;
+            }
 
             RectTransform calculator = findChild(root.transform, "PriceInput") as RectTransform;
             KeypadController keypad = root.GetComponent<KeypadController>();
@@ -314,6 +327,7 @@ public static class SaleSortingPrefabSetup
     /// <param name="operating">OperatingPanel Prefab 루트입니다.</param>
     private static void setupFrontView(Transform operating)
     {
+        stretch((RectTransform)operating);
         Transform customer = findChild(operating, "Customer");
         Transform existing = operating.Find("AstraFrontView");
         if (existing != null)
@@ -362,9 +376,69 @@ public static class SaleSortingPrefabSetup
             240f);
         Image containerImage = container.GetComponent<Image>();
         containerImage.preserveAspect = true;
+        containerImage.raycastTarget = true;
         Button button = container.gameObject.AddComponent<Button>();
         button.targetGraphic = containerImage;
         button.transition = Selectable.Transition.None;
+    }
+
+    /// <summary>Astra 지침서 배경 안에 현재 동적 가격 목록과 영업 시작 버튼을 배치합니다.</summary>
+    private static void setupPriceGuidePrefab()
+    {
+        GameObject root = PrefabUtility.LoadPrefabContents(PreOpenPrefabPath);
+        try
+        {
+            RectTransform rootRect = root.GetComponent<RectTransform>();
+            Image background = root.GetComponent<Image>();
+            Transform title = root.transform.Find("Title");
+            Transform description = root.transform.Find("Description");
+            TextMeshProUGUI priceList = root.transform.Find("PriceList")?.GetComponent<TextMeshProUGUI>();
+            RectTransform openBusiness = root.transform.Find("OpenBusiness") as RectTransform;
+            if (rootRect == null || background == null || priceList == null || openBusiness == null)
+            {
+                throw new InvalidOperationException("PreOpenPanel의 가격표 필수 UI를 찾을 수 없습니다.");
+            }
+
+            rootRect.anchorMin = new Vector2(0.5f, 0.5f);
+            rootRect.anchorMax = new Vector2(0.5f, 0.5f);
+            rootRect.pivot = new Vector2(0.5f, 0.5f);
+            rootRect.anchoredPosition = Vector2.zero;
+            rootRect.sizeDelta = new Vector2(680f, 680f);
+            background.sprite = loadSprite(DailyInstructionPath);
+            background.color = Color.white;
+            background.preserveAspect = true;
+
+            if (title != null) title.gameObject.SetActive(false);
+            if (description != null) description.gameObject.SetActive(false);
+
+            setGuideRect(priceList.rectTransform, 120f, 245f, 440f, 270f);
+            priceList.color = new Color(0.18f, 0.18f, 0.17f, 1f);
+            priceList.fontSize = 20f;
+            priceList.alignment = TextAlignmentOptions.TopLeft;
+
+            setGuideRect(openBusiness, 240f, 565f, 200f, 48f);
+            Image buttonImage = openBusiness.GetComponent<Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.color = new Color(0.78f, 0.76f, 0.69f, 1f);
+            }
+
+            PrefabUtility.SaveAsPrefabAsset(root, PreOpenPrefabPath);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    /// <summary>680×680 가격표의 좌상단 좌표를 RectTransform에 적용합니다.</summary>
+    private static void setGuideRect(RectTransform rect, float x, float y, float width, float height)
+    {
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = new Vector2(x, -y);
+        rect.sizeDelta = new Vector2(width, height);
     }
 
     /// <summary>1280×720 기준 좌표로 전면 화면 이미지를 생성합니다.</summary>
@@ -466,11 +540,11 @@ public static class SaleSortingPrefabSetup
         return calculator == null ? Array.Empty<Button>() : calculator.GetComponentsInChildren<Button>(true);
     }
 
-    /// <summary>MainScene의 기존 임시 화면을 비활성화하고 GameUI Prefab과 EventSystem을 배치합니다.</summary>
-    [MenuItem("Cashier/Install Sale Sorting UI In MainScene")]
-    public static void InstallInMainScene()
+    /// <summary>개인 ProgressScene의 기존 임시 화면을 비활성화하고 GameUI Prefab과 EventSystem을 배치합니다.</summary>
+    [MenuItem("Cashier/Install Sale Sorting UI In Local ProgressScene")]
+    public static void InstallInProgressScene()
     {
-        Scene scene = EditorSceneManager.OpenScene(MainScenePath, OpenSceneMode.Additive);
+        Scene scene = EditorSceneManager.OpenScene(ProgressScenePath, OpenSceneMode.Additive);
         try
         {
             GameObject existingGameUi = findRoot(scene, "GameUI");
@@ -495,8 +569,8 @@ public static class SaleSortingPrefabSetup
             }
 
             EditorSceneManager.MarkSceneDirty(scene);
-            EditorSceneManager.SaveScene(scene, MainScenePath);
-            Debug.Log("[SaleSortingPrefabSetup] MainScene에 GameUI와 EventSystem을 배치했습니다.");
+            EditorSceneManager.SaveScene(scene, ProgressScenePath);
+            Debug.Log("[SaleSortingPrefabSetup] Local ProgressScene에 GameUI와 EventSystem을 배치했습니다.");
         }
         finally
         {
