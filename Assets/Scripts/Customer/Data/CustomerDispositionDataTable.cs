@@ -45,6 +45,7 @@ public sealed class CustomerDispositionDataTable : IDataLoad
                 if (Util.GetDataTableType(item.Idx) != DataTableType.CustomerDisposition || item.Idx % 1000 == 0 || parsed.ContainsKey(item.Idx))
                     throw new InvalidDataException($"column=idx, PK={item.Idx}: 대역 위반 또는 중복");
                 item.ValidatePurchaseSettings();
+                item.ValidateQueueSettings();
                 parsed.Add(item.Idx, item);
             }
             if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");

@@ -4,6 +4,8 @@
 
 ## 1. 통합 범위와 책임
 
+대기열·5초 입장·성향별 재촉/이탈·FIFO 인계의 최신 계약과 추가 성향 컬럼은 [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다. 줄 합류 시 방문 가격을 고정한다.
+
 ### 거래 결과 4단계
 
 - `CustomerVisit.Outcome`은 `None / RegularSale / DiscountSale / ExploitativeSale / PaymentRefused`이며 퇴장 후에도 보존한다. `WasAccepted`는 결과에서 파생된다.

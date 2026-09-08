@@ -8,7 +8,9 @@ public enum CustomerState
     AwaitingOffer,
     Accepted,
     Rejected,
-    Departed
+    Departed,
+    Queued,
+    Abandoned
 }
 
 /// <summary>진행 상태와 별개로 퇴장 후에도 보존하는 가격 판정 결과.</summary>
@@ -109,6 +111,24 @@ public sealed class CustomerVisit
     {
         if (State != CustomerState.Entering) throw new InvalidOperationException("이미 입장한 손님입니다.");
         State = CustomerState.AwaitingOffer;
+    }
+
+    /// <summary>생성된 방문을 대기열에 한 번 등록한다.</summary>
+    /// <exception cref="InvalidOperationException">이미 활성화된 방문.</exception>
+    internal void JoinQueue()
+    {
+        if (State != CustomerState.Entering) throw new InvalidOperationException("새 방문만 줄에 설 수 있습니다.");
+        State = CustomerState.Queued;
+    }
+
+    /// <summary>대기열 소유자가 계산대로 인계하거나 이탈·영업 종료로 정리한다.</summary>
+    /// <param name="abandoned">대기 만료 여부.</param>
+    /// <param name="toCounter">계산대 인계 여부.</param>
+    /// <exception cref="InvalidOperationException">대기 중이 아닌 방문.</exception>
+    internal void LeaveQueue(bool abandoned, bool toCounter = false)
+    {
+        if (State != CustomerState.Queued) throw new InvalidOperationException("대기 중인 방문만 처리할 수 있습니다.");
+        State = toCounter ? CustomerState.Entering : abandoned ? CustomerState.Abandoned : CustomerState.Departed;
     }
 
     /// <summary>전체 구매 목록의 총액을 한 번 판정한다. 입력 오류는 기회를 소모하지 않는다.</summary>

@@ -7,7 +7,7 @@
 1. START SESSION → 튜토리얼 진행 → START DAY → 가격표 → OPEN STORE.
 2. 실제 Customer CSV로 만든 손님의 구매 목록과 입장 대사가 표시된다. 키패드 또는 숫자 키로 전체 목록 총액을 입력하고 CONFIRM한다.
 3. CustomerVisit이 한 번 판정한다. 수락이면 Finance의 일일 집계에 판매 수입을 한 번 반영하고, 거절이면 자금은 변하지 않는다. 결과 대사는 TextData에서 읽는다.
-4. NEXT CUSTOMER로 판정된 손님을 퇴장시키고 새 손님을 생성한다. 방문 규칙이 보류 상태이므로 자동 입장·대기열·이탈은 사용하지 않는다.
+4. 5초마다 대기 손님이 입장하며 최대 10명이다. 판정 결과를 3초 표시한 후 FIFO로 다음 손님을 인계한다. NEXT CUSTOMER로 먼저 인계할 수도 있다. 성향별 재촉·만료 이탈과 데이터/API는 [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다.
 5. 판정 후 END DAY로 Finance 집계를 닫는다. 납부일에는 CSV의 금액·주기에 따라 PAY MAINTENANCE를 사용한다. 자금 부족 시 금액·회차를 바꾸지 않으며 진행은 납부 단계에서 대기한다. 게임 오버 규칙은 미구현이다.
 6. COMPLETE DAY는 GameSessionManager.CompleteDay로 경과일을 늘리고 EnsureDailyPrices로 다음 날 뉴스·현재가를 확정한 뒤 허브로 돌아간다. 날짜와 경제 상태는 세션 소유다. 가격 이벤트 API·라디오 로그·테스트 데이터는 [PRICE_EVENT_INTEGRATION.md](PRICE_EVENT_INTEGRATION.md)를 따른다.
 

@@ -54,6 +54,13 @@ public sealed class Dev3SandboxTester : MonoBehaviour
 
     /// <summary>거래 상태는 CustomerVisit, 금액은 EconomyRuntime이 소유한다.</summary>
     public CustomerVisit CurrentVisit { get; private set; }
+    private CustomerQueue customerQueue;
+    private readonly Image[] queuePortraits = new Image[CustomerQueue.Capacity];
+    private readonly TextMeshProUGUI[] queueLabels = new TextMeshProUGUI[CustomerQueue.Capacity];
+    private TextMeshProUGUI queueLeaveText;
+    private float resultRemainingSeconds;
+    /// <summary>현재 화면이 소유한 대기열. 다른 시계에서 중복 Advance하지 않는다.</summary>
+    public CustomerQueue Queue => customerQueue;
     private CustomerCatalog catalog;
     // DataTableManager가 소유하는 게임 전체 공용 텍스트를 참조한다.
     private TextDataTable texts;
@@ -126,12 +133,20 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     /// <summary>MainScene 통합 화면의 Update 처리를 수행한다.</summary>
     private void Update()
     {
-        if (ready && currentViewState == GameViewState.Trading) handleTradingInput();
         if (!ready || faulted || currentViewState != GameViewState.Trading) return;
         try
         {
+            bool stopped = paused || Time.timeScale == 0;
+            customerQueue.Advance(Time.unscaledDeltaTime, stopped);
+            if (!stopped && economy.QueryService.IsDayOpen)
+            {
+                if (CurrentVisit?.WasAccepted.HasValue == true) resultRemainingSeconds -= Time.unscaledDeltaTime;
+                if ((CurrentVisit == null && customerQueue.Waiting.Count > 0) || (CurrentVisit?.WasAccepted.HasValue == true && resultRemainingSeconds <= 0)) GenerateCustomer();
+            }
             if (GameSessionManager.Instance.AdvanceTradingTime(Time.unscaledDeltaTime, paused || Time.timeScale == 0))
                 refreshTradingView();
+            renderQueue();
+            handleTradingInput();
         }
         catch (Exception exception) { fail(exception); }
     }
@@ -831,6 +846,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             if (accepted && !economy.DailyAggregationService.TryApplyTransaction(new TransactionResult(total, 0)))
                 throw new InvalidOperationException("영업 종료로 거래 수입 반영이 거부되었습니다.");
             amount = "";
+            resultRemainingSeconds = 3;
             refreshTradingView();
         }
         catch (Exception exception) { fail(exception); }
@@ -857,12 +873,13 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     private void refreshTradingView()
     {
         if (!ready) return;
+        portrait.gameObject.SetActive(CurrentVisit != null);
         dayText.text = $"DAY {day:00}";
         cashText.text = $"{economy.QueryService.CurrentBalance:N0} G";
         statusText.text = faulted ? "ERROR - CHECK CONSOLE" : "Finance / Customer connected";
         goalHintText.text = "Save / reputation / citizenship: disabled";
-        queueText.text = "Manual visits - schedule deferred";
-        gaugeText.text = paused ? "PAUSED" : "QUEUE DISABLED";
+        queueText.text = $"대기 {customerQueue.Waiting.Count}/10";
+        gaugeText.text = paused ? "PAUSED" : "5초 간격 입장";
         gaugeFill.gameObject.SetActive(false);
         foreach (var image in waiting) image.gameObject.SetActive(false);
         confirmButton.interactable = canOffer;
@@ -992,6 +1009,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             await DataTableManager.Instance.EnsureDataLoadedAsync().AttachExternalCancellation(token);
             if (!GameSessionManager.Instance.IsInitialized) throw new InvalidOperationException("경제 세션이 준비되지 않았습니다.");
             catalog = DataTableManager.Instance.Customers;
+            customerQueue = new CustomerQueue(createQueuedVisit, catalog.Dispositions.Rows);
             texts = DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text);
             economy = GameSessionManager.Instance.Economy;
             if (economy.QueryService.IsDayOpen) throw new InvalidOperationException("영업 중 씬 재진입은 아직 지원하지 않습니다.");
@@ -1026,13 +1044,15 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         try
         {
             GameSessionManager.Instance.BeginTradingDay();
+            customerQueue.Start();
+            customerQueue.TryAdd(); // 최초 계산대 손님. 이후에는 5초 간격 입장.
             showingGuide = false;
             GenerateCustomer();
         }
         catch (Exception exception) { fail(exception); }
     }
 
-    /// <summary>방문 규칙 확정 전 수동 버튼으로만 다음 손님을 생성한다.</summary>
+    /// <summary>결과 손님을 정리하고 FIFO 맨 앞만 계산대로 이동한다. 빈 줄에서 손님을 즉석 생성하지 않는다.</summary>
     public void GenerateCustomer()
     {
         if (!ready || faulted || paused || showingGuide || !economy.QueryService.IsDayOpen
@@ -1040,13 +1060,47 @@ public sealed class Dev3SandboxTester : MonoBehaviour
         try
         {
             if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
-            CurrentVisit = generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
-                catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows, (uint)(day - 1), GameSessionManager.Instance.EnsureDailyPrices().Prices);
+            CurrentVisit = customerQueue.TakeNext();
             CurrentVisit?.BeginOffer();
             amount = "";
             refreshTradingView();
         }
         catch (Exception exception) { fail(exception); }
+    }
+
+    /// <summary>줄 합류 시점 현재가와 외형·성향·구매 목록을 고정한다.</summary>
+    /// <returns>판매 후보가 없으면 null.</returns>
+    private CustomerVisit createQueuedVisit() => generator.Generate(catalog.Appearances.Rows.Keys.OrderBy(x => x).ToArray(),
+        catalog.Dispositions.Rows.Values.OrderBy(x => x.Idx).ToArray(), catalog.Products.Rows,
+        (uint)(day - 1), GameSessionManager.Instance.EnsureDailyPrices().Prices);
+
+    /// <summary>고정된 10개 슬롯을 재사용한다. 이탈자는 줄에서 제거하고 불만 텍스트만 잠시 남긴다.</summary>
+    private void renderQueue()
+    {
+        if (queueLeaveText == null)
+        {
+            for (int i = 0; i < CustomerQueue.Capacity; i++)
+            {
+                var image = panel(tradingRoot.transform, "Queue_" + i, i < 5 ? 10 : 135, 260 + (i % 5) * 65, 120, 60, Color.white);
+                queuePortraits[i] = image;
+                queueLabels[i] = label(image.transform, "IdentitySpeech", "", 4, 2, 112, 56, 11, Color.black, TextAlignmentOptions.Center);
+            }
+            queueLeaveText = label(tradingRoot.transform, "QueueLeaveSpeech", "", 825, 85, 430, 310, 16, Color.yellow, TextAlignmentOptions.TopLeft);
+            queueLeaveText.raycastTarget = false;
+        }
+        for (int i = 0; i < queuePortraits.Length; i++)
+        {
+            bool visible = i < customerQueue.Waiting.Count;
+            queuePortraits[i].gameObject.SetActive(visible);
+            if (!visible) continue;
+            var entry = customerQueue.Waiting[i];
+            var appearance = catalog.Appearances.Rows[entry.Visit.AppearanceIdx];
+            queuePortraits[i].color = new Color32(appearance.ColorR, appearance.ColorG, appearance.ColorB, appearance.ColorA);
+            uint speech = customerQueue.GetSpeech(entry);
+            queueLabels[i].text = $"#{i + 1} {entry.Visit.AppearanceIdx}+{entry.Visit.DispositionIdx}" + (speech == 0 ? "" : "\n" + texts.Rows[speech].Text);
+        }
+        queueLeaveText.text = string.Join("\n", customerQueue.Leaving.Select(x => $"{x.Visit.AppearanceIdx}+{x.Visit.DispositionIdx}: {texts.Rows[customerQueue.GetSpeech(x)].Text}"));
+        queueText.text = $"대기 {customerQueue.Waiting.Count}/10";
     }
 
     /// <summary>미판정 손님이 없을 때 일일 집계를 닫는다.</summary>
@@ -1056,6 +1110,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
             || CurrentVisit?.State == CustomerState.AwaitingOffer) return;
         if (CurrentVisit != null && CurrentVisit.State != CustomerState.Departed) CurrentVisit.Depart();
         closedRevenue = GameSessionManager.Instance.EndTradingDay();
+        customerQueue.Stop();
         refreshTradingView();
     }
 
@@ -1085,6 +1140,7 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     /// <summary>화면이 생성한 표시 리소스만 정리한다.</summary>
     private void OnDestroy()
     {
+        customerQueue?.Stop();
         if (squareSprite != null) Destroy(squareSprite);
         if (displayFont != null) Destroy(displayFont);
     }

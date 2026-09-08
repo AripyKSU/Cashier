@@ -5,6 +5,20 @@ using CsvHelper.Configuration.Attributes;
 /// <summary>손님 성향의 구매 선호·가격 허용도·TextData 대사 참조.</summary>
 public sealed class CustomerDispositionData
 {
+    /// <summary>대기 한도 초. 초기 규격은 재촉 기준 6초보다 커야 한다.</summary>
+    [Name("queue_patience_seconds")] public uint QueuePatienceSeconds { get; set; }
+    /// <summary>재촉 대사의 TextData FK.</summary>
+    [Name("queue_warning_textidx")] public uint QueueWarningTextIdx { get; set; }
+    /// <summary>이탈 불만 대사의 TextData FK.</summary>
+    [Name("queue_leave_textidx")] public uint QueueLeaveTextIdx { get; set; }
+
+    /// <summary>대기열 데이터의 필수값을 검증한다. 독립 구매 테스트와 별도 계약이다.</summary>
+    /// <exception cref="ArgumentException">대기 한도 또는 대사 참조가 잘못됨.</exception>
+    public void ValidateQueueSettings()
+    {
+        if (QueuePatienceSeconds <= 6 || QueueWarningTextIdx == 0 || QueueLeaveTextIdx == 0)
+            throw new ArgumentException($"성향 {Idx}: queue_patience_seconds > 6 및 대사 FK가 필요합니다.");
+    }
     /// <summary>승인된 성향 데이터 ID.</summary>
     [Name("idx")]
     public uint Idx { get; set; }

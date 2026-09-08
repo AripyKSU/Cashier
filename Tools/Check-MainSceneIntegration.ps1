@@ -29,6 +29,7 @@ click("Confirm");
 if (first.WasAccepted != true || economy.QueryService.CurrentBalance != before + first.BaseTotal || economy.QueryService.DailySaleIncome != first.BaseTotal) throw new Exception("Accepted sale accounting failed");
 ui.confirm();
 if (economy.QueryService.CurrentBalance != before + first.BaseTotal) throw new Exception("Duplicate income");
+ui.Queue.Advance(5, false); // 대기 손님을 먼저 입장시킨다. 버튼은 FIFO 인계만 수행한다.
 click("NextCustomer");
 if (first.State != CustomerState.Departed) throw new Exception("Departure failed");
 var second = ui.CurrentVisit;

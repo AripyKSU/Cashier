@@ -20,7 +20,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid]);
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || textTables[valid].GetDataCount() != 49) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || textTables[valid].GetDataCount() != 55) throw new Exception("Unexpected sample counts");
 if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
 if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.PriceEventSchedule + 1) throw new Exception("End marker must follow the last table");
@@ -75,8 +75,12 @@ int resourceCount = resources.GetDataCount();
 if (resources.GetResourcePath(4001) != "Unit_3001" || resources.TryGetResource(3001, out _) || resources.TryGetResource(1001, out _)) throw new Exception("Resource migration failed");
 try { resources.LoadData(resourceCsv.Replace("4001,Unit_3001", "3001,Unit_3001")); }
 catch (Exception) { rejected++; }
-if (rejected != 32 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
-return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/49, rejected=32/32, enum/dialog/image/price/day/routing checked, resources=" + resourceCount + "; expected LogError=32";
+reject("queue patience", c => c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "6,8050,8051")));
+reject("queue warning FK", c => c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8999,8051")));
+reject("queue leave FK", c => c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8050,8999")));
+reject("queue header", c => c.Dispositions.LoadData(disposition.Replace("queue_patience_seconds", "missing_queue_patience")));
+if (rejected != 36 || valid.Appearances.GetDataCount() != 4 || resources.GetDataCount() != resourceCount) throw new Exception("Rejection or prior snapshot preservation failed: " + rejected);
+return "CUSTOMER_CSV_CHECK_PASS: valid=4/3/4/12/55, rejected=36/36, enum/dialog/image/price/day/routing/queue checked, resources=" + resourceCount + "; expected LogError=36";
 '@
 $result = $checkCode | & unity-cli exec 2>&1
 $result | ForEach-Object { Write-Output $_ }
