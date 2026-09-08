@@ -3130,7 +3130,7 @@ MonoBehaviour:
   itemFriction: 6.5
   rotationDamping: 4.5
   pourForce: 2.5
-  gameMinutesPerRealSecond: 2
+  gameMinutesPerRealSecond: 6
   settings:
     products:
     - name: "\uC0DD\uC218"
@@ -3402,6 +3402,24 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+  - source: {fileID: 2132357586}
+    surface: 5
+    normalSprite: {fileID: 0}
+    normalMap: {fileID: 0}
+    roomResponse: 0
+    lampResponse: 0.15
+  - source: {fileID: 1636528321}
+    surface: 5
+    normalSprite: {fileID: 0}
+    normalMap: {fileID: 0}
+    roomResponse: 0
+    lampResponse: 0.15
+  - source: {fileID: 372208659}
+    surface: 5
+    normalSprite: {fileID: 0}
+    normalMap: {fileID: 0}
+    roomResponse: 0
+    lampResponse: 0.15
   - source: {fileID: 166556295}
     surface: 1
     normalSprite: {fileID: 0}
@@ -3500,24 +3518,6 @@ MonoBehaviour:
     lampResponse: 0.15
   - source: {fileID: 1257552086}
     surface: 0
-    normalSprite: {fileID: 0}
-    normalMap: {fileID: 0}
-    roomResponse: 0
-    lampResponse: 0.15
-  - source: {fileID: 2132357586}
-    surface: 5
-    normalSprite: {fileID: 0}
-    normalMap: {fileID: 0}
-    roomResponse: 0
-    lampResponse: 0.15
-  - source: {fileID: 1636528321}
-    surface: 5
-    normalSprite: {fileID: 0}
-    normalMap: {fileID: 0}
-    roomResponse: 0
-    lampResponse: 0.15
-  - source: {fileID: 372208659}
-    surface: 5
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0

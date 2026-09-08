@@ -52,14 +52,18 @@ public static class DystopiaValidation
         // 상태값을 지급하거나 날짜를 건너뛰지 않고 실제 거래/정산 API를 반복합니다.
         var full=new DystopiaSession(settings,456);
         int firstWeekCash=-1, trades=0;
+        float daySeconds = 0;
         for(int step=0;step<3000 && full.Phase!=DystopiaPhase.Goal;step++)
         {
             switch(full.Phase)
             {
-                case DystopiaPhase.PriceGuide: full.OpenShop(); break;
+                case DystopiaPhase.PriceGuide: daySeconds = 0; full.OpenShop(); break;
                 case DystopiaPhase.Trading:
                     full.Tick(5); full.Confirm(full.Customer.total.ToString()); trades++; break;
-                case DystopiaPhase.Result: full.Tick(settings.resultSeconds+.01f); break;
+                case DystopiaPhase.Result:
+                    daySeconds += 5 + settings.resultSeconds + .01f;
+                    if (daySeconds >= 120) full.StopAcceptingCustomers();
+                    full.Tick(settings.resultSeconds+.01f); break;
                 case DystopiaPhase.Tribute:
                     if(full.Day==7) firstWeekCash=full.Cash;
                     full.PayTribute();
@@ -82,7 +86,11 @@ public static class DystopiaValidation
         {
             if(failed.Phase==DystopiaPhase.PriceGuide) failed.OpenShop();
             else if(failed.Phase==DystopiaPhase.Trading) failed.Confirm("9999999");
-            else if(failed.Phase==DystopiaPhase.Result) failed.Tick(1);
+            else if(failed.Phase==DystopiaPhase.Result)
+            {
+                if (failed.Refused >= 20) failed.StopAcceptingCustomers();
+                failed.Tick(1);
+            }
             else if(failed.Phase==DystopiaPhase.Settlement) failed.NextDay();
             else if(failed.Phase==DystopiaPhase.Tribute) failed.PayTribute();
         }

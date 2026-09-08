@@ -106,6 +106,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         renderCamera.enabled = visible;
         foreach (var layer in layers) if (layer.capture != null) layer.capture.SetCapture(true);
         Canvas.ForceUpdateCanvases();
+        // 화면 전환으로 UI가 재활성화된 프레임에도 최신 시각의 색·알파·조명을 함께 반영합니다.
+        if (dayNight != null && dayNight.isActiveAndEnabled) dayNight.RefreshTime();
         UpdateLights();
         for (int i = 0; i < layers.Length; i++) Sync(layers[i], i);
 #if UNITY_EDITOR

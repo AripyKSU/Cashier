@@ -26,14 +26,14 @@ Material:
     m_Floats:
     - _UseUI: 1
     - _ZTest: 8
-    - _FlowSpeedX: 0.07
-    - _FlowSpeedY: 0.0105
+    - _FlowSpeedX: 0.049
+    - _FlowSpeedY: 0.00735
     - _Opacity: 0.65
     - _SwirlScale: 8
     - _SwirlStrength: 1.4
-    - _NoiseSpeed1: 0.455
-    - _NoiseSpeed2: 0.77
-    - _SwirlSpeed: 0.56
+    - _NoiseSpeed1: 0.3185
+    - _NoiseSpeed2: 0.539
+    - _SwirlSpeed: 0.392
     - _BottomFadePixels: 96
     - _PixelSize: 1
     - _Seed: 130

@@ -16,7 +16,7 @@ public sealed class DystopiaSettings
     };
     /// <summary>시민권 및 주간 상납금, 단위 원. 테스트용 초기값입니다.</summary>
     public int citizenshipPrice = 300000, firstTribute = 50000, secondTribute = 80000, laterTribute = 110000;
-    /// <summary>명성 50일 때 8명이며, 명성 10점당 1명 변화합니다.</summary>
+    /// <summary>초기 대기열은 명성 50일 때 8명이며, 명성 10점당 1명 변화합니다. 하루 총 손님 제한은 아닙니다.</summary>
     public int baseVisitors = 8, minVisitors = 6, maxVisitors = 12;
     /// <summary>게이지 단위는 0~100, 감소는 초당 값입니다.</summary>
     public float gaugeStart = 70, greenThreshold = 70, gaugeDecay = 2, gaugeRecovery = 12, departureRecovery = 30;
@@ -123,6 +123,8 @@ public sealed class DystopiaSession
     private readonly DystopiaProduct[] activeProducts;
     private readonly List<string> ruleViolationHistory = new List<string>();
     private float resultRemaining;
+    // 매일 영업 시작 때 열고, 마감 시각에 닫는 추가 손님 접수 상태입니다.
+    private bool isAcceptingCustomers;
     private int dayStartReputation, dayStartMorality;
     // 거래 기록 객체가 없는 현재 구조에서 당일 가계부 표시에 필요한 합계만 보존합니다.
     private int markupTransactions, markupAmount, paidTributeToday;
@@ -338,6 +340,7 @@ public sealed class DystopiaSession
         dayStartMorality = Morality;
         Visitors = Mathf.Clamp(settings.baseVisitors + (Reputation - 50) / 10, settings.minVisitors, settings.maxVisitors);
         Remaining = Visitors;
+        isAcceptingCustomers = true;
         Sold = Refused = Cancelled = Departed = Revenue = 0;
         markupTransactions = markupAmount = paidTributeToday = 0;
         RuleViolationCount = 0;
@@ -353,10 +356,27 @@ public sealed class DystopiaSession
         Revision++;
     }
 
-    /// <summary>完了した客を消費して次の客または終業へ進めます。</summary>
+    /// <summary>마감 시각의 응대 손님만 남기고 추가 접수를 끝냅니다. 대기 시간 이탈 벌점은 적용하지 않습니다.</summary>
+    public void StopAcceptingCustomers()
+    {
+        if ((Phase != DystopiaPhase.Trading && Phase != DystopiaPhase.Result) || !isAcceptingCustomers) return;
+        isAcceptingCustomers = false;
+        waitingCustomers.Clear();
+        Remaining = 1;
+        Revision++;
+    }
+
+    /// <summary>접수 중에는 다음 손님을 계속 보충하고, 마감 후 마지막 거래가 끝나면 정산으로 진행합니다.</summary>
     private void AdvanceCustomer()
     {
         Remaining--;
+        if (isAcceptingCustomers)
+        {
+            // 초기 방문 수를 다 처리해도 영업 시간이 남아 있으면 대기 순서를 이어 갑니다.
+            waitingCustomers.Add(CreateCustomer(waitingCustomers.Count > 0 ? waitingCustomers[waitingCustomers.Count - 1] : Customer));
+            Remaining++;
+            Visitors++;
+        }
         if (Remaining <= 0) Phase = Day % 7 == 0 ? DystopiaPhase.Tribute : DystopiaPhase.Settlement;
         else
         {

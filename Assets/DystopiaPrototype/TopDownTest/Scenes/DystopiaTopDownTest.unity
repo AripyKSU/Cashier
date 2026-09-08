@@ -159,7 +159,7 @@ MonoBehaviour:
   itemFriction: 3.8
   rotationDamping: 4.5
   pourForce: 2.5
-  gameMinutesPerRealSecond: 2
+  gameMinutesPerRealSecond: 6
   settings:
     products:
     - name: "\uC0DD\uC218"

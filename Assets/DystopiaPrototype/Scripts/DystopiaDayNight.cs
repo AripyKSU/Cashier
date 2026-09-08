@@ -35,8 +35,15 @@ public sealed class DystopiaDayNight : MonoBehaviour
     /// <summary>탐조등 중심 각도·좌우 이동 폭입니다. 위치와 크기는 RectTransform에서 편집합니다.</summary>
     public float leftAngle = 14, rightAngle = 166, sweepDegrees = 14;
 
-    /// <summary>게임 시간 또는 Inspector 미리보기 시간으로 표시를 갱신합니다.</summary>
+    /// <summary>일반 UI 경로를 갱신하며 픽셀 렌더 사용 시에는 렌더 직전 갱신에 맡깁니다.</summary>
     private void LateUpdate()
+    {
+        if (pixelStage != null && pixelStage.IsRendering) return;
+        RefreshTime();
+    }
+
+    /// <summary>표시 시계와 같은 영업 시간을 읽어 배경 혼합과 조명에 함께 전달합니다.</summary>
+    internal void RefreshTime()
     {
         if (!Application.isPlaying && !preview) { Restore(); return; }
         float hour = Application.isPlaying && clock != null ? clock.BusinessMinute / 60f : previewHour;

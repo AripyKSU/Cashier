@@ -39,7 +39,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     [SerializeField, Min(0f)] private float pourForce = 2.5f;
 
     [Header("Test business clock")]
-    [SerializeField, Min(0.01f)] private float gameMinutesPerRealSecond = 2f;
+    /// <summary>실제 1초당 게임 분입니다. 6이면 09~21시의 12시간이 실제 120초입니다.</summary>
+    [SerializeField, Min(0.01f)] private float gameMinutesPerRealSecond = 6f;
 
     [Header("Isolated test data")]
     [SerializeField] private DystopiaSettings settings = new DystopiaSettings();
@@ -231,21 +232,31 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             }
             clockRoot.gameObject.SetActive(!workUiRoot.activeSelf && !transitionBlock.activeSelf);
         }
-        if (clockDay != Session.Day) { clockDay = Session.Day; businessMinute = 9 * 60; }
+        if (clockDay != Session.Day)
+        {
+            clockDay = Session.Day;
+            businessMinute = 9 * 60;
+            // 전날 마감된 흐름을 다시 연결하되, 가격 안내의 영업 시작을 기다립니다.
+            if (isEmbeddedInFrontScene && state == ViewState.Closed)
+            {
+                if (flowRoutine != null) StopCoroutine(flowRoutine);
+                ClearItems();
+                state = ViewState.Front;
+                flowRoutine = StartCoroutine(WaitForExistingTrade());
+            }
+        }
         if (isPaused) return;
         float deltaSeconds = Time.unscaledDeltaTime;
-        if (Session.Phase == DystopiaPhase.Trading && !Session.IsPaused)
+        if ((Session.Phase == DystopiaPhase.Trading || Session.Phase == DystopiaPhase.Result) && !Session.IsPaused)
             businessMinute = Mathf.Min(21 * 60, businessMinute + deltaSeconds * gameMinutesPerRealSecond);
+        // 결과 단계가 다음 손님으로 넘어가기 전에 접수를 닫고 현재 거래는 끝까지 허용합니다.
+        if (businessMinute >= 21 * 60) Session.StopAcceptingCustomers();
         if (state == ViewState.Sorting)
         {
             Session.Tick(deltaSeconds);
-            if (businessMinute >= 21 * 60) CloseBusiness();
-            else
-            {
-                ProcessPhysicalCursor(deltaSeconds);
-                ClampItemMotion();
-                ClassifySettledItems();
-            }
+            ProcessPhysicalCursor(deltaSeconds);
+            ClampItemMotion();
+            ClassifySettledItems();
         }
         else ResetCursorSample();
         RefreshUi();
@@ -886,7 +897,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>자동 검사에서도 실제 확정 경로를 동일하게 실행합니다.</summary>
     public bool TryConfirm(string input)
     {
-        if (state != ViewState.Sorting || isPaused || businessMinute >= 21 * 60) return false;
+        if (state != ViewState.Sorting || isPaused) return false;
         ClassifySettledItems();
         foreach (DystopiaTopDownItem item in items)
         {
@@ -953,7 +964,6 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private void CloseBusiness()
     {
         state = ViewState.Closed;
-        businessMinute = 21 * 60;
         SetBodiesSimulated(false);
         noticeText.text = "영업이 종료되었습니다. 새 거래는 반영되지 않습니다.";
         RefreshUi();

@@ -303,7 +303,12 @@ public static class DystopiaTopDownTestTools
         int closeCash = screen.Session.Cash;
         screen.SetBusinessMinuteForVerification(21 * 60);
         yield return .2f;
-        Require(screen.IsClosed && !screen.TryConfirm("1") && screen.Session.Cash == closeCash, "21:00 close blocks new transaction income");
+        Require(screen.IsSorting && screen.Session.Remaining == 1 && screen.Session.WaitingCustomers.Count == 0, "21:00 stops arrivals but preserves the current customer");
+        screen.ClassifyAllForVerification(TopDownItemState.ForSale);
+        int finalPrice = Math.Min(screen.Session.Customer.total, screen.Session.Customer.budget);
+        Require(screen.TryConfirm(finalPrice.ToString()) && screen.Session.Cash == closeCash + finalPrice, "last customer can pay after 21:00");
+        for (int i = 0; i < 100 && !screen.IsClosed; i++) yield return .05f;
+        Require(screen.IsClosed && screen.Session.Phase == DystopiaPhase.Settlement && !screen.TryConfirm("1"), "last customer finishes the day without another arrival");
         Require(UnityEngine.Object.FindObjectsByType<DystopiaTopDownTest>(FindObjectsSortMode.None).Length == 1, "one isolated test controller in Play Mode");
     }
 

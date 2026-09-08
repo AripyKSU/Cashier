@@ -759,6 +759,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         {
             Modal("가계부 이미지 연결 필요","Daily Ledger Sprite를 Inspector에 연결하세요.",false);
             ledgerConfirmButton = MakeButton(modal,"LedgerConfirm","확인",190,380,360,44,ConfirmLedger,18);
+            ledgerConfirmButton.interactable = true;
             return;
         }
 
@@ -796,6 +797,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         Panel(book,"TributeGuideSplit",722,495,1,28,new Color(rule.r,rule.g,rule.b,.3f));
         LedgerMini(book,"TributeDue","납부 예정",$"{Session.NextTributeAmount:N0}원",736,494,162,muted,ink);
         ledgerConfirmButton = MakeButton(book,"LedgerConfirm","확인",708,526,190,38,ConfirmLedger,18);
+        // 이전 날짜의 확인 처리로 비활성화된 재사용 버튼을 다시 열어 줍니다.
+        ledgerConfirmButton.interactable = true;
         ledgerConfirmButton.GetComponentInChildren<Text>().fontStyle = FontStyle.Bold;
     }
 
