@@ -287,6 +287,92 @@ public sealed class GameSessionApiTests
         Assert.That(reentered.ReputationLogService, Is.SameAs(progress.ReputationLogService));
     }
 
+    /// <summary>대기열은 Visit 정체성을 유지하고 빈 계산대에서 새 방문을 즉석 생성하지 않는다.</summary>
+    [Test]
+    public void QueueProgressFifoEmptyCounterAndPause()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 90, true);
+        progress.Start(); progress.OpenBusiness();
+        var day = progress.CurrentDayProgress;
+        Assert.That(day.UsesCustomerQueue);
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+        Assert.That(day.WaitingCustomers, Is.Empty);
+        progress.BeginCustomerSorting();
+        var first = day.CurrentVisit;
+        progress.SubmitOffer(1, first.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(first.State, Is.EqualTo(CustomerState.Departed));
+        Assert.That(day.CurrentVisit, Is.Null);
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Operating));
+        progress.Pause(); progress.Tick(50);
+        Assert.That(day.CurrentVisit, Is.Null); Assert.That(day.WaitingCustomers, Is.Empty);
+        progress.Resume(); progress.Tick(5);
+        Assert.That(day.CurrentVisit, Is.Not.Null);
+        var counter = day.CurrentVisit;
+        progress.Tick(5);
+        var queued = day.WaitingCustomers[0].Visit;
+        progress.BeginCustomerSorting();
+        progress.SubmitOffer(1, counter.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(day.CurrentVisit, Is.SameAs(queued));
+        Assert.That(day.WaitingCustomers, Is.Empty);
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+        Assert.Throws<InvalidOperationException>(() => progress.CompleteTransactionResult());
+        progress.Tick(20);
+        Assert.That(day.CurrentVisit, Is.SameAs(queued));
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+    }
+
+    /// <summary>긴 프레임은 만료를 먼저 확정하며 계산대 인계와 마감 시 새 거래를 만들지 않는다.</summary>
+    [Test]
+    public void QueueProgressExpiryHitchAndClosing()
+    {
+        foreach (var disposition in tables.Customers.Dispositions.Rows.Values) disposition.QueuePatienceSeconds = 9;
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 30, true);
+        progress.Start(); progress.OpenBusiness(); progress.Tick(5);
+        var day = progress.CurrentDayProgress;
+        var expired = day.WaitingCustomers[0].Visit;
+        progress.BeginCustomerSorting();
+        progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.Tick(9); // 5초 입장자는 14초에 만료한다.
+        Assert.That(expired.State, Is.EqualTo(CustomerState.Abandoned));
+        Assert.That(expired.Result.HasValue, Is.False);
+        var next = day.WaitingCustomers[0].Visit;
+        progress.CompleteTransactionResult();
+        Assert.That(day.CurrentVisit, Is.SameAs(next));
+        Assert.That(day.CurrentVisit, Is.Not.SameAs(expired));
+        Assert.That(day.DepartedCustomers, Is.EqualTo(1));
+        progress.Tick(1000);
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Closing));
+        Assert.That(day.WaitingCustomers, Is.Empty); Assert.That(day.LeavingCustomers, Is.Empty);
+        Assert.That(day.CurrentVisit, Is.SameAs(next));
+        Assert.That(progress.SubmitOffer(1, next.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()));
+        progress.CompleteTransactionResult();
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
+        Assert.That(day.AggregationResult.Value.Transactions.Count, Is.EqualTo(2));
+        Assert.That(progress.ReputationLogService.TransactionEntries.Count, Is.EqualTo(2));
+    }
+
+    /// <summary>긴 빈 계산대 프레임에서는 프레임 종료 시 살아 있는 맨 앞만 인계한다.</summary>
+    [Test]
+    public void QueueEmptyCounterHitchSkipsExpiredArrivals()
+    {
+        foreach (var disposition in tables.Customers.Dispositions.Rows.Values) disposition.QueuePatienceSeconds = 9;
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 90, true);
+        progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
+        progress.SubmitOffer(1, progress.CurrentDayProgress.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult(); progress.Tick(20);
+        var day = progress.CurrentDayProgress;
+        Assert.That(day.DepartedCustomers, Is.EqualTo(2));
+        Assert.That(day.LeavingCustomers.All(x => x.Visit.State == CustomerState.Abandoned));
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+        Assert.That(day.WaitingCustomers.Count, Is.EqualTo(1));
+        Assert.That(day.LeavingCustomers.All(x => !ReferenceEquals(x.Visit, day.CurrentVisit)));
+    }
+
     /// <summary>진행 Tick의 pause와 방송, 방문 snapshot 및 제출 단가의 동일 원본을 검사한다.</summary>
     [Test]
     public void ProgressRadioUsesOnlyUnpausedTradingTime()
@@ -418,6 +504,48 @@ public sealed class GameSessionApiTests
     }
 
 #if UNITY_EDITOR
+    /// <summary>로컬 큐 옵션의 빈 계산대와 마지막 퇴장 표시 대기가 도메인 정산을 중복시키지 않는다.</summary>
+    /// <returns>UI 초기화와 표현 지연 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator QueueControllerEmptyCounterAndFinalExitPresentation()
+    {
+        var ui = createGameUi();
+        var serialized = new UnityEditor.SerializedObject(ui);
+        serialized.FindProperty("useCustomerQueue").boolValue = true;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        yield return null;
+        var progress = uiProgress(ui);
+        var customer = uiReference<CustomerPresenter>(ui, "customerPresenter");
+        var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
+        progress.OpenBusiness();
+        progress.Pause();
+        yield return new WaitForSecondsRealtime(0.1f);
+        Assert.That(progress.CurrentDayProgress.RemainingSeconds, Is.EqualTo(30));
+        Assert.That(uiReference<UnityEngine.UI.Button>(sorting, "frontContainerButton").gameObject.activeSelf, Is.False);
+        progress.Resume();
+        progress.BeginCustomerSorting();
+        var day = progress.CurrentDayProgress;
+        progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(day.CurrentVisit, Is.Null);
+        Assert.That(uiReference<GameObject>(customer, "customerUIRoot").activeSelf, Is.False);
+        Assert.That(uiReference<UnityEngine.UI.Button>(sorting, "frontContainerButton").gameObject.activeSelf, Is.False);
+        progress.Tick(5);
+        Assert.That(day.CurrentVisit, Is.Not.Null);
+        progress.Tick(100);
+        progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
+        Assert.That(ui.IsSettlementPresentationPending);
+        Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf, Is.False);
+        Assert.That(uiReference<GameObject>(ui, "operatingPanel").activeSelf);
+        Assert.That(uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").gameObject.activeSelf, Is.False);
+        yield return new WaitForSeconds(ui.QueueExitSeconds + 0.1f);
+        Assert.That(ui.IsSettlementPresentationPending, Is.False);
+        Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf);
+        Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
+    }
+
     /// <summary>독립 프리팹의 반복 열기·표시 갱신은 요청을 만들지 않고 클릭만 PK를 한 번 전달한다.</summary>
     /// <returns>UI 수명과 TMP 배치 갱신 대기.</returns>
     [UnityTest]

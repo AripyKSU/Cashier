@@ -1,5 +1,12 @@
 # 기능 API 검증
 
+## 대기열 진행 연결 검증 (2026-09-09)
+
+- `codex/customer-queue-scene`: EditMode 162/162, PlayMode 28/28, 실패·skip·미완료 0.
+- 증거: `Temp/TestResults/20260909-161215-f9d249073a0041899dd3ce93677922f5/`의 XML 및 로그. Temp는 Git 제외다.
+- 추가 4건은 FIFO·빈 계산대·pause, 긴 프레임 만료 우선·Closing 마지막 거래, 빈 계산대의 만료 방문 배제, 실제 GameUI 옵션·빈 화면 정리·최종 퇴장 후 정산 표시를 검증한다.
+- 테스트 중 개인 playModeStartScene을 임시 해제하고 종료 후 복원한다. 개인 씬의 실제 이동·말풍선·배치는 이번 자동 결과로 검증했다고 간주하지 않으며 사용자 확인이 남는다.
+
 Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·문구·버튼·연출은 사용자 수동 확인이며 API 통과와 분리한다.
 
 ## 실행 및 결과

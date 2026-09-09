@@ -68,6 +68,21 @@ public sealed class GameUIController : MonoBehaviour
     private bool hasError;
     private Sprite productPlaceholderSprite;
 
+    /// <summary>개인 씬에서 실제 FIFO 대기열을 사용할 때만 켠다. 공유 prefab 기본값은 false.</summary>
+    [SerializeField] private bool useCustomerQueue;
+    /// <summary>로컬 퇴장 이동과 마지막 정산 표시 대기에 사용하는 단일 시간(초).</summary>
+    [SerializeField, Min(0.01f)] private float queueExitSeconds = 0.45f;
+    private float queueExitRemaining;
+    private bool isSettlementPresentationPending;
+    /// <summary>로컬 외형 퇴장에 적용할 검증된 시간(초).</summary>
+    public float QueueExitSeconds => this.queueExitSeconds;
+    /// <summary>모델 정산은 완료했지만 마지막 퇴장 표시를 기다리는 상태.</summary>
+    public bool IsSettlementPresentationPending => this.isSettlementPresentationPending;
+    /// <summary>로컬 표현이 관찰하는 현재 하루. 비동기 초기화 전에는 null.</summary>
+    public DayProgress CurrentDayProgress => this.gameProgress?.CurrentDayProgress;
+    /// <summary>표현 시간이 멈춰야 하는 일시정지·기술 오류 상태.</summary>
+    public bool IsPresentationPaused => this.hasError || !this.isActiveAndEnabled || this.subscribedDay?.IsPaused == true;
+
     /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
     private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;
 
@@ -99,12 +114,13 @@ public sealed class GameUIController : MonoBehaviour
                 productSprites, GameSessionManager.Instance.IsFacilityActive);
 
             this.validateUiReferences();
+            if (this.useCustomerQueue) this.saleSortingPanel.SetPauseQuery(() => this.IsPresentationPaused);
             this.subscribeUi();
             this.gameProgress = new GameProgress(
                 GameSessionManager.Instance,
                 this.customerCatalog,
                 DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
-                new System.Random());
+                new System.Random(), useCustomerQueue: this.useCustomerQueue);
             this.subscribeProgress();
             this.isReady = true;
             this.gameProgress.Start();
@@ -130,6 +146,16 @@ public sealed class GameUIController : MonoBehaviour
 
         try
         {
+            if (this.useCustomerQueue && this.queueExitRemaining > 0 && !this.IsPresentationPaused)
+            {
+                this.queueExitRemaining = Mathf.Max(0, this.queueExitRemaining - Time.deltaTime);
+                if (this.isSettlementPresentationPending && this.queueExitRemaining <= 0)
+                {
+                    this.isSettlementPresentationPending = false;
+                    this.renderSettlement(this.subscribedDay.AggregationResult.Value);
+                    this.refreshAllViews();
+                }
+            }
             if (this.gameProgress.State == GameProgressState.DayInProgress)
             {
                 this.gameProgress.Tick(Time.deltaTime);
@@ -246,6 +272,10 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
     private void OnDestroy()
     {
+        this.isSettlementPresentationPending = false;
+        this.queueExitRemaining = 0;
+        this.subscribedDay?.StopQueue();
+        if (this.useCustomerQueue && this.saleSortingPanel != null) this.saleSortingPanel.SetPauseQuery(null);
         if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
         this.unsubscribeUi();
@@ -260,6 +290,8 @@ public sealed class GameUIController : MonoBehaviour
     /// <exception cref="InvalidOperationException">진행에 필요한 씬 참조가 누락된 경우 발생합니다.</exception>
     private void validateUiReferences()
     {
+        if (this.useCustomerQueue && (float.IsNaN(this.queueExitSeconds) || float.IsInfinity(this.queueExitSeconds) || this.queueExitSeconds <= 0))
+            throw new InvalidOperationException("큐 퇴장 시간은 유한한 양수여야 합니다.");
         if (this.gameDayPresenter == null
             || this.businessTimerPresenter == null
             || this.economyStatusPresenter == null
@@ -385,6 +417,7 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.subscribedDay.StateChanged -= this.handleDayStateChanged;
             this.subscribedDay.CustomerStarted -= this.handleCustomerStarted;
+            this.subscribedDay.CustomerDeparted -= this.handleCustomerDeparted;
             this.subscribedDay.TransactionCompleted -= this.handleTransactionCompleted;
             this.subscribedDay.SettlementStarted -= this.handleSettlementStarted;
         }
@@ -398,6 +431,7 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.subscribedDay.StateChanged -= this.handleDayStateChanged;
             this.subscribedDay.CustomerStarted -= this.handleCustomerStarted;
+            this.subscribedDay.CustomerDeparted -= this.handleCustomerDeparted;
             this.subscribedDay.TransactionCompleted -= this.handleTransactionCompleted;
             this.subscribedDay.SettlementStarted -= this.handleSettlementStarted;
         }
@@ -405,6 +439,7 @@ public sealed class GameUIController : MonoBehaviour
         this.subscribedDay = day;
         this.subscribedDay.StateChanged += this.handleDayStateChanged;
         this.subscribedDay.CustomerStarted += this.handleCustomerStarted;
+        this.subscribedDay.CustomerDeparted += this.handleCustomerDeparted;
         this.subscribedDay.TransactionCompleted += this.handleTransactionCompleted;
         this.subscribedDay.SettlementStarted += this.handleSettlementStarted;
         this.renderPriceList(day.Day);
@@ -472,6 +507,16 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshRuntimeViews();
     }
 
+    /// <summary>빈 계산대에서도 이전 외형·대사·박스·상품이 남지 않도록 정리한다.</summary>
+    /// <param name="visit">거래 확인 후 퇴장한 방문. 새 방문을 생성하지 않는다.</param>
+    private void handleCustomerDeparted(CustomerVisit visit)
+    {
+        if (this.useCustomerQueue) this.queueExitRemaining = this.queueExitSeconds;
+        this.customerPresenter.UpdateView(CustomerViewData.Empty);
+        this.saleSortingPanel.ClearCustomer();
+        this.transactionStatusText.text = "다음 손님을 기다리는 중입니다.";
+    }
+
     /// <summary>거래 결과를 손님 대사에 반영하고 마우스 또는 Enter 입력을 기다립니다.</summary>
     /// <param name="visit">수락 또는 거절 판정이 완료된 손님 방문입니다.</param>
     private void handleTransactionCompleted(CustomerVisit visit)
@@ -489,6 +534,12 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="result">확정된 하루 재정 집계입니다.</param>
     private void handleSettlementStarted(DailyAggregationResult result)
     {
+        if (this.useCustomerQueue && this.queueExitRemaining > 0)
+        {
+            this.isSettlementPresentationPending = true;
+            this.refreshAllViews();
+            return;
+        }
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.renderSettlement(result);
@@ -511,13 +562,13 @@ public sealed class GameUIController : MonoBehaviour
             finalReputationDelta,
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
-            0));
+            this.subscribedDay.DepartedCustomers));
     }
 
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>
     /// <returns>상납 화면을 포함한 다른 진행 단계는false.</returns>
     private bool canOpenFacilityShop() => this.isReady && !this.hasError &&
-        this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
+        !this.isSettlementPresentationPending && this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
 
     /// <summary>현재 설비 상태를 읽고 뒤 정산·키보드 입력을 차단한다.</summary>
     private void handleFacilityOpenClicked()
@@ -897,11 +948,11 @@ public sealed class GameUIController : MonoBehaviour
         if (this.IsFacilityShopOpen && !this.canOpenFacilityShop()) this.closeFacilityShop();
         this.facilityOpenButton.gameObject.SetActive(this.canOpenFacilityShop());
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;
-        bool operating = this.subscribedDay.State == DayProgressState.Operating
+        bool operating = this.isSettlementPresentationPending || this.subscribedDay.State == DayProgressState.Operating
             || this.subscribedDay.State == DayProgressState.Sorting
             || this.subscribedDay.State == DayProgressState.TransactionResult
             || this.subscribedDay.State == DayProgressState.Closing;
-        bool settlement = this.subscribedDay.State == DayProgressState.Settlement;
+        bool settlement = !this.isSettlementPresentationPending && this.subscribedDay.State == DayProgressState.Settlement;
 
         this.setPanelVisibility(this.preOpenPanel, preOpen);
         this.setPanelVisibility(this.operatingPanel, operating);
