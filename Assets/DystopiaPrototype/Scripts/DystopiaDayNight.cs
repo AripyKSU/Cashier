@@ -62,7 +62,8 @@ public sealed class DystopiaDayNight : MonoBehaviour
         Alpha(leftBeam,night*beamIntensity); Alpha(rightBeam,night*beamIntensity); Alpha(counterLight,night*counterIntensity);
         Color tint=Color.Lerp(Color.Lerp(Color.Lerp(Color.white,dawnTint,morning),sunsetTint,sunsetBlend),nightTint,night);
         bool lit = pixelStage != null && pixelStage.IsRendering;
-        if (lit) pixelStage.SetTimeWeights(morning,sunsetBlend,night);
+        // 시간대 색상이 일정한 한낮에도 기존 영업 시계로 태양 위치를 연속 갱신합니다.
+        if (lit) pixelStage.SetTimeWeights(morning,sunsetBlend,night,Mathf.InverseLerp(dawnStart,eveningStart,hour),hour);
         Tint(environment,lit ? Color.white : tint); Tint(people,lit ? Color.white : Color.Lerp(Color.white,new Color(peopleBrightness,peopleBrightness,peopleBrightness),night));
         float phase=hour*6;
         if(leftBeam!=null)leftBeam.rectTransform.localRotation=Quaternion.Euler(0,0,leftAngle+Mathf.Sin(phase)*sweepDegrees);

@@ -1,0 +1,5 @@
+Customer spawn session check: 100 seeds, 3 days each, 100 trades per day.
+Checked adjacent pairs: 49638
+Same-gender adjacent pairs: 0
+Covered: initial queues, replenishment, queue departures, closing, next day.
+PlayMode visual validation: pending.

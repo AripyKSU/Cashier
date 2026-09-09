@@ -51,6 +51,27 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     /// <summary>구름 사이로 새는 빛의 추가 강도입니다.</summary>
     [Range(0, 1)] public float skyGlowIntensity = .3f;
 
+    /// <summary>낮의 주변광을 낮추고 방향광을 강화하는 정도입니다. 0이면 기존 낮 명암을 유지합니다.</summary>
+    [Range(0, 1)] public float daylightContrast = .65f;
+    /// <summary>석양의 밝은 면과 그늘 사이 대비입니다. 밤으로 전환되면 추가 대비는 사라집니다.</summary>
+    [Range(0, 1)] public float sunsetContrast = .8f;
+    /// <summary>낮에 햇빛 반대쪽으로 가판에 드리우는 손님 그림자의 불투명도입니다.</summary>
+    [Range(0, 1)] public float daylightShadowOpacity = .3f;
+    /// <summary>석양에 가판에 드리우는 손님 그림자의 불투명도입니다. 기존 야간 그림자와 별도입니다.</summary>
+    [Range(0, 1)] public float sunsetShadowOpacity = .55f;
+
+    // 시간별 곡선은 Scene에 저장하며 전용 편집 창에서만 표시합니다. 배율 1은 기존 설정을 유지합니다.
+    [SerializeField, HideInInspector] private AnimationCurve hourlyAmbient = AnimationCurve.Linear(9, 1, 21, 1);
+    [SerializeField, HideInInspector] private AnimationCurve hourlySunlight = AnimationCurve.Linear(9, 1, 21, 1);
+    [SerializeField, HideInInspector] private AnimationCurve hourlyNormal = AnimationCurve.Linear(9, 1, 21, 1);
+    // 경계 1은 야간과 같은 또렷한 단계 명암이며, 최소 밝기는 낮 인물의 무늬 보존용입니다.
+    [SerializeField, HideInInspector] private AnimationCurve hourlyHardness = AnimationCurve.Linear(9, 1, 21, 1);
+    [SerializeField, HideInInspector] private AnimationCurve hourlyFill = AnimationCurve.Linear(9, .15f, 21, .15f);
+    [SerializeField, HideInInspector] private AnimationCurve hourlyShadow = AnimationCurve.Linear(9, 1, 21, 1);
+    // 자동 태양 궤도에 더하는 화면 픽셀 오프셋이며 X는 오른쪽, Y는 위쪽이 양수입니다.
+    [SerializeField, HideInInspector] private AnimationCurve hourlySunX = AnimationCurve.Linear(9, 0, 21, 0);
+    [SerializeField, HideInInspector] private AnimationCurve hourlySunY = AnimationCurve.Linear(9, 0, 21, 0);
+
     /// <summary>끄면 이번 노멀맵·실내 반사광 시험을 모두 해제하고 기존 표현으로 돌아갑니다.</summary>
     public bool relightingTrial = true;
     /// <summary>인물 노멀맵만 별도로 비교합니다. 매칭된 Sprite 한 명에만 적용됩니다.</summary>
@@ -85,6 +106,10 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     private RenderTexture texture;
     private Material material;
     private float dawnWeight, sunsetWeight, nightWeight;
+    /// <summary>시간 소유자가 전달하는 일출~일몰 진행도입니다. 0은 화면 왼쪽, 1은 오른쪽입니다.</summary>
+    private float sunProgress = .5f;
+    // 곡선 평가에 사용하는 기존 영업 시각(시)과 이번 프레임의 노멀 강도입니다.
+    private float lightingHour = 12, evaluatedNormalStrength;
     private readonly Vector3[] corners = new Vector3[4];
     /// <summary>기존 시간대 색 곱셈을 대체할 준비가 된 경우 true입니다.</summary>
     public bool IsRendering => isActiveAndEnabled && lightingShader != null && (Application.isPlaying || previewInEditor);
@@ -93,7 +118,14 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     /// <param name="dawn">기존 시간 시스템이 계산한 아침 가중치입니다.</param>
     /// <param name="sunset">기존 시간 시스템이 계산한 석양 가중치입니다.</param>
     /// <param name="night">기존 시간 시스템이 계산한 밤 가중치입니다.</param>
-    public void SetTimeWeights(float dawn, float sunset, float night) { dawnWeight = dawn; sunsetWeight = sunset; nightWeight = night; }
+    /// <param name="sunPosition">일출~일몰의 정규화된 진행도이며 기본값은 정오 위치입니다.</param>
+    /// <param name="hour">기존 영업 시계 또는 미리보기 시각(시)입니다.</param>
+    public void SetTimeWeights(float dawn, float sunset, float night, float sunPosition = .5f, float hour = 12)
+    {
+        dawnWeight = dawn; sunsetWeight = sunset; nightWeight = night;
+        sunProgress = Mathf.Clamp01(sunPosition);
+        lightingHour = hour;
+    }
 
     /// <summary>임시 월드 렌더와 출력을 생성하고 원본 배치에 맞춥니다.</summary>
     private void LateUpdate()
@@ -219,7 +251,7 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         var image = source as Image;
         bool mapped = relightingTrial && useCustomerNormalMap && layer.normalMap != null && image != null && image.sprite == layer.normalSprite;
         if (mapped) block.SetTexture("_NormalMap", layer.normalMap);
-        block.SetFloat("_NormalStrength", mapped ? normalStrength : 0);
+        block.SetFloat("_NormalStrength", mapped ? evaluatedNormalStrength : 0);
         block.SetFloat("_RoomBounce", relightingTrial ? roomLightStrength * layer.roomResponse * Mathf.Lerp(.2f, 1, nightWeight) : 0);
         block.SetFloat("_SpotResponse", layer.surface == Surface.Person || layer.roomResponse > 0 ? 1 : 0);
         block.SetFloat("_ReceiveCustomerShadow", dayNight != null && dayNight.clock != null && source.name == "Counter" ? 1 : 0);
@@ -256,9 +288,21 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         Color ambient = Color.Lerp(Color.Lerp(new Color(.86f,.87f,.88f),new Color(.62f,.53f,.43f),dawn),new Color(.44f,.30f,.25f),sunset);
         ambient = Color.Lerp(ambient, new Color(.16f,.21f,.32f),night);
         Color sun = Color.Lerp(Color.Lerp(new Color(.18f,.18f,.17f),new Color(1.35f,.88f,.4f),dawn),new Color(2.1f,.80f,.23f),sunset) * (1-night);
+        // 새 낮·석양 명암은 밤에 0으로 수렴하여 사용자가 맞춘 야간 전등과 주변광을 보존합니다.
+        float daylight = (1-sunset) * (1-night);
+        float sunsetLight = sunset * (1-night);
+        float daytimeContrast = relightingTrial ? daylightContrast * daylight + sunsetContrast * sunsetLight : 0;
+        ambient *= 1 - daytimeContrast * .45f;
+        sun += Color.Lerp(new Color(1.2f,1.25f,1.3f),new Color(1.2f,.5f,.18f),sunset) * daytimeContrast;
+        ambient *= Mathf.Max(0, hourlyAmbient.Evaluate(lightingHour));
+        sun *= Mathf.Max(0, hourlySunlight.Evaluate(lightingHour));
+        evaluatedNormalStrength = Mathf.Clamp01(normalStrength * hourlyNormal.Evaluate(lightingHour));
         material.SetColor("_Ambient", ambient); material.SetColor("_Sun", sun); material.SetColor("_LampColor", lampColor);
+        // 낮의 얼굴·옷은 검게 뭉개지지 않도록 원본 무늬가 읽히는 보조광을 유지합니다.
+        material.SetFloat("_DaylightDetail", relightingTrial ? (1-Mathf.Clamp01(hourlyHardness.Evaluate(lightingHour))) * (1-night) : 0);
+        material.SetFloat("_DaylightFill", relightingTrial ? Mathf.Clamp01(hourlyFill.Evaluate(lightingHour)) * (1-night) : 0);
         // 방향광이 강한 시간에는 정면 보조광을 낮춰 반대쪽 면의 명암을 보존합니다.
-        material.SetFloat("_KeyContrast", relightingTrial ? Mathf.Max(dawn, Mathf.Max(sunset, night)) : 0);
+        material.SetFloat("_KeyContrast", relightingTrial ? Mathf.Max(daytimeContrast, Mathf.Max(dawn, Mathf.Max(sunset, night))) : 0);
         material.SetVector("_LampPosition", new Vector4(lampPosition.x,-lampPosition.y,lampHeight,lampRadius));
         Vector2 direction = new Vector2(spotTarget.x - spotOrigin.x, spotOrigin.y - spotTarget.y).normalized;
         material.SetVector("_SpotOrigin", new Vector4(spotOrigin.x, -spotOrigin.y, lampHeight, 0));
@@ -271,9 +315,19 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         material.SetVector("_TowerOrigins", new Vector4(leftTower.x, leftTower.y, rightTower.x, rightTower.y));
         material.SetFloat("_TowerPower", towerBacklight * Mathf.Max(nightWeight, sunsetWeight * .35f));
         material.SetFloat("_CustomerShadowOpacity", customerShadowOpacity * Mathf.Clamp01(towerBacklight) * Mathf.Max(nightWeight, sunsetWeight * .35f));
-        float skyX = Mathf.Lerp(Mathf.Lerp(.61f, .73f, dawn), .56f, sunset);
-        material.SetVector("_SunDirection", new Vector4((skyX - .5f) * 3f,.65f,.3f,0));
-        material.SetVector("_SkyOrigin", new Vector4(skyX, Mathf.Lerp(.94f,.84f,sunset), dawn * 3 + sunset * 7, 0));
+        // 실제 영업 시각을 사용해 정오 전후에도 멈추지 않고 동쪽(왼쪽)에서 서쪽으로 이동합니다.
+        float elevation = Mathf.Sin(sunProgress * Mathf.PI);
+        float skyX = Mathf.Lerp(.08f, .92f, sunProgress);
+        float skyY = .64f + elevation * .3f;
+        skyX += hourlySunX.Evaluate(lightingHour) / 1280;
+        skyY += hourlySunY.Evaluate(lightingHour) / 720;
+        // 밝은 면과 그림자가 동일한 광원을 따르며, 높은 정오에는 그림자의 옆방향 길이가 짧아집니다.
+        material.SetVector("_SunShadowOrigin", new Vector4(skyX * 1280, (skyY - 1) * 720, 0, 0));
+        material.SetFloat("_SunShadowOpacity", relightingTrial ? Mathf.Clamp01(Mathf.Lerp(daylightShadowOpacity, sunsetShadowOpacity, sunset) * Mathf.Max(0, hourlyShadow.Evaluate(lightingHour))) * (1-night) : 0);
+        Vector4 sunDirection = new Vector4((skyX * 1280 - 640) / 400, ((skyY - 1) * 720 + 520) / 400, .3f, 0);
+        float nightSkyX = Mathf.Lerp(Mathf.Lerp(.61f, .73f, dawn), .56f, sunset);
+        material.SetVector("_SunDirection", Vector4.Lerp(sunDirection, new Vector4((nightSkyX - .5f) * 3f,.65f,.3f,0), night));
+        material.SetVector("_SkyOrigin", new Vector4(skyX, skyY, dawn * 3 + sunset * 7, 0));
         Color skyColor = Color.Lerp(Color.Lerp(new Color(.83f,.9f,1),new Color(1,.83f,.58f),dawn),new Color(1,.58f,.22f),sunset);
         material.SetColor("_SkyGlow", skyColor * (skyGlowIntensity * (1-night)));
         material.SetFloat("_RimStrength", rimIntensity); material.SetFloat("_Steps", lightingSteps);

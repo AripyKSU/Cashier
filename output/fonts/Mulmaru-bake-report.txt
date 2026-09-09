@@ -1,0 +1,9 @@
+Source: Assets/DystopiaPrototype/Art/Mulmaru.otf
+Asset: Assets/DystopiaPrototype/Art/Mulmaru SDF.asset
+Mode: Static SDFAA
+Sampling: 48; padding: 5; atlas: 2048x2048
+Requested: 652; baked: 651; atlas count: 1
+Missing: ↵
+Missing codes: U+21B5
+UI migration: not performed
+Validation: Unity compilation succeeded; isolated Editor TMP preview rendered. PlayMode integration not performed. Temporary generator removed. Preview cleanup error fixed by detaching Camera.targetTexture before releasing RenderTexture.

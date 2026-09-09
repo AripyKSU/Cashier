@@ -89,3 +89,23 @@ Play 진입에 따라 DOTweenSettings.asset의 줄바꿈만 LF로 재직렬화�
 - Muted green clock appears only in front mode, shows 09:00 through 21:00, and resets on day change.
 - Existing runtime-built Canvas architecture retained; future prefab authoring migration is outside this change.
 - Standalone C# compile and static asset-reference checks completed; Unity import, actual layout and pointer interaction remain unverified. No UI control, commit or push.
+
+### 2026-09-09 손님 타입과 연속 등장 제한
+- `DystopiaCustomerType`: 성인 남성(`AdultMale`), 성인 여성(`AdultFemale`), 노인(`Elderly`), 어린이(`Child`). 타입은 외형 분류이고 성별 판매 지침은 기존 `IsMale`을 사용한다.
+- 현재 생성 가능한 타입은 이미지가 연결된 성인 남성 24종·성인 여성 16종이다. 첫 성별은 무작위이며 이후 실제 대기 순서에서 남녀가 교대하므로 같은 타입·성별·이미지가 바로 연속 등장하지 않는다. 초기 대기열, 보충, 이탈 후 보충, 다음 날 첫 손님에 같은 생성 함수를 적용한다.
+- 노인·어린이는 분류만 정의하고 생성하지 않는다. 리소스 추가 시 타입별 실제 외형 및 성별 연결과 생성 후보 등록을 함께 구현하고, 직전 타입·성별·이미지를 모두 제외하도록 후보 선택을 확장해야 한다. 이미지 파일 추가만으로 생성이 활성화되지 않는다.
+- 현재 연속 제한은 바로 앞 손님 기준이며, 한 명 이상을 사이에 둔 동일 이미지 재등장은 허용한다. 경제 상황(`isPoor`)은 이 외형 타입 분류와 별개다.
+
+### 2026-09-09 낮·석양 명암과 가판 그림자
+- `DystopiaPixelStage`의 `Daylight Contrast`(0.65), `Sunset Contrast`(0.8)는 주변광을 줄이고 방향광을 강화한다. `Daylight Shadow Opacity`(0.3), `Sunset Shadow Opacity`(0.55)는 하늘 광원에서 가판으로 투영하는 기존 손님 실루엣의 불투명도다. 모두 `Relighting Trial` 활성화 시 적용한다.
+- 시간대 가중치로 연속 혼합하며 완전한 밤에는 추가 효과가 0이 된다. 기존 램프·스포트라이트·야간 그림자 계산과 Scene 저장값은 유지한다. 새로운 그림자는 기존 가판 상판 범위에 한정되며 배경 전체에 실시간 그림자를 생성하는 기능은 아니다.
+- 코드와 shader만 변경했다. 사용자의 화면 제어 없이 검증하며 실제 낮·석양 미리보기의 시각 확인은 남아 있다.
+- 영업 시계의 `Dawn Start`~`Evening Start`를 일출~일몰 구간으로 사용한다. 화면 왼쪽을 동쪽으로 두고 광원·하늘 빛·가판 그림자를 같은 위치에 연결하며 정오 부근에는 광원을 높인다. 시간대 색상이 일정해도 빛의 위치는 계속 변한다.
+- 낮 인물의 태양광 반응은 연속적으로 계산하고 최소 보조광을 유지해 얼굴·의복의 픽셀 무늬가 검게 묻히는 현상을 줄인다. 이 보정은 밤에 0이 되어 기존 야간 명암을 유지한다.
+
+### 시간별 조명 편집과 아침 9시 명암
+- `Dystopia/시간별 조명 편집` 또는 TopDownCheckout / Dystopia Pixel Stage의 `시간별 조명 편집` 버튼으로 창을 연다. 9·12·15·18·21시 버튼 또는 시각 슬라이더로 편집 시간을 선택한다.
+- 주변광·햇빛·노멀·태양 그림자 배율, 명암 경계, 인물 그늘 최소 밝기, 자동 태양 궤도의 위치 보정을 시간별 AnimationCurve로 Scene 컴포넌트에 저장한다. 슬라이더 수정 시 해당 시각의 키를 추가·갱신하고 선형 보간한다. 전체 곡선에서 키 삭제·이동도 가능하다. SerializedObject 편집으로 Undo와 prefab override를 지원하며 Scene 저장은 사용자가 수행한다.
+- 명암 경계 기본값 1은 야간과 같은 단계 명암, 0은 부드러운 명암이다. 앞선 부드러운 낮 보정의 고정 적용을 제거했다. 인물 그늘 최소 밝기 기본값은 0.15다. 두 값은 밤에는 적용되지 않는다. 다른 배율은 기본값 1, 태양 위치 보정은 0으로 기존 야간 세팅을 보존한다.
+- 기본 노멀 강도는 기존 Inspector 값을 유지하고 시간별 노멀 배율을 곱한 뒤 0~1로 제한한다. 아침 9시 편집 시 명암 경계 1을 기준으로 주변광·그늘 최소 밝기와 햇빛 배율을 조정한다. Play 중 편집은 막아 종료 시 설정 유실을 방지한다.
+- 별도 창에는 기존 야간 램프·스포트 설정을 접힌 항목으로 제공한다. 화면 제어와 Scene 저장은 수행하지 않았다. Runtime/Editor C#은 Unity 설치본 컴파일러와 프로젝트 참조로 별도 검증하며, 실제 Editor 창 조작·shader 렌더 확인은 사용자 검증이 필요하다.

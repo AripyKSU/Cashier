@@ -14,10 +14,13 @@ Shader "Cashier/PixelStageLighting"
  TEXTURE2D(_MainTex); TEXTURE2D(_NormalMap); TEXTURE2D(_CustomerSilhouette);
  float4 _ShadowBody;
  float _ReceiveCustomerShadow, _CustomerShadowOpacity;
+ float4 _SunShadowOrigin;
+ float _SunShadowOpacity;
  float4 _MainTex_TexelSize, _Tint, _Ambient, _Sun, _LampColor, _LampPosition, _SunDirection, _ClipRect, _SkyOrigin, _SkyGlow;
  float _Surface, _LampStrength, _RimStrength, _Steps, _NormalStrength, _RoomBounce;
  float4 _SpotOrigin, _SpotDirection;
  float _SpotPower, _SpotHaze, _SpotResponse, _KeyContrast;
+ float _DaylightDetail, _DaylightFill;
  float4 _TowerOrigins;
  float _TowerPower;
  float4 _NeutralRegion;
@@ -87,7 +90,8 @@ Shader "Cashier/PixelStageLighting"
   // Sample the raw normal response once; quantizing twice produces horizontal bands.
   float sunFacing=saturate(dot(n,normalize(_SunDirection.xyz)));
   if(person>.5){
-   sunFacing=CharacterLight(sunFacing);
+   // Smooth daylight response keeps normal-map detail between the night lighting bands.
+   sunFacing=lerp(CharacterLight(sunFacing),.22+.78*sunFacing,_DaylightDetail);
    diffuse=CharacterLight(saturate(dot(n,l)));
   }
   float contrast=_KeyContrast*max(person,_SpotResponse*.65);
@@ -97,6 +101,8 @@ Shader "Cashier/PixelStageLighting"
   float spotDiffuse=floor(saturate(dot(n,spotVector))*max(2,_Steps)+.5)/max(2,_Steps);
   if(person>.5)spotDiffuse=CharacterLight(saturate(dot(n,spotVector)));
   light+=_LampColor.rgb*SpotCone(i.world)*_SpotPower*_SpotResponse*spotDiffuse;
+  // A multiplicative fill preserves the source face and cloth pixels in deep daytime shade.
+  if(person>.5)light=max(light,_DaylightFill.xxx);
 
   float2 offset=normalize(_SunDirection.xy)*_MainTex_TexelSize.xy*3;
   float neighbor=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,i.uv+offset).a;
@@ -111,7 +117,9 @@ Shader "Cashier/PixelStageLighting"
   }
   if(_ReceiveCustomerShadow>.5){
    float shadow=max(CustomerShadow(i.world,_TowerOrigins.xy),CustomerShadow(i.world,_TowerOrigins.zw)*.7);
-   result*=1-shadow*_CustomerShadowOpacity;
+   // Daytime sunlight casts one shadow; keep the authored tower shadows at night.
+   float sunShadow=CustomerShadow(i.world,_SunShadowOrigin.xy)*_SunShadowOpacity;
+   result*=1-max(shadow*_CustomerShadowOpacity,sunShadow);
   }
   return half4(result,c.a);
  }

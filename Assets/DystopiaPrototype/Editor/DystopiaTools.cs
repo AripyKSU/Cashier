@@ -259,6 +259,8 @@ public class DystopiaLayoutInspector : Editor
     public override void OnInspectorGUI()
     {
         var component = (MonoBehaviour)target;
+        var lighting = component.GetComponent<DystopiaPixelStage>();
+        if (lighting != null && GUILayout.Button("시간별 조명 편집")) DystopiaLightingWindow.Open(lighting);
         if (component.transform.Find("DystopiaCanvas") != null || component.transform.Find("TopDownTestCanvas") != null)
         {
             EditorGUILayout.HelpBox("배치는 Hierarchy의 실제 오브젝트에서 Rect Transform / Image로 편집합니다. 판매·제외 영역은 TopDownCheckout의 Box Collider 2D를 편집하세요. 물품 크기·이미지는 Prefabs/Product0~3에서 바꿀 수 있습니다.", MessageType.Info);
@@ -325,6 +327,123 @@ public class DystopiaLayoutInspector : Editor
 /// <summary>독립 탑다운 Scene에서도 동일한 배치 편집과 미리보기를 제공합니다.</summary>
 [CustomEditor(typeof(DystopiaTopDownTest))]
 public sealed class DystopiaTopDownLayoutInspector : DystopiaLayoutInspector { }
+
+/// <summary>픽셀 조명의 시간별 곡선을 전용 창에서 편집하도록 연결합니다.</summary>
+[CustomEditor(typeof(DystopiaPixelStage))]
+public sealed class DystopiaLightingInspector : Editor
+{
+    /// <summary>기존 기본값과 별도의 시간별 편집 버튼을 표시합니다.</summary>
+    public override void OnInspectorGUI()
+    {
+        if (GUILayout.Button("시간별 조명 편집")) DystopiaLightingWindow.Open((DystopiaPixelStage)target);
+        DrawDefaultInspector();
+    }
+}
+
+/// <summary>Scene의 기존 조명 컴포넌트에 시간별 키를 저장하고 미리보기 시각을 함께 편집합니다.</summary>
+public sealed class DystopiaLightingWindow : EditorWindow
+{
+    // 창 선택과 스크롤만 보관하며 조명 데이터의 소유자는 Scene 컴포넌트입니다.
+    [SerializeField] private DystopiaPixelStage lighting;
+    [SerializeField] private float hour = 9;
+    private Vector2 scroll;
+    private bool showPosition, showNight;
+
+    /// <summary>선택한 오브젝트의 조명 편집 창을 엽니다.</summary>
+    [MenuItem("Dystopia/시간별 조명 편집")]
+    private static void OpenSelected()
+    {
+        Open(Selection.activeGameObject != null ? Selection.activeGameObject.GetComponent<DystopiaPixelStage>() : null);
+    }
+
+    /// <summary>지정한 조명 컴포넌트를 전용 창에 연결합니다.</summary>
+    /// <param name="target">편집할 Scene 조명이며 없으면 창에서 직접 선택합니다.</param>
+    public static void Open(DystopiaPixelStage target)
+    {
+        var window = GetWindow<DystopiaLightingWindow>("시간별 조명");
+        window.lighting = target;
+        window.minSize = new Vector2(460, 500);
+        window.Show();
+    }
+
+    /// <summary>현재 시각의 조명값과 곡선, 기존 야간 설정을 표시합니다.</summary>
+    private void OnGUI()
+    {
+        lighting = (DystopiaPixelStage)EditorGUILayout.ObjectField("조명 대상", lighting, typeof(DystopiaPixelStage), true);
+        if (lighting == null) { EditorGUILayout.HelpBox("TopDownCheckout의 Dystopia Pixel Stage를 연결하세요.", MessageType.Info); return; }
+        if (EditorApplication.isPlaying)
+        {
+            EditorGUILayout.HelpBox("Play를 종료한 뒤 편집하세요. Scene에 저장할 설정입니다.", MessageType.Info);
+            return;
+        }
+        var data = new SerializedObject(lighting);
+        data.Update();
+        var clock = lighting.GetComponent<DystopiaDayNight>();
+        EditorGUILayout.HelpBox("시각을 고르고 값을 바꾸면 해당 시각에 키가 생깁니다. 중간 시간은 선형 보간합니다. 곡선을 열어 키를 이동·삭제할 수 있습니다. 완료 후 Scene을 저장하세요.", MessageType.Info);
+        EditorGUI.BeginChangeCheck();
+        hour = EditorGUILayout.Slider("편집 시각", hour, 9, 21);
+        bool timeChanged = EditorGUI.EndChangeCheck();
+        EditorGUILayout.BeginHorizontal();
+        foreach (int time in new[] { 9, 12, 15, 18, 21 })
+            if (GUILayout.Button(time + "시")) { hour = time; timeChanged = true; }
+        EditorGUILayout.EndHorizontal();
+        if (GUILayout.Button("이 시각 미리보기")) timeChanged = true;
+        scroll = EditorGUILayout.BeginScrollView(scroll);
+        EditorGUILayout.LabelField("시간별 명암", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(data.FindProperty("normalStrength"), new GUIContent("기본 노멀 강도"));
+        Row(data, "hourlyNormal", "노멀 배율", 0, 2);
+        Row(data, "hourlyAmbient", "주변광 배율", 0, 2);
+        Row(data, "hourlySunlight", "햇빛 배율", 0, 3);
+        Row(data, "hourlyHardness", "명암 경계 (1: 또렷)", 0, 1);
+        Row(data, "hourlyFill", "인물 그늘 최소 밝기", 0, 1);
+        Row(data, "hourlyShadow", "햇빛 그림자 배율", 0, 3);
+        EditorGUILayout.HelpBox("9시의 또렷한 명암: 기본 노멀 1, 명암 경계 1에서 시작하세요. 흐릿하면 주변광·그늘 최소 밝기를 내리고, 밝은 면이 부족하면 햇빛 배율을 올리세요. 기본 노멀은 모든 시간에 적용되고 노멀 배율로 시간별 조절합니다.", MessageType.None);
+        showPosition = EditorGUILayout.Foldout(showPosition, "태양 위치 보정", true);
+        if (showPosition)
+        {
+            Row(data, "hourlySunX", "좌우 보정 (픽셀)", -640, 640);
+            Row(data, "hourlySunY", "상하 보정 (위 +)", -360, 360);
+        }
+        showNight = EditorGUILayout.Foldout(showNight, "기존 야간 램프 · 스포트 설정", true);
+        if (showNight)
+            foreach (string field in new[] { "lampPosition", "lampHeight", "lampRadius", "lampIntensity", "lampColor", "eveningSpotlight", "spotOrigin", "spotTarget", "spotIntensity", "spotHalfAngle", "spotHaze", "towerBacklight", "customerShadowOpacity" })
+                EditorGUILayout.PropertyField(data.FindProperty(field));
+        EditorGUILayout.EndScrollView();
+        bool changed = data.ApplyModifiedProperties();
+        if ((timeChanged || changed) && clock != null)
+        {
+            var preview = new SerializedObject(clock);
+            preview.Update();
+            preview.FindProperty("preview").boolValue = true;
+            preview.FindProperty("previewHour").floatValue = hour;
+            preview.ApplyModifiedProperties();
+        }
+        if (timeChanged || changed) { EditorApplication.QueuePlayerLoopUpdate(); SceneView.RepaintAll(); }
+    }
+
+    /// <summary>현재 시각의 값을 조절하거나 전체 곡선을 직접 편집합니다. 새 키는 양쪽 모두 선형입니다.</summary>
+    /// <param name="data">값을 저장할 조명 직렬화 객체입니다.</param>
+    /// <param name="field">시간별 곡선 필드입니다.</param>
+    /// <param name="label">사용자에게 표시할 조절 항목입니다.</param>
+    /// <param name="min">슬라이더 최솟값입니다.</param>
+    /// <param name="max">슬라이더 최댓값입니다.</param>
+    private void Row(SerializedObject data, string field, string label, float min, float max)
+    {
+        var property = data.FindProperty(field);
+        var curve = property.animationCurveValue;
+        EditorGUI.BeginChangeCheck();
+        float value = EditorGUILayout.Slider(label, curve.Evaluate(hour), min, max);
+        if (EditorGUI.EndChangeCheck())
+        {
+            int index = Array.FindIndex(curve.keys, key => Mathf.Abs(key.time-hour) < .001f);
+            index = index < 0 ? curve.AddKey(new Keyframe(hour, value)) : curve.MoveKey(index, new Keyframe(hour, value));
+            AnimationUtility.SetKeyLeftTangentMode(curve, index, AnimationUtility.TangentMode.Linear);
+            AnimationUtility.SetKeyRightTangentMode(curve, index, AnimationUtility.TangentMode.Linear);
+            property.animationCurveValue = curve;
+        }
+        EditorGUILayout.PropertyField(property, new GUIContent("시간 곡선"));
+    }
+}
 
 /// <summary>Scene에 저장된 정면과 탑다운 배치의 편집 표시를 전환합니다.</summary>
 public static class DystopiaSceneLayout

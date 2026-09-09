@@ -98,7 +98,20 @@ public sealed class DystopiaBasketLine
     }
 }
 
-/// <summary>현재 방문객의 장바구니, 예산, 허용치 및 외형 선택입니다.</summary>
+/// <summary>외형과 연속 등장 제한에 사용하는 손님 분류입니다. 노인·어린이는 리소스 등록 전에는 생성하지 않습니다.</summary>
+public enum DystopiaCustomerType
+{
+    /// <summary>현재 남성 외형 묶음을 사용하는 성인 손님입니다.</summary>
+    AdultMale,
+    /// <summary>현재 여성 외형 묶음을 사용하는 성인 손님입니다.</summary>
+    AdultFemale,
+    /// <summary>노인 외형 등록 후 사용할 분류이며 성별을 뜻하지 않습니다.</summary>
+    Elderly,
+    /// <summary>어린이 외형 등록 후 사용할 분류이며 성별을 뜻하지 않습니다.</summary>
+    Child
+}
+
+/// <summary>현재 방문객의 장바구니, 예산, 허용치, 타입 및 외형 선택입니다.</summary>
 public sealed class DystopiaCustomer
 {
     public readonly List<DystopiaBasketLine> basket = new List<DystopiaBasketLine>();
@@ -106,6 +119,8 @@ public sealed class DystopiaCustomer
     public bool isPoor;
     /// <summary>선택된 남성·여성 외형 묶음과 성별 판매 지침 판정이 함께 사용하는 값입니다.</summary>
     internal bool IsMale { get; set; }
+    /// <summary>생성 시 정한 외형 타입입니다. 노인·어린이의 성별은 IsMale과 별도로 구분합니다.</summary>
+    internal DystopiaCustomerType Type { get; set; }
 }
 
 /// <summary>Scene 수명에 한정된 런 상태와 거래·시간·상납 불변 조건을 소유합니다.</summary>
@@ -387,19 +402,19 @@ public sealed class DystopiaSession
         Revision++;
     }
 
-    /// <summary>앞 손님과 다른 외형을 선택하고 구매 품목과 경제 상황을 생성합니다.</summary>
+    /// <summary>등록된 성인 타입에서 앞 손님과 다른 타입·성별·외형을 선택하고 구매 품목과 경제 상황을 생성합니다.</summary>
     /// <param name="previous">실제 대기 순서에서 바로 앞에 있는 손님입니다. 첫 생성에는 null입니다.</param>
     /// <returns>購入商品と非公開予算を持つ客。</returns>
     private DystopiaCustomer CreateCustomer(DystopiaCustomer previous)
     {
         var customer = new DystopiaCustomer { isPoor = random.NextDouble() < settings.poorChance };
         int toleranceType = customer.isPoor ? 0 : random.Next(1, 4);
-        customer.IsMale = random.Next(2) == 0;
+        // 실제 대기 순서의 바로 앞 손님과 성별을 교대해 같은 이미지 연속 등장도 막습니다.
+        customer.IsMale = previous == null ? random.Next(2) == 0 : !previous.IsMale;
+        // 실제 외형이 준비된 성인 두 타입만 활성화합니다. 노인·어린이를 기존 이미지로 대신 생성하지 않습니다.
+        customer.Type = customer.IsMale ? DystopiaCustomerType.AdultMale : DystopiaCustomerType.AdultFemale;
         int appearanceCount = customer.IsMale ? MaleAppearanceCount : FemaleAppearanceCount;
-        bool skipPrevious = previous != null && previous.IsMale == customer.IsMale;
-        // 이전 외형을 후보에서 제외하여 재추첨 반복 없이 연속 중복을 막습니다.
-        customer.appearance = random.Next(appearanceCount - (skipPrevious ? 1 : 0));
-        if (skipPrevious && customer.appearance >= previous.appearance) customer.appearance++;
+        customer.appearance = random.Next(appearanceCount);
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
         int count = random.Next(1, Day < 3 ? 3 : 4);
