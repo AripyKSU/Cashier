@@ -11,20 +11,86 @@ public sealed class ProgressViewDataFactory
     private readonly CustomerCatalog customerCatalog;
     private readonly TextDataTable textData;
     private readonly IReadOnlyDictionary<uint, Sprite> productSprites;
+    private readonly DailyGuidelineDataTable guidelineTable;
 
     /// <summary>검증된 카탈로그와 텍스트 테이블로 변환기를 생성합니다.</summary>
     /// <param name="customerCatalog">손님과 상품 데이터의 권위 카탈로그입니다.</param>
     /// <param name="textData">표시 문자열의 권위 테이블입니다.</param>
     /// <param name="productSprites">상품 ID별로 미리 로드된 표시 Sprite입니다.</param>
+    /// <param name="guidelineTable">선택적 당일 지침 데이터 테이블입니다.</param>
     /// <exception cref="ArgumentNullException">필수 데이터가 null인 경우 발생합니다.</exception>
     public ProgressViewDataFactory(
         CustomerCatalog customerCatalog,
         TextDataTable textData,
-        IReadOnlyDictionary<uint, Sprite> productSprites)
+        IReadOnlyDictionary<uint, Sprite> productSprites,
+        DailyGuidelineDataTable guidelineTable = null)
     {
         this.customerCatalog = customerCatalog ?? throw new ArgumentNullException(nameof(customerCatalog));
         this.textData = textData ?? throw new ArgumentNullException(nameof(textData));
         this.productSprites = productSprites ?? throw new ArgumentNullException(nameof(productSprites));
+        this.guidelineTable = guidelineTable;
+    }
+
+    /// <summary>
+    /// 지정된 날짜의 영업 전 일일 지침서 화면 데이터를 만듭니다.
+    /// 추후 지침 CSV 데이터가 추가되면 지침 텍스트 조회 로직을 교체할 수 있도록 설계되었습니다.
+    /// </summary>
+    /// <param name="day">1부터 시작하는 게임 날짜입니다.</param>
+    /// <returns>일일 지침서 화면 렌더링에 필요한 스냅샷입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">날짜가 1 미만인 경우 발생합니다.</exception>
+    public PreOpenGuidelineViewData CreatePreOpenGuidelineViewData(int day)
+    {
+        if (day <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(day), day, "게임 날짜는 1 이상이어야 합니다.");
+        }
+
+        IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
+            this.customerCatalog.Products.Rows,
+            checked((uint)(day - 1)));
+
+        var productList = new List<PriceGuideProductViewData>();
+        int maxSlots = Math.Min(4, products.Count);
+        for (int i = 0; i < maxSlots; i++)
+        {
+            ProductData product = products[i];
+            string name = this.textData.Rows.TryGetValue(product.NameIdx, out TextData text)
+                ? text.Text
+                : $"Product {product.Idx}";
+
+            this.productSprites.TryGetValue(product.Idx, out Sprite icon);
+            productList.Add(new PriceGuideProductViewData(product.Idx, name, product.BasePrice, icon));
+        }
+
+        string heading = "영업 전, 가격을 기억하세요";
+        string ruleTitle = "오늘의 지침";
+        string ruleContent = "제한 없음.";
+        string restriction = "영업이 시작되면 가격표를 다시 볼 수 없습니다.";
+        string recheck = "당일 지침은 영업 중에도 다시 확인할 수 있습니다.";
+
+        DailyGuidelineDataTable targetGuidelineTable = this.guidelineTable
+            ?? (DataTableManager.Instance != null ? DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline) : null);
+
+        if (targetGuidelineTable != null && targetGuidelineTable.TryGetByDay(checked((uint)day), out DailyGuidelineData guideline))
+        {
+            if (this.textData.Rows.TryGetValue(guideline.NameIdx, out TextData titleData))
+            {
+                ruleTitle = titleData.Text;
+            }
+            if (this.textData.Rows.TryGetValue(guideline.DescriptionIdx, out TextData descData))
+            {
+                ruleContent = descData.Text;
+            }
+        }
+
+        return new PreOpenGuidelineViewData(
+            day,
+            heading,
+            ruleTitle,
+            ruleContent,
+            productList,
+            restriction,
+            recheck);
     }
 
     /// <summary>지정된 날짜에 판매 가능한 상품의 가격표 문자열을 만듭니다.</summary>
@@ -41,13 +107,13 @@ public sealed class ProgressViewDataFactory
         IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
             this.customerCatalog.Products.Rows,
             checked((uint)(day - 1)));
-        var lines = new List<string> { "AVAILABLE PRODUCTS" };
+        var lines = new List<string>();
         foreach (ProductData product in products)
         {
             string name = this.textData.Rows.TryGetValue(product.NameIdx, out TextData text)
                 ? text.Text
                 : $"Product {product.Idx}";
-            lines.Add($"{name}  ·  {product.BasePrice:N0} G");
+            lines.Add($"{name}  ·  {product.BasePrice:N0}원");
         }
 
         return string.Join("\n", lines);

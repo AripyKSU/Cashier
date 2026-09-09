@@ -232,3 +232,56 @@ public struct DailySettlementViewData
         this.DepartedCustomers = departedCustomers;
     }
 }
+
+/// <summary>
+/// 영업 전 지침서(가격표) 내 단일 상품 항목 스냅샷
+/// </summary>
+[Serializable]
+public struct PriceGuideProductViewData
+{
+    public uint ProductIdx;     // 상품 식별자
+    public string Name;         // 상품명
+    public long Price;          // 단가
+    public Sprite Icon;         // 상품 아이콘
+
+    public PriceGuideProductViewData(uint productIdx, string name, long price, Sprite icon)
+    {
+        this.ProductIdx = productIdx;
+        this.Name = name;
+        this.Price = price;
+        this.Icon = icon;
+    }
+}
+
+/// <summary>
+/// PreOpenPanel(일일 지침서) 화면 표시용 읽기 전용 스냅샷
+/// </summary>
+[Serializable]
+public struct PreOpenGuidelineViewData
+{
+    public int Day;                                             // 게임 일자
+    public string Heading;                                      // "영업 전, 가격을 기억하세요"
+    public string RuleTitle;                                    // "오늘의 지침"
+    public string RuleContent;                                  // "제한 없음." (추후 지침 CSV 연동 지점)
+    public IReadOnlyList<PriceGuideProductViewData> Products;   // 표시할 상품 카드 목록
+    public string RestrictionNotice;                            // "영업이 시작되면 가격표를 다시 볼 수 없습니다."
+    public string RecheckNotice;                                // "당일 지침은 영업 중에도 다시 확인할 수 있습니다."
+
+    public PreOpenGuidelineViewData(
+        int day,
+        string heading,
+        string ruleTitle,
+        string ruleContent,
+        IReadOnlyList<PriceGuideProductViewData> products,
+        string restrictionNotice,
+        string recheckNotice)
+    {
+        this.Day = day;
+        this.Heading = heading;
+        this.RuleTitle = ruleTitle;
+        this.RuleContent = ruleContent;
+        this.Products = products ?? Array.Empty<PriceGuideProductViewData>();
+        this.RestrictionNotice = restrictionNotice;
+        this.RecheckNotice = recheckNotice;
+    }
+}
