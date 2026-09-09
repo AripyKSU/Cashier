@@ -1,0 +1,1 @@
+Isolated Unity Sprite import succeeded. Main scene PlayMode visual check pending.

@@ -241,47 +241,56 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   maleCustomers:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 21300000, guid: 6e841d9c516348bcb5d8e1586b930ed2, type: 3}
+  - {fileID: 21300000, guid: 2c86bb2bc6b94d9391c7762a0eec959f, type: 3}
+  - {fileID: 21300000, guid: ae8354988eb941af81600671205a7835, type: 3}
+  - {fileID: 21300000, guid: 289007e448394ce9b4736854d48eba62, type: 3}
+  - {fileID: 21300000, guid: a3fa809f22224b4cb468e537a6a7b736, type: 3}
+  - {fileID: 21300000, guid: b8598a85ea3543b18f0149034de85678, type: 3}
+  - {fileID: 21300000, guid: ae577f9c7f1a47d0b2a465911a195fac, type: 3}
+  - {fileID: 21300000, guid: ce5c79aec70547d6ae3e5f21537f65c7, type: 3}
+  - {fileID: 21300000, guid: 43aeb543528d415c87133e6a6f0420ef, type: 3}
+  - {fileID: 21300000, guid: 6e1c58898c5f46b98f90b75fdcc0fee4, type: 3}
+  - {fileID: 21300000, guid: 5bc5f817041947ad87155e3ce9e69fa0, type: 3}
+  - {fileID: 21300000, guid: 9c01654b40e2495abd4162a68fa1c4e4, type: 3}
+  - {fileID: 21300000, guid: 62ad01edf58e444789e9940711a6eee4, type: 3}
+  - {fileID: 21300000, guid: f64bf6883d3947dbb3cd5a618f04b611, type: 3}
+  - {fileID: 21300000, guid: 8dafdd046b2b4a53b5053a650c6a2418, type: 3}
+  - {fileID: 21300000, guid: 33ab328bb0634a508c976b27e247a650, type: 3}
+  - {fileID: 21300000, guid: c6b9d5f5f31e464ba5c70e174f36032c, type: 3}
+  - {fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}
+  - {fileID: 21300000, guid: 34e65cf4c9364747858c7339ba7ab36d, type: 3}
+  - {fileID: 21300000, guid: 330293dc189149da84adaf24aa474ee1, type: 3}
+  - {fileID: 21300000, guid: 8a98ffe319224ec5abf47adda8dd6e9f, type: 3}
+  - {fileID: 21300000, guid: 2bc3731d37094be6a22363e65f4e2add, type: 3}
+  - {fileID: 21300000, guid: 15da0f47beb54722ab963ee7a3406128, type: 3}
+  - {fileID: 21300000, guid: 2907d7c6dbe24ec180ae767c1ad75cf9, type: 3}
+  - {fileID: 21300000, guid: 0187854495a55ec44a6a958637d567d3, type: 3}
+  - {fileID: 21300000, guid: 5a9f710fa1290dc4fb90548467a70033, type: 3}
+  - {fileID: 21300000, guid: dc44f8a468f993a4180c7aea35fa8490, type: 3}
+  - {fileID: 21300000, guid: 570747e831c3bae4bb8595adc8398007, type: 3}
+  - {fileID: 21300000, guid: f5694c6624c8daf488667ea27fdb0744, type: 3}
   femaleCustomers:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 21300000, guid: 90366358f6bc45a6813f739ae146ca26, type: 3}
+  - {fileID: 21300000, guid: df439d2a51564eefb00dc3379c3661fd, type: 3}
+  - {fileID: 21300000, guid: 2e1eb00beed345d5b381d3e32d887fb9, type: 3}
+  - {fileID: 21300000, guid: 222338f61b814f448937db8caf712c8d, type: 3}
+  - {fileID: 21300000, guid: 4ce370668df34d858a1ba9c3f5e5ab33, type: 3}
+  - {fileID: 21300000, guid: 9b4693fee3294febb4b612636bced872, type: 3}
+  - {fileID: 21300000, guid: e66cb789b2a544de9d1f52cc6e7c9be0, type: 3}
+  - {fileID: 21300000, guid: c5735fdfa59442c3894e635b0535710d, type: 3}
+  - {fileID: 21300000, guid: d83f51561b00492eb419dfc2b554be0f, type: 3}
+  - {fileID: 21300000, guid: 647096b5a8b94cb69e6b8372608e2f38, type: 3}
+  - {fileID: 21300000, guid: 527e8afc2f794311b6c5bba647102995, type: 3}
+  - {fileID: 21300000, guid: e724a9fe5d1842e39c974a19d221ae47, type: 3}
+  - {fileID: 21300000, guid: 876c6d5818ba44458b7d0b0e52065416, type: 3}
+  - {fileID: 21300000, guid: f1582d42db204b9ab3ceafec5feb2472, type: 3}
+  - {fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}
+  - {fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}
+  - {fileID: 21300000, guid: 77d39c5885813fa439da19bf99801e80, type: 3}
+  - {fileID: 21300000, guid: 968baf30567de104fa8ebe65f28ed793, type: 3}
+  - {fileID: 21300000, guid: dc94dc6651ef29743bfe001a09c77f5e, type: 3}
+  - {fileID: 21300000, guid: 6d35e6acfd47ef84da053f30ea02ba75, type: 3}
   calculatorArtwork: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
   calculatorToggleArtwork: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}
   counterClockArtwork: {fileID: 21300000, guid: 594304eb42c84524a1909e1dd7546641, type: 3}

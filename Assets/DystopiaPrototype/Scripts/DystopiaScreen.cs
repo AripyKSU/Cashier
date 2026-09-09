@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -38,6 +38,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     [SerializeField] private DystopiaSettings settings = new DystopiaSettings();
     /// <summary>프로젝트 안에 저장된 배경, 가판, 딸, 감독관 참조입니다.</summary>
     [SerializeField] private Sprite background, counter, daughter, inspector;
+    /// <summary>감독관 팝업 전용 머리·몸통 관절과 노멀 조명 프리팹입니다.</summary>
+    [SerializeField] private GameObject inspectorPortraitPrefab;
     /// <summary>배급소 원본의 투명 여백을 유지하는 중경·군중·감시탑·가림막 레이어입니다.</summary>
     [SerializeField] private Sprite midBackground, leftWatchTower, rightWatchTower, canopy;
     /// <summary>원본 군중에서 분리한 뒤·중간·앞줄 Sprite입니다.</summary>
@@ -67,7 +69,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     [SerializeField] private Material fogBackMaterial, fogMidMaterial, fogFrontMaterial;
     /// <summary>기존 Scene 참조를 보존하는 이전 손님 Sprite 배열입니다.</summary>
     [SerializeField] private Sprite[] customers = new Sprite[1];
-    /// <summary>분리된 남성 24명과 여성 16명의 손님 Sprite 묶음입니다.</summary>
+    /// <summary>성인·어린이·노인을 포함한 남성 29종과 여성 20종의 손님 Sprite 묶음입니다.</summary>
     [SerializeField] private Sprite[] maleCustomers, femaleCustomers;
     private Font font;
     private bool ownsRuntimeFont;
@@ -129,21 +131,17 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         chimneySmokeFrames = frames;
     }
 
-    /// <summary>기존 Scene을 수정하지 않고 에디터 실행에서 분리된 남녀 손님 외형을 불러옵니다.</summary>
+    /// <summary>기존 연결은 보존하고 에디터 실행에서 추가된 남녀 손님 외형 참조를 보완합니다.</summary>
     private void BindEditorCustomers()
     {
-        if (maleCustomers == null || maleCustomers.Length != 24)
-        {
-            maleCustomers = new Sprite[24];
-            for (int i = 0; i < maleCustomers.Length; i++)
-                maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/MaleCustomer_{i + 1:00}.png");
-        }
-        if (femaleCustomers == null || femaleCustomers.Length != 16)
-        {
-            femaleCustomers = new Sprite[16];
-            for (int i = 0; i < femaleCustomers.Length; i++)
-                femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_{i + 1:00}.png");
-        }
+        if (maleCustomers == null || maleCustomers.Length != DystopiaSession.MaleAppearanceCount)
+            Array.Resize(ref maleCustomers, DystopiaSession.MaleAppearanceCount);
+        for (int i = 0; i < maleCustomers.Length; i++)
+            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/MaleCustomer_{i + 1:00}.png");
+        if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)
+            Array.Resize(ref femaleCustomers, DystopiaSession.FemaleAppearanceCount);
+        for (int i = 0; i < femaleCustomers.Length; i++)
+            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_{i + 1:00}.png");
     }
 #endif
 
@@ -160,6 +158,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (dailyLedger == null) dailyLedger = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/DailyLedger.png");
         if (dailyInstruction == null) dailyInstruction = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/DailyInstruction.png");
         BindEditorCustomers();
+        if (inspectorPortraitPrefab == null) inspectorPortraitPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab");
         if (uiFont == null) uiFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/DystopiaPrototype/Art/Mulmaru.otf");
 #endif
         font = uiFont;
@@ -478,7 +477,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     /// <summary>상태 전환 때만 상품·대화·안내창을 갱신합니다.</summary>
     private void Refresh()
     {
-        bool advanceQueue = displayedCustomer != null && !ReferenceEquals(displayedCustomer, Session.Customer)
+        bool advanceQueue = (displayedCustomer != null || Session.Customer.Type == DystopiaCustomerType.Child) && !ReferenceEquals(displayedCustomer, Session.Customer)
             && Session.Phase == DystopiaPhase.Trading;
         displayedCustomer = Session.Customer;
         drawnRevision = Session.Revision;
@@ -490,7 +489,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         portrait.color = Session.Phase == DystopiaPhase.Result && !Session.LastAccepted && !Session.LastCancelled ? new Color(.8f,.6f,.6f) : Color.white;
         for (int i=0;i<waiting.Length;i++)
         {
-            waiting[i].gameObject.SetActive(Session.WaitingCustomers.Count > i);
+            waiting[i].gameObject.SetActive(Session.WaitingCustomers.Count > i && Session.WaitingCustomers[i].Type != DystopiaCustomerType.Child);
             if (Session.WaitingCustomers.Count > i)
             {
                 var next = Session.WaitingCustomers[i];
@@ -630,6 +629,15 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             for (int i = 0; i < idlePeople.Length; i++)
             {
                 Vector2 start = i == 2 ? idleOrigins[0] : i == 0 ? idleOrigins[1] : idleOrigins[1] + new Vector2(-65, 12);
+                // 아이는 대기 위치에서 이동하지 않고 테이블 아래에서 짧게 올라옵니다.
+                if (i == 2 && Session.Customer.Type == DystopiaCustomerType.Child)
+                {
+                    float pop = Mathf.Clamp01(elapsed / .28f);
+                    float rise = 1 - Mathf.Pow(1 - pop, 3);
+                    idlePeople[i].anchoredPosition = idleOrigins[i] + Vector2.down * (1 - rise) * 240;
+                    idlePeople[i].localScale = placedPeopleScales[i];
+                    continue;
+                }
                 float size = i == 2 ? 340f / 550 : i == 0 ? 240f / 340 : .8f;
                 idlePeople[i].anchoredPosition = Vector2.Lerp(start, idleOrigins[i], t);
                 idlePeople[i].localScale = placedPeopleScales[i] * Mathf.Lerp(size, 1, t);
@@ -885,7 +893,18 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         Panel(modal,"Paper",2,2,736,506,new Color(.075f,.095f,.105f,.99f));
         Label(modal,"ModalTitle",title,35,28,670,44,31);
         Label(modal,"ModalSubtitle",subtitle,35,85,670,55,18);
-        if(showInspector) Picture(modal,"Inspector",inspector,488,150,245,350,true);
+        if (showInspector)
+        {
+            if (inspectorPortraitPrefab != null)
+            {
+                var frame = Rect(modal,"Inspector",488,150,245,350);
+                var portraitRoot = Instantiate(inspectorPortraitPrefab, frame, false).GetComponent<RectTransform>();
+                portraitRoot.anchorMin = portraitRoot.anchorMax = new Vector2(.5f,.5f);
+                portraitRoot.anchoredPosition = Vector2.zero;
+                portraitRoot.localScale = Vector3.one * Mathf.Min(245 / portraitRoot.sizeDelta.x, 350 / portraitRoot.sizeDelta.y);
+            }
+            else Picture(modal,"Inspector",inspector,488,150,245,350,true);
+        }
     }
 
     /// <summary>입력 금액은 플레이어가 직접 입력한 값만 표시합니다.</summary>

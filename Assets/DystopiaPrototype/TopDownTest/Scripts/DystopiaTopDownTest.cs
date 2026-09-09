@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -52,8 +52,10 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     [SerializeField] private Sprite tiltedContainer;
     [SerializeField] private Sprite emptyContainer;
     [SerializeField] private Sprite[] productSprites = new Sprite[4];
-    [SerializeField] private Sprite[] maleCustomers = new Sprite[24];
-    [SerializeField] private Sprite[] femaleCustomers = new Sprite[16];
+    /// <summary>성인 24종, 남자아이 2종, 할아버지 3종 순서의 외형 참조입니다.</summary>
+    [SerializeField] private Sprite[] maleCustomers = new Sprite[DystopiaSession.MaleAppearanceCount];
+    /// <summary>성인 16종, 여자아이 2종, 할머니 2종 순서의 외형 참조입니다.</summary>
+    [SerializeField] private Sprite[] femaleCustomers = new Sprite[DystopiaSession.FemaleAppearanceCount];
     [SerializeField] private Font uiFont;
 
     private static readonly Rect ExcludedZone = new Rect(-6.25f, -2.85f, 0.95f, 5.7f);
@@ -323,6 +325,10 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         if (productSprites == null || productSprites.Length != productNames.Length) productSprites = new Sprite[productNames.Length];
         for (int i = 0; i < productSprites.Length; i++)
             if (productSprites[i] == null) productSprites[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/TopDownTest/Art/{productNames[i]}.png");
+        if (maleCustomers == null || maleCustomers.Length != DystopiaSession.MaleAppearanceCount)
+            Array.Resize(ref maleCustomers, DystopiaSession.MaleAppearanceCount);
+        if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)
+            Array.Resize(ref femaleCustomers, DystopiaSession.FemaleAppearanceCount);
         for (int i = 0; i < maleCustomers.Length; i++)
             if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/MaleCustomer_{i + 1:00}.png");
         for (int i = 0; i < femaleCustomers.Length; i++)
@@ -493,6 +499,29 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>상자를 내려놓고 바닥을 고정한 채 짧게 눌렀다 복원하며 픽셀 먼지를 흩뿌립니다.</summary>
     private IEnumerator PlaceContainer()
     {
+        // 어린이는 정면 상자로 얼굴을 가리지 않으며 상자 착지 효과도 생략합니다.
+        if (Session.Customer.Type == DystopiaCustomerType.Child)
+        {
+            frontContainerImage.gameObject.SetActive(false);
+            if (customerImage != null)
+            {
+                // 독립 작업대 화면도 정면 화면과 같은 짧은 등장 동작을 사용합니다.
+                RectTransform child = customerImage.rectTransform;
+                Vector2 restPosition = child.anchoredPosition;
+                float popElapsed = 0;
+                while (popElapsed < .28f)
+                {
+                    if (!isPaused) popElapsed += Time.unscaledDeltaTime;
+                    float remaining = Mathf.Pow(1 - Mathf.Clamp01(popElapsed / .28f), 3);
+                    child.anchoredPosition = restPosition + Vector2.down * remaining * 240;
+                    yield return null;
+                }
+                child.anchoredPosition = restPosition;
+                yield return WaitUnscaled(.57f);
+            }
+            else yield return WaitUnscaled(.85f);
+            yield break;
+        }
         RectTransform box = frontContainerImage.rectTransform;
         Vector2 rest = box.anchoredPosition;
         Vector3 restScale = box.localScale;
@@ -584,7 +613,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>손님 정면 이미지와 철재통을 기존 성별·외형 데이터로 표시합니다.</summary>
     private void ShowFront(string message)
     {
-        frontContainerImage.gameObject.SetActive(true);
+        frontContainerImage.gameObject.SetActive(Session == null || Session.Customer.Type != DystopiaCustomerType.Child);
         state = ViewState.Front;
         worldCamera.gameObject.SetActive(false);
         workbenchObject.SetActive(false);

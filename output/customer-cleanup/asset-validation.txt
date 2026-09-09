@@ -1,0 +1,11 @@
+MaleCustomer_25.png: (1041, 805)
+MaleCustomer_26.png: (1031, 869)
+FemaleCustomer_17.png: (1197, 1006)
+FemaleCustomer_18.png: (1213, 1139)
+MaleCustomer_27.png: (652, 1239)
+Original 40 portraits: interior RGBA unchanged; all RGB unchanged.
+123 edge alpha deletions across 32 portraits; 8 portraits unchanged.
+5 original N: source files unchanged; shape retained without resampling.
+5 new GUIDs unique in Assets; 3 scene component pools reference all 45 sprites in order.
+Sprite imports and session execution validated in isolated Unity 6000.3.18f1.
+Main project scene reimport and visual PlayMode check: PENDING (MCP timeout).

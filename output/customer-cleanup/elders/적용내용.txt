@@ -1,0 +1,18 @@
+﻿노인 손님 4종 추가
+
+할아버지.png → Assets/DystopiaPrototype/Art/Customers/MaleCustomer_28.png
+할아버지2.png → Assets/DystopiaPrototype/Art/Customers/MaleCustomer_29.png
+할머니.png → Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_19.png
+할머니2.png → Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_20.png
+
+- 사용자 제공 원본은 originals/에 보관했으며 N: 원본 파일은 수정하지 않았습니다. 별도 라이선스 문서는 제공되지 않았습니다.
+- 내부 RGB·디테일을 보존하고 외곽 알파 잔여물·밝은 점을 정리했습니다. 리사이즈나 전신 크롭 없이 투명 여백만 정리했습니다.
+- 남성 총 29종, 여성 총 20종, 합계 49종. 노인은 기존 할아버지 1종과 이번 4종을 합쳐 5종입니다.
+- 새 4종 모두 Elderly 타입이며 남녀가 달라도 노인 연속 등장을 금지합니다.
+- 정면 씬의 2개 컴포넌트와 탑다운 씬의 1개 컴포넌트에 참조를 추가했습니다.
+- 새 metadata는 별도 Unity 6000.3.18f1에서 생성했습니다. Single Sprite / Point / 밉맵 없음 / 무압축.
+- 기존 이미지의 사용자 임포트 설정은 보존했습니다.
+- Runtime 및 Editor Roslyn 컴파일 완료, git diff --check 통과.
+- 별도 Unity에서 실제 세션 120,000건 거래, 223,200쌍 검사: 성별·타입 연속 위반 0, 49종 모두 등장 확인.
+- 상태 PARTIAL: 본 프로젝트의 씬 재임포트·실제 PlayMode 화면 확인은 미실행입니다. 사용자 화면을 조작하지 않았습니다.
+- Git commit/push/merge는 하지 않았습니다.

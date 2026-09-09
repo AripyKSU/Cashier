@@ -1,0 +1,10 @@
+ISOLATED UNITY EDITOR EXECUTION SUCCESS
+Sprite imports / unique GUIDs: 49
+Seeds: 200; days: 3; trades: 120000; checked adjacent pairs: 223200
+Adjacent gender/type violations: 0; reachable appearances: 49
+AdultFemale: 48879
+AdultMale: 50532
+Child: 9391
+Elderly: 11198
+Covered: initial queue, replenishment, impatience departures, cancellation, closing, next day.
+Main project scene import / PlayMode visual verification: PENDING.

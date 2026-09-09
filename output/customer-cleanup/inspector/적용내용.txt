@@ -1,0 +1,10 @@
+﻿감독관 이미지 적용
+
+원본: N:/개인/정총무/감독관.png (사용자 제공, 별도 라이선스 문서 없음)
+적용: Assets/DystopiaPrototype/Art/Inspector.png
+얼굴·제복의 내부 픽셀과 RGB를 보존하고 외곽 알파 잔여물 및 투명 여백만 정리했습니다. 원본은 original.png에 보관했습니다.
+기존 누락된 감독관 이미지 참조를 DystopiaVerticalSlice.unity와 FrontView.prefab에서 새 Sprite로 교체했습니다.
+기존 감독관의 방문(상납금) 및 영업 실패 화면에서 사용합니다. 일반 손님 스폰에는 추가하지 않았습니다.
+별도 Unity 6000.3.18f1에서 Single Sprite, Point, 무압축, 밉맵 없음으로 임포트 및 로드 확인.
+검증 PARTIAL: 실제 프로젝트 씬 재임포트·PlayMode 화면 확인은 미실행입니다.
+Git commit/push/merge 없음.

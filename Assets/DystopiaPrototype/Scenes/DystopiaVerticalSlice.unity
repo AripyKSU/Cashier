@@ -2122,7 +2122,8 @@ MonoBehaviour:
   background: {fileID: 21300000, guid: 8828d23a57ac09d4db48ac618820ad7b, type: 3}
   counter: {fileID: 21300000, guid: dec0edb6a0a29eb4ba990f92dff08f2b, type: 3}
   daughter: {fileID: 21300000, guid: e4dd2b06ebb59a14b9fe472c625c82c7, type: 3}
-  inspector: {fileID: 21300000, guid: 7465887855830f24e9762658c9bab3c7, type: 3}
+  inspector: {fileID: 21300000, guid: 5ec7b88773b5f754b9c36efbac851495, type: 3}
+  inspectorPortraitPrefab: {fileID: 5937818634303120731, guid: 39ab40cfac55c8641babdc719bf3c098, type: 3}
   midBackground: {fileID: 21300000, guid: 0675361a18134594e9e942f04ff98660, type: 3}
   leftWatchTower: {fileID: 21300000, guid: 1ca5f6632c398c14ba179258cead1796, type: 3}
   rightWatchTower: {fileID: 21300000, guid: e00f255da7894164497dfd5df66938dd, type: 3}
@@ -2189,6 +2190,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 2bc3731d37094be6a22363e65f4e2add, type: 3}
   - {fileID: 21300000, guid: 15da0f47beb54722ab963ee7a3406128, type: 3}
   - {fileID: 21300000, guid: 2907d7c6dbe24ec180ae767c1ad75cf9, type: 3}
+  - {fileID: 21300000, guid: 0187854495a55ec44a6a958637d567d3, type: 3}
+  - {fileID: 21300000, guid: 5a9f710fa1290dc4fb90548467a70033, type: 3}
+  - {fileID: 21300000, guid: dc44f8a468f993a4180c7aea35fa8490, type: 3}
+  - {fileID: 21300000, guid: 570747e831c3bae4bb8595adc8398007, type: 3}
+  - {fileID: 21300000, guid: f5694c6624c8daf488667ea27fdb0744, type: 3}
   femaleCustomers:
   - {fileID: 21300000, guid: 90366358f6bc45a6813f739ae146ca26, type: 3}
   - {fileID: 21300000, guid: df439d2a51564eefb00dc3379c3661fd, type: 3}
@@ -2206,6 +2212,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f1582d42db204b9ab3ceafec5feb2472, type: 3}
   - {fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}
   - {fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}
+  - {fileID: 21300000, guid: 77d39c5885813fa439da19bf99801e80, type: 3}
+  - {fileID: 21300000, guid: 968baf30567de104fa8ebe65f28ed793, type: 3}
+  - {fileID: 21300000, guid: dc94dc6651ef29743bfe001a09c77f5e, type: 3}
+  - {fileID: 21300000, guid: 6d35e6acfd47ef84da053f30ea02ba75, type: 3}
 --- !u!4 &1111119869
 Transform:
   m_ObjectHideFlags: 0
@@ -3236,6 +3246,11 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 2bc3731d37094be6a22363e65f4e2add, type: 3}
   - {fileID: 21300000, guid: 15da0f47beb54722ab963ee7a3406128, type: 3}
   - {fileID: 21300000, guid: 2907d7c6dbe24ec180ae767c1ad75cf9, type: 3}
+  - {fileID: 21300000, guid: 0187854495a55ec44a6a958637d567d3, type: 3}
+  - {fileID: 21300000, guid: 5a9f710fa1290dc4fb90548467a70033, type: 3}
+  - {fileID: 21300000, guid: dc44f8a468f993a4180c7aea35fa8490, type: 3}
+  - {fileID: 21300000, guid: 570747e831c3bae4bb8595adc8398007, type: 3}
+  - {fileID: 21300000, guid: f5694c6624c8daf488667ea27fdb0744, type: 3}
   femaleCustomers:
   - {fileID: 21300000, guid: 90366358f6bc45a6813f739ae146ca26, type: 3}
   - {fileID: 21300000, guid: df439d2a51564eefb00dc3379c3661fd, type: 3}
@@ -3253,6 +3268,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: f1582d42db204b9ab3ceafec5feb2472, type: 3}
   - {fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}
   - {fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}
+  - {fileID: 21300000, guid: 77d39c5885813fa439da19bf99801e80, type: 3}
+  - {fileID: 21300000, guid: 968baf30567de104fa8ebe65f28ed793, type: 3}
+  - {fileID: 21300000, guid: dc94dc6651ef29743bfe001a09c77f5e, type: 3}
+  - {fileID: 21300000, guid: 6d35e6acfd47ef84da053f30ea02ba75, type: 3}
   uiFont: {fileID: 12800000, guid: b3f0a6c94e8e4fc3a1f40d741190c0e6, type: 3}
   calculatorArtwork: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
   calculatorToggleArtwork: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}

@@ -1,0 +1,14 @@
+{
+  "size": [
+    134,
+    359
+  ],
+  "neck_pivot_pixels": [
+    66,
+    66
+  ],
+  "head_source_rgb_changes": 0,
+  "body_rgb_changes_outside_neck_underpaint": 0,
+  "neck_underpaint_pixels": 219,
+  "normal_method": "approximate face/torso curvature + smoothed luminance relief"
+}

@@ -98,16 +98,16 @@ public sealed class DystopiaBasketLine
     }
 }
 
-/// <summary>외형과 연속 등장 제한에 사용하는 손님 분류입니다. 노인·어린이는 리소스 등록 전에는 생성하지 않습니다.</summary>
+/// <summary>등록된 외형과 연속 등장 제한에 사용하는 손님 분류입니다.</summary>
 public enum DystopiaCustomerType
 {
     /// <summary>현재 남성 외형 묶음을 사용하는 성인 손님입니다.</summary>
     AdultMale,
     /// <summary>현재 여성 외형 묶음을 사용하는 성인 손님입니다.</summary>
     AdultFemale,
-    /// <summary>노인 외형 등록 후 사용할 분류이며 성별을 뜻하지 않습니다.</summary>
+    /// <summary>노인 외형의 분류이며 성별은 별도로 판정합니다.</summary>
     Elderly,
-    /// <summary>어린이 외형 등록 후 사용할 분류이며 성별을 뜻하지 않습니다.</summary>
+    /// <summary>남녀 어린이 모두에게 적용하는 연속 등장 제한 분류입니다.</summary>
     Child
 }
 
@@ -126,8 +126,10 @@ public sealed class DystopiaCustomer
 /// <summary>Scene 수명에 한정된 런 상태와 거래·시간·상납 불변 조건을 소유합니다.</summary>
 public sealed class DystopiaSession
 {
-    private const int MaleAppearanceCount = 24;
-    private const int FemaleAppearanceCount = 16;
+    /// <summary>남성 외형 순서: 성인 24종, 남자아이 2종, 할아버지 3종입니다.</summary>
+    internal const int MaleAppearanceCount = 29;
+    /// <summary>여성 외형 순서: 성인 16종, 여자아이 2종, 할머니 2종입니다.</summary>
+    internal const int FemaleAppearanceCount = 20;
     private static readonly string[] ProductNames = { "생수", "건빵", "통조림", "즉석밥" };
     private readonly DystopiaSettings settings;
     private readonly System.Random random;
@@ -402,7 +404,7 @@ public sealed class DystopiaSession
         Revision++;
     }
 
-    /// <summary>등록된 성인 타입에서 앞 손님과 다른 타입·성별·외형을 선택하고 구매 품목과 경제 상황을 생성합니다.</summary>
+    /// <summary>앞 손님과 다른 타입·성별의 등록 외형을 동등한 확률로 선택하고 구매 상황을 생성합니다.</summary>
     /// <param name="previous">실제 대기 순서에서 바로 앞에 있는 손님입니다. 첫 생성에는 null입니다.</param>
     /// <returns>購入商品と非公開予算を持つ客。</returns>
     private DystopiaCustomer CreateCustomer(DystopiaCustomer previous)
@@ -411,10 +413,21 @@ public sealed class DystopiaSession
         int toleranceType = customer.isPoor ? 0 : random.Next(1, 4);
         // 실제 대기 순서의 바로 앞 손님과 성별을 교대해 같은 이미지 연속 등장도 막습니다.
         customer.IsMale = previous == null ? random.Next(2) == 0 : !previous.IsMale;
-        // 실제 외형이 준비된 성인 두 타입만 활성화합니다. 노인·어린이를 기존 이미지로 대신 생성하지 않습니다.
-        customer.Type = customer.IsMale ? DystopiaCustomerType.AdultMale : DystopiaCustomerType.AdultFemale;
         int appearanceCount = customer.IsMale ? MaleAppearanceCount : FemaleAppearanceCount;
-        customer.appearance = random.Next(appearanceCount);
+        // 유효 후보만 세어 선택하므로 남녀 어린이도 연속하지 않으며 재추첨 루프가 없습니다.
+        int eligibleCount = 0;
+        for (int i = 0; i < appearanceCount; i++)
+            if (previous == null || AppearanceType(customer.IsMale, i) != previous.Type) eligibleCount++;
+        int selected = random.Next(eligibleCount);
+        for (int i = 0; i < appearanceCount; i++)
+        {
+            DystopiaCustomerType type = AppearanceType(customer.IsMale, i);
+            if (previous != null && type == previous.Type) continue;
+            if (selected-- != 0) continue;
+            customer.appearance = i;
+            customer.Type = type;
+            break;
+        }
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
         int count = random.Next(1, Day < 3 ? 3 : 4);
@@ -429,6 +442,17 @@ public sealed class DystopiaSession
         customer.budget = customer.isPoor ? (int)(customer.total * settings.poorBudgetRatio) :
             customer.total * random.Next(settings.normalBudgetMinPercent, settings.normalBudgetMaxPercent + 1) / 100;
         return customer;
+    }
+
+    /// <summary>직렬화된 남녀 Sprite 배열의 순서에 대응하는 연령 타입을 반환합니다.</summary>
+    /// <param name="isMale">남성 외형 배열이면 true입니다.</param>
+    /// <param name="appearance">해당 배열의 0부터 시작하는 유효 외형 번호입니다.</param>
+    /// <returns>성인 남녀, 어린이 또는 노인 분류입니다.</returns>
+    internal static DystopiaCustomerType AppearanceType(bool isMale, int appearance)
+    {
+        if (appearance >= (isMale ? 26 : 18)) return DystopiaCustomerType.Elderly;
+        if (appearance >= (isMale ? 24 : 16)) return DystopiaCustomerType.Child;
+        return isMale ? DystopiaCustomerType.AdultMale : DystopiaCustomerType.AdultFemale;
     }
 
     /// <summary>설정에서 요청된 네 품목을 명시된 순서대로 찾아 기존 가격과 Sprite 참조를 재사용합니다.</summary>

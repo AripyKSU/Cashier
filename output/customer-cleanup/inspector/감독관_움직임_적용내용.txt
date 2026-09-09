@@ -1,0 +1,26 @@
+﻿감독관 전용 움직임·노멀 조명
+
+프리팹: Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab
+컴포넌트: Dystopia Inspector Portrait
+Motion Amount: 전체 움직임 강도 (기본 1, 0이면 중립)
+Head Degrees: 고개 기울기 (기본 2.4도)
+Irritation Interval: 불쾌 반응 간격 (기본 7.8초)
+Light Direction / Light Color / Light Intensity / Ambient / Normal Strength: 전용 조명과 노멀 강도
+
+머리는 턱 아래 (66,66) 픽셀을 축으로 분리했습니다. 머리 RGB 변경 0, 목 연결 보완 영역 밖 몸통 RGB 변경 0입니다.
+목 연결부 219픽셀만 원본 목 색상으로 보완했습니다. 기존 Inspector.png 및 허벅지 정리 결과는 그대로 보존했습니다.
+노멀맵은 얼굴·몸통의 곡면과 완만한 명암 요철을 추정한 정보입니다. 실제 3D 형상에서 베이크한 노멀은 아닙니다.
+발밑 고정 호흡, 느린 몸 기울임, 고개를 살짝 든 자세, 간헐적인 짧은 고개 틀기와 멈춤을 적용했습니다.
+감독관 팝업 전용 UI 조명이며 기존 가판 시간대 조명은 수정하지 않았습니다.
+상납금 방문 및 영업 실패 팝업에 연결했습니다. 씬 제작 도구에서도 프리팹 참조를 설정합니다.
+원본 출처는 사용자 제공 N:/개인/정총무/감독관.png이며 별도 라이선스 문서는 제공되지 않았습니다.
+
+검증 PARTIAL
+별도 Unity 6000.3.18f1 D3D11에서 셰이더 컴파일과 실제 UI 렌더 48프레임을 확인했습니다.
+목 연결부 시각 점검, 명시적 에디터 종료 콜백의 머티리얼 해제 확인 완료.
+최종 프리팹의 RawImage는 본 프로젝트 uGUI 스크립트 GUID에 연결했습니다. 모든 리소스·스크립트 참조는 실제 프로젝트 GUID로 대응시켜 중복과 누락을 확인했습니다.
+Unity가 실제 프로젝트에서 생성한 GUID를 보존하고 새 텍스처에는 검증된 Point·무압축 설정을 적용했습니다. 노멀맵은 선형 RGB입니다.
+본 프로젝트 Runtime/Editor Roslyn 컴파일 및 git diff --check 통과.
+본 게임의 실제 팝업 PlayMode 확인은 미실행입니다. 사용자 창을 조작하지 않았습니다.
+inspector-motion.gif는 별도 Unity에서 렌더한 전체 7.8초 주기입니다.
+commit/push/merge 없음. 실제 프로젝트 패키지 및 렌더 설정 변경 없음.

@@ -1,0 +1,4 @@
+﻿원인: 노멀 생성 시 y=77에서 얼굴과 몸통 수식이 불연속적으로 변경됨.
+수정: y=52~96 구간 smoothstep 연결. 원본 Inspector.png 픽셀 동일 확인.
+이전 노멀은 InspectorNormal-before-neck-fix.png로 보관. .meta와 GUID 유지.
+별도 Unity에서 수정한 노멀로 호흡 48프레임 렌더 확인. 게임의 전용 조명 비활성 상태는 유지. 메인 PlayMode는 미검증.

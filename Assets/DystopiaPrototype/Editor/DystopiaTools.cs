@@ -175,6 +175,7 @@ public static class DystopiaTools
         serialized.FindProperty("fogFrontMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogFront.mat");
         serialized.FindProperty("daughter").objectReferenceValue=Art("Daughter");
         serialized.FindProperty("inspector").objectReferenceValue=Art("Inspector");
+        serialized.FindProperty("inspectorPortraitPrefab").objectReferenceValue=AssetDatabase.LoadAssetAtPath<GameObject>(Root+"Prefabs/InspectorPortrait.prefab");
         var customers=serialized.FindProperty("customers"); customers.arraySize=1;
         customers.GetArrayElementAtIndex(0).objectReferenceValue=Art("MaleCustomer0");
         var products=serialized.FindProperty("settings").FindPropertyRelative("products");

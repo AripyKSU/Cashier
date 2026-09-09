@@ -1,0 +1,1 @@
+SUCCESS: texture imports, shader compilation, prefab references, 48 rendered poses, explicit editor cleanup callback. Main game modal PlayMode check pending.

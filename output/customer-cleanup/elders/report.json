@@ -1,0 +1,74 @@
+[
+  {
+    "source": "할아버지.png",
+    "asset": "MaleCustomer_28.png",
+    "type": "Elderly",
+    "alpha_changes": 1364,
+    "interior_changes": 0,
+    "rgb_changes": 0,
+    "trim_rect": [
+      83,
+      19,
+      175,
+      243
+    ],
+    "size": [
+      102,
+      234
+    ]
+  },
+  {
+    "source": "할아버지2.png",
+    "asset": "MaleCustomer_29.png",
+    "type": "Elderly",
+    "alpha_changes": 1788,
+    "interior_changes": 0,
+    "rgb_changes": 0,
+    "trim_rect": [
+      77,
+      16,
+      190,
+      244
+    ],
+    "size": [
+      123,
+      238
+    ]
+  },
+  {
+    "source": "할머니.png",
+    "asset": "FemaleCustomer_19.png",
+    "type": "Elderly",
+    "alpha_changes": 691,
+    "interior_changes": 0,
+    "rgb_changes": 0,
+    "trim_rect": [
+      31,
+      7,
+      96,
+      150
+    ],
+    "size": [
+      75,
+      153
+    ]
+  },
+  {
+    "source": "할머니2.png",
+    "asset": "FemaleCustomer_20.png",
+    "type": "Elderly",
+    "alpha_changes": 635,
+    "interior_changes": 0,
+    "rgb_changes": 0,
+    "trim_rect": [
+      39,
+      6,
+      93,
+      123
+    ],
+    "size": [
+      64,
+      127
+    ]
+  }
+]
