@@ -31,7 +31,9 @@
 - `disposition_type`은 필수 uint 숫자로 읽고 검증한 enum을 `DispositionType`으로 제공한다. 빈값·문자열·None·종료값·미정의 값은 거부한다. `preferred_product_idxs`는 필수 header, 빈 셀은 선호 없음이며 기존 `UIntArrayConverter`의 `_` 구분 uint 배열을 사용한다. 0·중복·null과 ProductData.idx FK 누락은 거부한다. 기존 세 행은 빈 셀이다.
 - 추첨은 실제 후보 타입을 정렬해 균등 선택한 뒤 그 타입의 설정을 Idx 순으로 정렬해 균등 선택한다. 따라서 타입별 행 개수는 타입 출현율을 바꾸지 않는다. 같은 seed·외형 후보 순서·후보 집합에서 재현되며 데이터·추첨 방식 변경 전 버전과의 난수열 호환은 보장하지 않는다.
 - 선호 풀은 품목 `preferred_product_types` **OR** 개별 `preferred_product_idxs`다. 둘 다 해당해도 상품은 한 번만 포함된다. 비활성·미등장 상품 제외, 기존 0~1000 선호 확률과 한쪽 풀 소진 시 fallback은 유지한다.
-- `CustomerAttributes`는 Male=1/Female=2 중 하나와 성인(연령 비트 없음)/Child=4/Elderly=8 중 하나를 각각 균등 추첨한 6조합이다. 외형·성향과 독립이다. None=0은 표현만 허용하고 생성하지 않는다. 미정의 비트, 남녀 동시 또는 아이·노인 동시는 거부한다.
+- `CustomerAttributes`는 Male=1/Female=2와 Adult=16/Child=4/Elderly=8을 각 축에서 독립 균등 추첨하고, 현재 유일한 특수 속성 Normal=32를 붙인 2×3×1=6조합이다. 성인·일반은0이 아닌 명시 비트다. 외형·성향과 독립이며 속성 Wealthy/Poor는 구현하지 않는다. 기존 성향 타입 Wealthy=4와 자동 연결하거나 가격·대기 수치를 보정하지 않는다.
+- `ValidateAttributes`는 None 및 축이 생략된 부분조건을 허용하되 미정의 비트·같은 축의 중복 선택은 거부한다. `CustomerVisit`은 `ValidateCompleteAttributes`로 세 축에서 각각 정확히 하나를 요구한다. `SaleRestriction`은 기존대로 None을 거부하며 Adult 단독, Normal 단독, Female|Elderly|Normal 등의 AND 조건을 허용한다.
+- 이번 속성 변경은 기존 Male/Female/Child/Elderly 비트값을 유지하지만 생성 프로필에는 Adult/Normal 비트를 명시한다. 이전 성인값1/2 또는 Normal 없는 값은 완전한 방문으로 복원할 수 없다. 현재 방문 속성의 저장·복원 경로가 없어 자동 migration을 추가하지 않았다. 외부 저장을 도입할 때 별도 버전 규칙이 필요하다. 기존 CSV·성향 정책·외형·UI는 변경하지 않는다.
 - 방문의 getter-only `DispositionType`·`Attributes`는 생성 시 값 복사이며 원본 DTO 변경에 영향받지 않는다. 타입·속성으로 가격 허용도·대기 시간을 자동 보정하지 않는다. 기존 UI는 PK 표시를 유지하며 새 정보는 공개 API로 조회한다.
 - 배포 시 CSV와 DTO·생성기를 함께 반영한다. 구형 header는 오류로 차단한다. 런타임 저장 형식은 추가하지 않았다. 복구 시 이 스키마 변경과 소비자를 함께 되돌리고 기존 자산 GUID를 유지한다.
 - 검사: `Tools/Check-CustomerGenerator.ps1`은 타입별 3:1 설정 후보의 타입 균등성·행 균등성, 같은 외형의 6속성, OR 선호·중복·미등장 제외·스냅샷과 기존 최종 거래를 검사한다. `Tools/Check-CustomerCsv.ps1`은 새 header/enum/FK를 포함해 48개 오류를 거부한다(의도된 LogError 48건).

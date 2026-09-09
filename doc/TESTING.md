@@ -65,6 +65,15 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 다른 branch에 이식할 때 product cost_price 및 성향 disposition_type/preferred_product_idxs/regular_price_min_rate/regular_price_max_rate를 포함한 현재 CSV와 DTO/loader/catalog/방문·TransactionResult를 부분 복사하지 않는다.
 - TMP fallback dirty와 stash, 개인 Local 파일, Temp 검사 증거, 의도치 않은 ProjectSettings 변경은 commit 대상이 아니다. 기본 branch merge는 별도 승인·교차 리뷰 대상이다.
 
+## 손님 속성 세 축 검증 (2026-09-09)
+
+- `CustomerAttributes`는 기존 비트 유지+Adult16/Normal32만 추가했다. 성별2×연령3×특수1=6조합, 특수 속성 Wealthy/Poor는 없고 성향 enum은 변경하지 않았다.
+- Unity 6000.3.18f1, Cashier PID29172, `Tools/Run-Tests.ps1`: EditMode139/139, PlayMode20/20, 실패0·skip/미완료0.
+- 증거: `Temp/TestResults/20260909-124924-72e789a824f34e5d80227f188ac3806b/`의 EditMode.xml/PlayMode.xml 및 각각 .log. Git 제외 임시 증거다.
+- CustomerContractTests에서6조합 도달·균등성·외형/성향 독립·seed 재현, 부분조건/완전프로필 분리, 미정의bits·동축중복·축누락 및 실제 방문 생성자 거부, Adult/Normal/Child 단독·세 축 AND 지침을 검사했다. 기존 성향 Wealthy도 Normal 속성과 별개이며 금액 효과가 없음을 확인했다.
+- 최초 테스트 작성에서 internal CustomerOrderItem 생성자 접근 컴파일 오류를 정상 생성기 결과 재사용으로 수정한 뒤 위 전체 실행이 통과했다. 최종 compiling=false, scriptCompilationFailed=false, Play 종료/InitScene 복귀 확인.
+- Console Error3건은 ResourcePoolTests의 기존 실패 주입(LogAssert.Expect)이며 제품 오류와 구분한다. CSV·Scene/prefab·Addressables·Local·저장 데이터는 수정하지 않았고 UI/UX는 미검증이다. 새 저장 migration과 Git 작업은 수행하지 않았다.
+
 ## 설비 구매·다음날 해금 검증 (2026-09-09)
 
 - Unity 6000.3.18f1, Cashier PID16200, `Tools/Run-Tests.ps1`: EditMode137/137, PlayMode20/20, 실패0·skip/미완료0. 컴파일 완료 후 실행했다.
@@ -72,6 +81,14 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 신규 FacilityTests14건과 GameSessionApiTests의 실제 CSV·Addressables 로딩/다음날 해금/새 세션 초기화를 포함한다. 처음 실패한 구형 비활성상품 제출 fixture와 영업 전 null 방문 캡처는 테스트 입력·순서만 고친 뒤 재실행했다. 제품 잠금 규칙은 완화하지 않았다.
 - 종료 Console Error3건은 ResourcePoolTests의 명시적 실패 주입(LogAssert.Expect)이다. 신규 제품 오류와 구분한다. 컴파일 오류 없음; 화면 조작·실제 씬 전환·설비 구매 UI는 검증하지 않았다.
 - 데이터·사용법·배포 묶음은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
+
+## 설비 상점 UI 검증 (2026-09-09)
+
+- EditMode 141/141: `Temp/TestResults/20260909-133440-6d6d6167362148548c3ca3a76ccee187/EditMode.xml`.
+- PlayMode 23/23, 실패·skip·미완료 0: `Temp/TestResults/20260909-134450-0c7ecbb9dff14f0597961e0382dcb326/PlayMode.xml` 및 `.log`.
+- 최초 Play 실행은 개인 `playModeStartScene=InitScene`으로 실제 Local 게임 씬이 시작되어 180초 timeout, 결과 XML 미생성으로 BLOCKED였다. 해당 job만 CancelTestRun으로 정리하고 idle 확인 후 개인 시작 씬 설정을 임시 해제해 새 runId로 재검증했다. 종료 후 InitScene 설정을 복원했다. 테스트 실행 시 개인 playModeStartScene을 보존→임시 null→종료 후 복원한다. 공유 runner나 제품 흐름은 변경하지 않는다.
+- 상점 스냅샷/FK/날짜 상한, 실제 prefab 버튼 구독 수명, 중복 구매 방지, 잔고 변경, 모달 뒤 입력 차단, 다음날 활성화, 결제 알림 예외 후 소유권 보존과 UI 잠금을 검사했다. 기대된 실패 주입 로그는 제품 오류와 구분한다.
+- 실제 Local 부트스트랩의 상점 열기·구매·닫기·다음날 활성화도 확인했다. `Temp/FacilityShop-Open.png`, `Temp/FacilityShop-Purchased.png`는 임시 화면 증거이며 Git 제외다. 최종 사용자 UI/UX 확인은 별도다.
 
 ## 이전 Test Runner 전환 검증 기록 (2026-09-08)
 

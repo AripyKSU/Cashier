@@ -143,6 +143,62 @@ public sealed class FacilityTests
         Assert.That(CustomerProductAvailability.GetAvailableProducts(products, day).Count, Is.EqualTo(1), "미연결 설비는 잠금을 유지한다");
     }
 
+    /// <summary>실제 FK 이름과 네 표시 상태·잔액 경계·표시 날짜 overflow를 검증한다.</summary>
+    [Test]
+    public void ShopSnapshotUsesCatalogAndOwnership()
+    {
+        var (factory, table) = loadShopData();
+        var owned = new Dictionary<uint, uint>();
+        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 5000);
+        Assert.That(before.Items.Count, Is.EqualTo(5));
+        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Available));
+        Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
+        Assert.That(before.Items[0].DisplayName, Is.EqualTo("식량 보관 선반"));
+        Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
+        Assert.That(before.Items[0].ActivationDisplayDay, Is.EqualTo(2UL));
+        owned[12001] = 1; owned[12005] = 0;
+        var current = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 0);
+        Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.Pending));
+        Assert.That(current.Items[4].State, Is.EqualTo(FacilityDisplayState.Active));
+        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Available));
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0).Items[0].State, Is.EqualTo(FacilityDisplayState.Active));
+        owned.Clear();
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, uint.MaxValue, long.MaxValue).Items[0].ActivationDisplayDay, Is.EqualTo(4294967297UL));
+        owned[12001] = uint.MaxValue;
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, uint.MaxValue, 0).Items[0].ActivationDisplayDay, Is.EqualTo(4294967296UL));
+    }
+
+    /// <summary>표시 조회 실패를 fallback으로 숨기지 않고 스냅샷 목록은 원본 변경으로부터 보호한다.</summary>
+    [Test]
+    public void ShopSnapshotRejectsBadInputsAndCopiesRows()
+    {
+        var (factory, table) = loadShopData();
+        var owned = new Dictionary<uint, uint>();
+        Assert.Throws<ArgumentNullException>(() => factory.CreateFacilityShopViewData(null, owned, 0, 1));
+        Assert.Throws<ArgumentNullException>(() => factory.CreateFacilityShopViewData(table.Rows, null, 0, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => factory.CreateFacilityShopViewData(table.Rows, owned, 0, -1));
+        var bad = new Dictionary<uint, FacilityData> { [12001] = new FacilityData { Idx = 12001, NameIdx = 8999, PurchasePrice = 1 } };
+        Assert.Throws<InvalidOperationException>(() => factory.CreateFacilityShopViewData(bad, owned, 0, 1));
+        var rows = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 100000).Items.ToList();
+        var copy = new FacilityShopViewData(100000, rows); rows.Clear();
+        Assert.That(copy.Items.Count, Is.EqualTo(5));
+    }
+
+    /// <summary>실제 CSV만 읽어 FK 검증한 표시 변환기와 설비 테이블을 만든다.</summary>
+    /// <returns>같은 로딩 묶음의 변환기와 설비 원본.</returns>
+    private static (ProgressViewDataFactory, FacilityDataTable) loadShopData()
+    {
+        var table = new FacilityDataTable(); table.LoadData(File.ReadAllText("Assets/Datas/FacilityData.csv"));
+        var catalog = new CustomerCatalog(new CustomerAppearanceDataTable(), new CustomerDispositionDataTable(), new ProductCategoryDataTable(), new ProductDataTable());
+        var texts = new TextDataTable();
+        catalog.Appearances.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerAppearanceData.csv"));
+        catalog.Dispositions.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
+        catalog.Categories.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductCategoryData.csv"));
+        catalog.Products.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductData.csv"));
+        texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv")); catalog.ValidateAndCommit(texts, facilities: table);
+        return (new ProgressViewDataFactory(catalog, texts, new Dictionary<uint, Sprite>()), table);
+    }
+
     /// <summary>설비 CSV와 상품 FK의 오류가 공개 전에 로그와 예외로 거부되는지 확인한다.</summary>
     /// <param name="kind">형식·대역·이름·상품 FK 오류 구분.</param>
     [TestCase("id"), TestCase("duplicate"), TestCase("price"), TestCase("name"), TestCase("product"), TestCase("zero-product"), TestCase("header")]

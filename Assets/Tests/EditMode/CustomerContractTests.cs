@@ -101,7 +101,7 @@ public sealed class CustomerContractTests
         Assert.Throws<ArgumentNullException>(() => generator.Generate(new uint[] { 1 }, new[] { config }, products));
     }
 
-    /// <summary>행 개수와 독립인 타입 균등성·정렬 seed·6속성을 검사한다.</summary>
+    /// <summary>행 개수와 독립인 타입 균등성·정렬 seed·명시된 세 축의6조합을 검사한다.</summary>
     [Test]
     public void TypeThenRowSelectionAndIndependentAttributes()
     {
@@ -109,21 +109,25 @@ public sealed class CustomerContractTests
             makeConfig(3, CustomerDispositionType.Normal, 1), makeConfig(4, CustomerDispositionType.Hasty, 2) };
         var left = new CustomerGenerator(new Random(73)); var right = new CustomerGenerator(new Random(73));
         var counts = new Dictionary<uint, int>(); var attributes = new Dictionary<CustomerAttributes, int>(); int normal = 0;
+        var combinations = new HashSet<(uint, CustomerDispositionType, CustomerAttributes)>();
         for (int i = 0; i < 12000; i++)
         {
-            var a = left.Generate(new uint[] { 1 }, rows, products, getCurrentPrices: () => prices);
-            var b = right.Generate(new uint[] { 1 }, rows.Reverse().ToArray(), products, getCurrentPrices: () => prices);
+            var a = left.Generate(new uint[] { 1, 2 }, rows, products, getCurrentPrices: () => prices);
+            var b = right.Generate(new uint[] { 1, 2 }, rows.Reverse().ToArray(), products, getCurrentPrices: () => prices);
             Assert.That((a.DispositionIdx, a.Attributes, a.Items[0].ProductIdx), Is.EqualTo((b.DispositionIdx, b.Attributes, b.Items[0].ProductIdx)));
             Assert.That(a.Items.Single().ProductIdx, Is.EqualTo(rows.Single(x => x.Idx == a.DispositionIdx).PreferredProductIdxs.Single()));
             Assert.That(a.DispositionType, Is.EqualTo(CustomerDispositionType.Normal).Or.EqualTo(CustomerDispositionType.Hasty));
             if (a.DispositionType == CustomerDispositionType.Normal) normal++;
             counts.TryGetValue(a.DispositionIdx, out int count); counts[a.DispositionIdx] = count + 1;
             attributes.TryGetValue(a.Attributes, out count); attributes[a.Attributes] = count + 1;
+            combinations.Add((a.AppearanceIdx, a.DispositionType, a.Attributes));
         }
         Assert.That(normal, Is.InRange(5700, 6300)); Assert.That(counts.Count, Is.EqualTo(4));
         Assert.That(counts.Where(x => x.Key <= 3).All(x => x.Value >= 1750 && x.Value <= 2250));
         Assert.That(attributes.Count, Is.EqualTo(6)); Assert.That(attributes.ContainsKey(CustomerAttributes.None), Is.False);
         Assert.That(attributes.Values.All(x => x >= 1750 && x <= 2250));
+        Assert.That(attributes.Keys.Select(x => (int)x), Is.EquivalentTo(new[] { 37, 38, 41, 42, 49, 50 }));
+        Assert.That(combinations.Count, Is.EqualTo(24)); // 외형2 × 성향타입2 × 속성6 모두 도달한다.
     }
 
     /// <summary>동일 seed가 외형·상품·수량·속성 전체를 재현한다.</summary>
@@ -151,17 +155,37 @@ public sealed class CustomerContractTests
             if (type >= 1 && type <= 4) Assert.DoesNotThrow(() => CustomerProfileValidation.ValidateType((CustomerDispositionType)value));
             else Assert.Throws<ArgumentOutOfRangeException>(() => CustomerProfileValidation.ValidateType((CustomerDispositionType)value));
         }
-        var valid = new HashSet<int> { 0, 1, 2, 4, 5, 6, 8, 9, 10 };
-        for (int bits = -1; bits <= 31; bits++)
+        var valid = new HashSet<int>(from gender in new[] { 0, 1, 2 }
+            from age in new[] { 0, 4, 8, 16 } from special in new[] { 0, 32 } select gender | age | special);
+        var complete = new HashSet<int> { 37, 38, 41, 42, 49, 50 };
+        foreach (int bits in Enumerable.Range(-1, 130).Concat(new[] { int.MinValue, int.MaxValue }))
         {
             int value = bits;
             if (valid.Contains(bits)) Assert.DoesNotThrow(() => CustomerProfileValidation.ValidateAttributes((CustomerAttributes)value));
             else Assert.Throws<ArgumentException>(() => CustomerProfileValidation.ValidateAttributes((CustomerAttributes)value));
+            if (complete.Contains(bits)) Assert.DoesNotThrow(() => CustomerProfileValidation.ValidateCompleteAttributes((CustomerAttributes)value));
+            else Assert.Throws<ArgumentException>(() => CustomerProfileValidation.ValidateCompleteAttributes((CustomerAttributes)value));
         }
         config.RegularPriceMinRate = 950; config.RegularPriceMaxRate = 1050;
         var visit = generate(); config.RegularPriceMinRate = 1000; config.DispositionType = CustomerDispositionType.Wealthy;
         Assert.That(visit.RegularPriceMinRate, Is.EqualTo(950)); Assert.That(visit.RegularPriceMaxRate, Is.EqualTo(1050));
         Assert.That(visit.DispositionType, Is.EqualTo(CustomerDispositionType.Normal));
+    }
+
+    /// <summary>실제 방문 생성자도 부분조건을 완전한 손님으로 받지 않는지 검사한다.</summary>
+    [Test]
+    public void VisitRejectsIncompleteProfiles()
+    {
+        var constructor = typeof(CustomerVisit).GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Single();
+        var items = generate().Items.ToList();
+        foreach (int bits in new[] { 0, 1, 16, 32, 17, 33, 48, 51, 53, 113 })
+        {
+            var arguments = new object[] { 1u, 1u, items,
+                1000, 1u, 2u, 3u, 4u, 5u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
+                CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys };
+            var error = Assert.Throws<System.Reflection.TargetInvocationException>(() => constructor.Invoke(arguments));
+            Assert.That(error.InnerException, Is.InstanceOf<ArgumentException>());
+        }
     }
 
     /// <summary>최종 목록 교체에 대한 기존 네 판정과 정산 의미를 검사한다.</summary>
@@ -249,10 +273,10 @@ public sealed class CustomerContractTests
         var rules = new List<SaleRestriction>(); int reads = 0;
         var visit = generate(() => { reads++; return rules; }); Assert.That(reads, Is.Zero);
         var gender = visit.Attributes & (CustomerAttributes.Male | CustomerAttributes.Female);
-        var age = visit.Attributes & (CustomerAttributes.Child | CustomerAttributes.Elderly);
+        var age = visit.Attributes & (CustomerAttributes.Adult | CustomerAttributes.Child | CustomerAttributes.Elderly);
         var opposite = gender == CustomerAttributes.Male ? CustomerAttributes.Female : CustomerAttributes.Male;
         rules.Add(new SaleRestriction(visit.Attributes, ProductType.Water));
-        rules.Add(new SaleRestriction(age == 0 ? gender | CustomerAttributes.Child : opposite | age, ProductType.Water));
+        rules.Add(new SaleRestriction(opposite | age, ProductType.Water));
         rules.Add(new SaleRestriction(opposite, ProductType.Water)); rules.Add(new SaleRestriction(visit.Attributes, ProductType.Medicine));
         visit.BeginOffer(); visit.SubmitOffer(606, new[] { new SaleItem(1, 1), new SaleItem(1, 2), new SaleItem(2, 1), new SaleItem(3, 2) });
         var result = visit.Result.Value; Assert.That(reads, Is.EqualTo(1)); Assert.That(result.RestrictionViolations.Count, Is.EqualTo(2));
@@ -297,10 +321,40 @@ public sealed class CustomerContractTests
     [Test]
     public void InvalidRestrictionValues()
     {
-        foreach (var mask in new[] { CustomerAttributes.None, (CustomerAttributes)3, (CustomerAttributes)12, (CustomerAttributes)16 })
+        foreach (var mask in new[] { CustomerAttributes.None, (CustomerAttributes)3, (CustomerAttributes)12, (CustomerAttributes)20, (CustomerAttributes)24, (CustomerAttributes)64 })
             Assert.Catch<ArgumentException>(() => new SaleRestriction(mask, ProductType.Water));
         Assert.Throws<ArgumentException>(() => new SaleRestriction(CustomerAttributes.Child, ProductType.None));
         Assert.Throws<ArgumentException>(() => new SaleRestriction(CustomerAttributes.Child, (ProductType)99));
+    }
+
+    /// <summary>성인·일반 부분조건과 세 축 AND를 판정하며 부자 성향도 속성·금액을 바꾸지 않는다.</summary>
+    [Test]
+    public void ExplicitAgeAndSpecialRestrictionsAreIndependentOfDisposition()
+    {
+        config.DispositionType = CustomerDispositionType.Wealthy;
+        var cases = new[]
+        {
+            (CustomerAttributes.Adult, new[] { 49, 50 }),
+            (CustomerAttributes.Normal, new[] { 37, 38, 41, 42, 49, 50 }),
+            (CustomerAttributes.Child, new[] { 37, 38 }),
+            (CustomerAttributes.Female | CustomerAttributes.Elderly | CustomerAttributes.Normal, new[] { 42 })
+        };
+        foreach (var (required, expected) in cases)
+        {
+            var rule = new SaleRestriction(required, ProductType.Water);
+            var visits = Enumerable.Range(0, 256).Select(_ => generate(() => new[] { rule }))
+                .GroupBy(x => x.Attributes).Select(x => x.First()).ToArray();
+            Assert.That(visits.Length, Is.EqualTo(6));
+            foreach (var visit in visits)
+            {
+                Assert.That(visit.DispositionType, Is.EqualTo(CustomerDispositionType.Wealthy));
+                Assert.That(visit.Attributes & CustomerAttributes.Normal, Is.EqualTo(CustomerAttributes.Normal));
+                visit.BeginOffer(); Assert.That(visit.SubmitOffer(101, new[] { new SaleItem(1, 1) }));
+                Assert.That(visit.Result.Value.RestrictionViolations.Count, Is.EqualTo(expected.Contains((int)visit.Attributes) ? 1 : 0));
+                Assert.That(visit.Result.Value.SaleIncome, Is.EqualTo(101));
+                Assert.That(visit.Outcome, Is.EqualTo(CustomerTradeOutcome.RegularSale));
+            }
+        }
     }
 
     /// <summary>공통 검사 설정을 만든다. 실제 PK에 등록하지 않는다.</summary>

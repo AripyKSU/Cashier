@@ -48,7 +48,7 @@
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 3 | 21 | 구매 연결 / queue 독립 API |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 4 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 9 | 현재 데이터 경로 연결 |
-| [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금 연결, 구매 UI 미구현 |
+| [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금·정산 상점 UI 연결 |
 
 ### FacilityData
 
@@ -262,7 +262,7 @@
 - 희망 목록은 각 성향 모두1~3종류, 종류당1~3개이며 동일 상품은 한 항목으로 표현한다. 후보가 부족하면 종류 수를 줄인다.
 - 선호 분류와 개별 상품은 OR다. 현재 개별 선호 상품 목록은 모두 비어 있다. 양쪽 후보군이 남아 있을 때만90%가 적용되고 한쪽 소진 시 남은 쪽에서 고르므로 최종 장바구니의 정확히90%가 선호 상품이라는 뜻은 아니다.
 - 타입 출현은 **존재하는 타입 간 균등 → 선택된 타입 안의 성향 행 간 균등**이다. 현재3타입은 각1/3, Wealthy=4는 데이터가 없어 생성되지 않는다. 새 타입 행 추가는 모든 타입의 상대 출현율을 바꾼다. 외형은 전달된 후보에서 균등, 대사는 각 후보 목록에서 균등 선택한다.
-- 성별2종과 연령3종은 독립 균등이며 외형·성향과 별개다. 기본 성인에는 연령 bit가 없다.
+- 성별2종과 연령3종은 독립 균등이며 외형·성향과 별개다. 성인은Adult=16, 특수 속성은 현재Normal=32 하나뿐이며 전체2×3×1=6조합이다. Normal만을 위해 난수를 추가 소비하지 않는다.
 - 현재 같은 성향의 기준가·저가·착취 대사 목록이 동일하다. 판정이 달라도 문구가 같을 수 있다. 결제 거부는 별도 목록이다.
 - 재촉 시점은 `queue_patience_seconds - 6`이다. 모든 성향이3초에 재촉하는 것이 아니라 가장 급한 성향이3초이며 다른 성향은 비례 조정된 값이다. 대기열은 독립 API이므로 현재 UI에서 위 시간이 흐른다는 보장은 없다.
 
@@ -314,13 +314,14 @@
 | [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, Facility=12, DataTableType_End=13(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
 | [ProductType : uint](../Assets/Scripts/Commons/Data/ProductType.cs) | None=0, Water=1, Food=2, Medicine=3, DailyNecessities=4 | 상품·선호·이벤트·지침. None 거부, End 없음 |
 | [CustomerDispositionType : int](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4, CustomerDispositionType_End=5(자동) | CSV 원시 uint를 enum으로 해석,1~4만 허용 |
-| [CustomerAttributes : int, Flags](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Male=1, Female=2, Child=4, Elderly=8 | bit OR. Male+Female 또는 Child+Elderly, 미정의 bit 금지 |
+| [CustomerAttributes : int, Flags](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Male=1, Female=2, Child=4, Elderly=8, Adult=16, Normal=32 | bit OR. 성별·연령·특수 각각 최대1개. 실제 방문은 세 축 모두필수 |
 | [PriceChangeType : int](../Assets/Scripts/Commons/Data/PriceEventData.cs) | None=0, Rate=1, Amount=2, PriceChangeType_End=3(자동) | CSV0~2만; None은 무효과 데이터로 유효 |
 | [PriceEventChannel : int](../Assets/Scripts/Commons/Data/PriceEventScheduleData.cs) | None=0, Newspaper=1, Radio=2, PriceEventChannel_End=3(자동) | CSV1·2만 |
 | [CustomerState : int](../Assets/Scripts/Customer/CustomerVisit.cs) | Entering=0, AwaitingOffer=1, Accepted=2, Rejected=3, Departed=4, Queued=5, Abandoned=6 | 방문 수명. Departed와 대기 만료 Abandoned 구분 |
 | [CustomerTradeOutcome : int](../Assets/Scripts/Customer/CustomerVisit.cs) | None=0, RegularSale=1, DiscountSale=2, ExploitativeSale=3, PaymentRefused=4 | 가격 판정. 퇴장 후에도 유지 |
 | [FinanceChangeReason : int](../Assets/Scripts/Finance/FinanceChangeReason.cs) | None=0, Sale=1, Maintenance=2, FacilityPurchase=3 | 재정 변경 사유. 현재 거래/상납이 각각1/2 |
 | [FacilityPurchaseStatus](../Assets/Scripts/Facility/FacilityPurchaseResult.cs) | None=0, Purchased=1, AlreadyOwned=2, InsufficientFunds=3, FacilityPurchaseStatus_End=4(자동) | 정상 구매 결과; 입력·재진입·알림 오류는 예외 |
+| [FacilityDisplayState](../Assets/Scripts/UI/Contracts/FacilityUIContracts.cs) | Available=0, InsufficientFunds=1, Pending=2, Active=3, FacilityDisplayState_End=4(자동) | UI 표시 상태, 구매 요청 결과와 별개 |
 | [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Maintenance=2, Failed=3, Completed=4 | 전체 진행. Completed 값 존재가 최종 목표 기능 구현을 뜻하지 않음 |
 | [DayProgressState : int](../Assets/Scripts/Progress/DayProgressState.cs) | Initializing=0, PreOpen=1, Operating=2, Sorting=3, TransactionResult=4, Closing=5, Settlement=6, Completed=7 | 하루 진행. Closing은 마지막 거래 마감 |
 | [GameDayPhase : int](../Assets/Scripts/UI/Contracts/UIContracts.cs) | PreOpen=0, PriceGuide=1, Operating=2, TradingResult=3, Closing=4, DailySettlement=5, Tribute=6 | UI 표시용. PriceGuide는 레거시 호환 |
@@ -329,7 +330,9 @@
 | [GameSceneManager.SceneName : int](../Assets/Scripts/Manager/GameSceneManager.cs) | Init=0, Hub=1, Main=2 | 공유 씬 routing, 개인 씬은 enum 없음 |
 | [CashierPhase : int](../Assets/Scripts/UI/CashierSession.cs) | PriceGuide=0, Trading=1, Result=2, Settlement=3, Tribute=4, Goal=5, Failed=6 | 구형 CashierSession만 사용, 현재 진행 상태와 숫자 호환 아님 |
 
-CustomerAttributes의 생성 가능한6조합: 성인 남1, 성인 여2, 남아5(1|4), 여아6(2|4), 노인 남9(1|8), 노인 여10(2|8). 검증기 자체는 None0와 성별 없는 Child4/Elderly8도 표현 가능하다고 보지만 현재 생성기는 성별을 항상 부여한다. SaleRestriction.RequiredAttributes에는 None0을 거부하며 `(방문 속성 & 필요 속성) == 필요 속성`의 AND로 검사한다.
+CustomerAttributes의 생성 가능한6조합(모두일반): 성인 남49(1|16|32), 성인 여50(2|16|32), 남아37(1|4|32), 여아38(2|4|32), 노인 남41(1|8|32), 노인 여42(2|8|32). `ValidateAttributes`는 None·부분조건도 허용하지만 `ValidateCompleteAttributes`와 실제 방문은 세 축 각각1개를 요구한다. SaleRestriction.RequiredAttributes에는 None0을 거부하며 `(방문 속성 & 필요 속성) == 필요 속성`의 AND로 검사한다. Adult16/Normal32 단독 지침도 가능하다.
+
+기존 비트0/1/2/4/8은 유지했다. 성인이 연령 비트0인 이전 생성값은 더 이상 완전 프로필이 아니다. 현재 속성 저장·복원 경로는 없으므로 migration을 만들지 않았다. 특수속성 Wealthy/Poor는 없으며 기존 `CustomerDispositionType.Wealthy=4`와 속성은 별개다. 이 변경은 CSV·허용가격·선호 정책을 바꾸지 않는다.
 
 ## 6. 런타임 데이터·결과 계약
 
@@ -376,6 +379,8 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 설비 구매는 `GameProgress.TryPurchaseFacility(uint, out FacilityPurchaseResult)`로 요청한다. 결과는 `Status`, `FacilityIdx`, `PaidAmount`, `ActivationDay:uint?`. 세션은 `FacilityActivationDays:IReadOnlyDictionary<uint,uint>`와 `IsFacilityActive(uint)`를 공개하며 서비스 인스턴스를 노출하지 않는다. 가격표 factory의 설비 조회 callback 미지정 시 해금 상품은 제외된다.
 
 ## 7. UI용 데이터와 표시 한계
+
+설비 상점은 `FacilityShopViewData(CurrentBalance:long, Items:IReadOnlyList<FacilityItemViewData>)`를 사용한다. 행은 FacilityIdx:uint, DisplayName:string, PurchasePrice:long, UnlockProducts:string, State:FacilityDisplayState, ActivationDisplayDay:ulong을 복사한다. 실제 Facility/Text/Product FK와 세션 보유·잔액에서 생성하며 표시 DAY는 활성 경과일+1이다. 정산 중에만 열고 구매 요청에는 PK만 전달한다. [설비 UI 인계](FACILITY_INTEGRATION.md) 참조.
 
 근거: [UIContracts](../Assets/Scripts/UI/Contracts/UIContracts.cs), [ProgressViewDataFactory](../Assets/Scripts/UI/ProgressViewDataFactory.cs), [GameUIController](../Assets/Scripts/Scene/GameUIController.cs). ViewData는 표현용 snapshot이며 CSV·경제 상태를 대체하지 않는다. 문자열을 UI에 전달하는 것은 CSV 문자열 키 허용을 확대하지 않는다.
 

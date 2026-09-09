@@ -75,9 +75,14 @@ public sealed class CustomerGenerator
         var candidatesByType = groups[random.Next(groups.Length)].OrderBy(x => x.Idx).ToArray();
         var disposition = candidatesByType[random.Next(candidatesByType.Length)];
         var attributes = random.Next(2) == 0 ? CustomerAttributes.Male : CustomerAttributes.Female;
-        int age = random.Next(3);
-        if (age == 1) attributes |= CustomerAttributes.Child;
-        else if (age == 2) attributes |= CustomerAttributes.Elderly;
+        attributes |= random.Next(3) switch
+        {
+            0 => CustomerAttributes.Adult,
+            1 => CustomerAttributes.Child,
+            _ => CustomerAttributes.Elderly
+        };
+        // 현재 특수 속성은 일반뿐이며 성향 타입과 연동하지 않는다.
+        attributes |= CustomerAttributes.Normal;
         var preferredCategories = new HashSet<ProductType>(disposition.PreferredProductTypes);
         var preferredProducts = new HashSet<uint>(disposition.PreferredProductIdxs);
         var preferred = new List<uint>();

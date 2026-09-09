@@ -371,6 +371,118 @@ public sealed class GameSessionApiTests
         Assert.That(session.IsFacilityActive(12001), Is.False);
     }
 
+#if UNITY_EDITOR
+    /// <summary>독립 프리팹의 반복 열기·표시 갱신은 요청을 만들지 않고 클릭만 PK를 한 번 전달한다.</summary>
+    /// <returns>UI 수명과 TMP 배치 갱신 대기.</returns>
+    [UnityTest]
+    public IEnumerator FacilityPresenterRequestsAndLongValues()
+    {
+        var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab");
+        var panel = UnityEngine.Object.Instantiate(asset, root.transform).GetComponent<FacilityShopPresenter>();
+        var factory = new ProgressViewDataFactory(tables.Customers, tables.GetDB<TextDataTable>(DataTableType.Text),
+            new System.Collections.Generic.Dictionary<uint, Sprite>());
+        var view = factory.CreateFacilityShopViewData(tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
+            session.FacilityActivationDays, session.ElapsedDays, session.Economy.QueryService.CurrentBalance);
+        int purchases = 0, closes = 0; uint requested = 0;
+        panel.OnPurchaseRequested += idx => { purchases++; requested = idx; };
+        panel.OnCloseRequested += () => closes++;
+        for (int i = 0; i < 3; i++)
+        {
+            panel.gameObject.SetActive(true); panel.UpdateView(view, ""); panel.UpdateView(view, "");
+            Assert.That(purchases, Is.Zero); panel.gameObject.SetActive(false);
+        }
+        panel.gameObject.SetActive(true); panel.UpdateView(view, ""); yield return null;
+        var rows = panel.GetComponentsInChildren<FacilityItemView>(); Assert.That(rows.Length, Is.EqualTo(5));
+        var button = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
+        button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1)); Assert.That(requested, Is.EqualTo(12001u));
+        panel.SetInteractionEnabled(false); button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1));
+        uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke(); Assert.That(closes, Is.EqualTo(1));
+        rows[0].UpdateView(new FacilityItemViewData(12001, new string('가', 30), long.MaxValue,
+            "방독면, 방호복, 방사능 측정기", FacilityDisplayState.Available, 4294967297UL), true);
+        Canvas.ForceUpdateCanvases();
+        foreach (var text in rows[0].GetComponentsInChildren<TMPro.TextMeshProUGUI>())
+        {
+            text.ForceMeshUpdate(); Assert.That(text.raycastTarget, Is.False);
+            Assert.That(text.isTextOverflowing, Is.False, text.name);
+        }
+    }
+
+    /// <summary>실제 GameUI는 정산에서만 구매하고 뒤 Submit·중복 구매를 막으며 다음날을 해금한다.</summary>
+    /// <returns>Controller 시작 대기.</returns>
+    [UnityTest]
+    public IEnumerator FacilityControllerPurchaseAndModalBoundaries()
+    {
+        var ui = createGameUi(); yield return null;
+        var progress = uiProgress(ui); var open = uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton");
+        var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
+        Assert.That(open.gameObject.activeInHierarchy, Is.False); open.onClick.Invoke(); Assert.That(panel.gameObject.activeSelf, Is.False);
+        closeProgressDay(progress);
+        Assert.That(open.gameObject.activeInHierarchy); open.onClick.Invoke();
+        var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
+        var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
+        Assert.That(next.IsInteractable(), Is.False);
+        UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.Settlement));
+        Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled, Is.False);
+        var rows = panel.GetComponentsInChildren<FacilityItemView>(); var buy = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
+        long previous = session.Economy.QueryService.CurrentBalance;
+        buy.onClick.Invoke(); buy.onClick.Invoke();
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - 5000));
+        Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001), Is.False);
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Does.Contain("적용 대기"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{previous - 5000:N0} G"));
+        session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Maintenance, out _);
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "balanceText").text, Does.Contain("0 G"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[1], "statusText").text, Is.EqualTo("잔액 부족"));
+        uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke();
+        Assert.That(session.ElapsedDays, Is.Zero); Assert.That(next.IsInteractable());
+        Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled);
+        next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
+        Assert.That(open.gameObject.activeInHierarchy, Is.False);
+        closeProgressDay(progress); open.onClick.Invoke();
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Is.EqualTo("사용 중"));
+    }
+
+    /// <summary>차감 후 알림 예외도 보유를 표시하고 자동 재결제 없이 기존 기술 오류 잠금을 따른다.</summary>
+    /// <returns>Controller 시작 대기.</returns>
+    [UnityTest]
+    public IEnumerator FacilityControllerNotificationFailurePreservesPurchase()
+    {
+        var ui = createGameUi(); yield return null;
+        closeProgressDay(uiProgress(ui)); uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").onClick.Invoke();
+        var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
+        var row = panel.GetComponentsInChildren<FacilityItemView>()[0];
+        Action<FinanceChangeResult> fail = _ => throw new InvalidOperationException("ui purchase notification");
+        session.Economy.FinanceService.BalanceChanged += fail;
+        LogAssert.Expect(LogType.Exception, new System.Text.RegularExpressions.Regex("ui purchase notification"));
+        uiReference<UnityEngine.UI.Button>(row, "purchaseButton").onClick.Invoke();
+        session.Economy.FinanceService.BalanceChanged -= fail;
+        Assert.That(session.FacilityActivationDays.ContainsKey(12001));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(95000));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(row, "statusText").text, Does.Contain("적용 대기"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
+        Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
+        uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke();
+        Assert.That(panel.gameObject.activeSelf, Is.False); Assert.That(uiReference<CanvasGroup>(ui, "settlementInputGroup").interactable, Is.False);
+    }
+
+    /// <summary>공유 원본을 수정하지 않고 테스트 소유 GameUI 인스턴스를 만든다.</summary>
+    /// <returns>테스트 root와 함께 제거할 Controller.</returns>
+    private GameUIController createGameUi() => UnityEngine.Object.Instantiate(
+        UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab"), root.transform).GetComponent<GameUIController>();
+
+    /// <summary>테스트에서 실제 직렬화 참조를 읽는다.</summary>
+    /// <typeparam name="T">예상 UI 컴포넌트.</typeparam><param name="target">연결 소유자.</param><param name="field">직렬화 필드.</param>
+    /// <returns>연결된 객체.</returns>
+    private static T uiReference<T>(UnityEngine.Object target, string field) where T : UnityEngine.Object =>
+        (T)new UnityEditor.SerializedObject(target).FindProperty(field).objectReferenceValue;
+
+    /// <summary>제품 API를 늘리지 않고 테스트에서 실제 진행 인스턴스를 관찰한다.</summary>
+    /// <param name="ui">테스트 Controller.</param><returns>Controller가 소유한 진행.</returns>
+    private static GameProgress uiProgress(GameUIController ui) => (GameProgress)typeof(GameUIController)
+        .GetField("gameProgress", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(ui);
+#endif
+
     /// <summary>현재 진행의 마지막 손님을 거절하고 일일 집계까지 실제 API로 종료한다.</summary>
     /// <param name="progress">시작된 영업 전 진행.</param>
     private static void closeProgressDay(GameProgress progress)

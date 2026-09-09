@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -65,6 +66,36 @@ public sealed class ProgressViewDataFactory
         return string.Join("\n", lines);
     }
 
+    /// <summary>같은 세션 조회값으로 설비 표시 상태를 계산한다. 구매나 날짜 변경은 수행하지 않는다.</summary>
+    /// <param name="facilities">검증된 설비 원본.</param><param name="activationDays">보유 설비별 활성 경과일.</param>
+    /// <param name="elapsedDays">현재 경과일.</param><param name="balance">현재 잔액.</param>
+    /// <returns>PK순 불변 표시 스냅샷.</returns>
+    /// <exception cref="ArgumentException">입력 누락·음수 잔액 또는 잘못된 설비 원본.</exception>
+    /// <exception cref="InvalidOperationException">표시 이름 FK가 없음.</exception>
+    public FacilityShopViewData CreateFacilityShopViewData(IReadOnlyDictionary<uint, FacilityData> facilities,
+        IReadOnlyDictionary<uint, uint> activationDays, uint elapsedDays, long balance)
+    {
+        if (facilities == null) throw new ArgumentNullException(nameof(facilities));
+        if (activationDays == null) throw new ArgumentNullException(nameof(activationDays));
+        if (balance < 0) throw new ArgumentOutOfRangeException(nameof(balance));
+        var items = new List<FacilityItemViewData>(facilities.Count);
+        foreach (var pair in facilities.OrderBy(x => x.Key))
+        {
+            var facility = pair.Value;
+            if (facility == null || pair.Key != facility.Idx) throw new ArgumentException("설비 키와 원본이 다릅니다.", nameof(facilities));
+            facility.Validate();
+            bool owned = activationDays.TryGetValue(facility.Idx, out uint activationDay);
+            var state = owned ? (activationDay <= elapsedDays ? FacilityDisplayState.Active : FacilityDisplayState.Pending) :
+                (balance >= facility.PurchasePrice ? FacilityDisplayState.Available : FacilityDisplayState.InsufficientFunds);
+            string products = string.Join(", ", customerCatalog.Products.Rows.Values
+                .Where(x => x.IsAvailable && x.RequiredFacilityIdx == facility.Idx).OrderBy(x => x.Idx)
+                .Select(x => getFacilityText(x.NameIdx)));
+            items.Add(new FacilityItemViewData(facility.Idx, getFacilityText(facility.NameIdx), facility.PurchasePrice,
+                products, state, owned ? (ulong)activationDay + 1 : (ulong)elapsedDays + 2));
+        }
+        return new FacilityShopViewData(balance, items);
+    }
+
     /// <summary>손님 방문 데이터를 UI 표현용 스냅샷으로 변환합니다.</summary>
     /// <param name="visit">현재 손님 방문입니다. null이면 빈 스냅샷을 반환합니다.</param>
     /// <returns>손님 외형, 대사와 장바구니를 담은 UI 스냅샷입니다.</returns>
@@ -112,5 +143,15 @@ public sealed class ProgressViewDataFactory
         }
 
         return new CustomerViewData(true, appearanceColor, null, dialogue, basket);
+    }
+
+    /// <summary>설비 표시 경계의 이름 FK 실패를 숨기지 않는다.</summary>
+    /// <param name="idx">TextData PK.</param><returns>검증된 표시 문자열.</returns>
+    /// <exception cref="InvalidOperationException">Text FK가 없거나 빈 문자열.</exception>
+    private string getFacilityText(uint idx)
+    {
+        if (!textData.Rows.TryGetValue(idx, out var text) || string.IsNullOrWhiteSpace(text.Text))
+            throw new InvalidOperationException($"설비 화면 TextData FK={idx} 참조 실패");
+        return text.Text;
     }
 }

@@ -4,7 +4,7 @@
 
 ## 현재 호출 경로
 
-후속 설비 구현(2026-09-09)은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 앞의 설비 제외 문구는 선행 진행 연결 작업의 범위다. 현재 구매는 GameProgress API, 활성일은 GameSessionManager, 생성·가격표는 공통 상품 조건을 사용한다. 구매 UI와 공유 Scene/prefab은 이번에도 변경하지 않았다.
+후속 설비 구현과 정산 상점 UI(2026-09-09)는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 앞의 설비 제외 문구는 선행 진행 연결 작업의 범위다. 현재 구매는 GameProgress API, 활성일은 GameSessionManager, 생성·가격표는 공통 상품 조건을 사용한다. 정산 중 설비 구매 UI와 GameUI.prefab 연결은 완료했으며 공유 Scene은 수정하지 않았다. 아래 선행 작업의 UI 미검증·prefab 제외 기록과 구분하며 최신 검증은 TESTING.md를 따른다.
 
 GameUI.prefab의 GameUIController → GameProgress → DayProgress → GameSessionManager/EconomyRuntime이 실제 진행 경로다. Dev3SandboxTester는 현재 소스에서 비활성화된 이전 화면이며 이 경로의 검사 대체물이 아니다.
 
@@ -38,11 +38,11 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 
 사용자 확인: Init 경로로 진입 → 영업 전 현재가 가격표 → 영업 시작/상품 분류/계산기 → 수락·거부/결과 닫기 → 마감 마지막 거래 → 정산 → 일반일 또는 상납 성공/실패를 확인한다. Pause 중 시간·라디오가 멈추는지와 해금 상품/다음날 가격표도 확인한다. 이번에는 이 UI 조작을 수행하지 않았다.
 
-## 설비 개발을 위한 다음 경계 (아직 미구현)
+## 후속 설비 구현 완료 범위
 
-- 구매는 기존 세션 FinanceService의 지출 경계를 사용하되 금액·구매 가능 단계·중복구매·실패 원자성을 설계에서 확정해야 한다.
-- 다음날 적용은 GameProgress의 날짜 완료 뒤 다음 DayProgress/가격표를 공개하기 전 경계가 후보다. 일반일/상납 성공이 같은 세션 날짜 권위를 사용하므로 별도의 날짜 카운터를 추가하지 않는다.
-- 설비 소유 상태·적용 순서·CSV/ID·수치·UI는 아직 추가하지 않았다. 후속 설계와 승인 전 제품 코드를 시작하지 않는다.
+- 기존 FinanceService 지출과 세션 소유 상태를 사용하며 정산 단계에서 구매한다. 중복 구매·잔액 부족을 거부하고 결제 알림 예외 시 재결제·임의 환불 없이 상태를 다시 조회한다.
+- 다음날 활성일은 세션 경과 일수 권위를 사용한다. 설비 소유 상태·CSV·상품 FK·독립 상점 prefab과 정산 UI 연결을 구현했다.
+- 현재 계약·사용법·검증 경계는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
 
 ## 이전 Dev3 통합 기록 (현재 실행 안내 아님)
 

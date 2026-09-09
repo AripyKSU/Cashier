@@ -87,7 +87,7 @@ public sealed class CustomerVisit
     public uint DispositionIdx { get; }
     /// <summary>방문 생성 시 복사한 성향 타입. 이후 원본 DTO 변경에 영향받지 않는다.</summary>
     public CustomerDispositionType DispositionType { get; }
-    /// <summary>외형·성향과 독립 추첨한 방문 속성. 가격·대기 수치를 암묵적으로 변경하지 않는다.</summary>
+    /// <summary>성별·연령·특수 축에서 각각 하나씩 독립 추첨한 속성. 가격·대기 수치를 암묵적으로 변경하지 않는다.</summary>
     public CustomerAttributes Attributes { get; }
     /// <summary>상품별 한 항목만 존재하는 구매 목록.</summary>
     public IReadOnlyList<CustomerOrderItem> Items { get; }
@@ -105,7 +105,7 @@ public sealed class CustomerVisit
     /// <param name="products">최종 목록의 상품·원가를 조회할 catalog.</param>
     /// <param name="getCurrentPrices">최신 현재가 조회 함수. 생성 시 가격표를 캡처하지 않는다.</param>
     /// <param name="dispositionType">검증 후 복사할 성향 타입.</param>
-    /// <param name="attributes">검증 후 복사할 독립 속성.</param>
+    /// <param name="attributes">세 축이 모두 지정된 독립 속성.</param>
     /// <param name="regularPriceMinRate">생성기가 검증한 정가 인정 하한 배율.</param>
     /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
     /// <param name="getSaleRestrictions">제출 시 지침 조회. null은 미연결.</param>
@@ -119,7 +119,7 @@ public sealed class CustomerVisit
         IEnumerable<uint> availableProductIds)
     {
         CustomerProfileValidation.ValidateType(dispositionType);
-        CustomerProfileValidation.ValidateAttributes(attributes);
+        CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         DispositionType = dispositionType;
         Attributes = attributes;
         AppearanceIdx = appearanceIdx;
