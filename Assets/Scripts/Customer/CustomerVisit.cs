@@ -206,7 +206,7 @@ public sealed class CustomerVisit
             // 정상 위반은 수락을 취소하지 않는다. 조회·검증 실패는 공개 상태 확정 전에 전파한다.
             bool evaluated = outcome != CustomerTradeOutcome.PaymentRefused && getSaleRestrictions != null;
             IReadOnlyList<SaleRestrictionViolation> violations = evaluated ? evaluateRestrictions(sold) : Array.Empty<SaleRestrictionViolation>();
-            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations);
+            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations, DispositionType, Attributes);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;

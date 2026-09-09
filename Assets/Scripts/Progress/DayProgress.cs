@@ -22,6 +22,12 @@ public sealed class DayProgress
     // 검증된 손님·상품 데이터의 소유자입니다.
     private readonly CustomerCatalog customerCatalog;
 
+    // 명성 구간·정산 규칙을 제공하는 검증된 밸런스 테이블입니다.
+    private readonly ReputationBalanceDataTable reputationBalanceTable;
+
+    // 이 날 정산에 사용하며 향후 손님 구성 요청에도 전달할 시작 명성 snapshot입니다.
+    private readonly int dayStartReputation;
+
     // 손님 생성 규칙을 위임받은 기존 생성기입니다.
     private readonly CustomerGenerator customerGenerator;
 
@@ -36,6 +42,9 @@ public sealed class DayProgress
 
     // 정산 완료 후 확정된 일일 경제 집계입니다.
     private DailyAggregationResult? aggregationResult;
+
+    // 정산 완료 후 다음 날에 적용할 명성 계산 결과입니다.
+    private DailyReputationCalculationResult? dailyReputationResult;
 
     // 현재 영업에 남은 시간(초)입니다.
     private float remainingSeconds;
@@ -88,6 +97,12 @@ public sealed class DayProgress
     /// <summary>정산 완료 후 확정된 일일 집계입니다. 정산 전에는 null입니다.</summary>
     public DailyAggregationResult? AggregationResult => this.aggregationResult;
 
+    /// <summary>이 날의 명성 정산에 사용하며 향후 손님 구성 요청에도 전달할 시작 명성입니다.</summary>
+    public int DayStartReputation => this.dayStartReputation;
+
+    /// <summary>정산 완료 후 다음 날에 적용할 명성 계산 결과입니다.</summary>
+    public DailyReputationCalculationResult? DailyReputationResult => this.dailyReputationResult;
+
     /// <summary>하루 진행 상태가 변경된 뒤 발생합니다.</summary>
     public event Action<DayProgressState> StateChanged;
 
@@ -109,7 +124,9 @@ public sealed class DayProgress
     /// <param name="day">1부터 시작하는 게임 날짜입니다.</param>
     /// <param name="economy">현재 세션의 경제 런타임입니다.</param>
     /// <param name="customerCatalog">검증된 손님·상품 데이터입니다.</param>
+    /// <param name="reputationBalanceTable">명성 구간과 일일 정산을 정의하는 검증된 테이블입니다.</param>
     /// <param name="random">손님 생성에 사용할 난수원입니다.</param>
+    /// <param name="dayStartReputation">하루 시작 시점에 고정할 명성입니다.</param>
     /// <param name="businessDurationSeconds">영업 제한시간(초)입니다.</param>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentOutOfRangeException">날짜 또는 영업시간이 허용 범위를 벗어난 경우 발생합니다.</exception>
@@ -117,7 +134,9 @@ public sealed class DayProgress
         int day,
         EconomyRuntime economy,
         CustomerCatalog customerCatalog,
+        ReputationBalanceDataTable reputationBalanceTable,
         Random random,
+        int dayStartReputation = 0,
         float businessDurationSeconds = DefaultBusinessDurationSeconds)
     {
         if (day <= 0)
@@ -133,6 +152,16 @@ public sealed class DayProgress
         if (customerCatalog == null)
         {
             throw new ArgumentNullException(nameof(customerCatalog));
+        }
+
+        if (reputationBalanceTable == null)
+        {
+            throw new ArgumentNullException(nameof(reputationBalanceTable));
+        }
+
+        if (dayStartReputation < -100 || dayStartReputation > 100)
+        {
+            throw new ArgumentOutOfRangeException(nameof(dayStartReputation), dayStartReputation, "명성은 -100~100 범위여야 합니다.");
         }
 
         if (random == null)
@@ -153,6 +182,8 @@ public sealed class DayProgress
         this.day = day;
         this.economy = economy;
         this.customerCatalog = customerCatalog;
+        this.reputationBalanceTable = reputationBalanceTable;
+        this.dayStartReputation = dayStartReputation;
         this.customerGenerator = new CustomerGenerator(random);
         this.businessDurationSeconds = businessDurationSeconds;
 
@@ -250,11 +281,10 @@ public sealed class DayProgress
         }
 
         bool wasAccepted = this.currentVisit.SubmitOffer(offeredTotal, saleItems);
+        TransactionResult transactionResult = this.createTransactionResult(this.currentVisit);
+        this.applyTransactionResult(transactionResult);
         if (wasAccepted)
         {
-            // CustomerVisit의 판정 결과 중 확정 판매 값만 임시 재정 계약으로 변환합니다.
-            TransactionResult transactionResult = this.createTransactionResult(this.currentVisit);
-            this.applyTransactionResult(transactionResult);
             this.successfulSales = checked(this.successfulSales + 1);
         }
         else
@@ -435,16 +465,21 @@ public sealed class DayProgress
         }
 
         this.aggregationResult = this.economy.DailyAggregationService.EndDay();
+        DailyReputationCalculator calculator = new DailyReputationCalculator(
+            this.reputationBalanceTable,
+            this.customerCatalog.Dispositions);
+        this.dailyReputationResult = calculator.Calculate(
+            this.dayStartReputation,
+            this.aggregationResult.Value.Transactions);
         this.changeState(DayProgressState.Settlement);
         this.SettlementStarted?.Invoke(this.aggregationResult.Value);
     }
 
     /// <summary>
-    /// CustomerVisit의 확정 판정에서 판매 수입만 현재 임시 TransactionResult로 변환합니다.
-    /// 거래 결과 계약이 확정되면 이 변환 지점을 함께 교체할 수 있도록 진행 로직의 경계를 유지합니다.
+    /// CustomerVisit가 확정한 거래 결과를 재정 집계로 전달합니다.
     /// </summary>
-    /// <param name="visit">수락 판정이 완료된 손님 방문입니다.</param>
-    /// <returns>판매 수입과 현재 정책상 명성 변화량을 담은 거래 결과입니다.</returns>
+    /// <param name="visit">거래 판정이 완료된 손님 방문입니다.</param>
+    /// <returns>성공·거절 여부와 손님 snapshot을 포함한 거래 결과입니다.</returns>
     /// <exception cref="ArgumentNullException">방문이 null인 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">수락 또는 판매 금액이 확정되지 않은 경우 발생합니다.</exception>
     private TransactionResult createTransactionResult(CustomerVisit visit)
@@ -454,13 +489,12 @@ public sealed class DayProgress
             throw new ArgumentNullException(nameof(visit));
         }
 
-        if (visit.State != CustomerState.Accepted || !visit.OfferedTotal.HasValue)
+        if ((visit.State != CustomerState.Accepted && visit.State != CustomerState.Rejected) ||
+            !visit.OfferedTotal.HasValue || !visit.Result.HasValue)
         {
-            throw new InvalidOperationException("수락이 확정된 방문만 거래 결과로 변환할 수 있습니다.");
+            throw new InvalidOperationException("거래 판정이 확정된 방문만 거래 결과로 변환할 수 있습니다.");
         }
-
-        // 행복도·명성 규칙은 확정 전이므로 현재는 판매 값만 반영하고 명성 변화는 0으로 둡니다.
-        return new TransactionResult(visit.OfferedTotal.Value, 0);
+        return visit.Result.Value;
     }
 
     /// <summary>변환된 거래 결과를 현재 일일 재정 집계에 반영합니다.</summary>

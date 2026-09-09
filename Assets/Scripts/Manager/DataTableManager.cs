@@ -83,6 +83,7 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.Text] = new TextDataTable();
         this.dataList[DataTableType.PriceEvent] = new PriceEventDataTable();
         this.dataList[DataTableType.PriceEventSchedule] = new PriceEventScheduleDataTable();
+        this.dataList[DataTableType.ReputationBalance] = new ReputationBalanceDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
