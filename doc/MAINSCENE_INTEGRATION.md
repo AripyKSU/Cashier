@@ -1,26 +1,28 @@
 # MainScene 진행·세션 API 통합
 
-기준: 2026-09-09, total_merge 9b0a55a 기반 codex/equipment-upgrades. 이번 작업은 customer_sys의 거래·가격·날짜 계약을 기존 GameProgress/DayProgress 및 GameUIController에 연결한다. 설비 구현·CSV/기획수치·Scene/prefab/Addressables 편집은 제외했다.
+기준: 2026-09-09, `total_merge`에 설비 `65888e1`과 명성 `6976218`을 통합. 원본 브랜치는 보존하고 push는 별도다. MainScene에 공유 GameUI prefab·Camera·InputSystem EventSystem을 연결했다. 개인 Local 코드·씬은 포함하지 않는다.
 
 ## 현재 호출 경로
 
-후속 설비 구현과 정산 상점 UI(2026-09-09)는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 앞의 설비 제외 문구는 선행 진행 연결 작업의 범위다. 현재 구매는 GameProgress API, 활성일은 GameSessionManager, 생성·가격표는 공통 상품 조건을 사용한다. 정산 중 설비 구매 UI와 GameUI.prefab 연결은 완료했으며 공유 Scene은 수정하지 않았다. 아래 선행 작업의 UI 미검증·prefab 제외 기록과 구분하며 최신 검증은 TESTING.md를 따른다.
+설비 계약은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md), 명성 데이터는 [REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md](REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md)를 따른다. 명성 계산·거래/정산 로그·정산 피드백을 설비 UI와 함께 연결했다. 명성에 따른 손님 생성 비율은 아직 미연결이다. 최신 검증은 TESTING.md를 따른다.
 
 GameUI.prefab의 GameUIController → GameProgress → DayProgress → GameSessionManager/EconomyRuntime이 실제 진행 경로다. Dev3SandboxTester는 현재 소스에서 비활성화된 이전 화면이며 이 경로의 검사 대체물이 아니다.
 
 | 경계 | 현재 계약 |
 |---|---|
-| GameProgress(session, catalog, random, duration) | 별도 EconomyRuntime을 받지 않고 초기화된 session.Economy만 사용한다. CurrentDay는 시작 전 0, 시작 후 checked((int)session.ElapsedDays + 1)이다. 영업 중 세션에 새 진행을 만드는 것은 거부한다 |
-| DayProgress(day, session, catalog, random, duration) | 1기반 day와 session.ElapsedDays의 일치를 검증한다. 생성기 해금 일자와 가격 callback은 같은 세션을 사용한다 |
+| GameProgress(session, catalog, reputationBalanceTable, random, duration) | 초기화된 session.Economy만 사용한다. CurrentDay는 시작 전 0, 시작 후 checked((int)session.ElapsedDays + 1)이다. 영업 중 진행 재생성은 거부한다. 현재 명성과 로그는 세션에 위임해 화면 재진입에도 유지한다 |
+| DayProgress(day, session, catalog, reputationBalanceTable, random, dayStartReputation, duration) | 1기반 day와 session.ElapsedDays의 일치를 검증한다. 생성기 해금 일자와 가격 callback은 같은 세션을 사용한다. 하루 시작 명성은 해당 날짜에 고정한다 |
 | OpenBusiness | 첫 방문 준비 → session.BeginTradingDay → 손님 활성화. Progress가 집계 BeginDay를 직접 호출하지 않는다 |
 | SubmitOffer | 최종 선택 SaleItem 목록으로 판정하고 visit.Result.Value를 그대로 일일집계에 한 번 전달한다. Outcome/SoldItems/CostTotal/지침 기록을 legacy TransactionResult로 재생성하지 않는다 |
 | 접수 실패 | false/예외면 확정 방문 결과를 보존하고 원본 예외를 전달한다. 성공 이벤트·다음 손님·Tick·정산 완료를 차단한다. rollback/자동 재시도 없음. 판정 입력 검증 실패는 올바른 재제출 가능 |
 | Tick | Controller의 기존 Time.deltaTime을 한 곳에서 전달. pause는 진행하지 않고 min(delta, 남은 영업초)만 라디오와 영업시간에 적용한다. Closing 이후 라디오 시간을 더 진행하지 않는다 |
-| 정산 | DayProgress가 EndTradingDay(out DailyAggregationResult)를 호출한다. 기존 long EndTradingDay()는 같은 구현을 사용해 EndDay를 한 번만 수행한다 |
+| 정산 | DayProgress가 session.EndTradingDay(out result)를 한 번 호출하고 수락·거절 원본 거래 목록으로 명성을 계산한다. 정산 UI는 FinalDelta 피드백을 표시하며 설비 구매 후에도 확정값은 유지한다 |
 | 다음 날 | 일반일 정산 확인 또는 상납 성공 뒤 CompleteDay(종료한 Day - 1)를 정확히 한 번 호출한다. EnsureDailyPrices 성공 후 다음 DayStarted/가격표를 공개한다. 상납 부족은 기존 Failed 상태이며 날짜·납부 회차가 증가하지 않는다 |
 | 가격표 | ProgressViewDataFactory.CreatePriceListText(day, session.EnsureDailyPrices())는 동일 날짜의 판매 가능 상품과 현재가를 표시한다. 날짜 불일치·단가 누락/0은 예외이며 BasePrice로 대체하지 않는다 |
 
 CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날짜 가격 계산 실패 시 날짜를 임의 rollback하거나 새 하루 성공 이벤트를 보내지 않는다. 현 UI 오류 처리가 진행을 중단하며 세션 복구는 별도 설계 대상이다.
+
+세션은 날짜 완료 직후 명성을 한 번 반영하고 다음 날 snapshot을 만든다. 상납 실패일은 날짜·명성을 적용하지 않는다. 새 세션은 명성0/빈 로그이며 기존 세션에서 화면을 재생성하면 명성·설비·로그가 유지된다.
 
 ## 유지한 정책과 미연결
 
@@ -28,15 +30,15 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 - Closing은 마지막 손님의 제안을 허용한다. 이때 경제 집계는 마지막 거래 종료까지 열려 있지만 라디오 시계는 멈춘다. '제한시간 이후 거래 금지' 정책으로 바꾸지 않았다.
 - SaleSortingPanel의 실제 선택 목록 → GameProgress.SubmitOffer 연결을 유지한다. 기존 문서의 '최종 선택 UI 없음'은 현재 경로에 적용하지 않는다. 화면/UX 성공은 사용자 수동 확인 대상이다.
 - CustomerQueue API는 존재하지만 현재 DayProgress는 계산대 방문을 순차 생성한다. Dev3의 10명 대기열/자동 결과 표시를 이 UI에 연결했다고 보고하지 않는다.
-- 원가·지침 결과는 거래 DTO에 보존하지만 실제 원가 차감·일일 원가 집계·명성/벌칙 계산·정식 지침 공급은 미연결이다. DailyAggregationService는 여전히 SaleIncome/ReputationDelta만 사용하며 거래 ID 중복 제거는 하지 않는다.
+- 원가·지침 결과는 거래 DTO에 보존하지만 실제 원가 차감·일일 원가 집계·지침 벌칙·정식 지침 공급은 미연결이다. 거래 기반 명성 계산은 연결됐다. 거래 ID 중복 제거 기능은 없다.
 - 상품 이미지 빈값/실패 시 기존 UI placeholder 정책은 이번 범위에서 수정하지 않았다. 기존 엄격한 리소스 명세와 실패 fallback의 차이는 별도 검토 대상이다.
-- 신문 표시·라디오 전용 UI·진행 복원·Player build는 이번 구현/자동 검증 범위 밖이다. prefab/Scene 직렬화와 제품 UI 조작은 변경하지 않았다.
+- 라디오 전용 UI·저장 파일 복원·Player build는 범위 밖이다. 명성 이미지 자산은 미지정이며 기존 정성적 텍스트 피드백을 사용한다.
 
 ## 검증과 사용자 확인
 
 자동 검사는 [TESTING.md](TESTING.md)의 GameSessionApiTests에서 실제 진행 API를 거친다. API 통과를 MainScene 화면 통과로 해석하지 않는다.
 
-사용자 확인: Init 경로로 진입 → 영업 전 현재가 가격표 → 영업 시작/상품 분류/계산기 → 수락·거부/결과 닫기 → 마감 마지막 거래 → 정산 → 일반일 또는 상납 성공/실패를 확인한다. Pause 중 시간·라디오가 멈추는지와 해금 상품/다음날 가격표도 확인한다. 이번에는 이 UI 조작을 수행하지 않았다.
+사용법: `Use MainScene` 선택 → InitScene에서 Play → Hub를 거쳐 MainScene 진입 → 영업 시작/상품 분류/가격 확정 → 마감 마지막 거래 → 정산의 설비 버튼 → 구매/닫기 → 정산 완료(상납일은 납부) → 다음날 해금과 명성 피드백 확인. 최종 화면 가독성·사용감은 사용자 수동 확인 대상이다.
 
 ## 후속 설비 구현 완료 범위
 

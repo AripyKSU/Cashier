@@ -12,6 +12,10 @@ public readonly struct TransactionResult
     private readonly IReadOnlyList<SaleRestrictionViolation> restrictionViolations;
     /// <summary>거래 판정. 상세 없는 재정 호환 생성자는 None.</summary>
     public CustomerTradeOutcome Outcome { get; }
+    /// <summary>거래 당사자의 성향 snapshot.</summary>
+    public CustomerDispositionType DispositionType { get; }
+    /// <summary>거래 당사자의 Child·Elderly 등 속성 snapshot.</summary>
+    public CustomerAttributes CustomerAttributes { get; }
     /// <summary>제출한 총액. 재정 호환 생성자는 미확정 null.</summary>
     public long? OfferedTotal { get; }
     /// <summary>최종 목록 현재가 합계. 재정 호환 생성자는 미확정 null.</summary>
@@ -35,9 +39,12 @@ public readonly struct TransactionResult
     /// <param name="items">중복 합산과 단가 검증을 마친 목록.</param>
     /// <param name="wereRestrictionsEvaluated">수락 경로에서 지침 공급 목록을 평가했는지 여부.</param>
     /// <param name="violations">검증된 조건-상품별 위반값.</param>
+    /// <param name="dispositionType">거래 손님의 성향 snapshot.</param>
+    /// <param name="customerAttributes">거래 손님의 속성 snapshot.</param>
     /// <exception cref="OverflowException">합계 범위 초과.</exception>
     internal TransactionResult(CustomerTradeOutcome outcome, long offeredTotal, IReadOnlyList<SoldItem> items,
-        bool wereRestrictionsEvaluated, IReadOnlyList<SaleRestrictionViolation> violations)
+        bool wereRestrictionsEvaluated, IReadOnlyList<SaleRestrictionViolation> violations,
+        CustomerDispositionType dispositionType, CustomerAttributes customerAttributes)
     {
         var copy = new List<SoldItem>(items);
         long reference = 0, cost = 0;
@@ -47,6 +54,10 @@ public readonly struct TransactionResult
             cost = checked(cost + (long)item.UnitCostPrice * item.Quantity);
         }
         Outcome = outcome; OfferedTotal = offeredTotal; ReferenceTotal = reference; ReputationDelta = 0;
+        CustomerProfileValidation.ValidateType(dispositionType);
+        CustomerProfileValidation.ValidateAttributes(customerAttributes);
+        DispositionType = dispositionType;
+        CustomerAttributes = customerAttributes;
         bool accepted = outcome != CustomerTradeOutcome.PaymentRefused;
         SaleIncome = accepted ? offeredTotal : 0;
         CostTotal = accepted ? cost : 0;
@@ -72,6 +83,8 @@ public readonly struct TransactionResult
         this.SaleIncome = saleIncome;
         this.ReputationDelta = reputationDelta;
         Outcome = CustomerTradeOutcome.None;
+        DispositionType = CustomerDispositionType.None;
+        CustomerAttributes = CustomerAttributes.None;
         OfferedTotal = null;
         ReferenceTotal = null;
         CostTotal = 0;

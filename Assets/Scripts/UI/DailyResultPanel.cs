@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 하루 영업 종료 후 일일 정산 및 경영 피드백 화면 패널 (개발자 3 담당).
-/// 총 매출, 재료비/유지비, 순이익, 명성도 변화량을 표시합니다.
+/// 총 매출, 재료비/유지비, 순이익, 명성 변화 피드백을 표시합니다.
 /// </summary>
 public class DailyResultPanel : MonoBehaviour
 {
@@ -26,8 +26,27 @@ public class DailyResultPanel : MonoBehaviour
     [Tooltip("순이익 (매출 - 지출) 텍스트")]
     [SerializeField] private TextMeshProUGUI netProfitText;
 
-    [Tooltip("가게 명성도 변화량 텍스트")]
+    [Tooltip("가게 명성 변화 피드백 텍스트")]
     [SerializeField] private TextMeshProUGUI reputationChangeText;
+
+    [Header("Reputation Feedback Image")]
+    [Tooltip("명성 변화 단계 이미지를 표시할 UI Image 영역입니다.")]
+    [SerializeField] private Image reputationFeedbackImage;
+
+    [Tooltip("명성이 크게 나빠졌을 때 표시할 Sprite")]
+    [SerializeField] private Sprite greatlyWorsenedReputationSprite;
+
+    [Tooltip("명성이 나빠졌을 때 표시할 Sprite")]
+    [SerializeField] private Sprite worsenedReputationSprite;
+
+    [Tooltip("명성 변화가 없을 때 표시할 Sprite")]
+    [SerializeField] private Sprite stableReputationSprite;
+
+    [Tooltip("명성이 올랐을 때 표시할 Sprite")]
+    [SerializeField] private Sprite improvedReputationSprite;
+
+    [Tooltip("명성이 크게 올랐을 때 표시할 Sprite")]
+    [SerializeField] private Sprite greatlyImprovedReputationSprite;
 
     [Header("Buttons")]
     [Tooltip("다음 날로 진행 버튼")]
@@ -72,7 +91,7 @@ public class DailyResultPanel : MonoBehaviour
     /// </summary>
     /// <param name="totalSales">오늘 총 매출</param>
     /// <param name="totalExpenses">오늘 총 지출(재료비, 인건비 등)</param>
-    /// <param name="reputationChange">명성도 변화량 (+3, -1 등)</param>
+    /// <param name="reputationChange">내부 판정에 사용되는 명성 변화량입니다. 화면에는 숫자로 표시하지 않습니다.</param>
     public void ShowResult(long totalSales, long totalExpenses, int reputationChange)
     {
         long netProfit = totalSales - totalExpenses;
@@ -96,10 +115,10 @@ public class DailyResultPanel : MonoBehaviour
 
         if (this.reputationChangeText != null)
         {
-            string prefix = reputationChange >= 0 ? "+" : "";
-            string colorTag = reputationChange >= 0 ? "<color=#FFD700>" : "<color=#FF5722>";
-            this.reputationChangeText.text = $"{colorTag}Reputation {prefix}{reputationChange}</color>";
+            this.reputationChangeText.text = ReputationFeedbackFormatter.Format(reputationChange);
         }
+
+        this.updateReputationFeedbackImage(reputationChange);
 
         if (this.panelRoot != null)
         {
@@ -135,5 +154,36 @@ public class DailyResultPanel : MonoBehaviour
     {
         this.Close();
         this.OnNextDayClicked?.Invoke();
+    }
+
+    /// <summary>
+    /// 명성 변화량에 맞는 Sprite를 이미지 영역에 적용합니다.
+    /// </summary>
+    /// <param name="reputationChange">일일 정산으로 확정된 명성 변화량입니다.</param>
+    private void updateReputationFeedbackImage(int reputationChange)
+    {
+        if (this.reputationFeedbackImage == null)
+        {
+            return;
+        }
+
+        switch (ReputationFeedbackFormatter.GetTier(reputationChange))
+        {
+            case ReputationFeedbackTier.GreatlyWorsened:
+                this.reputationFeedbackImage.sprite = this.greatlyWorsenedReputationSprite;
+                break;
+            case ReputationFeedbackTier.Worsened:
+                this.reputationFeedbackImage.sprite = this.worsenedReputationSprite;
+                break;
+            case ReputationFeedbackTier.Stable:
+                this.reputationFeedbackImage.sprite = this.stableReputationSprite;
+                break;
+            case ReputationFeedbackTier.Improved:
+                this.reputationFeedbackImage.sprite = this.improvedReputationSprite;
+                break;
+            case ReputationFeedbackTier.GreatlyImproved:
+                this.reputationFeedbackImage.sprite = this.greatlyImprovedReputationSprite;
+                break;
+        }
     }
 }

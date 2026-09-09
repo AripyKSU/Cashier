@@ -90,6 +90,16 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 상점 스냅샷/FK/날짜 상한, 실제 prefab 버튼 구독 수명, 중복 구매 방지, 잔고 변경, 모달 뒤 입력 차단, 다음날 활성화, 결제 알림 예외 후 소유권 보존과 UI 잠금을 검사했다. 기대된 실패 주입 로그는 제품 오류와 구분한다.
 - 실제 Local 부트스트랩의 상점 열기·구매·닫기·다음날 활성화도 확인했다. `Temp/FacilityShop-Open.png`, `Temp/FacilityShop-Purchased.png`는 임시 화면 증거이며 Git 제외다. 최종 사용자 UI/UX 확인은 별도다.
 
+## total_merge 설비·명성·MainScene 통합 검증 (2026-09-09)
+
+- 입력: 설비 `65888e1083d3592788210f295bb0d2bdad4d3814`, 명성 `6976218c38b2678f635248a1a5e7c7880e72615a`; 대상 최초 `9b0a55a071d4172ffbf88ff0d6912702e26e73f7`. 설비 fast-forward 후 명성 merge 이력을 보존하며 원본 branch·Local·stash는 변경하지 않는다.
+- Unity 6000.3.18f1/Cashier PID29172, 컴파일 오류0. `Temp/TestResults/20260909-143834-2a5a84abea594862a0c5c63ca57594ae/`: EditMode162/162, PlayMode24/24, 실패0·skip/미완료0. 두 XML과 .log 보존. 테스트 중 개인 playModeStartScene을 null로 하고 종료 후 InitScene을 복원했다.
+- 최초 통합 EditMode162중 명성21건은 동일 SetUp FK 오류였다. 명성 fixture가 새 FacilityData CSV를 로드하지 않아 product1005→facility12001 참조 검증에 실패했다. 실제 테이블 로드·주입만 보완하고 제품 검증은 완화하지 않았다. 실패 증거 `20260909-143708-86a644876086423b9036d6a9548169a5`도 보존한다.
+- 새 복합 테스트는 할인5건+거절1건의 원본 거래/원가/로그 보존, 설비1회차감, 날짜 완료와 명성1회 적용, 다음날 시설 활성 및 GameProgress 재생성 시 명성·로그 보존을 검사한다. 기존 상납 성공/실패·라디오·시설모달·오류주입 회귀도 통과했다.
+- 실제 Init→Hub→Main bootstrap에서 UI ready와 manager 각각1개를 확인했다. 버튼 listener와 Progress API로 할인5건 정산→설비12001 구매→닫기→NEXT를 실행: 잔액95005G, 정산명성+10 피드백, 당일미활성/현재명성0, 다음날 elapsed1/명성10/snapshot10/시설활성을 확인했다. 최종 제품 Console Error0.
+- 최초 실제 화면 검사에서 정산 명성 텍스트 참조가 없음을 발견해 기존 GameUI에 TMP1개를 연결했다. 자산 연결 후 동일 실제 정산·구매·다음날 경로를 다시 확인했다. `Temp/IntegratedMain-PreOpen.png`, `Temp/IntegratedMain-Facility.png`, `Temp/IntegratedMain-Settlement-Final.png`는 Git 제외 화면 증거다.
+- 명성 이미지·명성에 따른 생성비율·지침 벌칙·원가차감·저장 복원·Player build는 미구현/미검증 범위를 유지한다. 전체 기능이라는 표현은 두 입력 branch에서 구현된 기능의 통합이며 보류 기능 신규 구현을 뜻하지 않는다. 실제 마우스/키보드 사용감은 사용자 확인 대상이다.
+
 ## 이전 Test Runner 전환 검증 기록 (2026-09-08)
 
 | suite | Passed | Failed | skip/미완료 |

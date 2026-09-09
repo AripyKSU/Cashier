@@ -103,6 +103,7 @@ public sealed class GameUIController : MonoBehaviour
             this.gameProgress = new GameProgress(
                 GameSessionManager.Instance,
                 this.customerCatalog,
+                DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
                 new System.Random());
             this.subscribeProgress();
             this.isReady = true;
@@ -498,13 +499,16 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="result">확정된 하루 집계.</param>
     private void renderSettlement(DailyAggregationResult result)
     {
+        int finalReputationDelta = this.subscribedDay.DailyReputationResult.HasValue
+            ? this.subscribedDay.DailyReputationResult.Value.FinalDelta
+            : 0;
         this.dailySettlementPresenter.UpdateView(new DailySettlementViewData(
             this.subscribedDay.Day,
             result.SaleIncome,
             0,
             result.SaleIncome,
             this.economy.QueryService.CurrentBalance,
-            0,
+            finalReputationDelta,
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
             0));
@@ -664,11 +668,22 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshRuntimeViews();
     }
 
-    /// <summary>상품 쏟기 연출 완료를 DayProgress의 분류 상태로 전달합니다.</summary>
+    /// <summary>상품 쏟기 연출 완료를 진행 상태에 반영하고 현재 거래 입력 상태를 갱신합니다.</summary>
     private void handleSortingStarted()
     {
-        if (this.subscribedDay == null || this.subscribedDay.State != DayProgressState.Operating) return;
-        this.runProgressAction(this.gameProgress.BeginCustomerSorting);
+        if (this.subscribedDay == null) return;
+
+        if (this.subscribedDay.State == DayProgressState.Operating)
+        {
+            this.runProgressAction(this.gameProgress.BeginCustomerSorting);
+            return;
+        }
+
+        // 입장 연출 중 영업시간이 만료되면 Progress는 Closing이지만 마지막 손님의 거래는 유효합니다.
+        if (this.subscribedDay.State == DayProgressState.Closing && this.subscribedDay.CanSubmitOffer)
+        {
+            this.refreshRuntimeViews();
+        }
     }
 
     /// <summary>선택한 판매 상품 목록과 가격을 제출하고 거래 결과 화면을 엽니다.</summary>

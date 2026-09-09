@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// 영업 중 완료된 거래 결과를 재정에 반영하고 하루 판매 수입과 명성 변화량을 집계합니다.
@@ -13,6 +14,9 @@ public sealed class DailyAggregationService
 
     // 현재 영업일에 완료된 거래의 명성 변화 누적값입니다.
     private int dailyReputationDelta;
+
+    // 현재 영업일에 접수한 모든 거래 결과 snapshot입니다. 결제 거절도 포함합니다.
+    private readonly List<TransactionResult> dailyTransactions = new List<TransactionResult>();
 
     // 거래 결과를 받아들일 수 있는 영업 중 상태인지 나타냅니다.
     private bool isDayOpen;
@@ -31,6 +35,9 @@ public sealed class DailyAggregationService
     /// 현재 영업일에 누적된 명성 변화량입니다.
     /// </summary>
     public int DailyReputationDelta => this.dailyReputationDelta;
+
+    /// <summary>현재 영업일에 접수한 성공·거절 거래 수입니다.</summary>
+    public int DailyTransactionCount => this.dailyTransactions.Count;
 
     /// <summary>
     /// 일일 판매 수입을 반영할 재정 시스템을 지정합니다.
@@ -83,6 +90,7 @@ public sealed class DailyAggregationService
         // 재정 반영이 완료된 결과만 현재 영업일의 집계값으로 확정합니다.
         this.dailySaleIncome = nextDailySaleIncome;
         this.dailyReputationDelta = nextDailyReputationDelta;
+        this.dailyTransactions.Add(transactionResult);
         return true;
     }
 
@@ -103,7 +111,8 @@ public sealed class DailyAggregationService
         this.isDayOpen = false;
         DailyAggregationResult result = new DailyAggregationResult(
             this.dailySaleIncome,
-            this.dailyReputationDelta);
+            this.dailyReputationDelta,
+            this.dailyTransactions);
 
         // 반환 결과와 현재 집계 상태를 분리한 뒤 다음 영업일을 위해 누적값을 초기화합니다.
         this.resetAggregation();
@@ -117,5 +126,6 @@ public sealed class DailyAggregationService
     {
         this.dailySaleIncome = 0;
         this.dailyReputationDelta = 0;
+        this.dailyTransactions.Clear();
     }
 }

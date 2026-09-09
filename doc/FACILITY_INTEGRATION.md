@@ -23,7 +23,7 @@
 
 각 설비는 독립 1회 구매이며 앞 설비 구매를 요구하지 않는다. 가격과 신규 상품 분류는 승인된 테스트 값이다. 신규 의약품은 Medicine, 공구·전력·핵 보호 물품은 임시 DailyNecessities다. 기본 건전지1010과 설비 배터리1019는 서로 다른 상품이다.
 
-- FacilityData: `idx:uint,nameidx:uint,purchase_price:long`. 종류12, PK12001~12005. 11은 ReputationBalance 예약이며 이번 enum/로더에 추가하지 않는다. enum 종료값은 자동 증가한다.
+- FacilityData: `idx:uint,nameidx:uint,purchase_price:long`. 종류12, PK12001~12005. 통합 checkout에는 ReputationBalance11도 함께 등록된다. enum 종료값은 자동 증가한다.
 - ProductData에 `required_facility_idx:uint?` 추가. 빈 셀은 기본상품,0은 오류. 기본5개는1001/1004/1007/1010/1011. 기존1002/1003/1008/1012는 삭제하지 않고 비활성화한다. 총22행(기본5+해금13+비활성4).
 - TextData는70행으로 이름8056~8070을 추가한다. 실제 가격·전체 행은 [DATA_CATALOG.md](DATA_CATALOG.md) 참조.
 - DTO·CSV·DataTableManager·CustomerCatalog를 함께 반영한다. 구형 Product header는 오류다. PK·가격·설비 FK·Text FK가 모두 검증되기 전 공개하지 않는다.
@@ -113,6 +113,12 @@ GameUI (기존 루트 / GameUIController)
 상납일에도 정산 중에는 상납 전에 설비 비용을 지출할 수 있다. 상납금을 예약하거나 경제 정책을 바꾸지 않는다. 영업 전·영업 중·상납 화면에는 진입 버튼을 노출하지 않는다. 닫기는 날짜를 변경하지 않으며, 이후 기존 정산 완료·상납 흐름을 계속한다.
 
 패널이 열린 동안 뒤쪽 정산 CanvasGroup의 interactable/blocksRaycasts를 끄고 GameInputRouter를 일시 비활성화한다. 선택된 버튼을 해제하며 Controller 진행 요청도 차단한다. 닫을 때 입력을 복원하되 기술 오류 잠금은 해제하지 않는다. 구매 중 재진입은 latch로 막고 finally에서 해제·상태 재조회한다. 잔액 이벤트는 열린 패널 수명에만 구독하며 구매 중에는 중첩 렌더를 미룬다. 정산 잔액도 갱신하지만 매출·비용·순익은 기존 확정 집계를 그대로 사용한다.
+
+### total_merge 통합 (2026-09-09)
+
+- 설비 `65888e1` + 명성 `6976218` 이력을 통합하고 MainScene에 공유 GameUI를 연결했다. PreOpenPanel 최신 배치를 보존하며 설비 모달을 유지한다.
+- 정산의 명성 피드백은 설비 구매 후에도 유지한다. 날짜 완료 시 설비 활성과 명성 변화가 각각 한 번 반영된다. 현재 명성·적용일 marker·명성 로그는 GameSessionManager 수명으로 유지한다.
+- 명성 생성 가중치의 손님 생성기 연결·정식 이미지·저장 복원은 별도다. 검증 근거는 TESTING.md를 따른다.
 
 ### 배포와 검증 기준
 

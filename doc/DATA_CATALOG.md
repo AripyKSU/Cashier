@@ -4,9 +4,9 @@
 
 ## 1. 기준과 읽는 방법
 
-- 조사 기준: 2026-09-09, `codex/equipment-upgrades`, `0e416fb` 이후 설비 구매·다음날 해금 구현 반영. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
+- 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 11종, 컬럼 총 66개(테이블별 중복 컬럼 포함), 데이터 202행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 78개(테이블별 중복 컬럼 포함), 데이터 207행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -49,10 +49,17 @@
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 4 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 9 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금·정산 상점 UI 연결 |
+| [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백 연결, 생성 가중치는 미연결 |
+
+### ReputationBalanceData
+
+종류11, PK11001~11005. 모든 열은 필수 숫자다. `idx:uint`, 나머지는 `int`: `min_reputation,max_reputation`(-100~100 구간), `normal_weight,wealthy_weight,hasty_weight,special_weight`(각 비음수·합1000), `recovery_rate`(1000 이상), `settlement_min_score,settlement_max_score`(0~100 구간), `settlement_delta`(-15~10). 다섯 행이 명성·정산 점수 전체 범위를 각각 중복·공백 없이 덮는다. 상세 현재 값과 생성 연결 보류는 [명성 인계서](REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md)를 따른다.
+
+현재 명성·반영일 marker·거래/정산 로그는 세션 소유이며 화면 재생성으로 초기화하지 않는다. DayProgress의 시작 snapshot으로 명성을 계산하고 날짜 완료 직후 한 번 적용한다. 실제 손님 생성에는 아직 해당 가중치를 적용하지 않는다.
 
 ### FacilityData
 
-`idx:uint`는 종류12의 12001~12005, `nameidx:uint`는 TextData FK(8056~8060), `purchase_price:long`은 양수 통화다. header·중복·대역·가격·Text FK 검사 후 공개한다. 11은 ReputationBalance 예약으로 이번 로더에 등록하지 않는다.
+`idx:uint`는 종류12의 12001~12005, `nameidx:uint`는 TextData FK(8056~8060), `purchase_price:long`은 양수 통화다. header·중복·대역·가격·Text FK 검사 후 공개한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
 
 독립 구매이며 선행 설비가 없다. 보유·활성일은 세션 소유, 지불 즉시 차감하고 현재 경과일+1에 해금한다. 상세 API와 임시 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
 
@@ -311,7 +318,7 @@
 
 | enum·근거 | 실제 이름=숫자 | 사용·제약 |
 |---|---|---|
-| [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, Facility=12, DataTableType_End=13(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
+| [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, ReputationBalance=11, Facility=12, DataTableType_End=13(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
 | [ProductType : uint](../Assets/Scripts/Commons/Data/ProductType.cs) | None=0, Water=1, Food=2, Medicine=3, DailyNecessities=4 | 상품·선호·이벤트·지침. None 거부, End 없음 |
 | [CustomerDispositionType : int](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4, CustomerDispositionType_End=5(자동) | CSV 원시 uint를 enum으로 해석,1~4만 허용 |
 | [CustomerAttributes : int, Flags](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Male=1, Female=2, Child=4, Elderly=8, Adult=16, Normal=32 | bit OR. 성별·연령·특수 각각 최대1개. 실제 방문은 세 축 모두필수 |
@@ -364,7 +371,7 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 | [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceCycleDays:int, MaintenanceAmounts:IReadOnlyList<long> 회차순 | CSV 두 테이블을 검증·복사한 설정. 현재100000/7/12회차 |
 | [FinanceChangeResult](../Assets/Scripts/Finance/FinanceChangeResult.cs) | PreviousBalance:long 이전잔액, BalanceDelta:long 부호있는증감, CurrentBalance:long 이후잔액, Reason:FinanceChangeReason | FinanceService 결과; 날짜/상품 내역 아님 |
 | [EconomyLogEntry](../Assets/Scripts/Finance/EconomyLogEntry.cs) | Sequence:long 기록순번, PreviousBalance:long, BalanceDelta:long, CurrentBalance:long, Reason:FinanceChangeReason | LogService 결과. 순번은 CSV PK나 날짜 아님 |
-| [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, ReputationDelta:int 당일 변화합 | 원가·지출·판매목록 필드 없음. EndDay에서 확정 |
+| [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, ReputationDelta:int 거래 변화합, Transactions:IReadOnlyList<TransactionResult> | 수락·거절의 원본 snapshot을 EndDay에서 복사·확정. 일일 명성 최종값은 DailyReputationCalculationResult.FinalDelta |
 | [MaintenancePaymentResult](../Assets/Scripts/Finance/MaintenancePaymentResult.cs) | PaymentRound:int 회차, RequiredAmount:long 필요금액, IsPaid:bool 성공, PreviousBalance:long, CurrentBalance:long | 부족 시 잔액·LastPaidRound 유지. 연속 다음회차만 납부 |
 | [EconomyRuntime](../Assets/Scripts/Finance/EconomyRuntime.cs) | Settings, FinanceService, DailyAggregationService, MaintenanceService, LogService, QueryService | 서비스 묶음이며 추가 밸런스 원본 아님 |
 | [EconomyQueryService](../Assets/Scripts/Finance/EconomyQueryService.cs) | CurrentBalance:long, DailySaleIncome:long, IsDayOpen:bool, MaintenanceCycleDays:int | 소유 서비스의 읽기 결과. 새로운 보유금 저장소 아님 |
@@ -394,7 +401,7 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 | CustomerViewData | HasCustomer:bool, AppearanceColor:Color, AppearanceSprite:Sprite, DialogueText:string, Basket:IReadOnlyList<CustomerBasketItemViewData> | 현재 연결. Empty는false/clear/null/빈문자열/빈목록. 현 factory는 AppearanceSprite=null, CSV색상 사용 |
 | PriceInputViewData | InputAmount:long?, CanConfirm:bool, IsInputEnabled:bool, ValidationMessage:string | PriceInputPresenter. 빈 입력은null. 양수 총액 제출과 분류완료 조건은 진행/UI에서 검증 |
 | TransactionViewData | WasAccepted:bool, OfferedPrice:long, FeedbackMessage:string | 계약만 존재, 현재 생성·소비 호출 없음. 상세4판정·판매목록을 담는 원본 TransactionResult와 다름 |
-| DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. 현 controller는 Expenses=0, NetProfit=SaleIncome, ReputationDelta=0, DepartedCustomers=0으로 공급 |
+| DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. Expenses=0, NetProfit=SaleIncome, ReputationDelta=일일 FinalDelta, DepartedCustomers=0. 명성은 정성적 피드백 표시 |
 
 DailySettlementPresenter는 전달된 NetProfit을 표시한다. 별도 [DailyResultPanel](../Assets/Scripts/UI/DailyResultPanel.cs)은 SaleIncome-Expenses로 다시 계산하는 구현이지만 현 controller가 직접 호출하는 경로는 아니다. 지출0 표시는 원가가 없다는 뜻도, 상납이 무료라는 뜻도 아니다. 상납은 별도 진행 단계다.
 

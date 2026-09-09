@@ -107,7 +107,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void ProgressPreservesTransactionAndRejectsDuplicateSubmission()
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
         var day = progress.CurrentDayProgress;
         var visit = day.CurrentVisit;
@@ -145,7 +145,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void ProgressPreservesRestrictionSnapshot()
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
         System.Collections.Generic.IReadOnlyList<SaleRestriction> rules = null;
         var catalog = tables.Customers;
@@ -175,7 +175,7 @@ public sealed class GameSessionApiTests
     [TestCase(true)]
     public void ProgressSettlementFailureStopsWithoutRetry(bool overflow)
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
         var day = progress.CurrentDayProgress;
         var items = day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
@@ -214,7 +214,7 @@ public sealed class GameSessionApiTests
     {
         if (!canPay)
             Assert.That(session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _));
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start();
         Assert.Throws<InvalidOperationException>(() => progress.Start());
         int cycle = session.Economy.Settings.MaintenanceCycleDays;
@@ -241,11 +241,57 @@ public sealed class GameSessionApiTests
         Assert.Throws<InvalidOperationException>(() => progress.TryPayMaintenance());
     }
 
+    /// <summary>설비 구매와 명성 정산이 같은 날짜 완료 경계에서 각각 한 번 적용된다.</summary>
+    [Test]
+    public void FacilityAndReputationShareCompletedDayBoundary()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        var day = progress.CurrentDayProgress;
+        long balance = session.Economy.QueryService.CurrentBalance;
+        for (int index = 0; index < 5; index++)
+        {
+            progress.BeginCustomerSorting();
+            Assert.That(progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()));
+            progress.CompleteTransactionResult();
+        }
+        progress.Tick(day.BusinessDurationSeconds);
+        Assert.That(progress.SubmitOffer(long.MaxValue, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
+        progress.CompleteTransactionResult();
+        Assert.That(day.AggregationResult.Value.Transactions.Count, Is.EqualTo(6));
+        Assert.That(day.AggregationResult.Value.Transactions.Last().Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
+        Assert.That(day.AggregationResult.Value.Transactions.Take(5).All(x => x.CostTotal > 0));
+        Assert.That(progress.ReputationLogService.TransactionEntries.Count, Is.EqualTo(6));
+        Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
+        int delta = day.DailyReputationResult.Value.FinalDelta;
+        Assert.That(delta, Is.GreaterThan(0));
+        Assert.That(progress.TryPurchaseFacility(12001, out var purchase));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + 5 - purchase.PaidAmount));
+        Assert.That(progress.CurrentReputation, Is.Zero);
+        Assert.That(session.IsFacilityActive(12001), Is.False);
+        progress.CompleteSettlement();
+        Assert.That(session.ElapsedDays, Is.EqualTo(1));
+        Assert.That(session.IsFacilityActive(12001));
+        Assert.That(progress.CurrentReputation, Is.EqualTo(delta));
+        Assert.That(progress.CurrentDayProgress.DayStartReputation, Is.EqualTo(delta));
+        Assert.Throws<InvalidOperationException>(() => day.CompleteSettlement());
+        Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
+        Assert.That(progress.CurrentReputation, Is.EqualTo(delta));
+        Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
+        var reentered = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
+        reentered.Start();
+        Assert.That(reentered.CurrentReputation, Is.EqualTo(delta));
+        Assert.That(reentered.CurrentDayProgress.DayStartReputation, Is.EqualTo(delta));
+        Assert.That(reentered.ReputationLogService, Is.SameAs(progress.ReputationLogService));
+    }
+
     /// <summary>진행 Tick의 pause와 방송, 방문 snapshot 및 제출 단가의 동일 원본을 검사한다.</summary>
     [Test]
     public void ProgressRadioUsesOnlyUnpausedTradingTime()
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1), 90);
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 90);
         progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
         var day = progress.CurrentDayProgress;
         var original = day.CurrentVisit.Items.Select(x => x.UnitPrice).ToArray();
@@ -270,7 +316,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void ProgressLongFrameDoesNotBroadcastAfterBusinessDeadline()
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1), 10);
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 10);
         progress.Start(); progress.OpenBusiness();
         // 난수 대기값만 고정해 실제 Tick의 10초 제한을 결정적으로 검사한다.
         typeof(GameSessionManager).GetField("radioRemainingSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(session, 50f);
@@ -297,7 +343,7 @@ public sealed class GameSessionApiTests
         var product = tables.Customers.Products.Rows.Values.First();
         product.AvailableDay = 1; // 메모리 fixture만 수정하며 다음 SetUp에서 실제 CSV를 다시 로드한다.
         string name = tables.GetDB<TextDataTable>(DataTableType.Text).Rows[product.NameIdx].Text;
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start();
         string firstList = factory.CreatePriceListText(progress.CurrentDay, session.DailyPrices);
         Assert.That(firstList, Does.Not.Contain(name + "  ·"));
@@ -307,7 +353,7 @@ public sealed class GameSessionApiTests
         Assert.That(firstList, Does.Contain($"{discountedName}  ·  {session.DailyPrices.Prices[discounted.Idx]:N0} G"));
         Assert.That(firstList, Does.Not.Contain($"{discountedName}  ·  {discounted.BasePrice:N0} G"));
         Assert.Throws<InvalidOperationException>(() => factory.CreatePriceListText(2, session.DailyPrices));
-        Assert.Throws<InvalidOperationException>(() => new DayProgress(2, session, tables.Customers, new System.Random(1)));
+        Assert.Throws<InvalidOperationException>(() => new DayProgress(2, session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1)));
         closeProgressDay(progress); progress.CompleteSettlement();
         string actual = factory.CreatePriceListText(progress.CurrentDay, session.DailyPrices);
         Assert.That(actual, Does.Contain($"{name}  ·  {session.DailyPrices.Prices[product.Idx]:N0} G"));
@@ -322,7 +368,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void FacilityPurchaseUnlocksOnlyNextDayAcrossProgressInstances()
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12005, out _));
         progress.Start();
         long balance = session.Economy.QueryService.CurrentBalance;
@@ -352,7 +398,7 @@ public sealed class GameSessionApiTests
         progress.OpenBusiness(); progress.BeginCustomerSorting();
         Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(1020, 1) }));
         // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
-        var nextProgress = new GameProgress(session, tables.Customers, new System.Random(2));
+        var nextProgress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1));
         Assert.Throws<InvalidOperationException>(() => session.InitializeNewGame(tables));
     }
@@ -362,7 +408,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator NewSessionClearsFacilityOwnership()
     {
-        var progress = new GameProgress(session, tables.Customers, new System.Random(1)); progress.Start();
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1)); progress.Start();
         Assert.That(progress.TryPurchaseFacility(12001, out _));
         UnityEngine.Object.Destroy(session); yield return null;
         Assert.That(GameSessionManager.Instance, Is.Null);

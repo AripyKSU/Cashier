@@ -9,12 +9,37 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private EconomyRuntime economy;
     private DataTableManager dataTables;
     private FacilityService facilities;
+    // 화면 재진입으로 초기화하지 않는 세션 명성과 마지막 반영 표시일입니다.
+    private int currentReputation;
+    private int lastReputationAppliedDay;
+    private ReputationLogService reputationLogService;
 
     private readonly PriceEventScheduler priceScheduler = new PriceEventScheduler(new Random());
     private bool hasClosedDay;
     // 영업 시간으로만 감소하며 정산·오류 시 취소한다.
     private float radioRemainingSeconds;
     private bool radioPending;
+
+    /// <summary>현재 세션의 명성. 다음 하루는 이 값을 snapshot으로 사용한다.</summary>
+    public int CurrentReputation => this.currentReputation;
+    /// <summary>화면 전환과 무관하게 유지되는 거래·정산 명성 로그.</summary>
+    public ReputationLogService ReputationLogService => this.reputationLogService
+        ?? throw new InvalidOperationException("명성 세션이 초기화되지 않았습니다.");
+
+    /// <summary>날짜 완료 직후 해당 날짜의 명성을 세션에 한 번 반영한다.</summary>
+    /// <param name="completedDisplayDay">완료한 1기반 표시일.</param>
+    /// <param name="delta">명성 계산기가 확정한 변화량.</param>
+    /// <exception cref="InvalidOperationException">세션 초기화 전이거나 날짜 완료 순서가 다름.</exception>
+    /// <exception cref="OverflowException">명성 합산 범위 초과.</exception>
+    internal void ApplyCompletedDayReputation(int completedDisplayDay, int delta)
+    {
+        if (!IsInitialized || completedDisplayDay <= 0 || (uint)completedDisplayDay != ElapsedDays)
+            throw new InvalidOperationException("날짜 완료 직후의 명성만 반영할 수 있습니다.");
+        if (completedDisplayDay <= this.lastReputationAppliedDay) return;
+        this.currentReputation = Math.Max(-100, Math.Min(100, checked(this.currentReputation + delta)));
+        this.lastReputationAppliedDay = completedDisplayDay;
+    }
+
     /// <summary>보유 설비와 활성 경과일. 구매는 GameProgress 경계를 사용한다.</summary>
     public System.Collections.Generic.IReadOnlyDictionary<uint, uint> FacilityActivationDays => facilities?.ActivationDays
         ?? throw new InvalidOperationException("설비 세션이 초기화되지 않았습니다.");
@@ -194,6 +219,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
                 ?? throw new InvalidOperationException("설비 데이터 테이블이 준비되지 않았습니다.");
             if (facilityTable.Rows.Count == 0) throw new InvalidOperationException("설비 데이터가 공개되지 않았습니다.");
             this.facilities = new FacilityService(this.economy.FinanceService, facilityTable.Rows, () => this.ElapsedDays);
+            this.reputationLogService = new ReputationLogService(dataTableManager.Customers.Dispositions);
+            this.currentReputation = 0;
+            this.lastReputationAppliedDay = 0;
             this.IsInitialized = true;
             EnsureDailyPrices();
         }
@@ -203,6 +231,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             this.economy = null;
             this.IsInitialized = false;
             this.facilities = null;
+            this.reputationLogService = null;
             throw;
         }
     }
@@ -220,6 +249,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.radioPending = false;
         this.dataTables = null;
         this.facilities = null;
+        this.reputationLogService = null;
+        this.currentReputation = 0;
+        this.lastReputationAppliedDay = 0;
         base.OnSingletonDestroyed();
     }
 }

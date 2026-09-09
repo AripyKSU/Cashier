@@ -90,6 +90,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ecf9561d87a84bdaa7b68dc1c95e8014
+    m_Address: ReputationBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ed046d641c8d5a348b00bdb720940b73
     m_Address: CustomerAppearanceData
     m_ReadOnly: 0

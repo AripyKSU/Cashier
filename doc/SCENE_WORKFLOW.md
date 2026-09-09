@@ -7,7 +7,7 @@
 Hub는 진입 후 자동으로 게임 씬을 로드한다. 모든 전환은 `GameSceneManager`가 소유한다.
 Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있으면 선택한 개인 씬을 사용한다.
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
-MainScene은 통합·실행 검증용 공용 씬이다. 현재는 기존 Hub의 카메라 구성을 복제한 빈 진입 씬이며, 게임 콘텐츠는 기능별 결과물 통합 시 추가한다.
+MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인스턴스, Camera와 InputSystem EventSystem을 포함한다. 설비·명성 통합 경로와 사용법은 MAINSCENE_INTEGRATION.md를 따른다.
 
 FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 경제 런타임 구조](FINANCE_SCENE_WORKFLOW.md)를 따른다. FinanceScene은 현재 InitScene을 거치지 않고 직접 실행하는 검증 씬이며, 실제 GameSessionManager 통합은 별도 작업 범위다.
 
