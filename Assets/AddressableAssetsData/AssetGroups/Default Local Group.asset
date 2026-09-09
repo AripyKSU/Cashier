@@ -55,6 +55,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 965dc884f32f1514c8fa36b64a8c93cb
+    m_Address: FacilityData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a8e2dda5f4ca4ed45bcbf0d85e28f596
     m_Address: LoadingScene
     m_ReadOnly: 0

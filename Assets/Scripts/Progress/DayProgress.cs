@@ -415,7 +415,7 @@ public sealed class DayProgress
             this.dispositions,
             this.customerCatalog.Products.Rows,
             this.session.ElapsedDays,
-            () => this.session.EnsureDailyPrices().Prices);
+            () => this.session.EnsureDailyPrices().Prices, isFacilityActive: this.session.IsFacilityActive);
 
         if (visit == null)
         {

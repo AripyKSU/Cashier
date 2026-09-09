@@ -170,7 +170,7 @@ public sealed class CustomerContractTests
     [TestCase(201, CustomerTradeOutcome.DiscountSale), TestCase(202, CustomerTradeOutcome.RegularSale), TestCase(203, CustomerTradeOutcome.ExploitativeSale), TestCase(223, CustomerTradeOutcome.PaymentRefused)]
     public void FinalItemsDetermineOutcome(long offered, CustomerTradeOutcome expected)
     {
-        config.PriceTolerance = 1100; products[4].IsAvailable = false;
+        config.PriceTolerance = 1100;
         var visit = generate(); visit.BeginOffer(); visit.SubmitOffer(offered, new[] { new SaleItem(4, 2) });
         var result = visit.Result.Value;
         Assert.That(visit.Items.Single().ProductIdx, Is.EqualTo(1)); Assert.That(result.ReferenceTotal, Is.EqualTo(202));

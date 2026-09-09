@@ -31,12 +31,12 @@ Func<CustomerCatalog> load = () => {
 };
 var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
-valid.ValidateAndCommit(textTables[valid]);
+valid.ValidateAndCommit(textTables[valid], facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 12 || textTables[valid].GetDataCount() != 55) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 22 || textTables[valid].GetDataCount() != 70) throw new Exception("Unexpected sample counts");
 if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
-if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.PriceEventSchedule + 1) throw new Exception("End marker must follow the last table");
+if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.Facility + 1) throw new Exception("End marker must follow the last table");
 if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) throw new Exception("Probability migration failed");
 
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.RegularPriceMinRate==1000 && x.RegularPriceMaxRate==1000));
@@ -177,7 +177,7 @@ case "regular max empty": mutate=()=>c.Dispositions.LoadData(disposition.Replace
 default: throw new ArgumentOutOfRangeException(nameof(name));
 }
 LogAssert.Expect(LogType.Error,new Regex(@"^(?:\[Customer CSV\] |(?:CustomerAppearanceData|CustomerDispositionData|ProductCategoryData|ProductData|TextData)\.csv)"));
-Assert.Catch(()=>{mutate(); c.ValidateAndCommit(textTables[c]);});
+Assert.Catch(()=>{mutate(); c.ValidateAndCommit(textTables[c], facilities: loadFacilities());});
 Assert.That(c.Products.GetDataCount(), Is.Zero); Assert.That(c.Appearances.GetDataCount(), Is.Zero); Assert.That(textTables[c].GetDataCount(), Is.Zero);
 LogAssert.NoUnexpectedReceived();
     }
@@ -201,7 +201,7 @@ Func<CustomerCatalog> load = () => {
  return c;
 };
 
-var c=load();c.ValidateAndCommit(textTables[c]);
+var c=load();c.ValidateAndCommit(textTables[c], facilities: loadFacilities());
 LogAssert.Expect(LogType.Error,new Regex(@"^CustomerAppearanceData\.csv"));
 Assert.Catch(()=>c.Appearances.LoadData(appearance.Replace("101,184","256,184")));
 Assert.That(c.Appearances.GetDataCount(),Is.EqualTo(4));
@@ -215,5 +215,13 @@ Assert.That(resources.GetResourcePath(4001),Is.EqualTo("Unit_3001")); Assert.Tha
 LogAssert.Expect(LogType.Error,new Regex(@"ResourceData\.csv"));
 Assert.Catch(()=>resources.LoadData(csv.Replace("4001,Unit_3001","3001,Unit_3001")));
 Assert.That(resources.GetDataCount(),Is.EqualTo(count));
+    }
+    /// <summary>실제 설비 CSV를 공개 전 FK 검증용으로 읽는다.</summary>
+    /// <returns>검증 대기 설비 테이블.</returns>
+    private static FacilityDataTable loadFacilities()
+    {
+        var table = new FacilityDataTable();
+        table.LoadData(File.ReadAllText("Assets/Datas/FacilityData.csv"));
+        return table;
     }
 }

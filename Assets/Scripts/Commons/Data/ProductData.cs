@@ -25,6 +25,9 @@ public sealed class ProductData
     /// <summary>ResourceData FK. 빈 셀만 null이며 흰 정사각형을 표시한다. 0은 잘못된 참조다.</summary>
     [Name("image_resource_idx")]
     public uint? ImageResourceIdx { get; set; }
+    /// <summary>필요 설비 FK. 빈 셀은 기본 상품이며0은 잘못된 참조다.</summary>
+    [Name("required_facility_idx")]
+    public uint? RequiredFacilityIdx { get; set; }
     /// <summary>현재 판매 가능한 상품인지 여부. CSV 값은 0 또는 1.</summary>
     [Name("is_available"), TypeConverter(typeof(ZeroOneBooleanConverter))]
     public bool IsAvailable { get; set; }
@@ -33,6 +36,9 @@ public sealed class ProductData
     /// <exception cref="ArgumentException">필수 가격·분류·리소스 대역 오류.</exception>
     public void Validate()
     {
+        if (RequiredFacilityIdx.HasValue && (RequiredFacilityIdx.Value % 1000 == 0 ||
+            Util.GetDataTableType(RequiredFacilityIdx.Value) != DataTableType.Facility))
+            throw new ArgumentException($"ProductData.csv PK={Idx}, required_facility_idx={RequiredFacilityIdx}: Facility FK 대역 오류");
         if (Idx == 0 || BasePrice == 0 || CostPrice == 0 || ProductType == ProductType.None || !Enum.IsDefined(typeof(ProductType), ProductType))
             throw new ArgumentException($"ProductData.csv PK={Idx}: base_price, cost_price 또는 product_type 오류");
         if (ImageResourceIdx.HasValue && (ImageResourceIdx.Value % 1000 == 0 ||

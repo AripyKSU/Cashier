@@ -82,7 +82,7 @@ public sealed class GameUIController : MonoBehaviour
             this.viewDataFactory = new ProgressViewDataFactory(
                 this.customerCatalog,
                 this.textData,
-                productSprites);
+                productSprites, GameSessionManager.Instance.IsFacilityActive);
 
             this.validateUiReferences();
             this.subscribeUi();

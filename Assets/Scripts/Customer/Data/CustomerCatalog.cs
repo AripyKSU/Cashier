@@ -34,7 +34,8 @@ public sealed class CustomerCatalog
     /// <exception cref="InvalidDataException">필수 테이블 또는 상품군 FK 누락.</exception>
     /// <param name="resources">이미지 FK가 있는 경우 필수인 검증된 리소스 테이블.</param>
     /// <param name="texts">게임 전체 공용 텍스트 테이블. 검증 성공 시 함께 공개한다.</param>
-    public void ValidateAndCommit(TextDataTable texts, ResourceDataTable resources = null)
+    /// <param name="facilities">필요 설비 FK를 검사할 공개 전 데이터. 설비 상품이 있으면 필수다.</param>
+    public void ValidateAndCommit(TextDataTable texts, ResourceDataTable resources = null, FacilityDataTable facilities = null)
     {
         try
         {
@@ -58,6 +59,9 @@ public sealed class CustomerCatalog
                     throw new InvalidDataException($"ProductCategoryData.csv: product_type={type} 표시 데이터 누락");
             foreach (var row in Products.PendingRows.Values)
             {
+                if (row.RequiredFacilityIdx.HasValue && (facilities?.PendingRows == null ||
+                    !facilities.PendingRows.ContainsKey(row.RequiredFacilityIdx.Value)))
+                    throw new InvalidDataException($"ProductData.csv PK={row.Idx}: required_facility_idx={row.RequiredFacilityIdx} FK 실패");
                 if (!types.Contains(row.ProductType))
                     throw new InvalidDataException($"ProductData.csv PK={row.Idx}, product_type 표시 참조 실패");
                 if (row.ImageResourceIdx.HasValue && (resources == null || !resources.TryGetResource(row.ImageResourceIdx.Value, out _)))
@@ -79,12 +83,20 @@ public sealed class CustomerCatalog
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, dialog text FK={textIdx} -> TextData.idx 참조 실패");
             }
 
+            if (facilities != null)
+            {
+                if (facilities.PendingRows == null) throw new InvalidDataException("설비 데이터 로드가 필요합니다.");
+                foreach (var row in facilities.PendingRows.Values)
+                    validateNameReference(texts, "FacilityData.csv", row.Idx, row.NameIdx);
+            }
+
             // 대기 중인 어느 테이블에도 문제가 없을 때만 runtime 소비자에게 공개한다.
             Appearances.Commit();
             Dispositions.Commit();
             Categories.Commit();
             Products.Commit();
             texts.Commit();
+            facilities?.Commit();
         }
         catch (Exception exception)
         {

@@ -4,6 +4,8 @@
 
 ## 현재 호출 경로
 
+후속 설비 구현(2026-09-09)은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 앞의 설비 제외 문구는 선행 진행 연결 작업의 범위다. 현재 구매는 GameProgress API, 활성일은 GameSessionManager, 생성·가격표는 공통 상품 조건을 사용한다. 구매 UI와 공유 Scene/prefab은 이번에도 변경하지 않았다.
+
 GameUI.prefab의 GameUIController → GameProgress → DayProgress → GameSessionManager/EconomyRuntime이 실제 진행 경로다. Dev3SandboxTester는 현재 소스에서 비활성화된 이전 화면이며 이 경로의 검사 대체물이 아니다.
 
 | 경계 | 현재 계약 |

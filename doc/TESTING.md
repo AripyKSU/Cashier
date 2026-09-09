@@ -65,6 +65,14 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 다른 branch에 이식할 때 product cost_price 및 성향 disposition_type/preferred_product_idxs/regular_price_min_rate/regular_price_max_rate를 포함한 현재 CSV와 DTO/loader/catalog/방문·TransactionResult를 부분 복사하지 않는다.
 - TMP fallback dirty와 stash, 개인 Local 파일, Temp 검사 증거, 의도치 않은 ProjectSettings 변경은 commit 대상이 아니다. 기본 branch merge는 별도 승인·교차 리뷰 대상이다.
 
+## 설비 구매·다음날 해금 검증 (2026-09-09)
+
+- Unity 6000.3.18f1, Cashier PID16200, `Tools/Run-Tests.ps1`: EditMode137/137, PlayMode20/20, 실패0·skip/미완료0. 컴파일 완료 후 실행했다.
+- 증거: `Temp/TestResults/20260909-121421-ae5019f5ba46414c872ce55c0161bdf9/`의 EditMode.xml/PlayMode.xml 및 각각 .log. Temp 파일은 Git에 넣지 않는다.
+- 신규 FacilityTests14건과 GameSessionApiTests의 실제 CSV·Addressables 로딩/다음날 해금/새 세션 초기화를 포함한다. 처음 실패한 구형 비활성상품 제출 fixture와 영업 전 null 방문 캡처는 테스트 입력·순서만 고친 뒤 재실행했다. 제품 잠금 규칙은 완화하지 않았다.
+- 종료 Console Error3건은 ResourcePoolTests의 명시적 실패 주입(LogAssert.Expect)이다. 신규 제품 오류와 구분한다. 컴파일 오류 없음; 화면 조작·실제 씬 전환·설비 구매 UI는 검증하지 않았다.
+- 데이터·사용법·배포 묶음은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
+
 ## 이전 Test Runner 전환 검증 기록 (2026-09-08)
 
 | suite | Passed | Failed | skip/미완료 |

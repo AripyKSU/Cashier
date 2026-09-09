@@ -8,11 +8,38 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     // 현재 게임 세션에서 사용하는 경제 런타임입니다.
     private EconomyRuntime economy;
     private DataTableManager dataTables;
+    private FacilityService facilities;
+
     private readonly PriceEventScheduler priceScheduler = new PriceEventScheduler(new Random());
     private bool hasClosedDay;
     // 영업 시간으로만 감소하며 정산·오류 시 취소한다.
     private float radioRemainingSeconds;
     private bool radioPending;
+    /// <summary>보유 설비와 활성 경과일. 구매는 GameProgress 경계를 사용한다.</summary>
+    public System.Collections.Generic.IReadOnlyDictionary<uint, uint> FacilityActivationDays => facilities?.ActivationDays
+        ?? throw new InvalidOperationException("설비 세션이 초기화되지 않았습니다.");
+
+    /// <summary>현재 세션 날짜의 설비 활성 여부를 조회한다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>보유하며 활성일에 도달했는지 여부.</returns>
+    /// <exception cref="InvalidOperationException">초기화 전 조회.</exception>
+    public bool IsFacilityActive(uint facilityIdx)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.IsActive(facilityIdx);
+    }
+
+    /// <summary>진행 소유자가 허용한 구매를 세션 현재 날짜와 검증 가격으로 처리한다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <param name="result">정상 구매 결과.</param>
+    /// <returns>이번 요청의 구매 성공.</returns>
+    /// <exception cref="InvalidOperationException">초기화 전 호출.</exception>
+    internal bool TryPurchaseFacility(uint facilityIdx, out FacilityPurchaseResult result)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.TryPurchase(facilityIdx, out result);
+    }
+
     /// <summary>가격 확정 이후 현재일 영업을 시작한다.</summary>
     /// <exception cref="InvalidOperationException">이미 정산한 날짜 또는 영업 중.</exception>
     public void BeginTradingDay()
@@ -161,13 +188,21 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         // 검증된 두 데이터 테이블을 결합해 현재 세션의 경제 런타임을 한 번만 생성합니다.
         this.economy = new EconomyRuntime(balanceData, maintenanceAmounts);
         this.dataTables = dataTableManager;
-        this.IsInitialized = true;
-        try { EnsureDailyPrices(); }
+        try
+        {
+            var facilityTable = dataTableManager.GetDB<FacilityDataTable>(DataTableType.Facility)
+                ?? throw new InvalidOperationException("설비 데이터 테이블이 준비되지 않았습니다.");
+            if (facilityTable.Rows.Count == 0) throw new InvalidOperationException("설비 데이터가 공개되지 않았습니다.");
+            this.facilities = new FacilityService(this.economy.FinanceService, facilityTable.Rows, () => this.ElapsedDays);
+            this.IsInitialized = true;
+            EnsureDailyPrices();
+        }
         catch
         {
             this.economy.Dispose();
             this.economy = null;
             this.IsInitialized = false;
+            this.facilities = null;
             throw;
         }
     }
@@ -184,6 +219,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.DailyPrices = null;
         this.radioPending = false;
         this.dataTables = null;
+        this.facilities = null;
         base.OnSingletonDestroyed();
     }
 }

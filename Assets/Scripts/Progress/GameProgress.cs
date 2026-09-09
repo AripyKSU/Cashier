@@ -164,6 +164,19 @@ public sealed class GameProgress
         this.currentDayProgress.BeginSorting();
     }
 
+    /// <summary>살아 있는 진행에서 설비를 일회 구매한다. 구매 UI의 세부 phase 정책은 포함하지 않는다.</summary>
+    /// <param name="facilityIdx">구매할 설비 PK. 가격·날짜는 외부에서 받지 않는다.</param>
+    /// <param name="result">구매 결과·이번 지출·활성일.</param>
+    /// <returns>이번 요청이 구매를 완료했으면true.</returns>
+    /// <exception cref="InvalidOperationException">시작 전 또는 종료된 진행.</exception>
+    /// <exception cref="Exception">입력·날짜·재정 알림 오류. 차감 후 알림 실패는 보유 상태를 유지한다.</exception>
+    public bool TryPurchaseFacility(uint facilityIdx, out FacilityPurchaseResult result)
+    {
+        if (State == GameProgressState.Initializing || State == GameProgressState.Failed || State == GameProgressState.Completed)
+            throw new InvalidOperationException("시작 전 또는 종료한 게임에서는 설비를 구매할 수 없습니다.");
+        return session.TryPurchaseFacility(facilityIdx, out result);
+    }
+
     /// <summary>현재 거래 결과 화면을 닫고 다음 거래 또는 마감으로 진행합니다.</summary>
     public void CompleteTransactionResult()
     {

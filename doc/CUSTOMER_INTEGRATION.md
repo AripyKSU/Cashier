@@ -4,6 +4,10 @@
 
 ## 1. 통합 범위와 책임
 
+### 2026-09-09 설비 상품 해금
+
+상품에 `required_facility_idx`를 추가했다. 생성과 현재 가격표는 활성·등장일·세션 설비 활성 조건을 함께 사용하며, 최종 제출은 방문 생성 시 판매 가능했던 전체 PK 스냅샷 안에서만 허용한다. 희망 목록 밖 상품은 그 범위 안에서 계속 허용한다. 새 CSV와 loader·소비 코드는 함께 배포하며 상세 API/테스트 값은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 생성기 마지막 선택 인자는 이제 `isFacilityActive`이며 기존 지침 공급자는 그대로 유지한다.
+
 ### 2026-09-09 실제 진행 연결
 
 현재 total_merge 기반 UI는 GameUIController → GameProgress(session, ...) → DayProgress(day, session, ...)다. 선택 UI의 SaleItem 목록을 제출하고 visit.Result.Value를 재생성 없이 한 번 정산 전달한다. 입력 오류는 재제출 가능하지만 판정 후 접수 실패는 원본 Result를 유지하고 진행을 중단한다. 날짜·라디오·가격표·상납 흐름과 기존 정책 차이는 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)의 현재 계약을 따른다. 아래 3차/2차 검증 기록과 Dev3 설명은 당시 맥락이다.

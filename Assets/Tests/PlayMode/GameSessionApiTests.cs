@@ -233,6 +233,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.ElapsedDays, Is.EqualTo(cycle - 1));
         Assert.That(progress.TryPayMaintenance(), Is.EqualTo(canPay));
         Assert.That(progress.State, Is.EqualTo(canPay ? GameProgressState.DayInProgress : GameProgressState.Failed));
+        if (!canPay) Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
         Assert.That(session.ElapsedDays, Is.EqualTo(canPay ? cycle : cycle - 1));
         Assert.That(progress.CurrentDay, Is.EqualTo(canPay ? cycle + 1 : cycle));
         Assert.That(session.Economy.MaintenanceService.LastPaidRound, Is.EqualTo(canPay ? 1 : 0));
@@ -317,6 +318,59 @@ public sealed class GameSessionApiTests
         Assert.Throws<InvalidOperationException>(() => factory.CreatePriceListText(progress.CurrentDay, missing));
     }
 
+    /// <summary>실제 로더·진행 구매 API·가격표·생성·최종 제출의 다음날 해금 경계를 함께 검증한다.</summary>
+    [Test]
+    public void FacilityPurchaseUnlocksOnlyNextDayAcrossProgressInstances()
+    {
+        var progress = new GameProgress(session, tables.Customers, new System.Random(1));
+        Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12005, out _));
+        progress.Start();
+        long balance = session.Economy.QueryService.CurrentBalance;
+        long price = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12005].PurchasePrice;
+        Assert.That(progress.TryPurchaseFacility(12005, out var purchase));
+        Assert.That(purchase.ActivationDay, Is.EqualTo(1));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance - price));
+        Assert.That(session.IsFacilityActive(12005), Is.False);
+        Assert.That(progress.TryPurchaseFacility(12005, out purchase), Is.False);
+        Assert.That(purchase.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
+        var factory = new ProgressViewDataFactory(tables.Customers, tables.GetDB<TextDataTable>(DataTableType.Text),
+            new System.Collections.Generic.Dictionary<uint, Sprite>(), session.IsFacilityActive);
+        string name = tables.GetDB<TextDataTable>(DataTableType.Text).Rows[tables.Customers.Products.Rows[1020].NameIdx].Text;
+        Assert.That(factory.CreatePriceListText(1, session.EnsureDailyPrices()), Does.Not.Contain(name + "  ·"));
+        progress.OpenBusiness(); progress.BeginCustomerSorting();
+        var before = progress.CurrentDayProgress.CurrentVisit;
+        Assert.Throws<ArgumentException>(() => progress.SubmitOffer(1, new[] { new SaleItem(1020, 1) }));
+        Assert.That(before.Result, Is.Null);
+        progress.Tick(progress.CurrentDayProgress.BusinessDurationSeconds);
+        progress.SubmitOffer(long.MaxValue, before.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult(); progress.CompleteSettlement();
+        Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12005));
+        Assert.That(factory.CreatePriceListText(2, session.EnsureDailyPrices()), Does.Contain(name + "  ·"));
+        var expected = new uint[] { 1001, 1004, 1007, 1010, 1011, 1020, 1021, 1022 };
+        Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
+        for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
+        progress.OpenBusiness(); progress.BeginCustomerSorting();
+        Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(1020, 1) }));
+        // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
+        var nextProgress = new GameProgress(session, tables.Customers, new System.Random(2));
+        Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1));
+        Assert.Throws<InvalidOperationException>(() => session.InitializeNewGame(tables));
+    }
+
+    /// <summary>세션 파괴 후 새 세션은 보유·활성일을 이어받지 않는다.</summary>
+    /// <returns>테스트 소유 세션 파괴 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator NewSessionClearsFacilityOwnership()
+    {
+        var progress = new GameProgress(session, tables.Customers, new System.Random(1)); progress.Start();
+        Assert.That(progress.TryPurchaseFacility(12001, out _));
+        UnityEngine.Object.Destroy(session); yield return null;
+        Assert.That(GameSessionManager.Instance, Is.Null);
+        session = root.AddComponent<GameSessionManager>(); session.InitializeNewGame(tables);
+        Assert.That(session.FacilityActivationDays, Is.Empty); Assert.That(session.ElapsedDays, Is.Zero);
+        Assert.That(session.IsFacilityActive(12001), Is.False);
+    }
+
     /// <summary>현재 진행의 마지막 손님을 거절하고 일일 집계까지 실제 API로 종료한다.</summary>
     /// <param name="progress">시작된 영업 전 진행.</param>
     private static void closeProgressDay(GameProgress progress)
@@ -332,7 +386,7 @@ public sealed class GameSessionApiTests
 
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>
     /// <returns>현재일 방문.</returns>
-    private CustomerVisit generate() => new CustomerGenerator(new System.Random(1)).Generate(tables.Customers.Appearances.Rows.Keys.ToArray(), tables.Customers.Dispositions.Rows.Values.ToArray(), tables.Customers.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices);
+    private CustomerVisit generate() => new CustomerGenerator(new System.Random(1)).Generate(tables.Customers.Appearances.Rows.Keys.ToArray(), tables.Customers.Dispositions.Rows.Values.ToArray(), tables.Customers.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, isFacilityActive: session.IsFacilityActive);
 
     /// <summary>비동기 로더가 종료되지 않거나 실패하면 실패로 보고한다.</summary>
     /// <param name="task">로더 작업.</param><returns>완료 대기.</returns>

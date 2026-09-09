@@ -28,6 +28,8 @@ public sealed class CustomerVisit
 {
     private readonly IReadOnlyDictionary<uint, ProductData> products;
     private readonly Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices;
+    // 생성일의 모든 판매 가능 상품. 희망 목록 밖 판매는 허용하되 잠긴 상품의 제출을 차단한다.
+    private readonly HashSet<uint> availableProductIds;
     /// <summary>제출 시 한 번 조회하는 지침 공급자. null은 미연결이며 방문이 수명을 소유하지 않는다.</summary>
     private readonly Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions;
     private bool isSubmitting;
@@ -107,12 +109,14 @@ public sealed class CustomerVisit
     /// <param name="regularPriceMinRate">생성기가 검증한 정가 인정 하한 배율.</param>
     /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
     /// <param name="getSaleRestrictions">제출 시 지침 조회. null은 미연결.</param>
+    /// <param name="availableProductIds">생성일의 활성·등장·설비 조건을 통과한 전체 상품 PK.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
         int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
-        int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions)
+        int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
+        IEnumerable<uint> availableProductIds)
     {
         CustomerProfileValidation.ValidateType(dispositionType);
         CustomerProfileValidation.ValidateAttributes(attributes);
@@ -131,6 +135,7 @@ public sealed class CustomerVisit
         this.rejectTextIdx = rejectTextIdx;
         this.products = products;
         this.getCurrentPrices = getCurrentPrices;
+        this.availableProductIds = new HashSet<uint>(availableProductIds);
         this.getSaleRestrictions = getSaleRestrictions;
     }
 
@@ -179,7 +184,7 @@ public sealed class CustomerVisit
             var quantities = new Dictionary<uint, int>();
             foreach (var item in saleItems)
             {
-                if (item.ProductId == 0 || item.Quantity <= 0 || !products.ContainsKey(item.ProductId))
+                if (item.ProductId == 0 || item.Quantity <= 0 || !products.ContainsKey(item.ProductId) || !availableProductIds.Contains(item.ProductId))
                     throw new ArgumentException("상품 또는 수량 오류", nameof(saleItems));
                 quantities.TryGetValue(item.ProductId, out int count);
                 quantities[item.ProductId] = checked(count + item.Quantity);
