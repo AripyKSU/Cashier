@@ -23,6 +23,6 @@
 
 ## 검증
 
-새 Play 세션에서 Init → MainScene 로딩이 끝난 뒤 `Tools/Check-MainSceneIntegration.ps1` 실행: 실제 버튼 이벤트의 입장·수락·거절·중복 수입 차단·퇴장·일일 종료·다음 날 진행을 검사한다. 실행 중 임시 경제 상태가 바뀌므로 사용자 게임 도중에는 실행하지 않는다.
+개별 UI 검사 셸은 제거했다. 새 Play 세션에서 Init → MainScene 로딩 후 위 사용법을 수동으로 수행하고 입장·4단계 판정·입금 1회·퇴장/FIFO·일일 종료·다음 날 진행을 확인한다. 최종 목록 선택 UI는 미구현이라 현재는 최초 희망 목록을 제출한다. API 검사는 [TESTING.md](TESTING.md)를 따르며 MainScene 직렬화 연결·버튼·표시 성공을 대신하지 않는다.
 
-통합 시 위 검사와 컴파일, Console 오류·경고 0을 확인했다. Player 빌드, 저장 복구, 상납금 전체 회차 UI 검증은 미실행이다. MainScene 직접 Play 대신 Init 진입을 사용한다.
+이전 통합 기록에서는 당시 셸 검사와 컴파일, Console 오류·경고 0을 확인했다. Player 빌드, 저장 복구, 상납금 전체 회차 UI 검증은 미실행이다. MainScene 직접 Play 대신 Init 진입을 사용한다.

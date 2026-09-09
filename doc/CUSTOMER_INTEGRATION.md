@@ -1,8 +1,33 @@
 # 손님·상품 시스템 MainScene 인계
 
-기준: `customer_sys`의 `214df99` 구현. 이 문서는 기존 공개 API와 통합 시 필요한 작업을 설명한다. MainScene 연결 자체가 완료됐다는 의미는 아니다. 이전 `CUSTOMER_SYSTEM.md`의 구형 스키마·미구현 설명 대신 이 문서와 실제 코드를 확인한다.
+기준: `customer_sys`의 `5ad5fa8`까지 반영된 3차 구현과 이후 Test Runner 전환. 이 문서는 손님 공개 API·데이터의 상세 권위다. 최신 자동 검증 및 병합 의존은 [TESTING.md](TESTING.md)를 따른다. 아래 단계별 검증 기록은 당시 결과이며 삭제된 Check 스크립트의 현재 실행 안내가 아니다.
 
 ## 1. 통합 범위와 책임
+
+### 정가 인정 범위·판매 지침 구조 (3차)
+
+- 성향 CSV 마지막에 필수 int `regular_price_min_rate`, `regular_price_max_rate`를 추가한다. DTO `RegularPriceMinRate`/`RegularPriceMaxRate` 기본값과 기존 세 행은 모두 1000/1000이다. 단위는 1000=100%이며 `0 < min <= 1000 <= max`를 검증한다. 기존 셀·가격 허용도는 보존하고 빈 셀·구형 header는 거부한다. CSV와 소비 코드를 함께 배포·복구한다.
+- 두 배율은 방문 생성 시 getter-only 값 복사다. 기존 `PriceTolerance > 0` 계약은 그대로이며 `max <= PriceTolerance`는 강제하지 않는다. 결제 거부 판정이 항상 우선하고, 수락 범위 안에서만 정가 인정 범위가 의미 있다.
+- 수락 시 `(decimal)offeredTotal * 1000`과 `(decimal)ReferenceTotal * min/max`를 비교한다. 하한 미만은 저가, 상한 초과는 착취, 양끝 포함 안쪽은 정가 판매다. 하한·상한 금액을 먼저 floor하지 않는다. 예: 기준액 101, 배율 950~1050은 95 저가·96~106 정가·107 착취(각각 결제 허용 범위 내일 때). 1000/1000은 기존 4판정을 유지한다.
+- `SaleRestriction(RequiredAttributes, ProductType)`은 필요 속성을 **모두** 가진 손님에 대한 해당 분류 판매 제한이다. None·미정의·배타 속성, None·미정의 상품 분류 및 같은 속성+분류의 중복 규칙을 거부한다. 정식 지침 ID·CSV·기호품 분류·실제 규칙은 아직 없다.
+- `Generator.Generate` 마지막 선택 인자 `Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null`을 통해 제출 시 유효 규칙을 공급할 수 있다. 생성 시에는 호출하지 않는다. 현재 UI/manager는 공급하지 않아 **미연결** 상태다. 향후 원본·효력 수명은 공급자가 책임진다.
+- 가격 수락 경로에서 공급자를 제출당 한 번 호출하고 목록 복사·전체 검증 후 최종 합산 판매 목록과 방문 `Attributes`를 검사한다. 최초 희망 목록이나 외형을 사용하지 않는다. 규칙-상품당 `SaleRestrictionViolation(Restriction, ProductId, Quantity)` 한 건을 기록하며 Quantity는 최종 합산 수량이다. 위반은 결제를 막거나 매출·명성·벌금을 변경하지 않는다.
+- `TransactionResult.WereRestrictionsEvaluated`와 `RestrictionViolations`로 평가 여부·불변 기록을 조회한다. 공급자 null/거부/legacy/default는 false+빈 목록, 공급된 빈 목록은 true+빈 목록이다. 공급자의 null 반환·예외·잘못된 규칙/상품 분류는 오류다. 지침 결과 및 원가 합산까지 모두 성공한 뒤에만 방문 상태를 확정하므로 실패 후 정상 재제출이 가능하다. 결과 이후 원본 규칙목록·상품분류 변경은 과거 기록에 영향이 없다.
+- 검사: 기존 생성기 검사에 정가 범위 양끝·작은/큰 총액·snapshot·tolerance<1000 거부 우선, 지침 AND·불일치·다상품·합산수량·중복/default/오류 공급자·1회 조회·거부 미조회·미연결/빈목록·불변·원가 overflow 포함 실패 원자성/재시도를 추가했다. CSV 검사는 56개 오류를 의도적으로 발생시킨다. 실제 지침 미연결이므로 지침 검증은 기존 분류를 사용한 메모리 입력 검사이며 제품 규칙 활성화 증거가 아니다.
+- 3차 검증(2026-09-08): compilation 완료·failed=False, Check-CustomerGenerator/CustomerCsv(56/56, 의도된 LogError 56건)/CustomerQueue 통과. InitScene → GameplaySandbox initialized=True 확인 후 Check-CustomerOutcomes의 실제 UI 4판정·대사·매출·중복방지·퇴장 통과, Console 오류 0건. MainScene 자산·구형 CustomerSandbox 화면·실제 지침 공급은 미검증/미연결이며 가격 이벤트·라디오 검사는 이번에 재실행하지 않았다. Play 종료·runInBackground 원복 완료. 원본 CSV는 각 행 끝에 승인된 두 컬럼만 추가됐음을 HEAD 문자열 비교로 확인했다.
+
+### 성향 타입·개별 상품 선호·방문 속성 (2차)
+
+- `CustomerDispositionType`은 None=0(사용 금지), Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4다. 마지막 `CustomerDispositionType_End`는 자동 증가 종료 표식이며 데이터로 사용하지 않는다.
+- 기존 성향 CSV 끝에 `disposition_type`, `preferred_product_idxs`를 순서대로 추가했다. 기존 6001/6002/6003은 각각 1/2/3으로 매핑하며 다른 셀·PK·대사·가격·대기 수치는 보존한다. Wealthy는 타입만 정의하며 실제 행이 없어 등장하지 않는다.
+- `disposition_type`은 필수 uint 숫자로 읽고 검증한 enum을 `DispositionType`으로 제공한다. 빈값·문자열·None·종료값·미정의 값은 거부한다. `preferred_product_idxs`는 필수 header, 빈 셀은 선호 없음이며 기존 `UIntArrayConverter`의 `_` 구분 uint 배열을 사용한다. 0·중복·null과 ProductData.idx FK 누락은 거부한다. 기존 세 행은 빈 셀이다.
+- 추첨은 실제 후보 타입을 정렬해 균등 선택한 뒤 그 타입의 설정을 Idx 순으로 정렬해 균등 선택한다. 따라서 타입별 행 개수는 타입 출현율을 바꾸지 않는다. 같은 seed·외형 후보 순서·후보 집합에서 재현되며 데이터·추첨 방식 변경 전 버전과의 난수열 호환은 보장하지 않는다.
+- 선호 풀은 품목 `preferred_product_types` **OR** 개별 `preferred_product_idxs`다. 둘 다 해당해도 상품은 한 번만 포함된다. 비활성·미등장 상품 제외, 기존 0~1000 선호 확률과 한쪽 풀 소진 시 fallback은 유지한다.
+- `CustomerAttributes`는 Male=1/Female=2 중 하나와 성인(연령 비트 없음)/Child=4/Elderly=8 중 하나를 각각 균등 추첨한 6조합이다. 외형·성향과 독립이다. None=0은 표현만 허용하고 생성하지 않는다. 미정의 비트, 남녀 동시 또는 아이·노인 동시는 거부한다.
+- 방문의 getter-only `DispositionType`·`Attributes`는 생성 시 값 복사이며 원본 DTO 변경에 영향받지 않는다. 타입·속성으로 가격 허용도·대기 시간을 자동 보정하지 않는다. 기존 UI는 PK 표시를 유지하며 새 정보는 공개 API로 조회한다.
+- 배포 시 CSV와 DTO·생성기를 함께 반영한다. 구형 header는 오류로 차단한다. 런타임 저장 형식은 추가하지 않았다. 복구 시 이 스키마 변경과 소비자를 함께 되돌리고 기존 자산 GUID를 유지한다.
+- 검사: `Tools/Check-CustomerGenerator.ps1`은 타입별 3:1 설정 후보의 타입 균등성·행 균등성, 같은 외형의 6속성, OR 선호·중복·미등장 제외·스냅샷과 기존 최종 거래를 검사한다. `Tools/Check-CustomerCsv.ps1`은 새 header/enum/FK를 포함해 48개 오류를 거부한다(의도된 LogError 48건).
+- 2차 검증(2026-09-08): compile failed=False, 생성기 선호 9014/10000·Normal 5936/12000, CSV 48/48, Queue·PriceEvents 통과. InitScene → GameplaySandbox의 initialized=True 확인 후 CustomerOutcomes(실제 UI 4판정·대사·매출·중복 방지) 및 별도 새 Play 세션의 RadioTiming 통과, 각 Console 오류 0건. 초기 연결 heartbeat 지연으로 준비 조회가 늦었지만 복구 후 새 세션에서 검사했다. MainScene 자산 및 구형 CustomerSandbox UI는 이번에 실행하지 않았다. Play 종료와 runInBackground 원래 값 복원을 확인했다.
 
 ### 제출 시 거래 확정 계약
 
@@ -20,18 +45,14 @@
 
 Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했다. Check-MainSceneIntegration은 실제 실행 씬이 GameplaySandbox였으므로 파일을 변경하지 않고 실행 메모리에서 씬 이름 조건만 대체했다. 나머지 검사는 그대로 실행했으며 MainScene 자산 자체를 실행한 증거는 아니다.
 
-```powershell
-$saleIntegration = (Get-Content Tools/Check-MainSceneIntegration.ps1 -Raw).Replace('!= "MainScene"','!= "GameplaySandbox"')
-Invoke-Expression $saleIntegration
-unity-cli console --type error --lines 3 --stacktrace none
-```
+당시에는 기존 검사 내용을 메모리에서만 변경해 GameplaySandbox 조건으로 실행했다. 해당 셸 파일은 Test Runner 전환 후 제거했으므로 현재 재현 명령으로 사용하지 않는다.
 
 실행 출력: `MAIN_INTEGRATION_PASS: button input, accepted/rejected, one income, departure, settlement, next day, failed settlement stops without retry (expected LogError=1)`. Console에는 의도된 접수 실패 `InvalidOperationException: 영업 종료로 거래 수입 반영이 거부되었습니다.` 1건이 있었다. 출력은 작업 실행 기록에 있으며 별도 로그 파일은 저장하지 않았다. Check-RadioTiming은 최초 초기화 전 실행이 실패했고 GameplaySandbox의 initialized=True 확인 후 재실행한 성공 결과다.
 
 ### 거래 결과 4단계
 
 - `CustomerVisit.Outcome`은 `None / RegularSale / DiscountSale / ExploitativeSale / PaymentRefused`이며 퇴장 후에도 보존한다. `WasAccepted`는 결과에서 파생된다.
-- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 방문 현재가 합계보다 낮으면 저가 판매, 같으면 기준가 판매, 높으면 착취 판매다. 기준 총액보다 1만 높아도 착취 판매다. RegularSale enum 값은 유지한다.
+- 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 위 3차 정가 인정 범위로 판정한다. 초기 1000/1000 데이터에서는 기준 총액보다 1만 높아도 착취 판매다. RegularSale enum 값은 유지한다.
 - 성사된 세 유형만 제안 총액을 Finance에 한 번 반영한다. 시스템 반영 실패는 손님의 결제 거부와 별개다. 명성 변화는 기존 0을 유지한다.
 - 성향 CSV의 `accept_text_idxs`를 `regular_sale_text_idxs`, `discount_sale_text_idxs`, `exploitative_sale_text_idxs`로 교체했다. 모두 필수 uint 배열이며 TextData FK를 검증한다. 구형 CSV는 새 loader에서 거부한다.
 - 초기 migration은 각 성향의 기존 수락 대사 ID를 세 컬럼에 동일하게 복사했다. 신규 TextData ID·문구는 추가하지 않았다. 저가·착취 전용 문구가 승인되면 해당 컬럼만 교체한다.
@@ -40,8 +61,8 @@ unity-cli console --type error --lines 3 --stacktrace none
 - 재사용 대상: `Assets/Scripts/Customer/`의 생성기·방문·거래 판정, `Customer/Data/`의 손님 DTO·DataTable·catalog, `Commons/Data/`의 공용 상품·텍스트·리소스 DTO·DataTable과 기존 DataTableManager/ResourceManager. 경제 CSV DTO·DataTable은 `Finance/Data/`에 둔다. 세 하위 경로 모두 `Assets/Scripts/` 기준이다.
 - 구현 완료 범위: 방문마다 외형·성향 조합, 구매 목록 생성, 등장 일수 필터, 총액 제안 1회, 수락·거절 판정, 입장·결과 대사 선택.
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.
-- 미구현: 자금 증감, 재고 차감·예약, 매출 기록, 저장·복구, 손님 이동·대기열, 재방문 인물 관리. `Accepted`는 가격 수락이지 결제·재고 반영 완료가 아니다.
-- `CustomerSandbox`는 개인 씬의 테스트 화면이다. 정식 공용 prefab이나 MainScene 설치기가 아니다. `CustomerSandboxSetup`은 Local 씬에서만 사용한다.
+- 현재 연결: Dev3SandboxTester가 수락 결과를 기존 Finance에 한 번 전달하고 대기열을 구동한다. 미연결: 원가 차감·일일 원가 집계·명성 계산·지침 공급·최종 목록 선택 UI. 재고 예약·저장 복구·재방문 인물·이동 연출은 미구현이다. `Accepted`는 가격 수락이지 후속 반영 완료가 아니다.
+- `CustomerSandbox`와 `CustomerSandboxSetup`은 `Assets/Scripts/Local/`의 개인 코드이며 Git 제외다. 다른 checkout이나 공유 assembly에서 존재를 가정하지 않는다. MainScene의 Dev3SandboxTester는 공유 유지한다.
 - 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [AGENTS.md 12절](../AGENTS.md)을 따른다.
 
 ## 2. 초기화와 공개 API
@@ -54,7 +75,7 @@ unity-cli console --type error --lines 3 --stacktrace none
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
-| `Generate(IReadOnlyList<uint> appearanceIds, IReadOnlyList<CustomerDispositionData> dispositions, IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint,uint>> getCurrentPrices = null)` | 런타임은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`를 전달한다. null은 거부하며 생성 시 가격표 캡처·누락 기본가 대체는 금지한다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·성향 후보는 균등 선정한다. |
+| `Generate(appearanceIds, dispositions, products, elapsedDays = 0, getCurrentPrices = null, getSaleRestrictions = null)` | 런타임 현재가 공급은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`이며 null은 거부한다. 지침 공급자만 optional/null 허용하며 의미는 위 3차 계약을 따른다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·타입·타입 내 설정은 각각 균등 선정한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
 | `CustomerVisit.SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)` | 최종 목록과 양의 정수 총액. 최초 희망 목록과 달라도 허용한다. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |
@@ -113,10 +134,10 @@ visit.Depart();
 ```
 
 - `total`은 별도 입력 callback이 전달하는 long이다. 위 코드를 한 프레임에 모두 실행하지 않는다.
-- 입력 검사는 기존 `CustomerSandbox.SubmitPrice()` 참고: `long.TryParse` + `NumberStyles.None` + `InvariantCulture`, 값 > 0. 공백·소수·부호·구분자·overflow는 거부하고 재입력을 허용한다.
+- 입력 규격: `long.TryParse` + `NumberStyles.None` + `InvariantCulture`, 값 > 0. 공백·소수·부호·구분자·overflow는 거부하고 재입력을 허용한다.
 - 수락 판정은 `total <= floor(BaseTotal × PriceTolerance / 1000)`이다. 최종 목록과 제출 순간 현재가·원가를 복사한다. 이후 외부 목록·가격 변경은 확정 결과에 영향을 주지 않는다. 금액 범위 초과는 실패로 처리한다.
 - 확률과 배율은 1000=100%. 현재 테스트 선호 확률 900, 허용 배율 1100/1300/1000이다. 단위 규칙은 [CSV_RULES.md](CSV_RULES.md)를 따른다.
-- 결과 event나 결제 API는 아직 없다. 통합 호출자가 반환값·방문 상태를 읽는다. 나중에 자금·재고를 연결할 때 중복 반영 방지와 실패 처리 책임을 해당 시스템 담당자와 먼저 정한다.
+- 방문 결과 event는 없다. 통합 호출자가 Result를 읽어 영업 중인 `Economy.DailyAggregationService.TryApplyTransaction`에 한 번 전달한다. 집계 API 자체에 거래 ID 기반 중복 방지는 없으므로 호출자 소유의 한 번 반영 상태가 필요하다. false/예외는 반영 실패이며 재제안·자동 재입금으로 우회하지 않는다.
 
 ## 4. 데이터와 표시 연결
 
@@ -126,7 +147,7 @@ visit.Depart();
 | 상품 이름 | `Products.Rows[item.ProductIdx].NameIdx → Texts.Rows[idx].Text` |
 | 상품 종류 | `ProductData.ProductType` enum. `Categories.Rows.Values`에서 동일 ProductType 행을 찾아 `NameIdx → Text`로 UI 표시. enum 이름을 표시명이나 내부 문자열 키로 쓰지 않는다. |
 | 상품 이미지 | `ImageResourceIdx`가 null이면 흰색 기본 사각형+상품 이름. 값이 있으면 `GetDB<ResourceDataTable>(DataTableType.Resource).GetResourcePath(idx)` → `ResourceManager.LoadAssetAsync<Sprite>(path)`. |
-| 대사 | 성향의 entry/accept/reject TextIdx 배열에서 방문 생성 시 각 1개 추첨. 실제 문장은 TextData에만 저장. |
+| 대사 | 성향의 entry/regular_sale/discount_sale/exploitative_sale/reject TextIdx 배열에서 방문 생성 시 각 1개 추첨. 실제 문장은 TextData에만 저장. |
 | 등장 조건 | `IsAvailable && AvailableDay <= elapsedDays`. 실제 재고 보유량 필터는 아직 없음. |
 
 이미지 FK의 0은 빈값이 아니다. CSV 빈 셀만 null이며, 잘못된 FK·Sprite 로드 실패를 기본 이미지로 숨기지 않는다. 비동기 로딩에는 씬 수명 취소를 붙이고 성공 후 표시한다. ResourceManager 소유 공유 자산을 화면 종료 시 임의 Destroy/전체 Release하지 않는다. 화면이 직접 만든 사각형 Sprite와 임시 글꼴만 화면이 정리한다.
@@ -138,6 +159,8 @@ visit.Depart();
 Resource PK는 현재 4000+n이며 이전 3000+n 참조는 통합 전에 점검한다. 기존 ResourceData.path와 GUID는 유지했다. PlayerData는 미사용으로 제거했다. 이 설명은 신규 ID 배정 권한이 아니며 충돌 검사는 [DATA_RULES.md](DATA_RULES.md)와 [CSV_RULES.md](CSV_RULES.md)를 따른다.
 
 ## 5. 테스트 UI와 정식 통합의 경계
+
+아래는 Git 제외 개인 코드가 로컬에 있는 경우만 적용한다. 공유 설치 요구사항이 아니다.
 
 `CustomerSandbox` 공개 API는 `CurrentVisit`, `GenerateCustomer()`, `SubmitPrice()`다. `SubmitPrice()`는 Inspector에 연결된 InputField를 읽는 테스트 callback이지 총액 인자를 받는 게임 서비스가 아니다. 상태 갱신 후 UI를 함께 바꾸므로 외부에서 `CurrentVisit`만 변경하면 화면과 어긋날 수 있다. 정식 UI는 생성기·방문 API를 직접 연결한다.
 
@@ -153,6 +176,6 @@ Resource PK는 현재 4000+n이며 이전 3000+n 참조는 통합 전에 점검�
 6. 씬 이탈 중 로딩 취소, 재진입·반복 방문에서 오류·객체·구독 누적 확인. 정식 이미지가 추가됐다면 빈값 테스트와 별도로 실제 Sprite 로드를 검증한다.
 7. Unity 컴파일 오류와 제품 Console 오류를 분리해 보고. Player 빌드는 Editor 실행과 별도 검증. 보호 변경은 기본 branch 반영 전 교차 리뷰·명시적 동의 기록.
 
-기존 확인 도구: `Tools/Check-CustomerGenerator.ps1`, `Tools/Check-CustomerCsv.ps1` (프로젝트를 연 Unity와 unity-cli 필요), `Tools/Check-CustomerTradeUI.ps1` (설정된 Sandbox Play 필요). 마지막 도구는 MainScene acceptance를 대신하지 않는다. CSV 음성 검사는 의도된 LogError를 발생시키므로 제품 오류와 구분한다.
+현재 자동 API 검사는 [TESTING.md](TESTING.md)의 Test Runner를 사용한다. 이전 개별 셸은 제거했으며 UI 동작은 위 수동 완료 체크로 확인한다. CSV 음성 검사의 기대 LogError를 제품 오류와 구분한다.
 
-초기 인계 문서 작성 당시에는 컴파일·Play 검증을 수행하지 않았다. 이후 거래 확정 구현의 검증 결과와 실제 실행 범위는 1절에 기록했다. 이번 리뷰 문구 정정만을 위한 검증 재실행은 하지 않았다. MainScene 자산 자체의 통합 완료 판정은 실제 통합 후 별도로 확인한다.
+초기 인계 문서 작성 당시에는 컴파일·Play 검증을 수행하지 않았다. 이후 거래 확정 구현의 검증 결과와 실제 실행 범위는 1절에 기록했다. Test Runner 전환 후 실행 증거는 TESTING.md에 분리했다. MainScene 자산 자체의 통합 완료 판정은 실제 통합 후 별도로 확인한다.

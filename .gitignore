@@ -9,6 +9,9 @@
 # PC-local development scenes and their metadata.
 /Assets/Scenes/Local/
 /Assets/Scenes/Local.meta
+# Personal scene scripts and their Editor tools; shared code must not depend on these.
+/Assets/Scripts/Local/
+/Assets/Scripts/Local.meta
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/

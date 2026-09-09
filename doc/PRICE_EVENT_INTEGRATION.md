@@ -107,6 +107,8 @@
 
 ## 검증·인계 체크
 
+아래 PASS·Check 실행명·수치는 당시 개인 씬 구현 기록이다. 개별 셸은 이후 제거했고 현재 API 검증은 [TESTING.md](TESTING.md)의 PriceEventTests/GameSessionApiTests를 따른다. 기록을 현재 MainScene/UI PASS로 승격하지 않는다.
+
 - CSV header, PK, enum, 대상·Text·이벤트 FK 오류 시 LogError 및 예외.
 - 지정일·반복일·시작일·종료일 경계 및 신문/라디오 4조합.
 - 효과 없는 뉴스와 뉴스 없음의 구분.
@@ -130,13 +132,16 @@
 - 상품 카드는 기본가격·희망 목록 생성 당시 단가를 표시한다. 최종 기준액은 제출 전 미확정이다. 거래 제안은 구매 목록 전체 총액을 입력한다.
 - 거래 판정 후 END DAY → COMPLETE DAY로 다음 날 이벤트를 확정한다. 상납일에는 기존 Finance 납부 절차가 먼저다.
 - 초기 신문은 경과 0일부터 2일 간격 식료품 -20%, 경과 3일부터 4일 간격 무효과 뉴스다. 라디오 후보는 물 +30, 의약품 +30%, 무효과 뉴스이며 가중치는 동일하다. 이 수치는 테스트용으로 기획 확정 시 CSV에서 교체한다.
-- 게임을 멈춘 상태에서 `./Tools/Check-PriceEvents.ps1`로 독립 계산 검사를 재실행할 수 있다. Unity Editor와 unity-cli 연결이 필요하다.
+- 게임을 멈춘 상태에서 [TESTING.md](TESTING.md)의 EditMode PriceEventTests와 PlayMode GameSessionApiTests를 실행한다. UI/라디오 로그의 체감 시점은 위 사용법으로 별도 확인한다.
 
 ## 병합 시 특이사항
 
 - 이 문서는 가격 변동 이벤트 시스템 전체 인계 문서다. 라디오만의 작업 문서가 아니다.
-- 라디오 UI는 의도적으로 미구현이다. 이후 UI는 IsRadioBroadcast를 확인한 뒤 RadioEventIdx로 공용 TextData를 조회하고 가격 재계산·재추첨은 하지 않는다. 구형 CustomerSandbox는 수동 손님 테스트 화면으로 영업 시계를 구동하지 않는다. 통합 테스트는 Dev3SandboxTester를 사용한다.
+- 라디오 UI는 의도적으로 미구현이다. 이후 UI는 IsRadioBroadcast를 확인한 뒤 RadioEventIdx로 공용 TextData를 조회하고 가격 재계산·재추첨은 하지 않는다. 구형 CustomerSandbox는 Git 제외 Local 개인 코드로 영업 시계를 구동하지 않는다. 통합 테스트는 Dev3SandboxTester를 사용한다.
 - 기존 신문 역할 UI는 Dev3SandboxTester의 전단지 첫 페이지다. 원격 UI branch의 변경과는 병합 시 호출·계층 충돌 검사가 필요하다.
 - 개인 씬은 Git 제외를 유지한다. MainScene·Addressables는 필요한 연결만 별도 검증 후 반영한다.
 - 저장 기능이 연결되기 전에는 앱 종료 후 날짜·뉴스·현재가 복원을 지원하지 않는다.
 - 현재 작업 시작 시 존재한 TMP fallback font asset 변경은 이 기능과 무관하므로 보존한다.
+
+
+- API 검사는 승인된 현재 라디오 구현 계약을 확인한다. 9/8 회의록의 '추후 피처' 표기는 최종 기획 활성화 여부이며 테스트 통과가 신규 활성화 승인을 뜻하지 않는다. 원가 차감·명성 산정·정식 지침은 이 시스템에 연결하지 않았다.
