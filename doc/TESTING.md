@@ -22,24 +22,35 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - Test Framework 1.6.0의 RunFinished는 씬/옵션 cleanup보다 먼저 온다. 설치된 내부 읽기 전용 TestRunnerApi.IsRunActive 및 runInBackground 복원 확인 후 임시 XML을 최종 경로로 이동한다. 패키지 갱신 시 이 의존을 재검토한다. 최종 이동 실패는 경로·예외를 한 번 기록하고 pending을 해제하며 완료 XML이 없으므로 외부 실행은 실패한다.
 - PlayMode fixture는 임시 씬에 소유 manager·provider·locator·객체만 생성/해제한다. 사용자 씬·prefs·세이브는 수정하지 않는다. GUI 직접 실행 시 자동 경로 보관은 적용되지 않는다.
 
+## 현재 진행 통합 검증 (2026-09-09)
+
+기준 checkout: codex/equipment-upgrades, total_merge 9b0a55a. 상세 호출 계약·Closing 정책·설비 후속 경계는 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다.
+
+- EditMode 123/123, PlayMode 18/18, Failed=0, skip/미완료=0. 증거: Temp/TestResults/20260909-100839-4f7cdc689523421194b222074527f894/{EditMode,PlayMode}.xml 및 .log.
+- 기존 GameSessionApiTests 4건에 실제 GameProgress/DayProgress 경유 9건을 추가해 13건이며 ResourcePoolTests 5건은 유지한다. 기존 132개만 실행해 새 진행 통합을 PASS로 주장하지 않았다.
+- 추가 사례: 원본 거래 결과/판매 수량/원가 보존·입력 오류 재제출·중복 제출 거부, 지침 snapshot 보존, 정산 false/overflow 실패 후 판정 보존·진행/재접수 차단(2건), 일반일/상납 성공·부족/중복 완료(2건), pause/60초 방송/손님 snapshot, 긴 프레임과 Closing 마지막 거래, 현재가 가격표/해금일/누락 단가·날짜 불일치.
+- 지침 검사는 테스트 생성기로 만든 방문을 진행 경계에 주입하며 실제 지침 공급을 제품에 추가하지 않는다. 긴 프레임 검사는 테스트에서 예약 대기값만 고정한다. 제품 난수·CSV·기획수치는 변경하지 않았다.
+- DayProgress는 visit.Result.Value를 그대로 TryApplyTransaction에 전달한다(호출부 정적 확인). 경제 집계는 아직 상세 판매/위반을 저장하지 않고 매출·명성 변화만 사용한다. 결과 보존 검사 통과가 원가 차감·지침 벌칙 구현을 뜻하지 않는다.
+- API 실행 후 상태·컴파일·Console 확인은 작업 보고에 남긴다. UI/prefab/Scene/Addressables는 수정하지 않았으며 UI/UX 실제조작은 미실행이다. 최초 Unity heartbeat 지연은 컴파일 증거로 쓰지 않고 연결 복구 후 컴파일·실행했다.
+
 ## 명세·구현·등록 검사 대응
 
 기준 기획: [문서 - 퍼즐게임](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit)의 9/8 회의록·경제 시스템 구조 개발 문서(2026-09-08 조회, 수정 시각 07:56:55.006Z UTC). 프로젝트 책임자의 후속 합의와 실제 구현 계약을 우선하며 공식 문서는 변경하지 않았다.
 
 | 등록 suite / 로컬 상세 명세 | 실제 API와 확인 사례 | 대조 결과·경계 |
 |---|---|---|
-| CustomerContractTests / [CUSTOMER_INTEGRATION](CUSTOMER_INTEGRATION.md) | Generate, BeginOffer, SubmitOffer(long, IReadOnlyList<SaleItem>), Result, Depart: 타입 균등/OR 선호/속성/seed/4판정/정가 범위/최종 수량·단가·원가/지침 AND/오류 원자성 | 현재 3차 계약 일치. 가격 공급 1회와 불변 snapshot 검사. 실제 지침 공급·명성·원가 정산·최종 목록 UI는 미연결 |
+| CustomerContractTests / [CUSTOMER_INTEGRATION](CUSTOMER_INTEGRATION.md) | Generate, BeginOffer, SubmitOffer(long, IReadOnlyList<SaleItem>), Result, Depart: 타입 균등/OR 선호/속성/seed/4판정/정가 범위/최종 수량·단가·원가/지침 AND/오류 원자성 | 현재 3차 계약 일치. 가격 공급 1회와 불변 snapshot 검사. 실제 지침 공급·명성·원가 정산은 미연결. 최종 목록 UI 경로는 존재하되 UX는 수동 확인 |
 | CustomerCsvTests / [CSV_RULES](CSV_RULES.md), [DATA_RULES](DATA_RULES.md), CUSTOMER_INTEGRATION | 실제 CsvHelper·전용 LoadData·CustomerCatalog.ValidateAndCommit·enum routing, 정상 1건+오류 56건 | 57건. 추가 종류 생성 없음. PK 중복 사례는 실제 정상 행을 복제해 파싱 오류와 구분. Resource 주소 전체 실자산 검사는 아님 |
 | CustomerQueueTests / [CUSTOMER_QUEUE_INTEGRATION](CUSTOMER_QUEUE_INTEGRATION.md) | Start/Advance/TryAdd/TakeNext/Stop/GetSpeech: 5초 입장·10명 정원·FIFO·재촉/이탈 1회·pause/close·긴 프레임 | 시간 계약 일치. 위치/말풍선/3초 결과 후 화면 자동 인계는 수동 UI 확인 |
 | PriceEventTests / [PRICE_EVENT_INTEGRATION](PRICE_EVENT_INTEGRATION.md) | IsDue/CreateDay/ApplyRadio/GetRadioDelaySeconds: 실제 CSV/FK 준비, 날짜·4채널 조합·seed·FK/가중치 오류·버림/하한/overflow·불변/중복 효과 | 누락됐던 4조합·seed/FK/가중치 오류 보완. 후보가 있는 라디오는 예약되며 별도 발생 확률 상수 없음. 모든 CSV 음성 조합을 전수 검사한 것은 아님 |
-| GameSessionApiTests / 가격 이벤트 명세·9/8 회의록·경제 개발 문서 | 실제 Resource/CSV 초기화→InitializeNewGame→EnsureDailyPrices→BeginTradingDay→AdvanceTradingTime→SubmitOffer→TryApplyTransaction→EndTradingDay→CompleteDay, 종료 정리 | 매출 증가/종료 후 거부/날짜 전이·가격 공급 일치. 중복 초기화·잘못된 시간/조기 날짜 완료 검사 보완. 경제 전체 suite로 확대하지 않음 |
+| GameSessionApiTests / 가격 이벤트 명세·9/8 회의록·경제 개발 문서 | 실제 Resource/CSV 초기화→InitializeNewGame→EnsureDailyPrices→BeginTradingDay→AdvanceTradingTime→SubmitOffer→TryApplyTransaction→EndTradingDay→CompleteDay, 종료 정리 | 매출 증가/종료 후 거부/날짜 전이·가격 공급 일치. 중복 초기화·잘못된 시간/조기 날짜 완료 및 위 실제 Progress 통합 사례 추가. 경제 전체 suite로 확대하지 않음 |
 | ResourcePoolTests / [RESOURCE_POOL_CONTRACT](RESOURCE_POOL_CONTRACT.md) | LoadAssetAsync/Task/callback, Release/ReleaseAll, SimplePool/Manager 생성·prewarm·대여·반환·Clear: 취소·실패·retry·타입/소유권·cleanup | 기존 계약 일치. 임시 provider로 실제 Addressables 경유. 원격 장애·플랫폼·제품 prefab 검증 아님 |
 | CashierTestRunTests (실행 도구 안전성) | Start 재진입 거부, SessionState/옵션/출력 경로 미변경 | 자체 pipeline 및 독립 TestRunnerApi 실행 중 각각 확인. 제품 기능 suite 아님 |
 
 ### 미검증·기획 불일치·외부 통합 보류
 
 - 경제 문서의 FinanceService.CanAfford/TrySpend/BalanceChanged, MaintenanceService의 성공/부족/순차 회차/MaintenancePaid, LogService의 순서·전후 금액/Dispose 구독해제는 코드에 있지만 등록된 세션 fixture가 전체 계약을 독립 검증하지 않는다. 현재 매출 AddIncome·Query 잔고·종료 거부·session teardown 증거를 경제 전체 PASS로 확장하지 않는다. 추가 경제 suite는 별도 범위다.
-- TryApplyTransaction은 거래 ID 중복 제거 API가 아니다. UI 호출자가 한 번 전달할 책임을 가지며 이 UI 게이트는 수동 검증 대상이다.
+- TryApplyTransaction은 거래 ID 중복 제거 API가 아니다. 현 DayProgress가 방문 상태로 중복 전달을 거부하고 접수 실패 latch를 소유한다. UI 버튼의 실제 조작/오류표시는 수동 검증 대상이다.
 - 상품 원가는 SoldItems/CostTotal에 기록만 한다. 일일 원가 차감·명성 계산·지침 벌칙은 미연결이다. 명성0~100 등의 구형 예시를 기대값으로 복원하지 않았다.
 - 과거 손님 문서의 공통 행복도·무작위 이탈과 최신 보류/제거 기획이 충돌한다. 현 대기열은 성향별 시간 만료 계약만 검사한다. 현 Normal/Hasty/PriceSensitive 유지+Wealthy 타입 추가 합의가 오래된 성향 목록보다 우선한다. Wealthy 데이터 행은 없다.
 - 회의록의 라디오 추후 피처 표기와 이미 승인·구현된 기능을 구분한다. 현재 API 회귀 통과는 최종 기획 활성화 승인이나 UI 완성을 뜻하지 않는다.
@@ -49,12 +60,12 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 
 - Cashier.Runtime + Cashier.Scene.Editor + Cashier.EditMode.Tests/Cashier.PlayMode.Tests 및 각각의 Unity 생성 meta를 함께 반영한다. global namespace와 기존 script GUID를 유지한다. 새 package/vendor 변경 없음.
 - LoadingScene의 fade는 DOTween Modules 확장 대신 DLL To/SetTarget/Kill을 사용해 0.3초 OutQuad 및 OnDisable 해제를 유지한다. 이는 assembly 경계에 필요한 제품 수정이며 실제 시각 결과는 사용자 확인 대상이다.
-- CustomerSandbox/CustomerSandboxSetup의 기존 추적 경로 삭제, .gitignore/AGENTS/SCENE_WORKFLOW 변경을 함께 반영한다. 실제 Assets/Scripts/Local 코드·meta는 보존하고 stage하지 않는다. MainScene에서 참조하는 Dev3SandboxTester는 공유 유지한다.
+- CustomerSandbox/CustomerSandboxSetup의 기존 추적 경로 삭제, .gitignore/AGENTS/SCENE_WORKFLOW 변경을 함께 반영한다. 실제 Assets/Scripts/Local 코드·meta는 보존하고 stage하지 않는다. 현 실제 UI는 GameUI.prefab의 GameUIController이며 비활성화된 Dev3 파일은 이번 범위에서 정리하지 않았다.
 - 3차 제품 계약은 customer_sys 5ad5fa8까지 이미 push됐고, 이 Test Runner 전환·Local 분리·문서 정리는 그 이후 변경이다. 최신 HEAD/remote 여부는 최종 Git 실행 시 재확인한다.
 - 다른 branch에 이식할 때 product cost_price 및 성향 disposition_type/preferred_product_idxs/regular_price_min_rate/regular_price_max_rate를 포함한 현재 CSV와 DTO/loader/catalog/방문·TransactionResult를 부분 복사하지 않는다.
 - TMP fallback dirty와 stash, 개인 Local 파일, Temp 검사 증거, 의도치 않은 ProjectSettings 변경은 commit 대상이 아니다. 기본 branch merge는 별도 승인·교차 리뷰 대상이다.
 
-## 최종 검증 기록 (2026-09-08)
+## 이전 Test Runner 전환 검증 기록 (2026-09-08)
 
 | suite | Passed | Failed | skip/미완료 |
 |---|---:|---:|---:|

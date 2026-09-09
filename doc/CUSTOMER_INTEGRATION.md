@@ -4,6 +4,10 @@
 
 ## 1. 통합 범위와 책임
 
+### 2026-09-09 실제 진행 연결
+
+현재 total_merge 기반 UI는 GameUIController → GameProgress(session, ...) → DayProgress(day, session, ...)다. 선택 UI의 SaleItem 목록을 제출하고 visit.Result.Value를 재생성 없이 한 번 정산 전달한다. 입력 오류는 재제출 가능하지만 판정 후 접수 실패는 원본 Result를 유지하고 진행을 중단한다. 날짜·라디오·가격표·상납 흐름과 기존 정책 차이는 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)의 현재 계약을 따른다. 아래 3차/2차 검증 기록과 Dev3 설명은 당시 맥락이다.
+
 ### 정가 인정 범위·판매 지침 구조 (3차)
 
 - 성향 CSV 마지막에 필수 int `regular_price_min_rate`, `regular_price_max_rate`를 추가한다. DTO `RegularPriceMinRate`/`RegularPriceMaxRate` 기본값과 기존 세 행은 모두 1000/1000이다. 단위는 1000=100%이며 `0 < min <= 1000 <= max`를 검증한다. 기존 셀·가격 허용도는 보존하고 빈 셀·구형 header는 거부한다. CSV와 소비 코드를 함께 배포·복구한다.
@@ -36,7 +40,7 @@
 - `ProductData.cost_price`는 필수 양수 uint다. 기존 Product CSV 끝에 추가하며 테스트값은 `max(1, floor(base_price / 2))`다. 일반 규칙으로 원가<기본가를 강제하지 않는다. 정식 원가 승인 시 테스트값을 교체한다. CSV·DTO·loader를 함께 배포하며 구형 header는 실패한다.
 - 기존 `TransactionResult(long, int)`는 재정 단독 검사 호환으로만 유지한다. 상세 미확정은 Outcome=None, OfferedTotal/ReferenceTotal=null, SoldItems 비움으로 표현한다. 새 UI 흐름은 방문이 만든 Result를 전달하며 재생성하지 않는다.
 - 판정 완료와 재정 반영 완료는 별개다. 일일집계 접수 실패 시 오류 중단하고 자동 재시도하지 않는다. 명성 변화는 0, 원가 실제 차감·일일 원가 집계는 미연결이다.
-- 최종 상품 선택 UI는 아직 없다. 현재 UI는 최초 Items를 SaleItem으로 변환한다. 별도 선택 버튼은 추가하지 않았으며 다른 최종 목록은 직접 API 검사로 검증한다.
+- 현재 GameUIController는 SaleSortingPanel에서 선택한 최종 목록을 사용한다. 이전 Dev3의 최초 Items 변환은 구형 화면 계약이며 새 진행 경로와 구분한다.
 - 검증: Check-CustomerGenerator의 최종 목록 교체 4판정·최신 가격·외부 변경 불변·수량/원가 합계·실패 원자성, Check-CustomerCsv 38/38 오류 거부, Check-CustomerQueue/Check-PriceEvents 회귀 통과. GameplaySandbox에서 Check-CustomerOutcomes·Check-RadioTiming·Check-MainSceneIntegration 실행 통과. 마지막 검사는 의도된 재정 접수 실패 LogError 1건을 발생시키며 판정 보존·미입금·재시도 차단을 확인한다. 구형 CustomerSandbox UI 검사 스크립트는 호출자만 이행했고 해당 화면 실행은 미검증이다.
 
 대기열·5초 입장·성향별 재촉/이탈·FIFO 인계의 최신 계약과 추가 성향 컬럼은 [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다. 줄 합류 시 최초 희망 목록의 표시 단가만 고정한다. 최종 거래 단가·기준액·허용액·원가는 SubmitOffer 시점에 확정한다.
@@ -61,8 +65,8 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 - 재사용 대상: `Assets/Scripts/Customer/`의 생성기·방문·거래 판정, `Customer/Data/`의 손님 DTO·DataTable·catalog, `Commons/Data/`의 공용 상품·텍스트·리소스 DTO·DataTable과 기존 DataTableManager/ResourceManager. 경제 CSV DTO·DataTable은 `Finance/Data/`에 둔다. 세 하위 경로 모두 `Assets/Scripts/` 기준이다.
 - 구현 완료 범위: 방문마다 외형·성향 조합, 구매 목록 생성, 등장 일수 필터, 총액 제안 1회, 수락·거절 판정, 입장·결과 대사 선택.
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.
-- 현재 연결: Dev3SandboxTester가 수락 결과를 기존 Finance에 한 번 전달하고 대기열을 구동한다. 미연결: 원가 차감·일일 원가 집계·명성 계산·지침 공급·최종 목록 선택 UI. 재고 예약·저장 복구·재방문 인물·이동 연출은 미구현이다. `Accepted`는 가격 수락이지 후속 반영 완료가 아니다.
-- `CustomerSandbox`와 `CustomerSandboxSetup`은 `Assets/Scripts/Local/`의 개인 코드이며 Git 제외다. 다른 checkout이나 공유 assembly에서 존재를 가정하지 않는다. MainScene의 Dev3SandboxTester는 공유 유지한다.
+- 현재 연결: GameUIController의 선택 목록을 DayProgress가 판정·정산한다. CustomerQueue는 현 진행에 미연결이며 Dev3 연결은 과거 경로다. 미연결: 원가 차감·일일 원가 집계·명성 계산·지침 공급. 재고 예약·저장 복구·재방문 인물·이동 연출은 미구현이다. `Accepted`는 가격 수락이지 후속 반영 완료가 아니다.
+- `CustomerSandbox`와 `CustomerSandboxSetup`은 `Assets/Scripts/Local/`의 개인 코드이며 Git 제외다. 다른 checkout이나 공유 assembly에서 존재를 가정하지 않는다. 현재 실제 UI는 GameUIController이며 비활성화된 Dev3 파일을 이 작업에서 이동/삭제하지 않는다.
 - 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [AGENTS.md 12절](../AGENTS.md)을 따른다.
 
 ## 2. 초기화와 공개 API

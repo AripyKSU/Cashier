@@ -29,14 +29,21 @@ public sealed class ProgressViewDataFactory
 
     /// <summary>지정된 날짜에 판매 가능한 상품의 가격표 문자열을 만듭니다.</summary>
     /// <param name="day">1부터 시작하는 게임 날짜입니다.</param>
+    /// <param name="dailyPrices">같은 세션·날짜의 확정 현재가입니다.</param>
     /// <returns>상품 식별자 순으로 구성된 가격표 문자열입니다.</returns>
     /// <exception cref="ArgumentOutOfRangeException">날짜가 1 미만인 경우 발생합니다.</exception>
-    public string CreatePriceListText(int day)
+    /// <exception cref="ArgumentNullException">현재가 snapshot이 없는 경우.</exception>
+    /// <exception cref="InvalidOperationException">날짜 불일치 또는 상품 현재가 누락·0인 경우.</exception>
+    public string CreatePriceListText(int day, DailyPriceState dailyPrices)
     {
         if (day <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(day), day, "게임 날짜는 1 이상이어야 합니다.");
         }
+
+        if (dailyPrices == null) throw new ArgumentNullException(nameof(dailyPrices));
+        if (dailyPrices.ElapsedDays != checked((uint)(day - 1)))
+            throw new InvalidOperationException("가격표 날짜와 세션 현재가 날짜가 다릅니다.");
 
         IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
             this.customerCatalog.Products.Rows,
@@ -47,7 +54,9 @@ public sealed class ProgressViewDataFactory
             string name = this.textData.Rows.TryGetValue(product.NameIdx, out TextData text)
                 ? text.Text
                 : $"Product {product.Idx}";
-            lines.Add($"{name}  ·  {product.BasePrice:N0} G");
+            if (!dailyPrices.Prices.TryGetValue(product.Idx, out uint price) || price == 0)
+                throw new InvalidOperationException($"상품 {product.Idx}의 현재가가 준비되지 않았습니다.");
+            lines.Add($"{name}  ·  {price:N0} G");
         }
 
         return string.Join("\n", lines);

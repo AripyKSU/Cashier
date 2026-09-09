@@ -1,5 +1,9 @@
 # 손님 대기열 구현·병합 명세
 
+## 현재 통합 상태 (2026-09-09)
+
+아래는 CustomerQueue API와 이전 Dev3 화면의 계약이다. 현재 GameUIController/DayProgress는 손님을 순차 생성하며 이 대기열을 연결하지 않았다. API 회귀 통과는 현 UI의 줄·말풍선 표시를 의미하지 않는다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다.
+
 ## 범위와 규칙
 
 - 대기 정원·표시 최대 10명. 계산 중인 손님은 별도다. FIFO 순서는 화면의 #번호로 표시한다.

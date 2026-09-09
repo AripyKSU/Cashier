@@ -27,10 +27,18 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// <returns>당일 판매 수입.</returns>
     public long EndTradingDay()
     {
-        long revenue = Economy.DailyAggregationService.EndDay().SaleIncome;
+        return EndTradingDay(out _);
+    }
+    /// <summary>일일 집계를 한 번 종료하고 원본 집계 결과와 판매 수입을 함께 반환한다.</summary>
+    /// <param name="result">경제 시스템이 확정한 일일 결과.</param>
+    /// <returns>당일 판매 수입. 기존 무인자 API와 동일하다.</returns>
+    /// <exception cref="InvalidOperationException">초기화 전 또는 열린 영업일이 없음.</exception>
+    public long EndTradingDay(out DailyAggregationResult result)
+    {
+        result = Economy.DailyAggregationService.EndDay();
         radioPending = false;
         hasClosedDay = true;
-        return revenue;
+        return result.SaleIncome;
     }
     /// <summary>세션의 날짜 권위. 게임 시작일은 0이다.</summary>
     public uint ElapsedDays { get; private set; }

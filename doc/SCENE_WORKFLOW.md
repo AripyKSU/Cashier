@@ -26,7 +26,7 @@ FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 
 개인 씬에서만 사용하는 임시 화면·실험 코드는 `Assets/Scripts/Local/`, 해당 Editor 도구는 `Assets/Scripts/Local/Editor/`에 둔다. 이 폴더 전체와 `Local.meta`도 Git에서 제외하며 로컬 파일과 기존 GUID는 보존한다. 이미 추적되던 파일은 ignore 추가만으로 제외되지 않으므로 원래 추적 경로의 삭제 변경도 함께 반영해야 한다.
 제품 기능 코드와 공유할 Prefab·데이터는 기존의 추적되는 기능 경로에 둔다. 개인 씬에서 실행했다는 이유만으로 공유 API·manager·도메인 코드를 제외하지 않는다. 공유 코드·테스트·자산은 개인 코드에 의존하지 않는다.
 개인 Editor 코드는 런타임 asmdef에 포함하지 않는다. 상위 runtime asmdef가 있는 경우 개인 `Editor/`에도 Editor 전용 asmdef를 두며 이 설정 역시 개인 폴더와 함께 제외한다.
-현재 `CustomerSandbox`와 `CustomerSandboxSetup`은 개인 코드다. `Dev3SandboxTester`는 공유 `MainScene`에서 참조하므로 공유 코드로 유지한다. 이를 개인 코드로 전환하려면 먼저 공용 씬의 소비 경로를 별도 작업으로 정리해야 한다.
+현재 `CustomerSandbox`와 `CustomerSandboxSetup`은 개인 코드다. 현재 total_merge 기반 공유 UI는 GameUI.prefab의 `GameUIController`다. `Dev3SandboxTester`는 비활성화된 이전 공유 코드이며 이번 진행 통합에서 이동·삭제하지 않는다. 공유 코드 정리는 실제 소비자 확인 후 별도 승인 범위로 진행한다.
 공유 자산에서 개인 씬이나 Local 내부 자산을 참조하지 않는다. 제외 규칙은 `git add -f`를 막지는 않으므로 강제 stage하지 않는다.
 
 ## 통합과 검증

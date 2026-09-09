@@ -87,7 +87,7 @@ public sealed class GameUIController : MonoBehaviour
             this.validateUiReferences();
             this.subscribeUi();
             this.gameProgress = new GameProgress(
-                this.economy,
+                GameSessionManager.Instance,
                 this.customerCatalog,
                 new System.Random());
             this.subscribeProgress();
@@ -769,7 +769,8 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
-        this.priceListText.text = this.viewDataFactory.CreatePriceListText(day);
+        this.priceListText.text = this.viewDataFactory.CreatePriceListText(
+            day, GameSessionManager.Instance.EnsureDailyPrices());
     }
 
     /// <summary>진행 상태를 UI 표현 계약으로 변환합니다.</summary>
