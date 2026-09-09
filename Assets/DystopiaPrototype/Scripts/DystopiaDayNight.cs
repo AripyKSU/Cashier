@@ -32,9 +32,6 @@ public sealed class DystopiaDayNight : MonoBehaviour
     [Range(0,1)] public float peopleBrightness = .72f;
     /// <summary>야간 도시·탐조등·가판 빛의 최대 불투명도입니다.</summary>
     [Range(0,1)] public float cityIntensity = .7f, beamIntensity = .11f, counterIntensity = .12f;
-    /// <summary>탐조등 중심 각도·좌우 이동 폭입니다. 위치와 크기는 RectTransform에서 편집합니다.</summary>
-    public float leftAngle = 14, rightAngle = 166, sweepDegrees = 14;
-
     /// <summary>일반 UI 경로를 갱신하며 픽셀 렌더 사용 시에는 렌더 직전 갱신에 맡깁니다.</summary>
     private void LateUpdate()
     {
@@ -65,9 +62,7 @@ public sealed class DystopiaDayNight : MonoBehaviour
         // 시간대 색상이 일정한 한낮에도 기존 영업 시계로 태양 위치를 연속 갱신합니다.
         if (lit) pixelStage.SetTimeWeights(morning,sunsetBlend,night,Mathf.InverseLerp(dawnStart,eveningStart,hour),hour);
         Tint(environment,lit ? Color.white : tint); Tint(people,lit ? Color.white : Color.Lerp(Color.white,new Color(peopleBrightness,peopleBrightness,peopleBrightness),night));
-        float phase=hour*6;
-        if(leftBeam!=null)leftBeam.rectTransform.localRotation=Quaternion.Euler(0,0,leftAngle+Mathf.Sin(phase)*sweepDegrees);
-        if(rightBeam!=null)rightBeam.rectTransform.localRotation=Quaternion.Euler(0,0,rightAngle+Mathf.Sin(phase*.83f+2)*sweepDegrees);
+
     }
 
     /// <summary>기존 이미지의 Inspector 색을 보존하고 Renderer에만 색을 곱합니다.</summary>

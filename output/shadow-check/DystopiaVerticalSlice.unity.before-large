@@ -1325,7 +1325,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 807f50d1d85dc5c4dbb06d12fbcc2dbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DividerBarController2D
+  maxTiltAngle: 18
   tiltSensitivity: 1.5
+  rotationSmoothSpeed: 12
   rotationDamping: 1
   pushPower: 1.1
   maxPushForce: 3
@@ -2413,7 +2415,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257552083}
-  m_LocalRotation: {x: 0, y: 0, z: 0.9955292, w: -0.09445482}
+  m_LocalRotation: {x: 0, y: 0, z: 0.9930724, w: -0.117504224}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3372,6 +3374,9 @@ MonoBehaviour:
   cityIntensity: 0.7
   beamIntensity: 0.11
   counterIntensity: 0.12
+  leftAngle: -17
+  rightAngle: 192
+  sweepDegrees: 5
 --- !u!114 &1891603583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3392,376 +3397,286 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 602416277}
     surface: 7
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2008934278}
     surface: 7
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1278554090}
     surface: 7
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1238874758}
     surface: 4
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2132357586}
     surface: 5
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1636528321}
     surface: 5
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 372208659}
     surface: 5
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 166556295}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184231}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184230}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 138629015}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2023236471}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184229}
     surface: 2
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184228}
     surface: 2
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184227}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184226}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184225}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184224}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184223}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184222}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184221}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184220}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1901093217}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1257552086}
     surface: 0
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 465611153}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 578463040}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1842233973}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 194660987}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 292542810}
     surface: 2
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.2
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1091883700}
     surface: 2
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.45
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 17788076}
     surface: 2
     normalSprite: {fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}
     normalMap: {fileID: 2800000, guid: e458a6bab559136459f6873dd40adbca, type: 3}
     roomResponse: 0
     lampResponse: 1
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 829171938}
     surface: 3
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0.7
     lampResponse: 1
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1408947112}
     surface: 6
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1494773492}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 1.4
     lampResponse: 0.15
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715518}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715517}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715516}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715515}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715514}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715513}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715512}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715511}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715510}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715509}
     surface: 1
     normalSprite: {fileID: 0}
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715508}
     surface: 3
     normalSprite: {fileID: 21300000, guid: 47c07e51f9acabe45b7dfb3fa9362df5, type: 3}
     normalMap: {fileID: 2800000, guid: 8a499c0e4e268f34fac0e7606018541a, type: 3}
-    roomResponse: 0
+    roomResponse: 1
     lampResponse: 1
     bottomShade: 0.3
-    contactShadow: {x: 0.504, y: 0.056, z: 1.5, w: 0.5}
+    contactShadow: {x: 0.504, y: 0.056, z: 1.02, w: 0.14}
   - source: {fileID: 2356696958130715507}
     surface: 3
     normalSprite: {fileID: 6177856681799310721, guid: ed2a86b7e120e1140912cd484db7cd6f, type: 3}
     normalMap: {fileID: 2800000, guid: b5a11b12b4ba4fd49b86e1c6674c0793, type: 3}
-    roomResponse: 0
+    roomResponse: 0.8
     lampResponse: 1
     bottomShade: 0.3
-    contactShadow: {x: 0.5034722, y: 0.1851852, z: 1.4, w: 0.65}
+    contactShadow: {x: 0.5034722, y: 0.1851852, z: 0.96, w: 0.2}
   lightingShader: {fileID: 4800000, guid: 4bb3a3480b9d7864ba03db51d2f31812, type: 3}
   width: 480
   previewInEditor: 1
@@ -3975,8 +3890,6 @@ MonoBehaviour:
   relightingTrial: 1
   useCustomerNormalMap: 1
   normalStrength: 0.65
-  propNormalStrength: 1
-  propNightFill: 0.3
   roomLightStrength: 1.2
   eveningSpotlight: 1
   spotOrigin: {x: 1050, y: -60}
@@ -4013,7 +3926,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1901093214}
-  m_LocalRotation: {x: 0, y: 0, z: -0.13355418, w: 0.99104154}
+  m_LocalRotation: {x: 0, y: 0, z: -0.17187704, w: 0.9851184}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -4508,19 +4421,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 104.44444
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 28.88889
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 28.13889
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -50
+      value: -44
       objectReference: {fileID: 0}
     - target: {fileID: 3208392661193809579, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Name
@@ -4541,10 +4454,6 @@ PrefabInstance:
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_FontData.m_FontSize
       value: 24
-      objectReference: {fileID: 0}
-    - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
-      propertyPath: m_FontData.m_AlignByGeometry
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4632237633961952449, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Pivot.x

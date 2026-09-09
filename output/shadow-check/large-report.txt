@@ -1,0 +1,4 @@
+CounterClock Contact Shadow normal=0.65 bounce=0 spot=1 position=(1136.12, -590.21, 0.00) scale=(301.96, 105.22, 1.00)
+FrontContainer Contact Shadow normal=0.65 bounce=0 spot=1 position=(674.78, -588.18, 0.00) scale=(359.92, 120.04, 1.00)
+CounterClock normal=0.65 bounce=0 spot=1 position=(990.70, -435.16, 0.00) scale=(1.35, 1.35, 1.00)
+FrontContainer normal=0.65 bounce=0 spot=1 position=(511.84, -335.12, 0.00) scale=(1.00, 1.00, 1.00)

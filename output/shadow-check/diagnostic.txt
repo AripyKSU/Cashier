@@ -1,0 +1,2 @@
+CounterClock Contact Shadow pos=(1099.29, -572.72, 0.00) scale=(207.06, 32.37, 1.00) tint=RGBA(0.035, 0.025, 0.018, 0.950)
+FrontContainer Contact Shadow pos=(632.77, -570.17, 0.00) scale=(244.75, 33.61, 1.00) tint=RGBA(0.035, 0.025, 0.018, 0.950)

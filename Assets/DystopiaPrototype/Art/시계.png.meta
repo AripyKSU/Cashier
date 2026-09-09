@@ -116,10 +116,10 @@ TextureImporter:
       name: "\uC2DC\uACC4_0"
       rect:
         serializedVersion: 2
-        x: 32
-        y: 4
-        width: 185
-        height: 122
+        x: 0
+        y: 0
+        width: 144
+        height: 108
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

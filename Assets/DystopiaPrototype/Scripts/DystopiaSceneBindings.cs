@@ -4,27 +4,6 @@ using UnityEngine.UI;
 /// <summary>편집된 Scene 오브젝트를 정면 화면의 동작 참조에 연결합니다.</summary>
 public sealed partial class DystopiaScreen
 {
-    /// <summary>대사를 박스 내부에 고정하여 크기 변경 후에도 중앙 정렬과 여백을 유지합니다.</summary>
-    /// <param name="text">표시할 대사입니다.</param>
-    /// <param name="panel">9-slice 배경 박스입니다.</param>
-    internal static void FitDialogue(Text text, RectTransform panel)
-    {
-        var rect = text.rectTransform;
-        rect.SetParent(panel, false);
-        rect.localScale = Vector3.one;
-        rect.localRotation = Quaternion.identity;
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.pivot = new Vector2(.5f, .5f);
-        rect.offsetMin = new Vector2(18, 10);
-        rect.offsetMax = new Vector2(-18, -10);
-        text.alignment = TextAnchor.MiddleCenter;
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Truncate;
-        text.resizeTextForBestFit = true;
-        text.resizeTextMaxSize = text.fontSize;
-        text.resizeTextMinSize = Mathf.Min(12, text.fontSize);
-    }
     /// <summary>정면과 탑다운이 같은 세션을 초기화 순서와 무관하게 공유합니다.</summary>
     public void InitializePlacedScreen() { if (Session == null) Awake(); }
 
@@ -52,7 +31,6 @@ public sealed partial class DystopiaScreen
         basketRoot=(RectTransform)root.Find("Basket");
         inputText=root.Find("PriceInput").GetComponent<Text>();
         dialogue=(root.Find("DialoguePanel/Dialogue") ?? root.Find("Dialogue")).GetComponent<Text>(); reasonText=root.Find("Feedback").GetComponent<Text>();
-        FitDialogue(dialogue, (RectTransform)root.Find("DialoguePanel"));
         confirmButton=root.Find("Confirm").GetComponent<Button>(); confirmButtonText=confirmButton.GetComponentInChildren<Text>(true);
         dailyInstructionButton=root.Find("DailyInstructionButton").GetComponent<Button>();
         dailyInstructionButton.gameObject.SetActive(false);
@@ -78,7 +56,7 @@ public sealed partial class DystopiaTopDownTest
     /// <summary>상품 ID 순서의 물리 물품 Prefab입니다. 이미지와 크기는 각 Prefab에서 편집합니다.</summary>
     [SerializeField] private GameObject[] placedItemPrefabs;
     private bool hasPlacedUi;
-    private Rect placedCalculatorLayout, placedClockLayout;
+    private Rect placedCalculatorLayout;
     private RectTransform keypadMotion;
     private Vector2 placedPourPosition;
     private float placedPourAngle;
@@ -124,7 +102,6 @@ public sealed partial class DystopiaTopDownTest
         frontContainerImage=frontRoot.transform.Find("FrontContainer").GetComponent<Image>();
         var customer=frontRoot.transform.Find("Customer"); if(customer!=null) customerImage=customer.GetComponent<Image>();
         var dialogueObject=frontRoot.transform.Find("DialoguePanel/Dialogue") ?? frontRoot.transform.Find("Dialogue"); if(dialogueObject!=null) dialogueText=dialogueObject.GetComponent<Text>();
-        if (dialogueText != null && frontRoot.transform.Find("DialoguePanel") is RectTransform panel) DystopiaScreen.FitDialogue(dialogueText, panel);
         for(int i=0;i<landingDust.Length;i++) landingDust[i]=frontRoot.transform.Find("LandingDust"+i).GetComponent<Image>();
         var work=workUiRoot.transform;
         clueText=work.Find("CustomerClue").GetComponent<Text>(); noticeText=work.Find("Notice").GetComponent<Text>();
@@ -132,7 +109,6 @@ public sealed partial class DystopiaTopDownTest
         keypadRect=(RectTransform)(keypadMotion != null ? keypadMotion.Find("Register") : work.Find("Register")); inputText=keypadRect.Find("PriceInput").GetComponent<Text>();
         placedCalculatorLayout=new Rect(keypadRect.anchoredPosition.x,-keypadRect.anchoredPosition.y,360*keypadRect.localScale.x,360*keypadRect.localScale.y);
         clockRoot=(RectTransform)canvas.Find("CounterClock"); clockText=clockRoot.Find("BusinessClock").GetComponent<Text>();
-        placedClockLayout=new Rect(clockRoot.anchoredPosition.x,-clockRoot.anchoredPosition.y,180*clockRoot.localScale.x,180*clockRoot.localScale.y);
         for(int i=1;i<=9;i++) { string digit=i.ToString(); BindKey("Digit"+digit,()=>Digit(digit)); }
         BindKey("Digit00",()=>Digit("00")); BindKey("Digit000",()=>Digit("000"));
         BindKey("Backspace",Backspace); BindKey("Clear",ClearAmount); BindKey("Confirm",ConfirmSale);

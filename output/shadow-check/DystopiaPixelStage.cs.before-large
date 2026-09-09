@@ -82,10 +82,6 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     /// <summary>인물 노멀맵만 별도로 비교합니다. 매칭된 Sprite 한 명에만 적용됩니다.</summary>
     public bool useCustomerNormalMap = true;
     [Range(0, 1)] public float normalStrength = .65f;
-    /// <summary>노멀맵이 연결된 금속 소품의 강도입니다. 인물 강도와 별도로 Inspector에서 조절합니다.</summary>
-    [Range(0, 1)] public float propNormalStrength = 1f;
-    /// <summary>저녁·밤 소품의 최소 조명 밝기입니다. 광원 및 물건의 위치는 변경하지 않습니다.</summary>
-    [Range(0, 1)] public float propNightFill = .3f;
     /// <summary>직접광 반경 바깥의 천막·기둥·가판에 퍼지는 반사광 세기입니다.</summary>
     [Range(0, 3)] public float roomLightStrength = 1.2f;
 
@@ -281,12 +277,10 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         var image = source as Image;
         bool mapped = relightingTrial && useCustomerNormalMap && layer.normalMap != null && image != null && image.sprite == layer.normalSprite;
         if (mapped) block.SetTexture("_NormalMap", layer.normalMap);
-        // 소품과 인물은 각자 Inspector에 저장된 노멀 강도를 사용합니다.
-        block.SetFloat("_NormalStrength", mapped ? (layer.surface == Surface.Metal ? propNormalStrength : evaluatedNormalStrength) : 0);
-        block.SetFloat("_PropFill", mapped && layer.surface == Surface.Metal ? propNightFill * Mathf.Max(nightWeight, sunsetWeight * .35f) : 0);
+        block.SetFloat("_NormalStrength", mapped ? evaluatedNormalStrength : 0);
         block.SetFloat("_BottomShade", layer.bottomShade);
         block.SetFloat("_RoomBounce", relightingTrial ? roomLightStrength * layer.roomResponse * Mathf.Lerp(.2f, 1, nightWeight) : 0);
-        block.SetFloat("_SpotResponse", layer.surface == Surface.Person || mapped || layer.roomResponse > 0 ? 1 : 0);
+        block.SetFloat("_SpotResponse", layer.surface == Surface.Person || layer.roomResponse > 0 ? 1 : 0);
         block.SetFloat("_ReceiveCustomerShadow", dayNight != null && dayNight.clock != null && source.name == "Counter" ? 1 : 0);
         if (layer.surface == Surface.Person && layer.normalSprite != null && image != null)
         {
@@ -326,22 +320,13 @@ public sealed class DystopiaPixelStage : MonoBehaviour
                     drawing.width = width;
                 }
             }
-            Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * layer.contactShadow.x, drawing.y + drawing.height * layer.contactShadow.y, 0));
-            // 밑면에 겹친 상태로 광원 반대쪽 상판으로 퍼지며 원본 Transform은 변경하지 않습니다.
-            float spread = drawing.height * y.magnitude * layer.contactShadow.w;
-            Vector4 lightOrigin = material.GetVector(nightWeight > .5f ? "_SpotOrigin" : "_SunShadowOrigin");
-            float drift = Mathf.Clamp((center.x - lightOrigin.x) / Mathf.Max(100, lightOrigin.y - center.y), -1, 1);
-            center += new Vector2(drift * spread * .35f, -spread * .22f);
+            Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * layer.contactShadow.x, drawing.y + drawing.height * (layer.contactShadow.y - .035f), 0));
             var shadowTransform = layer.contactRenderer.transform;
             shadowTransform.localPosition = center;
             shadowTransform.localRotation = Quaternion.identity;
             shadowTransform.localScale = new Vector3(drawing.width * x.magnitude * layer.contactShadow.z, drawing.height * y.magnitude * layer.contactShadow.w, 1);
             layer.contactRenderer.sortingOrder = order * 2 - 1;
             block.SetFloat("_ContactShadow", 1);
-            // 그림자 메시가 이동해도 가장 진한 접촉부는 원본 밑면 좌표에 고정합니다.
-            float shadowWidth = drawing.width * x.magnitude * layer.contactShadow.z;
-            float shear = drift * spread * .35f / Mathf.Max(1, shadowWidth);
-            block.SetVector("_ContactAnchor", new Vector4(.5f - shear, .72f, .9f / layer.contactShadow.z, shear));
             block.SetColor("_Tint", new Color(.035f, .025f, .018f, source.color.a * source.canvasRenderer.GetAlpha() * .95f));
             layer.contactRenderer.SetPropertyBlock(block);
         }

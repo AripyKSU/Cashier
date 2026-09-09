@@ -1,15 +1,13 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>상품에 막히지 않는 키네마틱 구분봉을 마우스 관성과 접촉 속도로 제어합니다.</summary>
+/// <summary>잡기 지점에 따른 구분봉의 회전 관성과 상품 접촉 속도를 제어합니다.</summary>
 [RequireComponent(typeof(Rigidbody2D), typeof(CapsuleCollider2D), typeof(SpriteRenderer))]
 public sealed class DividerBarController2D : MonoBehaviour
 {
-    /// <summary>입력 속도에 따른 기울기 제한, 감도와 회전 응답입니다.</summary>
-    [SerializeField, Range(0, 45)] private float maxTiltAngle = 18f;
+    /// <summary>잡기 지점의 관성 감도와 회전 감쇠입니다. 원래 각도로 복원하지 않습니다.</summary>
     [SerializeField, Min(0)] private float tiltSensitivity = 1.5f;
-    [SerializeField, Min(.1f)] private float rotationSmoothSpeed = 12f;
     [SerializeField, Min(.1f)] private float rotationDamping = 1f;
     /// <summary>접촉 속도 배율, 최대 추가 충격량, 상품 최대 선속도입니다.</summary>
     [SerializeField, Min(0)] private float pushPower = 1.1f;
@@ -17,7 +15,7 @@ public sealed class DividerBarController2D : MonoBehaviour
     [SerializeField, Min(.1f)] private float maxItemVelocity = 5f;
     /// <summary>힘을 전달할 기존 상품 레이어를 Inspector에서 지정합니다.</summary>
     [SerializeField] private LayerMask pushableLayers;
-    /// <summary>회전한 콜라이더 전체가 들어가야 하는 선택적 월드 사각 영역입니다.</summary>
+    /// <summary>왼쪽과 위아래 경계입니다. 오른쪽은 바가 판매 구역 끝까지 이동하도록 제한하지 않습니다.</summary>
     [SerializeField] private bool useMovementBounds;
     [SerializeField] private Vector2 minWorldPosition = new Vector2(-5.8f, -3f);
     [SerializeField] private Vector2 maxWorldPosition = new Vector2(5.8f, 3f);
@@ -26,9 +24,15 @@ public sealed class DividerBarController2D : MonoBehaviour
     private Rigidbody2D body;
     private CapsuleCollider2D capsule;
     private SpriteRenderer visual;
-    private Vector2 target, previousMouse, mouseVelocity, barVelocity;
+    private Vector2 target, barVelocity;
+    /// <summary>홀드 중 로컬 잡기 지점과 고정 물리 프레임의 입력 기록입니다.</summary>
+    private Vector2 grabLocalPoint, previousTarget, previousTargetVelocity;
+    /// <summary>손 아이콘을 표시할 실제 체크아웃 카메라입니다.</summary>
+    private Camera inputCamera;
     private float angleVelocity, barAngularVelocity;
     private bool hasSample, canControl;
+    /// <summary>잡은 뒤 UI를 지나도 버튼을 놓기 전까지 홀드를 유지합니다.</summary>
+    internal bool IsHeld => canControl;
     /// <summary>새 손님마다 왼쪽 바를 잡기 전에는 이전 커서 위치를 무시합니다.</summary>
     private bool awaitingPickup;
     private Vector2 startingPosition;
@@ -72,7 +76,7 @@ public sealed class DividerBarController2D : MonoBehaviour
 
     /// <summary>작업대에서는 항상 표시하되 분류 및 UI 판정을 통과한 입력만 물리에 전달합니다.</summary>
     /// <param name="camera">상품을 표시하는 실제 카메라입니다.</param>
-    /// <param name="allowed">분류 중이며 UI 위에 있지 않을 때만 true입니다.</param>
+    /// <param name="allowed">분류 중이며 새 잡기를 시작할 때 UI 위에 있지 않으면 true입니다.</param>
     internal void SampleInput(Camera camera, bool allowed)
     {
         if (!isActiveAndEnabled || body == null) return;
@@ -87,38 +91,66 @@ public sealed class DividerBarController2D : MonoBehaviour
         Plane plane = new Plane(Vector3.forward, new Vector3(0, 0, transform.position.z));
         if (!plane.Raycast(ray, out float distance)) { SetInactive(); return; }
         Vector2 pointer = ray.GetPoint(distance);
-        if (awaitingPickup)
+        if (!Mouse.current.leftButton.isPressed)
         {
-            // 커서를 강제로 이동시키지 않고 왼쪽 시작점에서 명시적으로 넘겨받습니다.
-            // 물리는 계속 꺼져 있어 대기 중에는 옆의 상품도 밀지 않습니다.
-            if ((pointer - startingPosition).sqrMagnitude > .45f * .45f)
+            SetInactive();
+            visual.enabled = true;
+            return;
+        }
+        if (!canControl)
+        {
+            // 대기 중 시뮬레이션이 꺼져 있어도 로컬 캡슐 영역에서 클릭을 판정합니다.
+            Vector2 local = transform.InverseTransformPoint(pointer);
+            Vector2 relative = local - capsule.offset;
+            bool horizontal = capsule.direction == CapsuleDirection2D.Horizontal;
+            float radius = (horizontal ? capsule.size.y : capsule.size.x) * .5f;
+            float segment = Mathf.Max(0, (horizontal ? capsule.size.x : capsule.size.y) * .5f - radius);
+            Vector2 nearest = horizontal ? new Vector2(Mathf.Clamp(relative.x, -segment, segment), 0)
+                : new Vector2(0, Mathf.Clamp(relative.y, -segment, segment));
+            if (!Mouse.current.leftButton.wasPressedThisFrame || (relative - nearest).sqrMagnitude > radius * radius)
             {
                 visual.enabled = true;
                 return;
             }
+            grabLocalPoint = local;
             awaitingPickup = false;
             hasSample = false;
         }
         target = pointer;
-        mouseVelocity = hasSample ? (target - previousMouse) / Time.deltaTime : Vector2.zero;
-        previousMouse = target;
-        hasSample = true;
+        inputCamera = camera;
         canControl = true;
         body.simulated = true;
         visual.enabled = true;
     }
 
-    /// <summary>추종 지연 없이 마우스 목표로 이동하며 충돌은 고정 물리 루프에서 처리합니다.</summary>
+    /// <summary>잡기 지점의 가속도와 질량 중심까지의 지렛팔로 회전을 적분합니다.</summary>
     private void FixedUpdate()
     {
         if (!canControl) return;
         contacts.RemoveWhere(item => item == null || !item.simulated || !item.gameObject.activeInHierarchy);
         float dt = Time.fixedDeltaTime;
-        float tilt = 90 + Mathf.Clamp(-mouseVelocity.x * tiltSensitivity, -maxTiltAngle, maxTiltAngle);
-        float angle = Mathf.SmoothDampAngle(body.rotation, tilt, ref angleVelocity,
-            rotationDamping / (rotationSmoothSpeed * 3), 720f, dt);
-        angle = 90 + Mathf.Clamp(Mathf.DeltaAngle(90, angle), -maxTiltAngle, maxTiltAngle);
-        Vector2 next = target;
+        Vector2 velocity = hasSample ? (target - previousTarget) / dt : Vector2.zero;
+        Vector2 acceleration = hasSample ? (velocity - previousTargetVelocity) / dt : Vector2.zero;
+        previousTarget = target;
+        previousTargetVelocity = velocity;
+        hasSample = true;
+        Vector2 scale = transform.lossyScale;
+        Vector2 localArm = Vector2.Scale(capsule.offset - grabLocalPoint, scale);
+        Vector2 arm = Quaternion.Euler(0, 0, body.rotation) * localArm;
+        Vector2 size = Vector2.Scale(capsule.size, new Vector2(Mathf.Abs(scale.x), Mathf.Abs(scale.y)));
+        float gripOffset = Mathf.Clamp01(localArm.magnitude / Mathf.Max(.01f, Mathf.Max(size.x, size.y) * .5f));
+        // 평행축 정리: 중심은 토크가 작고 양 끝은 반대 방향으로 회전합니다.
+        float inertia = size.sqrMagnitude / 12f + localArm.sqrMagnitude;
+        Vector2 inertialForce = -Vector2.ClampMagnitude(acceleration, 100f) - velocity * 3f;
+        float torque = (arm.x * inertialForce.y - arm.y * inertialForce.x) / Mathf.Max(.001f, inertia);
+        // 손은 위치만 구속합니다. 각도 복원/한계를 없애 바가 잡은 점을 중심으로 돌아갑니다.
+        // 중심 가까이는 손의 회전 저항이 크고, 끝을 잡으면 반대쪽의 관성이 남습니다.
+        angleVelocity += torque * Mathf.Rad2Deg * tiltSensitivity * dt;
+        angleVelocity *= Mathf.Exp(-rotationDamping * Mathf.Lerp(20f, 1.5f, Mathf.Sqrt(gripOffset)) * dt);
+        angleVelocity = Mathf.Clamp(angleVelocity, -540f, 540f);
+        float angle = body.rotation + angleVelocity * dt;
+        Vector2 grip = Quaternion.Euler(0, 0, angle) * Vector2.Scale(grabLocalPoint, scale);
+        Vector2 next = target - grip;
         if (useMovementBounds)
         {
             Vector2 half = Vector2.Scale(capsule.size, new Vector2(Mathf.Abs(transform.lossyScale.x), Mathf.Abs(transform.lossyScale.y))) * .5f;
@@ -128,7 +160,8 @@ public sealed class DividerBarController2D : MonoBehaviour
             Vector2 low = Vector2.Min(minWorldPosition, maxWorldPosition) + extent;
             Vector2 high = Vector2.Max(minWorldPosition, maxWorldPosition) - extent;
             Vector2 offset = Quaternion.Euler(0, 0, angle) * Vector2.Scale(capsule.offset, transform.lossyScale);
-            next.x = low.x <= high.x ? Mathf.Clamp(next.x + offset.x, low.x, high.x) - offset.x : (low.x + high.x) * .5f - offset.x;
+            // 오른쪽 끝에서는 바의 길이/기울기 때문에 손보다 먼저 멈추지 않습니다.
+            next.x = Mathf.Max(next.x + offset.x, low.x) - offset.x;
             next.y = low.y <= high.y ? Mathf.Clamp(next.y + offset.y, low.y, high.y) - offset.y : (low.y + high.y) * .5f - offset.y;
         }
         barVelocity = (next - body.position) / dt;
@@ -174,6 +207,36 @@ public sealed class DividerBarController2D : MonoBehaviour
         foreach (var item in contacts)
             if (item != null && item.bodyType == RigidbodyType2D.Dynamic) item.linearVelocity = Vector2.ClampMagnitude(item.linearVelocity, maxItemVelocity);
     }
+    /// <summary>홀드 중 실제 잡기 지점 옆에 손가락과 엄지가 있는 픽셀 손을 표시합니다.</summary>
+    private void OnGUI()
+    {
+        if (!canControl || inputCamera == null || !visual.enabled) return;
+        Vector3 screen = inputCamera.WorldToScreenPoint(transform.TransformPoint(grabLocalPoint));
+        if (screen.z <= 0) return;
+        Vector2 origin = new Vector2(screen.x + 8, Screen.height - screen.y - 12);
+        Color previousColor = GUI.color;
+        DrawHandPart(origin, new Rect(3, 8, 20, 18));
+        DrawHandPart(origin, new Rect(3, 2, 5, 15));
+        DrawHandPart(origin, new Rect(8, 0, 5, 17));
+        DrawHandPart(origin, new Rect(13, 1, 5, 16));
+        DrawHandPart(origin, new Rect(18, 4, 5, 13));
+        DrawHandPart(origin, new Rect(-1, 14, 10, 8));
+        DrawHandPart(origin, new Rect(8, 24, 12, 7));
+        GUI.color = previousColor;
+    }
+
+    /// <summary>외부 이미지나 폰트 없이 손 부분의 테두리와 살색 면을 그립니다.</summary>
+    /// <param name="origin">화면 픽셀 기준 손 아이콘 시작점입니다.</param>
+    /// <param name="part">손 부분의 상대 픽셀 영역입니다.</param>
+    private static void DrawHandPart(Vector2 origin, Rect part)
+    {
+        part.position += origin;
+        GUI.color = new Color(.12f, .09f, .07f);
+        GUI.DrawTexture(part, Texture2D.whiteTexture);
+        GUI.color = new Color(.95f, .84f, .65f);
+        GUI.DrawTexture(new Rect(part.x + 1, part.y + 1, part.width - 2, part.height - 2), Texture2D.whiteTexture);
+    }
+
     /// <summary>첫 접촉에 속도 기반 밀기를 적용합니다.</summary>
     private void OnCollisionEnter2D(Collision2D collision) { Push(collision); }
     /// <summary>접촉 중에는 바깥 방향 속도 부족분만 적용합니다.</summary>
@@ -184,7 +247,7 @@ public sealed class DividerBarController2D : MonoBehaviour
     private void SetInactive()
     {
         canControl = hasSample = false;
-        mouseVelocity = barVelocity = Vector2.zero;
+        barVelocity = previousTargetVelocity = Vector2.zero;
         angleVelocity = barAngularVelocity = 0;
         contacts.Clear();
         if (body != null) { body.linearVelocity = Vector2.zero; body.angularVelocity = 0; body.simulated = false; }
