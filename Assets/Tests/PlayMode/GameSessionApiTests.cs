@@ -163,6 +163,7 @@ public sealed class GameSessionApiTests
             {
                 observed = true;
                 Assert.That(session.CurrentMorality, Is.EqualTo(-0.25m * (index + 1)));
+                Assert.That(session.DailyMoralityDelta, Is.EqualTo(session.CurrentMorality));
                 Assert.That(session.Economy.DailyAggregationService.DailyTransactionCount, Is.EqualTo(index + 1));
             };
             session.Economy.FinanceService.BalanceChanged += observer;
@@ -177,6 +178,71 @@ public sealed class GameSessionApiTests
         _ = new GameProgress(session, tables.Customers,
             tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
         Assert.That(session.CurrentMorality, Is.EqualTo(-1m));
+    }
+
+    /// <summary>실제 양음수·0·거절 거래를 정산하고 다음날에도 총누적과 이전 snapshot을 보존한다.</summary>
+    [Test]
+    public void DailyMoralitySettlementResetsOnlyDailyTotal()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        decimal[] deltas = { 0.5m, 0m, -0.25m, -2m };
+        decimal expected = 0m;
+        for (int i = 0; i < deltas.Length; i++)
+        {
+            var visit = generateAdultNormalWithMorality(i + 50);
+            visit.BeginOffer();
+            typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+            progress.BeginCustomerSorting();
+            var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long reference = items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
+            long offered = i == 0 ? reference - 1 : i == 1 ? reference : i == 2 ? reference + 1 : long.MaxValue;
+            Assert.That(progress.SubmitOffer(offered, items), Is.EqualTo(i != 3));
+            Assert.That(visit.Result.Value.MoralityDelta, Is.EqualTo(deltas[i]));
+            expected += deltas[i];
+            Assert.That(session.DailyMoralityDelta, Is.EqualTo(expected));
+            Assert.That(session.CurrentMorality, Is.EqualTo(expected));
+            progress.CompleteTransactionResult();
+        }
+        // 기존 재정 전용 결과의 미평가 null은 일일값을 바꾸지 않는다.
+        Assert.That(session.Economy.DailyAggregationService.TryApplyTransaction(new TransactionResult(0, 0)));
+        session.EndTradingDay(out var result);
+        Assert.That(result.MoralityDelta, Is.EqualTo(expected));
+        Assert.That(session.DailyMoralityDelta, Is.Zero);
+        Assert.That(session.CurrentMorality, Is.EqualTo(expected));
+        session.CompleteDay(0);
+        session.BeginTradingDay();
+        Assert.That(session.DailyMoralityDelta, Is.Zero);
+        session.EndTradingDay(out var emptyDay);
+        Assert.That(emptyDay.MoralityDelta, Is.Zero);
+        Assert.That(result.MoralityDelta, Is.EqualTo(expected));
+        Assert.That(session.CurrentMorality, Is.EqualTo(expected));
+    }
+
+    /// <summary>일일 decimal 한계에서 실패하면 총누적·잔고·거래 기록을 변경하지 않는다.</summary>
+    [Test]
+    public void DailyMoralityOverflowPreventsSessionMutation()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        var visit = generateAdultNormalWithMorality(80);
+        visit.BeginOffer();
+        typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+        progress.BeginCustomerSorting();
+        var aggregation = session.Economy.DailyAggregationService;
+        typeof(DailyAggregationService).GetField("dailyMoralityDelta", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).SetValue(aggregation, decimal.MaxValue);
+        long balance = session.Economy.QueryService.CurrentBalance;
+        var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        Assert.Throws<OverflowException>(() => progress.SubmitOffer(1, items));
+        Assert.That(session.CurrentMorality, Is.Zero);
+        Assert.That(session.DailyMoralityDelta, Is.EqualTo(decimal.MaxValue));
+        Assert.That(aggregation.DailyTransactionCount, Is.Zero);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
     }
 
     /// <summary>재정 알림 실패에도 잔고·거래 기록·도덕성을 함께 보존하고 같은 방문 재제출을 막는다.</summary>
@@ -200,6 +266,7 @@ public sealed class GameSessionApiTests
         Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(offered, items));
         session.Economy.FinanceService.BalanceChanged -= failure;
         Assert.That(session.CurrentMorality, Is.EqualTo(-0.25m));
+        Assert.That(session.DailyMoralityDelta, Is.EqualTo(-0.25m));
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + offered));
         Assert.That(session.Economy.DailyAggregationService.DailyTransactionCount, Is.EqualTo(1));
         Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(offered, items));

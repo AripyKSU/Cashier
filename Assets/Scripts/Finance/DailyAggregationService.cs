@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 영업 중 완료된 거래 결과를 재정에 반영하고 하루 판매 수입과 명성 변화량을 집계합니다.
+/// 영업 중 완료된 거래 결과를 재정에 반영하고 하루 판매 수입·명성·도덕성 변화량을 집계합니다.
 /// </summary>
 public sealed class DailyAggregationService
 {
@@ -14,6 +14,9 @@ public sealed class DailyAggregationService
 
     // 현재 영업일에 완료된 거래의 명성 변화 누적값입니다.
     private int dailyReputationDelta;
+
+    // 현재 영업일의 성공·거절 거래에서 누적한 도덕성 변화량입니다.
+    private decimal dailyMoralityDelta;
 
     // 현재 영업일에 접수한 모든 거래 결과 snapshot입니다. 결제 거절도 포함합니다.
     private readonly List<TransactionResult> dailyTransactions = new List<TransactionResult>();
@@ -35,6 +38,9 @@ public sealed class DailyAggregationService
     /// 현재 영업일에 누적된 명성 변화량입니다.
     /// </summary>
     public int DailyReputationDelta => this.dailyReputationDelta;
+
+    /// <summary>현재 영업일에 누적된 도덕성 변화량입니다.</summary>
+    public decimal DailyMoralityDelta => this.dailyMoralityDelta;
 
     /// <summary>현재 영업일에 접수한 성공·거절 거래 수입니다.</summary>
     public int DailyTransactionCount => this.dailyTransactions.Count;
@@ -85,6 +91,7 @@ public sealed class DailyAggregationService
         // 알림 예외가 발생해도 확정 거래·재정·도덕성 중 일부만 빠지지 않도록 기록을 먼저 확정한다.
         this.dailySaleIncome = nextDailySaleIncome;
         this.dailyReputationDelta = nextDailyReputationDelta;
+        this.dailyMoralityDelta += transactionResult.MoralityDelta ?? 0m;
         this.dailyTransactions.Add(transactionResult);
 
         if (transactionResult.SaleIncome > 0)
@@ -104,13 +111,14 @@ public sealed class DailyAggregationService
         if (!this.isDayOpen) throw new InvalidOperationException("종료된 일일 집계에는 거래를 반영할 수 없습니다.");
         _ = checked(this.dailySaleIncome + transactionResult.SaleIncome);
         _ = checked(this.dailyReputationDelta + transactionResult.ReputationDelta);
+        _ = checked(this.dailyMoralityDelta + (transactionResult.MoralityDelta ?? 0m));
         _ = checked(this.financeService.CurrentBalance + transactionResult.SaleIncome);
     }
 
     /// <summary>
     /// 거래 결과 접수를 종료하고 확정된 일일 집계 결과를 반환합니다.
     /// </summary>
-    /// <returns>영업 종료 시점까지 누적된 판매 수입과 명성 변화량입니다.</returns>
+    /// <returns>영업 종료 시점까지 누적된 판매 수입·명성·도덕성 변화량입니다.</returns>
     /// <exception cref="InvalidOperationException">진행 중인 영업일이 없는 경우 발생합니다.</exception>
     public DailyAggregationResult EndDay()
     {
@@ -125,7 +133,8 @@ public sealed class DailyAggregationService
         DailyAggregationResult result = new DailyAggregationResult(
             this.dailySaleIncome,
             this.dailyReputationDelta,
-            this.dailyTransactions);
+            this.dailyTransactions,
+            this.dailyMoralityDelta);
 
         // 반환 결과와 현재 집계 상태를 분리한 뒤 다음 영업일을 위해 누적값을 초기화합니다.
         this.resetAggregation();
@@ -139,6 +148,7 @@ public sealed class DailyAggregationService
     {
         this.dailySaleIncome = 0;
         this.dailyReputationDelta = 0;
+        this.dailyMoralityDelta = 0m;
         this.dailyTransactions.Clear();
     }
 }

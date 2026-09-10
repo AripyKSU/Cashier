@@ -27,6 +27,8 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public int CurrentReputation => this.currentReputation;
     /// <summary>게임 시작부터 반올림 없이 누적한 현재 도덕성.</summary>
     public decimal CurrentMorality => this.currentMorality;
+    /// <summary>현재 영업일의 도덕성 변화량. 정산 후에는 0입니다.</summary>
+    public decimal DailyMoralityDelta => this.Economy.DailyAggregationService.DailyMoralityDelta;
     /// <summary>검증된 도덕성 계산기. 손님 거래 snapshot 생성에만 사용한다.</summary>
     internal MoralityCalculator MoralityCalculator => this.moralityCalculator
         ?? throw new InvalidOperationException("도덕성 데이터가 초기화되지 않았습니다.");
