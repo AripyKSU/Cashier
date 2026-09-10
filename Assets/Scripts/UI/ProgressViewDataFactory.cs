@@ -12,37 +12,38 @@ public sealed class ProgressViewDataFactory
     private readonly CustomerCatalog customerCatalog;
     private readonly TextDataTable textData;
     private readonly IReadOnlyDictionary<uint, Sprite> productSprites;
-<<<<<<< HEAD
     private readonly DailyGuidelineDataTable guidelineTable;
-=======
     private readonly Func<uint, bool> isFacilityActive;
->>>>>>> origin/total_merge
 
     /// <summary>검증된 카탈로그와 텍스트 테이블로 변환기를 생성합니다.</summary>
     /// <param name="customerCatalog">손님과 상품 데이터의 권위 카탈로그입니다.</param>
     /// <param name="textData">표시 문자열의 권위 테이블입니다.</param>
     /// <param name="productSprites">상품 ID별로 미리 로드된 표시 Sprite입니다.</param>
-<<<<<<< HEAD
-    /// <param name="guidelineTable">선택적 당일 지침 데이터 테이블입니다.</param>
-=======
     /// <param name="isFacilityActive">세션의 현재 설비 활성 조회. 미연결이면 설비 상품을 잠근다.</param>
->>>>>>> origin/total_merge
+    /// <param name="guidelineTable">선택적 당일 지침 데이터 테이블입니다.</param>
     /// <exception cref="ArgumentNullException">필수 데이터가 null인 경우 발생합니다.</exception>
     public ProgressViewDataFactory(
         CustomerCatalog customerCatalog,
         TextDataTable textData,
-<<<<<<< HEAD
         IReadOnlyDictionary<uint, Sprite> productSprites,
+        Func<uint, bool> isFacilityActive = null,
         DailyGuidelineDataTable guidelineTable = null)
-=======
-        IReadOnlyDictionary<uint, Sprite> productSprites, Func<uint, bool> isFacilityActive = null)
->>>>>>> origin/total_merge
     {
         this.customerCatalog = customerCatalog ?? throw new ArgumentNullException(nameof(customerCatalog));
         this.textData = textData ?? throw new ArgumentNullException(nameof(textData));
         this.productSprites = productSprites ?? throw new ArgumentNullException(nameof(productSprites));
-<<<<<<< HEAD
+        this.isFacilityActive = isFacilityActive;
         this.guidelineTable = guidelineTable;
+    }
+
+    /// <summary>지침 테이블을 포함하는 이전 시그니처 호환용 생성자입니다.</summary>
+    public ProgressViewDataFactory(
+        CustomerCatalog customerCatalog,
+        TextDataTable textData,
+        IReadOnlyDictionary<uint, Sprite> productSprites,
+        DailyGuidelineDataTable guidelineTable)
+        : this(customerCatalog, textData, productSprites, null, guidelineTable)
+    {
     }
 
     /// <summary>
@@ -61,7 +62,8 @@ public sealed class ProgressViewDataFactory
 
         IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
             this.customerCatalog.Products.Rows,
-            checked((uint)(day - 1)));
+            checked((uint)(day - 1)),
+            this.isFacilityActive);
 
         var productList = new List<PriceGuideProductViewData>();
         int maxSlots = Math.Min(4, products.Count);
@@ -105,9 +107,6 @@ public sealed class ProgressViewDataFactory
             productList,
             restriction,
             recheck);
-=======
-        this.isFacilityActive = isFacilityActive;
->>>>>>> origin/total_merge
     }
 
     /// <summary>지정된 날짜에 판매 가능한 상품의 가격표 문자열을 만듭니다.</summary>
@@ -130,25 +129,16 @@ public sealed class ProgressViewDataFactory
 
         IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
             this.customerCatalog.Products.Rows,
-<<<<<<< HEAD
-            checked((uint)(day - 1)));
-        var lines = new List<string>();
-=======
             checked((uint)(day - 1)), this.isFacilityActive);
         var lines = new List<string> { "AVAILABLE PRODUCTS" };
->>>>>>> origin/total_merge
         foreach (ProductData product in products)
         {
             string name = this.textData.Rows.TryGetValue(product.NameIdx, out TextData text)
                 ? text.Text
                 : $"Product {product.Idx}";
-<<<<<<< HEAD
-            lines.Add($"{name}  ·  {product.BasePrice:N0}원");
-=======
             if (!dailyPrices.Prices.TryGetValue(product.Idx, out uint price) || price == 0)
                 throw new InvalidOperationException($"상품 {product.Idx}의 현재가가 준비되지 않았습니다.");
             lines.Add($"{name}  ·  {price:N0} G");
->>>>>>> origin/total_merge
         }
 
         return string.Join("\n", lines);

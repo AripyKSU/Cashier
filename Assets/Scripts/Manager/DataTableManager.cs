@@ -83,12 +83,9 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.Text] = new TextDataTable();
         this.dataList[DataTableType.PriceEvent] = new PriceEventDataTable();
         this.dataList[DataTableType.PriceEventSchedule] = new PriceEventScheduleDataTable();
-<<<<<<< HEAD
-        this.dataList[DataTableType.DailyGuideline] = new DailyGuidelineDataTable();
-=======
         this.dataList[DataTableType.Facility] = new FacilityDataTable();
         this.dataList[DataTableType.ReputationBalance] = new ReputationBalanceDataTable();
->>>>>>> origin/total_merge
+        this.dataList[DataTableType.DailyGuideline] = new DailyGuidelineDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
