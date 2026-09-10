@@ -1,0 +1,1612 @@
+fileFormatVersion: 2
+guid: 1462c53c46cb05f42a469c35cabf9b2c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1286451209460050855
+    second: CounterLight_0
+  - first:
+      213: 457067535072016887
+    second: CounterLight_1
+  - first:
+      213: 56333770304332364
+    second: CounterLight_2
+  - first:
+      213: -8473694613499602107
+    second: CounterLight_3
+  - first:
+      213: -467529984998302923
+    second: CounterLight_4
+  - first:
+      213: 3180207673825235316
+    second: CounterLight_5
+  - first:
+      213: -8547727800882886424
+    second: CounterLight_6
+  - first:
+      213: -4819021907951648920
+    second: CounterLight_7
+  - first:
+      213: 5456879914890330971
+    second: CounterLight_8
+  - first:
+      213: -8961014606567120884
+    second: CounterLight_9
+  - first:
+      213: -2933086906035538603
+    second: CounterLight_10
+  - first:
+      213: -994829268991977815
+    second: CounterLight_11
+  - first:
+      213: 794313900150468217
+    second: CounterLight_12
+  - first:
+      213: -3079342052531722506
+    second: CounterLight_13
+  - first:
+      213: 6510885725698542005
+    second: CounterLight_14
+  - first:
+      213: -7910188860983309333
+    second: CounterLight_15
+  - first:
+      213: -7383387437778779476
+    second: CounterLight_16
+  - first:
+      213: -5196269229228308784
+    second: CounterLight_17
+  - first:
+      213: 1756978323639266767
+    second: CounterLight_18
+  - first:
+      213: 6696569080468109946
+    second: CounterLight_19
+  - first:
+      213: 4882975233443900013
+    second: CounterLight_20
+  - first:
+      213: 259324528518338143
+    second: CounterLight_21
+  - first:
+      213: -7756379416527197273
+    second: CounterLight_22
+  - first:
+      213: -702652092383023285
+    second: CounterLight_23
+  - first:
+      213: -2658285988906750179
+    second: CounterLight_24
+  - first:
+      213: 5825232341217965172
+    second: CounterLight_25
+  - first:
+      213: 5132952626815664844
+    second: CounterLight_26
+  - first:
+      213: 7320472285045853202
+    second: CounterLight_27
+  - first:
+      213: -2253631979636527912
+    second: CounterLight_28
+  - first:
+      213: -7307709525841688271
+    second: CounterLight_29
+  - first:
+      213: 301466761946240377
+    second: CounterLight_30
+  - first:
+      213: 1257737472909069383
+    second: CounterLight_31
+  - first:
+      213: 7731366878750314480
+    second: CounterLight_32
+  - first:
+      213: 55504922438567765
+    second: CounterLight_33
+  - first:
+      213: 3800401741946631139
+    second: CounterLight_34
+  - first:
+      213: 8160899027425014291
+    second: CounterLight_35
+  - first:
+      213: -3997656426992276609
+    second: CounterLight_36
+  - first:
+      213: -6622673784470586036
+    second: CounterLight_37
+  - first:
+      213: -1352534470716202989
+    second: CounterLight_38
+  - first:
+      213: 7829508928161495313
+    second: CounterLight_39
+  - first:
+      213: -933183064431592385
+    second: CounterLight_40
+  - first:
+      213: -9188769133072964416
+    second: CounterLight_41
+  - first:
+      213: -716564189826774735
+    second: CounterLight_42
+  - first:
+      213: 2034515976886366515
+    second: CounterLight_43
+  - first:
+      213: 789705209194275174
+    second: CounterLight_44
+  - first:
+      213: 5234920756633473770
+    second: CounterLight_45
+  - first:
+      213: 217535584922913973
+    second: CounterLight_46
+  - first:
+      213: -2469105346053849582
+    second: CounterLight_47
+  - first:
+      213: 5543011518825614674
+    second: CounterLight_48
+  - first:
+      213: 4796655476705397488
+    second: CounterLight_49
+  - first:
+      213: 4049044814131878400
+    second: CounterLight_50
+  - first:
+      213: 8571467670909837948
+    second: CounterLight_51
+  - first:
+      213: -259614003048431332
+    second: CounterLight_52
+  - first:
+      213: -8049080216256144028
+    second: CounterLight_53
+  - first:
+      213: -6547628574261799583
+    second: CounterLight_54
+  - first:
+      213: -7603761414107871435
+    second: CounterLight_55
+  - first:
+      213: -7025464732108177747
+    second: CounterLight_56
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: CounterLight_0
+      rect:
+        serializedVersion: 2
+        x: 564
+        y: 860
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7abecb02f846ad110800000000000000
+      internalID: 1286451209460050855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_1
+      rect:
+        serializedVersion: 2
+        x: 492
+        y: 680
+        width: 15
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f9b4526084d75600800000000000000
+      internalID: 457067535072016887
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_2
+      rect:
+        serializedVersion: 2
+        x: 504
+        y: 678
+        width: 21
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4229dff34328c000800000000000000
+      internalID: 56333770304332364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_3
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 665
+        width: 102
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54b173305a3676a80800000000000000
+      internalID: -8473694613499602107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_4
+      rect:
+        serializedVersion: 2
+        x: 667
+        y: 659
+        width: 57
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53b155aa4fff289f0800000000000000
+      internalID: -467529984998302923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_5
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 665
+        width: 14
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4711356a70e522c20800000000000000
+      internalID: 3180207673825235316
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_6
+      rect:
+        serializedVersion: 2
+        x: 772
+        y: 668
+        width: 35
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e805a75ade506980800000000000000
+      internalID: -8547727800882886424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_7
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 668
+        width: 88
+        height: 184
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f77b36b156f1db0800000000000000
+      internalID: -4819021907951648920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_8
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 661
+        width: 12
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b53800dee5bbabb40800000000000000
+      internalID: 5456879914890330971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_9
+      rect:
+        serializedVersion: 2
+        x: 871
+        y: 660
+        width: 78
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c00ea7c51b414a380800000000000000
+      internalID: -8961014606567120884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_10
+      rect:
+        serializedVersion: 2
+        x: 962
+        y: 658
+        width: 47
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 555f666cff49b47d0800000000000000
+      internalID: -2933086906035538603
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_11
+      rect:
+        serializedVersion: 2
+        x: 1032
+        y: 668
+        width: 29
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a65299fc08a132f0800000000000000
+      internalID: -994829268991977815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_12
+      rect:
+        serializedVersion: 2
+        x: 1119
+        y: 670
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97eaf92a848f50b00800000000000000
+      internalID: 794313900150468217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_13
+      rect:
+        serializedVersion: 2
+        x: 1135
+        y: 676
+        width: 76
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f6ace0e7baf345d0800000000000000
+      internalID: -3079342052531722506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_14
+      rect:
+        serializedVersion: 2
+        x: 1244
+        y: 668
+        width: 31
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b94c6542105b5a50800000000000000
+      internalID: 6510885725698542005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_15
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 10
+        width: 1715
+        height: 667
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: beb86d2142d593290800000000000000
+      internalID: -7910188860983309333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_16
+      rect:
+        serializedVersion: 2
+        x: 705
+        y: 664
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca24d148e30f88990800000000000000
+      internalID: -7383387437778779476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_17
+      rect:
+        serializedVersion: 2
+        x: 724
+        y: 668
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d6cd82caa423e7b0800000000000000
+      internalID: -5196269229228308784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_18
+      rect:
+        serializedVersion: 2
+        x: 853
+        y: 660
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcd649af97a026810800000000000000
+      internalID: 1756978323639266767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_19
+      rect:
+        serializedVersion: 2
+        x: 1078
+        y: 655
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7a7a27491efeec50800000000000000
+      internalID: 6696569080468109946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_20
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 649
+        width: 16
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6a247c8a10d3c340800000000000000
+      internalID: 4882975233443900013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_21
+      rect:
+        serializedVersion: 2
+        x: 684
+        y: 644
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5691e3e84e499300800000000000000
+      internalID: 259324528518338143
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_22
+      rect:
+        serializedVersion: 2
+        x: 691
+        y: 642
+        width: 6
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7abaeb6040ecb5490800000000000000
+      internalID: -7756379416527197273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_23
+      rect:
+        serializedVersion: 2
+        x: 695
+        y: 646
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4f23d015adaf36f0800000000000000
+      internalID: -702652092383023285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_24
+      rect:
+        serializedVersion: 2
+        x: 750
+        y: 644
+        width: 7
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1fa0df2afedb1bd0800000000000000
+      internalID: -2658285988906750179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_25
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 646
+        width: 9
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 474f96073f167d050800000000000000
+      internalID: 5825232341217965172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_26
+      rect:
+        serializedVersion: 2
+        x: 691
+        y: 614
+        width: 20
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc28142f739eb3740800000000000000
+      internalID: 5132952626815664844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_27
+      rect:
+        serializedVersion: 2
+        x: 724
+        y: 612
+        width: 21
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21c004af1ca879560800000000000000
+      internalID: 7320472285045853202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_28
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 611
+        width: 25
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dced4f97ad79b0e0800000000000000
+      internalID: -2253631979636527912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_29
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 612
+        width: 19
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 139c77677ecc59a90800000000000000
+      internalID: -7307709525841688271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_30
+      rect:
+        serializedVersion: 2
+        x: 845
+        y: 613
+        width: 9
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97594693c660f2400800000000000000
+      internalID: 301466761946240377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_31
+      rect:
+        serializedVersion: 2
+        x: 925
+        y: 612
+        width: 18
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74c417d5191647110800000000000000
+      internalID: 1257737472909069383
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_32
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 612
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ff0224b6355b4b60800000000000000
+      internalID: 7731366878750314480
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_33
+      rect:
+        serializedVersion: 2
+        x: 951
+        y: 620
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5578c31de6135c000800000000000000
+      internalID: 55504922438567765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_34
+      rect:
+        serializedVersion: 2
+        x: 955
+        y: 610
+        width: 32
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e33188bf3dbdb430800000000000000
+      internalID: 3800401741946631139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_35
+      rect:
+        serializedVersion: 2
+        x: 1007
+        y: 614
+        width: 8
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 312bf795d66514170800000000000000
+      internalID: 8160899027425014291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_36
+      rect:
+        serializedVersion: 2
+        x: 1023
+        y: 611
+        width: 40
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7b611ff8a87588c0800000000000000
+      internalID: -3997656426992276609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_37
+      rect:
+        serializedVersion: 2
+        x: 1086
+        y: 614
+        width: 10
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4db65d08498714a0800000000000000
+      internalID: -6622673784470586036
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_38
+      rect:
+        serializedVersion: 2
+        x: 748
+        y: 604
+        width: 9
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3106d7e9015da3de0800000000000000
+      internalID: -1352534470716202989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_39
+      rect:
+        serializedVersion: 2
+        x: 1008
+        y: 596
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 119b0dc33e008ac60800000000000000
+      internalID: 7829508928161495313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_40
+      rect:
+        serializedVersion: 2
+        x: 1709
+        y: 504
+        width: 8
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3cf42672faac03f0800000000000000
+      internalID: -933183064431592385
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_41
+      rect:
+        serializedVersion: 2
+        x: 1750
+        y: 467
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c4ac1c582fea7080800000000000000
+      internalID: -9188769133072964416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_42
+      rect:
+        serializedVersion: 2
+        x: 1699
+        y: 225
+        width: 14
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1390c967aa04e06f0800000000000000
+      internalID: -716564189826774735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_43
+      rect:
+        serializedVersion: 2
+        x: 794
+        y: 208
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3313b2c608d0c3c10800000000000000
+      internalID: 2034515976886366515
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_44
+      rect:
+        serializedVersion: 2
+        x: 877
+        y: 200
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 661ec4724b895fa00800000000000000
+      internalID: 789705209194275174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_45
+      rect:
+        serializedVersion: 2
+        x: 554
+        y: 185
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae2157e31bc26a840800000000000000
+      internalID: 5234920756633473770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_46
+      rect:
+        serializedVersion: 2
+        x: 570
+        y: 193
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bc46514677d40300800000000000000
+      internalID: 217535584922913973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_47
+      rect:
+        serializedVersion: 2
+        x: 808
+        y: 177
+        width: 16
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21e317705c9fbbdd0800000000000000
+      internalID: -2469105346053849582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_48
+      rect:
+        serializedVersion: 2
+        x: 1039
+        y: 191
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25dcf75bb9bbcec40800000000000000
+      internalID: 5543011518825614674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_49
+      rect:
+        serializedVersion: 2
+        x: 556
+        y: 161
+        width: 6
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0fa05f60eb4219240800000000000000
+      internalID: 4796655476705397488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_50
+      rect:
+        serializedVersion: 2
+        x: 1064
+        y: 160
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00ad7f14ec8113830800000000000000
+      internalID: 4049044814131878400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_51
+      rect:
+        serializedVersion: 2
+        x: 1193
+        y: 170
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c726350ee68f3f670800000000000000
+      internalID: 8571467670909837948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_52
+      rect:
+        serializedVersion: 2
+        x: 814
+        y: 136
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c11c491907aa56cf0800000000000000
+      internalID: -259614003048431332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_53
+      rect:
+        serializedVersion: 2
+        x: 897
+        y: 143
+        width: 13
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46d9d6d603ceb4090800000000000000
+      internalID: -8049080216256144028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_54
+      rect:
+        serializedVersion: 2
+        x: 510
+        y: 130
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1659de5a0862225a0800000000000000
+      internalID: -6547628574261799583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_55
+      rect:
+        serializedVersion: 2
+        x: 644
+        y: 115
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5374743c7430a7690800000000000000
+      internalID: -7603761414107871435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CounterLight_56
+      rect:
+        serializedVersion: 2
+        x: 1451
+        y: 55
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dae38a47c09808e90800000000000000
+      internalID: -7025464732108177747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      CounterLight_0: 1286451209460050855
+      CounterLight_1: 457067535072016887
+      CounterLight_10: -2933086906035538603
+      CounterLight_11: -994829268991977815
+      CounterLight_12: 794313900150468217
+      CounterLight_13: -3079342052531722506
+      CounterLight_14: 6510885725698542005
+      CounterLight_15: -7910188860983309333
+      CounterLight_16: -7383387437778779476
+      CounterLight_17: -5196269229228308784
+      CounterLight_18: 1756978323639266767
+      CounterLight_19: 6696569080468109946
+      CounterLight_2: 56333770304332364
+      CounterLight_20: 4882975233443900013
+      CounterLight_21: 259324528518338143
+      CounterLight_22: -7756379416527197273
+      CounterLight_23: -702652092383023285
+      CounterLight_24: -2658285988906750179
+      CounterLight_25: 5825232341217965172
+      CounterLight_26: 5132952626815664844
+      CounterLight_27: 7320472285045853202
+      CounterLight_28: -2253631979636527912
+      CounterLight_29: -7307709525841688271
+      CounterLight_3: -8473694613499602107
+      CounterLight_30: 301466761946240377
+      CounterLight_31: 1257737472909069383
+      CounterLight_32: 7731366878750314480
+      CounterLight_33: 55504922438567765
+      CounterLight_34: 3800401741946631139
+      CounterLight_35: 8160899027425014291
+      CounterLight_36: -3997656426992276609
+      CounterLight_37: -6622673784470586036
+      CounterLight_38: -1352534470716202989
+      CounterLight_39: 7829508928161495313
+      CounterLight_4: -467529984998302923
+      CounterLight_40: -933183064431592385
+      CounterLight_41: -9188769133072964416
+      CounterLight_42: -716564189826774735
+      CounterLight_43: 2034515976886366515
+      CounterLight_44: 789705209194275174
+      CounterLight_45: 5234920756633473770
+      CounterLight_46: 217535584922913973
+      CounterLight_47: -2469105346053849582
+      CounterLight_48: 5543011518825614674
+      CounterLight_49: 4796655476705397488
+      CounterLight_5: 3180207673825235316
+      CounterLight_50: 4049044814131878400
+      CounterLight_51: 8571467670909837948
+      CounterLight_52: -259614003048431332
+      CounterLight_53: -8049080216256144028
+      CounterLight_54: -6547628574261799583
+      CounterLight_55: -7603761414107871435
+      CounterLight_56: -7025464732108177747
+      CounterLight_6: -8547727800882886424
+      CounterLight_7: -4819021907951648920
+      CounterLight_8: 5456879914890330971
+      CounterLight_9: -8961014606567120884
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
