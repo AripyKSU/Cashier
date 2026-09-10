@@ -130,6 +130,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>연결 모드에서 실제 UI 배치 값을 소유하는 정면 화면입니다.</summary>
     public DystopiaScreen LayoutOwner => hostScreen;
     public string EnteredAmount => amount;
+    /// <summary>작업대가 열린 뒤에는 물품을 쏟는 중에도 계산기 금액을 편집할 수 있습니다.</summary>
+    private bool CanEditAmount => (state == ViewState.Pouring || state == ViewState.Sorting) && !isPaused && !Session.IsPaused;
 
     /// <summary>기존 정면 화면의 세션을 그대로 사용하도록 런타임 테스트 브리지를 붙입니다.</summary>
     public static void AttachToExistingScreen(DystopiaScreen screen)
@@ -251,10 +253,11 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             businessMinute = Mathf.Min(21 * 60, businessMinute + deltaSeconds * gameMinutesPerRealSecond);
         // 결과 단계가 다음 손님으로 넘어가기 전에 접수를 닫고 현재 거래는 끝까지 허용합니다.
         if (businessMinute >= 21 * 60) Session.StopAcceptingCustomers();
+        // 계산기 입력은 쏟기 완료를 기다리지 않으며 물품 분류와 거래 확정 상태는 유지합니다.
+        if (CanEditAmount) ProcessNumberPad();
         if (state == ViewState.Sorting)
         {
             Session.Tick(deltaSeconds);
-            ProcessNumberPad();
             ClampItemMotion();
             ClassifySettledItems();
         }
@@ -792,7 +795,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>키패드의 한 자리 또는 00·000 입력 전체를 최대 7자리 안에서 추가합니다.</summary>
     private void Digit(string digit)
     {
-        if (state != ViewState.Sorting || isPaused || amount.Length + digit.Length > 7) return;
+        if (!CanEditAmount || amount.Length + digit.Length > 7) return;
         amount += digit;
         noticeText.text = "";
         RefreshUi();
@@ -801,7 +804,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>입력한 금액의 마지막 한 자리만 지웁니다.</summary>
     private void Backspace()
     {
-        if (state != ViewState.Sorting || isPaused || amount.Length == 0) return;
+        if (!CanEditAmount || amount.Length == 0) return;
         amount = amount.Substring(0, amount.Length - 1);
         RefreshUi();
     }
@@ -809,7 +812,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>입력 금액 전체를 지웁니다.</summary>
     private void ClearAmount()
     {
-        if (state != ViewState.Sorting || isPaused) return;
+        if (!CanEditAmount) return;
         amount = "";
         RefreshUi();
     }

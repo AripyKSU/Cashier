@@ -1,0 +1,27 @@
+using UnityEditor;
+using UnityEngine;
+
+/// <summary>현재 시계 레이어에만 승인된 조명값을 적용하는 일회성 도구입니다.</summary>
+public static class ClockLightingApplyTemp
+{
+    /// <summary>씬 저장이나 Play 상태 변경 없이 기존 시계 레이어만 갱신합니다.</summary>
+    [MenuItem("Dystopia/Apply Clock Lighting Once")]
+    public static void Apply()
+    {
+        foreach (var stage in Object.FindObjectsByType<DystopiaPixelStage>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            if (stage.gameObject.scene.path != "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity") continue;
+            foreach (var layer in stage.layers)
+            {
+                if (layer.source == null || layer.source.name != "CounterClock") continue;
+                Undo.RecordObject(stage, "Adjust clock lighting");
+                layer.rimWidthPixels = 1;
+                layer.rimResponse = .2f;
+                layer.normalResponse = .5f;
+                Debug.Log("Clock lighting applied: rim width=" + layer.rimWidthPixels + ", rim=" + layer.rimResponse + ", normal=" + layer.normalResponse + ", map=" + layer.normalMap.name);
+                return;
+            }
+        }
+        throw new System.InvalidOperationException("The existing clock lighting layer was not found.");
+    }
+}

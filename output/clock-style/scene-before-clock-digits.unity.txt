@@ -3336,7 +3336,7 @@ MonoBehaviour:
   reactionSeconds: 0.9
   dividerBar: {fileID: 764557817}
   handArtwork: {fileID: 0}
-  handSizePixels: 128
+  handSizePixels: 64
   pourCenter: {x: -1.5, y: 0}
   pourSpread: {x: 2.6, y: 2.2}
   cursorRadius: 0.42
@@ -5133,19 +5133,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 82
+      value: 104.44444
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 23
+      value: 28.88889
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 39
+      value: 28.13889
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -57
+      value: -50
       objectReference: {fileID: 0}
     - target: {fileID: 3208392661193809579, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Name
@@ -5169,7 +5169,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_FontData.m_FontSize
-      value: 18
+      value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_FontData.m_AlignByGeometry

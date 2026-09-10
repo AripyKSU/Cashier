@@ -3336,7 +3336,7 @@ MonoBehaviour:
   reactionSeconds: 0.9
   dividerBar: {fileID: 764557817}
   handArtwork: {fileID: 0}
-  handSizePixels: 128
+  handSizePixels: 64
   pourCenter: {x: -1.5, y: 0}
   pourSpread: {x: 2.6, y: 2.2}
   cursorRadius: 0.42

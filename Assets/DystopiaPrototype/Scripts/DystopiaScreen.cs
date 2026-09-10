@@ -8,6 +8,10 @@ using UnityEngine.UI;
 /// <summary>전용 Scene의 독립 Sprite 화면, 실제 버튼 입력 및 런 수명을 관리합니다.</summary>
 public sealed partial class DystopiaScreen : MonoBehaviour
 {
+    /// <summary>얼굴·손 위주인 어린이 원화를 성인 상반신 영역에 표시할 때의 상대 크기입니다.</summary>
+    private const float ChildPortraitScale = .4f;
+    /// <summary>어린이 손의 하단이 가판 뒤로 살짝 겹치도록 기존 손님 기준점에서 올리는 상대 위치입니다.</summary>
+    private Vector2 ChildPortraitOrigin => idleOrigins[2] + Vector2.up * (idlePeople[2].rect.height * placedPeopleScales[2].y * .18f);
     /// <summary>외형별 호흡 연출 분류입니다. 게임 능력이나 건강 판정에는 사용하지 않습니다.</summary>
     private enum BreathStyle { Normal, Heavy, Elderly }
     /// <summary>남성 Sprite 배열과 같은 순서의 호흡 분류입니다.</summary>
@@ -337,8 +341,10 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             float width = style == BreathStyle.Heavy ? .022f : .007f;
             float relativeSize = idlePeople[i].rect.height / 550f;
             float sway = Mathf.Sin(idleSeconds / period * 2.1f + seed) * (style == BreathStyle.Elderly ? .7f : .3f);
-            idlePeople[i].anchoredPosition = idleOrigins[i] + new Vector2(sway, (breath - .5f) * (style == BreathStyle.Elderly ? 5f : 3f) * relativeSize);
-            idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i], new Vector3(1 + (breath - .5f) * width, 1 - (1 - breath) * depth, 1));
+            bool isChild = i == 2 && Session.Customer.Type == DystopiaCustomerType.Child;
+            float portraitScale = isChild ? ChildPortraitScale : 1;
+            idlePeople[i].anchoredPosition = (isChild ? ChildPortraitOrigin : idleOrigins[i]) + new Vector2(sway, (breath - .5f) * (style == BreathStyle.Elderly ? 5f : 3f) * relativeSize) * portraitScale;
+            idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i], new Vector3((1 + (breath - .5f) * width) * portraitScale, (1 - (1 - breath) * depth) * portraitScale, 1));
         }
     }
 
@@ -509,6 +515,12 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         confirmButtonText.text = Session.Phase == DystopiaPhase.Trading && Session.Customer.total == 0 ? "거래 취소  ↵" : "판매 확정  ↵";
         ShowAmount();
         portrait.sprite = CustomerPoolSprite(Session.Customer.IsMale,Session.Customer.appearance);
+        // 첫 표시와 결과 갱신에서도 성인 크기의 얼굴이 한 프레임 노출되지 않게 합니다.
+        if (Session.Customer.Type == DystopiaCustomerType.Child && queueMovement == null)
+        {
+            portrait.rectTransform.anchoredPosition = ChildPortraitOrigin;
+            portrait.rectTransform.localScale = Vector3.Scale(placedPeopleScales[2], new Vector3(ChildPortraitScale, ChildPortraitScale, 1));
+        }
         portrait.color = Session.Phase == DystopiaPhase.Result && !Session.LastAccepted && !Session.LastCancelled ? new Color(.8f,.6f,.6f) : Color.white;
         RefreshTradeReaction();
         for (int i=0;i<waiting.Length;i++)
@@ -658,8 +670,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 {
                     float pop = Mathf.Clamp01(elapsed / .28f);
                     float rise = 1 - Mathf.Pow(1 - pop, 3);
-                    idlePeople[i].anchoredPosition = idleOrigins[i] + Vector2.down * (1 - rise) * 240;
-                    idlePeople[i].localScale = placedPeopleScales[i];
+                    idlePeople[i].anchoredPosition = ChildPortraitOrigin + Vector2.down * (1 - rise) * 240;
+                    idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i], new Vector3(ChildPortraitScale, ChildPortraitScale, 1));
                     continue;
                 }
                 float size = i == 2 ? 340f / 550 : i == 0 ? 240f / 340 : .8f;
