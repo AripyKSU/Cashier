@@ -28,17 +28,33 @@
     <setting file="file://$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionDataTable.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationResult.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/EconomyLogEntry.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/EconomyLogService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/EconomyQueryService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/EconomyRuntime.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/EconomySettings.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/FinanceChangeReason.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/FinanceChangeResult.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/FinanceService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/MaintenanceService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/CashierSession.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/Dev3SandboxTester.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Utils/Singleton.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Utils/Util.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/041ac582d81444308b58e1f58f9695a37c00/87/18095e0e/02000002pdb1.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/12946b1662c9498696423b6ab1860792e200/cd/fd171c22/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/1469c0dd26bd4b0cab119a2d4930f2f335200/6a/abb12c4f/02000066pdb76.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/1469c0dd26bd4b0cab119a2d4930f2f335200/ee/09af6ab6/02000017pdb16.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/1469c0dd26bd4b0cab119a2d4930f2f335200/f9/286e0656/02000036pdb46.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/25011cde5a374a438373a6383dfa0ea8e200/4f/a7fe66f9/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/25011cde5a374a438373a6383dfa0ea8e200/fd/e88c2125/0200000Fpdb7.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/2bb0f5725e4b4dd5ad26e704c002448212400/9d/41d62fa5/0200002Apdb33.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/2dd92ca01bce43c6adc1b8303ef804091d000/82/b921822d/02000006pdb2.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/4ce6dae97d1f44c6a725b09ce62278d02b200/7b/e83a8a82/02000013pdb13.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/5ba302c6b83143119b81ae827bfeb8753ba00/9c/06502fd1/0200004Fpdb64.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/5c5e72811f314750a5046117b14297a812e00/be/d8d9f756/0200002Epdb37.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/5f3bc12416074e3a8068b1ae6fdbf88831000/13/db10a73b/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/60aaa421ef6c4107b48178d2b4ad672c31600/00/97ac1cbd/02000017pdb16.il" root0="FORCE_HIGHLIGHTING" />
@@ -59,9 +75,23 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/62d455233bb343fd86934ddc025d3104e200/83/54f250b0/0200000Fpdb7.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/62d455233bb343fd86934ddc025d3104e200/fd/6dcb238a/02000010pdb8.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/6dfc39632b934e5f897b6880e20aded812600/43/337fef97/02000017pdb15.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/702fa5cc79f14012a65327e35cf2e8a83ba00/e1/e8526357/0200004Fpdb64.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/7291d10359344d138880ec8c241dcf0537800/d1/21d24146/02000029pdb26.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/89c6389f27a64ab49ba199b8067880fa31000/4a/2e2b3049/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/8e9e1b81e9c44a718f634e48445c972c30800/8e/462b691f/0200001Dpdb20.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/8e9e1b81e9c44a718f634e48445c972c30800/b4/e8946987/0200001Cpdb19.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/915a98bcef134958801f88fabd74839342200/19/9fe0a208/02000052pdb66.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/915a98bcef134958801f88fabd74839342200/72/8af67dee/0200002Epdb31.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/915a98bcef134958801f88fabd74839342200/7d/93bea3ed/0200002Fpdb32.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/915a98bcef134958801f88fabd74839342200/ce/9f531edf/02000058pdb72.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/915a98bcef134958801f88fabd74839342200/ed/c0554085/02000030pdb33.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/915a98bcef134958801f88fabd74839342200/f3/94aee2af/0200002Dpdb30.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/a7038b37a005424586087cac2b34c35a10400/a9/3dff487f/02000027pdb30.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/aef6e3fff45444e2bb8f8d13ff0eaf0312e00/92/2a0254db/02000012pdb10.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/62/94b9140f/0200004Epdb63.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/75/80cb5271/02000029pdb26.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/7e/07678cf2/0200002Bpdb28.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/e7/ed8c7d46/0200002Apdb27.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/05/3bec2414/0200003Bpdb51.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/1c/12cec83c/02000015pdb15.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/1f/0b62562b/02000016pdb16.il" root0="FORCE_HIGHLIGHTING" />
@@ -156,7 +186,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "merge__test",
+    "git-widget-placeholder": "customer__create",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -212,6 +242,7 @@
       <updated>1788487159994</updated>
       <workItem from="1788487160146" duration="3893000" />
       <workItem from="1788743272615" duration="6497000" />
+      <workItem from="1788914650040" duration="5493000" />
     </task>
     <servers />
   </component>

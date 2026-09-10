@@ -46,7 +46,7 @@ public sealed class ReputationLogService
     /// </summary>
     /// <param name="dispositionTable">거래 등급 분류에 사용할 손님 성향 테이블입니다.</param>
     /// <exception cref="ArgumentNullException">성향 테이블이 null인 경우 발생합니다.</exception>
-    /// <exception cref="InvalidDataException">성향 타입이 누락되거나 중복된 경우 발생합니다.</exception>
+    /// <exception cref="InvalidDataException">성향 행이 잘못되었거나 같은 타입의 가격 규칙이 다른 경우 발생합니다.</exception>
     public ReputationLogService(CustomerDispositionDataTable dispositionTable)
     {
         if (dispositionTable == null)
@@ -55,12 +55,10 @@ public sealed class ReputationLogService
         }
 
         this.dispositionsByType = new Dictionary<CustomerDispositionType, CustomerDispositionData>();
-        foreach (CustomerDispositionData data in dispositionTable.Rows.Values)
+        foreach (KeyValuePair<CustomerDispositionType, CustomerDispositionData> pair in
+            ReputationDispositionRules.BuildByType(dispositionTable.Rows.Values))
         {
-            if (data == null || !this.dispositionsByType.TryAdd(data.DispositionType, data))
-            {
-                throw new InvalidDataException("명성 로그에 사용할 손님 성향 타입이 누락되었거나 중복되었습니다.");
-            }
+            this.dispositionsByType.Add(pair.Key, pair.Value);
         }
 
         this.transactionEntries = new List<ReputationTransactionLogEntry>();

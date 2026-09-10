@@ -17,7 +17,7 @@
 2. 첫 데이터 행의 `idx / 1000`으로 로더를 선택한다. 파일명은 오류 문맥이며 종류 판정 키가 아니다. 각 테이블이 header·타입·중복·범위를 검사한다.
 3. [CustomerCatalog](../Assets/Scripts/Customer/Data/CustomerCatalog.cs)가 상품·성향·외형·분류·Text FK를 검사한다. 가격 이벤트 FK는 DataTableManager가 검사한다. 소비자는 전체 로딩 완료를 기다린다.
 4. [GameSessionManager](../Assets/Scripts/Manager/GameSessionManager.cs)가 경제 상태·0부터 시작하는 경과일·당일 현재가를 소유한다. [GameProgress](../Assets/Scripts/Progress/GameProgress.cs)와 [DayProgress](../Assets/Scripts/Progress/DayProgress.cs)는 이를 통해 진행한다.
-5. [CustomerGenerator](../Assets/Scripts/Customer/CustomerGenerator.cs)가 방문별 외형·성향·독립 속성과 희망 상품 목록을 만든다. [CustomerVisit](../Assets/Scripts/Customer/CustomerVisit.cs)이 최종 판매 목록과 제출 당시 현재가로 판정한다.
+5. [CustomerCompositionSelector](../Assets/Scripts/Customer/CustomerCompositionSelector.cs)가 명성·성별 교대·설비 상태로 손님 구성 snapshot을 선택하고, [CustomerGenerator](../Assets/Scripts/Customer/CustomerGenerator.cs)가 이를 [CustomerVisit](../Assets/Scripts/Customer/CustomerVisit.cs)으로 변환한다. `CustomerVisit`은 최종 판매 목록과 제출 당시 현재가로 판정한다.
 6. [GameUIController](../Assets/Scripts/Scene/GameUIController.cs)와 [ProgressViewDataFactory](../Assets/Scripts/UI/ProgressViewDataFactory.cs)가 표시용 값을 전달한다. 표시 문자열은 데이터의 내부 식별자가 아니다.
 
 ### 공통 형식·제약
@@ -247,14 +247,14 @@
 | 1012 방한포 | DailyNecessities=4 | 600 | 300 | 비활성 |
 | 1013 연고 | Medicine=3 | 500 | 250 | 설비 12002 |
 | 1014 응급 주사 | Medicine=3 | 900 | 450 | 설비 12002 |
-| 1015 손전등 | DailyNecessities=4 | 800 | 400 | 설비 12003 |
-| 1016 접이식 삽 | DailyNecessities=4 | 1000 | 500 | 설비 12003 |
-| 1017 쇠지렛대 | DailyNecessities=4 | 1200 | 600 | 설비 12003 |
-| 1018 무전기 | DailyNecessities=4 | 2000 | 1000 | 설비 12004 |
-| 1019 배터리 | DailyNecessities=4 | 1200 | 600 | 설비 12004 |
-| 1020 방독면 | DailyNecessities=4 | 2500 | 1250 | 설비 12005 |
-| 1021 방호복 | DailyNecessities=4 | 4000 | 2000 | 설비 12005 |
-| 1022 방사능 측정기 | DailyNecessities=4 | 5000 | 2500 | 설비 12005 |
+| 1015 손전등 | Tools=5 | 800 | 400 | 설비 12003 |
+| 1016 접이식 삽 | Tools=5 | 1000 | 500 | 설비 12003 |
+| 1017 쇠지렛대 | Tools=5 | 1200 | 600 | 설비 12003 |
+| 1018 무전기 | ElectricalEquipment=6 | 2000 | 1000 | 설비 12004 |
+| 1019 배터리 | ElectricalEquipment=6 | 1200 | 600 | 설비 12004 |
+| 1020 방독면 | ProtectiveEquipment=7 | 2500 | 1250 | 설비 12005 |
+| 1021 방호복 | ProtectiveEquipment=7 | 4000 | 2000 | 설비 12005 |
+| 1022 방사능 측정기 | ProtectiveEquipment=7 | 5000 | 2500 | 설비 12005 |
 
 모든 상품의 현재 원가는 기본가격의50%로 입력되어 있다. 이는 **현 행 값의 관계**이지 `CostPrice <= BasePrice` 검증이나 자동 원가 계산식이 아니다. 가격 이벤트는 CostPrice를 바꾸지 않는다.
 
@@ -265,10 +265,16 @@
 | 6001 평범 | Normal=1 | Water·Food | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
 | 6002 급함 | Hasty=2 | Medicine | 900=90% | 1300=130% | 1000~1000 | 3초 / 9초 |
 | 6003 가격 민감 | PriceSensitive=3 | DailyNecessities | 900=90% | 1000=100% | 1000~1000 | 12초 / 18초 |
+| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6007 부유한 손님 | Wealthy=4 | ElectricalEquipment·ProtectiveEquipment | 900=90% | 1400=140% | 1000~1000 | 9초 / 15초 |
 
 - 희망 목록은 각 성향 모두1~3종류, 종류당1~3개이며 동일 상품은 한 항목으로 표현한다. 후보가 부족하면 종류 수를 줄인다.
 - 선호 분류와 개별 상품은 OR다. 현재 개별 선호 상품 목록은 모두 비어 있다. 양쪽 후보군이 남아 있을 때만90%가 적용되고 한쪽 소진 시 남은 쪽에서 고르므로 최종 장바구니의 정확히90%가 선호 상품이라는 뜻은 아니다.
-- 타입 출현은 **존재하는 타입 간 균등 → 선택된 타입 안의 성향 행 간 균등**이다. 현재3타입은 각1/3, Wealthy=4는 데이터가 없어 생성되지 않는다. 새 타입 행 추가는 모든 타입의 상대 출현율을 바꾼다. 외형은 전달된 후보에서 균등, 대사는 각 후보 목록에서 균등 선택한다.
+- 명성 출현은 하루 시작 명성의 `ReputationBalanceData` 가중치로 일반군(Normal·PriceSensitive), Wealthy, Hasty 구성군을 먼저 선택한 뒤 구성군 내부 타입과 같은 타입의 성향 행을 균등 선택한다. 현재 특수군 가중치는 0이며 매핑이 확정되기 전에는 양수 값을 거부한다. 명성 정산은 같은 타입의 여러 행 중 선호·대사와 무관하게 가격 규칙만 대표값으로 사용하며, 같은 타입 행의 가격 규칙이 다르면 데이터 오류로 거부한다. 외형은 전달된 후보에서 균등, 대사는 선택된 행의 후보 목록에서 균등 선택한다.
+- 6004~6006은 기존 Normal 타입의 전문 선호 행이고 6007은 Wealthy 실제 행이다. 따라서 선호 행 증가는 명성 일반군의 타입 비율을 바꾸지 않는다.
+- 손님 선호는 `ProductType`와 개별 `preferred_product_idxs`의 OR이며 날짜·활성·설비 필터 이후의 상품 후보에만 적용한다. 설비 상품은 Tools/ElectricalEquipment/ProtectiveEquipment로 분류되어 해당 타입 선호 손님이 설비 활성 뒤에만 해당 상품을 고를 수 있다.
 - 성별2종과 연령3종은 독립 균등이며 외형·성향과 별개다. 성인은Adult=16, 특수 속성은 현재Normal=32 하나뿐이며 전체2×3×1=6조합이다. Normal만을 위해 난수를 추가 소비하지 않는다.
 - 현재 같은 성향의 기준가·저가·착취 대사 목록이 동일하다. 판정이 달라도 문구가 같을 수 있다. 결제 거부는 별도 목록이다.
 - 재촉 시점은 `queue_patience_seconds - 6`이다. 모든 성향이3초에 재촉하는 것이 아니라 가장 급한 성향이3초이며 다른 성향은 비례 조정된 값이다. 대기열은 독립 API이므로 현재 UI에서 위 시간이 흐른다는 보장은 없다.
@@ -319,7 +325,7 @@
 | enum·근거 | 실제 이름=숫자 | 사용·제약 |
 |---|---|---|
 | [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, ReputationBalance=11, Facility=12, DataTableType_End=13(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
-| [ProductType : uint](../Assets/Scripts/Commons/Data/ProductType.cs) | None=0, Water=1, Food=2, Medicine=3, DailyNecessities=4 | 상품·선호·이벤트·지침. None 거부, End 없음 |
+| [ProductType : uint](../Assets/Scripts/Commons/Data/ProductType.cs) | None=0, Water=1, Food=2, Medicine=3, DailyNecessities=4, Tools=5, ElectricalEquipment=6, ProtectiveEquipment=7 | 상품·선호·이벤트·지침. None 거부, End 없음 |
 | [CustomerDispositionType : int](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4, CustomerDispositionType_End=5(자동) | CSV 원시 uint를 enum으로 해석,1~4만 허용 |
 | [CustomerAttributes : int, Flags](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Male=1, Female=2, Child=4, Elderly=8, Adult=16, Normal=32 | bit OR. 성별·연령·특수 각각 최대1개. 실제 방문은 세 축 모두필수 |
 | [PriceChangeType : int](../Assets/Scripts/Commons/Data/PriceEventData.cs) | None=0, Rate=1, Amount=2, PriceChangeType_End=3(자동) | CSV0~2만; None은 무효과 데이터로 유효 |

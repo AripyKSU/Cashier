@@ -5,5 +5,8 @@ public enum ProductType : uint
     Water = 1,
     Food = 2,
     Medicine = 3,
-    DailyNecessities = 4
+    DailyNecessities = 4,
+    Tools = 5,
+    ElectricalEquipment = 6,
+    ProtectiveEquipment = 7
 }

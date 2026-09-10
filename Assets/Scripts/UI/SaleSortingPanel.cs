@@ -434,7 +434,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             {
                 SaleSortingItemView item = Instantiate(this.itemPrefab, this.itemRoot);
                 item.name = $"SaleItem_{line.ItemId}_{quantityIndex}";
-                item.Initialize(line.ItemId, quantityIndex, line.Icon, this.itemSizePixels);
+                item.Initialize(line.ItemId, quantityIndex, line.Icon, this.itemSizePixels, line.DisplayName);
                 item.Position = this.getPourStartPosition(unitSequence);
                 this.items.Add(item);
                 unitSequence++;

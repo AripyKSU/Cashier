@@ -117,3 +117,9 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 최종 File.Move 실패 주입: 없는 tmp 경로에서 finishAfterCleanup 두 번 호출, FINALIZE_GUARD_PASS logs=1 pending=empty no_final_xml background_restored. 예상 Error 1건을 별도로 발생시켰고 세션 플래그 복원. update 반복 오류 없음.
 - CSV 오류 56건과 Play provider/풀 오류 3건은 LogAssert.Expect로 확인한다. 이 예상 로그 및 위 실패 주입 로그가 Console에 남을 수 있으며 제품 오류와 구분한다.
 - 이전 전환 중 NUnit 인자 타입/fixture FK·기대 로그·XML 쓰기 경합/cleanup 순서 문제는 수정 후 위 실행이 통과했다. 초기 실패 XML은 기존 Temp 폴더에 보존했다.
+
+## 손님 구성 선택 통합 검증 (2026-09-09)
+
+- `unity-cli editor refresh --compile --ignore-version-mismatch`로 최신 runtime/test assembly 컴파일 완료를 확인했다.
+- EditMode 175/175, PlayMode 25/25, 실패·skip 0. 새 selector 명성 가중치·설비 선호·성별 교대, 타입 전용 명성 매핑과 기존 손님·CSV·시설·진행 회귀를 포함한다. 증거: `Temp/TestResults/20260909-customer-spawn-edit/EditMode.xml`, `Temp/TestResults/20260909-customer-spawn/PlayMode.xml`.
+- 실제 성별별 이미지 asset 연결과 UI/UX 표현은 범위 밖이며 수동 확인 대기다. 선호 타입 상품의 명성 정산은 `ReputationDispositionRules`가 선호 필드를 참조하지 않는 것으로 고정한다.

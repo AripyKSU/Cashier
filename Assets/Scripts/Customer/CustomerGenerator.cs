@@ -1,119 +1,103 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-/// <summary>외부에서 받은 유효 후보로 일반 손님의 방문과 구매 목록을 생성한다.</summary>
+/// <summary>
+/// 확정된 손님 구성 snapshot으로 CustomerVisit 객체를 생성하고 전달합니다.
+/// </summary>
+/// <remarks>
+/// 외형·성향·속성·상품을 고르는 규칙은 <see cref="CustomerCompositionSelector"/>가 소유합니다.
+/// 이 클래스는 선택 결과를 방문 객체와 제출 시 조회 callback으로 연결하는 경계만 담당합니다.
+/// </remarks>
 public sealed class CustomerGenerator
 {
-    /// <summary>호출자가 소유하는 난수원. 고정 seed로 생성 결과를 재현할 수 있다.</summary>
-    private readonly Random random;
-
-    /// <summary>방문 간 재사용할 난수원을 지정한다.</summary>
-    /// <param name="random">null이 아닌 난수원.</param>
-    /// <exception cref="ArgumentNullException">난수원이 null인 경우.</exception>
-    public CustomerGenerator(Random random)
+    // 구형 호출부의 seed 재현을 위한 호환 경로 전용 난수원입니다. 신규 경로는 보관하지 않습니다.
+    private readonly Random compatibilityRandom;
+    /// <summary>구성 snapshot을 방문 객체로 바꾸는 무상태 생성기입니다.</summary>
+    public CustomerGenerator()
     {
-        this.random = random ?? throw new ArgumentNullException(nameof(random));
     }
 
-    /// <summary>외형·타입·타입 내 설정과 독립 속성을 균등 선정하고 중복 없는 상품·수량을 확정한다.</summary>
-    /// <param name="appearanceIds">외부에서 리소스 참조를 검증한 외형 ID 후보.</param>
-    /// <param name="dispositions">외부에서 상품군 참조를 검증한 성향 후보.</param>
-    /// <param name="products">상품 ID → 상품 데이터. 비활성·미등장 상품은 제외한다.</param>
-    /// <param name="elapsedDays">게임 시작 후 경과 일수. 0은 시작일.</param>
-    /// <param name="getCurrentPrices">현재 가격표 조회 함수. 생성 시 희망 목록 표시, 제출 시 최신 가격 확정에 각각 사용한다.</param>
-    /// <param name="getSaleRestrictions">수락 가능한 제출 시 조회할 지침 공급자. null이면 미연결이며 생성 시 호출하지 않는다.</param>
-    /// <param name="isFacilityActive">세션의 설비 활성 조회. 미연결은 설비 상품을 잠근다.</param>
-    /// <returns>판매 가능 상품이 없으면 null. 나머지는 확정된 방문 데이터.</returns>
-    /// <exception cref="ArgumentException">필수 후보 누락, 0·중복 ID 또는 잘못된 설정 범위.</exception>
-    public CustomerVisit Generate(IReadOnlyList<uint> appearanceIds,
-        IReadOnlyList<CustomerDispositionData> dispositions,
-        IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices = null,
-        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null, Func<uint, bool> isFacilityActive = null)
+    /// <summary>
+    /// 이전 호출자의 생성 코드가 컴파일되도록 남겨 둔 호환 생성자입니다.
+    /// </summary>
+    /// <param name="random">더 이상 저장하지 않는 난수원입니다.</param>
+    /// <exception cref="ArgumentNullException">난수원이 null인 경우 발생합니다.</exception>
+    [Obsolete("손님 선택은 CustomerCompositionSelector가 담당합니다. 기본 생성자를 사용하세요.")]
+    public CustomerGenerator(Random random)
     {
-        if (getCurrentPrices == null) throw new ArgumentNullException(nameof(getCurrentPrices));
-        var currentPrices = getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
-        if (appearanceIds == null || appearanceIds.Count == 0)
-            throw new ArgumentException("외형 후보가 필요합니다.", nameof(appearanceIds));
-        if (dispositions == null || dispositions.Count == 0)
-            throw new ArgumentException("성향 후보가 필요합니다.", nameof(dispositions));
+        if (random == null)
+            throw new ArgumentNullException(nameof(random));
+        this.compatibilityRandom = random;
+    }
+
+    /// <summary>구형 확장 호출부가 seed 재현을 유지하도록 난수원을 전달합니다.</summary>
+    internal Random CompatibilityRandom => this.compatibilityRandom;
+
+    /// <summary>
+    /// 선택된 구성 snapshot을 CustomerVisit으로 생성합니다.
+    /// </summary>
+    /// <param name="composition">선택기가 확정한 불변 구성입니다.</param>
+    /// <param name="products">상품 PK → 상품 데이터 사전입니다.</param>
+    /// <param name="getCurrentPrices">제출 시 최신 현재가를 조회하는 callback입니다.</param>
+    /// <param name="getSaleRestrictions">제출 시 판매 지침을 조회하는 callback입니다.</param>
+    /// <returns>구성 snapshot을 복사한 방문 객체입니다.</returns>
+    /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
+    /// <exception cref="ArgumentException">구성 상품 또는 현재가 참조가 잘못된 경우 발생합니다.</exception>
+    public CustomerVisit Generate(
+        CustomerComposition composition,
+        IReadOnlyDictionary<uint, ProductData> products,
+        Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
+        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null)
+    {
+        if (composition == null)
+            throw new ArgumentNullException(nameof(composition));
         if (products == null)
             throw new ArgumentNullException(nameof(products));
+        if (getCurrentPrices == null)
+            throw new ArgumentNullException(nameof(getCurrentPrices));
 
-        var ids = new HashSet<uint>();
-        foreach (uint id in appearanceIds)
-            if (id == 0 || !ids.Add(id))
-                throw new ArgumentException("외형 ID는 0이 아니며 고유해야 합니다.", nameof(appearanceIds));
-        ids.Clear();
-        foreach (var data in dispositions)
+        IReadOnlyDictionary<uint, uint> currentPrices =
+            getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
+        HashSet<uint> availableIds = new HashSet<uint>();
+        foreach (uint productId in composition.AvailableProductIds)
         {
-            if (data == null || data.Idx == 0 || !ids.Add(data.Idx))
-                throw new ArgumentException("성향 ID 또는 구매 설정 범위가 잘못되었습니다.", nameof(dispositions));
-            data.ValidatePurchaseSettings();
-            foreach (uint idx in data.PreferredProductIdxs)
-                if (!products.ContainsKey(idx))
-                    throw new ArgumentException($"성향 {data.Idx}: preferred_product_idxs FK={idx} 참조 실패", nameof(dispositions));
+            if (productId == 0 || !availableIds.Add(productId) || !products.TryGetValue(productId, out ProductData product) ||
+                product == null || product.Idx != productId)
+                throw new ArgumentException("구성의 허용 상품 snapshot이 상품 사전과 일치하지 않습니다.", nameof(composition));
         }
-        var availableProducts = new Dictionary<uint, ProductData>();
-        foreach (var product in products)
+
+        foreach (KeyValuePair<uint, ProductData> pair in products)
         {
-            if (product.Value == null || product.Key != product.Value.Idx)
+            if (pair.Value == null || pair.Key != pair.Value.Idx)
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
-            product.Value.Validate();
-            if (currentPrices != null && (!currentPrices.TryGetValue(product.Key, out uint price) || price == 0))
-                throw new ArgumentException($"상품 PK={product.Key}: 현재가 누락 또는 0", nameof(currentPrices));
-            if (CustomerProductAvailability.IsAvailable(product.Value, elapsedDays, isFacilityActive))
-                availableProducts.Add(product.Key, product.Value);
+            pair.Value.Validate();
+            if (!currentPrices.TryGetValue(pair.Key, out uint price) || price == 0)
+                throw new ArgumentException($"상품 PK={pair.Key}: 현재가 누락 또는 0", nameof(getCurrentPrices));
         }
 
-        // 정상적인 판매 후보 부재는 잘못된 설정과 달리 방문을 만들지 않는다.
-        if (availableProducts.Count == 0) return null;
-
-        uint appearanceIdx = appearanceIds[random.Next(appearanceIds.Count)];
-        // 타입별 설정 개수가 달라도 타입 출현율은 같으며 입력 행 순서에 의존하지 않는다.
-        var groups = dispositions.GroupBy(x => x.DispositionType).OrderBy(x => x.Key).ToArray();
-        var candidatesByType = groups[random.Next(groups.Length)].OrderBy(x => x.Idx).ToArray();
-        var disposition = candidatesByType[random.Next(candidatesByType.Length)];
-        var attributes = random.Next(2) == 0 ? CustomerAttributes.Male : CustomerAttributes.Female;
-        attributes |= random.Next(3) switch
+        foreach (CustomerOrderItem item in composition.Items)
         {
-            0 => CustomerAttributes.Adult,
-            1 => CustomerAttributes.Child,
-            _ => CustomerAttributes.Elderly
-        };
-        // 현재 특수 속성은 일반뿐이며 성향 타입과 연동하지 않는다.
-        attributes |= CustomerAttributes.Normal;
-        var preferredCategories = new HashSet<ProductType>(disposition.PreferredProductTypes);
-        var preferredProducts = new HashSet<uint>(disposition.PreferredProductIdxs);
-        var preferred = new List<uint>();
-        var others = new List<uint>();
-        foreach (var product in availableProducts)
-            (preferredCategories.Contains(product.Value.ProductType) || preferredProducts.Contains(product.Key) ? preferred : others).Add(product.Key);
-        // Dictionary 삽입 순서가 달라도 같은 seed와 후보 집합으로 같은 상품을 고른다.
-        preferred.Sort();
-        others.Sort();
-        int maxKinds = Math.Min(disposition.MaxProductKinds, availableProducts.Count);
-        int minKinds = Math.Min(disposition.MinProductKinds, maxKinds);
-        int count = random.Next(minKinds, maxKinds + 1);
-        var items = new List<CustomerOrderItem>(count);
-        for (int i = 0; i < count; i++)
-        {
-            // 한쪽 후보 소진 시 남은 쪽을 사용하므로 재추첨 루프가 필요 없다.
-            bool usePreferred = preferred.Count > 0 &&
-                (others.Count == 0 || random.Next(1000) < disposition.PreferredSelectionChance);
-            var candidates = usePreferred ? preferred : others;
-            int index = random.Next(candidates.Count);
-            items.Add(new CustomerOrderItem(candidates[index],
-                random.Next(disposition.MinQuantity, disposition.MaxQuantity + 1),
-                currentPrices[candidates[index]]));
-            candidates.RemoveAt(index);
+            if (item == null || !availableIds.Contains(item.ProductIdx) || !products.ContainsKey(item.ProductIdx))
+                throw new ArgumentException("구성 구매 항목이 허용 상품 snapshot과 일치하지 않습니다.", nameof(composition));
         }
-        return new CustomerVisit(appearanceIdx, disposition.Idx, items, disposition.PriceTolerance,
-            disposition.EntryTextIdxs[random.Next(disposition.EntryTextIdxs.Count)],
-            disposition.RegularSaleTextIdxs[random.Next(disposition.RegularSaleTextIdxs.Count)],
-            disposition.DiscountSaleTextIdxs[random.Next(disposition.DiscountSaleTextIdxs.Count)],
-            disposition.ExploitativeSaleTextIdxs[random.Next(disposition.ExploitativeSaleTextIdxs.Count)],
-            disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)], products, getCurrentPrices,
-            disposition.DispositionType, attributes, disposition.RegularPriceMinRate, disposition.RegularPriceMaxRate, getSaleRestrictions, availableProducts.Keys);
+
+        return new CustomerVisit(
+            composition.AppearanceIdx,
+            composition.DispositionIdx,
+            new List<CustomerOrderItem>(composition.Items),
+            composition.PriceTolerance,
+            composition.EntryTextIdx,
+            composition.RegularSaleTextIdx,
+            composition.DiscountSaleTextIdx,
+            composition.ExploitativeSaleTextIdx,
+            composition.RejectTextIdx,
+            products,
+            getCurrentPrices,
+            composition.DispositionType,
+            composition.Attributes,
+            composition.RegularPriceMinRate,
+            composition.RegularPriceMaxRate,
+            getSaleRestrictions,
+            availableIds);
     }
 }

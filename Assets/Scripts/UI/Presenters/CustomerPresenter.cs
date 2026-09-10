@@ -20,6 +20,9 @@ public class CustomerPresenter : MonoBehaviour
     [Tooltip("손님 외형 이미지 (색상 또는 스프라이트)")]
     [SerializeField] private Image appearanceImage;
 
+    [Tooltip("임시 외형 이미지 위에 성별을 표시하는 TextMeshPro 텍스트")]
+    [SerializeField] private TextMeshProUGUI temporaryGenderText;
+
     [Header("Dialogue & Text")]
     [Tooltip("손님 대사 텍스트 (입장 인사 또는 판정 후 반응)")]
     [SerializeField] private TextMeshProUGUI dialogueText;
@@ -39,6 +42,12 @@ public class CustomerPresenter : MonoBehaviour
 
     // 동일한 장바구니를 다시 표시할 때 기존 랜덤 위치를 유지하기 위한 구성 식별값입니다.
     private int basketSignature;
+
+    /// <summary>프리팹에 별도 라벨이 연결되지 않은 경우 외형 이미지 자식으로 임시 성별 라벨을 만듭니다.</summary>
+    private void Awake()
+    {
+        this.ensureTemporaryGenderText();
+    }
 
     /// <summary>
     /// 외부 손님·거래 시스템에서 전달된 손님 스냅샷을 기반으로 UI를 갱신합니다.
@@ -73,6 +82,16 @@ public class CustomerPresenter : MonoBehaviour
             this.appearanceImage.gameObject.SetActive(true);
         }
 
+        this.ensureTemporaryGenderText();
+        if (this.temporaryGenderText != null)
+        {
+            CustomerAttributes gender = viewData.Attributes & (CustomerAttributes.Male | CustomerAttributes.Female);
+            this.temporaryGenderText.text = gender == CustomerAttributes.Male
+                ? "남성"
+                : gender == CustomerAttributes.Female ? "여성" : "성별 미지정";
+            this.temporaryGenderText.gameObject.SetActive(true);
+        }
+
         // 2. 대사 렌더링
         if (this.dialogueText != null)
         {
@@ -99,6 +118,12 @@ public class CustomerPresenter : MonoBehaviour
         if (this.appearanceImage != null)
         {
             this.appearanceImage.gameObject.SetActive(false);
+        }
+
+        if (this.temporaryGenderText != null)
+        {
+            this.temporaryGenderText.text = string.Empty;
+            this.temporaryGenderText.gameObject.SetActive(false);
         }
 
         this.hideBasketItems();
@@ -274,5 +299,48 @@ public class CustomerPresenter : MonoBehaviour
         }
 
         return totalQuantity;
+    }
+
+    /// <summary>임시 외형 이미지 위에 표시할 성별 TMP 라벨을 확보합니다.</summary>
+    private void ensureTemporaryGenderText()
+    {
+        if (this.temporaryGenderText != null || this.appearanceImage == null)
+        {
+            return;
+        }
+
+        Transform existing = this.appearanceImage.transform.Find("TemporaryGender");
+        if (existing != null)
+        {
+            this.temporaryGenderText = existing.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (this.temporaryGenderText == null)
+        {
+            GameObject labelObject = new GameObject("TemporaryGender", typeof(RectTransform));
+            labelObject.transform.SetParent(this.appearanceImage.transform, false);
+            this.temporaryGenderText = labelObject.AddComponent<TextMeshProUGUI>();
+        }
+
+        if (this.dialogueText != null)
+        {
+            this.temporaryGenderText.font = this.dialogueText.font;
+            this.temporaryGenderText.fontSharedMaterial = this.dialogueText.fontSharedMaterial;
+        }
+
+        RectTransform labelRect = this.temporaryGenderText.rectTransform;
+        labelRect.anchorMin = Vector2.zero;
+        labelRect.anchorMax = Vector2.one;
+        labelRect.offsetMin = new Vector2(2f, 2f);
+        labelRect.offsetMax = new Vector2(-2f, -2f);
+        labelRect.localScale = Vector3.one;
+        this.temporaryGenderText.alignment = TextAlignmentOptions.Center;
+        this.temporaryGenderText.fontSize = 22f;
+        this.temporaryGenderText.color = Color.white;
+        this.temporaryGenderText.outlineWidth = 0.25f;
+        this.temporaryGenderText.outlineColor = Color.black;
+        this.temporaryGenderText.raycastTarget = false;
+        this.temporaryGenderText.transform.SetAsLastSibling();
+        this.temporaryGenderText.gameObject.SetActive(false);
     }
 }
