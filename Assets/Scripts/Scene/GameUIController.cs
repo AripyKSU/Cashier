@@ -742,6 +742,9 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
+        this.saleSortingPanel.SetDividerBarAvailable(
+            GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.DividerBar));
+
         this.gameDayPresenter.UpdateView(new GameDayViewData(
             this.gameProgress.CurrentDay,
             this.toUiPhase(this.subscribedDay.State)));

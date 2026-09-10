@@ -63,6 +63,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private readonly List<SaleSortingItemView> items = new List<SaleSortingItemView>();
     private ViewState state;
     private bool isCalculatorOpen = true;
+    private bool dividerBarAvailable;
     private SaleSortingItemView draggedItem;
     private Vector2 dragOffset;
     private Coroutine transitionRoutine;
@@ -83,8 +84,38 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>계산기 패널이 현재 열려 있는지 나타냅니다.</summary>
     public bool IsCalculatorOpen => this.isCalculatorOpen;
 
+    /// <summary>현재 세션에서 막대 편의성 효과가 활성화되었는지 나타냅니다.</summary>
+    public bool IsDividerBarAvailable => this.dividerBarAvailable;
+
     /// <summary>계산기 표시 상태가 바뀐 뒤 발생합니다.</summary>
     public event Action<bool> CalculatorVisibilityChanged;
+
+    /// <summary>세션의 막대 활성 상태를 반영하고 비활성 상태에서는 막대를 숨깁니다.</summary>
+    /// <param name="available">막대 효과가 현재 활성화되었는지 여부입니다.</param>
+    public void SetDividerBarAvailable(bool available)
+    {
+        if (this.dividerBarAvailable == available)
+        {
+            if (this.dividerBar != null && !available)
+            {
+                this.dividerBar.SetVisible(false);
+            }
+
+            return;
+        }
+
+        this.dividerBarAvailable = available;
+        if (!available)
+        {
+            this.releaseDividerItems();
+            this.clearDividerManipulations();
+        }
+
+        if (this.dividerBar != null)
+        {
+            this.dividerBar.SetVisible(available && this.state == ViewState.Sorting);
+        }
+    }
 
     /// <summary>버튼 이벤트를 연결하고 초기 화면을 숨깁니다.</summary>
     private void Awake()
@@ -127,11 +158,14 @@ public sealed class SaleSortingPanel : MonoBehaviour
             return;
         }
 
-        bool allowTools = !this.isPointerOverCalculator();
+        bool allowInput = !this.isPointerOverCalculator();
         bool wasHolding = this.dividerBar != null && this.dividerBar.IsHolding;
         if (this.dividerBar != null)
         {
-            this.dividerBar.UpdateMotion(allowTools, this.getPointerScreenPosition(), deltaSeconds);
+            this.dividerBar.UpdateMotion(
+                this.dividerBarAvailable && allowInput,
+                this.getPointerScreenPosition(),
+                deltaSeconds);
         }
 
         bool isDividerHolding = this.dividerBar != null && this.dividerBar.IsHolding;
@@ -144,7 +178,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             this.clearDividerManipulations();
             this.dividerBar.PushItems(this.items);
         }
-        if (allowTools && !isDividerHolding)
+        if (allowInput && !isDividerHolding)
         {
             this.updatePlayerDrag();
         }
@@ -354,7 +388,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.dividerBar != null)
         {
             this.dividerBar.ResetToLeftEnd();
-            this.dividerBar.SetVisible(true);
+            this.dividerBar.SetVisible(this.dividerBarAvailable);
         }
 
         this.state = ViewState.Sorting;

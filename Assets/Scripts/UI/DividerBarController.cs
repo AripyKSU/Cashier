@@ -313,7 +313,7 @@ public sealed class DividerBarController : MonoBehaviour
                 if (item.Manipulation == SaleSortingItemView.ManipulationState.PlayerDragging ||
                     item.Manipulation == SaleSortingItemView.ManipulationState.VacuumAttached)
                     continue;
-                item.Position += this.movementDelta;
+                item.Position = this.clampItemPosition(item.Position + this.movementDelta, item);
                 item.Manipulation = SaleSortingItemView.ManipulationState.DividerMoving;
             }
         }
@@ -335,5 +335,18 @@ public sealed class DividerBarController : MonoBehaviour
 
         float t = Mathf.Clamp01(Vector2.Dot(p - a, ab) / abSqr);
         return a + ab * t;
+    }
+
+    /// <summary>막대가 옮긴 상품의 중심을 작업대 내부로 제한합니다.</summary>
+    /// <param name="position">이동 후 후보 위치입니다.</param>
+    /// <param name="item">위치를 제한할 상품입니다.</param>
+    /// <returns>상품이 작업대 밖으로 나가지 않는 위치입니다.</returns>
+    private Vector2 clampItemPosition(Vector2 position, SaleSortingItemView item)
+    {
+        Rect bounds = this.workArea.rect;
+        Vector2 halfSize = item.HalfSize;
+        return new Vector2(
+            Mathf.Clamp(position.x, bounds.xMin + halfSize.x, bounds.xMax - halfSize.x),
+            Mathf.Clamp(position.y, bounds.yMin + halfSize.y, bounds.yMax - halfSize.y));
     }
 }
