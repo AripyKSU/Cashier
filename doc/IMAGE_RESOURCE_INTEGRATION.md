@@ -36,6 +36,10 @@
 
 ## Migration·복구·검증
 
+2026-09-10 후속 정리: 기존72행 보존은 이미지 migration 당시 기록이다. 이후 코드·CSV·직렬화 자산의 소비 조사로 미사용72행(4001~4099의65행, 4101·4104·4106·4107·4109·4110·4199)을 ResourceData에서 제거했다. 현재54행(4201~4254)을 유지하고 삭제 ID는 재사용하지 않는다. 원본 자산·meta·Addressables는 삭제하지 않았다. 현재 원문·행수·hash는 DATA_CATALOG.md를 따른다.
+
+정리 후 검증: `unity-cli --project C:/Users/PC/Projects/Cashier test --mode EditMode --filter CustomerCsvTests` 실행66건 모두 통과, 실패0·skip0. 실제 CsvHelper/loader·FK·재로딩 원자성 검사를 포함한다. 원본 CLI 응답은 `Temp/TestResults/20260910-resource-cleanup/CustomerCsvTests.cli.json`에 보관했다. 별도 XML 미보관으로 TESTING.md의 XML 보관 요건은 미충족이며 중복 실행하지 않았다. 컴파일 종료·오류0, Play 종료·씬 dirty=False, 유지54행의 PK/path와 카탈로그 CSV 원문 일치 확인. 이번 정리는 PlayMode·UI 재검증 및 commit/push하지 않았다.
+
 기존 CSV·DTO·catalog·UI·관련 테스트와 이 문서를 함께 이관한다. 외형 RGBA는 새 DTO와 호환되지 않으므로 구 CSV만 혼합하지 않는다. 외부 save의 외형 PK는 유지되지만5001~5004의 시각 표현은 변경된다. 복구는 기준 커밋의 관련 파일 묶음과 기존 Addressables 연결을 함께 복원하는 별도 승인 작업이며 현재 변경·개인 씬을 자동 폐기하지 않는다.
 
 - 컴파일 종료·오류 없음 확인. Sprite54개 Editor 로드·등록 중복/GUID 검사를 수행했다.

@@ -228,10 +228,11 @@ Assert.That(c.Appearances.GetDataCount(),Is.EqualTo(45));
     public void InvalidResourcePreservesPublishedRows()
     {
 var resources=new ResourceDataTable(); string csv=File.ReadAllText("Assets/Datas/ResourceData.csv"); resources.LoadData(csv); int count=resources.GetDataCount();
-Assert.That(resources.GetResourcePath(4001),Is.EqualTo("Unit_3001")); Assert.That(resources.TryGetResource(3001,out _),Is.False);
+Assert.That(resources.GetResourcePath(4201),Is.EqualTo("FemaleCustomer_01")); Assert.That(resources.TryGetResource(3001,out _),Is.False);
 LogAssert.Expect(LogType.Error,new Regex(@"ResourceData\.csv"));
-Assert.Catch(()=>resources.LoadData(csv.Replace("4001,Unit_3001","3001,Unit_3001")));
+Assert.Catch(()=>resources.LoadData(csv.Replace("4201,FemaleCustomer_01","3001,FemaleCustomer_01")));
 Assert.That(resources.GetDataCount(),Is.EqualTo(count));
+Assert.That(resources.GetResourcePath(4201),Is.EqualTo("FemaleCustomer_01"));
     }
     /// <summary>실제 CSV의 두 시점 FK와 UI 전달을 검사하며 누락 로드 결과를 거부한다.</summary>
     [Test]

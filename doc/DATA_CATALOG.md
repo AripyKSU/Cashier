@@ -8,7 +8,7 @@
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 76개(테이블별 중복 컬럼 포함), 데이터 343행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 76개(테이블별 중복 컬럼 포함), 데이터 271행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -44,7 +44,7 @@
 | [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 12 | 3 | 현재 데이터 경로 연결 |
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
-| [ResourceData](../Assets/Datas/ResourceData.csv) | 126 | 2 | 기존72행 보존+이미지54행 연결 |
+| [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 미사용72행 제거, 이미지54행 유지 |
 | [TextData](../Assets/Datas/TextData.csv) | 111 | 2 | 현재 데이터 경로 연결 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 3 | 21 | 구매 연결 / queue 독립 API |
@@ -131,14 +131,14 @@
 
 ### ResourceData
 
-현재 로드되는 리소스 경로 목록. 기존72행에 상품·외형54행을 추가했다. 상품7종은 기본·탑뷰 FK가 연결되며15종은 두 칸이 빈값이다. 등록만으로 runtime 로드 성공을 보증하지 않는다. 과거 Unit/Room/Effect 명칭 행은 보존된 등록값이며 현재 Cashier 소비·실자산 전수 검증은 미확인이다.
+현재 리소스54행(4201~4254). 2026-09-10 코드·CSV·직렬화 자산의 FK·주소 소비 조사 후 미사용72행을 제거했다. 삭제 ID는 4001~4099의 기존65행 및 4101·4104·4106·4107·4109·4110·4199이며 재사용하지 않는다. 원본 자산·meta·Addressables는 보존한다. 삭제 등록은 기준 d7fa49d에서 복구할 수 있다. 상품7종의 기본·탑뷰 FK는 유지하며15종은 두 칸이 빈값이다.
 
 근거: [CSV](../Assets/Datas/ResourceData.csv), [DTO](../Assets/Scripts/Commons/Data/ResourceData.cs), [DataTable](../Assets/Scripts/Commons/Data/ResourceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 126개: 부록 |
-| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체126키: 부록 |
+| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 54개: 부록 |
+| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체54키: 부록 |
 
 ### TextData
 
@@ -602,82 +602,10 @@ idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
 
 ### Assets/Datas/ResourceData.csv
 
-데이터 126행, 2컬럼. SHA-256: `07F1702647F3D49FBE5F5994C0590EC047E7B84877554AB86A503FF32994BE48`.
+데이터 54행, 2컬럼. SHA-256: `930332E168354EAACFDE1CF867E201EB76C851DA8120BC27FBF12ADEDA0F89C8`.
 
 ```csv
 idx,path
-4001,Unit_3001
-4002,Unit_3201
-4003,Unit_3101
-4004,Unit_3102
-4005,Unit_3103
-4010,PlayerAnimatorController
-4011,GaronAnimatorController
-4012,SpearSentryAnimatorController
-4013,ShadowStalkerAnimatorController
-4014,WaveHeavyAnimatorController
-4015,ShieldSentinelAnimatorController
-4016,OrbitalMarksmanAnimatorController
-4020,Effect_8001
-4021,Effect_8002
-4022,Effect_8003
-4030,Effect_8010
-4031,Effect_8011
-4032,Effect_8012
-4033,Effect_8013
-4040,Prefab_1040
-4041,Prefab_1041
-4042,Prefab_1042
-4043,Tilemap_Room_Stage2_Entry
-4044,Tilemap_Room_Stage2_Boss
-4045,Projectile_1045
-4006,Unit_3104
-4007,Unit_3105
-4008,Unit_3106
-4050,Room_11050
-4051,Room_11051
-4052,Room_11052
-4053,Room_11053
-4056,Room_11056
-4057,Room_11057
-4061,Room_11061
-4063,Room_11063
-4070,Hazard_SpikeTrap
-4071,Hazard_SawBladeTrap
-4072,Room_11072
-4073,Room_11073
-4074,Room_11074
-4075,Room_11075
-4076,Room_11076
-4077,Room_11077
-4078,Room_11078
-4079,Room_11079
-4080,Room_11080
-4081,Effect_8014
-4082,Effect_8015
-4083,Effect_8016
-4084,Effect_8017
-4085,Effect_8018
-4086,Effect_8019
-4087,Effect_8020
-4088,Effect_8021
-4089,Effect_8022
-4090,Effect_8023
-4092,Effect_8025
-4093,Effect_8026
-4094,Effect_8027
-4095,Effect_8028
-4096,Effect_8029
-4097,Effect_8030
-4098,Effect_8031
-4099,Effect_8032
-4101,Product_1001_Water
-4104,Product_1004_Can
-4106,Product_1006_Crackers
-4107,Product_1007_Bandage
-4109,Product_1009_Painkiller
-4110,Product_1010_Battery
-4199,Product_Placeholder
 4201,FemaleCustomer_01
 4202,FemaleCustomer_02
 4203,FemaleCustomer_03
