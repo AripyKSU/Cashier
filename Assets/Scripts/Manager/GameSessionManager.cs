@@ -75,20 +75,36 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         radioRemainingSeconds = priceScheduler.GetRadioDelaySeconds();
         radioPending = DailyPrices.RadioEventIdx.HasValue && !DailyPrices.IsRadioBroadcast;
     }
-    /// <summary>영업을 정산하고 날짜 완료를 허용한다.</summary>
+    /// <summary>영업을 정산하고 해당 일자의 유지비를 자동 차감한 뒤 날짜 완료를 허용한다.</summary>
     /// <returns>당일 판매 수입.</returns>
     public long EndTradingDay()
     {
         return EndTradingDay(out _);
     }
-    /// <summary>일일 집계를 한 번 종료하고 원본 집계 결과와 판매 수입을 함께 반환한다.</summary>
+    /// <summary>일일 집계를 종료하고 유지비를 차감한 최종 일일 결과를 반환한다.</summary>
     /// <param name="result">경제 시스템이 확정한 일일 결과.</param>
     /// <returns>당일 판매 수입. 기존 무인자 API와 동일하다.</returns>
-    /// <exception cref="InvalidOperationException">초기화 전 또는 열린 영업일이 없음.</exception>
+    /// <exception cref="InvalidOperationException">초기화 전, 열린 영업일이 없거나 유지비를 납부할 수 없음.</exception>
     public long EndTradingDay(out DailyAggregationResult result)
     {
-        result = Economy.DailyAggregationService.EndDay();
+        DailyAggregationResult salesResult = Economy.DailyAggregationService.EndDay();
         radioPending = false;
+
+        int displayDay = checked((int)ElapsedDays + 1);
+        long maintenanceAmount = Economy.MaintenanceService.GetRequiredAmount(displayDay);
+        if (!Economy.MaintenanceService.TryPay(displayDay, out MaintenancePaymentResult paymentResult))
+        {
+            UnityEngine.Debug.LogError(
+                $"[Maintenance] DAY {displayDay} 유지비를 납부할 수 없습니다. "
+                + $"필요 금액: {paymentResult.RequiredAmount:N0} G, 현재 잔액: {paymentResult.PreviousBalance:N0} G.");
+            throw new InvalidOperationException($"DAY {displayDay} 유지비 납부에 실패했습니다.");
+        }
+
+        result = new DailyAggregationResult(
+            salesResult.SaleIncome,
+            maintenanceAmount,
+            salesResult.ReputationDelta,
+            salesResult.Transactions);
         hasClosedDay = true;
         return result.SaleIncome;
     }
@@ -152,17 +168,13 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         }
     }
 
-    /// <summary>정산·상납 완료 후 다음 날로 이동한다. 동일 완료 요청은 두 번 반영하지 않는다.</summary>
+    /// <summary>일일 정산 완료 후 다음 날로 이동한다. 동일 완료 요청은 두 번 반영하지 않는다.</summary>
     /// <param name="completedDay">호출자가 완료한 경과일.</param>
-    /// <exception cref="InvalidOperationException">날짜 불일치, 영업 중 또는 미정산·미납.</exception>
+    /// <exception cref="InvalidOperationException">날짜 불일치, 영업 중 또는 미정산 상태.</exception>
     public void CompleteDay(uint completedDay)
     {
         if (!IsInitialized || !hasClosedDay || completedDay != ElapsedDays || economy.QueryService.IsDayOpen)
             throw new InvalidOperationException("날짜 완료 상태가 아닙니다.");
-        int displayDay = checked((int)ElapsedDays + 1);
-        if (displayDay % economy.QueryService.MaintenanceCycleDays == 0 &&
-            economy.MaintenanceService.LastPaidRound < displayDay / economy.QueryService.MaintenanceCycleDays)
-            throw new InvalidOperationException("상납금 처리가 남았습니다.");
         ElapsedDays = checked(ElapsedDays + 1);
         hasClosedDay = false;
     }

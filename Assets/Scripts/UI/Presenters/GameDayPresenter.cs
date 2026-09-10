@@ -3,8 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// 3.2 GameDayPresenter
-/// 현재 게임 날짜와 영업 진행 상태, 다음 정산일까지 남은 일수와 정산일 여부를 표시하는 Presenter.
-/// 날짜 증가와 정산일 계산을 직접 수행하지 않으며, 전달받은 GameDayViewData를 표시 문구로 변환합니다.
+/// 현재 게임 날짜와 영업 진행 상태를 표시하는 Presenter.
+/// 날짜 증가를 직접 수행하지 않으며, 전달받은 GameDayViewData를 표시 문구로 변환합니다.
 /// </summary>
 public class GameDayPresenter : MonoBehaviour
 {
@@ -12,7 +12,7 @@ public class GameDayPresenter : MonoBehaviour
     [Tooltip("현재 날짜 텍스트 (예: DAY 1)")]
     [SerializeField] private TextMeshProUGUI dayText;
 
-    [Tooltip("정산일 안내 텍스트 (예: Tribute in 3 Days)")]
+    [Tooltip("레거시 상납 안내 텍스트. 일일 유지비 전환 후에는 비워 둡니다.")]
     [SerializeField] private TextMeshProUGUI settlementText;
 
     [Tooltip("현재 진행 단계 텍스트 (예: Operating)")]
@@ -30,14 +30,7 @@ public class GameDayPresenter : MonoBehaviour
 
         if (this.settlementText != null)
         {
-            if (viewData.IsSettlementDay)
-            {
-                this.settlementText.text = "<color=#FF4444><b>[TODAY: TRIBUTE DAY]</b></color>";
-            }
-            else
-            {
-                this.settlementText.text = $"Tribute in {viewData.DaysUntilSettlement} Days";
-            }
+            this.settlementText.text = string.Empty;
         }
 
         if (this.phaseText != null)
@@ -66,7 +59,6 @@ public class GameDayPresenter : MonoBehaviour
             GameDayPhase.TradingResult => "Trade Result",
             GameDayPhase.Closing => "Closing",
             GameDayPhase.DailySettlement => "Daily Settlement",
-            GameDayPhase.Tribute => "Tribute Due",
             _ => phase.ToString()
         };
     }

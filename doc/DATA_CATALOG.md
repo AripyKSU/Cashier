@@ -38,8 +38,8 @@
 
 | CSV | 행 수 | 컬럼 수 | 연결 상태 요약 |
 |---|---:|---:|---|
-| [EconomyBalanceData](../Assets/Datas/EconomyBalanceData.csv) | 1 | 3 | 현재 데이터 경로 연결 |
-| [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 12 | 3 | 현재 데이터 경로 연결 |
+| [EconomyBalanceData](../Assets/Datas/EconomyBalanceData.csv) | 1 | 2 | 현재 데이터 경로 연결 |
+| [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 30 | 3 | 일자별 유지비 연결 |
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 72 | 2 | 로더 연결, 개별 자산 미확인 |
@@ -73,7 +73,7 @@
 
 ### EconomyBalanceData
 
-현재 연결. 정확히 1행. EconomySettings → EconomyRuntime/FinanceService의 시작 보유금, GameProgress의 상납일 계산에 사용한다.
+현재 연결. 정확히 1행. EconomySettings → EconomyRuntime/FinanceService의 시작 보유금에 사용한다.
 
 근거: [CSV](../Assets/Datas/EconomyBalanceData.csv), [DTO](../Assets/Scripts/Finance/Data/EconomyBalanceData.cs), [DataTable](../Assets/Scripts/Finance/Data/EconomyBalanceDataTable.cs).
 
@@ -81,19 +81,18 @@
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 경제 설정 PK | 필수·0 금지; 종류/중복 검사, 내부번호0 검사 차이는 2절 | 없음 | 002001 |
 | 2. `initialBalance` | InitialBalance · long | 새 게임 시작 보유금, 정수 G | 필수; 0 이상 | 없음 | 100000 |
-| 3. `maintenanceCycleDays` | MaintenanceCycleDays · int | 상납 간격, 게임 일수 | 필수; 1 이상 | 없음 | 7 |
 
 ### MaintenanceBalanceData
 
-현재 연결. 최소1행이며 paymentRound는1부터 연속이다. EconomySettings → MaintenanceService. 현12회차 이후는 마지막 금액 반복이 아니라 범위 오류다. 7일 주기이므로 표시7·14·…·84일차에 해당한다.
+현재 연결. `day`는 1부터 연속이며 EconomySettings → MaintenanceService로 전달된다. 영업 종료 시 해당 표시일의 유지비를 정산창 전에 자동 차감한다. 현 30일 이후는 마지막 금액 반복이 아니라 범위 오류다.
 
 근거: [CSV](../Assets/Datas/MaintenanceBalanceData.csv), [DTO](../Assets/Scripts/Finance/Data/MaintenanceBalanceData.cs), [DataTable](../Assets/Scripts/Finance/Data/MaintenanceBalanceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 상납 설정 PK | 필수·0 금지; 종류/중복 검사, 내부번호0 검사 차이는 2절 | 없음 | 003001, 003002, 003003, 003004, 003005, 003006, 003007, 003008, 003009, 003010, 003011, 003012 |
-| 2. `paymentRound` | PaymentRound · int | 납부 회차, 1부터 | 필수; 양수·고유, 전체 1부터 연속 | 없음 | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 |
-| 3. `maintenanceAmount` | MaintenanceAmount · long | 해당 회차 상납액, 정수 G | 필수; 양수 | 없음 | 100000, 110000, 120000, 150000, 200000, 280000, 400000, 560000, 780000, 1100000, 1540000, 2150000 |
+| 1. `idx` | Idx · uint | 유지비 설정 PK | 필수·0 금지; 종류/중복 검사 | 없음 | 003001~003030 |
+| 2. `day` | Day · int | 적용 표시일, 1부터 | 필수; 양수·고유, 전체 1부터 연속 | 없음 | 1~30 |
+| 3. `maintenanceAmount` | MaintenanceAmount · long | 해당 일자 유지비, 정수 G | 필수; 양수 | 없음 | 200부터 100씩 증가, 30일 3100 |
 
 ### PriceEventData
 
@@ -335,9 +334,9 @@
 | [FinanceChangeReason : int](../Assets/Scripts/Finance/FinanceChangeReason.cs) | None=0, Sale=1, Maintenance=2, FacilityPurchase=3 | 재정 변경 사유. 현재 거래/상납이 각각1/2 |
 | [FacilityPurchaseStatus](../Assets/Scripts/Facility/FacilityPurchaseResult.cs) | None=0, Purchased=1, AlreadyOwned=2, InsufficientFunds=3, FacilityPurchaseStatus_End=4(자동) | 정상 구매 결과; 입력·재진입·알림 오류는 예외 |
 | [FacilityDisplayState](../Assets/Scripts/UI/Contracts/FacilityUIContracts.cs) | Available=0, InsufficientFunds=1, Pending=2, Active=3, FacilityDisplayState_End=4(자동) | UI 표시 상태, 구매 요청 결과와 별개 |
-| [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Maintenance=2, Failed=3, Completed=4 | 전체 진행. Completed 값 존재가 최종 목표 기능 구현을 뜻하지 않음 |
+| [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Failed=3, Completed=4 | 전체 진행. 제거한 Maintenance=2 숫자는 재사용하지 않음 |
 | [DayProgressState : int](../Assets/Scripts/Progress/DayProgressState.cs) | Initializing=0, PreOpen=1, Operating=2, Sorting=3, TransactionResult=4, Closing=5, Settlement=6, Completed=7 | 하루 진행. Closing은 마지막 거래 마감 |
-| [GameDayPhase : int](../Assets/Scripts/UI/Contracts/UIContracts.cs) | PreOpen=0, PriceGuide=1, Operating=2, TradingResult=3, Closing=4, DailySettlement=5, Tribute=6 | UI 표시용. PriceGuide는 레거시 호환 |
+| [GameDayPhase : int](../Assets/Scripts/UI/Contracts/UIContracts.cs) | PreOpen=0, PriceGuide=1, Operating=2, TradingResult=3, Closing=4, DailySettlement=5 | UI 표시용. PriceGuide는 레거시 호환 |
 | [SaleSortingItemView.SortingState : int](../Assets/Scripts/UI/SaleSortingItemView.cs) | Working=0, ForSale=1, Excluded=2 | 작업대 상품1개 분류 |
 | [SaleSortingPanel.ViewState : int (private)](../Assets/Scripts/UI/SaleSortingPanel.cs) | Hidden=0, FrontWaiting=1, Transition=2, Pouring=3, Sorting=4, Locked=5 | 패널 표현 수명, CSV 저장값 아님 |
 | [GameSceneManager.SceneName : int](../Assets/Scripts/Manager/GameSceneManager.cs) | Init=0, Hub=1, Main=2 | 공유 씬 routing, 개인 씬은 enum 없음 |
@@ -374,17 +373,17 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 
 | 계약·근거 | 데이터·단위·소유권 | 현재 상태/제약 |
 |---|---|---|
-| [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceCycleDays:int, MaintenanceAmounts:IReadOnlyList<long> 회차순 | CSV 두 테이블을 검증·복사한 설정. 현재100000/7/12회차 |
+| [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceAmounts:IReadOnlyList<long> 일자순 | CSV 두 테이블을 검증·복사한 설정. 현재 초기금100000/30일 유지비 |
 | [FinanceChangeResult](../Assets/Scripts/Finance/FinanceChangeResult.cs) | PreviousBalance:long 이전잔액, BalanceDelta:long 부호있는증감, CurrentBalance:long 이후잔액, Reason:FinanceChangeReason | FinanceService 결과; 날짜/상품 내역 아님 |
 | [EconomyLogEntry](../Assets/Scripts/Finance/EconomyLogEntry.cs) | Sequence:long 기록순번, PreviousBalance:long, BalanceDelta:long, CurrentBalance:long, Reason:FinanceChangeReason | LogService 결과. 순번은 CSV PK나 날짜 아님 |
-| [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, ReputationDelta:int 거래 변화합, Transactions:IReadOnlyList<TransactionResult> | 수락·거절의 원본 snapshot을 EndDay에서 복사·확정. 일일 명성 최종값은 DailyReputationCalculationResult.FinalDelta |
-| [MaintenancePaymentResult](../Assets/Scripts/Finance/MaintenancePaymentResult.cs) | PaymentRound:int 회차, RequiredAmount:long 필요금액, IsPaid:bool 성공, PreviousBalance:long, CurrentBalance:long | 부족 시 잔액·LastPaidRound 유지. 연속 다음회차만 납부 |
+| [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, Expenses:long 유지비, NetProfit:long 순익, ReputationDelta:int 거래 변화합, Transactions:IReadOnlyList<TransactionResult> | 거래 snapshot을 확정하고 유지비 성공 후 최종 정산 결과를 공개. 일일 명성 최종값은 DailyReputationCalculationResult.FinalDelta |
+| [MaintenancePaymentResult](../Assets/Scripts/Finance/MaintenancePaymentResult.cs) | Day:int 표시일, RequiredAmount:long 필요금액, IsPaid:bool 성공, PreviousBalance:long, CurrentBalance:long | 부족 시 잔액·LastPaidDay 유지. 다음 일자만 납부 |
 | [EconomyRuntime](../Assets/Scripts/Finance/EconomyRuntime.cs) | Settings, FinanceService, DailyAggregationService, MaintenanceService, LogService, QueryService | 서비스 묶음이며 추가 밸런스 원본 아님 |
-| [EconomyQueryService](../Assets/Scripts/Finance/EconomyQueryService.cs) | CurrentBalance:long, DailySaleIncome:long, IsDayOpen:bool, MaintenanceCycleDays:int | 소유 서비스의 읽기 결과. 새로운 보유금 저장소 아님 |
-| [MaintenanceService](../Assets/Scripts/Finance/MaintenanceService.cs) | LastPaidRound:int 초기0 | 복원 인수0~목록길이; 실제 저장 연결과 별도 |
+| [EconomyQueryService](../Assets/Scripts/Finance/EconomyQueryService.cs) | CurrentBalance:long, DailySaleIncome:long, IsDayOpen:bool | 소유 서비스의 읽기 결과. 새로운 보유금 저장소 아님 |
+| [MaintenanceService](../Assets/Scripts/Finance/MaintenanceService.cs) | LastPaidDay:int 초기0 | 복원 인수0~목록길이; 실제 저장 연결과 별도 |
 | [GameSessionManager](../Assets/Scripts/Manager/GameSessionManager.cs) | ElapsedDays:uint 시작0, Economy:EconomyRuntime, DailyPrices:DailyPriceState, IsInitialized:bool 초기false | 날짜·현재가 권위. DailyPrices는 준비 전null, Economy는 초기화 전 접근 오류. CompleteDay가 종료일을 한 번 진행 |
 | [DailyPriceState](../Assets/Scripts/Events/DailyPriceState.cs) | ElapsedDays:uint, NewspaperEventIdx:uint? 신문사건, RadioEventIdx:uint? 예정사건, IsRadioBroadcast:bool, Prices:IReadOnlyDictionary<uint,uint> 상품PK→현재가 | 후보 없음 null. 라디오 선정과 방송완료 구분. 새 snapshot 교체 |
-| [GameProgress](../Assets/Scripts/Progress/GameProgress.cs) | State:GameProgressState, CurrentDay:int, CurrentDayProgress:DayProgress, IsMaintenanceDay:bool, DaysUntilMaintenance:int, CurrentMaintenanceRound:int | CurrentDay는 시작 전0, 이후ElapsedDays+1. 별도 날짜 증가값 아님 |
+| [GameProgress](../Assets/Scripts/Progress/GameProgress.cs) | State:GameProgressState, CurrentDay:int, CurrentDayProgress:DayProgress | CurrentDay는 시작 전0, 이후ElapsedDays+1. 별도 날짜 증가값 아님 |
 | [DayProgress](../Assets/Scripts/Progress/DayProgress.cs) | Day:int, State:DayProgressState, CurrentVisit:CustomerVisit, RemainingSeconds:float, BusinessDurationSeconds:float, IsPaused:bool, IsBusinessTimeExpired:bool, CanSubmitOffer:bool, SuccessfulSales:int, RefusedCustomers:int, AggregationResult:DailyAggregationResult? | 현재 순차 손님 진행. 초 단위; 집계 확정 전null. 결과 재정 실패 시 진행차단 |
 | [CustomerQueue](../Assets/Scripts/Customer/CustomerQueue.cs) | Waiting/Leaving:IReadOnlyList<Entry>, 내부 now/nextArrival:double 초, running:bool | 독립 API. 계산 중 손님은 Waiting에서 제외 |
 | CustomerQueue.Entry | Visit:CustomerVisit; 내부 Deadline:double 만료시각, WarningTextIdx/LeaveTextIdx:uint, Warned:bool, SpeechIdx:uint, SpeechUntil:double | 합류 시 값 복사. GetSpeech의0은 표시대사 없음. 이탈 후3초 표시 기록과 논리 대기열 분리 |
@@ -400,16 +399,16 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 | 구조체 | 전체 필드 | 현재 소비·의미 |
 |---|---|---|
 | EconomyStatusViewData | CurrentBalance:long, DailySaleIncome:long | EconomyStatusPresenter, 현재 보유금과 당일 매출 |
-| GameDayViewData | CurrentDay:int, DaysUntilSettlement:int, IsSettlementDay:bool, Phase:GameDayPhase | GameDayPresenter. Settlement 명칭이지만 다음 **상납일**/상납일 여부로 공급 |
+| GameDayViewData | CurrentDay:int, Phase:GameDayPhase | GameDayPresenter의 날짜·일일 진행 상태 |
 | BusinessTimerViewData | RemainingSeconds:float, NormalizedTime:float, IsPaused:bool, CanPause:bool, CanResume:bool | BusinessTimerPresenter. NormalizedTime은 잔여/전체시간의0~1 |
 | ItemPriceViewData | ItemId:uint, DisplayName:string, Price:long, SpecialNote:string, Icon:Sprite, IsAvailable:bool | 계약만 존재, 현재 생성·소비 호출 없음. 현재 가격표는 CreatePriceListText 문자열 |
 | CustomerBasketItemViewData | ItemId:uint, DisplayName:string, Quantity:int, Icon:Sprite, UnitPrice:int | CustomerPresenter/CustomerBasketItemPresenter/SaleSortingPanel. 생성 시 희망 단가. 원본uint가 int.MaxValue보다 크면 factory가 표시값을 int.MaxValue로 제한함 |
 | CustomerViewData | HasCustomer:bool, AppearanceColor:Color, AppearanceSprite:Sprite, DialogueText:string, Basket:IReadOnlyList<CustomerBasketItemViewData> | 현재 연결. Empty는false/clear/null/빈문자열/빈목록. 현 factory는 AppearanceSprite=null, CSV색상 사용 |
 | PriceInputViewData | InputAmount:long?, CanConfirm:bool, IsInputEnabled:bool, ValidationMessage:string | PriceInputPresenter. 빈 입력은null. 양수 총액 제출과 분류완료 조건은 진행/UI에서 검증 |
 | TransactionViewData | WasAccepted:bool, OfferedPrice:long, FeedbackMessage:string | 계약만 존재, 현재 생성·소비 호출 없음. 상세4판정·판매목록을 담는 원본 TransactionResult와 다름 |
-| DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. Expenses=0, NetProfit=SaleIncome, ReputationDelta=일일 FinalDelta, DepartedCustomers=0. 명성은 정성적 피드백 표시 |
+| DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. Expenses=해당 일자 유지비, NetProfit=SaleIncome-Expenses, CurrentBalance=유지비 차감 후 잔액. ReputationDelta는 일일 FinalDelta, DepartedCustomers=0 |
 
-DailySettlementPresenter는 전달된 NetProfit을 표시한다. 별도 [DailyResultPanel](../Assets/Scripts/UI/DailyResultPanel.cs)은 SaleIncome-Expenses로 다시 계산하는 구현이지만 현 controller가 직접 호출하는 경로는 아니다. 지출0 표시는 원가가 없다는 뜻도, 상납이 무료라는 뜻도 아니다. 상납은 별도 진행 단계다.
+DailySettlementPresenter는 확정된 유지비와 NetProfit을 표시한다. 별도 [DailyResultPanel](../Assets/Scripts/UI/DailyResultPanel.cs)은 SaleIncome-Expenses로 다시 계산하는 구현이지만 현 controller가 직접 호출하는 경로는 아니다. 설비 구매비와 상품 원가는 현재 일일 지출에 합산하지 않는다.
 
 ### 구형 가격표 패널의 별도 표시 데이터
 
@@ -530,11 +529,11 @@ CashierSaveManager의 키는 `Cashier_LocalGameSave_v1`이며 JsonUtility/Player
 | ProductData.BasePrice / DailyPriceState.Prices / CustomerOrderItem.UnitPrice / SoldItem.UnitPrice | 고정 기본단가 / 이벤트 현재단가 / 생성시 희망 단가 / 제출시 확정 단가 |
 | CustomerVisit.BaseTotal / TransactionResult.ReferenceTotal | **동일 의미 별칭**: 최종 제출 목록 현재가 합계. 이름 Base가 고정 기본가격을 뜻하지 않음 |
 | OfferedTotal / TransactionViewData.OfferedPrice / PriceInputViewData.InputAmount | 총액 제출 / 미연결 UI 총액계약 / 아직 입력중 null가능 값 |
-| CostPrice / UnitCostPrice / CostTotal / Expenses / NetProfit | 원본 단위원가 / 확정 단위원가 / 확정 원가합계 / 현재 UI0 / 현재 UI매출과동일. 서로 치환 불가 |
+| CostPrice / UnitCostPrice / CostTotal / Expenses / NetProfit | 원본 단위원가 / 확정 단위원가 / 확정 원가합계 / 일일 유지비 / 매출-유지비. 상품 원가는 현재 Expenses에 미포함 |
 | PriceTolerance / tolerancePercent / normalBudgetMinPercent | 현재1000분모 배율 / 구형100분모 허용률 / 구형100분모 예산률 |
 | PreferredSelectionChance / SelectionWeight / poorChance | 현재0~1000 확률 / 후보 간 상대가중치 / 구형0~1 확률 |
 | ElapsedDays / available_day / start_day / end_day / GameProgress.CurrentDay / DayProgress.Day / firstDay | 앞의4개0시작 경과일 / 현재표시1시작 / 하루표시1시작 / 구형1시작 해금 |
-| maintenanceCycleDays / paymentRound / MaintenanceAmounts / firstTribute | 간격일수 / 회차 / 회차별목록 / 구형첫상납액. 첫회차100000과50000은 충돌한 별도모델 |
+| day / MaintenanceAmounts / firstTribute | 일일 유지비 표시일 / 일자순 목록 / 비활성 구형 CashierSession의 별도 상납액 |
 | QueuePatienceSeconds / Gauge / customerArrivalSeconds / ArrivalSeconds / SpeechSeconds / resultSeconds | 줄이탈초 / 구형대기게이지 / UI도착대기 / Queue입장5초 또는 UI낙하0.85초(다른소유자) / 대사3초 / 구형결과0.85초 |
 | State / Outcome / GameDayPhase / CashierPhase | 방문수명 / 가격판정 / UI일간표현 / 구형진행. 숫자값을 서로 캐스팅하지 않음 |
 | NameIdx / Text / DisplayName / CashierProduct.name / ResourceData.Path | Text FK / 문자열원본 / 표시용문자열 / 구형직접이름 / 리소스키. 이름·리소스키는 상품ID 아님 |
@@ -554,31 +553,49 @@ CashierSaveManager의 키는 `Cashier_LocalGameSave_v1`이며 JsonUtility/Player
 
 ### Assets/Datas/EconomyBalanceData.csv
 
-데이터 1행, 3컬럼. SHA-256: `34BACCEDAAF3C697B2152A79E6D49028875CBC730195734EFD8F77A856E4A31E`.
+데이터 1행, 2컬럼. SHA-256: `57AB2462733878B6199A992A8BD5A62A8F8F87C3E44CBC9208311FDD94CD6AB1`.
 
 ```csv
-idx,initialBalance,maintenanceCycleDays
-002001,100000,7
+idx,initialBalance
+002001,100000
 ```
 
 ### Assets/Datas/MaintenanceBalanceData.csv
 
-데이터 12행, 3컬럼. SHA-256: `2420113BAB89A6C2A513CA684B8D8D70B7252DBD39EC7758B8B3044C06B57E0F`.
+데이터 30행, 3컬럼. SHA-256: `C367EA3F8CE5BD01385B8FB4378200C887505C36FD4A9079DF51A87F147A6034`.
 
 ```csv
-idx,paymentRound,maintenanceAmount
-003001,1,100000
-003002,2,110000
-003003,3,120000
-003004,4,150000
-003005,5,200000
-003006,6,280000
-003007,7,400000
-003008,8,560000
-003009,9,780000
-003010,10,1100000
-003011,11,1540000
-003012,12,2150000
+idx,day,maintenanceAmount
+003001,1,200
+003002,2,300
+003003,3,400
+003004,4,500
+003005,5,600
+003006,6,700
+003007,7,800
+003008,8,900
+003009,9,1000
+003010,10,1100
+003011,11,1200
+003012,12,1300
+003013,13,1400
+003014,14,1500
+003015,15,1600
+003016,16,1700
+003017,17,1800
+003018,18,1900
+003019,19,2000
+003020,20,2100
+003021,21,2200
+003022,22,2300
+003023,23,2400
+003024,24,2500
+003025,25,2600
+003026,26,2700
+003027,27,2800
+003028,28,2900
+003029,29,3000
+003030,30,3100
 ```
 
 ### Assets/Datas/PriceEventData.csv

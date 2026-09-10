@@ -16,13 +16,13 @@ GameUI.prefab의 GameUIController → GameProgress → DayProgress → GameSessi
 | SubmitOffer | 최종 선택 SaleItem 목록으로 판정하고 visit.Result.Value를 그대로 일일집계에 한 번 전달한다. Outcome/SoldItems/CostTotal/지침 기록을 legacy TransactionResult로 재생성하지 않는다 |
 | 접수 실패 | false/예외면 확정 방문 결과를 보존하고 원본 예외를 전달한다. 성공 이벤트·다음 손님·Tick·정산 완료를 차단한다. rollback/자동 재시도 없음. 판정 입력 검증 실패는 올바른 재제출 가능 |
 | Tick | Controller의 기존 Time.deltaTime을 한 곳에서 전달. pause는 진행하지 않고 min(delta, 남은 영업초)만 라디오와 영업시간에 적용한다. Closing 이후 라디오 시간을 더 진행하지 않는다 |
-| 정산 | DayProgress가 session.EndTradingDay(out result)를 한 번 호출하고 수락·거절 원본 거래 목록으로 명성을 계산한다. 정산 UI는 FinalDelta 피드백을 표시하며 설비 구매 후에도 확정값은 유지한다 |
-| 다음 날 | 일반일 정산 확인 또는 상납 성공 뒤 CompleteDay(종료한 Day - 1)를 정확히 한 번 호출한다. EnsureDailyPrices 성공 후 다음 DayStarted/가격표를 공개한다. 상납 부족은 기존 Failed 상태이며 날짜·납부 회차가 증가하지 않는다 |
+| 정산 | DayProgress가 session.EndTradingDay(out result)를 한 번 호출한다. 세션은 해당 표시일 유지비를 자동 차감한 뒤 매출·유지비·순익·차감 후 잔액을 공개하고, 원본 거래 목록으로 명성을 계산한다. 유지비 부족은 오류를 기록하고 정산창 공개와 날짜 진행을 차단한다 |
+| 다음 날 | 일일 정산 확인 뒤 CompleteDay(종료한 Day - 1)를 정확히 한 번 호출한다. 별도 상납 상태는 없으며 EnsureDailyPrices 성공 후 다음 DayStarted/가격표를 공개한다 |
 | 가격표 | ProgressViewDataFactory.CreatePriceListText(day, session.EnsureDailyPrices())는 동일 날짜의 판매 가능 상품과 현재가를 표시한다. 날짜 불일치·단가 누락/0은 예외이며 BasePrice로 대체하지 않는다 |
 
 CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날짜 가격 계산 실패 시 날짜를 임의 rollback하거나 새 하루 성공 이벤트를 보내지 않는다. 현 UI 오류 처리가 진행을 중단하며 세션 복구는 별도 설계 대상이다.
 
-세션은 날짜 완료 직후 명성을 한 번 반영하고 다음 날 snapshot을 만든다. 상납 실패일은 날짜·명성을 적용하지 않는다. 새 세션은 명성0/빈 로그이며 기존 세션에서 화면을 재생성하면 명성·설비·로그가 유지된다.
+세션은 날짜 완료 직후 명성을 한 번 반영하고 다음 날 snapshot을 만든다. 유지비 실패일은 정산·날짜·명성을 적용하지 않는다. 새 세션은 명성0/빈 로그이며 기존 세션에서 화면을 재생성하면 명성·설비·로그가 유지된다.
 
 ## 유지한 정책과 미연결
 
@@ -38,7 +38,7 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 
 자동 검사는 [TESTING.md](TESTING.md)의 GameSessionApiTests에서 실제 진행 API를 거친다. API 통과를 MainScene 화면 통과로 해석하지 않는다.
 
-사용법: `Use MainScene` 선택 → InitScene에서 Play → Hub를 거쳐 MainScene 진입 → 영업 시작/상품 분류/가격 확정 → 마감 마지막 거래 → 정산의 설비 버튼 → 구매/닫기 → 정산 완료(상납일은 납부) → 다음날 해금과 명성 피드백 확인. 최종 화면 가독성·사용감은 사용자 수동 확인 대상이다.
+사용법: `Use MainScene` 선택 → InitScene에서 Play → Hub를 거쳐 MainScene 진입 → 영업 시작/상품 분류/가격 확정 → 마감 마지막 거래 → 유지비 자동 차감과 정산 표시 → 정산의 설비 버튼 → 구매/닫기 → 정산 완료 → 다음날 해금과 명성 피드백 확인. 최종 화면 가독성·사용감은 사용자 수동 확인 대상이다.
 
 ## 후속 설비 구현 완료 범위
 

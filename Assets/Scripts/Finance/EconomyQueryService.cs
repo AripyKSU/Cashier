@@ -25,11 +25,6 @@ public sealed class EconomyQueryService
     public bool IsDayOpen => this.economy.DailyAggregationService.IsDayOpen;
 
     /// <summary>
-    /// 상납금 납부 사이의 게임 내 일수입니다.
-    /// </summary>
-    public int MaintenanceCycleDays => this.economy.Settings.MaintenanceCycleDays;
-
-    /// <summary>
     /// 지정한 경제 런타임을 읽는 조회 서비스를 생성합니다.
     /// </summary>
     /// <param name="economy">조회할 현재 세션의 경제 런타임입니다.</param>
@@ -46,15 +41,15 @@ public sealed class EconomyQueryService
     /// <returns>다음 상납금 설정이 있으면 true, 모든 설정 회차를 납부했다면 false입니다.</returns>
     public bool TryGetNextMaintenanceAmount(out long amount)
     {
-        int nextPaymentRound = this.economy.MaintenanceService.LastPaidRound + 1;
-        if (nextPaymentRound > this.economy.Settings.MaintenanceAmounts.Count)
+        int nextDay = this.economy.MaintenanceService.LastPaidDay + 1;
+        if (nextDay > this.economy.Settings.MaintenanceAmounts.Count)
         {
             // 모든 설정 회차를 납부한 경우 UI가 금액 표시를 숨길 수 있도록 조회 실패로 반환합니다.
             amount = default;
             return false;
         }
 
-        amount = this.economy.MaintenanceService.GetRequiredAmount(nextPaymentRound);
+        amount = this.economy.MaintenanceService.GetRequiredAmount(nextDay);
         return true;
     }
 }

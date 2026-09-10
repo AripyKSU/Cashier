@@ -16,11 +16,6 @@ public sealed class EconomySettings
     public long InitialBalance { get; }
 
     /// <summary>
-    /// 상납금 납부 사이의 게임 내 일수입니다.
-    /// </summary>
-    public int MaintenanceCycleDays { get; }
-
-    /// <summary>
     /// 1회차부터 순서대로 정렬된 상납금 목록입니다.
     /// </summary>
     public IReadOnlyList<long> MaintenanceAmounts => this.maintenanceAmounts;
@@ -55,14 +50,6 @@ public sealed class EconomySettings
                 "초기 보유금은 음수일 수 없습니다.");
         }
 
-        if (balanceData.MaintenanceCycleDays <= 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(balanceData),
-                balanceData.MaintenanceCycleDays,
-                "상납 주기는 0보다 커야 합니다.");
-        }
-
         if (maintenanceAmounts.Count == 0)
         {
             throw new ArgumentException("상납금 목록은 한 회차 이상이어야 합니다.", nameof(maintenanceAmounts));
@@ -84,7 +71,6 @@ public sealed class EconomySettings
 
         // 서로 다른 CSV에서 가져온 값을 하나의 변경 불가능한 세션 설정으로 확정합니다.
         this.InitialBalance = balanceData.InitialBalance;
-        this.MaintenanceCycleDays = balanceData.MaintenanceCycleDays;
         this.maintenanceAmounts = Array.AsReadOnly(copiedAmounts);
     }
 }

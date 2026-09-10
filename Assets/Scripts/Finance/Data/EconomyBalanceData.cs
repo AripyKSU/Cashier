@@ -2,7 +2,7 @@ using System;
 using CsvHelper.Configuration.Attributes;
 
 /// <summary>
-/// 게임 시작 보유금과 상납 주기 등 전역 경제 설정을 나타냅니다.
+/// 게임 시작 보유금 전역 경제 설정을 나타냅니다.
 /// </summary>
 [Serializable]
 public sealed class EconomyBalanceData
@@ -19,9 +19,4 @@ public sealed class EconomyBalanceData
     [Name("initialBalance")]
     public long InitialBalance { get; set; }
 
-    /// <summary>
-    /// 상납금 납부 사이의 게임 내 일수입니다.
-    /// </summary>
-    [Name("maintenanceCycleDays")]
-    public int MaintenanceCycleDays { get; set; }
 }

@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 현재 날짜와 하루 진행 수명을 관리하고 주기적인 상납 결과를 전체 진행에 반영합니다.
+/// 현재 날짜와 하루 진행 수명을 관리하고 일일 정산 결과를 전체 진행에 반영합니다.
 /// 재정·손님·상품의 규칙은 각 런타임 시스템에 위임합니다.
 /// </summary>
 public sealed class GameProgress
 {
     // 경제 런타임과 경과일의 단일 소유자입니다.
     private readonly GameSessionManager session;
-    // 현재 세션의 보유금·일일 집계·상납 서비스를 소유한 런타임입니다.
+    // 현재 세션의 보유금·일일 집계·유지비 서비스를 소유한 런타임입니다.
     private readonly EconomyRuntime economy;
 
     // 검증된 손님·상품 데이터의 소유자입니다.
@@ -43,39 +43,11 @@ public sealed class GameProgress
     /// <summary>현재 세션의 거래별·일일 명성 계산 로그 서비스입니다.</summary>
     public ReputationLogService ReputationLogService => this.session.ReputationLogService;
 
-    /// <summary>현재 날짜가 상납일인지 나타냅니다.</summary>
-    public bool IsMaintenanceDay => this.CurrentDay > 0
-        && this.CurrentDay % this.economy.Settings.MaintenanceCycleDays == 0;
-
-    /// <summary>다음 상납일까지 남은 날짜 수입니다.</summary>
-    public int DaysUntilMaintenance
-    {
-        get
-        {
-            if (this.CurrentDay <= 0)
-            {
-                return 0;
-            }
-
-            int cycleDays = this.economy.Settings.MaintenanceCycleDays;
-            int remainder = this.CurrentDay % cycleDays;
-            return remainder == 0 ? 0 : cycleDays - remainder;
-        }
-    }
-
-    /// <summary>현재 날짜에 납부할 상납금 회차입니다.</summary>
-    public int CurrentMaintenanceRound => this.IsMaintenanceDay
-        ? this.CurrentDay / this.economy.Settings.MaintenanceCycleDays
-        : 0;
-
     /// <summary>전체 진행 상태가 변경된 뒤 발생합니다.</summary>
     public event Action<GameProgressState> StateChanged;
 
     /// <summary>새로운 하루가 시작된 뒤 발생합니다.</summary>
     public event Action<DayProgress> DayStarted;
-
-    /// <summary>상납 실패로 전체 진행이 실패 상태가 된 뒤 발생합니다.</summary>
-    public event Action<MaintenancePaymentResult> GameFailed;
 
     /// <summary>
     /// 검증된 런타임 시스템을 사용하는 전체 진행을 생성합니다.
@@ -222,41 +194,6 @@ public sealed class GameProgress
         this.currentDayProgress.CompleteSettlement();
     }
 
-    /// <summary>
-    /// 현재 상납일의 다음 회차 상납을 시도하고 다음 날 또는 실패 상태로 전환합니다.
-    /// </summary>
-    /// <returns>상납에 성공하면 true, 잔액 부족으로 실패하면 false입니다.</returns>
-    /// <exception cref="InvalidOperationException">현재 상납 상태가 아닌 경우 발생합니다.</exception>
-    public bool TryPayMaintenance()
-    {
-        if (this.State != GameProgressState.Maintenance)
-        {
-            throw new InvalidOperationException("상납 상태에서만 상납을 시도할 수 있습니다.");
-        }
-
-        int paymentRound = this.CurrentMaintenanceRound;
-        if (paymentRound <= 0)
-        {
-            throw new InvalidOperationException("현재 날짜가 상납일이 아닙니다.");
-        }
-
-        bool isPaid = this.economy.MaintenanceService.TryPay(
-            paymentRound,
-            out MaintenancePaymentResult result);
-
-        if (!isPaid)
-        {
-            this.changeState(GameProgressState.Failed);
-            this.GameFailed?.Invoke(result);
-            return false;
-        }
-
-        this.session.CompleteDay(checked((uint)(this.currentDayProgress.Day - 1)));
-        this.applyCompletedDayReputation(this.currentDayProgress);
-        this.startCurrentDay();
-        return true;
-    }
-
     /// <summary>하루 완료 이벤트를 현재 하루와 대조해 한 번만 처리합니다.</summary>
     /// <param name="completedDay">완료된 하루 진행입니다.</param>
     private void handleDayCompleted(DayProgress completedDay)
@@ -266,12 +203,6 @@ public sealed class GameProgress
             || completedDay.State != DayProgressState.Completed)
         {
             throw new InvalidOperationException("완료 통지의 하루 진행이 현재 상태와 일치하지 않습니다.");
-        }
-
-        if (this.IsMaintenanceDay)
-        {
-            this.changeState(GameProgressState.Maintenance);
-            return;
         }
 
         this.session.CompleteDay(checked((uint)(completedDay.Day - 1)));
