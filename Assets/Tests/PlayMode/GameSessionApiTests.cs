@@ -141,6 +141,70 @@ public sealed class GameSessionApiTests
         Assert.That(visit.Result.Value.SoldItems, Is.SameAs(result.SoldItems));
     }
 
+    /// <summary>소수 도덕성을 거래마다 한 번 누적하고 재정 알림 시 세 상태가 함께 확정됐는지 확인한다.</summary>
+    [Test]
+    public void ProgressAccumulatesDecimalMoralityAndPreservesItAcrossProgressObjects()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        for (int index = 0; index < 4; index++)
+        {
+            CustomerVisit visit = generateAdultNormalWithMorality(index);
+            visit.BeginOffer();
+            typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+            progress.BeginCustomerSorting();
+            var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long reference = items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
+            long offered = checked((reference * 1001 + 999) / 1000);
+            bool observed = false;
+            Action<FinanceChangeResult> observer = _ =>
+            {
+                observed = true;
+                Assert.That(session.CurrentMorality, Is.EqualTo(-0.25m * (index + 1)));
+                Assert.That(session.Economy.DailyAggregationService.DailyTransactionCount, Is.EqualTo(index + 1));
+            };
+            session.Economy.FinanceService.BalanceChanged += observer;
+            Assert.That(progress.SubmitOffer(offered, items));
+            session.Economy.FinanceService.BalanceChanged -= observer;
+            Assert.That(observed);
+            Assert.That(visit.Result.Value.MoralityDataIdx, Is.EqualTo(14004));
+            Assert.That(visit.Result.Value.MoralityDelta, Is.EqualTo(-0.25m));
+            progress.CompleteTransactionResult();
+        }
+        Assert.That(session.CurrentMorality, Is.EqualTo(-1m));
+        _ = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
+        Assert.That(session.CurrentMorality, Is.EqualTo(-1m));
+    }
+
+    /// <summary>재정 알림 실패에도 잔고·거래 기록·도덕성을 함께 보존하고 같은 방문 재제출을 막는다.</summary>
+    [Test]
+    public void FinanceNotificationFailurePreservesMoralityAndTransactionSnapshot()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        CustomerVisit visit = generateAdultNormalWithMorality(10);
+        visit.BeginOffer();
+        typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+        progress.BeginCustomerSorting();
+        var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        long reference = items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
+        long offered = checked((reference * 1001 + 999) / 1000);
+        long balance = session.Economy.QueryService.CurrentBalance;
+        Action<FinanceChangeResult> failure = _ => throw new InvalidOperationException("morality notification failure");
+        session.Economy.FinanceService.BalanceChanged += failure;
+        Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(offered, items));
+        session.Economy.FinanceService.BalanceChanged -= failure;
+        Assert.That(session.CurrentMorality, Is.EqualTo(-0.25m));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + offered));
+        Assert.That(session.Economy.DailyAggregationService.DailyTransactionCount, Is.EqualTo(1));
+        Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(offered, items));
+    }
+
     /// <summary>준비된 지침 방문을 진행 경계에 넣어 위반 snapshot이 정산 이후에도 보존되는지 검사한다.</summary>
     [Test]
     public void ProgressPreservesRestrictionSnapshot()
@@ -250,14 +314,25 @@ public sealed class GameSessionApiTests
         progress.Start(); progress.OpenBusiness();
         var day = progress.CurrentDayProgress;
         long balance = session.Economy.QueryService.CurrentBalance;
+        long acceptedIncome = 0;
         for (int index = 0; index < 5; index++)
         {
+            CustomerVisit normal = generateAdultNormalWithMorality(index + 30);
+            normal.BeginOffer();
+            typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).SetValue(day, normal);
             progress.BeginCustomerSorting();
-            Assert.That(progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()));
+            var items = day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long offered = acceptedOffer(day.CurrentVisit, items);
+            Assert.That(progress.SubmitOffer(offered, items));
+            acceptedIncome += offered;
             progress.CompleteTransactionResult();
         }
         progress.Tick(day.BusinessDurationSeconds);
+        decimal moralityBeforeRefusal = session.CurrentMorality;
         Assert.That(progress.SubmitOffer(long.MaxValue, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
+        Assert.That(day.CurrentVisit.Result.Value.MoralityDelta.HasValue);
+        Assert.That(session.CurrentMorality, Is.EqualTo(moralityBeforeRefusal + day.CurrentVisit.Result.Value.MoralityDelta.Value));
         progress.CompleteTransactionResult();
         Assert.That(day.AggregationResult.Value.Transactions.Count, Is.EqualTo(6));
         Assert.That(day.AggregationResult.Value.Transactions.Last().Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
@@ -267,7 +342,7 @@ public sealed class GameSessionApiTests
         int delta = day.DailyReputationResult.Value.FinalDelta;
         Assert.That(delta, Is.GreaterThan(0));
         Assert.That(progress.TryPurchaseFacility(12001, out var purchase));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + 5 - purchase.PaidAmount));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + acceptedIncome - purchase.PaidAmount));
         Assert.That(progress.CurrentReputation, Is.Zero);
         Assert.That(session.IsFacilityActive(12001), Is.False);
         progress.CompleteSettlement();
@@ -348,7 +423,8 @@ public sealed class GameSessionApiTests
         Assert.That(day.State, Is.EqualTo(DayProgressState.Closing));
         Assert.That(day.WaitingCustomers, Is.Empty); Assert.That(day.LeavingCustomers, Is.Empty);
         Assert.That(day.CurrentVisit, Is.SameAs(next));
-        Assert.That(progress.SubmitOffer(1, next.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()));
+        var nextItems = next.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        Assert.That(progress.SubmitOffer(acceptedOffer(next, nextItems), nextItems));
         progress.CompleteTransactionResult();
         Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(day.AggregationResult.Value.Transactions.Count, Is.EqualTo(2));
@@ -482,7 +558,8 @@ public sealed class GameSessionApiTests
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
         progress.OpenBusiness(); progress.BeginCustomerSorting();
-        Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(1020, 1) }));
+        var facilityItems = new[] { new SaleItem(1020, 1) };
+        Assert.That(progress.SubmitOffer(acceptedOffer(progress.CurrentDayProgress.CurrentVisit, facilityItems), facilityItems));
         // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
         var nextProgress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1));
@@ -673,6 +750,33 @@ public sealed class GameSessionApiTests
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>
     /// <returns>현재일 방문.</returns>
     private CustomerVisit generate() => new CustomerGenerator(new System.Random(1)).Generate(tables.Customers.Appearances.Rows.Keys.ToArray(), tables.Customers.Dispositions.Rows.Values.ToArray(), tables.Customers.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, isFacilityActive: session.IsFacilityActive);
+
+    /// <summary>가격 민감 성향만 정확한 현재가를 사용하고 나머지는 기존 최소 제안을 유지한다.</summary>
+    /// <param name="visit">현재 방문.</param><param name="items">최종 판매 목록.</param>
+    /// <returns>현재 성향이 수락하는 제안 총액.</returns>
+    private long acceptedOffer(CustomerVisit visit, SaleItem[] items) =>
+        visit.DispositionType == CustomerDispositionType.PriceSensitive
+            ? items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId])
+            : 1;
+
+    /// <summary>성인 평범 성향과 실제 도덕성 계산기를 갖는 방문을 생성한다.</summary>
+    /// <param name="seedOffset">반복 생성의 시작 seed.</param>
+    /// <returns>성인 평범 방문.</returns>
+    private CustomerVisit generateAdultNormalWithMorality(int seedOffset)
+    {
+        var dispositions = tables.Customers.Dispositions.Rows.Values
+            .Where(x => x.DispositionType == CustomerDispositionType.Normal).ToArray();
+        var morality = new MoralityCalculator(tables.GetDB<MoralityDataTable>(DataTableType.Morality).Rows.Values.ToList().AsReadOnly());
+        for (int seed = seedOffset; seed < seedOffset + 100; seed++)
+        {
+            CustomerVisit visit = new CustomerGenerator(new System.Random(seed)).Generate(
+                tables.Customers.Appearances.Rows.Keys.ToArray(), dispositions, tables.Customers.Products.Rows,
+                session.ElapsedDays, () => session.EnsureDailyPrices().Prices,
+                isFacilityActive: session.IsFacilityActive, moralityCalculator: morality);
+            if ((visit.Attributes & CustomerAttributes.Adult) != 0) return visit;
+        }
+        throw new InvalidOperationException("성인 테스트 방문을 생성하지 못했습니다.");
+    }
 
     /// <summary>비동기 로더가 종료되지 않거나 실패하면 실패로 보고한다.</summary>
     /// <param name="task">로더 작업.</param><returns>완료 대기.</returns>

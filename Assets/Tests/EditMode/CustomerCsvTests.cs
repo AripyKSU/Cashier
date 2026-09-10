@@ -36,7 +36,7 @@ if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData
 if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 22 || textTables[valid].GetDataCount() != 70) throw new Exception("Unexpected sample counts");
 if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
-if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.Facility + 1) throw new Exception("End marker must follow the last table");
+if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.Morality + 1) throw new Exception("End marker must follow the last table");
 if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) throw new Exception("Probability migration failed");
 
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.RegularPriceMinRate==1000 && x.RegularPriceMaxRate==1000));
@@ -149,7 +149,7 @@ case "empty entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024
 case "duplicate entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8024_8024")); break;
 case "accept dialog FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8026_8027", "8999")); break;
 case "reject dialog FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8028_8029", "8999")); break;
-case "price tolerance": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",1100,", ",0,")); break;
+case "price tolerance": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",1300,8024_", ",0,8024_")); break;
 case "queue patience": mutate=()=>c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "6,8050,8051")); break;
 case "queue warning FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8999,8051")); break;
 case "queue leave FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8050,8999")); break;

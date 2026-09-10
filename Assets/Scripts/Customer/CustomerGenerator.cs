@@ -24,12 +24,14 @@ public sealed class CustomerGenerator
     /// <param name="getCurrentPrices">현재 가격표 조회 함수. 생성 시 희망 목록 표시, 제출 시 최신 가격 확정에 각각 사용한다.</param>
     /// <param name="getSaleRestrictions">수락 가능한 제출 시 조회할 지침 공급자. null이면 미연결이며 생성 시 호출하지 않는다.</param>
     /// <param name="isFacilityActive">세션의 설비 활성 조회. 미연결은 설비 상품을 잠근다.</param>
+    /// <param name="moralityCalculator">검증된 도덕성 계산기. null이면 도덕성을 평가하지 않는다.</param>
     /// <returns>판매 가능 상품이 없으면 null. 나머지는 확정된 방문 데이터.</returns>
     /// <exception cref="ArgumentException">필수 후보 누락, 0·중복 ID 또는 잘못된 설정 범위.</exception>
     public CustomerVisit Generate(IReadOnlyList<uint> appearanceIds,
         IReadOnlyList<CustomerDispositionData> dispositions,
         IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices = null,
-        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null, Func<uint, bool> isFacilityActive = null)
+        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null, Func<uint, bool> isFacilityActive = null,
+        MoralityCalculator moralityCalculator = null)
     {
         if (getCurrentPrices == null) throw new ArgumentNullException(nameof(getCurrentPrices));
         var currentPrices = getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
@@ -114,6 +116,7 @@ public sealed class CustomerGenerator
             disposition.DiscountSaleTextIdxs[random.Next(disposition.DiscountSaleTextIdxs.Count)],
             disposition.ExploitativeSaleTextIdxs[random.Next(disposition.ExploitativeSaleTextIdxs.Count)],
             disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)], products, getCurrentPrices,
-            disposition.DispositionType, attributes, disposition.RegularPriceMinRate, disposition.RegularPriceMaxRate, getSaleRestrictions, availableProducts.Keys);
+            disposition.DispositionType, attributes, disposition.RegularPriceMinRate, disposition.RegularPriceMaxRate,
+            getSaleRestrictions, availableProducts.Keys, moralityCalculator);
     }
 }

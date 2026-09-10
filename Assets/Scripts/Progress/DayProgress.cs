@@ -480,7 +480,8 @@ public sealed class DayProgress
             this.dispositions,
             this.customerCatalog.Products.Rows,
             this.session.ElapsedDays,
-            () => this.session.EnsureDailyPrices().Prices, isFacilityActive: this.session.IsFacilityActive);
+            () => this.session.EnsureDailyPrices().Prices, isFacilityActive: this.session.IsFacilityActive,
+            moralityCalculator: this.session.MoralityCalculator);
 
         if (visit == null)
         {
@@ -564,7 +565,7 @@ public sealed class DayProgress
     /// <exception cref="InvalidOperationException">종료된 일일 집계에 반영하려는 경우 발생합니다.</exception>
     private void applyTransactionResult(TransactionResult transactionResult)
     {
-        if (!this.economy.DailyAggregationService.TryApplyTransaction(transactionResult))
+        if (!this.session.TryApplyTransaction(transactionResult))
         {
             throw new InvalidOperationException("종료된 일일 집계에는 거래를 반영할 수 없습니다.");
         }

@@ -50,6 +50,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 88986528bdd21ac4091111faba34508d
+    m_Address: MoralityData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8e73b28ef3a099a4488cb2518dcc4102
     m_Address: MainScene
     m_ReadOnly: 0

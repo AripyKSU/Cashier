@@ -32,6 +32,8 @@ public sealed class CustomerVisit
     private readonly HashSet<uint> availableProductIds;
     /// <summary>제출 시 한 번 조회하는 지침 공급자. null은 미연결이며 방문이 수명을 소유하지 않는다.</summary>
     private readonly Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions;
+    /// <summary>검증된 데이터로 제출 snapshot을 한 번 평가한다. null은 도덕성 미연결.</summary>
+    private readonly MoralityCalculator moralityCalculator;
     private bool isSubmitting;
     /// <summary>생성 시 선택한 수락 대사.</summary>
     private readonly uint regularSaleTextIdx;
@@ -110,13 +112,14 @@ public sealed class CustomerVisit
     /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
     /// <param name="getSaleRestrictions">제출 시 지침 조회. null은 미연결.</param>
     /// <param name="availableProductIds">생성일의 활성·등장·설비 조건을 통과한 전체 상품 PK.</param>
+    /// <param name="moralityCalculator">제출 시 사용할 도덕성 계산기. null은 미평가다.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
         int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
-        IEnumerable<uint> availableProductIds)
+        IEnumerable<uint> availableProductIds, MoralityCalculator moralityCalculator = null)
     {
         CustomerProfileValidation.ValidateType(dispositionType);
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
@@ -137,6 +140,7 @@ public sealed class CustomerVisit
         this.getCurrentPrices = getCurrentPrices;
         this.availableProductIds = new HashSet<uint>(availableProductIds);
         this.getSaleRestrictions = getSaleRestrictions;
+        this.moralityCalculator = moralityCalculator;
     }
 
     /// <summary>입장 피드백을 표시한 뒤 한 번만 가격 제안 대기로 전환한다.</summary>
@@ -204,14 +208,19 @@ public sealed class CustomerVisit
                 reference = checked(reference + (long)price * pair.Value);
             }
             long allowed = checked((long)decimal.Floor((decimal)reference * PriceTolerance / 1000m));
-            var outcome = offeredTotal > allowed ? CustomerTradeOutcome.PaymentRefused
+            bool priceSensitiveRejected = DispositionType == CustomerDispositionType.PriceSensitive &&
+                (decimal)offeredTotal * 1000m != (decimal)reference * 1000m;
+            var outcome = offeredTotal > allowed || priceSensitiveRejected ? CustomerTradeOutcome.PaymentRefused
                 : (decimal)offeredTotal * 1000m < (decimal)reference * RegularPriceMinRate ? CustomerTradeOutcome.DiscountSale
                 : (decimal)offeredTotal * 1000m > (decimal)reference * RegularPriceMaxRate ? CustomerTradeOutcome.ExploitativeSale
                 : CustomerTradeOutcome.RegularSale;
             // 정상 위반은 수락을 취소하지 않는다. 조회·검증 실패는 공개 상태 확정 전에 전파한다.
             bool evaluated = outcome != CustomerTradeOutcome.PaymentRefused && getSaleRestrictions != null;
             IReadOnlyList<SaleRestrictionViolation> violations = evaluated ? evaluateRestrictions(sold) : Array.Empty<SaleRestrictionViolation>();
-            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations, DispositionType, Attributes);
+            MoralityEvaluation? morality = this.moralityCalculator?.Calculate(DispositionType, Attributes,
+                outcome != CustomerTradeOutcome.PaymentRefused, offeredTotal, reference);
+            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations,
+                DispositionType, Attributes, morality);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;

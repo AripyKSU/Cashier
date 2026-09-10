@@ -78,20 +78,33 @@ public sealed class DailyAggregationService
             return false;
         }
 
-        // 재정 변경 전에 모든 일일 누적값의 범위를 확인해 부분 갱신을 방지합니다.
-        long nextDailySaleIncome = checked(this.dailySaleIncome + transactionResult.SaleIncome);
-        int nextDailyReputationDelta = checked(this.dailyReputationDelta + transactionResult.ReputationDelta);
+        ValidateTransaction(transactionResult);
+        long nextDailySaleIncome = this.dailySaleIncome + transactionResult.SaleIncome;
+        int nextDailyReputationDelta = this.dailyReputationDelta + transactionResult.ReputationDelta;
+
+        // 알림 예외가 발생해도 확정 거래·재정·도덕성 중 일부만 빠지지 않도록 기록을 먼저 확정한다.
+        this.dailySaleIncome = nextDailySaleIncome;
+        this.dailyReputationDelta = nextDailyReputationDelta;
+        this.dailyTransactions.Add(transactionResult);
 
         if (transactionResult.SaleIncome > 0)
         {
             this.financeService.AddIncome(transactionResult.SaleIncome, FinanceChangeReason.Sale);
         }
 
-        // 재정 반영이 완료된 결과만 현재 영업일의 집계값으로 확정합니다.
-        this.dailySaleIncome = nextDailySaleIncome;
-        this.dailyReputationDelta = nextDailyReputationDelta;
-        this.dailyTransactions.Add(transactionResult);
         return true;
+    }
+
+    /// <summary>상태를 바꾸기 전에 일일 누적값과 잔고 범위를 모두 확인한다.</summary>
+    /// <param name="transactionResult">검증할 거래 snapshot.</param>
+    /// <exception cref="InvalidOperationException">영업 중이 아닌 경우.</exception>
+    /// <exception cref="OverflowException">누적값 또는 잔고 범위 초과.</exception>
+    internal void ValidateTransaction(TransactionResult transactionResult)
+    {
+        if (!this.isDayOpen) throw new InvalidOperationException("종료된 일일 집계에는 거래를 반영할 수 없습니다.");
+        _ = checked(this.dailySaleIncome + transactionResult.SaleIncome);
+        _ = checked(this.dailyReputationDelta + transactionResult.ReputationDelta);
+        _ = checked(this.financeService.CurrentBalance + transactionResult.SaleIncome);
     }
 
     /// <summary>
