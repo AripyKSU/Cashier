@@ -6,7 +6,7 @@
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 78개(테이블별 중복 컬럼 포함), 데이터 207행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 13종, 컬럼 총 87개(테이블별 중복 컬럼 포함), 데이터 251행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -42,14 +42,15 @@
 | [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 30 | 3 | 일자별 유지비 연결 |
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
-| [ResourceData](../Assets/Datas/ResourceData.csv) | 72 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 70 | 2 | 현재 데이터 경로 연결 |
+| [ResourceData](../Assets/Datas/ResourceData.csv) | 71 | 2 | 로더 연결, 개별 자산 미확인 |
+| [TextData](../Assets/Datas/TextData.csv) | 87 | 2 | 현재 데이터 경로 연결 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 4 | 6 | 현재 데이터 경로 연결 |
-| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 3 | 21 | 구매 연결 / queue 독립 API |
-| [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 4 | 3 | 현재 데이터 경로 연결 |
-| [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 9 | 현재 데이터 경로 연결 |
-| [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금·정산 상점 UI 연결 |
+| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 7 | 21 | 구매 연결 / queue 독립 API |
+| [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
+| [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 9 | 현재 데이터 경로 연결 |
+| [FacilityData](../Assets/Datas/FacilityData.csv) | 11 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백 연결, 생성 가중치는 미연결 |
+| [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 3 | 7 | 일일 지침 연결 |
 
 ### ReputationBalanceData
 
@@ -59,17 +60,23 @@
 
 ### FacilityData
 
-`idx:uint`는 종류12의 12001~12005, `nameidx:uint`는 TextData FK(8056~8060), `purchase_price:long`은 양수 통화다. header·중복·대역·가격·Text FK 검사 후 공개한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
+`idx:uint`는 종류12의 12001~12011, `nameidx:uint`는 TextData FK, `purchase_price:long`은 양수 통화다. `upgrade_kind`는 상품 해금·편의성·가게 단계 상승을 구분하는 숫자 enum이고, `required_store_stage`는 실제 구매 요구 단계인 1~3이다. `target_store_stage=0`은 실제 가게 단계 0이 아니라 단계 상승 대상이 없다는 sentinel이며, 단계 상승 행만 2 또는 3을 사용한다. `effect_type`은 편의성 효과의 숫자 enum이고 일반 업그레이드는 None(0)이다.
 
-독립 구매이며 선행 설비가 없다. 보유·활성일은 세션 소유, 지불 즉시 차감하고 현재 경과일+1에 해금한다. 상세 API와 임시 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
+header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 공개한다. 편의성 효과별 설비와 단계 상승 목표별 설비는 하나씩만 존재해야 한다. `CustomerCatalog`는 상품 해금 설비가 활성 상품의 `required_facility_idx`로 참조되는지, 편의성·단계 상승 설비가 상품 FK로 사용되지 않는지 추가 검사한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
+
+구매·보유·활성일의 실제 단계 제한은 후속 구매 로직 범위다. 현재 데이터 행은 1단계 상품 해금 2개, 2단계 상품 해금 2개, 3단계 상품 해금 2개, 편의성 3개, 단계 상승 2개로 구성된다. 상세 API와 임시 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
 
 근거: [CSV](../Assets/Datas/FacilityData.csv), [DTO](../Assets/Scripts/Commons/Data/FacilityData.cs), [DataTable](../Assets/Scripts/Commons/Data/FacilityDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12005 |
-| 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060 |
-| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 5000,7000,12000,15000,25000 |
+| 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12011 |
+| 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060,8076~8081 |
+| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 800~2500 |
+| 4. `upgrade_kind` | UpgradeKind · FacilityUpgradeKind | 업그레이드 기능 분류 | 필수; ProductUnlock·Convenience·StoreStage만 허용 | 코드 분기 키 | 1,2,3 |
+| 5. `required_store_stage` | RequiredStoreStage · uint | 구매 요구 가게 단계 | 필수; 1~3 | 단계 구매 조건 | 1,2,3 |
+| 6. `effect_type` | EffectType · ConvenienceEffectType | 편의성 효과 키 | 일반/단계 상승은 None(0); 편의성은 DividerBar·AutoSorting·Vacuum | 코드 효과 분기 | 0,1,2,3 |
+| 7. `target_store_stage` | TargetStoreStage · uint | 단계 상승 목표 | 일반 업그레이드는 0; 단계 상승은 2 또는 3 | 가게 단계 전환 목표 | 0,2,3 |
 
 ### EconomyBalanceData
 
@@ -128,25 +135,25 @@
 
 ### ResourceData
 
-현재 로드되는 리소스 경로 목록. 72행 등록 자체는 개별 자산 존재·로드 성공을 보증하지 않는다. Product_ 계열 등록도 있지만 ProductData.ImageResourceIdx는 전부 null이므로 상품 이미지 FK 연결 완료로 해석하지 않는다. 과거 Unit/Room/Effect 명칭 행은 보존된 등록값이며 현재 Cashier 소비·실자산 전수 검증은 미확인이다.
+현재 로드되는 리소스 경로 목록. 71행 등록 자체는 개별 자산 존재·로드 성공을 보증하지 않는다. Product_ 계열 등록도 있지만 ProductData.ImageResourceIdx는 전부 null이므로 상품 이미지 FK 연결 완료로 해석하지 않는다. 과거 Unit/Room/Effect 명칭 행은 보존된 등록값이며 현재 Cashier 소비·실자산 전수 검증은 미확인이다.
 
 근거: [CSV](../Assets/Datas/ResourceData.csv), [DTO](../Assets/Scripts/Commons/Data/ResourceData.cs), [DataTable](../Assets/Scripts/Commons/Data/ResourceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 72개: 부록 |
-| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체72키: 부록 |
+| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 71개: 부록 |
+| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체71키: 부록 |
 
 ### TextData
 
-현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 70개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
+현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 87개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
 
 근거: [CSV](../Assets/Datas/TextData.csv), [DTO](../Assets/Scripts/Commons/Data/TextData.cs), [DataTable](../Assets/Scripts/Commons/Data/TextDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 70개: 부록 |
-| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체70문구: 부록 |
+| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 87개: 부록 |
+| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체87문구: 부록 |
 
 ### CustomerAppearanceData
 
@@ -195,34 +202,34 @@
 
 ### ProductCategoryData
 
-현재 연결. 분류 enum의 표시 이름 계약이며 전체4분류가 각1행 필요하다. 현재 가격표 본문은 상품 이름을 표시하고 분류 이름을 직접 표시하지 않는다. 분류 라벨을 조회할 수 있는 데이터 준비와 실제 화면 출력을 구분한다.
+현재 연결. 분류 enum의 표시 이름 계약이며 전체7분류가 각1행 필요하다. 현재 가격표 본문은 상품 이름을 표시하고 분류 이름을 직접 표시하지 않는다. 분류 라벨을 조회할 수 있는 데이터 준비와 실제 화면 출력을 구분한다.
 
 근거: [CSV](../Assets/Datas/Customer/ProductCategoryData.csv), [DTO](../Assets/Scripts/Commons/Data/ProductCategoryData.cs), [DataTable](../Assets/Scripts/Commons/Data/ProductCategoryDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 분류 표시 행 PK; 분류 숫자와 별개 | 필수; 종류 대역·고유 | 없음 | 7001, 7002, 7003, 7004 |
-| 2. `nameidx` | NameIdx · uint | 분류 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8008, 8009, 8010, 8011 |
-| 3. `product_type` | ProductType · ProductType(uint) | 표시 이름을 연결할 enum 값 | 필수; 1~4 각 1행, 전체 분류 누락 금지 | ProductType | 1, 2, 3, 4 |
+| 1. `idx` | Idx · uint | 분류 표시 행 PK; 분류 숫자와 별개 | 필수; 종류 대역·고유 | 없음 | 7001~7007 |
+| 2. `nameidx` | NameIdx · uint | 분류 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8008, 8009, 8010, 8011, 8058, 8059, 8060 |
+| 3. `product_type` | ProductType · ProductType(uint) | 표시 이름을 연결할 enum 값 | 필수; 1~7 각 1행, 전체 분류 누락 금지 | ProductType | 1, 2, 3, 4, 5, 6, 7 |
 
 ### ProductData
 
-현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본5·설비 해금13·비활성4행이며 모두0일 등장,이미지 FK 빈 셀이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
+현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본4·설비 해금12행이며 모두0일 등장,이미지 FK 빈 셀이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/ProductData.csv), [DTO](../Assets/Scripts/Commons/Data/ProductData.cs), [DataTable](../Assets/Scripts/Commons/Data/ProductDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 상품 PK | 필수; 종류 대역·내부번호1~999·고유 | 없음 | 1001~1022 |
-| 2. `nameidx` | NameIdx · uint | 상품 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8012~8023, 8061~8070 |
-| 3. `product_type` | ProductType · ProductType(uint) | 구매 선호와 이벤트·지침에 쓰는 분류 | 필수; 정의된 1~4, 숫자 converter | ProductCategoryData.product_type (enum 대응) | 1, 2, 3, 4 |
-| 4. `is_available` | IsAvailable · bool | 판매 후보 활성 여부 | 필수; 정확히 0/1 | 없음 | 0, 1 |
+| 1. `idx` | Idx · uint | 상품 PK | 필수; 종류 대역·내부번호1~999·고유 | 없음 | 1001~1023 내 16종 |
+| 2. `nameidx` | NameIdx · uint | 상품 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8012, 8015~8018, 8021, 8061~8070, 8075 |
+| 3. `product_type` | ProductType · ProductType(uint) | 구매 선호와 이벤트·지침에 쓰는 분류 | 필수; 정의된 1~7, 숫자 converter | ProductCategoryData.product_type (enum 대응) | 1, 2, 3, 4, 5, 6, 7 |
+| 4. `is_available` | IsAvailable · bool | 판매 후보 활성 여부 | 필수; 정확히 0/1 | 없음 | 1 |
 | 5. `base_price` | BasePrice · uint | 상품 1개의 고정 기본가격, G | 필수; 양수 | 없음 | 100~5000, 전체 행은 부록 |
 | 6. `available_day` | AvailableDay · uint | 등장 경과일, 시작일0 | 필수; 0 허용 | GameSessionManager.ElapsedDays와 비교 | 0 |
 | 7. `image_resource_idx` | ImageResourceIdx · uint? | 상품 이미지 연결 | 빈 셀만 null=흰 사각형; 0 금지; Resource 대역·존재 | ResourceData.idx → Path → Sprite | 빈 셀 |
-| 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 50~2500, 전체 행은 부록 |
+| 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 50~3000, 전체 행은 부록 |
 
-| 9. `required_facility_idx` | RequiredFacilityIdx · uint? | 해금에 필요한 설비 | 빈 셀=null 기본상품; 0·대역 오류·미존재 거부 | FacilityData.idx | 빈 셀,12001~12005 |
+| 9. `required_facility_idx` | RequiredFacilityIdx · uint? | 해금에 필요한 설비 | 빈 셀=null 기본상품; 0·대역 오류·미존재 거부 | FacilityData.idx | 빈 셀,12001~12006 |
 
 ## 4. 현재 테스트 데이터의 기획 의미
 
@@ -233,27 +240,21 @@
 | 상품PK·이름 | 분류(enum) | 기본가격 G | 원가 G | 판매 조건 (등장일0 / 이미지 빈 셀) |
 |---|---|---:|---:|---|
 | 1001 물 | Water=1 | 100 | 50 | 기본 |
-| 1002 정수 캔 | Water=1 | 150 | 75 | 비활성 |
-| 1003 휴대용 필터 | Water=1 | 500 | 250 | 비활성 |
 | 1004 통조림 | Food=2 | 250 | 125 | 기본 |
 | 1005 분말 수프 | Food=2 | 150 | 75 | 설비 12001 |
 | 1006 영양바 | Food=2 | 200 | 100 | 설비 12001 |
 | 1007 붕대 | Medicine=3 | 300 | 150 | 기본 |
-| 1008 소독제 | Medicine=3 | 350 | 175 | 비활성 |
-| 1009 해열제 | Medicine=3 | 400 | 200 | 설비 12002 |
 | 1010 건전지 | DailyNecessities=4 | 200 | 100 | 기본 |
-| 1011 성냥 | DailyNecessities=4 | 100 | 50 | 기본 |
-| 1012 방한포 | DailyNecessities=4 | 600 | 300 | 비활성 |
 | 1013 연고 | Medicine=3 | 500 | 250 | 설비 12002 |
 | 1014 응급 주사 | Medicine=3 | 900 | 450 | 설비 12002 |
 | 1015 손전등 | Tools=5 | 800 | 400 | 설비 12003 |
 | 1016 접이식 삽 | Tools=5 | 1000 | 500 | 설비 12003 |
-| 1017 쇠지렛대 | Tools=5 | 1200 | 600 | 설비 12003 |
 | 1018 무전기 | ElectricalEquipment=6 | 2000 | 1000 | 설비 12004 |
 | 1019 배터리 | ElectricalEquipment=6 | 1200 | 600 | 설비 12004 |
 | 1020 방독면 | ProtectiveEquipment=7 | 2500 | 1250 | 설비 12005 |
 | 1021 방호복 | ProtectiveEquipment=7 | 4000 | 2000 | 설비 12005 |
-| 1022 방사능 측정기 | ProtectiveEquipment=7 | 5000 | 2500 | 설비 12005 |
+| 1022 방사능 측정기 | ProtectiveEquipment=7 | 5000 | 2500 | 설비 12006 |
+| 1023 열화상 카메라 | ProtectiveEquipment=7 | 6000 | 3000 | 설비 12006 |
 
 모든 상품의 현재 원가는 기본가격의50%로 입력되어 있다. 이는 **현 행 값의 관계**이지 `CostPrice <= BasePrice` 검증이나 자동 원가 계산식이 아니다. 가격 이벤트는 CostPrice를 바꾸지 않는다.
 
@@ -332,6 +333,8 @@
 | [CustomerState : int](../Assets/Scripts/Customer/CustomerVisit.cs) | Entering=0, AwaitingOffer=1, Accepted=2, Rejected=3, Departed=4, Queued=5, Abandoned=6 | 방문 수명. Departed와 대기 만료 Abandoned 구분 |
 | [CustomerTradeOutcome : int](../Assets/Scripts/Customer/CustomerVisit.cs) | None=0, RegularSale=1, DiscountSale=2, ExploitativeSale=3, PaymentRefused=4 | 가격 판정. 퇴장 후에도 유지 |
 | [FinanceChangeReason : int](../Assets/Scripts/Finance/FinanceChangeReason.cs) | None=0, Sale=1, Maintenance=2, FacilityPurchase=3 | 재정 변경 사유. 현재 거래/상납이 각각1/2 |
+| [FacilityUpgradeKind : uint](../Assets/Scripts/Commons/Data/FacilityData.cs) | None=0, ProductUnlock=1, Convenience=2, StoreStage=3, FacilityUpgradeKind_End=4(자동) | 설비 업그레이드 분류. None/End는 CSV 금지 |
+| [ConvenienceEffectType : uint](../Assets/Scripts/Commons/Data/FacilityData.cs) | None=0, DividerBar=1, AutoSorting=2, Vacuum=3, ConvenienceEffectType_End=4(자동) | 편의성 효과 키. None은 상품 해금·단계 상승의 무효과 값 |
 | [FacilityPurchaseStatus](../Assets/Scripts/Facility/FacilityPurchaseResult.cs) | None=0, Purchased=1, AlreadyOwned=2, InsufficientFunds=3, FacilityPurchaseStatus_End=4(자동) | 정상 구매 결과; 입력·재진입·알림 오류는 예외 |
 | [FacilityDisplayState](../Assets/Scripts/UI/Contracts/FacilityUIContracts.cs) | Available=0, InsufficientFunds=1, Pending=2, Active=3, FacilityDisplayState_End=4(자동) | UI 표시 상태, 구매 요청 결과와 별개 |
 | [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Failed=3, Completed=4 | 전체 진행. 제거한 Maintenance=2 숫자는 재사용하지 않음 |
@@ -625,7 +628,7 @@ idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
 
 ### Assets/Datas/ResourceData.csv
 
-데이터 72행, 2컬럼. SHA-256: `655DE2649CF39E3DE648310C08DBA850EB4C16E13C1DA5D01A5419506981ABC9`.
+데이터 71행, 2컬럼. SHA-256: `D59E10F3F58C66E478B02986AE840849C010DFEAE818EDFC456B1536368CDD34`.
 
 ```csv
 idx,path
@@ -698,14 +701,13 @@ idx,path
 4104,Product_1004_Can
 4106,Product_1006_Crackers
 4107,Product_1007_Bandage
-4109,Product_1009_Painkiller
 4110,Product_1010_Battery
 4199,Product_Placeholder
 ```
 
 ### Assets/Datas/TextData.csv
 
-데이터 70행, 2컬럼. SHA-256: `47B42329F3463EC17A5212F70E7FE2FCDAD78EDD1FC9EE0064A567D3E45C9DDA`.
+데이터 87행, 2컬럼. SHA-256: `92BC5DC29B2941185FB8701C515EA70872F99165F91000CAACA64AF92D202C19`.
 
 ```csv
 idx,text
@@ -765,10 +767,10 @@ idx,text
 8054,가격을 확인하려는데 오래 걸리네요.
 8055,이렇게 기다릴 바엔 다른 가게로 가겠어요.
 8056,식량 보관 선반
-8057,잠금 약품장
+8057,약품 보관장
 8058,공구대
-8059,전력 통신 장비
-8060,핵 보호 물품 설비
+8059,전력·통신 장비
+8060,핵보호 물품 설비
 8061,연고
 8062,응급 주사
 8063,손전등
@@ -779,6 +781,23 @@ idx,text
 8068,방독면
 8069,방호복
 8070,방사능 측정기
+8071,공구 선호
+8072,전기장비 선호
+8073,보호장비 선호
+8074,부유한 손님
+8075,열화상 카메라
+8076,정밀 전자장비 보관장
+8077,막대
+8078,2단계 확장
+8079,소팅
+8080,3단계 확장
+8081,청소기
+8101,오늘의 지침
+8102,제한 없음.
+8103,식수 배급 통제
+8104,식수 부족 사태로 인해 물은 1인당 1개까지만 판매할 수 있습니다.
+8105,의약품 판매 금지
+8106,비상사태 발령으로 민간인 대상 붕대 판매가 전면 금지됩니다.
 ```
 
 ### Assets/Datas/Customer/CustomerAppearanceData.csv
@@ -806,7 +825,7 @@ idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds
 
 ### Assets/Datas/Customer/ProductCategoryData.csv
 
-데이터 4행, 3컬럼. SHA-256: `A933B7A998CCCDCD36A6A7D44C45AFC59FEE434FB849EA0A4AC3B7A3547514DF`.
+데이터 7행, 3컬럼. SHA-256: `A002313CF3D5B596DB4286DE6B47E152DF65D0C2ABE239C25A36FB3B135FB756`.
 
 ```csv
 idx,nameidx,product_type
@@ -814,48 +833,51 @@ idx,nameidx,product_type
 7002,8009,2
 7003,8010,3
 7004,8011,4
+7005,8058,5
+7006,8059,6
+7007,8060,7
 ```
 
 ### Assets/Datas/Customer/ProductData.csv
 
-데이터 22행, 9컬럼. SHA-256: `237167718BFB76309DBCF3E57A20D55F6F09014B4068027584B7E351061B8590`.
+데이터 16행, 9컬럼. SHA-256: `9984B46576A0979D8C405D3DBADC3DFD92CD1C52C29EA0DAB731F8603F40769C`.
 
 ```csv
 idx,nameidx,product_type,is_available,base_price,available_day,image_resource_idx,cost_price,required_facility_idx
 1001,8012,1,1,100,0,,50,
-1002,8013,1,0,150,0,,75,
-1003,8014,1,0,500,0,,250,
 1004,8015,2,1,250,0,,125,
 1005,8016,2,1,150,0,,75,12001
 1006,8017,2,1,200,0,,100,12001
 1007,8018,3,1,300,0,,150,
-1008,8019,3,0,350,0,,175,
-1009,8020,3,1,400,0,,200,12002
 1010,8021,4,1,200,0,,100,
-1011,8022,4,1,100,0,,50,
-1012,8023,4,0,600,0,,300,
 1013,8061,3,1,500,0,,250,12002
 1014,8062,3,1,900,0,,450,12002
-1015,8063,4,1,800,0,,400,12003
-1016,8064,4,1,1000,0,,500,12003
-1017,8065,4,1,1200,0,,600,12003
-1018,8066,4,1,2000,0,,1000,12004
-1019,8067,4,1,1200,0,,600,12004
-1020,8068,4,1,2500,0,,1250,12005
-1021,8069,4,1,4000,0,,2000,12005
-1022,8070,4,1,5000,0,,2500,12005
+1015,8063,5,1,800,0,,400,12003
+1016,8064,5,1,1000,0,,500,12003
+1018,8066,6,1,2000,0,,1000,12004
+1019,8067,6,1,1200,0,,600,12004
+1020,8068,7,1,2500,0,,1250,12005
+1021,8069,7,1,4000,0,,2000,12005
+1022,8070,7,1,5000,0,,2500,12006
+1023,8075,7,1,6000,0,,3000,12006
 ```
 
 
 ### Assets/Datas/FacilityData.csv
 
-데이터 5행, 3컬럼. SHA-256: `1CAFFFF0B417D8D719199B8199009286219B8C2655102D4FD2ECEB4FDE7055AC`.
+데이터 11행, 7컬럼. SHA-256: `CCF8285A4F3A3AE3DADE13B203EA24140091876531BE7BF29CE526E3DF375AE2`.
 
 ```csv
-idx,nameidx,purchase_price
-12001,8056,5000
-12002,8057,7000
-12003,8058,12000
-12004,8059,15000
-12005,8060,25000
+idx,nameidx,purchase_price,upgrade_kind,required_store_stage,effect_type,target_store_stage
+12001,8056,1000,1,1,0,0
+12002,8057,1200,1,1,0,0
+12003,8058,1500,1,2,0,0
+12004,8059,1800,1,2,0,0
+12005,8060,2000,1,3,0,0
+12006,8076,2200,1,3,0,0
+12007,8077,800,2,1,1,0
+12008,8078,1500,3,1,0,2
+12009,8079,1200,2,2,2,0
+12010,8080,2500,3,2,0,3
+12011,8081,1500,2,3,3,0
 ```

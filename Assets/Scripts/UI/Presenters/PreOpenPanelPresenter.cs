@@ -79,9 +79,9 @@ public class PreOpenPanelPresenter : MonoBehaviour
             var defaultProducts = new[]
             {
                 new PriceGuideProductViewData(1001, "물", 100, null),
-                new PriceGuideProductViewData(1002, "정수 캔", 150, null),
-                new PriceGuideProductViewData(1003, "휴대용 필터", 500, null),
                 new PriceGuideProductViewData(1004, "통조림", 250, null),
+                new PriceGuideProductViewData(1007, "붕대", 300, null),
+                new PriceGuideProductViewData(1010, "건전지", 200, null),
             };
 
             var fallbackData = new PreOpenGuidelineViewData(

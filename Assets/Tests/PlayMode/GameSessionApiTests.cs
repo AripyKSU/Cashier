@@ -436,7 +436,7 @@ public sealed class GameSessionApiTests
         progress.CompleteTransactionResult(); progress.CompleteSettlement();
         Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12005));
         Assert.That(factory.CreatePriceListText(2, session.EnsureDailyPrices()), Does.Contain(name + "  ·"));
-        var expected = new uint[] { 1001, 1004, 1007, 1010, 1011, 1020, 1021, 1022 };
+        var expected = new uint[] { 1001, 1004, 1007, 1010, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
         progress.OpenBusiness(); progress.BeginCustomerSorting();
@@ -482,7 +482,7 @@ public sealed class GameSessionApiTests
             Assert.That(purchases, Is.Zero); panel.gameObject.SetActive(false);
         }
         panel.gameObject.SetActive(true); panel.UpdateView(view, ""); yield return null;
-        var rows = panel.GetComponentsInChildren<FacilityItemView>(); Assert.That(rows.Length, Is.EqualTo(5));
+        var rows = panel.GetComponentsInChildren<FacilityItemView>(); Assert.That(rows.Length, Is.EqualTo(11));
         var button = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
         button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1)); Assert.That(requested, Is.EqualTo(12001u));
         panel.SetInteractionEnabled(false); button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1));

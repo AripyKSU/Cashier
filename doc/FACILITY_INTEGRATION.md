@@ -13,19 +13,25 @@
 
 ## 데이터와 배포 단위
 
-| 설비 PK / 이름 | 임시 가격 | 해금 상품 PK |
-|---|---:|---|
-| 12001 식량 보관 선반 | 5000 | 1005,1006 |
-| 12002 잠금 약품장 | 7000 | 1009,1013,1014 |
-| 12003 공구대 | 12000 | 1015,1016,1017 |
-| 12004 전력 통신 장비 | 15000 | 1018,1019 |
-| 12005 핵 보호 물품 설비 | 25000 | 1020,1021,1022 |
+| 설비 PK / 이름 | 임시 가격 | 종류·효과 | 해금 상품 PK |
+|---|---:|---|---|
+| 12001 식량 보관 선반 | 1000 | 상품 해금 / 요구 단계1 | 1005,1006 |
+| 12002 약품 보관장 | 1200 | 상품 해금 / 요구 단계1 | 1013,1014 |
+| 12003 공구대 | 1500 | 상품 해금 / 요구 단계2 | 1015,1016 |
+| 12004 전력·통신 장비 | 1800 | 상품 해금 / 요구 단계2 | 1018,1019 |
+| 12005 핵보호 물품 설비 | 2000 | 상품 해금 / 요구 단계3 | 1020,1021 |
+| 12006 정밀 전자장비 보관장 | 2200 | 상품 해금 / 요구 단계3 | 1022,1023 |
+| 12007 막대 | 800 | 편의성 / DividerBar / 요구 단계1 | 없음 |
+| 12008 2단계 확장 | 1500 | 단계 상승 / 요구 단계1 → 목표 단계2 | 없음 |
+| 12009 소팅 | 1200 | 편의성 / AutoSorting / 요구 단계2 | 없음 |
+| 12010 3단계 확장 | 2500 | 단계 상승 / 요구 단계2 → 목표 단계3 | 없음 |
+| 12011 청소기 | 1500 | 편의성 / Vacuum / 요구 단계3 | 없음 |
 
-각 설비는 독립 1회 구매이며 앞 설비 구매를 요구하지 않는다. 가격과 신규 상품 분류는 승인된 테스트 값이다. 신규 의약품은 Medicine, 공구·전력·핵 보호 물품은 임시 DailyNecessities다. 기본 건전지1010과 설비 배터리1019는 서로 다른 상품이다.
+각 행은 일회성 업그레이드다. 현재 단계 1~3은 구매 가능 항목을 제한하며, 개별 구매 보유 여부와 별개다. 가격과 신규 상품 분류는 승인된 임시 값이다. 신규 의약품은 Medicine, 공구·전력·핵 보호 물품은 임시 DailyNecessities다. 기본 건전지1010과 설비 배터리1019는 서로 다른 상품이다.
 
-- FacilityData: `idx:uint,nameidx:uint,purchase_price:long`. 종류12, PK12001~12005. 통합 checkout에는 ReputationBalance11도 함께 등록된다. enum 종료값은 자동 증가한다.
-- ProductData에 `required_facility_idx:uint?` 추가. 빈 셀은 기본상품,0은 오류. 기본5개는1001/1004/1007/1010/1011. 기존1002/1003/1008/1012는 삭제하지 않고 비활성화한다. 총22행(기본5+해금13+비활성4).
-- TextData는70행으로 이름8056~8070을 추가한다. 실제 가격·전체 행은 [DATA_CATALOG.md](DATA_CATALOG.md) 참조.
+- FacilityData: `idx:uint,nameidx:uint,purchase_price:long,upgrade_kind:FacilityUpgradeKind,required_store_stage:uint,effect_type:ConvenienceEffectType,target_store_stage:uint`. 종류12, PK12001~12011. `required_store_stage`는 1~3이며, 단계 상승만 `target_store_stage` 2 또는 3을 사용한다. 일반 업그레이드의 `target_store_stage=0`은 실제 가게 단계 0이 아닌 대상 없음 sentinel이다. 통합 checkout에는 ReputationBalance11도 함께 등록된다. enum 종료값은 자동 증가한다.
+- ProductData에 `required_facility_idx:uint?` 추가. 빈 셀은 기본상품,0은 오류. 기본4개는1001/1004/1007/1010이며, 최종 상품은16행이고 비활성 행은 보존하지 않는다. 1022와1023은 설비12006을 요구한다.
+- TextData에는 상품·설비 이름 8075(열화상 카메라), 8076(정밀 전자장비 보관장), 8077(막대), 8078(2단계 확장), 8079(소팅), 8080(3단계 확장), 8081(청소기)을 추가·연결한다. 실제 가격·전체 행은 [DATA_CATALOG.md](DATA_CATALOG.md) 참조.
 - DTO·CSV·DataTableManager·CustomerCatalog를 함께 반영한다. 구형 Product header는 오류다. PK·가격·설비 FK·Text FK가 모두 검증되기 전 공개하지 않는다.
 - 승인된 Addressables 연결: 기존 Default Local Group의 `FacilityData` address, 기존 `Datas` label, GUID `965dc884f32f1514c8fa36b64a8c93cb`. 기존 entry/group/schema는 변경하지 않았다.
 
@@ -43,7 +49,7 @@
 
 ## 설비 UI 제작·병합 구현 (2026-09-09)
 
-아래 UI 코드·독립 프리팹·정산 연결을 구현했다. 현재 GameUI의 `GameUIController → Presenter.UpdateView(ViewData)`와 Presenter의 요청 event 패턴을 따른다. 설비 5종은 독립 구매이므로 선행 단계 잠금·강화 트리·설치 위치 UI는 만들지 않는다.
+아래 UI 코드·독립 프리팹·정산 연결은 이전 단계의 구현이다. 현재 GameUI의 `GameUIController → Presenter.UpdateView(ViewData)`와 Presenter의 요청 event 패턴을 따른다. 2단계에서는 데이터 계약만 11행으로 확장했고, 단계별 잠금·업그레이드 종류 표시·레이아웃 조정은 상점 UI 후속 범위로 남긴다.
 
 ### UI 목록
 
@@ -51,7 +57,7 @@
 |---|---|---|
 | 진입 버튼 `FacilityOpenButton` | 일일 정산에서 날짜 완료 전 설비 목록 열기 | 필수 |
 | 목록 패널 `FacilityShopPanel` | 제목, 보유금, 다음 영업일 적용 안내, 설비 목록, 닫기 | 필수 |
-| 설비 행 `FacilityItem` | 이름, 구매 가격, 해금 상품 이름 목록, 보유 상태, 구매 버튼 | 필수; 동일 행 프리팹으로 5개 표시 |
+| 설비 행 `FacilityItem` | 이름, 구매 가격, 해금 상품 이름 목록, 보유 상태, 구매 버튼 | 기존 UI 계약 유지; 11개 데이터 행 표시 레이아웃은 후속 |
 | 보유금 `BalanceText` | 현재 세션 잔액. 패널 진입·구매 결과·잔액 변경 때 갱신 | 필수 |
 | 효과 안내 `UnlockProductsText` | 이 설비가 해금하는 상품 목록. 상품 FK로 조회 | 필수 |
 | 적용 안내 `ActivationText` | 미보유는 다음 영업일부터 적용, 구매 후에는 실제 사용 가능 날짜 | 필수 |
@@ -61,7 +67,7 @@
 | 이미지 `Icon` | 설비 그림 | 후속. 현재 FacilityData에는 이미지 FK가 없어 필수 참조로 두지 않음 |
 | 구매 확인 팝업 | 이름·금액 확인 후 구매 확정 | 미구현. 별도 확인 팝업 없이 행에서 구매 요청 |
 
-상세 페이지 없이 각 행에서 이름·가격·해금 품목을 확인하고 구매한다. 현재 5개 행은 처음 구성해 재사용하며 별도 pooling 시스템은 도입하지 않는다. 현재 1280×720 기준 패널에5행을 모두 표시하므로 ScrollRect는 추가하지 않았다.
+상세 페이지 없이 각 행에서 이름·가격·해금 품목을 확인하고 구매한다. 기존 패널의 행 재사용 구조는 유지한다. 11개 행에 대한 가독성·스크롤·레이아웃은 이번 데이터 단계에서 확인하거나 수정하지 않는다.
 
 ### 프리팹과 코드 경계
 
@@ -98,7 +104,7 @@ GameUI (기존 루트 / GameUIController)
 - 미보유 행은 잔액이 충분하면 구매 가능, 부족하면 잔액 부족이다. 보유한 행은 활성 전이면 적용 대기, 활성 후이면 사용 중이며 둘 다 재구매 버튼을 비활성화한다. 잠긴 행도 해금 효과는 보여준다.
 - 설비명은 FacilityData.NameIdx → TextData, 해금 목록은 `ProductData.RequiredFacilityIdx == FacilityIdx`이며 활성 데이터 행만 표시한다. 이름·가격·상품 ID를 프리팹에 하드코딩하지 않는다. 외형 Sprite는 현재 필수 데이터가 아니다.
 - `ActivationDay`는 0부터 센 경과일이다. 화면의 DAY는 `ActivationDay + 1`이다. 예: DAY 1에 구매하면 결과 활성 경과일1, 화면에는 DAY 2부터 사용으로 표시한다.
-- 패널 진입과 구매 완료 시 전체 5행 및 잔액을 새로 읽는다. 패널이 열린 동안 잔액이 바뀌면 같은 경로로 갱신한다. 기존 경제 표시도 갱신하되 일일 매출에 설비 비용을 더하거나 정산 지출을 UI에서 임의 재계산하지 않는다.
+- 패널 진입과 구매 완료 시 설비 행 및 잔액을 새로 읽는다. 패널이 열린 동안 잔액이 바뀌면 같은 경로로 갱신한다. 기존 경제 표시도 갱신하되 일일 매출에 설비 비용을 더하거나 정산 지출을 UI에서 임의 재계산하지 않는다. 단계·종류에 따른 잠금 표시는 구매 로직 후속 범위다.
 
 구매 흐름은 `PurchaseButton → FacilityShopPresenter.OnPurchaseRequested(idx) → GameUIController → 기존 GameProgress.TryPurchaseFacility(idx, out result)`다. UI는 비용·날짜를 요청에 넣지 않는다. Presenter.UpdateView는 요청 event를 발생시키지 않는다.
 
@@ -125,6 +131,6 @@ GameUI (기존 루트 / GameUIController)
 1. UI/프로그래머: 위 snapshot·구매/닫기 event·직렬화 필드 계약을 맞추고 별도 설비 패널·행 프리팹을 제작한다. .meta/GUID를 포함하며 GameUI 루트는 수정하지 않는다.
 2. 병합 담당: 완성된 프리팹과 스크립트를 확인한 뒤 한 명이 GameUIController/ProgressViewDataFactory/GameUI.prefab 연결을 맡는다. 승인된 구매 시점에 진입 버튼을 연결하며 기존 참조·GUID를 보존한다. 개인 Local 씬/코드/테스트 표시를 공유 자산으로 옮기지 않는다.
 3. API 검증: ID 전달·1회 차감, 부족/중복/예외 후 상태 재조회, 같은 날 대기/다음 날 활성 표시, 날짜 표기, 재진입 listener 중복 없음. 기존 NUnit/Test Runner 경로를 사용한다.
-4. 수동 검증: 5행 정보 가독성, 긴 이름·금액, 클릭/스크롤/뒤쪽 입력 차단, 닫기 복귀, 선택한 실제 진행 시점. API 성공과 UI/UX 확인을 구분한다.
+4. 수동 검증: 상점 UI 후속 작업에서 11행 정보 가독성, 긴 이름·금액, 클릭/스크롤/뒤쪽 입력 차단, 닫기 복귀, 선택한 실제 진행 시점을 확인한다. 2단계에서는 이 플레이/UI 검증을 실행하지 않는다.
 
-기존 PlayMode 테스트 assembly에는 승인된 `Unity.ugui`, `Unity.TextMeshPro` 참조만 추가했다. 새 package나 runtime assembly는 없다. 기존 LocalDebug는 개인 씬에 유지하고 공유 프리팹으로 옮기지 않았다. 실제 스모크에서5행 표시·구매 후95000G·적용 대기·닫기 후 정산 잔액·다음날 활성 및 Console 오류0을 확인했다. 스크린샷은 `Temp/FacilityShop-Open.png`, `Temp/FacilityShop-Purchased.png`. 최신 자동 검증 XML/로그는 [TESTING.md](TESTING.md)를 따른다. UI의 최종 사용성 승인은 별도다. 공용 변경의 작업 branch 리뷰·기본 branch 통합 절차는 AGENTS.md와 기존 통합 규칙을 따른다.
+기존 PlayMode 테스트 assembly에는 승인된 `Unity.ugui`, `Unity.TextMeshPro` 참조만 추가했다. 새 package나 runtime assembly는 없다. 기존 LocalDebug는 개인 씬에 유지하고 공유 프리팹으로 옮기지 않았다. 이전 단계의 UI 스모크 기록은 당시 6행 데이터 기준이며, 2단계에서는 재실행하지 않는다. 스크린샷은 `Temp/FacilityShop-Open.png`, `Temp/FacilityShop-Purchased.png`. 최신 자동 검증 XML/로그는 [TESTING.md](TESTING.md)를 따른다. UI의 최종 사용성 승인은 별도다. 공용 변경의 작업 branch 리뷰·기본 branch 통합 절차는 AGENTS.md와 기존 통합 규칙을 따른다.

@@ -17,6 +17,7 @@ public sealed class DailyGuidelineTests
         string guidelineCsv = File.ReadAllText("Assets/Datas/DailyGuidelineData.csv");
         string textCsv = File.ReadAllText("Assets/Datas/TextData.csv");
         string productCsv = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
+        string customerRoot = "Assets/Datas/Customer/";
 
         guidelineTable = new DailyGuidelineDataTable();
         guidelineTable.LoadData(guidelineCsv);
@@ -32,6 +33,12 @@ public sealed class DailyGuidelineTests
             new CustomerDispositionDataTable(),
             new ProductCategoryDataTable(),
             productTable);
+        catalog.Appearances.LoadData(File.ReadAllText(customerRoot + "CustomerAppearanceData.csv"));
+        catalog.Dispositions.LoadData(File.ReadAllText(customerRoot + "CustomerDispositionData.csv"));
+        catalog.Categories.LoadData(File.ReadAllText(customerRoot + "ProductCategoryData.csv"));
+        var facilityTable = new FacilityDataTable();
+        facilityTable.LoadData(File.ReadAllText("Assets/Datas/FacilityData.csv"));
+        catalog.ValidateAndCommit(textTable, facilities: facilityTable);
     }
 
     [Test]

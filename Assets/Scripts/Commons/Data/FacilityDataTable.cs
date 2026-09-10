@@ -48,6 +48,7 @@ public sealed class FacilityDataTable : IDataLoad
                 parsed.Add(item.Idx, item);
             }
             if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");
+            validateUniqueUpgradeTargets(parsed);
             PendingRows = parsed;
         }
         catch (Exception exception)
@@ -69,5 +70,33 @@ public sealed class FacilityDataTable : IDataLoad
     {
         PendingRows = null;
         dataDict = new ReadOnlyDictionary<uint, FacilityData>(new Dictionary<uint, FacilityData>());
+    }
+
+    /// <summary>편의성 효과와 단계 상승 목표가 각각 하나씩만 존재하고 최종 효과·단계를 모두 제공하는지 확인한다.</summary>
+    /// <param name="rows">행 단위 검증이 끝난 설비 행.</param>
+    /// <exception cref="InvalidDataException">중복되거나 필요한 효과·목표가 누락됨.</exception>
+    private void validateUniqueUpgradeTargets(IReadOnlyDictionary<uint, FacilityData> rows)
+    {
+        var convenienceEffects = new HashSet<ConvenienceEffectType>();
+        var stageTargets = new HashSet<uint>();
+        foreach (var row in rows.Values)
+        {
+            if (row.UpgradeKind == FacilityUpgradeKind.Convenience && !convenienceEffects.Add(row.EffectType))
+                throw new InvalidDataException($"FacilityData.csv: effect_type={row.EffectType} 설비가 중복됩니다.");
+            if (row.UpgradeKind == FacilityUpgradeKind.StoreStage && !stageTargets.Add(row.TargetStoreStage))
+                throw new InvalidDataException($"FacilityData.csv: target_store_stage={row.TargetStoreStage} 단계 상승이 중복됩니다.");
+        }
+
+        foreach (ConvenienceEffectType effect in new[]
+        {
+            ConvenienceEffectType.DividerBar,
+            ConvenienceEffectType.AutoSorting,
+            ConvenienceEffectType.Vacuum
+        })
+            if (!convenienceEffects.Contains(effect))
+                throw new InvalidDataException($"FacilityData.csv: effect_type={effect} 설비가 필요합니다.");
+        foreach (uint target in new[] { 2u, 3u })
+            if (!stageTargets.Contains(target))
+                throw new InvalidDataException($"FacilityData.csv: target_store_stage={target} 단계 상승이 필요합니다.");
     }
 }
