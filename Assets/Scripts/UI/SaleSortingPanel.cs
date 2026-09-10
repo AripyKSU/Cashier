@@ -40,6 +40,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField] private Button frontContainerButton;
     [SerializeField] private GameObject frontBasketRoot;
 
+    [Header("Landing Dust")]
+    [Tooltip("상자 착지 충격 시 좌우로 흩뿌려지는 10개의 픽셀 먼지 효과 컴포넌트")]
+    [SerializeField] private LandingDustEffect landingDustEffect;
+
     [Header("Calculator")]
     [SerializeField] private RectTransform calculatorPanel;
     [SerializeField] private Button calculatorToggleButton;
@@ -111,7 +115,21 @@ public sealed class SaleSortingPanel : MonoBehaviour
             this.dividerBar.Initialize(this.workArea);
         }
 
+        this.ensureLandingDustEffect();
         this.showFrontOnly();
+    }
+
+    private LandingDustEffect ensureLandingDustEffect()
+    {
+        if (this.landingDustEffect == null)
+        {
+            this.landingDustEffect = this.GetComponentInChildren<LandingDustEffect>(true);
+            if (this.landingDustEffect == null && this.frontView != null)
+            {
+                this.landingDustEffect = this.frontView.AddComponent<LandingDustEffect>();
+            }
+        }
+        return this.landingDustEffect;
     }
 
     /// <summary>상품 이동과 충돌을 프레임 경과 시간으로 계산합니다.</summary>
@@ -143,7 +161,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             }
         }
 
-        this.applyPointerImpulse(deltaSeconds);
+        // 마우스 호버 시의 물리 튕김(applyPointerImpulse)은 비활성화하고, 개별 아이템 직접 드래그 앤 드롭 및 밀대(DividerBar) 밀기를 사용합니다.
         this.integrateMotion(deltaSeconds);
         this.resolveItemCollisions();
         this.classifyItems();
@@ -332,6 +350,13 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float t = this.pourSeconds <= 0f ? 1f : Mathf.Clamp01(elapsed / this.pourSeconds);
+            
+            // 상자를 물품이 쏟아지는 방향으로 조금 더 기울입니다 (-90도 -> -100도)
+            if (this.containerImage != null)
+            {
+                this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-90f, -100f, t));
+            }
+
             for (int i = 0; i < this.items.Count; i++)
             {
                 SaleSortingItemView item = this.items[i];
@@ -342,11 +367,28 @@ public sealed class SaleSortingPanel : MonoBehaviour
             yield return null;
         }
 
-        // 쏟기가 끝나면 바구니를 숨기고 회전값을 원복합니다.
+        // DEV-2D-11-02: 쏟기가 끝나면 빈 상자 스프라이트로 바꾸고 부드럽게 화면 밖으로 퇴장(Fade/Slide)합니다.
         if (this.containerImage != null)
         {
-            this.containerImage.sprite = this.emptyContainerSprite;
+            this.containerImage.sprite = this.emptyContainerSprite != null ? this.emptyContainerSprite : this.containerImage.sprite;
+            Vector2 exitStart = this.containerImage.rectTransform.anchoredPosition;
+            Vector2 exitEnd = exitStart + new Vector2(-160f, 25f);
+            float exitElapsed = 0f;
+            const float ExitSeconds = 0.35f;
+            Color startColor = this.containerImage.color;
+            while (exitElapsed < ExitSeconds)
+            {
+                exitElapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(exitElapsed / ExitSeconds);
+                float ease = t * t;
+                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(exitStart, exitEnd, ease);
+                this.containerImage.color = new Color(startColor.r, startColor.g, startColor.b, 1f - t);
+                yield return null;
+            }
+
             this.containerImage.gameObject.SetActive(false);
+            this.containerImage.color = startColor;
+            this.containerImage.rectTransform.anchoredPosition = exitStart;
             this.containerImage.rectTransform.localRotation = Quaternion.identity;
         }
 
@@ -368,34 +410,59 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.transitionRoutine = null;
     }
 
-    /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭 또는 자동 시간 경과로 작업대로 전환합니다.</summary>
-    /// <returns>박스 도착 연출을 프레임별로 진행하는 열거자입니다.</returns>
+    /// <summary>손님 정면 화면을 먼저 보여주고 상자 착지 스쿼시와 랜딩 더스트(10개 먼지 조각)를 연출합니다.</summary>
+    /// <returns>상자 도착 연출을 프레임별로 진행하는 열거자입니다.</returns>
     private IEnumerator playContainerArrival()
     {
         this.state = ViewState.Transition;
         if (this.frontView != null) this.frontView.SetActive(true);
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
+        LandingDustEffect dust = this.ensureLandingDustEffect();
+        if (dust != null) dust.Stop();
+
         yield return this.waitUnscaled(this.customerArrivalSeconds);
         if (this.frontContainerButton != null)
         {
             RectTransform box = (RectTransform)this.frontContainerButton.transform;
             this.frontContainerButton.gameObject.SetActive(true);
             this.frontContainerButton.interactable = false;
-            Vector2 destination = box.anchoredPosition;
-            Vector2 start = destination + new Vector2(0f, 180f);
+
+            // 인스펙터에 지정된 기본 배치를 기준점(Rest)으로 사용하여 위치 하드코딩을 방지합니다.
+            Vector2 rest = box.anchoredPosition;
+            Vector3 restScale = box.localScale;
             float elapsed = 0f;
             const float ArrivalSeconds = 0.85f;
+            bool dustPlayed = false;
             while (elapsed < ArrivalSeconds)
             {
                 elapsed += Time.unscaledDeltaTime;
-                float t = Mathf.Clamp01(elapsed / ArrivalSeconds);
-                float eased = 1f - Mathf.Pow(1f - t, 3f);
-                box.anchoredPosition = Vector2.LerpUnclamped(start, destination, eased);
+                float drop = Mathf.Clamp01(elapsed / 0.3f);
+                float impact = Mathf.Clamp01((elapsed - 0.3f) / 0.55f);
+                float squash = Mathf.Sin(impact * Mathf.PI * 2f) * Mathf.Exp(-impact * 4f) * 0.10f;
+                float scaleX = 1f + squash;
+                float scaleY = 1f - squash;
+                box.localScale = Vector3.Scale(restScale, new Vector3(scaleX, scaleY, 1f));
+                box.anchoredPosition = rest + new Vector2(
+                    box.sizeDelta.x * (1f - scaleX) * 0.5f,
+                    38f * (1f - drop * drop) - box.sizeDelta.y * (1f - scaleY)
+                );
+
+                // DEV-2D-11-01: 착지 순간 10개의 픽셀 먼지 조각이 양옆으로 포물선 비산하는 연출
+                if (!dustPlayed && elapsed >= 0.3f)
+                {
+                    dustPlayed = true;
+                    if (dust != null)
+                    {
+                        dust.Play(box);
+                    }
+                }
+
                 yield return null;
             }
 
-            box.anchoredPosition = destination;
+            box.anchoredPosition = rest;
+            box.localScale = restScale;
             this.frontContainerButton.interactable = true;
         }
 
@@ -434,7 +501,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
             {
                 SaleSortingItemView item = Instantiate(this.itemPrefab, this.itemRoot);
                 item.name = $"SaleItem_{line.ItemId}_{quantityIndex}";
-                item.Initialize(line.ItemId, quantityIndex, line.Icon, this.itemSizePixels, line.DisplayName);
+                item.Initialize(line.ItemId, quantityIndex, line.Icon, this.itemSizePixels, line.DisplayName, this.workArea);
+                item.transform.localRotation = Quaternion.Euler(0f, 0f, UnityEngine.Random.Range(-15f, 15f));
+                item.DragStarted += this.handleItemDragStarted;
+                item.Dragged += this.handleItemDragged;
+                item.DragEnded += this.handleItemDragEnded;
                 item.Position = this.getPourStartPosition(unitSequence);
                 this.items.Add(item);
                 unitSequence++;
@@ -511,7 +582,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         Rect bounds = this.workArea.rect;
         foreach (SaleSortingItemView item in this.items)
         {
-            if (item.State == SaleSortingItemView.SortingState.Excluded)
+            if (item.State == SaleSortingItemView.SortingState.Excluded || item.IsDragging)
             {
                 continue;
             }
@@ -554,12 +625,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
         for (int leftIndex = 0; leftIndex < this.items.Count; leftIndex++)
         {
             SaleSortingItemView left = this.items[leftIndex];
-            if (left.State == SaleSortingItemView.SortingState.Excluded) continue;
+            if (left.State == SaleSortingItemView.SortingState.Excluded || left.IsDragging) continue;
 
             for (int rightIndex = leftIndex + 1; rightIndex < this.items.Count; rightIndex++)
             {
                 SaleSortingItemView right = this.items[rightIndex];
-                if (right.State == SaleSortingItemView.SortingState.Excluded) continue;
+                if (right.State == SaleSortingItemView.SortingState.Excluded || right.IsDragging) continue;
 
                 Vector2 delta = right.Position - left.Position;
                 float minimumDistance = left.Radius + right.Radius;
@@ -607,6 +678,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
             {
                 item.State = SaleSortingItemView.SortingState.Working;
             }
+
+            item.UpdateVisualState();
         }
     }
 
@@ -686,23 +759,60 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         foreach (SaleSortingItemView item in this.items)
         {
-            if (item != null) Destroy(item.gameObject);
+            if (item != null)
+            {
+                item.DragStarted -= this.handleItemDragStarted;
+                item.Dragged -= this.handleItemDragged;
+                item.DragEnded -= this.handleItemDragEnded;
+                Destroy(item.gameObject);
+            }
         }
 
         this.items.Clear();
+    }
+
+    /// <summary>아이템 드래그 시작 시 상태를 갱신합니다.</summary>
+    private void handleItemDragStarted(SaleSortingItemView item)
+    {
+        this.classifyItems();
+        this.refreshStatus();
+    }
+
+    /// <summary>아이템 드래그 이동 시 상태를 실시간 갱신합니다.</summary>
+    private void handleItemDragged(SaleSortingItemView item)
+    {
+        this.classifyItems();
+        this.refreshStatus();
+    }
+
+    /// <summary>아이템 드래그 종료(드롭) 시 분류 결과를 최종 확정하고 갱신합니다.</summary>
+    private void handleItemDragEnded(SaleSortingItemView item)
+    {
+        this.classifyItems();
+        this.refreshStatus();
     }
 
     /// <summary>정면 거래 화면만 표시하고 작업 입력을 닫습니다.</summary>
     private void showFrontOnly()
     {
         this.state = ViewState.Hidden;
-        if (this.frontView != null) this.frontView.SetActive(true);
+        if (this.frontView != null)
+        {
+            this.frontView.SetActive(true);
+            var timeOfDay = this.frontView.GetComponent<TimeOfDayUIController>();
+            if (timeOfDay == null)
+            {
+                timeOfDay = this.frontView.AddComponent<TimeOfDayUIController>();
+            }
+            timeOfDay.RefreshTime();
+        }
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
         if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(false);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
+        if (this.landingDustEffect != null) this.landingDustEffect.Stop();
         this.hasPointerSample = false;
     }
 }

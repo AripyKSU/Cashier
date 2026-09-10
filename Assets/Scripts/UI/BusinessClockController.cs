@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// 09:00부터 20:00까지 실시간 영업 시간을 카운트하고 화면에 표시하는 컨트롤러입니다.
+/// 09:00부터 21:00까지 실시간 영업 시간을 카운트하고 화면에 표시하는 컨트롤러입니다.
 /// 일간 영업 마감 시 이벤트를 발행하여 정산 루프와 연동됩니다.
 /// </summary>
 public sealed class BusinessClockController : MonoBehaviour
@@ -14,7 +14,7 @@ public sealed class BusinessClockController : MonoBehaviour
 
     private const int DefaultStartHour = 9;
     private const int DefaultStartMinute = 0;
-    private const int DefaultCloseHour = 20;
+    private const int DefaultCloseHour = 21;
     private const int DefaultCloseMinute = 0;
 
     [Header("UI References")]
@@ -25,10 +25,10 @@ public sealed class BusinessClockController : MonoBehaviour
     [Tooltip("영업 시작 시 (기본 9시)")]
     [SerializeField, Range(0, 23)] private int startHour = DefaultStartHour;
 
-    [Tooltip("영업 마감 시 (기본 20시)")]
+    [Tooltip("영업 마감 시 (기본 21시)")]
     [SerializeField, Range(0, 23)] private int closeHour = DefaultCloseHour;
 
-    [Tooltip("현실 1초당 흐르는 게임 시간(분). 기본 10분/초 -> 660분(11시간) 영업에 66초 소요")]
+    [Tooltip("현실 1초당 흐르는 게임 시간(분). 기본 10분/초 -> 720분(12시간) 영업에 72초 소요")]
     [SerializeField, Min(0.1f)] private float gameMinutesPerRealSecond = 10f;
 
     [Tooltip("Start 시 자동으로 시계를 시작할지 여부")]
@@ -42,7 +42,7 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <summary>매 게임 분이 바뀔 때 호출되는 이벤트 (hour, minute)</summary>
     public event Action<int, int> OnTimeChanged;
 
-    /// <summary>20:00 마감 시각에 도달했을 때 호출되는 이벤트</summary>
+    /// <summary>21:00 마감 시각에 도달했을 때 호출되는 이벤트</summary>
     public event Action OnBusinessClosed;
 
     /// <summary>현재 시각(분 단위 누적, 예: 9시 30분 = 570)</summary>
@@ -59,6 +59,29 @@ public sealed class BusinessClockController : MonoBehaviour
 
     /// <summary>영업 마감 시각에 도달했는지 여부</summary>
     public bool IsClosed => this.currentMinutes >= this.closeMinutes;
+
+
+    /// <summary>영업 시작 시각(시)</summary>
+    public int StartHour
+    {
+        get => this.startHour;
+        set
+        {
+            this.startHour = value;
+            this.startMinutes = value * 60f;
+        }
+    }
+
+    /// <summary>영업 마감 시각(시, 기본 21시)</summary>
+    public int CloseHour
+    {
+        get => this.closeHour;
+        set
+        {
+            this.closeHour = value;
+            this.closeMinutes = value * 60f;
+        }
+    }
 
 
     // =========================================================================
@@ -79,6 +102,10 @@ public sealed class BusinessClockController : MonoBehaviour
 
     private void Awake()
     {
+        if (this.closeHour < DefaultCloseHour)
+        {
+            this.closeHour = DefaultCloseHour;
+        }
         this.startMinutes = this.startHour * 60f;
         this.closeMinutes = this.closeHour * 60f;
         this.currentMinutes = this.startMinutes;
@@ -114,7 +141,7 @@ public sealed class BusinessClockController : MonoBehaviour
             this.isRunning = false;
             this.updateDisplay();
             this.notifyTimeChangeIfMinuteChanged();
-            Debug.Log("<color=yellow><b>[BusinessClock] 20:00 영업 종료 시각에 도달했습니다.</b></color>");
+            Debug.Log("<color=yellow><b>[BusinessClock] 21:00 영업 종료 시각에 도달했습니다.</b></color>");
             this.OnBusinessClosed?.Invoke();
             return;
         }
@@ -131,6 +158,10 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <summary>시계를 09:00으로 초기화하고 카운트를 시작합니다.</summary>
     public void StartClock()
     {
+        if (this.closeHour < DefaultCloseHour)
+        {
+            this.closeHour = DefaultCloseHour;
+        }
         this.startMinutes = this.startHour * 60f;
         this.closeMinutes = this.closeHour * 60f;
         this.currentMinutes = this.startMinutes;
@@ -167,9 +198,22 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <param name="minute">설정할 분 (0~59)</param>
     public void SetTime(int hour, int minute)
     {
+        if (this.closeMinutes <= 0f)
+        {
+            if (this.closeHour < DefaultCloseHour)
+            {
+                this.closeHour = DefaultCloseHour;
+            }
+            this.startMinutes = this.startHour * 60f;
+            this.closeMinutes = this.closeHour * 60f;
+        }
         this.currentMinutes = Mathf.Clamp(hour * 60f + minute, this.startMinutes, this.closeMinutes);
         this.updateDisplay();
         this.notifyTimeChangeIfMinuteChanged();
+        if (this.currentMinutes >= this.closeMinutes)
+        {
+            this.OnBusinessClosed?.Invoke();
+        }
     }
 
 
