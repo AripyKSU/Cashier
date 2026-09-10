@@ -71,6 +71,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField] private VacuumController vacuum;
 
     private readonly List<SaleSortingItemView> items = new List<SaleSortingItemView>();
+    private readonly HashSet<SaleSortingItemView> dividerMovedItems = new HashSet<SaleSortingItemView>();
     private ViewState state;
     private bool isCalculatorOpen = true;
     private bool dividerBarAvailable;
@@ -241,12 +242,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
             return;
         }
 
-        bool allowInput = !this.isPointerOverCalculator();
+        bool allowNewInteraction = !this.isPointerOverCalculator();
         bool wasVacuumHolding = this.vacuum != null && this.vacuum.IsHolding;
         if (this.vacuum != null)
         {
             this.vacuum.UpdateMotion(
-                this.vacuumAvailable && allowInput,
+                this.vacuumAvailable && (allowNewInteraction || wasVacuumHolding),
                 this.getPointerScreenPosition(),
                 deltaSeconds,
                 this.items);
@@ -266,7 +267,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.dividerBar != null)
         {
             this.dividerBar.UpdateMotion(
-                this.dividerBarAvailable && allowInput && !isVacuumHolding,
+                this.dividerBarAvailable && (allowNewInteraction || wasHolding) && !isVacuumHolding,
                 this.getPointerScreenPosition(),
                 deltaSeconds);
         }
@@ -278,13 +279,19 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
         if (isDividerHolding)
         {
+            if (!wasHolding)
+            {
+                this.dividerMovedItems.Clear();
+            }
+
             this.stopAutoSorting();
             this.clearDividerManipulations();
             this.dividerBar.PushItems(this.items);
+            this.trackDividerMovedItems();
         }
-        if (allowInput && !isDividerHolding && !isVacuumHolding)
+        if (!isDividerHolding && !isVacuumHolding)
         {
-            this.updatePlayerDrag();
+            this.updatePlayerDrag(allowNewInteraction);
         }
         this.refreshStatus();
     }
@@ -621,14 +628,34 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>막대를 놓은 순간 막대가 소유했던 상품만 현재 위치로 분류합니다.</summary>
     private void releaseDividerItems()
     {
-        foreach (SaleSortingItemView item in this.items)
+        foreach (SaleSortingItemView item in this.dividerMovedItems)
         {
-            if (item.Manipulation != SaleSortingItemView.ManipulationState.DividerMoving) continue;
+            if (item == null)
+            {
+                continue;
+            }
+
             this.classifyItem(item);
-            item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+            if (item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving)
+            {
+                item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+            }
         }
 
+        this.dividerMovedItems.Clear();
         this.requestAutoSort();
+    }
+
+    /// <summary>현재 막대 드래그에서 막대가 한 번이라도 이동시킨 상품을 기록합니다.</summary>
+    private void trackDividerMovedItems()
+    {
+        foreach (SaleSortingItemView item in this.items)
+        {
+            if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving)
+            {
+                this.dividerMovedItems.Add(item);
+            }
+        }
     }
 
     /// <summary>청소기를 놓은 순간 붙어 있던 상품을 현재 위치로 분류합니다.</summary>
@@ -652,14 +679,15 @@ public sealed class SaleSortingPanel : MonoBehaviour
     }
 
     /// <summary>현재 포인터 입력을 기준으로 상품 하나를 직접 드래그합니다.</summary>
-    private void updatePlayerDrag()
+    /// <param name="allowPickup">계산대 위에서 새 상품을 잡을 수 있는지 여부입니다.</param>
+    private void updatePlayerDrag(bool allowPickup)
     {
         bool isPressed;
         bool wasPressedThisFrame;
         this.getPointerButtonState(out isPressed, out wasPressedThisFrame);
         Vector2 pointerScreenPosition = this.getPointerScreenPosition();
 
-        if (this.draggedItem == null && isPressed && wasPressedThisFrame &&
+        if (this.draggedItem == null && allowPickup && isPressed && wasPressedThisFrame &&
             RectTransformUtility.ScreenPointToLocalPointInRectangle(this.itemRoot, pointerScreenPosition, null,
                 out Vector2 pointerPosition))
         {
@@ -1016,6 +1044,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.items.Clear();
+        this.dividerMovedItems.Clear();
         this.draggedItem = null;
         this.dragOffset = Vector2.zero;
     }

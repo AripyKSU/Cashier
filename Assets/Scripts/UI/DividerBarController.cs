@@ -12,6 +12,9 @@ using UnityEngine.InputSystem;
 /// </summary>
 public sealed class DividerBarController : MonoBehaviour
 {
+    private const float MinimumMovementDistance = 0.0001f;
+    private const float ItemSeparationPixels = 0.5f;
+
     // =========================================================================
     // 1. SERIALIZED FIELDS
     // =========================================================================
@@ -275,7 +278,7 @@ public sealed class DividerBarController : MonoBehaviour
     }
 
     /// <summary>
-    /// 작업대 위에서 막대와 겹친 상품을 막대의 이동 거리만큼 직접 이동시킵니다.
+    /// 작업대 위에서 막대와 겹친 상품을 이동 방향 쪽 접촉 경계 밖으로 직접 분리합니다.
     /// 상품에는 속도, 충격량 또는 충돌 해결을 적용하지 않습니다.
     /// </summary>
     /// <param name="items">작업대 위의 상품 목록입니다.</param>
@@ -286,13 +289,29 @@ public sealed class DividerBarController : MonoBehaviour
             return;
         }
 
+        if (this.movementDelta.sqrMagnitude < MinimumMovementDistance * MinimumMovementDistance)
+        {
+            return;
+        }
+
         Vector2 barCenter = this.barRect.anchoredPosition;
         float radians = (90f + this.currentAngle) * Mathf.Deg2Rad;
         Vector2 dir = new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
+        Vector2 rightNormal = new Vector2(dir.y, -dir.x);
+        float movementOnBarNormal = Vector2.Dot(this.movementDelta, rightNormal);
+        if (Mathf.Abs(movementOnBarNormal) < MinimumMovementDistance)
+        {
+            return;
+        }
+
+        float movementSide = Mathf.Sign(movementOnBarNormal);
         Vector2 halfExtents = dir * (this.barLength * 0.5f);
         Vector2 segA = barCenter - halfExtents;
         Vector2 segB = barCenter + halfExtents;
         float barRadius = this.barThickness * 0.5f;
+        Vector2 previousBarCenter = barCenter - this.movementDelta;
+        Vector2 previousSegA = previousBarCenter - halfExtents;
+        Vector2 previousSegB = previousBarCenter + halfExtents;
 
         for (int i = 0; i < items.Count; i++)
         {
@@ -302,18 +321,41 @@ public sealed class DividerBarController : MonoBehaviour
                 continue;
             }
 
-                Vector2 itemPos = item.Position;
-                Vector2 closest = this.getClosestPointOnSegment(segA, segB, itemPos);
-                Vector2 diff = itemPos - closest;
-                float distSqr = diff.sqrMagnitude;
-                float totalRadius = barRadius + Mathf.Max(item.HalfSize.x, item.HalfSize.y);
+            Vector2 itemPos = item.Position;
+            float itemRadius = Mathf.Max(item.HalfSize.x, item.HalfSize.y);
+            float totalRadius = barRadius + itemRadius;
+            Vector2 closest = this.getClosestPointOnSegment(segA, segB, itemPos);
+            Vector2 previousClosest = this.getClosestPointOnSegment(previousSegA, previousSegB, itemPos);
+            bool overlapsCurrent = (itemPos - closest).sqrMagnitude < totalRadius * totalRadius;
+            bool overlapsPrevious = (itemPos - previousClosest).sqrMagnitude < totalRadius * totalRadius;
 
-            if (distSqr < totalRadius * totalRadius)
+            if (overlapsCurrent || overlapsPrevious)
             {
                 if (item.Manipulation == SaleSortingItemView.ManipulationState.PlayerDragging ||
                     item.Manipulation == SaleSortingItemView.ManipulationState.VacuumAttached)
                     continue;
-                item.Position = this.clampItemPosition(item.Position + this.movementDelta, item);
+
+                // 방향을 바꾼 뒤 막대에서 멀어지는 쪽의 상품은 접촉 상태여도 다시 밀지 않습니다.
+                float previousSideDistance = Vector2.Dot(itemPos - previousBarCenter, rightNormal);
+                bool isOnLeadingSide = movementSide > 0f
+                    ? previousSideDistance >= 0f
+                    : previousSideDistance <= 0f;
+                if (!isOnLeadingSide)
+                {
+                    continue;
+                }
+
+                // 접촉한 상품을 막대의 이동 방향 쪽 경계 밖으로 배치해 다음 프레임에 다시 붙지 않게 합니다.
+                float currentSideDistance = Vector2.Dot(itemPos - barCenter, rightNormal);
+                float requiredSideDistance = totalRadius + ItemSeparationPixels;
+                float targetSideDistance = movementSide * requiredSideDistance;
+                if ((movementSide > 0f && currentSideDistance < targetSideDistance) ||
+                    (movementSide < 0f && currentSideDistance > targetSideDistance))
+                {
+                    Vector2 separatedPosition = itemPos + rightNormal * (targetSideDistance - currentSideDistance);
+                    item.Position = this.clampItemPosition(separatedPosition, item);
+                }
+
                 item.Manipulation = SaleSortingItemView.ManipulationState.DividerMoving;
             }
         }

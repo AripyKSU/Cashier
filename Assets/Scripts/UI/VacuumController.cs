@@ -32,13 +32,17 @@ public sealed class VacuumController : MonoBehaviour
     [Tooltip("흡착된 상품 사이의 가로 간격입니다.")]
     [SerializeField, Min(0f)] private float attachedSpacingPixels = 10f;
 
-    [Tooltip("청소기 본체가 포인터를 따라가는 보간 속도입니다.")]
+    [Tooltip("기존 프리팹 호환을 위해 보존된 설정입니다. 본체는 클릭 오프셋을 유지해 직접 따라갑니다.")]
+#pragma warning disable 0414
     [SerializeField, Min(1f)] private float positionFollowSpeed = 32f;
+#pragma warning restore 0414
 
     private readonly List<SaleSortingItemView> attachedItems = new List<SaleSortingItemView>();
     private RectTransform workArea;
     private RectTransform itemRoot;
     private bool isHolding;
+    // 클릭한 본체 지점과 본체 중심 사이의 작업대 로컬 오프셋입니다.
+    private Vector2 dragOffset;
     private Vector2 movementDelta;
 
     /// <summary>현재 청소기 본체를 잡고 있는지 나타냅니다.</summary>
@@ -62,6 +66,7 @@ public sealed class VacuumController : MonoBehaviour
     public void ResetToStart()
     {
         this.isHolding = false;
+        this.dragOffset = Vector2.zero;
         this.movementDelta = Vector2.zero;
         if (this.vacuumRect == null)
         {
@@ -109,6 +114,7 @@ public sealed class VacuumController : MonoBehaviour
         if (!allowed)
         {
             this.isHolding = false;
+            this.dragOffset = Vector2.zero;
             this.movementDelta = Vector2.zero;
             return;
         }
@@ -120,6 +126,7 @@ public sealed class VacuumController : MonoBehaviour
                 out Vector2 localPointer))
         {
             this.isHolding = false;
+            this.dragOffset = Vector2.zero;
             this.movementDelta = Vector2.zero;
             return;
         }
@@ -129,11 +136,13 @@ public sealed class VacuumController : MonoBehaviour
             RectTransformUtility.RectangleContainsScreenPoint(this.vacuumRect, pointerScreenPosition, null))
         {
             this.isHolding = true;
+            this.dragOffset = this.vacuumRect.anchoredPosition - localPointer;
         }
 
         if (!isPressed)
         {
             this.isHolding = false;
+            this.dragOffset = Vector2.zero;
             this.movementDelta = Vector2.zero;
             return;
         }
@@ -146,10 +155,8 @@ public sealed class VacuumController : MonoBehaviour
 
         Vector2 currentPosition = this.vacuumRect.anchoredPosition;
         Vector2 targetPosition = this.clampVacuumPosition(localPointer);
-        Vector2 nextPosition = Vector2.Lerp(
-            currentPosition,
-            targetPosition,
-            Mathf.Clamp01(deltaSeconds * this.positionFollowSpeed));
+        // 포인터에 대한 클릭 오프셋을 그대로 유지해 본체가 클릭 지점에서 튀거나 뒤늦게 걸리지 않게 합니다.
+        Vector2 nextPosition = targetPosition;
         this.vacuumRect.anchoredPosition = nextPosition;
         this.movementDelta = nextPosition - currentPosition;
 
@@ -230,16 +237,18 @@ public sealed class VacuumController : MonoBehaviour
         }
     }
 
-    /// <summary>청소기 본체를 작업대 안에 유지할 수 있는 위치로 제한합니다.</summary>
-    /// <param name="position">포인터로 계산한 작업대 로컬 위치입니다.</param>
-    /// <returns>작업대 내부의 청소기 위치입니다.</returns>
-    private Vector2 clampVacuumPosition(Vector2 position)
+    /// <summary>클릭한 본체 지점을 작업대 안에 유지하면서 청소기 위치를 계산합니다.</summary>
+    /// <param name="pointerPosition">현재 포인터의 작업대 로컬 위치입니다.</param>
+    /// <returns>클릭 오프셋이 반영된 청소기 중심 위치입니다.</returns>
+    private Vector2 clampVacuumPosition(Vector2 pointerPosition)
     {
         Rect bounds = this.workArea.rect;
-        Vector2 halfSize = this.vacuumRect.rect.size * 0.5f;
+        Vector2 clampedPointer = new Vector2(
+            Mathf.Clamp(pointerPosition.x, bounds.xMin, bounds.xMax),
+            Mathf.Clamp(pointerPosition.y, bounds.yMin, bounds.yMax));
         return new Vector2(
-            Mathf.Clamp(position.x, bounds.xMin + halfSize.x, bounds.xMax - halfSize.x),
-            Mathf.Clamp(position.y, bounds.yMin + halfSize.y, bounds.yMax - halfSize.y));
+            clampedPointer.x + this.dragOffset.x,
+            clampedPointer.y + this.dragOffset.y);
     }
 
     /// <summary>청소기 아래에 상품을 들어 올린 상태 또는 내려놓은 상태로 배치합니다.</summary>
