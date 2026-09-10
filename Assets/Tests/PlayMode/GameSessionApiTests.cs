@@ -175,7 +175,10 @@ public sealed class GameSessionApiTests
         for (int i = 0; i < 3; i++)
         {
             CustomerVisit visit = progress.CurrentDayProgress.CurrentVisit;
-            Assert.That(progress.SubmitOffer(1, visit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray()), Is.True);
+            var saleItems = visit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray();
+            // 성별 교대 검사는 기존 수락가 helper로 거래한다. 1원은 가격 민감형이 거절한다.
+            long offered = acceptedOffer(visit, saleItems);
+            Assert.That(progress.SubmitOffer(offered, saleItems), Is.True);
             progress.CompleteTransactionResult();
             progress.BeginCustomerSorting();
             CustomerAttributes nextGender = progress.CurrentDayProgress.CurrentVisit.Attributes &

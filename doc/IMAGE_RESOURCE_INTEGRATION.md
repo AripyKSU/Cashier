@@ -4,6 +4,12 @@
 
 ## 데이터 계약
 
+### total_merge 통합 (2026-09-10)
+
+- target의 성향 이름8071~8074는 보존한다. 충돌한 외형 이름만 8071→8112(외형5005), 8072→8113(5006), 8073→8114(5007), 8074→8115(5008)로 이관했다. 다른 외형 이름8075~8111과 상품·성향 PK는 유지한다. 현재 Text115행이다.
+- target의 상품 분류5·6·7과 CustomerCompositionSelector/명성 기반 선택을 유지하고, Generator 및 기존 호환 API에 도덕성 평가기를 전달한다. 사용자 확정에 따라 모든 Normal 행6001·6004~6006의 price_tolerance는1300이다.
+- MainScene은 공유 CustomerQueueView로 렌더링한다. 기존 GameUI prefab 인스턴스의 참조23개를 승인된 사용용 자산으로 연결했으며 prefab 원본과 Local 씬·스크립트는 보존했다.
+
 - ProductData: 기존 `image_resource_idx:uint?`는 기본 UI·계산대 이미지다. 마지막 열에 `top_view_image_resource_idx:uint?`를 추가했다. 기존 컬럼 순서는 유지한다.
 - 두 값이 모두 빈 경우만 이미지 미준비로 허용하고 기존 흰색 runtime Sprite를 사용한다. Placeholder FK를 넣지 않는다. 한쪽만 빈값, 0, 잘못된 Resource 대역·FK는 로그와 예외로 거부한다.
 - 기본 이미지가 있고 탑뷰 원본이 없으면 기본 FK를 탑뷰 열에 **명시적으로** 복제한다. runtime에서 누락된 FK·로드 오류를 기본 이미지로 숨기지 않는다.

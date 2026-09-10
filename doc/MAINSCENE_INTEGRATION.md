@@ -74,3 +74,11 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 개별 UI 검사 셸은 제거했다. 새 Play 세션에서 Init → MainScene 로딩 후 위 사용법을 수동으로 수행하고 입장·4단계 판정·입금 1회·퇴장/FIFO·일일 종료·다음 날 진행을 확인한다. 최종 목록 선택 UI는 미구현이라 현재는 최초 희망 목록을 제출한다. API 검사는 [TESTING.md](TESTING.md)를 따르며 MainScene 직렬화 연결·버튼·표시 성공을 대신하지 않는다.
 
 이전 통합 기록에서는 당시 셸 검사와 컴파일, Console 오류·경고 0을 확인했다. Player 빌드, 저장 복구, 상납금 전체 회차 UI 검증은 미실행이다. MainScene 직접 Play 대신 Init 진입을 사용한다.
+# MainScene 대기열 통합 (2026-09-10)
+
+- InitScene → HubScene → MainScene으로 실행한다. `Cashier/Gameplay Scene Settings`의 `Use MainScene`으로 개인 씬 선택을 비운다. 개인 씬 파일은 삭제하지 않는다.
+- MainScene GameUI 인스턴스의 `useCustomerQueue=true`. 별도 `Customer Queue`의 `CustomerQueueView`가 실제 DayProgress를 관찰하며 모델·금액·방문 시계는 변경하지 않는다.
+- `AstraFrontView/Customer/QueueRoot`에 FIFO 슬롯10개와 입장·좌우 퇴장 anchor가 있다. 기존 CustomerPresenter는 계산대 대사·장바구니를 계속 담당하고 외형 Image 렌더만 QueueView가 대체한다.
+- 현재·대기 손님은 높이430/aspect 보존, 하단 기준 호흡과 cover12px를 사용한다. 이동0.65초, 퇴장은 기존 QueueExitSeconds(0.45초) 동안 이미지 검정 전환과 전체 alpha fade를 적용한다. pause·다음날·비활성화 시 기존 수명 규칙을 따른다.
+- 공유 Scene/코드는 Local 경로나 Local 컴포넌트를 참조하지 않는다. Local 원본은 이전 실험 버전으로 보존하며 공유 변경에 자동 동기화되지 않는다.
+- 확인 시나리오: 영업 시작→손님 및 대기열 생성→재촉/이탈→가격 제안·거래 퇴장→pause/resume→마감 후 정산. 실제 수행 결과는 TESTING.md에 기록하며 API 테스트와 화면 사용감 검증은 구분한다.

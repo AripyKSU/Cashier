@@ -1,5 +1,14 @@
 # 기능 API 검증
 
+## total_merge 대기열·이미지·도덕성 통합 (2026-09-10)
+
+- EditMode187/187: `Temp/TestResults/20260910-154916-4bd90ea490c04d7c94ddeeb6e0ff7145/EditMode.xml` 및 `.log`.
+- 최종 PlayMode34/34: `Temp/TestResults/20260910-160336-90e8c723e12b4bdda3f4df1363320458/PlayMode.xml` 및 `.log`. 실패·skip·미완료0, 실제54Sprite 로드와 명성/성별교대·도덕성·큐/정산 경계 포함.
+- 최초 Play 두 실행(155547-b057d3ebc0bb46eca958db1c5b6ac2f9, 155818-1ae3bda81277406592f0c99612608c73)은 각각34중29 SetUp 실패였다. 병합 후 Editor의 오래된 Addressables 상태에 Morality CSV·54이미지 등록이 없었다. dirty group을 `Temp/MainMerge-StaleGroup.asset.txt`에 보관하고 승인된 HEAD 등록을 복원했다. 첫 ForceUpdate 코드는 namespace 오류로 실행되지 않았으며 이후 정확한 import로 실제 메모리70entries/54images/Morality Datas 라벨을 확인했다. 제품 오류 검증을 완화하지 않았다.
+- 등록 복원 후160035-104e7ecdd91d4dd994c02cf9490aa3e4는33/34였다. 기존 성별교대 테스트의 1원 수락 가정만 기존 acceptedOffer helper로 수정했다. 가격민감형은 정가만 수락한다는 제품 규칙과 성별교대 assert는 보존했다. 실패 XML·로그도 Temp에 보존한다.
+- 실제 Init→Hub→Main, GameUI PreOpen/UsesCustomerQueue=true 확인. `Temp/MainQueue-Smoke.txt`: 높이430, 거래퇴장 중간색/alpha701표본·대기이탈297표본, pause 시 색/alpha/위치/시계 보존. 마감→Settlement 후 waiting/leaving/visuals0 확인. `Temp/MainQueue-Operating.png` 화면 확인, 실제 실행 Console Error0. 이 API 조작 검사는 전체 마우스 사용감이나 다음날 수동 조작 완료를 의미하지 않는다.
+- 최종 Play/compile 종료·오류0·MainScene dirty=False. 개인 씬 선택은 Use Main으로 비우고 이전 GUID는 Editor SessionState `MainMerge.PreviousLocal`에 보관했다. start scene은 InitScene, 임시 runInBackground는false로 복원했다. Local 씬·코드 hash는 사전 백업과 동일하다. Main의 추가/수정 YAML 행만 trailing whitespace를 정리했다.
+
 ## 상품·외형 이미지 migration (2026-09-10)
 
 - 컴파일 오류 없음. CustomerCsvTests에 실제 CSV 두 FK·45외형·빈값/누락·표시 선택 검사를, GameSessionApiTests에 실제 Sprite54개 ResourceManager 로드를 추가했다.

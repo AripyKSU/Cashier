@@ -33,3 +33,6 @@ decimal total = session.CurrentMorality;
 
 - 기존 `Default Local Group`, 주소 `MoralityData`, 기존 `Datas` 라벨을 사용한다. 신규 group·label은 만들지 않는다.
 - 자동 검증은 실제 CSV 20행 경계·소수 점수·Wealthy 미평가·누락/중복/유한 꼬리 오류, PriceSensitive 현재가 ±1, 소수 누적과 재정 알림 실패 원자성을 포함한다.
+# total_merge 후속 결정 (2026-09-10)
+
+일반 성향(Normal)6001·6004·6005·6006은 사용자 지시로 허용 가격 배율1300(130%)을 사용한다. MoralityData 판정 구간을 완화하거나 별도 점수를 추가하지 않았다. CustomerCompositionSelector의 선택 결과를 Generator가 방문으로 만들 때 세션 MoralityCalculator를 전달하며, 구형 호환 Generate API도 동일하게 전달한다.

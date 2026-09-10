@@ -8,7 +8,7 @@
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 76개(테이블별 중복 컬럼 포함), 데이터 271행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 76개(테이블별 중복 컬럼 포함), 데이터 282행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -45,10 +45,10 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 미사용72행 제거, 이미지54행 유지 |
-| [TextData](../Assets/Datas/TextData.csv) | 111 | 2 | 현재 데이터 경로 연결 |
+| [TextData](../Assets/Datas/TextData.csv) | 115 | 2 | 현재 데이터 경로 연결 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
-| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 3 | 21 | 구매 연결 / queue 독립 API |
-| [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 4 | 3 | 현재 데이터 경로 연결 |
+| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 7 | 21 | 구매 연결 / queue 독립 API |
+| [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 10 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금·정산 상점 UI 연결 |
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백 연결, 생성 가중치는 미연결 |
@@ -148,8 +148,8 @@
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 111개: 부록 |
-| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체111문구: 부록 |
+| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 115개: 부록 |
+| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체115문구: 부록 |
 
 ### CustomerAppearanceData
 
@@ -160,7 +160,7 @@
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001~5045 |
-| 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001~8004,8071~8111 |
+| 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001~8004,8075~8115 |
 | 3. `image_resource_idx` | ImageResourceIdx · uint | 외형 Sprite | 필수; 0·빈값·Resource 대역·존재 검사 | ResourceData.idx → path → Sprite | 4201~4245 |
 
 ### CustomerDispositionData
@@ -179,7 +179,7 @@
 | 6. `max_product_kinds` | MaxProductKinds · int | 희망 목록 상품 종류 수 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
 | 7. `min_quantity` | MinQuantity · int | 상품별 수량 최소 | 필수; 1 이상, 최대 이하 | 없음 | 1 |
 | 8. `max_quantity` | MaxQuantity · int | 상품별 수량 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
-| 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 배율, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1100, 1300, 1000 |
+| 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 배율, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1300, 1500, 1000, 1400 |
 | 10. `entry_text_idxs` | EntryTextIdxs · IReadOnlyList<uint> | 입장 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8024_8025, 8030_8031, 8036_8037 |
 | 11. `regular_sale_text_idxs` | RegularSaleTextIdxs · IReadOnlyList<uint> | 기준가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 12. `discount_sale_text_idxs` | DiscountSaleTextIdxs · IReadOnlyList<uint> | 저가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
@@ -262,12 +262,12 @@
 
 | 성향 PK·표시명 | 타입 | 주 선호 | 선호군 선택 | 결제 허용 배율 | 기준가 인정 | 줄 합류 후 재촉 / 이탈 |
 |---|---|---|---:|---:|---:|---|
-| 6001 평범 | Normal=1 | Water·Food | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
-| 6002 급함 | Hasty=2 | Medicine | 900=90% | 1300=130% | 1000~1000 | 3초 / 9초 |
+| 6001 평범 | Normal=1 | Water·Food | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
+| 6002 급함 | Hasty=2 | Medicine | 900=90% | 1500=150% | 1000~1000 | 3초 / 9초 |
 | 6003 가격 민감 | PriceSensitive=3 | DailyNecessities | 900=90% | 1000=100% | 1000~1000 | 12초 / 18초 |
-| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
-| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
-| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
+| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
+| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
 | 6007 부유한 손님 | Wealthy=4 | ElectricalEquipment·ProtectiveEquipment | 900=90% | 1400=140% | 1000~1000 | 9초 / 15초 |
 
 - 희망 목록은 각 성향 모두1~3종류, 종류당1~3개이며 동일 상품은 한 항목으로 표현한다. 후보가 부족하면 종류 수를 줄인다.
@@ -583,7 +583,7 @@ idx,paymentRound,maintenanceAmount
 
 ### Assets/Datas/PriceEventData.csv
 
-데이터 4행, 7컬럼. SHA-256: `EE20ADE4BDDAE0C0944FC21A3CD5971E467134DB4B6E2101E0858D78AE837FE9`.
+데이터 4행, 7컬럼. SHA-256: `6C9F9B13B9AF40F11B08ADD41D4114AFB838380885986F193800EF64785FBA4A`.
 
 ```csv
 idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
@@ -595,7 +595,7 @@ idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
 
 ### Assets/Datas/PriceEventScheduleData.csv
 
-데이터 5행, 7컬럼. SHA-256: `15F8768511207D6819B7700250D62BDB478AA2536EF5DC90C0187BE38BD9CB7F`.
+데이터 5행, 7컬럼. SHA-256: `65176B3D51529D0C9B9B4D56B0ECEC70FBB054C97B425821AC78B4EC6206EB78`.
 
 ```csv
 idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
@@ -608,7 +608,7 @@ idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
 
 ### Assets/Datas/ResourceData.csv
 
-데이터 54행, 2컬럼. SHA-256: `930332E168354EAACFDE1CF867E201EB76C851DA8120BC27FBF12ADEDA0F89C8`.
+데이터 54행, 2컬럼. SHA-256: `536F735A418DE9007E9E579C62CB3E145EEC03D813F345D572767F6775039D85`.
 
 ```csv
 idx,path
@@ -670,7 +670,7 @@ idx,path
 
 ### Assets/Datas/TextData.csv
 
-데이터 111행, 2컬럼. SHA-256: `247AC2770DB0D4F8209E0D63335DCDB508DFC241F68818313D09290E50625A5D`.
+데이터 115행, 2컬럼. SHA-256: `CAF19EF00ECBA92E8E0044AAA2DA7A328D41AB5D4A8FFC9F1FA15041D9054CBD`.
 
 ```csv
 idx,text
@@ -744,10 +744,14 @@ idx,text
 8068,방독면
 8069,방호복
 8070,방사능 측정기
-8071,여성 외형 05
-8072,여성 외형 06
-8073,여성 외형 08
-8074,여성 외형 09
+8071,공구 선호
+8072,전기장비 선호
+8073,보호장비 선호
+8074,부유한 손님
+8112,여성 외형 05
+8113,여성 외형 06
+8114,여성 외형 08
+8115,여성 외형 09
 8075,여성 외형 10
 8076,여성 외형 11
 8077,여성 외형 12
@@ -789,7 +793,7 @@ idx,text
 
 ### Assets/Datas/Customer/CustomerAppearanceData.csv
 
-데이터 45행, 3컬럼. SHA-256: `3EB9DA6CD54F2B9E00EC470B723E58D0061A4F874425FB432F44118E7D1A237B`.
+데이터 45행, 3컬럼. SHA-256: `93C299ECCE11D71C3D8D40908964706F0C055B5C28989648CA1050C8ACEDCEBF`.
 
 ```csv
 idx,nameidx,image_resource_idx
@@ -797,10 +801,10 @@ idx,nameidx,image_resource_idx
 5002,8002,4202
 5003,8003,4203
 5004,8004,4204
-5005,8071,4205
-5006,8072,4206
-5007,8073,4207
-5008,8074,4208
+5005,8112,4205
+5006,8113,4206
+5007,8114,4207
+5008,8115,4208
 5009,8075,4209
 5010,8076,4210
 5011,8077,4211
@@ -842,18 +846,22 @@ idx,nameidx,image_resource_idx
 
 ### Assets/Datas/Customer/CustomerDispositionData.csv
 
-데이터 3행, 21컬럼. SHA-256: `42A5012AB1D02D92DD4F043D0FF62DD10FA4640310002AB91C5BFC1D5CEDCF6F`.
+데이터 7행, 21컬럼. SHA-256: `A80DFD600AD0077C3E32F916E615427C741775EEC4B5B1D51040812B8A348388`.
 
 ```csv
 idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds,max_product_kinds,min_quantity,max_quantity,price_tolerance,entry_text_idxs,regular_sale_text_idxs,discount_sale_text_idxs,exploitative_sale_text_idxs,reject_text_idxs,queue_patience_seconds,queue_warning_textidx,queue_leave_textidx,disposition_type,preferred_product_idxs,regular_price_min_rate,regular_price_max_rate
-6001,8005,1_2,900,1,3,1,3,1100,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
-6002,8006,3,900,1,3,1,3,1300,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035,9,8052,8053,2,,1000,1000
+6001,8005,1_2,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6002,8006,3,900,1,3,1,3,1500,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035,9,8052,8053,2,,1000,1000
 6003,8007,4,900,1,3,1,3,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041,18,8054,8055,3,,1000,1000
+6004,8071,5,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6005,8072,6,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6006,8073,7,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6007,8074,6_7,900,1,3,1,3,1400,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,15,8050,8051,4,,1000,1000
 ```
 
 ### Assets/Datas/Customer/ProductCategoryData.csv
 
-데이터 4행, 3컬럼. SHA-256: `A933B7A998CCCDCD36A6A7D44C45AFC59FEE434FB849EA0A4AC3B7A3547514DF`.
+데이터 7행, 3컬럼. SHA-256: `A002313CF3D5B596DB4286DE6B47E152DF65D0C2ABE239C25A36FB3B135FB756`.
 
 ```csv
 idx,nameidx,product_type
@@ -861,11 +869,14 @@ idx,nameidx,product_type
 7002,8009,2
 7003,8010,3
 7004,8011,4
+7005,8058,5
+7006,8059,6
+7007,8060,7
 ```
 
 ### Assets/Datas/Customer/ProductData.csv
 
-데이터 22행, 10컬럼. SHA-256: `552BC4F315BFA7A24976AB421CDDAD7C6F7A8BD20262E9F965CC27AFCCDC2147`.
+데이터 22행, 10컬럼. SHA-256: `FD1D4585418E949B67FD8A85E6BDB6130B35FB381DD237C933A3ADFD823CBA5C`.
 
 ```csv
 idx,nameidx,product_type,is_available,base_price,available_day,image_resource_idx,cost_price,required_facility_idx,top_view_image_resource_idx
@@ -883,19 +894,19 @@ idx,nameidx,product_type,is_available,base_price,available_day,image_resource_id
 1012,8023,4,0,600,0,,300,,
 1013,8061,3,1,500,0,,250,12002,
 1014,8062,3,1,900,0,,450,12002,
-1015,8063,4,1,800,0,,400,12003,
-1016,8064,4,1,1000,0,,500,12003,
-1017,8065,4,1,1200,0,,600,12003,
-1018,8066,4,1,2000,0,,1000,12004,
-1019,8067,4,1,1200,0,4247,600,12004,4247
-1020,8068,4,1,2500,0,,1250,12005,
-1021,8069,4,1,4000,0,,2000,12005,
-1022,8070,4,1,5000,0,,2500,12005,
+1015,8063,5,1,800,0,,400,12003,
+1016,8064,5,1,1000,0,,500,12003,
+1017,8065,5,1,1200,0,,600,12003,
+1018,8066,6,1,2000,0,,1000,12004,
+1019,8067,6,1,1200,0,4247,600,12004,4247
+1020,8068,7,1,2500,0,,1250,12005,
+1021,8069,7,1,4000,0,,2000,12005,
+1022,8070,7,1,5000,0,,2500,12005,
 ```
 
 ### Assets/Datas/FacilityData.csv
 
-데이터 5행, 3컬럼. SHA-256: `1CAFFFF0B417D8D719199B8199009286219B8C2655102D4FD2ECEB4FDE7055AC`.
+데이터 5행, 3컬럼. SHA-256: `B94956FCADA9643FDD13A56C7FB1CB017956BC0CC2ECAC3E6753D3E72529BF80`.
 
 ```csv
 idx,nameidx,purchase_price
