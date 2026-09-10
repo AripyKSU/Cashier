@@ -1,0 +1,5 @@
+{
+  "name": "Cashier.PlayMode.Tests",
+  "references": ["Cashier.Runtime", "UniTask", "Unity.Addressables", "Unity.ResourceManager", "Unity.ugui", "Unity.TextMeshPro"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

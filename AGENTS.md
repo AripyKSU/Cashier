@@ -29,6 +29,7 @@
 - 목적 중심의 자연어 요청을 실행 프롬프트로 구체화할 때는 [`doc/AGENT_REQUEST_GUIDE.md`](doc/AGENT_REQUEST_GUIDE.md)를 따른다.
 - Prefab, Addressables, `.meta`와 연관 리소스 작업은 [`doc/PREFAB_RESOURCE_RULES.md`](doc/PREFAB_RESOURCE_RULES.md)를 따른다.
 - CSV와 DataTable 작업은 [`doc/DATA_RULES.md`](doc/DATA_RULES.md)를 따른다.
+- CSV 종류 ID와 문자열 허용 경계는 [`doc/CSV_RULES.md`](doc/CSV_RULES.md)를 따른다. 표시 이름은 `nameidx`로 연결한다.
 
 ### 작업 요청과 지정
 
@@ -160,6 +161,8 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/Scripts/Commons/` | 공용 enum, interface, DTO, 상수 | 둘 이상의 시스템이 공유하고 안정된 계약만 배치 |
 | `Assets/Scripts/Manager/` | 전역 수명과 공용 서비스 | 기존 manager 책임을 확장할 때만 배치 |
 | `Assets/Scripts/Scene/` | Scene 진입·전환·표현 | 특정 Scene의 수명에 종속된 component 배치 |
+| `Assets/Scripts/Customer/` | 손님 생성·구매 목록과 관련 데이터 검증 | 손님 기능 코드. `Editor/`의 설치 도구는 개인 씬만 변경 |
+| `Assets/Scripts/Events/` | 일간 가격 이벤트 선정·현재가 계산 | 상태 수명과 날짜 권위는 기존 GameSessionManager에 유지. CSV DTO·DataTable은 Commons/Data에 배치 |
 | `Assets/Scripts/Utils/` | 상태를 소유하지 않는 범용 도구 | 특정 도메인 규칙을 넣지 않음 |
 | `Assets/Datas/` | 런타임 데이터 원본 | 기존 식별자·loader·Addressables 규칙 준수 |
 | `Assets/Prefabs/` | prefab과 직렬화 연결 | 기능별 하위 폴더를 사용하고 공용 prefab은 실제 공유 시에만 분리 |
@@ -170,9 +173,12 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 | `Assets/AddressableAssetsData/` | Addressables 설정과 group | 작업별 승인권을 받은 리소스 담당자 또는 프로젝트 책임자 승인 없이 직접 편집 금지 |
 | `Assets/Scenes/` | Unity Scene | 현재 작업의 지정 담당자 또는 프로젝트 책임자 승인 후 생성·이동 |
 | `Assets/Scenes/Local/` | 개인 개발 씬 (Git 제외) | Editor 전용. 공유 자산에서 참조하거나 Build Settings·Addressables에 등록하지 않음 |
+| `Assets/Scripts/Local/` | 개인 씬 전용 실험·임시 화면 코드 (Git 제외) | Editor 도구는 하위 `Editor/`에 분리. 공유 코드·테스트·자산에서 참조 금지. 제품 기능·manager·공유 API는 기존 추적 경로에 유지 |
 | `Assets/Settings/` | URP와 renderer 설정 | 프로그래머 `Primary` 또는 프로젝트 책임자 승인 필요 |
 | `Assets/Plugins/` | 외부·vendor 코드 | 직접 수정 금지. wrapper 또는 상위 코드에서 대응 |
 | `Assets/TextMesh Pro/` | TMP 기본 리소스 | 프로젝트 UI 정책 변경이 아니면 수정 금지 |
+
+공용 CSV DTO·DataTable과 상품 분류 변환기는 `Assets/Scripts/Commons/Data/`, 손님 전용 데이터와 catalog는 `Assets/Scripts/Customer/Data/`, 경제 CSV DTO·DataTable은 `Assets/Scripts/Finance/Data/`에 둔다. Data와 DataTable은 같은 폴더에 배치하고 `DataTableManager`는 `Manager/`에 유지한다.
 
 ### 신규 C# 파일 결정 순서
 
@@ -183,7 +189,7 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 5. 테스트를 새로 도입할 때는 runtime 코드와 분리해 `Assets/Tests/EditMode/`, `Assets/Tests/PlayMode/`를 사용하고 필요한 `.asmdef`를 함께 검토한다.
 6. 새 asset과 script에는 Unity가 생성한 `.meta`를 포함하고 파일 이동으로 GUID가 바뀌지 않게 한다.
 
-프로젝트에는 현재 자체 코드용 `.asmdef`와 자체 테스트 파일이 확인되지 않았다. 이를 이미 존재한다고 가정하지 말고, 최초 도입은 프로그래머 `Primary` 또는 프로젝트 책임자의 승인을 받는다.
+자체 runtime 경계는 `Assets/Scripts/Cashier.Runtime.asmdef`, 공유 Editor 경계는 `Scene/Editor/Cashier.Scene.Editor.asmdef`다. API 테스트는 `Assets/Tests/EditMode/`와 `Assets/Tests/PlayMode/`의 별도 테스트 assembly에 둔다. 개인 코드의 `Local/Editor/` 경계는 로컬 소유이며 공유 테스트가 참조하지 않는다. 새 assembly·의존성 확대는 기존 승인 절차를 따른다.
 
 자산 하위 폴더는 작업 기능을 기준으로 생성한다. 예를 들어 같은 기능은 `Datas/<Feature>/`, `Prefabs/<Feature>/`, `Anims/<Feature>/`, `Textures/<Feature>/`처럼 이름을 맞춘다. `Common` 또는 `Shared`는 둘 이상의 기능이 실제로 사용하는 자산에만 사용한다.
 
@@ -214,6 +220,14 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 - 단위가 중요한 값은 이름에 단위를 포함한다 (`delaySeconds`, `sizePixels`).
 - 매직 넘버는 의미가 반복되거나 조정 대상일 때만 `PascalCase` 상수로 승격한다.
 - 기존 파일의 일관된 스타일이 다르면 기능 변경과 무관한 전체 rename을 하지 않는다.
+
+### Enum 종료 표식
+
+- enum에 종료 표식이 필요하면 마지막에 `<EnumType>_End` 형식으로 선언한다.
+- `_End` 또는 `_end` 종료 항목에는 `= 숫자`를 명시하지 않고 C# 자동 증가값을 사용한다.
+- 종료 표식은 유효한 데이터 종류·상태가 아니다. CSV ID 배정, 저장값, loader 등록에 사용하지 않는다.
+- 종료 표식도 `Enum.IsDefined`에는 포함되므로 해당 검사만으로 데이터 유효성을 판단하지 않는다. 종료 표식 제외와 실제 등록·허용값을 함께 확인한다.
+- 실제 데이터 항목의 승인된 숫자값은 유지한다. 종료 표식 규칙을 이유로 기존 ID를 재번호화하지 않는다.
 
 ### 구성원 배치
 
@@ -294,11 +308,11 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 
 ### C. 컴파일과 최소 실행 검증
 
-- 이 프로젝트는 Unity Test Runner와 별도 unit test를 기본 완료 조건으로 사용하지 않는다.
+- API·CSV/parser·생성·큐·거래·금액·지침·이벤트 계약은 설치된 Unity Test Framework의 NUnit EditMode로 검증한다. 실제 Unity 수명·비동기·ResourceManager·pool API는 필요한 경우에만 PlayMode로 검증한다.
 - Unity reimport와 compilation 종료 후 compile error 0을 확인한다.
-- 변경 기능을 재현하는 가장 작은 Scene·진입 경로에서 최소 실행 검증을 수행한다.
-- 기존 자동 검사가 있거나 작업에서 별도로 요구한 경우에만 해당 검사를 추가로 실행한다.
-- 검증 환경이 없다는 이유로 새 test assembly나 framework를 임의로 도입하지 않는다.
+- 관련 기존 테스트와 변경 경계를 검증하고 실행 개수·실패·skip·미완료를 보고한다. total=0, skip 또는 미완료를 PASS로 판단하지 않는다. 실행과 XML·로그 보관은 [`doc/TESTING.md`](doc/TESTING.md)를 따른다.
+- UI 버튼·문구·배치·사용감은 사용자 수동 확인 대상이다. API 테스트 성공을 화면·UX 성공으로 확대하지 않고 사용자 확인 전까지 미확인으로 보고한다. 자동 검사를 위해 개인 씬이나 공유 Scene을 변경하지 않는다.
+- 검증 환경이 없다는 이유로 신규 framework나 package를 추가하지 않는다. 승인된 테스트 assembly와 기존 설치 의존성을 재사용한다.
 
 ### D. Console과 런타임
 
@@ -372,3 +386,15 @@ Git name과 email은 명부 조회 키일 뿐 권한 위임이나 승인 증거�
 - 병렬 작업은 수정 파일이 겹치지 않고 독립적으로 검증 가능한 경우에만 허용한다.
 - 병합 직전에 최신 기본 branch를 기준으로 CSV ID, Addressables address, GUID와 공용 직렬화 파일의 중복·충돌을 다시 확인한다. branch 분리만으로 승인이나 충돌 검사를 생략하지 않는다.
 - 완료 보고에는 변경 파일, 검증 결과, 소유 경계 밖에서 보류한 항목, 다음 담당자를 명시한다.
+
+### 병합 인계와 문서 정리
+
+- 작업 브랜치에서 커밋·푸시하기 전에 AI 에이전트는 병합에 필요한 변경 사항이 기록되어 있는지 확인한다.
+- 기록이 없으면 작업자에게 작성을 요청한다. AI가 변경 내용을 파악한 경우 권장 초안을 먼저 제시하고, 미확정 사항만 작업자에게 확인한다.
+- 기록 위치는 커밋 메시지 본문, PR 설명 또는 저장소 내 병합 인계 문서로 한다. 간단한 변경에는 별도 문서를 만들지 않는다.
+- 기록에는 변경 목적, 영향 범위, API·CSV·직렬화·리소스 참조 변경, 선행 작업과 적용 순서, 검증 결과, 미완료 사항을 필요한 만큼 포함한다.
+- total_merge 통합 전 원격 브랜치를 최신화하고, 각 작업의 병합 기록을 실제 diff와 대조한다. 충돌 해결과 통합 검증 시 해당 기록을 참고한다.
+- 기록 누락만으로 안전한 작업 전체를 중단하지 않는다. 결과에 영향을 주는 미확정 계약이나 충돌은 담당자에게 확인한다.
+- 통합 검증과 최종 승인이 완료되면, 병합 전용 임시 인계 문서 중 필요한 내용이 영구 명세·PR 설명에 반영된 문서만 삭제한다.
+- API·데이터·아키텍처·사용법 명세와 검증 기록은 삭제하지 않고 최신화한다. 다른 미완료 작업이 참조하는 문서는 유지한다.
+- 문서 정리는 최종 커밋·푸시 전에 수행한다. 이미 푸시한 경우에는 이력을 재작성하지 않고 별도 정리 커밋으로 반영한다.

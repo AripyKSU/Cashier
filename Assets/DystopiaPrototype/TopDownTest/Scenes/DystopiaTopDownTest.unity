@@ -1,0 +1,317 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!29 &1
+OcclusionCullingSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_OcclusionBakeSettings:
+    smallestOccluder: 5
+    smallestHole: 0.25
+    backfaceThreshold: 100
+  m_SceneGUID: 00000000000000000000000000000000
+  m_OcclusionCullingData: {fileID: 0}
+--- !u!104 &2
+RenderSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 10
+  m_Fog: 0
+  m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_FogMode: 3
+  m_FogDensity: 0.01
+  m_LinearFogStart: 0
+  m_LinearFogEnd: 300
+  m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
+  m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
+  m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
+  m_AmbientIntensity: 1
+  m_AmbientMode: 3
+  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SkyboxMaterial: {fileID: 0}
+  m_HaloStrength: 0.5
+  m_FlareStrength: 1
+  m_FlareFadeSpeed: 3
+  m_HaloTexture: {fileID: 0}
+  m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
+  m_DefaultReflectionMode: 0
+  m_DefaultReflectionResolution: 128
+  m_ReflectionBounces: 1
+  m_ReflectionIntensity: 1
+  m_CustomReflection: {fileID: 0}
+  m_Sun: {fileID: 0}
+  m_UseRadianceAmbientProbe: 0
+--- !u!157 &3
+LightmapSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
+  m_GISettings:
+    serializedVersion: 2
+    m_BounceScale: 1
+    m_IndirectOutputScale: 1
+    m_AlbedoBoost: 1
+    m_EnvironmentLightingMode: 0
+    m_EnableBakedLightmaps: 0
+    m_EnableRealtimeLightmaps: 0
+  m_LightmapEditorSettings:
+    serializedVersion: 12
+    m_Resolution: 2
+    m_BakeResolution: 40
+    m_AtlasSize: 1024
+    m_AO: 0
+    m_AOMaxDistance: 1
+    m_CompAOExponent: 1
+    m_CompAOExponentDirect: 0
+    m_ExtractAmbientOcclusion: 0
+    m_Padding: 2
+    m_LightmapParameters: {fileID: 0}
+    m_LightmapsBakeMode: 1
+    m_TextureCompression: 1
+    m_ReflectionCompression: 2
+    m_MixedBakeMode: 2
+    m_BakeBackend: 2
+    m_PVRSampling: 1
+    m_PVRDirectSampleCount: 32
+    m_PVRSampleCount: 512
+    m_PVRBounces: 2
+    m_PVREnvironmentSampleCount: 256
+    m_PVREnvironmentReferencePointCount: 2048
+    m_PVRFilteringMode: 1
+    m_PVRDenoiserTypeDirect: 1
+    m_PVRDenoiserTypeIndirect: 1
+    m_PVRDenoiserTypeAO: 1
+    m_PVRFilterTypeDirect: 0
+    m_PVRFilterTypeIndirect: 0
+    m_PVRFilterTypeAO: 0
+    m_PVREnvironmentMIS: 1
+    m_PVRCulling: 1
+    m_PVRFilteringGaussRadiusDirect: 1
+    m_PVRFilteringGaussRadiusIndirect: 1
+    m_PVRFilteringGaussRadiusAO: 1
+    m_PVRFilteringAtrousPositionSigmaDirect: 0.5
+    m_PVRFilteringAtrousPositionSigmaIndirect: 2
+    m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ExportTrainingData: 0
+    m_TrainingDataDestination: TrainingData
+    m_LightProbeSampleCountMultiplier: 4
+  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingSettings: {fileID: 0}
+--- !u!196 &4
+NavMeshSettings:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_BuildSettings:
+    serializedVersion: 3
+    agentTypeID: 0
+    agentRadius: 0.5
+    agentHeight: 2
+    agentSlope: 45
+    agentClimb: 0.4
+    ledgeDropHeight: 0
+    maxJumpAcrossDistance: 0
+    minRegionArea: 2
+    manualCellSize: 0
+    cellSize: 0.16666667
+    manualTileSize: 0
+    tileSize: 256
+    buildHeightMesh: 0
+    maxJobWorkers: 0
+    preserveTilesOutsideBounds: 0
+    debug:
+      m_Flags: 0
+  m_NavMeshData: {fileID: 0}
+--- !u!1 &874349464
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 874349466}
+  - component: {fileID: 874349465}
+  m_Layer: 0
+  m_Name: DystopiaTopDownTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &874349465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 874349464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ede712d033d522b43a960d633c151b08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DystopiaTopDownTest
+  transitionSeconds: 0.35
+  pourDuration: 1.2
+  pourSpreadSeconds: 0.55
+  frontArrivalSeconds: 0.65
+  reactionSeconds: 0.9
+  cursorRadius: 0.42
+  cursorForce: 0.032
+  maximumItemSpeed: 5.2
+  itemFriction: 3.8
+  rotationDamping: 4.5
+  pourForce: 2.5
+  gameMinutesPerRealSecond: 6
+  settings:
+    products:
+    - name: "\uC0DD\uC218"
+      price: 1000
+      firstDay: 1
+      sprite: {fileID: 0}
+    - name: "\uAC74\uBE75"
+      price: 1500
+      firstDay: 1
+      sprite: {fileID: 0}
+    - name: "\uD1B5\uC870\uB9BC"
+      price: 2500
+      firstDay: 1
+      sprite: {fileID: 0}
+    - name: "\uC989\uC11D\uBC25"
+      price: 2000
+      firstDay: 1
+      sprite: {fileID: 0}
+    - name: "\uBD95\uB300"
+      price: 3000
+      firstDay: 3
+      sprite: {fileID: 0}
+    - name: "\uC9C4\uD1B5\uC81C"
+      price: 4000
+      firstDay: 3
+      sprite: {fileID: 0}
+    - name: "\uAC74\uC804\uC9C0"
+      price: 3500
+      firstDay: 3
+      sprite: {fileID: 0}
+    - name: "\uBE44\uB204"
+      price: 1000
+      firstDay: 5
+      sprite: {fileID: 0}
+    - name: "\uBC29\uC9C4 \uB9C8\uC2A4\uD06C"
+      price: 2000
+      firstDay: 5
+      sprite: {fileID: 0}
+    - name: "\uC5F0\uB8CC\uCE94"
+      price: 5000
+      firstDay: 5
+      sprite: {fileID: 0}
+    citizenshipPrice: 300000
+    firstTribute: 50000
+    secondTribute: 80000
+    laterTribute: 110000
+    baseVisitors: 8
+    minVisitors: 6
+    maxVisitors: 12
+    gaugeStart: 70
+    greenThreshold: 70
+    gaugeDecay: 2
+    gaugeRecovery: 12
+    departureRecovery: 30
+    departureCount: 2
+    departureReputation: -5
+    greenReputation: 1
+    toleranceReputation: -2
+    budgetReputation: -1
+    refusalMorality: -1
+    discountMorality: 2
+    generousMorality: 4
+    markupMorality: -2
+    poorChance: 0.18
+    poorBudgetRatio: 0.85
+    normalBudgetMinPercent: 110
+    normalBudgetMaxPercent: 150
+    resultSeconds: 0.85
+  frontBackground: {fileID: 0}
+  frontCounter: {fileID: 0}
+  workbench: {fileID: 0}
+  frontContainerMale: {fileID: 0}
+  frontContainerFemale: {fileID: 0}
+  tiltedContainer: {fileID: 0}
+  emptyContainer: {fileID: 0}
+  productSprites:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  maleCustomers:
+  - {fileID: 21300000, guid: 6e841d9c516348bcb5d8e1586b930ed2, type: 3}
+  - {fileID: 21300000, guid: 2c86bb2bc6b94d9391c7762a0eec959f, type: 3}
+  - {fileID: 21300000, guid: ae8354988eb941af81600671205a7835, type: 3}
+  - {fileID: 21300000, guid: 289007e448394ce9b4736854d48eba62, type: 3}
+  - {fileID: 21300000, guid: a3fa809f22224b4cb468e537a6a7b736, type: 3}
+  - {fileID: 21300000, guid: b8598a85ea3543b18f0149034de85678, type: 3}
+  - {fileID: 21300000, guid: ae577f9c7f1a47d0b2a465911a195fac, type: 3}
+  - {fileID: 21300000, guid: ce5c79aec70547d6ae3e5f21537f65c7, type: 3}
+  - {fileID: 21300000, guid: 43aeb543528d415c87133e6a6f0420ef, type: 3}
+  - {fileID: 21300000, guid: 6e1c58898c5f46b98f90b75fdcc0fee4, type: 3}
+  - {fileID: 21300000, guid: 5bc5f817041947ad87155e3ce9e69fa0, type: 3}
+  - {fileID: 21300000, guid: 9c01654b40e2495abd4162a68fa1c4e4, type: 3}
+  - {fileID: 21300000, guid: 62ad01edf58e444789e9940711a6eee4, type: 3}
+  - {fileID: 21300000, guid: f64bf6883d3947dbb3cd5a618f04b611, type: 3}
+  - {fileID: 21300000, guid: 8dafdd046b2b4a53b5053a650c6a2418, type: 3}
+  - {fileID: 21300000, guid: 33ab328bb0634a508c976b27e247a650, type: 3}
+  - {fileID: 21300000, guid: c6b9d5f5f31e464ba5c70e174f36032c, type: 3}
+  - {fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}
+  - {fileID: 21300000, guid: 34e65cf4c9364747858c7339ba7ab36d, type: 3}
+  - {fileID: 21300000, guid: 330293dc189149da84adaf24aa474ee1, type: 3}
+  - {fileID: 21300000, guid: 8a98ffe319224ec5abf47adda8dd6e9f, type: 3}
+  - {fileID: 21300000, guid: 2bc3731d37094be6a22363e65f4e2add, type: 3}
+  - {fileID: 21300000, guid: 15da0f47beb54722ab963ee7a3406128, type: 3}
+  - {fileID: 21300000, guid: 2907d7c6dbe24ec180ae767c1ad75cf9, type: 3}
+  - {fileID: 21300000, guid: 0187854495a55ec44a6a958637d567d3, type: 3}
+  - {fileID: 21300000, guid: 5a9f710fa1290dc4fb90548467a70033, type: 3}
+  - {fileID: 21300000, guid: dc44f8a468f993a4180c7aea35fa8490, type: 3}
+  - {fileID: 21300000, guid: 570747e831c3bae4bb8595adc8398007, type: 3}
+  - {fileID: 21300000, guid: f5694c6624c8daf488667ea27fdb0744, type: 3}
+  femaleCustomers:
+  - {fileID: 21300000, guid: 90366358f6bc45a6813f739ae146ca26, type: 3}
+  - {fileID: 21300000, guid: df439d2a51564eefb00dc3379c3661fd, type: 3}
+  - {fileID: 21300000, guid: 2e1eb00beed345d5b381d3e32d887fb9, type: 3}
+  - {fileID: 21300000, guid: 222338f61b814f448937db8caf712c8d, type: 3}
+  - {fileID: 21300000, guid: 4ce370668df34d858a1ba9c3f5e5ab33, type: 3}
+  - {fileID: 21300000, guid: 9b4693fee3294febb4b612636bced872, type: 3}
+  - {fileID: 21300000, guid: e66cb789b2a544de9d1f52cc6e7c9be0, type: 3}
+  - {fileID: 21300000, guid: c5735fdfa59442c3894e635b0535710d, type: 3}
+  - {fileID: 21300000, guid: d83f51561b00492eb419dfc2b554be0f, type: 3}
+  - {fileID: 21300000, guid: 647096b5a8b94cb69e6b8372608e2f38, type: 3}
+  - {fileID: 21300000, guid: 527e8afc2f794311b6c5bba647102995, type: 3}
+  - {fileID: 21300000, guid: e724a9fe5d1842e39c974a19d221ae47, type: 3}
+  - {fileID: 21300000, guid: 876c6d5818ba44458b7d0b0e52065416, type: 3}
+  - {fileID: 21300000, guid: f1582d42db204b9ab3ceafec5feb2472, type: 3}
+  - {fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}
+  - {fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}
+  - {fileID: 21300000, guid: 77d39c5885813fa439da19bf99801e80, type: 3}
+  - {fileID: 21300000, guid: 968baf30567de104fa8ebe65f28ed793, type: 3}
+  - {fileID: 21300000, guid: dc94dc6651ef29743bfe001a09c77f5e, type: 3}
+  - {fileID: 21300000, guid: 6d35e6acfd47ef84da053f30ea02ba75, type: 3}
+  calculatorArtwork: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
+  calculatorToggleArtwork: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}
+  counterClockArtwork: {fileID: 21300000, guid: 594304eb42c84524a1909e1dd7546641, type: 3}
+  uiFont: {fileID: 0}
+--- !u!4 &874349466
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 874349464}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 874349466}

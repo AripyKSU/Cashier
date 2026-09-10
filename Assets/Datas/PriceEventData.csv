@@ -1,0 +1,5 @@
+idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
+9001,8042,8043,,2,1,-200
+9002,8044,8045,1001,,2,30
+9003,8046,8047,,,0,0
+9004,8048,8049,,3,1,300

@@ -7,7 +7,8 @@
 Hub는 진입 후 자동으로 게임 씬을 로드한다. 모든 전환은 `GameSceneManager`가 소유한다.
 Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있으면 선택한 개인 씬을 사용한다.
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
-MainScene은 통합·실행 검증용 공용 씬이다. 현재는 기존 Hub의 카메라 구성을 복제한 빈 진입 씬이며, 게임 콘텐츠는 기능별 결과물 통합 시 추가한다.
+MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인스턴스, Camera와 InputSystem EventSystem을 포함한다. 설비·명성 통합 경로와 사용법은 MAINSCENE_INTEGRATION.md를 따른다.
+
 
 ## 개인 작업
 
@@ -21,10 +22,15 @@ MainScene은 통합·실행 검증용 공용 씬이다. 현재는 기존 Hub의 
 개인 씬은 Editor 전용 API로 로드하므로 Build Settings·Addressables에 등록하지 않는다.
 
 `Assets/Scenes/Local/` 내부 전체와 `Local.meta`는 Git에서 제외한다. 개인 씬은 Git으로 백업되지 않으므로 필요한 백업은 별도로 관리한다.
-개발 코드와 공유할 Prefab·데이터는 기존의 추적되는 기능 경로에 작성하고 개인 씬에는 조립·배치만 둔다.
+개인 씬에서만 사용하는 임시 화면·실험 코드는 `Assets/Scripts/Local/`, 해당 Editor 도구는 `Assets/Scripts/Local/Editor/`에 둔다. 이 폴더 전체와 `Local.meta`도 Git에서 제외하며 로컬 파일과 기존 GUID는 보존한다. 이미 추적되던 파일은 ignore 추가만으로 제외되지 않으므로 원래 추적 경로의 삭제 변경도 함께 반영해야 한다.
+제품 기능 코드와 공유할 Prefab·데이터는 기존의 추적되는 기능 경로에 둔다. 개인 씬에서 실행했다는 이유만으로 공유 API·manager·도메인 코드를 제외하지 않는다. 공유 코드·테스트·자산은 개인 코드에 의존하지 않는다.
+개인 Editor 코드는 런타임 asmdef에 포함하지 않는다. 상위 runtime asmdef가 있는 경우 개인 `Editor/`에도 Editor 전용 asmdef를 두며 이 설정 역시 개인 폴더와 함께 제외한다.
+현재 `CustomerSandbox`와 `CustomerSandboxSetup`은 개인 코드다. 현재 total_merge 기반 공유 UI는 GameUI.prefab의 `GameUIController`다. `Dev3SandboxTester`는 비활성화된 이전 공유 코드이며 이번 진행 통합에서 이동·삭제하지 않는다. 공유 코드 정리는 실제 소비자 확인 후 별도 승인 범위로 진행한다.
 공유 자산에서 개인 씬이나 Local 내부 자산을 참조하지 않는다. 제외 규칙은 `git add -f`를 막지는 않으므로 강제 stage하지 않는다.
 
 ## 통합과 검증
+
+- 여러 branch의 최종 결과물을 조립할 때 사용자가 참조를 요청하면 [BRANCH_INTEGRATION_RULES.md](BRANCH_INTEGRATION_RULES.md)의 자산 우선순위와 로직 통합 기준을 적용한다.
 
 - 개인 씬 파일을 Git 병합하는 대신 검증된 코드·Prefab·데이터·배치를 MainScene에 반영한다. 기능 담당자와 통합 작업자를 정해 순서대로 반영한다.
 - MainScene과 `.meta`, Addressables의 `MainScene` entry는 함께 관리한다.
@@ -41,6 +47,7 @@ MainScene은 통합·실행 검증용 공용 씬이다. 현재는 기존 Hub의 
 2. Local에 MainScene 복사본을 저장하고 선택한 뒤 Init에서 Play: 개인 씬에 도착해야 한다.
 3. 선택한 개인 씬을 Local 밖으로 이동한 뒤 Init에서 Play: Hub에서 명시적 오류를 보고하고 멈춰야 한다. 이후 씬을 원위치하고 재선택한다.
 4. `git check-ignore Assets/Scenes/Local/MyGameplay.unity Assets/Scenes/Local/MyGameplay.unity.meta Assets/Scenes/Local.meta`로 제외를 확인한다.
+5. `git check-ignore Assets/Scripts/Local/CustomerSandbox.cs Assets/Scripts/Local/CustomerSandbox.cs.meta Assets/Scripts/Local/Editor/CustomerSandboxSetup.cs Assets/Scripts/Local.meta`로 개인 코드와 metadata 제외를 확인한다. 개인 코드가 없는 새 checkout에서도 공유 코드·테스트가 컴파일되어야 한다.
 
 ## 2026-09-07 검증 기록
 

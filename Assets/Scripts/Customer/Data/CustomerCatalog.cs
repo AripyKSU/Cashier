@@ -1,0 +1,139 @@
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+/// <summary>손님 관련 네 테이블과 공용 TextData를 함께 검증하여 공개한다.</summary>
+public sealed class CustomerCatalog
+{
+    /// <summary>외형 전용 테이블. DataTableManager에 등록된 인스턴스를 참조한다.</summary>
+    public CustomerAppearanceDataTable Appearances { get; }
+    /// <summary>성향 전용 테이블. DataTableManager에 등록된 인스턴스를 참조한다.</summary>
+    public CustomerDispositionDataTable Dispositions { get; }
+    /// <summary>상품 분류 전용 테이블. DataTableManager에 등록된 인스턴스를 참조한다.</summary>
+    public ProductCategoryDataTable Categories { get; }
+    /// <summary>상품 전용 테이블. DataTableManager에 등록된 인스턴스를 참조한다.</summary>
+    public ProductDataTable Products { get; }
+    /// <summary>Manager 소유 테이블을 참조하며 별도 테이블을 생성하지 않는다.</summary>
+    /// <param name="appearances">등록된 외형 테이블.</param>
+    /// <param name="dispositions">등록된 성향 테이블.</param>
+    /// <param name="categories">등록된 상품 분류 테이블.</param>
+    /// <param name="products">등록된 상품 테이블.</param>
+    /// <exception cref="ArgumentNullException">필수 테이블 누락.</exception>
+    public CustomerCatalog(CustomerAppearanceDataTable appearances, CustomerDispositionDataTable dispositions,
+        ProductCategoryDataTable categories, ProductDataTable products)
+    {
+        Appearances = appearances ?? throw new ArgumentNullException(nameof(appearances));
+        Dispositions = dispositions ?? throw new ArgumentNullException(nameof(dispositions));
+        Categories = categories ?? throw new ArgumentNullException(nameof(categories));
+        Products = products ?? throw new ArgumentNullException(nameof(products));
+    }
+
+    /// <summary>네 고객 테이블과 Text·선택 설비가 모두 준비된 뒤 FK 검증과 공개를 한 번에 수행한다.</summary>
+    /// <exception cref="InvalidDataException">필수 테이블 또는 상품·설비 FK 누락.</exception>
+    /// <param name="resources">이미지 FK가 있는 경우 필수인 검증된 리소스 테이블.</param>
+    /// <param name="texts">게임 전체 공용 텍스트 테이블. 검증 성공 시 함께 공개한다.</param>
+    /// <param name="facilities">필요 설비 FK를 검사할 공개 전 데이터. 설비 상품이 있으면 필수다.</param>
+    public void ValidateAndCommit(TextDataTable texts, ResourceDataTable resources = null, FacilityDataTable facilities = null)
+    {
+        try
+        {
+            if (texts == null || Appearances.PendingRows == null || Dispositions.PendingRows == null ||
+                Categories.PendingRows == null || Products.PendingRows == null || texts.PendingRows == null)
+                throw new InvalidDataException("손님 CSV 4종과 TextData.csv가 필요합니다. Datas 라벨과 로더 등록을 확인하세요.");
+            foreach (var row in Appearances.PendingRows.Values)
+            {
+                validateNameReference(texts, "CustomerAppearanceData.csv", row.Idx, row.NameIdx);
+                if (resources == null || !resources.TryGetResource(row.ImageResourceIdx, out _))
+                    throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
+            }
+            foreach (var row in Dispositions.PendingRows.Values)
+                validateNameReference(texts, "CustomerDispositionData.csv", row.Idx, row.NameIdx);
+            foreach (var row in Categories.PendingRows.Values)
+                validateNameReference(texts, "ProductCategoryData.csv", row.Idx, row.NameIdx);
+            foreach (var row in Products.PendingRows.Values)
+                validateNameReference(texts, "ProductData.csv", row.Idx, row.NameIdx);
+            var types = new HashSet<ProductType>();
+            foreach (var row in Categories.PendingRows.Values)
+                if (!types.Add(row.ProductType))
+                    throw new InvalidDataException($"ProductCategoryData.csv PK={row.Idx}, product_type 중복");
+            foreach (ProductType type in Enum.GetValues(typeof(ProductType)))
+                if (type != ProductType.None && !types.Contains(type))
+                    throw new InvalidDataException($"ProductCategoryData.csv: product_type={type} 표시 데이터 누락");
+            foreach (var row in Products.PendingRows.Values)
+            {
+                if (row.RequiredFacilityIdx.HasValue)
+                {
+                    if (facilities?.PendingRows == null || !facilities.PendingRows.TryGetValue(row.RequiredFacilityIdx.Value, out FacilityData facility))
+                        throw new InvalidDataException($"ProductData.csv PK={row.Idx}: required_facility_idx={row.RequiredFacilityIdx} FK 실패");
+                    if (facility.UpgradeKind != FacilityUpgradeKind.ProductUnlock)
+                        throw new InvalidDataException($"ProductData.csv PK={row.Idx}: required_facility_idx={row.RequiredFacilityIdx}는 상품 해금 설비가 아닙니다.");
+                }
+                if (!types.Contains(row.ProductType))
+                    throw new InvalidDataException($"ProductData.csv PK={row.Idx}, product_type 표시 참조 실패");
+                if (row.ImageResourceIdx.HasValue && (resources == null || !resources.TryGetResource(row.ImageResourceIdx.Value, out _)))
+                    throw new InvalidDataException($"ProductData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
+                if (row.TopViewImageResourceIdx.HasValue && (resources == null || !resources.TryGetResource(row.TopViewImageResourceIdx.Value, out _)))
+                    throw new InvalidDataException($"ProductData.csv PK={row.Idx}, top_view_image_resource_idx={row.TopViewImageResourceIdx}: Resource 참조 실패");
+            }
+            foreach (var pair in Dispositions.PendingRows)
+            {
+                foreach (uint idx in pair.Value.PreferredProductIdxs)
+                    if (!Products.PendingRows.ContainsKey(idx))
+                        throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, preferred_product_idxs FK={idx} -> ProductData.idx 참조 실패");
+                foreach (uint idx in new[] { pair.Value.QueueWarningTextIdx, pair.Value.QueueLeaveTextIdx })
+                    if (!texts.PendingRows.ContainsKey(idx))
+                        throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, queue dialog FK={idx} -> TextData.idx 참조 실패");
+                foreach (var type in pair.Value.PreferredProductTypes)
+                    if (!types.Contains(type))
+                        throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, preferred_product_types 표시 참조 실패");
+                foreach (uint textIdx in pair.Value.EntryTextIdxs.Concat(pair.Value.RegularSaleTextIdxs).Concat(pair.Value.DiscountSaleTextIdxs).Concat(pair.Value.ExploitativeSaleTextIdxs).Concat(pair.Value.RejectTextIdxs))
+                    if (!texts.PendingRows.ContainsKey(textIdx))
+                        throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, dialog text FK={textIdx} -> TextData.idx 참조 실패");
+            }
+
+            if (facilities != null)
+            {
+                if (facilities.PendingRows == null) throw new InvalidDataException("설비 데이터 로드가 필요합니다.");
+                foreach (var row in facilities.PendingRows.Values)
+                    validateNameReference(texts, "FacilityData.csv", row.Idx, row.NameIdx);
+                foreach (var facility in facilities.PendingRows.Values)
+                {
+                    bool hasActiveProduct = Products.PendingRows.Values.Any(product =>
+                        product.IsAvailable && product.RequiredFacilityIdx == facility.Idx);
+                    if (facility.UpgradeKind == FacilityUpgradeKind.ProductUnlock && !hasActiveProduct)
+                        throw new InvalidDataException($"FacilityData.csv PK={facility.Idx}: 활성 상품의 required_facility_idx 참조가 필요합니다.");
+                    if (facility.UpgradeKind != FacilityUpgradeKind.ProductUnlock &&
+                        Products.PendingRows.Values.Any(product => product.RequiredFacilityIdx == facility.Idx))
+                        throw new InvalidDataException($"ProductData.csv: 상품 해금이 아닌 설비 PK={facility.Idx}를 required_facility_idx로 사용할 수 없습니다.");
+                }
+            }
+
+            // 대기 중인 어느 테이블에도 문제가 없을 때만 runtime 소비자에게 공개한다.
+            Appearances.Commit();
+            Dispositions.Commit();
+            Categories.Commit();
+            Products.Commit();
+            texts.Commit();
+            facilities?.Commit();
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError("[Customer CSV] " + exception.Message);
+            throw;
+        }
+    }
+
+    /// <summary>이름은 문자열이 아니라 TextData의 유효 PK여야 한다.</summary>
+    /// <param name="file">원본 CSV.</param>
+    /// <param name="idx">원본 행 PK.</param>
+    /// <param name="nameIdx">TextData FK.</param>
+    /// <exception cref="InvalidDataException">이름 참조 누락 또는 잘못된 대역.</exception>
+    /// <param name="texts">게임 전체 공용 텍스트 테이블.</param>
+    private void validateNameReference(TextDataTable texts, string file, uint idx, uint nameIdx)
+    {
+        if (!texts.PendingRows.ContainsKey(nameIdx))
+            throw new InvalidDataException($"{file} PK={idx}, column=nameidx, FK={nameIdx} -> TextData.idx 참조 실패");
+    }
+}

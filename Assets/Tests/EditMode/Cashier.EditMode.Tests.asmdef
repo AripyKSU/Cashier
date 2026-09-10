@@ -1,0 +1,6 @@
+{
+  "name": "Cashier.EditMode.Tests",
+  "references": ["Cashier.Runtime"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

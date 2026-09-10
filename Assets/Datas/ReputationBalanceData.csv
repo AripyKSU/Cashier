@@ -1,0 +1,6 @@
+idx,min_reputation,max_reputation,normal_weight,wealthy_weight,hasty_weight,special_weight,recovery_rate,settlement_min_score,settlement_max_score,settlement_delta
+11001,-100,-61,667,33,300,0,2000,0,19,-15
+11002,-60,-21,707,65,228,0,1500,20,39,-7
+11003,-20,20,761,109,130,0,1000,40,60,0
+11004,21,60,730,180,90,0,1000,61,80,7
+11005,61,100,690,253,57,0,1000,81,100,10
