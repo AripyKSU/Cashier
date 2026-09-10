@@ -23,12 +23,13 @@ public sealed class CustomerGenerator
     /// <param name="elapsedDays">게임 시작 후 경과 일수. 0은 시작일.</param>
     /// <param name="getCurrentPrices">현재 가격표 조회 함수. 생성 시 희망 목록 표시, 제출 시 최신 가격 확정에 각각 사용한다.</param>
     /// <param name="getSaleRestrictions">수락 가능한 제출 시 조회할 지침 공급자. null이면 미연결이며 생성 시 호출하지 않는다.</param>
+    /// <param name="isFacilityActive">세션의 설비 활성 조회. 미연결은 설비 상품을 잠근다.</param>
     /// <returns>판매 가능 상품이 없으면 null. 나머지는 확정된 방문 데이터.</returns>
     /// <exception cref="ArgumentException">필수 후보 누락, 0·중복 ID 또는 잘못된 설정 범위.</exception>
     public CustomerVisit Generate(IReadOnlyList<uint> appearanceIds,
         IReadOnlyList<CustomerDispositionData> dispositions,
         IReadOnlyDictionary<uint, ProductData> products, uint elapsedDays = 0, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices = null,
-        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null)
+        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null, Func<uint, bool> isFacilityActive = null)
     {
         if (getCurrentPrices == null) throw new ArgumentNullException(nameof(getCurrentPrices));
         var currentPrices = getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
@@ -61,7 +62,7 @@ public sealed class CustomerGenerator
             product.Value.Validate();
             if (currentPrices != null && (!currentPrices.TryGetValue(product.Key, out uint price) || price == 0))
                 throw new ArgumentException($"상품 PK={product.Key}: 현재가 누락 또는 0", nameof(currentPrices));
-            if (product.Value.IsAvailable && product.Value.AvailableDay <= elapsedDays)
+            if (CustomerProductAvailability.IsAvailable(product.Value, elapsedDays, isFacilityActive))
                 availableProducts.Add(product.Key, product.Value);
         }
 
@@ -74,9 +75,14 @@ public sealed class CustomerGenerator
         var candidatesByType = groups[random.Next(groups.Length)].OrderBy(x => x.Idx).ToArray();
         var disposition = candidatesByType[random.Next(candidatesByType.Length)];
         var attributes = random.Next(2) == 0 ? CustomerAttributes.Male : CustomerAttributes.Female;
-        int age = random.Next(3);
-        if (age == 1) attributes |= CustomerAttributes.Child;
-        else if (age == 2) attributes |= CustomerAttributes.Elderly;
+        attributes |= random.Next(3) switch
+        {
+            0 => CustomerAttributes.Adult,
+            1 => CustomerAttributes.Child,
+            _ => CustomerAttributes.Elderly
+        };
+        // 현재 특수 속성은 일반뿐이며 성향 타입과 연동하지 않는다.
+        attributes |= CustomerAttributes.Normal;
         var preferredCategories = new HashSet<ProductType>(disposition.PreferredProductTypes);
         var preferredProducts = new HashSet<uint>(disposition.PreferredProductIdxs);
         var preferred = new List<uint>();
@@ -108,6 +114,6 @@ public sealed class CustomerGenerator
             disposition.DiscountSaleTextIdxs[random.Next(disposition.DiscountSaleTextIdxs.Count)],
             disposition.ExploitativeSaleTextIdxs[random.Next(disposition.ExploitativeSaleTextIdxs.Count)],
             disposition.RejectTextIdxs[random.Next(disposition.RejectTextIdxs.Count)], products, getCurrentPrices,
-            disposition.DispositionType, attributes, disposition.RegularPriceMinRate, disposition.RegularPriceMaxRate, getSaleRestrictions);
+            disposition.DispositionType, attributes, disposition.RegularPriceMinRate, disposition.RegularPriceMaxRate, getSaleRestrictions, availableProducts.Keys);
     }
 }

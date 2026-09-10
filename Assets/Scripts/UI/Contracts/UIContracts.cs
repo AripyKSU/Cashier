@@ -214,7 +214,7 @@ public struct DailySettlementViewData
     public long Expenses;           // 하루 동안 확정된 지출
     public long NetProfit;          // 외부 로직에서 확정한 일일 순이익
     public long CurrentBalance;     // 정산 완료 시점의 현재 보유금
-    public int ReputationDelta;     // 하루 동안 확정된 평판 변화량
+    public int ReputationDelta;     // formatter 입력용 내부 값이며 UI에는 숫자로 직접 표시하지 않음
     public int SuccessfulSales;     // 거래에 성공한 손님 또는 거래 수
     public int RefusedCustomers;    // 거래가 거절된 손님 수
     public int DepartedCustomers;   // 대기 중 이탈한 손님 수

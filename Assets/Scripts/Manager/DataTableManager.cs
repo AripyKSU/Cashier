@@ -83,7 +83,12 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.Text] = new TextDataTable();
         this.dataList[DataTableType.PriceEvent] = new PriceEventDataTable();
         this.dataList[DataTableType.PriceEventSchedule] = new PriceEventScheduleDataTable();
+<<<<<<< HEAD
         this.dataList[DataTableType.DailyGuideline] = new DailyGuidelineDataTable();
+=======
+        this.dataList[DataTableType.Facility] = new FacilityDataTable();
+        this.dataList[DataTableType.ReputationBalance] = new ReputationBalanceDataTable();
+>>>>>>> origin/total_merge
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -133,7 +138,8 @@ public class DataTableManager : Singleton<DataTableManager>
                 this.fallbackLoadFromResources();
             }
             validatePriceEvents();
-            Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource));
+            Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource),
+                GetDB<FacilityDataTable>(DataTableType.Facility));
             GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
             GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Commit();
             this.isLoaded = true;

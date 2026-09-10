@@ -12,9 +12,11 @@ public static class CustomerProductAvailability
     /// <param name="product">확인할 상품 데이터입니다.</param>
     /// <param name="elapsedDays">게임 시작일부터 경과한 0 이상의 일수입니다.</param>
     /// <returns>활성 상품이며 등장일이 지난 경우 true입니다.</returns>
-    public static bool IsAvailable(ProductData product, uint elapsedDays)
+    /// <param name="isFacilityActive">세션의 설비 활성 조회. 미연결은 설비 상품을 잠근다.</param>
+    public static bool IsAvailable(ProductData product, uint elapsedDays, Func<uint, bool> isFacilityActive = null)
     {
-        return product != null && product.IsAvailable && product.AvailableDay <= elapsedDays;
+        return product != null && product.IsAvailable && product.AvailableDay <= elapsedDays &&
+            (!product.RequiredFacilityIdx.HasValue || (isFacilityActive != null && isFacilityActive(product.RequiredFacilityIdx.Value)));
     }
 
     /// <summary>
@@ -23,10 +25,11 @@ public static class CustomerProductAvailability
     /// <param name="products">검증된 상품 사전입니다.</param>
     /// <param name="elapsedDays">게임 시작일부터 경과한 0 이상의 일수입니다.</param>
     /// <returns>판매 가능한 상품 목록입니다.</returns>
+    /// <param name="isFacilityActive">세션의 설비 활성 조회.</param>
     /// <exception cref="ArgumentNullException">상품 사전이 null인 경우 발생합니다.</exception>
     public static IReadOnlyList<ProductData> GetAvailableProducts(
         IReadOnlyDictionary<uint, ProductData> products,
-        uint elapsedDays)
+        uint elapsedDays, Func<uint, bool> isFacilityActive = null)
     {
         if (products == null)
         {
@@ -41,7 +44,7 @@ public static class CustomerProductAvailability
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
             }
 
-            if (IsAvailable(entry.Value, elapsedDays))
+            if (IsAvailable(entry.Value, elapsedDays, isFacilityActive))
             {
                 availableProducts.Add(entry.Value);
             }

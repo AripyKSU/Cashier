@@ -23,7 +23,12 @@ public enum DataTableType : uint
     
     PriceEvent = 9,
     PriceEventSchedule = 10,
+<<<<<<< HEAD
     DailyGuideline = 13,
+=======
+    ReputationBalance = 11,
+    Facility = 12,
+>>>>>>> origin/total_merge
     DataTableType_End
 }
 

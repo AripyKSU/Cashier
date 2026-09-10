@@ -7,11 +7,16 @@ using System.Collections.Generic;
 /// </summary>
 public sealed class GameProgress
 {
+    // 경제 런타임과 경과일의 단일 소유자입니다.
+    private readonly GameSessionManager session;
     // 현재 세션의 보유금·일일 집계·상납 서비스를 소유한 런타임입니다.
     private readonly EconomyRuntime economy;
 
     // 검증된 손님·상품 데이터의 소유자입니다.
     private readonly CustomerCatalog customerCatalog;
+
+    // 명성 구간과 일일 정산 규칙을 제공하는 검증된 밸런스 테이블입니다.
+    private readonly ReputationBalanceDataTable reputationBalanceTable;
 
     // 날짜가 바뀌어도 재사용할 손님 생성 난수원입니다.
     private readonly Random random;
@@ -26,10 +31,17 @@ public sealed class GameProgress
     public GameProgressState State { get; private set; }
 
     /// <summary>현재 게임 날짜입니다. 첫날은 1입니다.</summary>
-    public int CurrentDay { get; private set; }
+    public int CurrentDay => this.State == GameProgressState.Initializing
+        ? 0 : checked((int)this.session.ElapsedDays + 1);
 
     /// <summary>현재 실행 중인 하루 진행입니다. 시작 전에는 null입니다.</summary>
     public DayProgress CurrentDayProgress => this.currentDayProgress;
+
+    /// <summary>다음 영업일의 손님 구성에 사용할 현재 명성입니다.</summary>
+    public int CurrentReputation => this.session.CurrentReputation;
+
+    /// <summary>현재 세션의 거래별·일일 명성 계산 로그 서비스입니다.</summary>
+    public ReputationLogService ReputationLogService => this.session.ReputationLogService;
 
     /// <summary>현재 날짜가 상납일인지 나타냅니다.</summary>
     public bool IsMaintenanceDay => this.CurrentDay > 0
@@ -68,26 +80,34 @@ public sealed class GameProgress
     /// <summary>
     /// 검증된 런타임 시스템을 사용하는 전체 진행을 생성합니다.
     /// </summary>
-    /// <param name="economy">현재 세션의 경제 런타임입니다.</param>
+    /// <param name="session">초기화된 날짜·경제 상태의 단일 소유자입니다.</param>
     /// <param name="customerCatalog">검증된 손님·상품 데이터입니다.</param>
+    /// <param name="reputationBalanceTable">명성 구간과 일일 정산을 정의하는 검증된 테이블입니다.</param>
     /// <param name="random">손님 생성에 사용할 난수원입니다.</param>
     /// <param name="businessDurationSeconds">하루 영업시간(초)입니다.</param>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentOutOfRangeException">영업시간이 허용 범위를 벗어난 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">세션 경제 런타임이 초기화되지 않은 경우.</exception>
     public GameProgress(
-        EconomyRuntime economy,
+        GameSessionManager session,
         CustomerCatalog customerCatalog,
+        ReputationBalanceDataTable reputationBalanceTable,
         Random random,
         float businessDurationSeconds = DayProgress.DefaultBusinessDurationSeconds)
     {
-        if (economy == null)
+        if (session == null)
         {
-            throw new ArgumentNullException(nameof(economy));
+            throw new ArgumentNullException(nameof(session));
         }
 
         if (customerCatalog == null)
         {
             throw new ArgumentNullException(nameof(customerCatalog));
+        }
+
+        if (reputationBalanceTable == null)
+        {
+            throw new ArgumentNullException(nameof(reputationBalanceTable));
         }
 
         if (random == null)
@@ -105,14 +125,16 @@ public sealed class GameProgress
                 "영업시간은 유한한 양수여야 합니다.");
         }
 
-        this.economy = economy;
+        this.session = session;
+        this.economy = session.Economy;
         this.customerCatalog = customerCatalog;
+        this.reputationBalanceTable = reputationBalanceTable;
         this.random = random;
         this.businessDurationSeconds = businessDurationSeconds;
         this.State = GameProgressState.Initializing;
     }
 
-    /// <summary>1일차부터 전체 진행을 시작합니다.</summary>
+    /// <summary>세션의 현재 날짜에서 진행을 시작합니다. 영업 중 저장 복원은 지원하지 않습니다.</summary>
     /// <exception cref="InvalidOperationException">이미 전체 진행을 시작한 경우 발생합니다.</exception>
     public void Start()
     {
@@ -121,7 +143,8 @@ public sealed class GameProgress
             throw new InvalidOperationException("전체 진행은 한 번만 시작할 수 있습니다.");
         }
 
-        this.CurrentDay = 1;
+        if (this.economy.QueryService.IsDayOpen)
+            throw new InvalidOperationException("영업 중인 세션의 진행을 새로 만들 수 없습니다.");
         this.startCurrentDay();
     }
 
@@ -156,6 +179,19 @@ public sealed class GameProgress
     {
         this.requireDayInProgress();
         this.currentDayProgress.BeginSorting();
+    }
+
+    /// <summary>살아 있는 진행에서 설비를 일회 구매한다. 구매 UI의 세부 phase 정책은 포함하지 않는다.</summary>
+    /// <param name="facilityIdx">구매할 설비 PK. 가격·날짜는 외부에서 받지 않는다.</param>
+    /// <param name="result">구매 결과·이번 지출·활성일.</param>
+    /// <returns>이번 요청이 구매를 완료했으면true.</returns>
+    /// <exception cref="InvalidOperationException">시작 전 또는 종료된 진행.</exception>
+    /// <exception cref="Exception">입력·날짜·재정 알림 오류. 차감 후 알림 실패는 보유 상태를 유지한다.</exception>
+    public bool TryPurchaseFacility(uint facilityIdx, out FacilityPurchaseResult result)
+    {
+        if (State == GameProgressState.Initializing || State == GameProgressState.Failed || State == GameProgressState.Completed)
+            throw new InvalidOperationException("시작 전 또는 종료한 게임에서는 설비를 구매할 수 없습니다.");
+        return session.TryPurchaseFacility(facilityIdx, out result);
     }
 
     /// <summary>현재 거래 결과 화면을 닫고 다음 거래 또는 마감으로 진행합니다.</summary>
@@ -215,7 +251,8 @@ public sealed class GameProgress
             return false;
         }
 
-        this.CurrentDay = checked(this.CurrentDay + 1);
+        this.session.CompleteDay(checked((uint)(this.currentDayProgress.Day - 1)));
+        this.applyCompletedDayReputation(this.currentDayProgress);
         this.startCurrentDay();
         return true;
     }
@@ -237,30 +274,107 @@ public sealed class GameProgress
             return;
         }
 
-        this.CurrentDay = checked(this.CurrentDay + 1);
+        this.session.CompleteDay(checked((uint)(completedDay.Day - 1)));
+        this.applyCompletedDayReputation(completedDay);
         this.startCurrentDay();
     }
 
     /// <summary>현재 날짜의 하루 객체를 만들고 시작합니다.</summary>
     private void startCurrentDay()
     {
+        // 새 날짜의 가격 계산이 실패하면 새 하루를 공개하지 않습니다.
+        this.session.EnsureDailyPrices();
         if (this.currentDayProgress != null)
         {
             this.currentDayProgress.Completed -= this.handleDayCompleted;
+            this.currentDayProgress.TransactionCompleted -= this.handleTransactionCompleted;
+            this.currentDayProgress.SettlementStarted -= this.handleSettlementStarted;
         }
 
         var nextDay = new DayProgress(
-            this.CurrentDay,
-            this.economy,
+            checked((int)this.session.ElapsedDays + 1),
+            this.session,
             this.customerCatalog,
+            this.reputationBalanceTable,
             this.random,
+            this.CurrentReputation,
             this.businessDurationSeconds);
 
         nextDay.Completed += this.handleDayCompleted;
+        nextDay.TransactionCompleted += this.handleTransactionCompleted;
+        nextDay.SettlementStarted += this.handleSettlementStarted;
         nextDay.Start();
         this.currentDayProgress = nextDay;
         this.changeState(GameProgressState.DayInProgress);
         this.DayStarted?.Invoke(nextDay);
+    }
+
+    /// <summary>확정된 거래를 명성 로그 서비스에 기록합니다.</summary>
+    /// <param name="visit">판정과 재정 반영이 완료된 손님 방문입니다.</param>
+    /// <exception cref="ArgumentNullException">방문이 null인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">거래 결과가 없는 경우 발생합니다.</exception>
+    private void handleTransactionCompleted(CustomerVisit visit)
+    {
+        if (visit == null)
+        {
+            throw new ArgumentNullException(nameof(visit));
+        }
+
+        if (!visit.Result.HasValue)
+        {
+            throw new InvalidOperationException("명성 로그에는 확정된 거래 결과가 필요합니다.");
+        }
+
+        this.ReputationLogService.RecordTransaction(this.CurrentDay, visit.Result.Value);
+    }
+
+    /// <summary>계산이 끝난 일일 명성 정산 과정을 로그 서비스에 기록합니다.</summary>
+    /// <param name="aggregationResult">하루 동안 접수된 거래 snapshot입니다.</param>
+    /// <exception cref="InvalidOperationException">일일 명성 계산 결과가 없는 경우 발생합니다.</exception>
+    private void handleSettlementStarted(DailyAggregationResult aggregationResult)
+    {
+        if (this.currentDayProgress == null || !this.currentDayProgress.DailyReputationResult.HasValue)
+        {
+            throw new InvalidOperationException("명성 정산 로그에는 일일 계산 결과가 필요합니다.");
+        }
+
+        DailyReputationCalculationResult reputationResult = this.currentDayProgress.DailyReputationResult.Value;
+        if (aggregationResult.Transactions.Count != reputationResult.ActualTransactionCount)
+        {
+            throw new InvalidOperationException("명성 정산 로그의 거래 수가 일일 집계와 일치하지 않습니다.");
+        }
+
+        if (!this.reputationBalanceTable.TryGetByReputation(
+                this.currentDayProgress.DayStartReputation,
+                out ReputationBalanceData reputationData))
+        {
+            throw new InvalidOperationException("명성 정산 로그에 사용할 밸런스 데이터가 없습니다.");
+        }
+
+        this.ReputationLogService.RecordDailySettlement(
+            this.CurrentDay,
+            this.currentDayProgress.DayStartReputation,
+            reputationResult,
+            reputationData);
+    }
+
+    /// <summary>완료된 하루의 정산 결과를 다음 날 시작 직전에 한 번 적용합니다.</summary>
+    /// <param name="completedDay">정산이 끝난 완료된 하루입니다.</param>
+    /// <exception cref="ArgumentNullException">완료된 하루가 null인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">명성 정산 결과가 없는 경우 발생합니다.</exception>
+    private void applyCompletedDayReputation(DayProgress completedDay)
+    {
+        if (completedDay == null)
+        {
+            throw new ArgumentNullException(nameof(completedDay));
+        }
+
+        if (!completedDay.DailyReputationResult.HasValue)
+        {
+            throw new InvalidOperationException("완료된 하루의 명성 정산 결과가 없습니다.");
+        }
+
+        this.session.ApplyCompletedDayReputation(completedDay.Day, completedDay.DailyReputationResult.Value.FinalDelta);
     }
 
     /// <summary>하루 진행 API를 사용할 수 있는지 확인합니다.</summary>

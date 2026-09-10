@@ -53,9 +53,23 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private Button maintenanceButton;
     [SerializeField] private Button[] keypadButtons;
 
+    /// <summary>독립 설비 상점 프리팹의 표시·입력 어댑터.</summary>
+    [SerializeField] private FacilityShopPresenter facilityShopPresenter;
+    /// <summary>일일 정산 화면에서만 보이는 설비 진입 버튼.</summary>
+    [SerializeField] private Button facilityOpenButton;
+    /// <summary>모달 뒤 정산 버튼의 포인터·Submit 입력을 차단한다.</summary>
+    [SerializeField] private CanvasGroup settlementInputGroup;
+
+    private bool isPurchasingFacility;
+    private bool wasInputRouterEnabled;
+    private string facilityFeedback = string.Empty;
+
     private bool isReady;
     private bool hasError;
     private Sprite productPlaceholderSprite;
+
+    /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
+    private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;
 
     /// <summary>Scene 진입 후 부트스트랩된 런타임을 확인하고 UI와 진행을 초기화합니다.</summary>
     private async void Start()
@@ -82,13 +96,14 @@ public sealed class GameUIController : MonoBehaviour
             this.viewDataFactory = new ProgressViewDataFactory(
                 this.customerCatalog,
                 this.textData,
-                productSprites);
+                productSprites, GameSessionManager.Instance.IsFacilityActive);
 
             this.validateUiReferences();
             this.subscribeUi();
             this.gameProgress = new GameProgress(
-                this.economy,
+                GameSessionManager.Instance,
                 this.customerCatalog,
+                DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
                 new System.Random());
             this.subscribeProgress();
             this.isReady = true;
@@ -231,6 +246,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
     private void OnDestroy()
     {
+        if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
         this.unsubscribeUi();
         if (this.productPlaceholderSprite != null)
@@ -260,7 +276,10 @@ public sealed class GameUIController : MonoBehaviour
             || this.failurePanel == null
             || this.openBusinessButton == null
             || this.transactionContinueButton == null
-            || this.maintenanceButton == null)
+            || this.maintenanceButton == null
+            || this.facilityShopPresenter == null
+            || this.facilityOpenButton == null
+            || this.settlementInputGroup == null)
         {
             throw new InvalidOperationException("게임 UI의 Presenter, 입력 라우터 또는 패널 참조가 누락되었습니다.");
         }
@@ -269,6 +288,9 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>씬에 배치된 Presenter와 버튼의 입력 이벤트를 구독합니다.</summary>
     private void subscribeUi()
     {
+        this.facilityOpenButton.onClick.AddListener(this.handleFacilityOpenClicked);
+        this.facilityShopPresenter.OnPurchaseRequested += this.handleFacilityPurchaseRequested;
+        this.facilityShopPresenter.OnCloseRequested += this.handleFacilityCloseRequested;
         this.priceInputPresenter.OnPriceConfirmed += this.handlePriceConfirmed;
         this.priceInputPresenter.OnInputCancelled += this.handleInputCancelled;
         this.businessTimerPresenter.OnPauseRequested += this.handlePauseRequested;
@@ -287,6 +309,12 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>씬 UI 입력 이벤트를 해제합니다.</summary>
     private void unsubscribeUi()
     {
+        if (this.facilityOpenButton != null) this.facilityOpenButton.onClick.RemoveListener(this.handleFacilityOpenClicked);
+        if (this.facilityShopPresenter != null)
+        {
+            this.facilityShopPresenter.OnPurchaseRequested -= this.handleFacilityPurchaseRequested;
+            this.facilityShopPresenter.OnCloseRequested -= this.handleFacilityCloseRequested;
+        }
         if (this.priceInputPresenter != null)
         {
             this.priceInputPresenter.OnPriceConfirmed -= this.handlePriceConfirmed;
@@ -387,6 +415,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="state">변경된 전체 진행 상태입니다.</param>
     private void handleGameStateChanged(GameProgressState state)
     {
+        if (state != GameProgressState.DayInProgress && this.IsFacilityShopOpen) this.closeFacilityShop();
         if (state == GameProgressState.Maintenance)
         {
             this.setPanelVisibility(this.preOpenPanel, false);
@@ -462,17 +491,126 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
+        this.renderSettlement(result);
+        this.refreshAllViews();
+    }
+
+    /// <summary>확정된 정산 통계는 그대로 두고 현재 잔액을 다시 표시한다.</summary>
+    /// <param name="result">확정된 하루 집계.</param>
+    private void renderSettlement(DailyAggregationResult result)
+    {
+        int finalReputationDelta = this.subscribedDay.DailyReputationResult.HasValue
+            ? this.subscribedDay.DailyReputationResult.Value.FinalDelta
+            : 0;
         this.dailySettlementPresenter.UpdateView(new DailySettlementViewData(
             this.subscribedDay.Day,
             result.SaleIncome,
             0,
             result.SaleIncome,
             this.economy.QueryService.CurrentBalance,
-            0,
+            finalReputationDelta,
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
             0));
-        this.refreshAllViews();
+    }
+
+    /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>
+    /// <returns>상납 화면을 포함한 다른 진행 단계는false.</returns>
+    private bool canOpenFacilityShop() => this.isReady && !this.hasError &&
+        this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
+
+    /// <summary>현재 설비 상태를 읽고 뒤 정산·키보드 입력을 차단한다.</summary>
+    private void handleFacilityOpenClicked()
+    {
+        if (!this.canOpenFacilityShop() || this.IsFacilityShopOpen) return;
+        try
+        {
+            this.facilityFeedback = "구매한 설비는 다음 영업일부터 사용할 수 있습니다.";
+            this.wasInputRouterEnabled = this.gameInputRouter.enabled;
+            this.gameInputRouter.enabled = false;
+            this.settlementInputGroup.interactable = false;
+            this.settlementInputGroup.blocksRaycasts = false;
+            if (UnityEngine.EventSystems.EventSystem.current != null)
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+            this.facilityShopPresenter.gameObject.SetActive(true);
+            this.economy.FinanceService.BalanceChanged += this.handleFacilityBalanceChanged;
+            this.refreshFacilityShop();
+        }
+        catch (Exception exception) { this.showError(exception); }
+    }
+
+    /// <summary>구매 중에는 닫기 요청을 무시한다. 닫기는 날짜를 바꾸지 않는다.</summary>
+    private void handleFacilityCloseRequested()
+    {
+        if (!this.isPurchasingFacility) this.closeFacilityShop();
+    }
+
+    /// <summary>모달 수명의 구독과 입력 잠금을 해제한다.</summary>
+    private void closeFacilityShop()
+    {
+        if (!this.IsFacilityShopOpen) return;
+        this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
+        this.facilityShopPresenter.gameObject.SetActive(false);
+        this.settlementInputGroup.interactable = !this.hasError;
+        this.settlementInputGroup.blocksRaycasts = true;
+        this.gameInputRouter.enabled = this.wasInputRouterEnabled;
+        if (UnityEngine.EventSystems.EventSystem.current != null)
+            UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    /// <summary>PK만 구매 API에 전달하고 알림 오류 이후에도 실제 차감·보유 상태를 다시 읽는다.</summary>
+    /// <param name="facilityIdx">요청된 설비 PK.</param>
+    private void handleFacilityPurchaseRequested(uint facilityIdx)
+    {
+        if (!this.canOpenFacilityShop() || !this.IsFacilityShopOpen || this.isPurchasingFacility) return;
+        this.isPurchasingFacility = true;
+        Exception failure = null;
+        try
+        {
+            this.facilityShopPresenter.SetInteractionEnabled(false, false);
+            this.gameProgress.TryPurchaseFacility(facilityIdx, out var result);
+            this.facilityFeedback = result.Status switch
+            {
+                FacilityPurchaseStatus.Purchased => $"구매 완료 · {result.PaidAmount:N0} G · DAY {(ulong)result.ActivationDay.Value + 1}부터 사용",
+                FacilityPurchaseStatus.AlreadyOwned => "이미 구매한 설비입니다. 추가 결제하지 않았습니다.",
+                FacilityPurchaseStatus.InsufficientFunds => "보유금이 부족합니다. 결제하지 않았습니다.",
+                _ => throw new InvalidOperationException("설비 구매 결과가 유효하지 않습니다.")
+            };
+        }
+        catch (Exception exception)
+        {
+            failure = exception;
+            this.facilityFeedback = "처리 오류 · 아래 보유 상태를 확인하세요. 자동 재결제·환불하지 않습니다.";
+        }
+        finally
+        {
+            this.isPurchasingFacility = false;
+            try { this.refreshFacilityShop(); }
+            catch (Exception exception) { failure = failure == null ? exception : new AggregateException(failure, exception); }
+            if (failure != null) this.showError(failure);
+        }
+    }
+
+    /// <summary>패널이 열린 동안 외부 잔액 변경을 반영하되 구매 중 재진입 렌더를 미룬다.</summary>
+    /// <param name="change">잔액 변경 알림. 표시값은 세션에서 다시 읽는다.</param>
+    private void handleFacilityBalanceChanged(FinanceChangeResult change)
+    {
+        if (!this.IsFacilityShopOpen || this.isPurchasingFacility) return;
+        try { this.refreshFacilityShop(); }
+        catch (Exception exception) { this.showError(exception); }
+    }
+
+    /// <summary>설비와 경제 표시를 새로 읽되 정산 매출·비용은 확정 결과를 그대로 표시한다.</summary>
+    private void refreshFacilityShop()
+    {
+        var session = GameSessionManager.Instance;
+        this.facilityShopPresenter.UpdateView(this.viewDataFactory.CreateFacilityShopViewData(
+            DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
+            session.FacilityActivationDays, session.ElapsedDays, this.economy.QueryService.CurrentBalance), this.facilityFeedback);
+        this.facilityShopPresenter.SetInteractionEnabled(!this.hasError && !this.isPurchasingFacility, !this.isPurchasingFacility);
+        if (this.subscribedDay.AggregationResult.HasValue) this.renderSettlement(this.subscribedDay.AggregationResult.Value);
+        this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(
+            this.economy.QueryService.CurrentBalance, this.economy.QueryService.DailySaleIncome));
     }
 
     /// <summary>영업 전 버튼 요청을 하루 진행에 전달합니다.</summary>
@@ -530,11 +668,22 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshRuntimeViews();
     }
 
-    /// <summary>상품 쏟기 연출 완료를 DayProgress의 분류 상태로 전달합니다.</summary>
+    /// <summary>상품 쏟기 연출 완료를 진행 상태에 반영하고 현재 거래 입력 상태를 갱신합니다.</summary>
     private void handleSortingStarted()
     {
-        if (this.subscribedDay == null || this.subscribedDay.State != DayProgressState.Operating) return;
-        this.runProgressAction(this.gameProgress.BeginCustomerSorting);
+        if (this.subscribedDay == null) return;
+
+        if (this.subscribedDay.State == DayProgressState.Operating)
+        {
+            this.runProgressAction(this.gameProgress.BeginCustomerSorting);
+            return;
+        }
+
+        // 입장 연출 중 영업시간이 만료되면 Progress는 Closing이지만 마지막 손님의 거래는 유효합니다.
+        if (this.subscribedDay.State == DayProgressState.Closing && this.subscribedDay.CanSubmitOffer)
+        {
+            this.refreshRuntimeViews();
+        }
     }
 
     /// <summary>선택한 판매 상품 목록과 가격을 제출하고 거래 결과 화면을 엽니다.</summary>
@@ -557,6 +706,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>정산 결과 확인 요청을 하루 진행에 전달합니다.</summary>
     private void handleSettlementNextRequested()
     {
+        if (this.IsFacilityShopOpen || this.isPurchasingFacility) return;
         this.runProgressAction(this.gameProgress.CompleteSettlement);
     }
 
@@ -592,7 +742,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="action">실행할 Progress 공개 동작입니다.</param>
     private void runProgressAction(Action action)
     {
-        if (!this.isReady || this.hasError || action == null)
+        if (!this.isReady || this.hasError || this.IsFacilityShopOpen || this.isPurchasingFacility || action == null)
         {
             return;
         }
@@ -744,6 +894,8 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>진행 상태에 따라 패널과 기본 버튼을 표시합니다.</summary>
     private void refreshPanelVisibility()
     {
+        if (this.IsFacilityShopOpen && !this.canOpenFacilityShop()) this.closeFacilityShop();
+        this.facilityOpenButton.gameObject.SetActive(this.canOpenFacilityShop());
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;
         bool operating = this.subscribedDay.State == DayProgressState.Operating
             || this.subscribedDay.State == DayProgressState.Sorting
@@ -769,7 +921,8 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
-        this.priceListText.text = this.viewDataFactory.CreatePriceListText(day);
+        this.priceListText.text = this.viewDataFactory.CreatePriceListText(
+            day, GameSessionManager.Instance.EnsureDailyPrices());
     }
 
     /// <summary>진행 상태를 UI 표현 계약으로 변환합니다.</summary>
@@ -838,6 +991,9 @@ public sealed class GameUIController : MonoBehaviour
     private void showError(Exception exception)
     {
         this.hasError = true;
+        if (this.facilityOpenButton != null) this.facilityOpenButton.interactable = false;
+        if (this.facilityShopPresenter != null) this.facilityShopPresenter.SetInteractionEnabled(false, true);
+        if (this.settlementInputGroup != null) this.settlementInputGroup.interactable = false;
         string message = exception?.Message ?? "Unknown progress error.";
         if (this.errorText != null)
         {

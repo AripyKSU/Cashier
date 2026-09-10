@@ -2,6 +2,12 @@
 
 상태: 2026-09-08 구현 및 개인 씬 최소 실행 검증 완료. 영업 시작 60초 이내 방송·방송 시 가격 반영 기준을 포함한다. Google Docs ID 목록 등록은 아래 사유로 보류.
 
+## 현재 진행 연결 (2026-09-09)
+
+현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 기본 30초 영업은 그대로라 30초 이후 예약 방송은 취소될 수 있다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.
+
+EndTradingDay(out DailyAggregationResult result) overload는 기존 long EndTradingDay()와 종료 구현을 공유한다. 일반일 정산/상납 성공 후 GameProgress가 CompleteDay를 한 번 호출하고 다음날 가격을 준비한다. [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)에 실패·Closing 정책과 미연결 경계를 기록했다.
+
 ## 목적과 범위
 
 - 상품 CSV의 BasePrice는 고정 기본가격이다. 신문은 하루 시작에, 라디오 효과는 영업 중 방송 시점에 현재가에 반영한다. 거래는 SubmitOffer 시점의 최종 목록과 최신 현재 단가를 고정한다.
@@ -77,7 +83,7 @@
 - Assets/Scripts/Events/DailyPriceState.cs: 확정된 날짜·뉴스·읽기 전용 현재가 snapshot.
 - 기존 DataTableManager: 로더 등록과 모든 FK 검증 이후 공개.
 - 기존 GameSessionManager: 스케줄러와 일간 가격 상태의 수명, 경과 일수의 단일 권위.
-- 기존 Dev3SandboxTester: 일간 상태 조회·신문 표시. 날짜나 가격을 별도로 소유하지 않는다.
+- 현재 GameUIController/ProgressViewDataFactory: 세션 날짜·현재가를 표시한다. 이전 Dev3 신문 표시는 현 UI 연결과 별개다.
 - 별도 singleton, interface, event bus, ScriptableObject, 신규 package는 만들지 않는다.
 
 ## 공개 API
@@ -85,7 +91,7 @@
 - GameSessionManager.ElapsedDays: 세션 경과 일수.
 - GameSessionManager.EnsureDailyPrices(): 현재일 상태가 있으면 그대로 반환, 없으면 계산·확정.
 - GameSessionManager.BeginTradingDay() / EndTradingDay(): 가격 확정 후 영업 시작 및 Finance 정산. 화면에서 Finance의 BeginDay/EndDay를 직접 호출하지 않는다.
-- GameSessionManager.AdvanceTradingTime(deltaSeconds, isPaused): 활성 영업 화면 한 곳이 프레임당 한 번 호출한다. Dev3SandboxTester.Update가 unscaledDeltaTime과 일시정지 여부를 전달한다. 방송·가격 교체 시 true를 반환해 화면을 갱신한다. 별도 manager Update에서도 중복 호출하지 않는다.
+- GameSessionManager.AdvanceTradingTime(deltaSeconds, isPaused): 활성 영업 화면 한 곳이 프레임당 한 번 호출한다. 현재 GameUIController.Update → DayProgress.Tick 경로가 기존 Time.deltaTime의 유효 영업시간만 전달한다(진행 Pause 또는 Time.timeScale=0 동안 정지). 방송·가격 교체 시 true를 반환해 화면을 갱신한다. 별도 manager Update에서도 중복 호출하지 않는다.
 - GameSessionManager.CompleteDay(uint completedDay): 정산 완료·미납 처리 완료 이후 다음 날로 전환. 완료한 경과일을 전달하며 중복 완료와 역행을 거부한다. 이후 EnsureDailyPrices()로 다음 날 가격을 확정한다.
 - DailyPriceState.ElapsedDays / NewspaperEventIdx / RadioEventIdx / Prices: 읽기 전용 결과. RadioEventIdx는 방송 예정 PK이며 IsRadioBroadcast=true인 경우에만 방송 완료다. 방송 시 새 snapshot으로 교체하며 기존 snapshot은 불변이다.
 - CustomerGenerator.Generate(..., elapsedDays, getCurrentPrices): 최신 가격표 조회 함수를 주입한다. 최초 표시용 가격과 제출 시 확정 가격은 구분한다.
@@ -137,7 +143,7 @@
 ## 병합 시 특이사항
 
 - 이 문서는 가격 변동 이벤트 시스템 전체 인계 문서다. 라디오만의 작업 문서가 아니다.
-- 라디오 UI는 의도적으로 미구현이다. 이후 UI는 IsRadioBroadcast를 확인한 뒤 RadioEventIdx로 공용 TextData를 조회하고 가격 재계산·재추첨은 하지 않는다. 구형 CustomerSandbox는 Git 제외 Local 개인 코드로 영업 시계를 구동하지 않는다. 통합 테스트는 Dev3SandboxTester를 사용한다.
+- 라디오 UI는 의도적으로 미구현이다. 이후 UI는 IsRadioBroadcast를 확인한 뒤 RadioEventIdx로 공용 TextData를 조회하고 가격 재계산·재추첨은 하지 않는다. 구형 CustomerSandbox는 Git 제외 Local 개인 코드로 영업 시계를 구동하지 않는다. 현재 통합 API 검사는 GameProgress/DayProgress를 사용하며 UI 검수는 GameUIController 경로에서 별도 수행한다.
 - 기존 신문 역할 UI는 Dev3SandboxTester의 전단지 첫 페이지다. 원격 UI branch의 변경과는 병합 시 호출·계층 충돌 검사가 필요하다.
 - 개인 씬은 Git 제외를 유지한다. MainScene·Addressables는 필요한 연결만 별도 검증 후 반영한다.
 - 저장 기능이 연결되기 전에는 앱 종료 후 날짜·뉴스·현재가 복원을 지원하지 않는다.

@@ -10,5 +10,8 @@ public enum FinanceChangeReason
 
     Sale = 1,
 
-    Maintenance = 2
+    Maintenance = 2,
+
+    /// <summary>다음 영업일 상품 해금을 위한 독립 설비 구매.</summary>
+    FacilityPurchase = 3
 }

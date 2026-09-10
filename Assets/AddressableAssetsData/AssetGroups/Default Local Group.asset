@@ -55,6 +55,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 965dc884f32f1514c8fa36b64a8c93cb
+    m_Address: FacilityData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a8e2dda5f4ca4ed45bcbf0d85e28f596
     m_Address: LoadingScene
     m_ReadOnly: 0
@@ -80,6 +86,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e2c8d56a4b1f47f29a0c6d38f7512b4e
     m_Address: EconomyBalanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ecf9561d87a84bdaa7b68dc1c95e8014
+    m_Address: ReputationBalanceData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas

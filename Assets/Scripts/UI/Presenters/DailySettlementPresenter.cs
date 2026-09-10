@@ -29,8 +29,27 @@ public class DailySettlementPresenter : MonoBehaviour
     [Tooltip("현재 보유금 텍스트")]
     [SerializeField] private TextMeshProUGUI currentBalanceText;
 
-    [Tooltip("평판 변화량 텍스트")]
+    [Tooltip("평판 변화 피드백 텍스트")]
     [SerializeField] private TextMeshProUGUI reputationDeltaText;
+
+    [Header("Reputation Feedback Image")]
+    [Tooltip("명성 변화 단계 이미지를 표시할 UI Image 영역입니다.")]
+    [SerializeField] private Image reputationFeedbackImage;
+
+    [Tooltip("명성이 크게 나빠졌을 때 표시할 Sprite")]
+    [SerializeField] private Sprite greatlyWorsenedReputationSprite;
+
+    [Tooltip("명성이 나빠졌을 때 표시할 Sprite")]
+    [SerializeField] private Sprite worsenedReputationSprite;
+
+    [Tooltip("명성 변화가 없을 때 표시할 Sprite")]
+    [SerializeField] private Sprite stableReputationSprite;
+
+    [Tooltip("명성이 올랐을 때 표시할 Sprite")]
+    [SerializeField] private Sprite improvedReputationSprite;
+
+    [Tooltip("명성이 크게 올랐을 때 표시할 Sprite")]
+    [SerializeField] private Sprite greatlyImprovedReputationSprite;
 
     [Tooltip("손님 통계 텍스트 (성공/거절/이탈)")]
     [SerializeField] private TextMeshProUGUI customerStatsText;
@@ -89,10 +108,10 @@ public class DailySettlementPresenter : MonoBehaviour
 
         if (this.reputationDeltaText != null)
         {
-            string prefix = viewData.ReputationDelta >= 0 ? "+" : "";
-            string colorTag = viewData.ReputationDelta >= 0 ? "<color=#FFD700>" : "<color=#FF5722>";
-            this.reputationDeltaText.text = $"{colorTag}Reputation {prefix}{viewData.ReputationDelta}</color>";
+            this.reputationDeltaText.text = ReputationFeedbackFormatter.Format(viewData.ReputationDelta);
         }
+
+        this.updateReputationFeedbackImage(viewData.ReputationDelta);
 
         if (this.customerStatsText != null)
         {
@@ -112,7 +131,7 @@ public class DailySettlementPresenter : MonoBehaviour
     /// <summary>
     /// 코드로 동적 생성된 UI 요소를 바인딩할 때 사용하는 헬퍼 메서드
     /// </summary>
-    public void Bind(GameObject root, TextMeshProUGUI incomeTxt, TextMeshProUGUI expTxt, TextMeshProUGUI profitTxt, TextMeshProUGUI balTxt, TextMeshProUGUI repTxt, TextMeshProUGUI statsTxt = null, TextMeshProUGUI dayTxt = null, Button nextBtn = null)
+    public void Bind(GameObject root, TextMeshProUGUI incomeTxt, TextMeshProUGUI expTxt, TextMeshProUGUI profitTxt, TextMeshProUGUI balTxt, TextMeshProUGUI repTxt, TextMeshProUGUI statsTxt = null, TextMeshProUGUI dayTxt = null, Button nextBtn = null, Image repImage = null)
     {
         this.panelRoot = root;
         this.saleIncomeText = incomeTxt;
@@ -123,6 +142,7 @@ public class DailySettlementPresenter : MonoBehaviour
         this.customerStatsText = statsTxt;
         this.dayText = dayTxt;
         this.nextStepButton = nextBtn;
+        this.reputationFeedbackImage = repImage;
 
         if (this.nextStepButton != null)
         {
@@ -135,5 +155,36 @@ public class DailySettlementPresenter : MonoBehaviour
     {
         this.Close();
         this.OnNextStepRequested?.Invoke();
+    }
+
+    /// <summary>
+    /// 명성 변화량에 맞는 Sprite를 이미지 영역에 적용합니다.
+    /// </summary>
+    /// <param name="reputationDelta">일일 정산으로 확정된 명성 변화량입니다.</param>
+    private void updateReputationFeedbackImage(int reputationDelta)
+    {
+        if (this.reputationFeedbackImage == null)
+        {
+            return;
+        }
+
+        switch (ReputationFeedbackFormatter.GetTier(reputationDelta))
+        {
+            case ReputationFeedbackTier.GreatlyWorsened:
+                this.reputationFeedbackImage.sprite = this.greatlyWorsenedReputationSprite;
+                break;
+            case ReputationFeedbackTier.Worsened:
+                this.reputationFeedbackImage.sprite = this.worsenedReputationSprite;
+                break;
+            case ReputationFeedbackTier.Stable:
+                this.reputationFeedbackImage.sprite = this.stableReputationSprite;
+                break;
+            case ReputationFeedbackTier.Improved:
+                this.reputationFeedbackImage.sprite = this.improvedReputationSprite;
+                break;
+            case ReputationFeedbackTier.GreatlyImproved:
+                this.reputationFeedbackImage.sprite = this.greatlyImprovedReputationSprite;
+                break;
+        }
     }
 }
