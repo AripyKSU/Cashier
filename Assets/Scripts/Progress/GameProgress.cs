@@ -23,6 +23,8 @@ public sealed class GameProgress
 
     // 모든 하루에 적용할 영업시간(초)입니다.
     private readonly float businessDurationSeconds;
+    // 승인된 개인 씬만 사용하는 FIFO 입장 옵션. 기본 공유 흐름은 유지합니다.
+    private readonly bool useCustomerQueue;
 
     // 현재 날짜의 하루 진행을 소유합니다.
     private DayProgress currentDayProgress;
@@ -85,6 +87,7 @@ public sealed class GameProgress
     /// <param name="reputationBalanceTable">명성 구간과 일일 정산을 정의하는 검증된 테이블입니다.</param>
     /// <param name="random">손님 생성에 사용할 난수원입니다.</param>
     /// <param name="businessDurationSeconds">하루 영업시간(초)입니다.</param>
+    /// <param name="useCustomerQueue">후속 손님을 주기적 대기열에서 인계할지 여부.</param>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentOutOfRangeException">영업시간이 허용 범위를 벗어난 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">세션 경제 런타임이 초기화되지 않은 경우.</exception>
@@ -93,7 +96,8 @@ public sealed class GameProgress
         CustomerCatalog customerCatalog,
         ReputationBalanceDataTable reputationBalanceTable,
         Random random,
-        float businessDurationSeconds = DayProgress.DefaultBusinessDurationSeconds)
+        float businessDurationSeconds = DayProgress.DefaultBusinessDurationSeconds,
+        bool useCustomerQueue = false)
     {
         if (session == null)
         {
@@ -131,6 +135,7 @@ public sealed class GameProgress
         this.reputationBalanceTable = reputationBalanceTable;
         this.random = random;
         this.businessDurationSeconds = businessDurationSeconds;
+        this.useCustomerQueue = useCustomerQueue;
         this.State = GameProgressState.Initializing;
     }
 
@@ -298,7 +303,8 @@ public sealed class GameProgress
             this.reputationBalanceTable,
             this.random,
             this.CurrentReputation,
-            this.businessDurationSeconds);
+            this.businessDurationSeconds,
+            this.useCustomerQueue);
 
         nextDay.Completed += this.handleDayCompleted;
         nextDay.TransactionCompleted += this.handleTransactionCompleted;

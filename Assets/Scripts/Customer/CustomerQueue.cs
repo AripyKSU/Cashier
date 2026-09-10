@@ -20,6 +20,8 @@ public sealed class CustomerQueue
     public IReadOnlyList<Entry> Waiting { get; }
     /// <summary>이미 이탈했지만 불만 대사를 3초 표시하는 기록.</summary>
     public IReadOnlyList<Entry> Leaving { get; }
+    /// <summary>현재 영업일에 인내 만료로 이탈한 수. 정산 시 벌칙 없이 통계만 제공한다.</summary>
+    public int AbandonedCount { get; private set; }
 
     /// <summary>기존 생성기와 성향 catalog를 연결한다.</summary>
     /// <param name="createVisit">입장 시점 현재가로 방문을 생성한다. 상품 후보가 없으면 null.</param>
@@ -39,6 +41,7 @@ public sealed class CustomerQueue
     {
         if (running) throw new InvalidOperationException("대기열 영업 중입니다.");
         now = 0;
+        AbandonedCount = 0;
         nextArrival = ArrivalSeconds;
         running = true;
     }
@@ -62,6 +65,7 @@ public sealed class CustomerQueue
     /// <returns>대기 손님이 없으면 null.</returns>
     public CustomerVisit TakeNext()
     {
+        if (running) updateWaiting(now);
         if (!running || waiting.Count == 0) return null;
         var entry = waiting[0];
         waiting.RemoveAt(0);
@@ -115,6 +119,7 @@ public sealed class CustomerQueue
             if (entry.Deadline <= now)
             {
                 entry.Visit.LeaveQueue(true);
+                AbandonedCount = checked(AbandonedCount + 1);
                 entry.SpeechIdx = entry.LeaveTextIdx;
                 entry.SpeechUntil = frameEnd + SpeechSeconds;
                 leaving.Add(entry);

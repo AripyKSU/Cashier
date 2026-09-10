@@ -12,6 +12,8 @@ public sealed class ProgressViewDataFactory
     private readonly CustomerCatalog customerCatalog;
     private readonly TextDataTable textData;
     private readonly IReadOnlyDictionary<uint, Sprite> productSprites;
+    private readonly IReadOnlyDictionary<uint, Sprite> topViewSprites;
+    private readonly IReadOnlyDictionary<uint, Sprite> appearanceSprites;
     private readonly Func<uint, bool> isFacilityActive;
 
     /// <summary>검증된 카탈로그와 텍스트 테이블로 변환기를 생성합니다.</summary>
@@ -19,16 +21,21 @@ public sealed class ProgressViewDataFactory
     /// <param name="textData">표시 문자열의 권위 테이블입니다.</param>
     /// <param name="productSprites">상품 ID별로 미리 로드된 표시 Sprite입니다.</param>
     /// <param name="isFacilityActive">세션의 현재 설비 활성 조회. 미연결이면 설비 상품을 잠근다.</param>
+    /// <param name="topViewSprites">상품별 탑뷰 Sprite. 손님 화면 생성 시 필수다.</param>
+    /// <param name="appearanceSprites">외형 PK별 미리 로드된 Sprite. 손님 화면 생성 시 필수다.</param>
     /// <exception cref="ArgumentNullException">필수 데이터가 null인 경우 발생합니다.</exception>
     public ProgressViewDataFactory(
         CustomerCatalog customerCatalog,
         TextDataTable textData,
-        IReadOnlyDictionary<uint, Sprite> productSprites, Func<uint, bool> isFacilityActive = null)
+        IReadOnlyDictionary<uint, Sprite> productSprites, Func<uint, bool> isFacilityActive = null,
+        IReadOnlyDictionary<uint, Sprite> topViewSprites = null, IReadOnlyDictionary<uint, Sprite> appearanceSprites = null)
     {
         this.customerCatalog = customerCatalog ?? throw new ArgumentNullException(nameof(customerCatalog));
         this.textData = textData ?? throw new ArgumentNullException(nameof(textData));
         this.productSprites = productSprites ?? throw new ArgumentNullException(nameof(productSprites));
         this.isFacilityActive = isFacilityActive;
+        this.topViewSprites = topViewSprites;
+        this.appearanceSprites = appearanceSprites;
     }
 
     /// <summary>지정된 날짜에 판매 가능한 상품의 가격표 문자열을 만듭니다.</summary>
@@ -106,17 +113,8 @@ public sealed class ProgressViewDataFactory
             return CustomerViewData.Empty;
         }
 
-        Color appearanceColor = Color.white;
-        if (this.customerCatalog.Appearances.Rows.TryGetValue(
-            visit.AppearanceIdx,
-            out CustomerAppearanceData appearance))
-        {
-            appearanceColor = new Color32(
-                appearance.ColorR,
-                appearance.ColorG,
-                appearance.ColorB,
-                appearance.ColorA);
-        }
+        if (this.appearanceSprites == null || !this.appearanceSprites.TryGetValue(visit.AppearanceIdx, out Sprite appearanceSprite) || appearanceSprite == null)
+            throw new InvalidOperationException($"외형 {visit.AppearanceIdx}의 Sprite가 준비되지 않았습니다.");
 
         string dialogue = this.textData.Rows.TryGetValue(visit.FeedbackTextIdx, out TextData dialogueData)
             ? dialogueData.Text
@@ -139,10 +137,20 @@ public sealed class ProgressViewDataFactory
                 name,
                 item.Quantity,
                 icon,
-                unitPrice));
+                unitPrice, getTopViewSprite(item.ProductIdx)));
         }
 
-        return new CustomerViewData(true, appearanceColor, null, dialogue, basket, visit.Attributes);
+        return new CustomerViewData(true, Color.white, appearanceSprite, dialogue, basket, visit.Attributes);
+    }
+
+    /// <summary>명시적으로 준비한 탑뷰 이미지만 사용한다. 누락을 기본 이미지로 숨기지 않는다.</summary>
+    /// <param name="productIdx">상품 PK.</param><returns>탑뷰 Sprite.</returns>
+    /// <exception cref="InvalidOperationException">로드 결과 누락.</exception>
+    private Sprite getTopViewSprite(uint productIdx)
+    {
+        if (topViewSprites == null || !topViewSprites.TryGetValue(productIdx, out var sprite) || sprite == null)
+            throw new InvalidOperationException($"상품 {productIdx}의 탑뷰 Sprite가 준비되지 않았습니다.");
+        return sprite;
     }
 
     /// <summary>설비 표시 경계의 이름 FK 실패를 숨기지 않는다.</summary>

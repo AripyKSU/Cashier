@@ -16,6 +16,9 @@ public readonly struct DailyAggregationResult
     /// </summary>
     public int ReputationDelta { get; }
 
+    /// <summary>정산 시 확정된 하루 도덕성 변화량입니다.</summary>
+    public decimal MoralityDelta { get; }
+
     /// <summary>하루 동안 접수된 성공·거절 거래 snapshot입니다.</summary>
     public IReadOnlyList<TransactionResult> Transactions { get; }
 
@@ -25,10 +28,12 @@ public readonly struct DailyAggregationResult
     /// <param name="saleIncome">하루 동안 누적된 판매 수입입니다.</param>
     /// <param name="reputationDelta">기존 호환용 하루 명성 변화량입니다.</param>
     /// <param name="transactions">하루 동안 접수된 거래 snapshot입니다.</param>
-    internal DailyAggregationResult(long saleIncome, int reputationDelta, IReadOnlyList<TransactionResult> transactions)
+    /// <param name="moralityDelta">하루 동안 누적된 도덕성 변화량입니다.</param>
+    internal DailyAggregationResult(long saleIncome, int reputationDelta, IReadOnlyList<TransactionResult> transactions, decimal moralityDelta = 0m)
     {
         this.SaleIncome = saleIncome;
         this.ReputationDelta = reputationDelta;
+        this.MoralityDelta = moralityDelta;
         this.Transactions = new List<TransactionResult>(transactions ?? Array.Empty<TransactionResult>()).AsReadOnly();
     }
 }

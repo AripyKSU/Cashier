@@ -85,6 +85,7 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.PriceEventSchedule] = new PriceEventScheduleDataTable();
         this.dataList[DataTableType.Facility] = new FacilityDataTable();
         this.dataList[DataTableType.ReputationBalance] = new ReputationBalanceDataTable();
+        this.dataList[DataTableType.Morality] = new MoralityDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -134,10 +135,13 @@ public class DataTableManager : Singleton<DataTableManager>
                 this.fallbackLoadFromResources();
             }
             validatePriceEvents();
+            MoralityDataTable morality = GetDB<MoralityDataTable>(DataTableType.Morality);
+            morality.Validate(GetDB<CustomerDispositionDataTable>(DataTableType.CustomerDisposition).PendingRows);
             Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource),
                 GetDB<FacilityDataTable>(DataTableType.Facility));
             GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
             GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Commit();
+            morality.Commit();
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }

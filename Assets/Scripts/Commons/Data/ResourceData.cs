@@ -13,5 +13,5 @@ public class ResourceData
 
     /// <summary>명시적으로 문자열을 허용하는 Addressables 키.</summary>
     [Name("path")]
-    public string Path { get; set; } // Addressable Key ("Player", "GaronAnimatorController" 등)
+    public string Path { get; set; } // Addressable Key ("FemaleCustomer_01" 등)
 }

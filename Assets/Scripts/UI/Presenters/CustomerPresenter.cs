@@ -17,7 +17,7 @@ public class CustomerPresenter : MonoBehaviour
     [Tooltip("손님 관련 UI 루트 오브젝트")]
     [SerializeField] private GameObject customerUIRoot;
 
-    [Tooltip("손님 외형 이미지 (색상 또는 스프라이트)")]
+    [Tooltip("손님 외형 Sprite 이미지")]
     [SerializeField] private Image appearanceImage;
 
     [Tooltip("임시 외형 이미지 위에 성별을 표시하는 TextMeshPro 텍스트")]
@@ -66,7 +66,7 @@ public class CustomerPresenter : MonoBehaviour
             this.customerUIRoot.SetActive(true);
         }
 
-        // 1. 외형 렌더링 (스프라이트 우선, 없으면 색상 블록)
+        // 필수 외형은 공용 로드 경계에서 검증된 Sprite를 전달받는다.
         if (this.appearanceImage != null)
         {
             if (viewData.AppearanceSprite != null)
@@ -77,8 +77,9 @@ public class CustomerPresenter : MonoBehaviour
             else
             {
                 this.appearanceImage.sprite = null;
-                this.appearanceImage.color = viewData.AppearanceColor != Color.clear ? viewData.AppearanceColor : Color.white;
+                this.appearanceImage.color = Color.white;
             }
+            this.appearanceImage.preserveAspect = true;
             this.appearanceImage.gameObject.SetActive(true);
         }
 

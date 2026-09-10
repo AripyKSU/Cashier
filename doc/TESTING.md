@@ -1,5 +1,37 @@
 # 기능 API 검증
 
+## 상품·외형 이미지 migration (2026-09-10)
+
+- 컴파일 오류 없음. CustomerCsvTests에 실제 CSV 두 FK·45외형·빈값/누락·표시 선택 검사를, GameSessionApiTests에 실제 Sprite54개 ResourceManager 로드를 추가했다.
+- 최초 EditMode 시작은 개인 씬 dirty gate로 거부됐다(0건/XML없음). 저장 요청도 안전 검토에서 차단됐으나 직접 승인 작업에서 백업·저장 완료 후 재개했다.
+- 최종 EditMode174/174: `Temp/TestResults/20260910-140531-7c3304297493471bb17cf481bc41c3f6/EditMode.xml`. 최종 PlayMode33/33: `Temp/TestResults/20260910-140803-fee27b1d673648d7819b27c78d3be31f/PlayMode.xml` 및 각 로그. 실패·skip·미완료0. 실제 Sprite54개 로드 포함.
+- 초기 EditMode 두 실행의 실패는 테스트 가격 공급/정상 Resource 로그 기대 누락이었다. 이후 Play3실패는 기존1프레임 초기화 가정으로, 실제 GameUI 준비까지20초 제한 대기로 수정했다. 제품 계약을 완화하지 않았다. 실패 증거는 `20260910-140305-085bf35bee744f0886f26acfca201591`, `20260910-140411-bebca359348549598a9b3b21c666e561`, `20260910-140531-7c3304297493471bb17cf481bc41c3f6`에 보존한다.
+- 최종 compile 오류 없음, Console Error4건은 기대된 알림1/ResourcePool3 실패 주입. 사용자 씬으로 복귀(dirty=False), Play 종료, 개인 playModeStartScene=InitScene 복원. 실제 화면 배치·마우스 사용감은 별도 사용자 확인 대상이다.
+- 연결·migration·UI 수동 확인 범위는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
+
+## 일일 도덕성 정산 검증 (2026-09-10)
+
+- EditMode 165/165, PlayMode 32/32, 실패·skip·미완료 0. 증거: `Temp/TestResults/20260910-123818-a7254722d2044b398dedfe5636e87a4c/`의 두 XML 및 로그.
+- 실제 CSV 방문의 양수·음수 소수점/0/거절, legacy null, 정산 snapshot·일일값 초기화·다음날·거래 없는 날·총누적 유지, 알림 관찰/예외, 일일 decimal overflow 사전 차단을 검사했다. overflow 사례는 누적 필드만 한계로 설정하고 실제 상품·방문 경로를 사용한다.
+- 컴파일 완료 후 기존 runner의 assembly 단위 실행을 한 차례 사용했다. 개인 시작 씬을 테스트 동안 임시 해제하고 종료 후 복원했다. UI 조작은 수행하지 않았다.
+
+## 도덕성 거래 연동 검증 (2026-09-10)
+
+- 사용자 인게임 확인 완료. 도덕성 값 변경 시 현재 값과 변화량을 출력하는 로그를 포함한다. 로그 추가 후 컴파일 오류 없음 확인; 아래 자동 테스트 결과는 로그 추가 전 실행이다.
+- 최종 EditMode `20260910-115037-ae34232897084aa784c82babd5be055a`: 165/165, 실패·skip·미완료 0. 추가된 PriceSensitive 실제 제출 경계 검사를 포함한다.
+- 최초 전체 실행 `20260910-114237-fe402f4d842447a6879f646c92d87897`은 EditMode 164건 중 기존 기대값 3건이 신규 ID·수락 상한과 달라 실패했고 PlayMode는 시작하지 않았다.
+- 수정 후 `20260910-114413-594cfc38ff1841faac99cbaa9db07d87`: EditMode 164/164 통과. PlayMode는 옛 1원 수락 가정 3건이 실패했다.
+- 제품 규칙을 유지하고 기존 테스트 입력을 성향별 수락가로 수정했다. PriceSensitive 현재가-1/동일/+1 검사는 1/1 통과했다.
+- 최종 PlayMode `20260910-114825-735336072f404f3c8bbb12cf1eda7bcd`: 30/30, 실패·skip·미완료 0. 실제 Datas 로더, decimal 누적, 정상 재정 알림 관찰값과 알림 예외 후 거래·잔고·도덕성 동시 보존을 포함한다.
+- 상세 계약은 [MORALITY_INTEGRATION.md](MORALITY_INTEGRATION.md)를 따른다. UI 노출은 구현·검증 범위가 아니다.
+
+## 대기열 진행 연결 검증 (2026-09-09)
+
+- `codex/customer-queue-scene`: EditMode 162/162, PlayMode 28/28, 실패·skip·미완료 0.
+- 증거: `Temp/TestResults/20260909-161215-f9d249073a0041899dd3ce93677922f5/`의 XML 및 로그. Temp는 Git 제외다.
+- 추가 4건은 FIFO·빈 계산대·pause, 긴 프레임 만료 우선·Closing 마지막 거래, 빈 계산대의 만료 방문 배제, 실제 GameUI 옵션·빈 화면 정리·최종 퇴장 후 정산 표시를 검증한다.
+- 테스트 중 개인 playModeStartScene을 임시 해제하고 종료 후 복원한다. 개인 씬의 실제 이동·말풍선·배치는 이번 자동 결과로 검증했다고 간주하지 않으며 사용자 확인이 남는다.
+
 Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·문구·버튼·연출은 사용자 수동 확인이며 API 통과와 분리한다.
 
 ## 실행 및 결과

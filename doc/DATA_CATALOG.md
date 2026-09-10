@@ -1,12 +1,14 @@
 # 기획용 데이터 카탈로그
 
+> 2026-09-10 이미지 스키마·표·관련 CSV 원문을 갱신했다. 다른 기능은 9/9 관측 범위를 유지한다. 이미지 연결·검증 경계는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
+
 목차: [기준](#1-기준과-읽는-방법) · [로딩·형식](#2-원본에서-화면까지) · [CSV 스키마](#3-csv-스키마와-현재-값) · [현재 수치·계산](#4-현재-테스트-데이터의-기획-의미) · [Enum](#5-enum-값-전체) · [런타임 계약](#6-런타임-데이터결과-계약) · [UI 데이터](#7-ui용-데이터와-표시-한계) · [구형·저장 모델](#8-남아-있는-구형-모델과-저장-데이터) · [명칭 비교](#9-이름이-같거나-비슷한-값의-구분) · [검증 범위](#10-확인-범위와-후속-판단) · [전체 CSV 원문](#부록-a-전체-csv-원문-스냅샷)
 
 ## 1. 기준과 읽는 방법
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 78개(테이블별 중복 컬럼 포함), 데이터 207행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 76개(테이블별 중복 컬럼 포함), 데이터 271행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -42,12 +44,12 @@
 | [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 12 | 3 | 현재 데이터 경로 연결 |
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
-| [ResourceData](../Assets/Datas/ResourceData.csv) | 72 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 70 | 2 | 현재 데이터 경로 연결 |
-| [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 4 | 6 | 현재 데이터 경로 연결 |
+| [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 미사용72행 제거, 이미지54행 유지 |
+| [TextData](../Assets/Datas/TextData.csv) | 111 | 2 | 현재 데이터 경로 연결 |
+| [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 3 | 21 | 구매 연결 / queue 독립 API |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 4 | 3 | 현재 데이터 경로 연결 |
-| [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 9 | 현재 데이터 경로 연결 |
+| [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 10 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금·정산 상점 UI 연결 |
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백 연결, 생성 가중치는 미연결 |
 
@@ -129,14 +131,14 @@
 
 ### ResourceData
 
-현재 로드되는 리소스 경로 목록. 72행 등록 자체는 개별 자산 존재·로드 성공을 보증하지 않는다. Product_ 계열 등록도 있지만 ProductData.ImageResourceIdx는 전부 null이므로 상품 이미지 FK 연결 완료로 해석하지 않는다. 과거 Unit/Room/Effect 명칭 행은 보존된 등록값이며 현재 Cashier 소비·실자산 전수 검증은 미확인이다.
+현재 리소스54행(4201~4254). 2026-09-10 코드·CSV·직렬화 자산의 FK·주소 소비 조사 후 미사용72행을 제거했다. 삭제 ID는 4001~4099의 기존65행 및 4101·4104·4106·4107·4109·4110·4199이며 재사용하지 않는다. 원본 자산·meta·Addressables는 보존한다. 삭제 등록은 기준 d7fa49d에서 복구할 수 있다. 상품7종의 기본·탑뷰 FK는 유지하며15종은 두 칸이 빈값이다.
 
 근거: [CSV](../Assets/Datas/ResourceData.csv), [DTO](../Assets/Scripts/Commons/Data/ResourceData.cs), [DataTable](../Assets/Scripts/Commons/Data/ResourceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 72개: 부록 |
-| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체72키: 부록 |
+| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 54개: 부록 |
+| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체54키: 부록 |
 
 ### TextData
 
@@ -146,23 +148,20 @@
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 70개: 부록 |
-| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체70문구: 부록 |
+| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 111개: 부록 |
+| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체111문구: 부록 |
 
 ### CustomerAppearanceData
 
-현재 연결. 생성기가 외형 PK를 방문마다 선정하고 ProgressViewDataFactory가 Color32를 만든다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 정식 외형 Sprite FK 컬럼은 없다.
+현재 연결. 생성기는 외형 PK를 방문마다 선정한다. GameUIController가 필수 Resource FK를 로드하고 ProgressViewDataFactory는 Sprite를 전달한다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 성별·연령·성향과 외형 선정은 독립이다.
 
 근거: [CSV](../Assets/Datas/Customer/CustomerAppearanceData.csv), [DTO](../Assets/Scripts/Customer/Data/CustomerAppearanceData.cs), [DataTable](../Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001, 5002, 5003, 5004 |
-| 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001, 8002, 8003, 8004 |
-| 3. `color_r` | ColorR · byte | 빨강 채널 | 필수; 0~255 | 없음 | 101, 255, 121, 198 |
-| 4. `color_g` | ColorG · byte | 초록 채널 | 필수; 0~255 | 없음 | 184, 179, 215, 160 |
-| 5. `color_b` | ColorB · byte | 파랑 채널 | 필수; 0~255 | 없음 | 255, 107, 174, 246 |
-| 6. `color_a` | ColorA · byte | 불투명도 | 필수; 1~255, 0은 로더 거부 | 없음 | 255 |
+| 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001~5045 |
+| 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001~8004,8071~8111 |
+| 3. `image_resource_idx` | ImageResourceIdx · uint | 외형 Sprite | 필수; 0·빈값·Resource 대역·존재 검사 | ResourceData.idx → path → Sprite | 4201~4245 |
 
 ### CustomerDispositionData
 
@@ -208,7 +207,7 @@
 
 ### ProductData
 
-현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본5·설비 해금13·비활성4행이며 모두0일 등장,이미지 FK 빈 셀이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
+현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본5·설비 해금13·비활성4행이며 모두0일 등장이다. 상품7종은 기본·탑뷰 FK가 연결됐고15종은 이미지 두 칸이 빈값이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/ProductData.csv), [DTO](../Assets/Scripts/Commons/Data/ProductData.cs), [DataTable](../Assets/Scripts/Commons/Data/ProductDataTable.cs).
 
@@ -220,10 +219,11 @@
 | 4. `is_available` | IsAvailable · bool | 판매 후보 활성 여부 | 필수; 정확히 0/1 | 없음 | 0, 1 |
 | 5. `base_price` | BasePrice · uint | 상품 1개의 고정 기본가격, G | 필수; 양수 | 없음 | 100~5000, 전체 행은 부록 |
 | 6. `available_day` | AvailableDay · uint | 등장 경과일, 시작일0 | 필수; 0 허용 | GameSessionManager.ElapsedDays와 비교 | 0 |
-| 7. `image_resource_idx` | ImageResourceIdx · uint? | 상품 이미지 연결 | 빈 셀만 null=흰 사각형; 0 금지; Resource 대역·존재 | ResourceData.idx → Path → Sprite | 빈 셀 |
+| 7. `image_resource_idx` | ImageResourceIdx · uint? | 기본 UI·계산대 이미지 | 두 이미지 열이 함께 빈값이면 흰색; 0·한쪽 누락·잘못된 FK 거부 | ResourceData.idx → Path → Sprite | 7종 FK/15종 빈값 |
 | 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 50~2500, 전체 행은 부록 |
 
 | 9. `required_facility_idx` | RequiredFacilityIdx · uint? | 해금에 필요한 설비 | 빈 셀=null 기본상품; 0·대역 오류·미존재 거부 | FacilityData.idx | 빈 셀,12001~12005 |
+| 10. `top_view_image_resource_idx` | TopViewImageResourceIdx · uint? | 탑뷰 상품 이미지 | 기본 이미지와 동일한 필수·FK 검사; 탑뷰 원본 없으면 기본 FK 명시 복제 | ResourceData.idx → Path → Sprite | 별도 탑뷰3종/기본복제4종/빈값15종 |
 
 ## 4. 현재 테스트 데이터의 기획 의미
 
@@ -258,7 +258,7 @@
 
 모든 상품의 현재 원가는 기본가격의50%로 입력되어 있다. 이는 **현 행 값의 관계**이지 `CostPrice <= BasePrice` 검증이나 자동 원가 계산식이 아니다. 가격 이벤트는 CostPrice를 바꾸지 않는다.
 
-외형은 파랑5001/RGBA(101,184,255,255), 주황5002/(255,179,107,255), 초록5003/(121,215,174,255), 보라5004/(198,160,246,255)다. 외형 색은 가격·인내도 보정이 아니다.
+외형은5001~5045의 Female18/Male27 Sprite다. 표시 리소스는 가격·인내도·속성 보정이 아니며 기존 RGBA 열은 제거됐다.
 
 | 성향 PK·표시명 | 타입 | 주 선호 | 선호군 선택 | 결제 허용 배율 | 기준가 인정 | 줄 합류 후 재촉 / 이탈 |
 |---|---|---|---:|---:|---:|---|
@@ -403,8 +403,8 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 | GameDayViewData | CurrentDay:int, DaysUntilSettlement:int, IsSettlementDay:bool, Phase:GameDayPhase | GameDayPresenter. Settlement 명칭이지만 다음 **상납일**/상납일 여부로 공급 |
 | BusinessTimerViewData | RemainingSeconds:float, NormalizedTime:float, IsPaused:bool, CanPause:bool, CanResume:bool | BusinessTimerPresenter. NormalizedTime은 잔여/전체시간의0~1 |
 | ItemPriceViewData | ItemId:uint, DisplayName:string, Price:long, SpecialNote:string, Icon:Sprite, IsAvailable:bool | 계약만 존재, 현재 생성·소비 호출 없음. 현재 가격표는 CreatePriceListText 문자열 |
-| CustomerBasketItemViewData | ItemId:uint, DisplayName:string, Quantity:int, Icon:Sprite, UnitPrice:int | CustomerPresenter/CustomerBasketItemPresenter/SaleSortingPanel. 생성 시 희망 단가. 원본uint가 int.MaxValue보다 크면 factory가 표시값을 int.MaxValue로 제한함 |
-| CustomerViewData | HasCustomer:bool, AppearanceColor:Color, AppearanceSprite:Sprite, DialogueText:string, Basket:IReadOnlyList<CustomerBasketItemViewData> | 현재 연결. Empty는false/clear/null/빈문자열/빈목록. 현 factory는 AppearanceSprite=null, CSV색상 사용 |
+| CustomerBasketItemViewData | ItemId:uint, DisplayName:string, Quantity:int, Icon:Sprite, UnitPrice:int, TopViewIcon:Sprite | CustomerPresenter/CustomerBasketItemPresenter/SaleSortingPanel. 생성 시 희망 단가. 원본uint가 int.MaxValue보다 크면 factory가 표시값을 int.MaxValue로 제한함 |
+| CustomerViewData | HasCustomer:bool, AppearanceColor:Color, AppearanceSprite:Sprite, DialogueText:string, Basket:IReadOnlyList<CustomerBasketItemViewData> | 현재 연결. Empty는false/clear/null/빈문자열/빈목록. 현 factory는 필수 AppearanceSprite를 전달하고 흰색 tint를 사용 |
 | PriceInputViewData | InputAmount:long?, CanConfirm:bool, IsInputEnabled:bool, ValidationMessage:string | PriceInputPresenter. 빈 입력은null. 양수 총액 제출과 분류완료 조건은 진행/UI에서 검증 |
 | TransactionViewData | WasAccepted:bool, OfferedPrice:long, FeedbackMessage:string | 계약만 존재, 현재 생성·소비 호출 없음. 상세4판정·판매목록을 담는 원본 TransactionResult와 다름 |
 | DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. Expenses=0, NetProfit=SaleIncome, ReputationDelta=일일 FinalDelta, DepartedCustomers=0. 명성은 정성적 피드백 표시 |
@@ -608,94 +608,76 @@ idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
 
 ### Assets/Datas/ResourceData.csv
 
-데이터 72행, 2컬럼. SHA-256: `655DE2649CF39E3DE648310C08DBA850EB4C16E13C1DA5D01A5419506981ABC9`.
+데이터 54행, 2컬럼. SHA-256: `930332E168354EAACFDE1CF867E201EB76C851DA8120BC27FBF12ADEDA0F89C8`.
 
 ```csv
 idx,path
-4001,Unit_3001
-4002,Unit_3201
-4003,Unit_3101
-4004,Unit_3102
-4005,Unit_3103
-4010,PlayerAnimatorController
-4011,GaronAnimatorController
-4012,SpearSentryAnimatorController
-4013,ShadowStalkerAnimatorController
-4014,WaveHeavyAnimatorController
-4015,ShieldSentinelAnimatorController
-4016,OrbitalMarksmanAnimatorController
-4020,Effect_8001
-4021,Effect_8002
-4022,Effect_8003
-4030,Effect_8010
-4031,Effect_8011
-4032,Effect_8012
-4033,Effect_8013
-4040,Prefab_1040
-4041,Prefab_1041
-4042,Prefab_1042
-4043,Tilemap_Room_Stage2_Entry
-4044,Tilemap_Room_Stage2_Boss
-4045,Projectile_1045
-4006,Unit_3104
-4007,Unit_3105
-4008,Unit_3106
-4050,Room_11050
-4051,Room_11051
-4052,Room_11052
-4053,Room_11053
-4056,Room_11056
-4057,Room_11057
-4061,Room_11061
-4063,Room_11063
-4070,Hazard_SpikeTrap
-4071,Hazard_SawBladeTrap
-4072,Room_11072
-4073,Room_11073
-4074,Room_11074
-4075,Room_11075
-4076,Room_11076
-4077,Room_11077
-4078,Room_11078
-4079,Room_11079
-4080,Room_11080
-4081,Effect_8014
-4082,Effect_8015
-4083,Effect_8016
-4084,Effect_8017
-4085,Effect_8018
-4086,Effect_8019
-4087,Effect_8020
-4088,Effect_8021
-4089,Effect_8022
-4090,Effect_8023
-4092,Effect_8025
-4093,Effect_8026
-4094,Effect_8027
-4095,Effect_8028
-4096,Effect_8029
-4097,Effect_8030
-4098,Effect_8031
-4099,Effect_8032
-4101,Product_1001_Water
-4104,Product_1004_Can
-4106,Product_1006_Crackers
-4107,Product_1007_Bandage
-4109,Product_1009_Painkiller
-4110,Product_1010_Battery
-4199,Product_Placeholder
+4201,FemaleCustomer_01
+4202,FemaleCustomer_02
+4203,FemaleCustomer_03
+4204,FemaleCustomer_04
+4205,FemaleCustomer_05
+4206,FemaleCustomer_06
+4207,FemaleCustomer_08
+4208,FemaleCustomer_09
+4209,FemaleCustomer_10
+4210,FemaleCustomer_11
+4211,FemaleCustomer_12
+4212,FemaleCustomer_14
+4213,FemaleCustomer_15
+4214,FemaleCustomer_16
+4215,FemaleCustomer_17
+4216,FemaleCustomer_18
+4217,FemaleCustomer_19
+4218,FemaleCustomer_20
+4219,MaleCustomer_01
+4220,MaleCustomer_02
+4221,MaleCustomer_03
+4222,MaleCustomer_04
+4223,MaleCustomer_05
+4224,MaleCustomer_06
+4225,MaleCustomer_07
+4226,MaleCustomer_08
+4227,MaleCustomer_09
+4228,MaleCustomer_10
+4229,MaleCustomer_12
+4230,MaleCustomer_13
+4231,MaleCustomer_14
+4232,MaleCustomer_15
+4233,MaleCustomer_16
+4234,MaleCustomer_17
+4235,MaleCustomer_18
+4236,MaleCustomer_19
+4237,MaleCustomer_21
+4238,MaleCustomer_22
+4239,MaleCustomer_23
+4240,MaleCustomer_24
+4241,MaleCustomer_25
+4242,MaleCustomer_26
+4243,MaleCustomer_28
+4244,MaleCustomer_29
+4245,MaleCustomer0
+4246,Bandage
+4247,Battery
+4248,Can
+4249,Crackers
+4250,Painkiller
+4251,TopDownCan
+4252,TopDownCrackers
+4253,TopDownWater
+4254,Water
 ```
 
 ### Assets/Datas/TextData.csv
 
-데이터 70행, 2컬럼. SHA-256: `47B42329F3463EC17A5212F70E7FE2FCDAD78EDD1FC9EE0064A567D3E45C9DDA`.
+데이터 111행, 2컬럼. SHA-256: `247AC2770DB0D4F8209E0D63335DCDB508DFC241F68818313D09290E50625A5D`.
 
 ```csv
 idx,text
-8001,파랑
-8002,주황
-8003,초록
-8004,보라
+8001,여성 외형 01
+8002,여성 외형 02
+8003,여성 외형 03
+8004,여성 외형 04
 8005,평범
 8006,급함
 8007,가격 민감
@@ -762,18 +744,100 @@ idx,text
 8068,방독면
 8069,방호복
 8070,방사능 측정기
+8071,여성 외형 05
+8072,여성 외형 06
+8073,여성 외형 08
+8074,여성 외형 09
+8075,여성 외형 10
+8076,여성 외형 11
+8077,여성 외형 12
+8078,여성 외형 14
+8079,여성 외형 15
+8080,여성 외형 16
+8081,여성 외형 17
+8082,여성 외형 18
+8083,여성 외형 19
+8084,여성 외형 20
+8085,남성 외형 01
+8086,남성 외형 02
+8087,남성 외형 03
+8088,남성 외형 04
+8089,남성 외형 05
+8090,남성 외형 06
+8091,남성 외형 07
+8092,남성 외형 08
+8093,남성 외형 09
+8094,남성 외형 10
+8095,남성 외형 12
+8096,남성 외형 13
+8097,남성 외형 14
+8098,남성 외형 15
+8099,남성 외형 16
+8100,남성 외형 17
+8101,남성 외형 18
+8102,남성 외형 19
+8103,남성 외형 21
+8104,남성 외형 22
+8105,남성 외형 23
+8106,남성 외형 24
+8107,남성 외형 25
+8108,남성 외형 26
+8109,남성 외형 28
+8110,남성 외형 29
+8111,남성 외형 0
 ```
 
 ### Assets/Datas/Customer/CustomerAppearanceData.csv
 
-데이터 4행, 6컬럼. SHA-256: `3DE08F7267DF41AA0CB9472AE86A92E2F40AAA670055E095AD169399465F6BE3`.
+데이터 45행, 3컬럼. SHA-256: `3EB9DA6CD54F2B9E00EC470B723E58D0061A4F874425FB432F44118E7D1A237B`.
 
 ```csv
-idx,nameidx,color_r,color_g,color_b,color_a
-5001,8001,101,184,255,255
-5002,8002,255,179,107,255
-5003,8003,121,215,174,255
-5004,8004,198,160,246,255
+idx,nameidx,image_resource_idx
+5001,8001,4201
+5002,8002,4202
+5003,8003,4203
+5004,8004,4204
+5005,8071,4205
+5006,8072,4206
+5007,8073,4207
+5008,8074,4208
+5009,8075,4209
+5010,8076,4210
+5011,8077,4211
+5012,8078,4212
+5013,8079,4213
+5014,8080,4214
+5015,8081,4215
+5016,8082,4216
+5017,8083,4217
+5018,8084,4218
+5019,8085,4219
+5020,8086,4220
+5021,8087,4221
+5022,8088,4222
+5023,8089,4223
+5024,8090,4224
+5025,8091,4225
+5026,8092,4226
+5027,8093,4227
+5028,8094,4228
+5029,8095,4229
+5030,8096,4230
+5031,8097,4231
+5032,8098,4232
+5033,8099,4233
+5034,8100,4234
+5035,8101,4235
+5036,8102,4236
+5037,8103,4237
+5038,8104,4238
+5039,8105,4239
+5040,8106,4240
+5041,8107,4241
+5042,8108,4242
+5043,8109,4243
+5044,8110,4244
+5045,8111,4245
 ```
 
 ### Assets/Datas/Customer/CustomerDispositionData.csv
@@ -801,34 +865,33 @@ idx,nameidx,product_type
 
 ### Assets/Datas/Customer/ProductData.csv
 
-데이터 22행, 9컬럼. SHA-256: `237167718BFB76309DBCF3E57A20D55F6F09014B4068027584B7E351061B8590`.
+데이터 22행, 10컬럼. SHA-256: `552BC4F315BFA7A24976AB421CDDAD7C6F7A8BD20262E9F965CC27AFCCDC2147`.
 
 ```csv
-idx,nameidx,product_type,is_available,base_price,available_day,image_resource_idx,cost_price,required_facility_idx
-1001,8012,1,1,100,0,,50,
-1002,8013,1,0,150,0,,75,
-1003,8014,1,0,500,0,,250,
-1004,8015,2,1,250,0,,125,
-1005,8016,2,1,150,0,,75,12001
-1006,8017,2,1,200,0,,100,12001
-1007,8018,3,1,300,0,,150,
-1008,8019,3,0,350,0,,175,
-1009,8020,3,1,400,0,,200,12002
-1010,8021,4,1,200,0,,100,
-1011,8022,4,1,100,0,,50,
-1012,8023,4,0,600,0,,300,
-1013,8061,3,1,500,0,,250,12002
-1014,8062,3,1,900,0,,450,12002
-1015,8063,4,1,800,0,,400,12003
-1016,8064,4,1,1000,0,,500,12003
-1017,8065,4,1,1200,0,,600,12003
-1018,8066,4,1,2000,0,,1000,12004
-1019,8067,4,1,1200,0,,600,12004
-1020,8068,4,1,2500,0,,1250,12005
-1021,8069,4,1,4000,0,,2000,12005
-1022,8070,4,1,5000,0,,2500,12005
+idx,nameidx,product_type,is_available,base_price,available_day,image_resource_idx,cost_price,required_facility_idx,top_view_image_resource_idx
+1001,8012,1,1,100,0,4254,50,,4253
+1002,8013,1,0,150,0,,75,,
+1003,8014,1,0,500,0,,250,,
+1004,8015,2,1,250,0,4248,125,,4251
+1005,8016,2,1,150,0,,75,12001,
+1006,8017,2,1,200,0,4249,100,12001,4252
+1007,8018,3,1,300,0,4246,150,,4246
+1008,8019,3,0,350,0,,175,,
+1009,8020,3,1,400,0,4250,200,12002,4250
+1010,8021,4,1,200,0,4247,100,,4247
+1011,8022,4,1,100,0,,50,,
+1012,8023,4,0,600,0,,300,,
+1013,8061,3,1,500,0,,250,12002,
+1014,8062,3,1,900,0,,450,12002,
+1015,8063,4,1,800,0,,400,12003,
+1016,8064,4,1,1000,0,,500,12003,
+1017,8065,4,1,1200,0,,600,12003,
+1018,8066,4,1,2000,0,,1000,12004,
+1019,8067,4,1,1200,0,4247,600,12004,4247
+1020,8068,4,1,2500,0,,1250,12005,
+1021,8069,4,1,4000,0,,2000,12005,
+1022,8070,4,1,5000,0,,2500,12005,
 ```
-
 
 ### Assets/Datas/FacilityData.csv
 

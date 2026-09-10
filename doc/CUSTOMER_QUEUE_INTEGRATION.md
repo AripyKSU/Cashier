@@ -2,7 +2,16 @@
 
 ## 현재 통합 상태 (2026-09-09)
 
-아래는 CustomerQueue API와 이전 Dev3 화면의 계약이다. 현재 GameUIController/DayProgress는 손님을 순차 생성하며 이 대기열을 연결하지 않았다. API 회귀 통과는 현 UI의 줄·말풍선 표시를 의미하지 않는다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다.
+GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연결한다. 기본값 false이므로 공유 MainScene은 기존 순차 생성 방식을 유지한다. 개인 CustomerQueueSandbox에서만 옵션과 LocalCustomerQueueView를 연결했다. 개인 씬·렌더러는 Git 제외이며 이 커밋만으로 다른 작업자에게 화면이 설치되지는 않는다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다.
+
+### 현재 GameUI 연결 계약
+
+- DayProgress가 시계를 소유한다. `UsesCustomerQueue`, `WaitingCustomers`, `LeavingCustomers`, `DepartedCustomers`, `GetQueueSpeech`로 조회하며 가변 큐를 외부에 공개하지 않는다.
+- 최초 손님은 즉시 생성한다. 이후 5초 입장과 FIFO를 사용하고 빈 계산대는 다음 입장을 기다린다. 긴 프레임은 프레임 종료까지 만료를 먼저 처리하고 생존한 방문만 인계한다.
+- `CustomerDeparted`는 거래 완료 방문을 알린다. 대기 이탈은 거래·명성 페널티를 추가하지 않고 이탈 수에만 반영한다. Closing은 대기열을 정리하고 마지막 거래는 유지한다.
+- Local 렌더러는 방문 객체별 Image를 입구→대기 위치→계산대→무작위 좌/우 출구로 이동한다. 원본 Appearance Image만 숨기며 자식 디버그 표시는 유지한다. 이동은 모델을 변경하지 않는다.
+- 마지막 거래의 정산 모델은 즉시 확정하지만 `queueExitSeconds`(기본 0.45초) 동안 정산 화면을 지연한다. Local 퇴장도 같은 값을 사용한다. 일시정지는 큐와 UI 연출을 함께 정지한다.
+- 아래 Dev3 버튼·3초 자동 결과 인계 설명은 이전 화면의 계약이다. 현재 GameUI의 거래 결과 완료 경로와 혼동하지 않는다. UI/UX는 사용자 확인 대상이다.
 
 ## 범위와 규칙
 

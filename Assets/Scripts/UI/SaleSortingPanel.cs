@@ -68,6 +68,15 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private Vector2 previousPointerPosition;
     private Coroutine transitionRoutine;
     private IReadOnlyList<CustomerBasketItemViewData> pendingBasket = Array.Empty<CustomerBasketItemViewData>();
+    // 로컬 큐 표현에서만 제공하며 Controller 제거 시 해제합니다.
+    private Func<bool> isPresentationPaused;
+
+    /// <summary>기존 연출 시계를 멈출 조회자를 연결한다. null은 기존 unscaled 동작이다.</summary>
+    /// <param name="isPaused">표현의 일시정지·오류 상태 조회. 시간이나 모델을 변경하지 않는다.</param>
+    public void SetPauseQuery(Func<bool> isPaused) => this.isPresentationPaused = isPaused;
+
+    /// <summary>기존 unscaled 시간을 사용하되 명시적인 일시정지만 제외한다.</summary>
+    private float PresentationDeltaSeconds => this.isPresentationPaused?.Invoke() == true ? 0f : Time.unscaledDeltaTime;
 
     /// <summary>판매 상품 목록이 확정됐을 때 가격과 함께 전달됩니다.</summary>
     public event Action<IReadOnlyList<SaleItem>> SaleItemsConfirmed;
@@ -107,7 +116,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>상품 이동과 충돌을 프레임 경과 시간으로 계산합니다.</summary>
     private void Update()
     {
-        if (this.state != ViewState.Sorting || this.workArea == null)
+        if (this.state != ViewState.Sorting || this.workArea == null || this.isPresentationPaused?.Invoke() == true)
         {
             this.hasPointerSample = false;
             return;
@@ -277,7 +286,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             float slideSeconds = Mathf.Max(0.01f, this.transitionSeconds);
             while (slideElapsed < slideSeconds)
             {
-                slideElapsed += Time.unscaledDeltaTime;
+                slideElapsed += this.PresentationDeltaSeconds;
                 float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(slideElapsed / slideSeconds));
                 sortingRect.anchoredPosition = new Vector2(Mathf.Lerp(-screenWidth, 0f, progress), 0f);
                 yield return null;
@@ -300,7 +309,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < this.pourSeconds)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += this.PresentationDeltaSeconds;
             float t = this.pourSeconds <= 0f ? 1f : Mathf.Clamp01(elapsed / this.pourSeconds);
             for (int i = 0; i < this.items.Count; i++)
             {
@@ -348,7 +357,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             const float ArrivalSeconds = 0.85f;
             while (elapsed < ArrivalSeconds)
             {
-                elapsed += Time.unscaledDeltaTime;
+                elapsed += this.PresentationDeltaSeconds;
                 float t = Mathf.Clamp01(elapsed / ArrivalSeconds);
                 float eased = 1f - Mathf.Pow(1f - t, 3f);
                 box.anchoredPosition = Vector2.LerpUnclamped(start, destination, eased);
@@ -366,7 +375,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>가판대 위 박스를 클릭했을 때만 탑다운 작업대로 전환합니다.</summary>
     private void handleFrontContainerClicked()
     {
-        if (this.state != ViewState.FrontWaiting || this.transitionRoutine != null) return;
+        if (this.state != ViewState.FrontWaiting || this.transitionRoutine != null || this.isPresentationPaused?.Invoke() == true) return;
         this.frontContainerButton.interactable = false;
         this.transitionRoutine = StartCoroutine(this.playEntryFlow());
     }
@@ -381,7 +390,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             {
                 SaleSortingItemView item = Instantiate(this.itemPrefab, this.itemRoot);
                 item.name = $"SaleItem_{line.ItemId}_{quantityIndex}";
-                item.Initialize(line.ItemId, quantityIndex, line.Icon, this.itemSizePixels, line.DisplayName);
+                item.Initialize(line.ItemId, quantityIndex, line.TopViewIcon, this.itemSizePixels, line.DisplayName);
                 item.Position = this.getPourStartPosition(unitSequence);
                 this.items.Add(item);
                 unitSequence++;
@@ -397,7 +406,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < seconds)
         {
-            elapsed += Time.unscaledDeltaTime;
+            elapsed += this.PresentationDeltaSeconds;
             yield return null;
         }
     }

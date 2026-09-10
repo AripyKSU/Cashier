@@ -25,6 +25,9 @@ public sealed class ProductData
     /// <summary>ResourceData FK. 빈 셀만 null이며 흰 정사각형을 표시한다. 0은 잘못된 참조다.</summary>
     [Name("image_resource_idx")]
     public uint? ImageResourceIdx { get; set; }
+    /// <summary>탑뷰 ResourceData FK. 기본 이미지가 있으면 필수이며 탑뷰 원본이 없을 때 기본 FK를 CSV에 명시한다.</summary>
+    [Name("top_view_image_resource_idx")]
+    public uint? TopViewImageResourceIdx { get; set; }
     /// <summary>필요 설비 FK. 빈 셀은 기본 상품이며0은 잘못된 참조다.</summary>
     [Name("required_facility_idx")]
     public uint? RequiredFacilityIdx { get; set; }
@@ -44,5 +47,10 @@ public sealed class ProductData
         if (ImageResourceIdx.HasValue && (ImageResourceIdx.Value % 1000 == 0 ||
             Util.GetDataTableType(ImageResourceIdx.Value) != DataTableType.Resource))
             throw new ArgumentException($"ProductData.csv PK={Idx}, image_resource_idx={ImageResourceIdx}: Resource FK 대역 오류");
+        if (TopViewImageResourceIdx.HasValue && (TopViewImageResourceIdx.Value % 1000 == 0 ||
+            Util.GetDataTableType(TopViewImageResourceIdx.Value) != DataTableType.Resource))
+            throw new ArgumentException($"ProductData.csv PK={Idx}, top_view_image_resource_idx={TopViewImageResourceIdx}: Resource FK 대역 오류");
+        if (ImageResourceIdx.HasValue != TopViewImageResourceIdx.HasValue)
+            throw new ArgumentException($"ProductData.csv PK={Idx}: image_resource_idx와 top_view_image_resource_idx는 함께 지정하거나 함께 비워야 합니다.");
     }
 }

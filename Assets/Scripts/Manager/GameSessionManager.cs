@@ -13,6 +13,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private int currentReputation;
     private int lastReputationAppliedDay;
     private ReputationLogService reputationLogService;
+    private MoralityCalculator moralityCalculator;
+    private decimal currentMorality;
+    private bool isApplyingTransaction;
 
     private readonly PriceEventScheduler priceScheduler = new PriceEventScheduler(new Random());
     private bool hasClosedDay;
@@ -22,6 +25,13 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
 
     /// <summary>현재 세션의 명성. 다음 하루는 이 값을 snapshot으로 사용한다.</summary>
     public int CurrentReputation => this.currentReputation;
+    /// <summary>게임 시작부터 반올림 없이 누적한 현재 도덕성.</summary>
+    public decimal CurrentMorality => this.currentMorality;
+    /// <summary>현재 영업일의 도덕성 변화량. 정산 후에는 0입니다.</summary>
+    public decimal DailyMoralityDelta => this.Economy.DailyAggregationService.DailyMoralityDelta;
+    /// <summary>검증된 도덕성 계산기. 손님 거래 snapshot 생성에만 사용한다.</summary>
+    internal MoralityCalculator MoralityCalculator => this.moralityCalculator
+        ?? throw new InvalidOperationException("도덕성 데이터가 초기화되지 않았습니다.");
     /// <summary>화면 전환과 무관하게 유지되는 거래·정산 명성 로그.</summary>
     public ReputationLogService ReputationLogService => this.reputationLogService
         ?? throw new InvalidOperationException("명성 세션이 초기화되지 않았습니다.");
@@ -63,6 +73,28 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     {
         if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
         return facilities.TryPurchase(facilityIdx, out result);
+    }
+
+    /// <summary>한 거래의 재정·도덕성 누적을 같은 확정 경계에서 한 번 반영한다.</summary>
+    /// <param name="transactionResult">도덕성 snapshot을 포함한 확정 거래.</param>
+    /// <returns>열린 영업일에 반영했으면 true.</returns>
+    internal bool TryApplyTransaction(TransactionResult transactionResult)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        if (isApplyingTransaction) throw new InvalidOperationException("거래 반영 중 재진입할 수 없습니다.");
+        if (!economy.DailyAggregationService.IsDayOpen) return false;
+        decimal nextMorality = checked(this.currentMorality + (transactionResult.MoralityDelta ?? 0m));
+        economy.DailyAggregationService.ValidateTransaction(transactionResult);
+        bool hasMoralityChanged = nextMorality != this.currentMorality;
+        isApplyingTransaction = true;
+        this.currentMorality = nextMorality;
+        try
+        {
+            if (hasMoralityChanged)
+                UnityEngine.Debug.Log($"[Morality] current={this.currentMorality}, delta={transactionResult.MoralityDelta}");
+            return economy.DailyAggregationService.TryApplyTransaction(transactionResult);
+        }
+        finally { isApplyingTransaction = false; }
     }
 
     /// <summary>가격 확정 이후 현재일 영업을 시작한다.</summary>
@@ -220,7 +252,12 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             if (facilityTable.Rows.Count == 0) throw new InvalidOperationException("설비 데이터가 공개되지 않았습니다.");
             this.facilities = new FacilityService(this.economy.FinanceService, facilityTable.Rows, () => this.ElapsedDays);
             this.reputationLogService = new ReputationLogService(dataTableManager.Customers.Dispositions);
+            var moralityRows = new System.Collections.Generic.List<MoralityData>(
+                dataTableManager.GetDB<MoralityDataTable>(DataTableType.Morality).Rows.Values);
+            moralityRows.Sort((left, right) => left.Idx.CompareTo(right.Idx));
+            this.moralityCalculator = new MoralityCalculator(moralityRows.AsReadOnly());
             this.currentReputation = 0;
+            this.currentMorality = 0m;
             this.lastReputationAppliedDay = 0;
             this.IsInitialized = true;
             EnsureDailyPrices();
@@ -232,6 +269,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             this.IsInitialized = false;
             this.facilities = null;
             this.reputationLogService = null;
+            this.moralityCalculator = null;
             throw;
         }
     }
@@ -250,7 +288,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.dataTables = null;
         this.facilities = null;
         this.reputationLogService = null;
+        this.moralityCalculator = null;
         this.currentReputation = 0;
+        this.currentMorality = 0m;
         this.lastReputationAppliedDay = 0;
         base.OnSingletonDestroyed();
     }
