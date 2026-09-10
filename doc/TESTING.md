@@ -1,5 +1,11 @@
 # 기능 API 검증
 
+## 감독관 시스템 (2026-09-10)
+
+- `codex/inspector-events`에서 EditMode215/215, 최종 PlayMode37/37, 실패·skip·미완료0. XML/log 및 초기 실패·수정 이력은 [감독관 명세 9절](INSPECTOR_SYSTEM_DRAFT.md#9-검증-결과-2026-09-10)에 기록한다.
+- 첫날/전날 구매 조건·빈 선정 캐시·중복/전날 콜백·퇴장 완료 이력, 실제 CSV·초기 덮개·오류 안내·UI 재생성/동일 root 재활성, 금액·명성·도덕성 미변경 및 기존 회귀를 검증했다.
+- 실제 Init→Main→감독관→PreOpen→영업 시작과 색·알파 중간값을 확인했고 제품 Console Error0. 전용 이미지·최종 UI/UX는 사용자 확인 대상이다. Git 통합은 수행하지 않았다.
+
 ## Upgrade 통합 (2026-09-10)
 
 - 기준 `total_merge fcf1518` + `origin/Upgrade 935cf93`. EditMode **209/209**, PlayMode **34/34**, 실패·skip·미완료0.

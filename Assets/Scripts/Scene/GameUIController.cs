@@ -35,6 +35,12 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private PreOpenPanelPresenter preOpenPresenter;
     /// <summary>진행 시각을 표시할 시계. 자체 시간은 사용하지 않는다.</summary>
     [SerializeField] private BusinessClockController businessClock;
+    /// <summary>세션 감독관 대사와 연출을 표시하는 독립 패널.</summary>
+    [SerializeField] private InspectorPresenter inspectorPresenter;
+    /// <summary>직렬화 상태부터 활성·불투명한 전체 화면 초기화 덮개.</summary>
+    [SerializeField] private CanvasGroup startupCover;
+    /// <summary>덮개 위에서 초기화 실패를 알리는 문구.</summary>
+    [SerializeField] private TextMeshProUGUI startupErrorText;
 
     [Header("Progress panels")]
     [SerializeField] private GameObject preOpenPanel;
@@ -66,10 +72,12 @@ public sealed class GameUIController : MonoBehaviour
     private string facilityFeedback = string.Empty;
 
     private bool isReady;
+    private bool presentationReady;
     private bool hasError;
     private Sprite productPlaceholderSprite;
     private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
+    private readonly Dictionary<uint, Sprite> inspectorSprites = new Dictionary<uint, Sprite>();
 
     /// <summary>개인 씬에서 실제 FIFO 대기열을 사용할 때만 켠다. 공유 prefab 기본값은 false.</summary>
     [SerializeField] private bool useCustomerQueue;
@@ -88,6 +96,20 @@ public sealed class GameUIController : MonoBehaviour
 
     /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
     private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;
+
+    /// <summary>비동기 준비 전에 입력을 막는다. 덮개 자체는 prefab에서 이미 불투명하게 활성화되어 있다.</summary>
+    private void Awake()
+    {
+        if (gameInputRouter != null) gameInputRouter.enabled = false;
+        if (openBusinessButton != null) openBusinessButton.interactable = false;
+        if (inspectorPresenter != null) inspectorPresenter.gameObject.SetActive(false);
+    }
+
+    /// <summary>같은 화면을 다시 켜면 세션에 남아 있는 대사를 재표시한다.</summary>
+    private void OnEnable()
+    {
+        if (isReady && !hasError) refreshAllViews();
+    }
 
     /// <summary>Scene 진입 후 부트스트랩된 런타임을 확인하고 UI와 진행을 초기화합니다.</summary>
     private async void Start()
@@ -127,8 +149,16 @@ public sealed class GameUIController : MonoBehaviour
                 DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
                 new System.Random(), useCustomerQueue: this.useCustomerQueue);
             this.subscribeProgress();
-            this.isReady = true;
             this.gameProgress.Start();
+            this.isReady = true;
+            this.refreshAllViews();
+            Canvas.ForceUpdateCanvases();
+            await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, this.GetCancellationTokenOnDestroy());
+            Canvas.ForceUpdateCanvases();
+            this.presentationReady = true;
+            this.startupCover.blocksRaycasts = false;
+            this.startupCover.interactable = false;
+            this.startupCover.gameObject.SetActive(false);
             this.refreshAllViews();
         }
         catch (OperationCanceledException)
@@ -210,6 +240,9 @@ public sealed class GameUIController : MonoBehaviour
         }
         foreach (CustomerAppearanceData appearance in this.customerCatalog.Appearances.Rows.Values)
             this.appearanceSprites.Add(appearance.Idx, await this.loadSpriteAsync(appearance.ImageResourceIdx, resources, spritesByResource));
+        foreach (InspectorEventData inspector in DataTableManager.Instance.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent).Rows.Values)
+            if (!inspectorSprites.ContainsKey(inspector.PortraitResourceIdx))
+                inspectorSprites.Add(inspector.PortraitResourceIdx, await loadSpriteAsync(inspector.PortraitResourceIdx, resources, spritesByResource));
         return spritesByProduct;
     }
 
@@ -277,6 +310,9 @@ public sealed class GameUIController : MonoBehaviour
     /// <exception cref="InvalidOperationException">진행에 필요한 씬 참조가 누락된 경우 발생합니다.</exception>
     private void validateUiReferences()
     {
+        if (inspectorPresenter == null || startupCover == null || startupErrorText == null)
+            throw new InvalidOperationException("감독관 패널 또는 초기화 덮개 참조가 누락되었습니다.");
+        inspectorPresenter.ValidateReferences();
         if (this.useCustomerQueue && (float.IsNaN(this.queueExitSeconds) || float.IsInfinity(this.queueExitSeconds) || this.queueExitSeconds <= 0))
             throw new InvalidOperationException("큐 퇴장 시간은 유한한 양수여야 합니다.");
         if (this.gameDayPresenter == null
@@ -305,6 +341,9 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>씬에 배치된 Presenter와 버튼의 입력 이벤트를 구독합니다.</summary>
     private void subscribeUi()
     {
+        inspectorPresenter.NextRequested += handleInspectorNext;
+        inspectorPresenter.ExitCompleted += handleInspectorExit;
+        inspectorPresenter.Failed += showError;
         this.facilityOpenButton.onClick.AddListener(this.handleFacilityOpenClicked);
         this.facilityShopPresenter.OnPurchaseRequested += this.handleFacilityPurchaseRequested;
         this.facilityShopPresenter.OnCloseRequested += this.handleFacilityCloseRequested;
@@ -325,6 +364,12 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>씬 UI 입력 이벤트를 해제합니다.</summary>
     private void unsubscribeUi()
     {
+        if (inspectorPresenter != null)
+        {
+            inspectorPresenter.NextRequested -= handleInspectorNext;
+            inspectorPresenter.ExitCompleted -= handleInspectorExit;
+            inspectorPresenter.Failed -= showError;
+        }
         if (this.facilityOpenButton != null) this.facilityOpenButton.onClick.RemoveListener(this.handleFacilityOpenClicked);
         if (this.facilityShopPresenter != null)
         {
@@ -924,7 +969,32 @@ public sealed class GameUIController : MonoBehaviour
         this.setPanelVisibility(this.operatingPanel, operating);
         this.setPanelVisibility(this.settlementPanel, settlement);
         this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
-        this.openBusinessButton.interactable = preOpen;
+        this.openBusinessButton.interactable = preOpen && presentationReady && !hasError;
+        bool inspector = this.subscribedDay.State == DayProgressState.InspectorEvent;
+        this.gameInputRouter.enabled = presentationReady && !hasError && !inspector && !IsFacilityShopOpen;
+        this.inspectorPresenter.gameObject.SetActive(inspector && !hasError);
+        if (inspector && !hasError)
+        {
+            InspectorEventSnapshot snapshot = GameSessionManager.Instance.InspectorEvents.Current;
+            this.inspectorPresenter.Present(snapshot, textData.Rows[snapshot.TextIdx].Text,
+                inspectorSprites[snapshot.PortraitResourceIdx], presentationReady, () => IsPresentationPaused);
+        }
+    }
+
+    /// <summary>표시 중이던 줄을 모델과 대조한 뒤 화면을 갱신한다.</summary>
+    /// <param name="snapshot">표시했던 날짜·이벤트·줄.</param>
+    private void handleInspectorNext(InspectorEventSnapshot snapshot)
+    {
+        if (!presentationReady || hasError) return;
+        runProgressAction(() => subscribedDay.AdvanceInspector(snapshot));
+    }
+
+    /// <summary>실제 퇴장 완료 후 남은 이벤트 또는 영업 전 화면으로 진행한다.</summary>
+    /// <param name="snapshot">퇴장 시작 당시 상태.</param>
+    private void handleInspectorExit(InspectorEventSnapshot snapshot)
+    {
+        if (!presentationReady || hasError) return;
+        runProgressAction(() => subscribedDay.CompleteInspectorExit(snapshot));
     }
 
     /// <summary>현재 날짜에 등장 가능한 상품을 영업 전 가격표에 표시합니다.</summary>
@@ -1009,6 +1079,16 @@ public sealed class GameUIController : MonoBehaviour
     private void showError(Exception exception)
     {
         this.hasError = true;
+        if (gameInputRouter != null) gameInputRouter.enabled = false;
+        if (inspectorPresenter != null) inspectorPresenter.gameObject.SetActive(false);
+        if (startupCover != null)
+        {
+            startupCover.gameObject.SetActive(true);
+            startupCover.alpha = 1;
+            startupCover.blocksRaycasts = true;
+            startupCover.transform.SetAsLastSibling();
+        }
+        if (startupErrorText != null) startupErrorText.text = "초기화 또는 진행 오류\n" + exception?.Message;
         if (this.facilityOpenButton != null) this.facilityOpenButton.interactable = false;
         if (this.facilityShopPresenter != null) this.facilityShopPresenter.SetInteractionEnabled(false, true);
         if (this.settlementInputGroup != null) this.settlementInputGroup.interactable = false;

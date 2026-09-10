@@ -25,6 +25,13 @@ public sealed class GameSessionApiTests
         tables = root.AddComponent<DataTableManager>(); yield return wait(tables.EnsureDataLoadedAsync().AsTask());
         session = root.AddComponent<GameSessionManager>(); session.InitializeNewGame(tables);
         Assert.That(session.IsInitialized); Assert.That(session.ElapsedDays, Is.Zero);
+        // 기존 회귀도 실제 첫날 대사/퇴장 API를 완료하고 시작한다. 감독관 자체 검사는 아래 별도 사례에서 수행한다.
+        if (!TestContext.CurrentContext.Test.Name.StartsWith("Inspector", StringComparison.Ordinal))
+        {
+            var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+            progress.Start();
+            completeInspectors(progress);
+        }
     }
 
     /// <summary>테스트 소유 객체를 제거한다. 사용자 씬·prefs·저장 파일은 접근하지 않는다.</summary>
@@ -701,6 +708,8 @@ public sealed class GameSessionApiTests
         var expected = new uint[] { 1001, 1004, 1007, 1010, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        completeInspectors(progress);
         progress.OpenBusiness(); progress.BeginCustomerSorting();
         var facilityItems = new[] { new SaleItem(1020, 1) };
         Assert.That(progress.SubmitOffer(acceptedOffer(progress.CurrentDayProgress.CurrentVisit, facilityItems), facilityItems));
@@ -725,6 +734,93 @@ public sealed class GameSessionApiTests
     }
 
 #if UNITY_EDITOR
+    /// <summary>실제 CSV 첫 대사·불투명 초기 덮개·입력 잠금·패널 재생성·퇴장 후 영업을 검증한다.</summary>
+    /// <returns>프리팹 초기화와 실제 페이드 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorStartupCoverDialogueRecreationAndExit()
+    {
+        long balance = session.Economy.QueryService.CurrentBalance;
+        var ui = createGameUi();
+        var cover = uiReference<CanvasGroup>(ui, "startupCover");
+        Assert.That(cover.gameObject.activeInHierarchy); Assert.That(cover.alpha, Is.EqualTo(1)); Assert.That(cover.blocksRaycasts);
+        Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled, Is.False);
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        Assert.That(cover.gameObject.activeSelf, Is.False); Assert.That(cover.blocksRaycasts, Is.False);
+        Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
+        Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
+        progress.Tick(60); Assert.That(session.Economy.QueryService.IsDayOpen, Is.False);
+        var panel = uiReference<InspectorPresenter>(ui, "inspectorPresenter");
+        var next = uiReference<UnityEngine.UI.Button>(panel, "nextButton");
+        Assert.That(next.interactable, Is.False);
+        yield return new WaitForSeconds(.5f); Assert.That(next.interactable);
+        ui.gameObject.SetActive(false); ui.gameObject.SetActive(true);
+        Assert.That(next.interactable, Is.False);
+        yield return new WaitForSeconds(.5f); Assert.That(next.interactable, "same root re-enable must resume entry");
+        var first = session.InspectorEvents.Current;
+        next.onClick.Invoke(); Assert.That(session.InspectorEvents.Current.LineIndex, Is.EqualTo(1));
+        Assert.That(progress.CurrentDayProgress.AdvanceInspector(first), Is.False);
+        UnityEngine.Object.Destroy(ui.gameObject); yield return null;
+        ui = createGameUi(); yield return waitForGameUi(ui); progress = uiProgress(ui);
+        Assert.That(session.InspectorEvents.Current.LineIndex, Is.EqualTo(1));
+        panel = uiReference<InspectorPresenter>(ui, "inspectorPresenter");
+        next = uiReference<UnityEngine.UI.Button>(panel, "nextButton");
+        yield return new WaitForSeconds(.5f);
+        for (int i=1; i<20; i++) next.onClick.Invoke();
+        Assert.That(session.InspectorEvents.Current.Phase, Is.EqualTo(InspectorEventPhase.AwaitingExit));
+        // 퇴장 중 비활성화는 세션 완료를 만들지 않는다. 새 화면이 같은 퇴장을 이어 처리한다.
+        UnityEngine.Object.Destroy(ui.gameObject); yield return null;
+        Assert.That(session.InspectorEvents.HasPending);
+        ui = createGameUi(); yield return waitForGameUi(ui);
+        yield return new WaitForSeconds(.5f);
+        Assert.That(ui.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(session.InspectorEvents.HasPending, Is.False);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        Assert.That(session.CurrentMorality, Is.Zero); Assert.That(session.CurrentReputation, Is.Zero);
+        uiProgress(ui).OpenBusiness(); Assert.That(session.Economy.QueryService.IsDayOpen);
+    }
+
+    /// <summary>실제 단계 구매가 3일차에 즉시 감독관을 추가하지 않고 4일차에 한 번 나타나는지 검사한다.</summary>
+    [Test]
+    public void InspectorPurchaseDayThreeAppearsDayFourOnce()
+    {
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); completeInspectors(progress);
+        for(int i=0; i<2; i++) { closeProgressDay(progress); progress.CompleteSettlement(); }
+        Assert.That(progress.CurrentDay, Is.EqualTo(3));
+        Assert.That(progress.TryPurchaseFacility(12008, out _)); Assert.That(progress.TryPurchaseFacility(12010, out _));
+        Assert.That(session.CurrentStoreStage, Is.EqualTo(3));
+        var reentry = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        reentry.Start(); Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        closeProgressDay(progress); progress.CompleteSettlement();
+        Assert.That(progress.CurrentDay, Is.EqualTo(4));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        Assert.That(session.InspectorEvents.Current.EventIdx, Is.EqualTo(15002));
+        long balance=session.Economy.QueryService.CurrentBalance;
+        completeInspectors(progress); Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        closeProgressDay(progress); progress.CompleteSettlement();
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+    }
+
+    /// <summary>초기화 실패 시 덮개가 입력을 계속 차단하고 오류 문구가 위에 표시되는지 검사한다.</summary>
+    /// <returns>UI 오류 처리 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorStartupFailureKeepsVisibleErrorCover()
+    {
+        var ui=createGameUi();
+        var serialized=new UnityEditor.SerializedObject(ui);
+        serialized.FindProperty("inspectorPresenter").objectReferenceValue=null;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        LogAssert.Expect(LogType.Exception, new System.Text.RegularExpressions.Regex("감독관 패널 또는 초기화 덮개 참조"));
+        float deadline=Time.realtimeSinceStartup+20;
+        var error=uiReference<TMPro.TextMeshProUGUI>(ui,"startupErrorText");
+        while(string.IsNullOrEmpty(error.text) && Time.realtimeSinceStartup<deadline) yield return null;
+        Assert.That(error.text, Does.Contain("감독관 패널")); Assert.That(error.gameObject.activeInHierarchy);
+        var cover=uiReference<CanvasGroup>(ui,"startupCover"); Assert.That(cover.alpha,Is.EqualTo(1)); Assert.That(cover.blocksRaycasts);
+        Assert.That(uiReference<GameInputRouter>(ui,"gameInputRouter").enabled,Is.False);
+    }
+
     /// <summary>로컬 큐 옵션의 빈 계산대와 마지막 퇴장 표시 대기가 도메인 정산을 중복시키지 않는다.</summary>
     /// <returns>UI 초기화와 표현 지연 완료 대기.</returns>
     [UnityTest]
@@ -871,8 +967,9 @@ public sealed class GameSessionApiTests
     private static IEnumerator waitForGameUi(GameUIController ui)
     {
         float deadline = Time.realtimeSinceStartup + 20;
-        while (uiProgress(ui) == null && Time.realtimeSinceStartup < deadline) yield return null;
+        while ((uiProgress(ui) == null || uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf) && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.That(uiProgress(ui), Is.Not.Null, "GameUI image loading/initialization timed out");
+        Assert.That(uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf, Is.False, "GameUI first binding/layout did not finish");
     }
 
     /// <summary>공유 원본을 수정하지 않고 테스트 소유 GameUI 인스턴스를 만든다.</summary>
@@ -891,6 +988,19 @@ public sealed class GameSessionApiTests
     private static GameProgress uiProgress(GameUIController ui) => (GameProgress)typeof(GameUIController)
         .GetField("gameProgress", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(ui);
 #endif
+
+    /// <summary>테스트 선행 단계도 제품 대사·퇴장 API를 통해 완료한다.</summary>
+    /// <param name="progress">시작된 진행.</param>
+    private void completeInspectors(GameProgress progress)
+    {
+        for (int guard=0; guard<100 && session.InspectorEvents.HasPending; guard++)
+        {
+            var snapshot=session.InspectorEvents.Current;
+            if(snapshot.Phase==InspectorEventPhase.Dialogue) Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot));
+            else Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot));
+        }
+        Assert.That(session.InspectorEvents.HasPending,Is.False);
+    }
 
     /// <summary>현재 진행의 마지막 손님을 거절하고 일일 집계까지 실제 API로 종료한다.</summary>
     /// <param name="progress">시작된 영업 전 진행.</param>
