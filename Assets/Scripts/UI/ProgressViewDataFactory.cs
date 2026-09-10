@@ -142,7 +142,7 @@ public sealed class ProgressViewDataFactory
                 unitPrice));
         }
 
-        return new CustomerViewData(true, appearanceColor, null, dialogue, basket);
+        return new CustomerViewData(true, appearanceColor, null, dialogue, basket, visit.Attributes);
     }
 
     /// <summary>설비 표시 경계의 이름 FK 실패를 숨기지 않는다.</summary>

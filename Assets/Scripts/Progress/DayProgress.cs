@@ -34,8 +34,14 @@ public sealed class DayProgress
     // 이 날 정산에 사용하며 향후 손님 구성 요청에도 전달할 시작 명성 snapshot입니다.
     private readonly int dayStartReputation;
 
-    // 손님 생성 규칙을 위임받은 기존 생성기입니다.
+    // 확정 구성 snapshot을 CustomerVisit으로 옮기는 무상태 생성기입니다.
     private readonly CustomerGenerator customerGenerator;
+
+    // 하루 시작 명성에 대응하는 손님 구성 가중치 snapshot입니다.
+    private readonly ReputationBalanceData reputationBalance;
+
+    // 하루 동안 성향·상품·성별 교대 상태를 선택하는 selector입니다.
+    private readonly CustomerCompositionSelector customerCompositionSelector;
 
     // 검증된 외형 후보를 하루 동안 재사용합니다.
     private readonly IReadOnlyList<uint> appearanceIds;
@@ -196,7 +202,13 @@ public sealed class DayProgress
         this.customerCatalog = customerCatalog;
         this.reputationBalanceTable = reputationBalanceTable;
         this.dayStartReputation = dayStartReputation;
-        this.customerGenerator = new CustomerGenerator(random);
+        if (!this.reputationBalanceTable.TryGetByReputation(dayStartReputation, out ReputationBalanceData balance) ||
+            balance == null)
+            throw new InvalidOperationException($"명성 {dayStartReputation}에 대응하는 손님 구성 데이터가 없습니다.");
+
+        this.reputationBalance = balance;
+        this.customerCompositionSelector = new CustomerCompositionSelector(random);
+        this.customerGenerator = new CustomerGenerator();
         this.businessDurationSeconds = businessDurationSeconds;
 
         var appearanceIds = new List<uint>(this.customerCatalog.Appearances.Rows.Keys);
@@ -436,17 +448,27 @@ public sealed class DayProgress
         this.CustomerStarted?.Invoke(this.currentVisit);
     }
 
-    /// <summary>검증된 카탈로그 후보를 기존 CustomerGenerator에 전달합니다.</summary>
+    /// <summary>하루 시작 명성·현재가·설비 상태로 구성을 선택하고 방문 객체를 생성합니다.</summary>
     private CustomerVisit createCustomer()
     {
         if (checked((uint)(this.day - 1)) != this.session.ElapsedDays)
             throw new InvalidOperationException("하루 진행 날짜와 세션 날짜가 다릅니다.");
-        CustomerVisit visit = this.customerGenerator.Generate(
+        DailyPriceState dailyPrices = this.session.EnsureDailyPrices();
+        CustomerComposition composition = this.customerCompositionSelector.SelectComposition(
             this.appearanceIds,
             this.dispositions,
             this.customerCatalog.Products.Rows,
+            this.reputationBalance,
+            dailyPrices.Prices,
             this.session.ElapsedDays,
-            () => this.session.EnsureDailyPrices().Prices, isFacilityActive: this.session.IsFacilityActive);
+            this.session.IsFacilityActive);
+
+        CustomerVisit visit = composition == null
+            ? null
+            : this.customerGenerator.Generate(
+                composition,
+                this.customerCatalog.Products.Rows,
+                () => this.session.EnsureDailyPrices().Prices);
 
         if (visit == null)
         {

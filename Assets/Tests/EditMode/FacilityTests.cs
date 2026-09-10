@@ -143,6 +143,53 @@ public sealed class FacilityTests
         Assert.That(CustomerProductAvailability.GetAvailableProducts(products, day).Count, Is.EqualTo(1), "미연결 설비는 잠금을 유지한다");
     }
 
+    /// <summary>상품 타입 선호가 비활성 설비 상품을 우회하지 않으며 활성화 후에만 선호 후보가 되는지 검사한다.</summary>
+    [Test]
+    public void PreferredProductTypeRespectsFacilityAvailability()
+    {
+        var products = new Dictionary<uint, ProductData>
+        {
+            [1001] = new ProductData { Idx = 1001, ProductType = ProductType.Water, BasePrice = 10, CostPrice = 5, IsAvailable = true },
+            [1002] = new ProductData { Idx = 1002, ProductType = ProductType.Food, BasePrice = 20, CostPrice = 10, IsAvailable = true, RequiredFacilityIdx = 12005 }
+        };
+        var config = new CustomerDispositionData
+        {
+            Idx = 6001,
+            DispositionType = CustomerDispositionType.Normal,
+            PreferredProductTypes = new[] { ProductType.Food },
+            PreferredProductIdxs = Array.Empty<uint>(),
+            PreferredSelectionChance = 1000,
+            MinProductKinds = 1,
+            MaxProductKinds = 1,
+            MinQuantity = 1,
+            MaxQuantity = 1,
+            EntryTextIdxs = new uint[] { 1 },
+            RegularSaleTextIdxs = new uint[] { 1 },
+            DiscountSaleTextIdxs = new uint[] { 1 },
+            ExploitativeSaleTextIdxs = new uint[] { 1 },
+            RejectTextIdxs = new uint[] { 1 }
+        };
+        var generator = new CustomerGenerator(new System.Random(1));
+        Func<CustomerVisit> generate = () => generator.Generate(
+            new uint[] { 5001 },
+            new[] { config },
+            products,
+            day,
+            () => products.ToDictionary(x => x.Key, x => x.Value.BasePrice),
+            isFacilityActive: service.IsActive);
+
+        CustomerVisit beforePurchase = generate();
+        Assert.That(beforePurchase.Items.Select(x => x.ProductIdx), Is.EqualTo(new uint[] { 1001 }));
+
+        service.TryPurchase(12005, out _);
+        CustomerVisit purchaseDay = generate();
+        Assert.That(purchaseDay.Items.Select(x => x.ProductIdx), Is.EqualTo(new uint[] { 1001 }));
+
+        day = 1;
+        CustomerVisit afterActivation = generate();
+        Assert.That(afterActivation.Items.Select(x => x.ProductIdx), Is.EqualTo(new uint[] { 1002 }));
+    }
+
     /// <summary>실제 FK 이름과 네 표시 상태·잔액 경계·표시 날짜 overflow를 검증한다.</summary>
     [Test]
     public void ShopSnapshotUsesCatalogAndOwnership()

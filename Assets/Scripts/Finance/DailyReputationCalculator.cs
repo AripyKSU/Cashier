@@ -50,7 +50,8 @@ public sealed class DailyReputationCalculator
         if (!this.reputationBalanceTable.TryGetByReputation(dayStartReputation, out ReputationBalanceData reputationData))
             throw new InvalidDataException($"명성 {dayStartReputation}에 대응하는 밸런스 데이터가 없습니다.");
 
-        Dictionary<CustomerDispositionType, CustomerDispositionData> dispositions = this.buildDispositionMap();
+        IReadOnlyDictionary<CustomerDispositionType, CustomerDispositionData> dispositions =
+            ReputationDispositionRules.BuildByType(this.dispositionTable.Rows.Values);
         int weightedScoreSum = 0;
         int totalWeight = 0;
         foreach (TransactionResult transaction in transactions)
@@ -85,19 +86,6 @@ public sealed class DailyReputationCalculator
         int finalDelta = applyRecoveryAndClamp(settlementData.SettlementDelta, reputationData.RecoveryRate);
         return new DailyReputationCalculationResult(actualTransactionCount, weightedScoreSum, totalWeight,
             rawSettlementScore, settlementScore, settlementData.SettlementDelta, finalDelta, wasSmallSampleAdjusted);
-    }
-
-    private Dictionary<CustomerDispositionType, CustomerDispositionData> buildDispositionMap()
-    {
-        Dictionary<CustomerDispositionType, CustomerDispositionData> result =
-            new Dictionary<CustomerDispositionType, CustomerDispositionData>();
-        foreach (CustomerDispositionData data in this.dispositionTable.Rows.Values)
-        {
-            if (data == null) throw new InvalidDataException("손님 성향 데이터에 null 행이 있습니다.");
-            if (!result.TryAdd(data.DispositionType, data))
-                throw new InvalidDataException($"손님 성향 타입이 중복되었습니다: {data.DispositionType}");
-        }
-        return result;
     }
 
     private static int getScore(TransactionResult transaction, ReputationTransactionGrade grade)

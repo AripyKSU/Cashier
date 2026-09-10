@@ -33,7 +33,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 3 || valid.Categories.GetDataCount() != 4 || valid.Products.GetDataCount() != 22 || textTables[valid].GetDataCount() != 70) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 7 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 22 || textTables[valid].GetDataCount() != 74) throw new Exception("Unexpected sample counts");
 if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
 if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.Facility + 1) throw new Exception("End marker must follow the last table");
@@ -41,7 +41,7 @@ if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) 
 
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.RegularPriceMinRate==1000 && x.RegularPriceMaxRate==1000));
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.PreferredProductIdxs.Count==0));
-Assert.That(valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.DispositionType), Is.EqualTo(new[]{CustomerDispositionType.Normal,CustomerDispositionType.Hasty,CustomerDispositionType.PriceSensitive}));
+Assert.That(valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.DispositionType), Is.EqualTo(new[]{CustomerDispositionType.Normal,CustomerDispositionType.Hasty,CustomerDispositionType.PriceSensitive,CustomerDispositionType.Normal,CustomerDispositionType.Normal,CustomerDispositionType.Normal,CustomerDispositionType.Wealthy}));
     }
     /// <summary>명명된 잘못된 파일 하나가 LogError와 예외를 내며 공개되지 않는지 확인한다.</summary>
     /// <param name="name">오류 사례.</param>

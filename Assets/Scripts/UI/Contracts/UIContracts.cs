@@ -150,14 +150,22 @@ public struct CustomerViewData
     public bool HasCustomer;                               // 손님 존재 여부 (false면 UI 초기화/숨김)
     public Color AppearanceColor;                          // 손님 외형 컬러
     public Sprite AppearanceSprite;                        // 손님 외형 스프라이트 (선택)
+    public CustomerAttributes Attributes;                  // 성별·연령·특수 속성 스냅샷
     public string DialogueText;                            // 손님 입장 또는 피드백 대사
     public IReadOnlyList<CustomerBasketItemViewData> Basket; // 장바구니 품목 목록
 
-    public CustomerViewData(bool hasCustomer, Color appearanceColor, Sprite appearanceSprite, string dialogueText, IReadOnlyList<CustomerBasketItemViewData> basket)
+    public CustomerViewData(
+        bool hasCustomer,
+        Color appearanceColor,
+        Sprite appearanceSprite,
+        string dialogueText,
+        IReadOnlyList<CustomerBasketItemViewData> basket,
+        CustomerAttributes attributes = CustomerAttributes.None)
     {
         this.HasCustomer = hasCustomer;
         this.AppearanceColor = appearanceColor;
         this.AppearanceSprite = appearanceSprite;
+        this.Attributes = attributes;
         this.DialogueText = dialogueText;
         this.Basket = basket;
     }

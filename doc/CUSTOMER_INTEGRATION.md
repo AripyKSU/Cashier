@@ -51,6 +51,10 @@
 
 대기열·5초 입장·성향별 재촉/이탈·FIFO 인계의 최신 계약과 추가 성향 컬럼은 [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다. 줄 합류 시 최초 희망 목록의 표시 단가만 고정한다. 최종 거래 단가·기준액·허용액·원가는 SubmitOffer 시점에 확정한다.
 
+## 2026-09-09 손님 구성 선택 통합
+
+최신 구성 선택·생성 경계와 설비별 상품 분류는 [CUSTOMER_SPAWN_INTEGRATION.md](CUSTOMER_SPAWN_INTEGRATION.md)를 기준으로 한다. `CustomerCompositionSelector`가 하루 시작 명성 가중치와 당일 설비 해금 상태를 반영한 `CustomerComposition`을 만들고, `CustomerGenerator`는 해당 snapshot을 `CustomerVisit`으로만 변환한다. 기존 본문의 명성 미연결·Wealthy 행 없음·타입 균등 설명은 통합 전 이력이다.
+
 #### GameplaySandbox 검증 재현 범위
 
 Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했다. Check-MainSceneIntegration은 실제 실행 씬이 GameplaySandbox였으므로 파일을 변경하지 않고 실행 메모리에서 씬 이름 조건만 대체했다. 나머지 검사는 그대로 실행했으며 MainScene 자산 자체를 실행한 증거는 아니다.
@@ -84,8 +88,10 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 | `DataTableManager.Instance.EnsureDataLoadedAsync()` | CSV 파싱·참조 검증 완료까지 대기. 실패는 예외로 전달되며 생성·입력을 활성화하지 않는다. 씬 수명 token은 `AttachExternalCancellation(token)`으로 연결한다. |
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
-| `new CustomerGenerator(System.Random random)` | 난수원을 주입하고 방문 간 재사용한다. |
-| `Generate(appearanceIds, dispositions, products, elapsedDays = 0, getCurrentPrices = null, getSaleRestrictions = null)` | 런타임 현재가 공급은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`이며 null은 거부한다. 지침 공급자만 optional/null 허용하며 의미는 위 3차 계약을 따른다. 시작일은 0. 판매 가능 상품이 없으면 null, 잘못된 후보·설정은 예외. 외형·타입·타입 내 설정은 각각 균등 선정한다. |
+| `new CustomerCompositionSelector(System.Random random)` | 영업일 동안 재사용할 난수원과 성별 교대 상태를 소유한다. `DayProgress`가 영업일마다 새 인스턴스를 만든다. |
+| `SelectComposition(appearanceIds, dispositions, products, reputationBalance, currentPrices, elapsedDays = 0, isFacilityActive = null)` | 하루 시작 명성 가중치로 구성군을 선택하고, 날짜·설비 필터 뒤 선호 타입/개별 상품을 적용한다. 결과는 불변 `CustomerComposition` snapshot이며 판매 가능 상품이 없으면 null이다. |
+| `new CustomerGenerator()` / `Generate(composition, products, getCurrentPrices, getSaleRestrictions = null)` | 선택된 snapshot을 `CustomerVisit`으로만 변환한다. 현재가 공급은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`이며 지침 공급자는 제출 시 선택적으로 조회한다. |
+| `CustomerGenerator.Generate(appearanceIds, dispositions, products, ...)` (Obsolete) | 기존 테스트·도구 호환용 확장 경로다. 제품 영업 흐름에서는 selector → composition → generator 순서를 사용한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
 | `CustomerVisit.SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)` | 최종 목록과 양의 정수 총액. 최초 희망 목록과 달라도 허용한다. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |

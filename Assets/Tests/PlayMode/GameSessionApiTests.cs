@@ -141,6 +141,31 @@ public sealed class GameSessionApiTests
         Assert.That(visit.Result.Value.SoldItems, Is.SameAs(result.SoldItems));
     }
 
+    /// <summary>실제 하루 진행 경로에서 연속 손님 성별이 교대하는지 확인합니다. 영업일별 selector 재생성은 EditMode에서 별도로 검사합니다.</summary>
+    [Test]
+    public void CustomerGenderAlternatesWithinBusinessDay()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(23));
+        progress.Start();
+        progress.OpenBusiness();
+        progress.BeginCustomerSorting();
+
+        CustomerAttributes gender = progress.CurrentDayProgress.CurrentVisit.Attributes &
+            (CustomerAttributes.Male | CustomerAttributes.Female);
+        for (int i = 0; i < 3; i++)
+        {
+            CustomerVisit visit = progress.CurrentDayProgress.CurrentVisit;
+            Assert.That(progress.SubmitOffer(1, visit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray()), Is.True);
+            progress.CompleteTransactionResult();
+            progress.BeginCustomerSorting();
+            CustomerAttributes nextGender = progress.CurrentDayProgress.CurrentVisit.Attributes &
+                (CustomerAttributes.Male | CustomerAttributes.Female);
+            Assert.That(nextGender, Is.Not.EqualTo(gender));
+            gender = nextGender;
+        }
+    }
+
     /// <summary>준비된 지침 방문을 진행 경계에 넣어 위반 snapshot이 정산 이후에도 보존되는지 검사한다.</summary>
     [Test]
     public void ProgressPreservesRestrictionSnapshot()
