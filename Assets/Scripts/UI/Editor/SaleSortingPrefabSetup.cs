@@ -38,6 +38,8 @@ public static class SaleSortingPrefabSetup
     private const string DailyInstructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
     private const string CounterClockPath = "Assets/DystopiaPrototype/Art/시계.png";
     private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
+    private const int SaleAnchorCount = 9;
+    private const int SaleAnchorRowSize = 3;
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]
@@ -90,6 +92,7 @@ public static class SaleSortingPrefabSetup
             RectTransform excluded = createRect("ExcludedZone", workArea, new Vector2(-560f, 0f), new Vector2(150f, 610f));
 
             RectTransform sale = createRect("ForSaleZone", workArea, new Vector2(410f, 125f), new Vector2(300f, 230f));
+            RectTransform[] saleAnchors = createSaleAnchors(sale);
 
             RectTransform itemRoot = createRect("ItemRoot", workArea, Vector2.zero, Vector2.zero);
             stretch(sortingtRoot: itemRoot);
@@ -110,6 +113,23 @@ public static class SaleSortingPrefabSetup
             dividerImage.preserveAspect = false;
             dividerImage.raycastTarget = false;
             DividerBarController dividerController = dividerRect.gameObject.AddComponent<DividerBarController>();
+
+            RectTransform vacuumRect = createRect("Vacuum", workArea, new Vector2(-330f, 0f), new Vector2(48f, 480f));
+            vacuumRect.SetAsLastSibling();
+            Image vacuumImage = vacuumRect.gameObject.AddComponent<Image>();
+            vacuumImage.color = new Color(0.72f, 0.82f, 0.88f, 0.95f);
+            vacuumImage.raycastTarget = false;
+            VacuumController vacuumController = vacuumRect.gameObject.AddComponent<VacuumController>();
+            RectTransform suctionArea = createRect("SuctionArea", vacuumRect, new Vector2(0f, -250f), new Vector2(96f, 64f));
+            SerializedObject vacuumObject = new SerializedObject(vacuumController);
+            setObject(vacuumObject, "vacuumRect", vacuumRect);
+            setObject(vacuumObject, "vacuumImage", vacuumImage);
+            setObject(vacuumObject, "suctionArea", suctionArea);
+            setFloat(vacuumObject, "startOffsetX", -330f);
+            setFloat(vacuumObject, "liftOffsetPixels", 18f);
+            setFloat(vacuumObject, "attachedSpacingPixels", 10f);
+            setFloat(vacuumObject, "positionFollowSpeed", 32f);
+            vacuumObject.ApplyModifiedPropertiesWithoutUndo();
 
             RectTransform container = createRect("PouringContainer", sortingRoot, new Vector2(-460f, 60f), new Vector2(420f, 420f));
             container.localRotation = Quaternion.Euler(0f, 0f, -90f);
@@ -164,6 +184,7 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "itemRoot", itemRoot);
             setObject(panelObject, "excludedZone", excluded);
             setObject(panelObject, "saleZone", sale);
+            setObjectArray(panelObject, "saleAnchors", saleAnchors);
             setObject(panelObject, "transitionOverlay", null);
             setObject(panelObject, "containerImage", containerImage);
             setObject(panelObject, "tiltedContainerSprite", loadSprite(TiltedContainerPath));
@@ -178,6 +199,7 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "itemPrefab", itemView);
             setObject(panelObject, "sortingStatusText", null);
             setObject(panelObject, "dividerBar", dividerController);
+            setObject(panelObject, "vacuum", vacuumController);
             setFloat(panelObject, "transitionSeconds", 1f);
             panelObject.ApplyModifiedPropertiesWithoutUndo();
 
@@ -660,6 +682,30 @@ public static class SaleSortingPrefabSetup
         return rect;
     }
 
+    /// <summary>판매 구역 안에 ProductId 행 순서를 보존하는 3×3 앵커를 생성합니다.</summary>
+    /// <param name="saleZone">판매 구역 RectTransform입니다.</param>
+    /// <returns>위쪽에서 아래쪽, 왼쪽에서 오른쪽 순서의 9개 앵커입니다.</returns>
+    private static RectTransform[] createSaleAnchors(RectTransform saleZone)
+    {
+        var anchors = new RectTransform[SaleAnchorCount];
+        float[] xPositions = { -78f, 0f, 78f };
+        float[] yPositions = { 60f, 0f, -60f };
+        for (int row = 0; row < SaleAnchorRowSize; row++)
+        {
+            for (int column = 0; column < SaleAnchorRowSize; column++)
+            {
+                int index = row * SaleAnchorRowSize + column;
+                anchors[index] = createRect(
+                    $"SaleAnchor_Row{row + 1}_Slot{column + 1}",
+                    saleZone,
+                    new Vector2(xPositions[column], yPositions[row]),
+                    new Vector2(72f, 72f));
+            }
+        }
+
+        return anchors;
+    }
+
     /// <summary>RectTransform을 부모 전체에 맞춰 늘립니다.</summary>
     /// <param name="sortingtRoot">늘릴 RectTransform입니다.</param>
     private static void stretch(RectTransform sortingtRoot)
@@ -708,6 +754,21 @@ public static class SaleSortingPrefabSetup
         SerializedProperty property = serializedObject.FindProperty(propertyName);
         if (property == null) throw new MissingFieldException(serializedObject.targetObject.GetType().Name, propertyName);
         property.objectReferenceValue = value;
+    }
+
+    /// <summary>직렬화된 Object 배열 참조를 순서대로 설정합니다.</summary>
+    /// <param name="serializedObject">대상 직렬화 객체입니다.</param>
+    /// <param name="propertyName">배열 필드 이름입니다.</param>
+    /// <param name="values">연결할 Object 배열입니다.</param>
+    private static void setObjectArray(SerializedObject serializedObject, string propertyName, UnityEngine.Object[] values)
+    {
+        SerializedProperty property = serializedObject.FindProperty(propertyName);
+        if (property == null) throw new MissingFieldException(serializedObject.targetObject.GetType().Name, propertyName);
+        property.arraySize = values.Length;
+        for (int index = 0; index < values.Length; index++)
+        {
+            property.GetArrayElementAtIndex(index).objectReferenceValue = values[index];
+        }
     }
 
     /// <summary>직렬화된 실수 설정 필드를 갱신합니다.</summary>

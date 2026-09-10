@@ -744,6 +744,10 @@ public sealed class GameUIController : MonoBehaviour
 
         this.saleSortingPanel.SetDividerBarAvailable(
             GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.DividerBar));
+        this.saleSortingPanel.SetAutoSortingAvailable(
+            GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.AutoSorting));
+        this.saleSortingPanel.SetVacuumAvailable(
+            GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.Vacuum));
 
         this.gameDayPresenter.UpdateView(new GameDayViewData(
             this.gameProgress.CurrentDay,
