@@ -59,7 +59,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField, Min(0f)] private float transitionSeconds = 0.25f;
     [SerializeField, Min(0f)] private float customerArrivalSeconds = 0.8f;
     [SerializeField, Min(0f)] private float pourSeconds = 0.65f;
+    [SerializeField, Min(0f)] private float autoAdvanceDelaySeconds = 0.5f;
     [SerializeField] private TextMeshProUGUI sortingStatusText;
+
+    [Header("Divider Bar")]
+    [Tooltip("작업대에서 상품을 물리적으로 밀어내는 큰 밀대")]
+    [SerializeField] private DividerBarController dividerBar;
 
     private readonly List<SaleSortingItemView> items = new List<SaleSortingItemView>();
     private ViewState state;
@@ -101,6 +106,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
         this.CalculatorVisibilityChanged?.Invoke(this.isCalculatorOpen);
 
+        if (this.dividerBar != null && this.workArea != null)
+        {
+            this.dividerBar.Initialize(this.workArea);
+        }
+
         this.showFrontOnly();
     }
 
@@ -110,6 +120,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.state != ViewState.Sorting || this.workArea == null)
         {
             this.hasPointerSample = false;
+            if (this.dividerBar != null)
+            {
+                this.dividerBar.UpdateMotion(false, Vector2.zero, Time.unscaledDeltaTime);
+            }
             return;
         }
 
@@ -117,6 +131,16 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (deltaSeconds < MinimumDeltaSeconds)
         {
             return;
+        }
+
+        bool allowDivider = !this.isPointerOverCalculator();
+        if (this.dividerBar != null)
+        {
+            this.dividerBar.UpdateMotion(allowDivider, this.getPointerScreenPosition(), deltaSeconds);
+            if (allowDivider)
+            {
+                this.dividerBar.PushItems(this.items);
+            }
         }
 
         this.applyPointerImpulse(deltaSeconds);
@@ -291,11 +315,17 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(true);
         if (this.containerImage != null)
         {
-            this.containerImage.sprite = this.tiltedContainerSprite;
+            this.containerImage.sprite = this.tiltedContainerSprite != null ? this.tiltedContainerSprite : this.containerImage.sprite;
+            this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f);
             this.containerImage.gameObject.SetActive(true);
         }
 
         this.state = ViewState.Pouring;
+        if (this.sortingStatusText != null)
+        {
+            this.sortingStatusText.text = "물품을 쏟는 중…";
+        }
+
         this.createPendingItems();
         float elapsed = 0f;
         while (elapsed < this.pourSeconds)
@@ -312,14 +342,23 @@ public sealed class SaleSortingPanel : MonoBehaviour
             yield return null;
         }
 
+        // 쏟기가 끝나면 바구니를 숨기고 회전값을 원복합니다.
         if (this.containerImage != null)
         {
             this.containerImage.sprite = this.emptyContainerSprite;
+            this.containerImage.gameObject.SetActive(false);
+            this.containerImage.rectTransform.localRotation = Quaternion.identity;
         }
 
         for (int i = 0; i < this.items.Count; i++)
         {
-            this.items[i].Velocity = UnityEngine.Random.insideUnitCircle * 14f;
+            this.items[i].Velocity = UnityEngine.Random.insideUnitCircle * 20f;
+        }
+
+        if (this.dividerBar != null)
+        {
+            this.dividerBar.ResetToLeftEnd();
+            this.dividerBar.SetVisible(true);
         }
 
         this.state = ViewState.Sorting;
@@ -329,13 +368,14 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.transitionRoutine = null;
     }
 
-    /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭을 기다립니다.</summary>
+    /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭 또는 자동 시간 경과로 작업대로 전환합니다.</summary>
     /// <returns>박스 도착 연출을 프레임별로 진행하는 열거자입니다.</returns>
     private IEnumerator playContainerArrival()
     {
         this.state = ViewState.Transition;
         if (this.frontView != null) this.frontView.SetActive(true);
         if (this.sortingView != null) this.sortingView.SetActive(false);
+        if (this.dividerBar != null) this.dividerBar.SetVisible(false);
         yield return this.waitUnscaled(this.customerArrivalSeconds);
         if (this.frontContainerButton != null)
         {
@@ -360,6 +400,19 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.state = ViewState.FrontWaiting;
+
+        // 자동으로 작업대 전환 (사용자가 직접 클릭하지 않아도 일정 시간 후 자동 진행)
+        if (this.autoAdvanceDelaySeconds > 0f)
+        {
+            yield return this.waitUnscaled(this.autoAdvanceDelaySeconds);
+            if (this.state == ViewState.FrontWaiting)
+            {
+                if (this.frontContainerButton != null) this.frontContainerButton.interactable = false;
+                yield return this.playEntryFlow();
+                yield break;
+            }
+        }
+
         this.transitionRoutine = null;
     }
 
@@ -584,7 +637,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <returns>작업대 로컬 시작 위치입니다.</returns>
     private Vector2 getPourStartPosition(int index)
     {
-        return new Vector2(-this.workArea.rect.width * 0.28f + ((index % 3) * 6f), this.workArea.rect.height * 0.22f);
+        return new Vector2(-280f + ((index % 3) * 12f), 60f + ((index / 3) * 16f));
     }
 
     /// <summary>상품을 작업대 중앙에 겹치지 않게 펼칠 목표 위치를 계산합니다.</summary>
@@ -594,8 +647,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private Vector2 getInitialSpreadPosition(int index, int count)
     {
         float angle = count <= 1 ? 0f : (Mathf.PI * 2f * index / count);
-        float ring = Mathf.Min(this.workArea.rect.width, this.workArea.rect.height) * (0.12f + (index % 3) * 0.04f);
-        return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * ring;
+        float ring = Mathf.Min(this.workArea.rect.width, this.workArea.rect.height) * (0.13f + (index % 3) * 0.04f);
+        return new Vector2(Mathf.Cos(angle) * ring - 40f, Mathf.Sin(angle) * ring + 10f);
     }
 
     /// <summary>현재 미분류 상품 수를 계산합니다.</summary>
@@ -649,6 +702,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(false);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
+        if (this.dividerBar != null) this.dividerBar.SetVisible(false);
         this.hasPointerSample = false;
     }
 }
