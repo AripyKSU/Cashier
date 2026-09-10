@@ -101,7 +101,8 @@ Shader "Cashier/PixelStageLighting"
    float2 d=(i.uv-_SkyOrigin.xy)*float2(3,5);
    float opening=exp(-dot(d,d))*(.8+.2*sin(i.uv.x*24+i.uv.y*12+_SkyOrigin.z));
    c.rgb+=_SkyGlow.rgb*sky*cloud*opening;
-   c.rgb=lerp(c.rgb,float3(0,0,0),SkyBirds(i.world));
+   // Distant birds inherit the sky tint and haze instead of pure black.
+   c.rgb=lerp(c.rgb,c.rgb*.55,SkyBirds(i.world));
    return c;
   }
   if(_Surface>3.5){float chroma=max(c.r,max(c.g,c.b))-min(c.r,min(c.g,c.b));c.a*=step(.18,chroma);return c;}

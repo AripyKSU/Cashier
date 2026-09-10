@@ -9,6 +9,41 @@ public sealed class DystopiaInstructionText : BaseMeshEffect
     private readonly TextGenerator generator = new TextGenerator();
     /// <summary>글자 하나의 정점 버퍼입니다.</summary>
     private readonly UIVertex[] quad = new UIVertex[4];
+    /// <summary>폰트 아틀라스가 바뀌면 현재 메시 생성이 끝난 다음 프레임에 새 UV를 반영합니다.</summary>
+    private bool fontMeshRefreshPending;
+
+    /// <summary>기본 Text와 별개인 생성기도 폰트 아틀라스 변경을 추적합니다.</summary>
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        Font.textureRebuilt += OnFontTextureRebuilt;
+        fontMeshRefreshPending = true;
+    }
+
+    /// <summary>메시 생성 중 재진입하지 않고 아틀라스 변경 후 한 번만 다시 그립니다.</summary>
+    private void LateUpdate()
+    {
+        if (!fontMeshRefreshPending) return;
+        fontMeshRefreshPending = false;
+        generator.Invalidate();
+        graphic.SetVerticesDirty();
+    }
+
+    /// <summary>숨겨진 지침서는 전역 폰트 이벤트를 받지 않도록 해제합니다.</summary>
+    protected override void OnDisable()
+    {
+        Font.textureRebuilt -= OnFontTextureRebuilt;
+        fontMeshRefreshPending = false;
+        base.OnDisable();
+    }
+
+    /// <summary>현재 글꼴의 UV가 바뀐 경우에만 별도 생성기의 갱신을 예약합니다.</summary>
+    /// <param name="rebuiltFont">아틀라스가 다시 생성된 글꼴입니다.</param>
+    private void OnFontTextureRebuilt(Font rebuiltFont)
+    {
+        var label = graphic as Text;
+        if (label != null && label.font == rebuiltFont) fontMeshRefreshPending = true;
+    }
 
     /// <summary>Transform이나 글자 크기를 변경하지 않고 고해상도 글리프 메시로 교체합니다.</summary>
     /// <param name="vertices">동일한 영역에 다시 그릴 텍스트 메시입니다.</param>
