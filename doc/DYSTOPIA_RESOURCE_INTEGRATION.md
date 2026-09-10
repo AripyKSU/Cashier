@@ -1,5 +1,7 @@
 # Dystopia 리소스 선택 이관
 
+후속 상품·손님 이미지 활성화는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다. 아래 개인 Inspector 24매핑은 당시 구현 기록이며 현재는 CSV45외형의 공용 Sprite 조회로 대체됐다.
+
 ## 기준과 사용 위치
 
 - 원격 기준: `origin/astra-prototype`, 고정 SHA `bd48cb5146e2521eeaaf181c706efcbf770cf9f3`.

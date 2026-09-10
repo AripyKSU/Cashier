@@ -4,6 +4,10 @@
 
 ## 1. 통합 범위와 책임
 
+### 2026-09-10 상품·외형 이미지
+
+현재 외형은 RGBA 대신 필수 Resource FK이며 상품은 기본·탑뷰 두 FK를 사용한다. 이 문서의 과거 색상 블록·빈 상품 이미지 기록보다 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)의 스키마·매핑·이관 절차를 우선한다. 성향·속성 생성과 판정은 변경하지 않았다.
+
 ### 2026-09-09 설비 상품 해금
 
 상품에 `required_facility_idx`를 추가했다. 생성과 현재 가격표는 활성·등장일·세션 설비 활성 조건을 함께 사용하며, 최종 제출은 방문 생성 시 판매 가능했던 전체 PK 스냅샷 안에서만 허용한다. 희망 목록 밖 상품은 그 범위 안에서 계속 허용한다. 새 CSV와 loader·소비 코드는 함께 배포하며 상세 API/테스트 값은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 생성기 마지막 선택 인자는 이제 `isFacilityActive`이며 기존 지침 공급자는 그대로 유지한다.
@@ -153,7 +157,7 @@ visit.Depart();
 
 | 대상 | 현재 연결 |
 |---|---|
-| 외형 | `Appearances.Rows[visit.AppearanceIdx]`의 RGBA. 현재는 사각형+색상, 외형 파츠·정식 sprite 계약 없음. |
+| 외형 | `Appearances.Rows[visit.AppearanceIdx].ImageResourceIdx` → ResourceData → Sprite. 화면 초기화 시 로드하며 Local 큐도 같은 결과를 조회한다. |
 | 상품 이름 | `Products.Rows[item.ProductIdx].NameIdx → Texts.Rows[idx].Text` |
 | 상품 종류 | `ProductData.ProductType` enum. `Categories.Rows.Values`에서 동일 ProductType 행을 찾아 `NameIdx → Text`로 UI 표시. enum 이름을 표시명이나 내부 문자열 키로 쓰지 않는다. |
 | 상품 이미지 | `ImageResourceIdx`가 null이면 흰색 기본 사각형+상품 이름. 값이 있으면 `GetDB<ResourceDataTable>(DataTableType.Resource).GetResourcePath(idx)` → `ResourceManager.LoadAssetAsync<Sprite>(path)`. |

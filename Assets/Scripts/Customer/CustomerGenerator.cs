@@ -17,7 +17,7 @@ public sealed class CustomerGenerator
     }
 
     /// <summary>외형·타입·타입 내 설정과 독립 속성을 균등 선정하고 중복 없는 상품·수량을 확정한다.</summary>
-    /// <param name="appearanceIds">외부에서 리소스 참조를 검증한 외형 ID 후보.</param>
+    /// <param name="appearanceIds">CustomerCatalog에서 Resource FK를 검증한 외형 ID 후보. Sprite 로드는 화면 조립자가 담당한다.</param>
     /// <param name="dispositions">외부에서 상품군 참조를 검증한 성향 후보.</param>
     /// <param name="products">상품 ID → 상품 데이터. 비활성·미등장 상품은 제외한다.</param>
     /// <param name="elapsedDays">게임 시작 후 경과 일수. 0은 시작일.</param>

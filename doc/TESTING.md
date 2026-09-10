@@ -1,5 +1,14 @@
 # 기능 API 검증
 
+## 상품·외형 이미지 migration (2026-09-10)
+
+- 컴파일 오류 없음. CustomerCsvTests에 실제 CSV 두 FK·45외형·빈값/누락·표시 선택 검사를, GameSessionApiTests에 실제 Sprite54개 ResourceManager 로드를 추가했다.
+- 최초 EditMode 시작은 개인 씬 dirty gate로 거부됐다(0건/XML없음). 저장 요청도 안전 검토에서 차단됐으나 직접 승인 작업에서 백업·저장 완료 후 재개했다.
+- 최종 EditMode174/174: `Temp/TestResults/20260910-140531-7c3304297493471bb17cf481bc41c3f6/EditMode.xml`. 최종 PlayMode33/33: `Temp/TestResults/20260910-140803-fee27b1d673648d7819b27c78d3be31f/PlayMode.xml` 및 각 로그. 실패·skip·미완료0. 실제 Sprite54개 로드 포함.
+- 초기 EditMode 두 실행의 실패는 테스트 가격 공급/정상 Resource 로그 기대 누락이었다. 이후 Play3실패는 기존1프레임 초기화 가정으로, 실제 GameUI 준비까지20초 제한 대기로 수정했다. 제품 계약을 완화하지 않았다. 실패 증거는 `20260910-140305-085bf35bee744f0886f26acfca201591`, `20260910-140411-bebca359348549598a9b3b21c666e561`, `20260910-140531-7c3304297493471bb17cf481bc41c3f6`에 보존한다.
+- 최종 compile 오류 없음, Console Error4건은 기대된 알림1/ResourcePool3 실패 주입. 사용자 씬으로 복귀(dirty=False), Play 종료, 개인 playModeStartScene=InitScene 복원. 실제 화면 배치·마우스 사용감은 별도 사용자 확인 대상이다.
+- 연결·migration·UI 수동 확인 범위는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
+
 ## 일일 도덕성 정산 검증 (2026-09-10)
 
 - EditMode 165/165, PlayMode 32/32, 실패·skip·미완료 0. 증거: `Temp/TestResults/20260910-123818-a7254722d2044b398dedfe5636e87a4c/`의 두 XML 및 로그.

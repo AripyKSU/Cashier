@@ -67,6 +67,8 @@ public sealed class GameUIController : MonoBehaviour
     private bool isReady;
     private bool hasError;
     private Sprite productPlaceholderSprite;
+    private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
+    private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
 
     /// <summary>개인 씬에서 실제 FIFO 대기열을 사용할 때만 켠다. 공유 prefab 기본값은 false.</summary>
     [SerializeField] private bool useCustomerQueue;
@@ -107,11 +109,11 @@ public sealed class GameUIController : MonoBehaviour
                 throw new InvalidOperationException("손님 또는 텍스트 데이터가 준비되지 않았습니다.");
             }
 
-            IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadProductSpritesAsync();
+            IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadDisplaySpritesAsync();
             this.viewDataFactory = new ProgressViewDataFactory(
                 this.customerCatalog,
                 this.textData,
-                productSprites, GameSessionManager.Instance.IsFacilityActive);
+                productSprites, GameSessionManager.Instance.IsFacilityActive, this.topViewSprites, this.appearanceSprites);
 
             this.validateUiReferences();
             if (this.useCustomerQueue) this.saleSortingPanel.SetPauseQuery(() => this.IsPresentationPaused);
@@ -172,10 +174,10 @@ public sealed class GameUIController : MonoBehaviour
         }
     }
 
-    /// <summary>상품 데이터 FK를 따라 장바구니 표시용 Sprite를 한 번씩 로드합니다.</summary>
-    /// <returns>모든 상품 ID에 대응하는 로드 완료 Sprite 사전입니다. 이미지가 없으면 임시 흰색 Sprite를 사용합니다.</returns>
+    /// <summary>상품 기본·탑뷰와 손님 외형 Sprite를 Resource FK별로 한 번 로드한다.</summary>
+    /// <returns>상품 기본 Sprite 사전. 탑뷰·외형도 같은 화면 수명에 보관하며 상품의 두 FK가 빈 경우만 흰색을 사용한다.</returns>
     /// <exception cref="InvalidOperationException">리소스 시스템 또는 ResourceDataTable이 준비되지 않은 경우 발생합니다.</exception>
-    private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadProductSpritesAsync()
+    private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadDisplaySpritesAsync()
     {
         if (ResourceManager.Instance == null)
         {
@@ -190,65 +192,37 @@ public sealed class GameUIController : MonoBehaviour
 
         var spritesByResource = new Dictionary<uint, Sprite>();
         var spritesByProduct = new Dictionary<uint, Sprite>();
+        // 공용 manager가 핸들을 소유하고 이 화면은 동일 Resource FK의 로드 결과만 재사용한다.
         foreach (ProductData product in this.customerCatalog.Products.Rows.Values)
         {
             if (!product.ImageResourceIdx.HasValue)
             {
-                Debug.LogWarning(
-                    $"[GameUIController] 상품 {product.Idx}의 image_resource_idx가 비어 있어 임시 흰색 이미지를 사용합니다.",
-                    this);
+                Debug.LogWarning($"[GameUIController] 상품 {product.Idx}의 기본·탑뷰 이미지가 비어 있어 임시 흰색 이미지를 사용합니다.", this);
                 spritesByProduct.Add(product.Idx, this.getProductPlaceholderSprite());
+                this.topViewSprites.Add(product.Idx, this.getProductPlaceholderSprite());
                 continue;
             }
-
-            uint resourceId = product.ImageResourceIdx.Value;
-            if (!spritesByResource.TryGetValue(resourceId, out Sprite sprite))
-            {
-                string address = resources.GetResourcePath(resourceId);
-                if (string.IsNullOrWhiteSpace(address))
-                {
-                    Debug.LogWarning(
-                        $"[GameUIController] 상품 {product.Idx}의 ResourceData FK {resourceId}를 찾을 수 없어 임시 흰색 이미지를 사용합니다.",
-                        this);
-                    sprite = this.getProductPlaceholderSprite();
-                }
-                else
-                {
-                    try
-                    {
-                        sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address)
-                            .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        throw;
-                    }
-                    catch (Exception exception)
-                    {
-                        Debug.LogWarning(
-                            $"[GameUIController] 상품 {product.Idx}의 Sprite 로드에 실패해 임시 흰색 이미지를 사용합니다. "
-                            + $"Resource {resourceId}, Address {address}, 원인: {exception.Message}",
-                            this);
-                        sprite = this.getProductPlaceholderSprite();
-                    }
-
-                    if (sprite == null)
-                    {
-                        Debug.LogWarning(
-                            $"[GameUIController] 상품 {product.Idx}의 Sprite가 비어 있어 임시 흰색 이미지를 사용합니다. "
-                            + $"Resource {resourceId}, Address {address}",
-                            this);
-                        sprite = this.getProductPlaceholderSprite();
-                    }
-                }
-
-                spritesByResource.Add(resourceId, sprite);
-            }
-
-            spritesByProduct.Add(product.Idx, sprite);
+            spritesByProduct.Add(product.Idx, await this.loadSpriteAsync(product.ImageResourceIdx.Value, resources, spritesByResource));
+            this.topViewSprites.Add(product.Idx, await this.loadSpriteAsync(product.TopViewImageResourceIdx.Value, resources, spritesByResource));
         }
-
+        foreach (CustomerAppearanceData appearance in this.customerCatalog.Appearances.Rows.Values)
+            this.appearanceSprites.Add(appearance.Idx, await this.loadSpriteAsync(appearance.ImageResourceIdx, resources, spritesByResource));
         return spritesByProduct;
+    }
+
+    /// <summary>상품·외형의 필수 FK를 로드한다. 실제 로드 실패를 placeholder로 바꾸지 않는다.</summary>
+    /// <param name="resourceIdx">Resource PK.</param><param name="resources">검증된 Resource 테이블.</param>
+    /// <param name="loaded">이번 화면에서 이미 로드한 Sprite.</param><returns>로드 완료 Sprite.</returns>
+    /// <exception cref="InvalidOperationException">FK 또는 로드 결과 누락.</exception>
+    private async UniTask<Sprite> loadSpriteAsync(uint resourceIdx, ResourceDataTable resources, Dictionary<uint, Sprite> loaded)
+    {
+        if (loaded.TryGetValue(resourceIdx, out var sprite)) return sprite;
+        string address = resources.GetResourcePath(resourceIdx);
+        if (string.IsNullOrWhiteSpace(address)) throw new InvalidOperationException($"Resource FK {resourceIdx}가 없습니다.");
+        sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address, this.GetCancellationTokenOnDestroy());
+        if (sprite == null) throw new InvalidOperationException($"Resource {resourceIdx}, address={address}: Sprite 로드 결과가 없습니다.");
+        loaded.Add(resourceIdx, sprite);
+        return sprite;
     }
 
     /// <summary>상품 이미지 누락 시 사용할 임시 흰색 Sprite를 생성하고 재사용합니다.</summary>
@@ -284,6 +258,16 @@ public sealed class GameUIController : MonoBehaviour
             Destroy(this.productPlaceholderSprite);
             this.productPlaceholderSprite = null;
         }
+    }
+
+    /// <summary>개인 대기열도 화면 초기화 때 로드한 같은 외형을 재사용한다. 로드나 상태 변경은 하지 않는다.</summary>
+    /// <param name="appearanceIdx">외형 PK.</param><returns>공용 로드 결과 Sprite.</returns>
+    /// <exception cref="InvalidOperationException">초기화 전 또는 잘못된 외형 PK.</exception>
+    public Sprite GetCustomerAppearanceSprite(uint appearanceIdx)
+    {
+        if (!this.appearanceSprites.TryGetValue(appearanceIdx, out var sprite) || sprite == null)
+            throw new InvalidOperationException($"외형 {appearanceIdx}의 Sprite가 준비되지 않았습니다.");
+        return sprite;
     }
 
     /// <summary>씬에 직렬화된 Presenter와 진행 필수 UI 참조가 연결됐는지 확인합니다.</summary>

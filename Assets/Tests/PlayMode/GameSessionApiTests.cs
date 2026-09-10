@@ -37,6 +37,25 @@ public sealed class GameSessionApiTests
         LogAssert.NoUnexpectedReceived();
     }
 
+    /// <summary>현재 상품·손님 CSV의 고유 Sprite 54개를 실제 ResourceManager로 로드한다.</summary>
+    /// <returns>Addressables 로드 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator ActualProductAndCustomerSpritesLoad()
+    {
+        var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+        var ids = tables.Customers.Appearances.Rows.Values.Select(x => x.ImageResourceIdx)
+            .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
+            .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
+        Assert.That(ids.Length, Is.EqualTo(54));
+        foreach (var id in ids)
+        {
+            var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(id)).AsTask();
+            yield return wait(task);
+            Assert.That(task.Result, Is.Not.Null, $"Sprite FK {id}");
+            Assert.That(task.Result.rect.width, Is.GreaterThan(0));
+        }
+    }
+
     /// <summary>라디오는 입장/일시정지에 방송하지 않고 영업 후 60초 안에 한 번만 방송한다.</summary>
     [Test]
     public void RadioTimingPauseAndCloseCancellation()
@@ -657,7 +676,7 @@ public sealed class GameSessionApiTests
         var serialized = new UnityEditor.SerializedObject(ui);
         serialized.FindProperty("useCustomerQueue").boolValue = true;
         serialized.ApplyModifiedPropertiesWithoutUndo();
-        yield return null;
+        yield return waitForGameUi(ui);
         var progress = uiProgress(ui);
         var customer = uiReference<CustomerPresenter>(ui, "customerPresenter");
         var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
@@ -730,7 +749,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerPurchaseAndModalBoundaries()
     {
-        var ui = createGameUi(); yield return null;
+        var ui = createGameUi(); yield return waitForGameUi(ui);
         var progress = uiProgress(ui); var open = uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton");
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
         Assert.That(open.gameObject.activeInHierarchy, Is.False); open.onClick.Invoke(); Assert.That(panel.gameObject.activeSelf, Is.False);
@@ -766,7 +785,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerNotificationFailurePreservesPurchase()
     {
-        var ui = createGameUi(); yield return null;
+        var ui = createGameUi(); yield return waitForGameUi(ui);
         closeProgressDay(uiProgress(ui)); uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").onClick.Invoke();
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
         var row = panel.GetComponentsInChildren<FacilityItemView>()[0];
@@ -782,6 +801,15 @@ public sealed class GameSessionApiTests
         Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
         uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke();
         Assert.That(panel.gameObject.activeSelf, Is.False); Assert.That(uiReference<CanvasGroup>(ui, "settlementInputGroup").interactable, Is.False);
+    }
+
+    /// <summary>고정 한 프레임 대신 실제 이미지 로드와 진행 초기화 완료를 기다린다.</summary>
+    /// <param name="ui">테스트 소유 화면.</param><returns>최대20초 초기화 대기.</returns>
+    private static IEnumerator waitForGameUi(GameUIController ui)
+    {
+        float deadline = Time.realtimeSinceStartup + 20;
+        while (uiProgress(ui) == null && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(uiProgress(ui), Is.Not.Null, "GameUI image loading/initialization timed out");
     }
 
     /// <summary>공유 원본을 수정하지 않고 테스트 소유 GameUI 인스턴스를 만든다.</summary>
