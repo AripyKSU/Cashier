@@ -25,6 +25,7 @@ public enum DataTableType : uint
     PriceEventSchedule = 10,
     ReputationBalance = 11,
     Facility = 12,
+    DailyGuideline = 13,
     Morality = 14,
     DataTableType_End
 }

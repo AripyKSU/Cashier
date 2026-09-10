@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// 계산대 포스기 키패드 입력 및 가격 검증 컨트롤러 (개발자 3 담당).
-/// 마우스 클릭/터치 버튼 입력뿐만 아니라 키보드(숫자키, NumPad, -, ., Backspace) 입력을 지원합니다.
+/// 마우스 클릭/터치 버튼 입력뿐만 아니라 키보드(숫자키 0~9, NumPad, - / . [00], + [000], Backspace) 입력을 지원합니다.
 /// Enter는 게임 진행 상태를 아는 GameInputRouter가 단독으로 처리합니다.
 /// </summary>
 public class KeypadController : MonoBehaviour
@@ -231,7 +231,13 @@ public class KeypadController : MonoBehaviour
             this.OnDoubleZeroButtonClick();
         }
 
-        // 3. Backspace (지우기)
+        // 3. '000' 입력: + (Numpad Plus 또는 상단 =/+ 키)
+        if (kb.numpadPlusKey.wasPressedThisFrame || kb.equalsKey.wasPressedThisFrame)
+        {
+            this.OnTripleZeroButtonClick();
+        }
+
+        // 4. Backspace (지우기)
         if (kb.backspaceKey.wasPressedThisFrame)
         {
             this.OnBackspaceButtonClick();
@@ -252,6 +258,11 @@ public class KeypadController : MonoBehaviour
             Input.GetKeyDown(KeyCode.Period) || Input.GetKeyDown(KeyCode.KeypadPeriod))
         {
             this.OnDoubleZeroButtonClick();
+        }
+
+        if (Input.GetKeyDown(KeyCode.KeypadPlus) || Input.GetKeyDown(KeyCode.Plus) || Input.GetKeyDown(KeyCode.Equals))
+        {
+            this.OnTripleZeroButtonClick();
         }
 
         if (Input.GetKeyDown(KeyCode.Backspace))

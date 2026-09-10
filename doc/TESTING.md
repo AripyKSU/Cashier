@@ -1,5 +1,15 @@
 # 기능 API 검증
 
+## Upgrade 통합 (2026-09-10)
+
+- 기준 `total_merge fcf1518` + `origin/Upgrade 935cf93`. EditMode **209/209**, PlayMode **34/34**, 실패·skip·미완료0.
+- XML/log: `Temp/TestResults/20260910-163420-6ec527081ca8438ab48ce405d2e0a856/EditMode.xml`, `Temp/TestResults/20260910-163516-af5b02f004c944fe8370a7ffead169bf/PlayMode.xml` 및 같은 이름의 `.log`.
+- CSV14종 로더와 지침 FK 공개 경계, 상품16종/외형45종/실사용Sprite53개, 설비11종·단계 구매 알림 예외의 잔액/보유/단계 일관성, 현재가 카드와 일일 유지비·도덕성 결과 보존을 검증했다. Resource54행은 유지한다.
+- 초기 Edit 실패: `163144-4cff8d6fa9704c34af3f6dcaff58178a` 208중5실패(신규 UI fixture 초기화·이미지 기대값), `163317-f88ce4f09b0a426088b78dde4d197db1` 209중4실패(EditMode SendMessage assertion). fixture reflection 초기화와 실제 상품 기대값으로 보정했으며 제품 assertion을 무시하지 않았다.
+- 실제 Main: `Temp/UpgradeMain-Smoke.txt`. 기본4카드 Sprite/current가격200, 단계1→3, 구매 당일 효과 잠금/다음날3효과 연결, 일일 유지비200·정산·다음날·대기열1명, 제품 Console Error0을 확인했다. 초기 probe의 잘못된 Closing→BeginSorting 호출은 정상 제출 경로로 보정한 뒤 계속 확인했다.
+- 실제 도구 드래그·청소기 흡착 감각·자동소팅9앵커 최종 배치 및 UI/UX는 사용자 수동 확인 대상이다. 지침 거래 적용·벌칙과 유지비 오류 후 복구는 미구현/별도 정책이다. 카드4종 표시 제한을 그대로 둔다.
+- 승인된 Addressables 변화는 기존 Default Local Group/Datas의 DailyGuidelineData 1개이며 총71entry(54이미지/14CSV/3scene). 새group/label은 없다. 자동 새로고침 hold 및 테스트 시작 씬 임시 변경은 복원한다.
+
 ## total_merge 대기열·이미지·도덕성 통합 (2026-09-10)
 
 - EditMode187/187: `Temp/TestResults/20260910-154916-4bd90ea490c04d7c94ddeeb6e0ff7145/EditMode.xml` 및 `.log`.

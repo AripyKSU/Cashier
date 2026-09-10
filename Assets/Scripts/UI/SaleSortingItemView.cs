@@ -6,7 +6,6 @@ using TMPro;
 [RequireComponent(typeof(RectTransform), typeof(Image))]
 public sealed class SaleSortingItemView : MonoBehaviour
 {
-    private const float CollisionRadiusScale = 0.18f;
     /// <summary>상품의 현재 분류 상태입니다.</summary>
     public enum SortingState
     {
@@ -18,6 +17,22 @@ public sealed class SaleSortingItemView : MonoBehaviour
 
         /// <summary>판매하지 않기로 확정된 상태입니다.</summary>
         Excluded
+    }
+
+    /// <summary>상품 위치를 현재 변경하고 있는 주체입니다. 분류 상태와 별개로 관리합니다.</summary>
+    public enum ManipulationState
+    {
+        /// <summary>현재 조작되지 않는 상태입니다.</summary>
+        Idle,
+        /// <summary>플레이어가 직접 드래그하는 상태입니다.</summary>
+        PlayerDragging,
+        /// <summary>막대가 이동시키는 상태입니다.</summary>
+        DividerMoving,
+        /// <summary>청소기에 붙어 이동하는 상태입니다.</summary>
+        VacuumAttached,
+        /// <summary>자동 정렬이 이동시키는 상태입니다.</summary>
+        AutoSorting,
+        ManipulationState_End
     }
 
     private RectTransform rectTransform;
@@ -33,11 +48,13 @@ public sealed class SaleSortingItemView : MonoBehaviour
     /// <summary>현재 분류 상태입니다.</summary>
     public SortingState State { get; internal set; }
 
-    /// <summary>작업대 로컬 좌표에서의 현재 속도입니다.</summary>
-    public Vector2 Velocity { get; internal set; }
+    /// <summary>상품 위치를 변경하는 주체입니다. 분류 상태와 독립적입니다.</summary>
+    public ManipulationState Manipulation { get; internal set; }
 
-    /// <summary>상품 충돌에 사용하는 반지름입니다.</summary>
-    public float Radius => Mathf.Min(this.rectTransform.rect.width, this.rectTransform.rect.height) * CollisionRadiusScale;
+    /// <summary>상품 RectTransform의 절반 크기입니다.</summary>
+    public Vector2 HalfSize => this.rectTransform == null
+        ? Vector2.zero
+        : this.rectTransform.rect.size * 0.5f;
 
     /// <summary>상품의 작업대 로컬 위치입니다.</summary>
     public Vector2 Position
@@ -73,7 +90,7 @@ public sealed class SaleSortingItemView : MonoBehaviour
         ProductId = productId;
         UnitIndex = unitIndex;
         State = SortingState.Working;
-        Velocity = Vector2.zero;
+        Manipulation = ManipulationState.Idle;
         this.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
         this.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
         this.rectTransform.pivot = new Vector2(0.5f, 0.5f);

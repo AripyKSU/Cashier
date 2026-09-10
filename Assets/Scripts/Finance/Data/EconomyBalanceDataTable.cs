@@ -120,9 +120,5 @@ public sealed class EconomyBalanceDataTable : IDataLoad
             throw new InvalidDataException($"EconomyBalanceData.csv {rowNumber}행: initialBalance는 음수일 수 없습니다.");
         }
 
-        if (data.MaintenanceCycleDays <= 0)
-        {
-            throw new InvalidDataException($"EconomyBalanceData.csv {rowNumber}행: maintenanceCycleDays는 0보다 커야 합니다.");
-        }
     }
 }

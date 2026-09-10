@@ -132,6 +132,7 @@ public sealed class DailyAggregationService
         this.isDayOpen = false;
         DailyAggregationResult result = new DailyAggregationResult(
             this.dailySaleIncome,
+            0,
             this.dailyReputationDelta,
             this.dailyTransactions,
             this.dailyMoralityDelta);

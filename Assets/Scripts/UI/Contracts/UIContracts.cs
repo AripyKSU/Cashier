@@ -21,8 +21,7 @@ public enum GameDayPhase
     Operating,       // 영업 진행 중 (손님 거래)
     TradingResult,   // 거래 결과 확인
     Closing,         // 제한시간 만료 후 마지막 거래 마감
-    DailySettlement, // 일일 정산
-    Tribute          // 상납/공물
+    DailySettlement  // 일일 정산
 }
 
 /// <summary>
@@ -48,15 +47,11 @@ public struct EconomyStatusViewData
 public struct GameDayViewData
 {
     public int CurrentDay;            // 현재 게임 날짜
-    public int DaysUntilSettlement;   // 다음 정산(상납)일까지 남은 게임 내 날짜 수
-    public bool IsSettlementDay;      // 현재 날짜가 정산일인지 여부
     public GameDayPhase Phase;        // 영업 전, 영업 중, 거래 결과, 일일 정산 등 현재 진행 상태
 
-    public GameDayViewData(int currentDay, int daysUntilSettlement, bool isSettlementDay, GameDayPhase phase)
+    public GameDayViewData(int currentDay, GameDayPhase phase)
     {
         this.CurrentDay = currentDay;
-        this.DaysUntilSettlement = daysUntilSettlement;
-        this.IsSettlementDay = isSettlementDay;
         this.Phase = phase;
     }
 }
@@ -241,5 +236,58 @@ public struct DailySettlementViewData
         this.SuccessfulSales = successfulSales;
         this.RefusedCustomers = refusedCustomers;
         this.DepartedCustomers = departedCustomers;
+    }
+}
+
+/// <summary>
+/// 영업 전 지침서(가격표) 내 단일 상품 항목 스냅샷
+/// </summary>
+[Serializable]
+public struct PriceGuideProductViewData
+{
+    public uint ProductIdx;     // 상품 식별자
+    public string Name;         // 상품명
+    public long Price;          // 단가
+    public Sprite Icon;         // 상품 아이콘
+
+    public PriceGuideProductViewData(uint productIdx, string name, long price, Sprite icon)
+    {
+        this.ProductIdx = productIdx;
+        this.Name = name;
+        this.Price = price;
+        this.Icon = icon;
+    }
+}
+
+/// <summary>
+/// PreOpenPanel(일일 지침서) 화면 표시용 읽기 전용 스냅샷
+/// </summary>
+[Serializable]
+public struct PreOpenGuidelineViewData
+{
+    public int Day;                                             // 게임 일자
+    public string Heading;                                      // "영업 전, 가격을 기억하세요"
+    public string RuleTitle;                                    // "오늘의 지침"
+    public string RuleContent;                                  // "제한 없음." (추후 지침 CSV 연동 지점)
+    public IReadOnlyList<PriceGuideProductViewData> Products;   // 표시할 상품 카드 목록
+    public string RestrictionNotice;                            // "영업이 시작되면 가격표를 다시 볼 수 없습니다."
+    public string RecheckNotice;                                // "당일 지침은 영업 중에도 다시 확인할 수 있습니다."
+
+    public PreOpenGuidelineViewData(
+        int day,
+        string heading,
+        string ruleTitle,
+        string ruleContent,
+        IReadOnlyList<PriceGuideProductViewData> products,
+        string restrictionNotice,
+        string recheckNotice)
+    {
+        this.Day = day;
+        this.Heading = heading;
+        this.RuleTitle = ruleTitle;
+        this.RuleContent = ruleContent;
+        this.Products = products ?? Array.Empty<PriceGuideProductViewData>();
+        this.RestrictionNotice = restrictionNotice;
+        this.RecheckNotice = recheckNotice;
     }
 }

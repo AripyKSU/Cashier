@@ -30,7 +30,7 @@
 ### ID·nameidx 이관 검증
 
 - `PASS`: Unity compileFailed=False, InitScene → HubScene → GameplaySandbox 진입 및 버튼 100회 생성 확인.
-- 상품 1001~1012, Resource 3001~3099의 사용 중인 65행, Text 8001~8023의 enum·로더 분류 확인. Resource는 기존 PK에 2000만 더했고 모든 path 값과 행 순서는 동일하다.
+- 과거 상품·Resource·Text ID 이관 당시의 enum·로더 분류를 확인했다. 이 항목은 과거 이관 기록이며 현재 상품 카탈로그와 행 구성은 [DATA_CATALOG.md](DATA_CATALOG.md)를 따른다.
 - 외형·성향·상품군·상품·Text 4/3/4/12/23행 로딩. nameidx 조회 결과와 이전 RGBA 색상의 화면 표시 확인.
 - CSV 오류 16종 차단 및 실패 데이터 비공개 검사 통과. 기존 생성기 검사도 통과.
 - 정상 Play 후 제품 Console 오류·경고 0건. 검증 중만 사용한 runInBackground 옵션은 false로 복구했고 Play를 중지했다.

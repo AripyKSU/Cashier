@@ -37,7 +37,7 @@ public sealed class GameSessionApiTests
         LogAssert.NoUnexpectedReceived();
     }
 
-    /// <summary>현재 상품·손님 CSV의 고유 Sprite 54개를 실제 ResourceManager로 로드한다.</summary>
+    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 53개를 실제 ResourceManager로 로드한다.</summary>
     /// <returns>Addressables 로드 완료 대기.</returns>
     [UnityTest]
     public IEnumerator ActualProductAndCustomerSpritesLoad()
@@ -46,7 +46,7 @@ public sealed class GameSessionApiTests
         var ids = tables.Customers.Appearances.Rows.Values.Select(x => x.ImageResourceIdx)
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
-        Assert.That(ids.Length, Is.EqualTo(54));
+        Assert.That(ids.Length, Is.EqualTo(53));
         foreach (var id in ids)
         {
             var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(id)).AsTask();
@@ -100,7 +100,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total));
         Assert.That(session.EndTradingDay(), Is.EqualTo(total));
         Assert.That(session.Economy.DailyAggregationService.TryApplyTransaction(visit.Result.Value), Is.False);
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total - 200));
         session.CompleteDay(0); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
     }
 
@@ -257,6 +257,8 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.DailyAggregationService.TryApplyTransaction(new TransactionResult(0, 0)));
         session.EndTradingDay(out var result);
         Assert.That(result.MoralityDelta, Is.EqualTo(expected));
+        Assert.That(result.Expenses, Is.GreaterThan(0));
+        Assert.That(result.NetProfit, Is.EqualTo(result.SaleIncome - result.Expenses));
         Assert.That(session.DailyMoralityDelta, Is.Zero);
         Assert.That(session.CurrentMorality, Is.EqualTo(expected));
         session.CompleteDay(0);
@@ -384,39 +386,58 @@ public sealed class GameSessionApiTests
         Assert.That(session.ElapsedDays, Is.Zero);
     }
 
-    /// <summary>일반일과 상납 성공/실패에서 표시일·세션일·가격일 및 중복 완료를 검사한다.</summary>
-    /// <param name="canPay">상납 시 잔고가 충분한지 여부.</param>
-    [TestCase(false)]
-    [TestCase(true)]
-    public void ProgressDatesAndMaintenanceRemainSynchronized(bool canPay)
+    /// <summary>매일 유지비가 정산 전에 차감되고 별도 상납 상태 없이 다음 날로 진행되는지 검사한다.</summary>
+    [Test]
+    public void ProgressDatesAndDailyMaintenanceRemainSynchronized()
     {
-        if (!canPay)
-            Assert.That(session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _));
+        long[] maintenanceAmounts = tables.GetDB<MaintenanceBalanceDataTable>(
+            DataTableType.MaintenanceBalance).GetMaintenanceAmounts();
+        Assert.That(maintenanceAmounts.Length, Is.EqualTo(30));
+        for (int day = 1; day <= maintenanceAmounts.Length; day++)
+            Assert.That(maintenanceAmounts[day - 1], Is.EqualTo(200 + ((day - 1) * 100)));
+
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start();
         Assert.Throws<InvalidOperationException>(() => progress.Start());
-        int cycle = session.Economy.Settings.MaintenanceCycleDays;
-        for (int displayDay = 1; displayDay <= cycle; displayDay++)
-        {
-            Assert.That(progress.CurrentDay, Is.EqualTo(displayDay));
-            Assert.That(session.ElapsedDays, Is.EqualTo(displayDay - 1));
-            Assert.That(session.EnsureDailyPrices().ElapsedDays, Is.EqualTo(displayDay - 1));
-            closeProgressDay(progress);
-            var closed = progress.CurrentDayProgress;
-            progress.CompleteSettlement();
-            Assert.Throws<InvalidOperationException>(() => closed.CompleteSettlement());
-            Assert.Throws<InvalidOperationException>(() => session.CompleteDay((uint)(displayDay - 1)));
-        }
-        Assert.That(progress.State, Is.EqualTo(GameProgressState.Maintenance));
-        Assert.That(session.ElapsedDays, Is.EqualTo(cycle - 1));
-        Assert.That(progress.TryPayMaintenance(), Is.EqualTo(canPay));
-        Assert.That(progress.State, Is.EqualTo(canPay ? GameProgressState.DayInProgress : GameProgressState.Failed));
-        if (!canPay) Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
-        Assert.That(session.ElapsedDays, Is.EqualTo(canPay ? cycle : cycle - 1));
-        Assert.That(progress.CurrentDay, Is.EqualTo(canPay ? cycle + 1 : cycle));
-        Assert.That(session.Economy.MaintenanceService.LastPaidRound, Is.EqualTo(canPay ? 1 : 0));
+        long previousBalance = session.Economy.QueryService.CurrentBalance;
+        closeProgressDay(progress);
+        var closed = progress.CurrentDayProgress;
+        Assert.That(closed.AggregationResult.Value.Expenses, Is.EqualTo(200));
+        Assert.That(closed.AggregationResult.Value.NetProfit, Is.EqualTo(-200));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previousBalance - 200));
+        progress.CompleteSettlement();
+        Assert.Throws<InvalidOperationException>(() => closed.CompleteSettlement());
+        Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
+        Assert.That(progress.State, Is.EqualTo(GameProgressState.DayInProgress));
+        Assert.That(session.ElapsedDays, Is.EqualTo(1));
+        Assert.That(progress.CurrentDay, Is.EqualTo(2));
+        Assert.That(session.Economy.MaintenanceService.LastPaidDay, Is.EqualTo(1));
         Assert.That(session.EnsureDailyPrices().ElapsedDays, Is.EqualTo(session.ElapsedDays));
-        Assert.Throws<InvalidOperationException>(() => progress.TryPayMaintenance());
+    }
+
+    /// <summary>잔액 부족 시 유지비·날짜를 반영하지 않고 오류를 기록하는지 검사한다.</summary>
+    [Test]
+    public void DailyMaintenanceInsufficientBalanceLogsAndStopsSettlement()
+    {
+        Assert.That(session.Economy.FinanceService.TrySpend(
+            session.Economy.QueryService.CurrentBalance,
+            FinanceChangeReason.Sale,
+            out _));
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start();
+        progress.OpenBusiness();
+        var day = progress.CurrentDayProgress;
+        progress.Tick(day.BusinessDurationSeconds);
+        Assert.That(progress.SubmitOffer(long.MaxValue,
+            day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
+        LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex(
+            @"\[Maintenance\] DAY 1 .*200 G.*0 G"));
+        Assert.Throws<InvalidOperationException>(() => progress.CompleteTransactionResult());
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Closing));
+        Assert.That(session.ElapsedDays, Is.Zero);
+        Assert.That(session.Economy.MaintenanceService.LastPaidDay, Is.Zero);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.Zero);
     }
 
     /// <summary>설비 구매와 명성 정산이 같은 날짜 완료 경계에서 각각 한 번 적용된다.</summary>
@@ -456,7 +477,7 @@ public sealed class GameSessionApiTests
         int delta = day.DailyReputationResult.Value.FinalDelta;
         Assert.That(delta, Is.GreaterThan(0));
         Assert.That(progress.TryPurchaseFacility(12001, out var purchase));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + acceptedIncome - purchase.PaidAmount));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + acceptedIncome - day.AggregationResult.Value.Expenses - purchase.PaidAmount));
         Assert.That(progress.CurrentReputation, Is.Zero);
         Assert.That(session.IsFacilityActive(12001), Is.False);
         progress.CompleteSettlement();
@@ -648,10 +669,19 @@ public sealed class GameSessionApiTests
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12005, out _));
         progress.Start();
         long balance = session.Economy.QueryService.CurrentBalance;
+        Assert.That(progress.CurrentStoreStage, Is.EqualTo(1));
+        Assert.That(progress.TryPurchaseFacility(12005, out var lockedPurchase), Is.False);
+        Assert.That(lockedPurchase.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        Assert.That(progress.TryPurchaseFacility(12008, out _));
+        Assert.That(progress.CurrentStoreStage, Is.EqualTo(2));
+        Assert.That(progress.TryPurchaseFacility(12010, out _));
+        Assert.That(progress.CurrentStoreStage, Is.EqualTo(3));
         long price = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12005].PurchasePrice;
+        long stagePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12008].PurchasePrice
+            + tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12010].PurchasePrice;
         Assert.That(progress.TryPurchaseFacility(12005, out var purchase));
         Assert.That(purchase.ActivationDay, Is.EqualTo(1));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance - price));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance - stagePrice - price));
         Assert.That(session.IsFacilityActive(12005), Is.False);
         Assert.That(progress.TryPurchaseFacility(12005, out purchase), Is.False);
         Assert.That(purchase.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
@@ -668,7 +698,7 @@ public sealed class GameSessionApiTests
         progress.CompleteTransactionResult(); progress.CompleteSettlement();
         Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12005));
         Assert.That(factory.CreatePriceListText(2, session.EnsureDailyPrices()), Does.Contain(name + "  ·"));
-        var expected = new uint[] { 1001, 1004, 1007, 1010, 1011, 1020, 1021, 1022 };
+        var expected = new uint[] { 1001, 1004, 1007, 1010, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
         progress.OpenBusiness(); progress.BeginCustomerSorting();
@@ -676,7 +706,7 @@ public sealed class GameSessionApiTests
         Assert.That(progress.SubmitOffer(acceptedOffer(progress.CurrentDayProgress.CurrentVisit, facilityItems), facilityItems));
         // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
         var nextProgress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
-        Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1));
+        Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(3));
         Assert.Throws<InvalidOperationException>(() => session.InitializeNewGame(tables));
     }
 
@@ -747,7 +777,8 @@ public sealed class GameSessionApiTests
         var factory = new ProgressViewDataFactory(tables.Customers, tables.GetDB<TextDataTable>(DataTableType.Text),
             new System.Collections.Generic.Dictionary<uint, Sprite>());
         var view = factory.CreateFacilityShopViewData(tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
-            session.FacilityActivationDays, session.ElapsedDays, session.Economy.QueryService.CurrentBalance);
+            session.FacilityActivationDays, session.CurrentStoreStage, session.ElapsedDays,
+            session.Economy.QueryService.CurrentBalance);
         int purchases = 0, closes = 0; uint requested = 0;
         panel.OnPurchaseRequested += idx => { purchases++; requested = idx; };
         panel.OnCloseRequested += () => closes++;
@@ -757,13 +788,13 @@ public sealed class GameSessionApiTests
             Assert.That(purchases, Is.Zero); panel.gameObject.SetActive(false);
         }
         panel.gameObject.SetActive(true); panel.UpdateView(view, ""); yield return null;
-        var rows = panel.GetComponentsInChildren<FacilityItemView>(); Assert.That(rows.Length, Is.EqualTo(5));
+        var rows = panel.GetComponentsInChildren<FacilityItemView>(); Assert.That(rows.Length, Is.EqualTo(11));
         var button = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
         button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1)); Assert.That(requested, Is.EqualTo(12001u));
         panel.SetInteractionEnabled(false); button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1));
         uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke(); Assert.That(closes, Is.EqualTo(1));
         rows[0].UpdateView(new FacilityItemViewData(12001, new string('가', 30), long.MaxValue,
-            "방독면, 방호복, 방사능 측정기", FacilityDisplayState.Available, 4294967297UL), true);
+            "방독면, 방호복, 방사능 측정기", FacilityDisplayState.Purchasable, 4294967297UL), true);
         Canvas.ForceUpdateCanvases();
         foreach (var text in rows[0].GetComponentsInChildren<TMPro.TextMeshProUGUI>())
         {
@@ -784,6 +815,9 @@ public sealed class GameSessionApiTests
         closeProgressDay(progress);
         Assert.That(open.gameObject.activeInHierarchy); open.onClick.Invoke();
         var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "expensesText").text, Is.EqualTo("-200 G"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "netProfitText").text, Does.Contain("-200 G"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo("99,800 G"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
         Assert.That(next.IsInteractable(), Is.False);
         UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
@@ -792,10 +826,10 @@ public sealed class GameSessionApiTests
         var rows = panel.GetComponentsInChildren<FacilityItemView>(); var buy = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
         long previous = session.Economy.QueryService.CurrentBalance;
         buy.onClick.Invoke(); buy.onClick.Invoke();
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - 5000));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - 1000));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001), Is.False);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Does.Contain("적용 대기"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{previous - 5000:N0} G"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{previous - 1000:N0} G"));
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Maintenance, out _);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "balanceText").text, Does.Contain("0 G"));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[1], "statusText").text, Is.EqualTo("잔액 부족"));
@@ -804,6 +838,7 @@ public sealed class GameSessionApiTests
         Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled);
         next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
         Assert.That(open.gameObject.activeInHierarchy, Is.False);
+        session.Economy.FinanceService.AddIncome(1000, FinanceChangeReason.Sale);
         closeProgressDay(progress); open.onClick.Invoke();
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Is.EqualTo("사용 중"));
     }
@@ -823,7 +858,7 @@ public sealed class GameSessionApiTests
         uiReference<UnityEngine.UI.Button>(row, "purchaseButton").onClick.Invoke();
         session.Economy.FinanceService.BalanceChanged -= fail;
         Assert.That(session.FacilityActivationDays.ContainsKey(12001));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(95000));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(98800));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(row, "statusText").text, Does.Contain("적용 대기"));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
         Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
@@ -868,6 +903,7 @@ public sealed class GameSessionApiTests
         progress.CompleteTransactionResult();
         Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(day.AggregationResult.Value.SaleIncome, Is.Zero);
+        Assert.That(day.AggregationResult.Value.Expenses, Is.EqualTo(200 + ((day.Day - 1) * 100)));
     }
 
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>

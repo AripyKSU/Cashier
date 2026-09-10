@@ -1,16 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// 정면 거래에서 작업대 분류 화면으로 전환하고 UI 좌표 기반 상품 물리와 판매 목록 집계를 담당합니다.
+/// 정면 거래에서 작업대 분류 화면으로 전환하고 UI 좌표 기반 상품 드래그와 판매 목록 집계를 담당합니다.
 /// </summary>
 public sealed class SaleSortingPanel : MonoBehaviour
 {
@@ -25,6 +25,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
     }
 
     private const float MinimumDeltaSeconds = 0.0001f;
+    private const int SaleAnchorCount = 9;
+    private const int SaleAnchorRowSize = 3;
+    private const float AutoSortingDurationSeconds = 0.15f;
 
     [Header("Views")]
     [SerializeField] private GameObject frontView;
@@ -33,6 +36,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField] private RectTransform itemRoot;
     [SerializeField] private RectTransform excludedZone;
     [SerializeField] private RectTransform saleZone;
+    [Tooltip("판매 구역 안의 3종×3개 자동 소팅 앵커입니다. ProductId 순으로 행을 사용합니다.")]
+    [SerializeField] private RectTransform[] saleAnchors = new RectTransform[SaleAnchorCount];
     [SerializeField] private GameObject transitionOverlay;
     [SerializeField] private Image containerImage;
     [SerializeField] private Sprite tiltedContainerSprite;
@@ -49,24 +54,34 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [Header("Items")]
     [SerializeField] private SaleSortingItemView itemPrefab;
     [SerializeField, Min(24f)] private float itemSizePixels = 72f;
-    [SerializeField, Min(0f)] private float cursorRadiusPixels = 30f;
-    [SerializeField, Min(0f)] private float cursorImpulse = 0.065f;
-    [SerializeField, Min(0f)] private float maximumSpeedPixels = 230f;
-    [SerializeField, Min(0f)] private float frictionPerSecond = 6.5f;
-    [SerializeField, Range(0f, 1f)] private float itemRestitution = 0.1f;
 
     [Header("Flow")]
     [SerializeField, Min(0f)] private float transitionSeconds = 0.25f;
     [SerializeField, Min(0f)] private float customerArrivalSeconds = 0.8f;
     [SerializeField, Min(0f)] private float pourSeconds = 0.65f;
+    [SerializeField, Min(0f)] private float autoAdvanceDelaySeconds = 0.5f;
     [SerializeField] private TextMeshProUGUI sortingStatusText;
 
+    [Header("Divider Bar")]
+    [Tooltip("작업대에서 상품을 물리적으로 밀어내는 큰 밀대")]
+    [SerializeField] private DividerBarController dividerBar;
+
+    [Header("Vacuum")]
+    [Tooltip("상품을 여러 개 흡착해 함께 이동하는 청소기")]
+    [SerializeField] private VacuumController vacuum;
+
     private readonly List<SaleSortingItemView> items = new List<SaleSortingItemView>();
+    private readonly HashSet<SaleSortingItemView> dividerMovedItems = new HashSet<SaleSortingItemView>();
     private ViewState state;
     private bool isCalculatorOpen = true;
-    private bool hasPointerSample;
-    private Vector2 previousPointerPosition;
+    private bool dividerBarAvailable;
+    private bool autoSortingAvailable;
+    private bool vacuumAvailable;
+    private bool layoutContractViolationLogged;
+    private SaleSortingItemView draggedItem;
+    private Vector2 dragOffset;
     private Coroutine transitionRoutine;
+    private Coroutine autoSortingRoutine;
     private IReadOnlyList<CustomerBasketItemViewData> pendingBasket = Array.Empty<CustomerBasketItemViewData>();
     // 로컬 큐 표현에서만 제공하며 Controller 제거 시 해제합니다.
     private Func<bool> isPresentationPaused;
@@ -93,8 +108,93 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>계산기 패널이 현재 열려 있는지 나타냅니다.</summary>
     public bool IsCalculatorOpen => this.isCalculatorOpen;
 
+    /// <summary>현재 세션에서 막대 편의성 효과가 활성화되었는지 나타냅니다.</summary>
+    public bool IsDividerBarAvailable => this.dividerBarAvailable;
+
+    /// <summary>현재 세션에서 자동 소팅 효과가 활성화되었는지 나타냅니다.</summary>
+    public bool IsAutoSortingAvailable => this.autoSortingAvailable;
+
+    /// <summary>현재 세션에서 청소기 편의성 효과가 활성화되었는지 나타냅니다.</summary>
+    public bool IsVacuumAvailable => this.vacuumAvailable;
+
+    /// <summary>현재 방문 상품이 고정된 3종×3개 계약을 위반했는지 나타냅니다.</summary>
+    public bool HasSaleLayoutContractViolation { get; private set; }
+
     /// <summary>계산기 표시 상태가 바뀐 뒤 발생합니다.</summary>
     public event Action<bool> CalculatorVisibilityChanged;
+
+    /// <summary>세션의 막대 활성 상태를 반영하고 비활성 상태에서는 막대를 숨깁니다.</summary>
+    /// <param name="available">막대 효과가 현재 활성화되었는지 여부입니다.</param>
+    public void SetDividerBarAvailable(bool available)
+    {
+        if (this.dividerBarAvailable == available)
+        {
+            if (this.dividerBar != null && !available)
+            {
+                this.dividerBar.SetVisible(false);
+            }
+
+            return;
+        }
+
+        this.dividerBarAvailable = available;
+        if (!available)
+        {
+            this.releaseDividerItems();
+            this.clearDividerManipulations();
+        }
+
+        if (this.dividerBar != null)
+        {
+            this.dividerBar.SetVisible(available && this.state == ViewState.Sorting);
+        }
+    }
+
+    /// <summary>세션의 자동 소팅 활성 상태를 반영합니다.</summary>
+    /// <param name="available">자동 소팅 효과가 현재 활성화되었는지 여부입니다.</param>
+    public void SetAutoSortingAvailable(bool available)
+    {
+        if (this.autoSortingAvailable == available) return;
+        this.autoSortingAvailable = available;
+        if (!available)
+        {
+            this.stopAutoSorting();
+        }
+        else if (this.state == ViewState.Sorting)
+        {
+            this.requestAutoSort();
+        }
+    }
+
+    /// <summary>세션의 청소기 활성 상태를 반영하고 비활성 상태에서는 상품을 해제합니다.</summary>
+    /// <param name="available">청소기 효과가 현재 활성화되었는지 여부입니다.</param>
+    public void SetVacuumAvailable(bool available)
+    {
+        if (this.vacuumAvailable == available)
+        {
+            if (this.vacuum != null && !available)
+            {
+                this.vacuum.SetVisible(false);
+            }
+
+            return;
+        }
+
+        this.vacuumAvailable = available;
+        if (!available)
+        {
+            this.releaseVacuumItems();
+            if (this.vacuum != null)
+            {
+                this.vacuum.ResetToStart();
+                this.vacuum.SetVisible(false);
+            }
+        }
+        else if (this.vacuum != null)
+        {
+            this.vacuum.SetVisible(this.state == ViewState.Sorting);
+        }
+    }
 
     /// <summary>버튼 이벤트를 연결하고 초기 화면을 숨깁니다.</summary>
     private void Awake()
@@ -110,15 +210,38 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
         this.CalculatorVisibilityChanged?.Invoke(this.isCalculatorOpen);
 
+        if (this.dividerBar != null && this.workArea != null)
+        {
+            this.dividerBar.Initialize(this.workArea);
+        }
+        if (this.vacuum != null && this.workArea != null)
+        {
+            this.vacuum.Initialize(this.workArea, this.itemRoot);
+        }
+
         this.showFrontOnly();
     }
 
-    /// <summary>상품 이동과 충돌을 프레임 경과 시간으로 계산합니다.</summary>
+    /// <summary>현재 도구 또는 플레이어가 소유한 상품만 한 번 이동시킵니다.</summary>
     private void Update()
     {
         if (this.state != ViewState.Sorting || this.workArea == null || this.isPresentationPaused?.Invoke() == true)
         {
-            this.hasPointerSample = false;
+            this.stopAutoSorting();
+            bool wasVacuumHoldingOutsideSorting = this.vacuum != null && this.vacuum.IsHolding;
+            if (this.vacuum != null)
+            {
+                this.vacuum.UpdateMotion(false, Vector2.zero, Time.unscaledDeltaTime, this.items);
+            }
+            if (wasVacuumHoldingOutsideSorting)
+            {
+                this.releaseVacuumItems();
+            }
+            if (this.dividerBar != null)
+            {
+                this.dividerBar.UpdateMotion(false, Vector2.zero, Time.unscaledDeltaTime);
+            }
+            this.releaseDraggedItem();
             return;
         }
 
@@ -128,10 +251,57 @@ public sealed class SaleSortingPanel : MonoBehaviour
             return;
         }
 
-        this.applyPointerImpulse(deltaSeconds);
-        this.integrateMotion(deltaSeconds);
-        this.resolveItemCollisions();
-        this.classifyItems();
+        bool allowNewInteraction = !this.isPointerOverCalculator();
+        bool wasVacuumHolding = this.vacuum != null && this.vacuum.IsHolding;
+        if (this.vacuum != null)
+        {
+            this.vacuum.UpdateMotion(
+                this.vacuumAvailable && (allowNewInteraction || wasVacuumHolding),
+                this.getPointerScreenPosition(),
+                deltaSeconds,
+                this.items);
+        }
+
+        bool isVacuumHolding = this.vacuum != null && this.vacuum.IsHolding;
+        if (wasVacuumHolding && !isVacuumHolding)
+        {
+            this.releaseVacuumItems();
+        }
+        if (isVacuumHolding)
+        {
+            this.stopAutoSorting();
+        }
+
+        bool wasHolding = this.dividerBar != null && this.dividerBar.IsHolding;
+        if (this.dividerBar != null)
+        {
+            this.dividerBar.UpdateMotion(
+                this.dividerBarAvailable && (allowNewInteraction || wasHolding) && !isVacuumHolding,
+                this.getPointerScreenPosition(),
+                deltaSeconds);
+        }
+
+        bool isDividerHolding = this.dividerBar != null && this.dividerBar.IsHolding;
+        if (wasHolding && !isDividerHolding)
+        {
+            this.releaseDividerItems();
+        }
+        if (isDividerHolding)
+        {
+            if (!wasHolding)
+            {
+                this.dividerMovedItems.Clear();
+            }
+
+            this.stopAutoSorting();
+            this.clearDividerManipulations();
+            this.dividerBar.PushItems(this.items);
+            this.trackDividerMovedItems();
+        }
+        if (!isDividerHolding && !isVacuumHolding)
+        {
+            this.updatePlayerDrag(allowNewInteraction);
+        }
         this.refreshStatus();
     }
 
@@ -152,7 +322,15 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <param name="basket">상품 ID, 수량과 이미지가 포함된 장바구니 표시 데이터입니다.</param>
     public void BeginCustomer(IReadOnlyList<CustomerBasketItemViewData> basket)
     {
+        this.stopAutoSorting();
+        this.releaseVacuumItems();
+        if (this.vacuum != null)
+        {
+            this.vacuum.ResetToStart();
+        }
         this.clearItems();
+        this.HasSaleLayoutContractViolation = false;
+        this.layoutContractViolationLogged = false;
         if (basket == null)
         {
             throw new ArgumentNullException(nameof(basket));
@@ -172,6 +350,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>거래 결과 표시를 위해 분류 입력을 잠그고 정면 화면으로 돌아갑니다.</summary>
     public void ShowTransactionResult()
     {
+        this.stopAutoSorting();
+        this.releaseVacuumItems();
         this.state = ViewState.Locked;
         this.showFrontOnly();
     }
@@ -179,6 +359,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>모든 거래 화면과 생성한 상품을 정리합니다.</summary>
     public void ClearCustomer()
     {
+        this.stopAutoSorting();
+        this.releaseVacuumItems();
         if (this.transitionRoutine != null)
         {
             StopCoroutine(this.transitionRoutine);
@@ -300,11 +482,17 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(true);
         if (this.containerImage != null)
         {
-            this.containerImage.sprite = this.tiltedContainerSprite;
+            this.containerImage.sprite = this.tiltedContainerSprite != null ? this.tiltedContainerSprite : this.containerImage.sprite;
+            this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f);
             this.containerImage.gameObject.SetActive(true);
         }
 
         this.state = ViewState.Pouring;
+        if (this.sortingStatusText != null)
+        {
+            this.sortingStatusText.text = "물품을 쏟는 중…";
+        }
+
         this.createPendingItems();
         float elapsed = 0f;
         while (elapsed < this.pourSeconds)
@@ -321,30 +509,42 @@ public sealed class SaleSortingPanel : MonoBehaviour
             yield return null;
         }
 
+        // 쏟기가 끝나면 바구니를 숨기고 회전값을 원복합니다.
         if (this.containerImage != null)
         {
             this.containerImage.sprite = this.emptyContainerSprite;
+            this.containerImage.gameObject.SetActive(false);
+            this.containerImage.rectTransform.localRotation = Quaternion.identity;
         }
 
-        for (int i = 0; i < this.items.Count; i++)
+        if (this.dividerBar != null)
         {
-            this.items[i].Velocity = UnityEngine.Random.insideUnitCircle * 14f;
+            this.dividerBar.ResetToLeftEnd();
+            this.dividerBar.SetVisible(this.dividerBarAvailable);
+        }
+        if (this.vacuum != null)
+        {
+            this.vacuum.ResetToStart();
+            this.vacuum.SetVisible(this.vacuumAvailable);
         }
 
         this.state = ViewState.Sorting;
-        this.hasPointerSample = false;
+        this.draggedItem = null;
+        this.dragOffset = Vector2.zero;
         this.refreshStatus();
         this.SortingStarted?.Invoke();
         this.transitionRoutine = null;
     }
 
-    /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭을 기다립니다.</summary>
+    /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭 또는 자동 시간 경과로 작업대로 전환합니다.</summary>
     /// <returns>박스 도착 연출을 프레임별로 진행하는 열거자입니다.</returns>
     private IEnumerator playContainerArrival()
     {
         this.state = ViewState.Transition;
         if (this.frontView != null) this.frontView.SetActive(true);
         if (this.sortingView != null) this.sortingView.SetActive(false);
+        if (this.dividerBar != null) this.dividerBar.SetVisible(false);
+        if (this.vacuum != null) this.vacuum.SetVisible(false);
         yield return this.waitUnscaled(this.customerArrivalSeconds);
         if (this.frontContainerButton != null)
         {
@@ -369,6 +569,19 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.state = ViewState.FrontWaiting;
+
+        // 자동으로 작업대 전환 (사용자가 직접 클릭하지 않아도 일정 시간 후 자동 진행)
+        if (this.autoAdvanceDelaySeconds > 0f)
+        {
+            yield return this.waitUnscaled(this.autoAdvanceDelaySeconds);
+            if (this.state == ViewState.FrontWaiting)
+            {
+                if (this.frontContainerButton != null) this.frontContainerButton.interactable = false;
+                yield return this.playEntryFlow();
+                yield break;
+            }
+        }
+
         this.transitionRoutine = null;
     }
 
@@ -411,159 +624,354 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
     }
 
-    /// <summary>마우스 이동량을 반경 안의 상품에 충격량으로 적용합니다.</summary>
-    /// <param name="deltaSeconds">현재 프레임의 제한된 경과 시간입니다.</param>
-    private void applyPointerImpulse(float deltaSeconds)
+    /// <summary>막대가 지난 프레임에 소유했던 상품의 조작 상태를 정리합니다.</summary>
+    private void clearDividerManipulations()
     {
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                this.workArea,
-                this.getPointerScreenPosition(),
-                null,
-                out Vector2 pointerPosition)
-            || !this.workArea.rect.Contains(pointerPosition)
-            || this.isPointerOverCalculator())
+        foreach (SaleSortingItemView item in this.items)
         {
-            this.hasPointerSample = false;
+            if (item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving)
+                item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+        }
+    }
+
+    /// <summary>막대를 놓은 순간 막대가 소유했던 상품만 현재 위치로 분류합니다.</summary>
+    private void releaseDividerItems()
+    {
+        foreach (SaleSortingItemView item in this.dividerMovedItems)
+        {
+            if (item == null)
+            {
+                continue;
+            }
+
+            this.classifyItem(item);
+            if (item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving)
+            {
+                item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+            }
+        }
+
+        this.dividerMovedItems.Clear();
+        this.requestAutoSort();
+    }
+
+    /// <summary>현재 막대 드래그에서 막대가 한 번이라도 이동시킨 상품을 기록합니다.</summary>
+    private void trackDividerMovedItems()
+    {
+        foreach (SaleSortingItemView item in this.items)
+        {
+            if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving)
+            {
+                this.dividerMovedItems.Add(item);
+            }
+        }
+    }
+
+    /// <summary>청소기를 놓은 순간 붙어 있던 상품을 현재 위치로 분류합니다.</summary>
+    private void releaseVacuumItems()
+    {
+        if (this.vacuum == null)
+        {
             return;
         }
 
-        if (!this.hasPointerSample)
+        IReadOnlyList<SaleSortingItemView> releasedItems = this.vacuum.ReleaseAttachedItems();
+        for (int index = 0; index < releasedItems.Count; index++)
         {
-            this.previousPointerPosition = pointerPosition;
-            this.hasPointerSample = true;
-            return;
+            this.classifyItem(releasedItems[index]);
         }
 
-        Vector2 pointerVelocity = Vector2.ClampMagnitude(
-            (pointerPosition - this.previousPointerPosition) / deltaSeconds,
-            800f);
-        this.previousPointerPosition = pointerPosition;
-        foreach (SaleSortingItemView item in this.items)
+        if (releasedItems.Count > 0)
         {
-            if (item.State == SaleSortingItemView.SortingState.Excluded)
-            {
-                continue;
-            }
-
-            Vector2 offset = item.Position - pointerPosition;
-            float influenceRadius = this.cursorRadiusPixels + item.Radius;
-            if (offset.sqrMagnitude > influenceRadius * influenceRadius)
-            {
-                continue;
-            }
-
-            float distanceFactor = 1f - Mathf.Clamp01(offset.magnitude / influenceRadius);
-            Vector2 outward = offset.sqrMagnitude > 0.01f ? offset.normalized * pointerVelocity.magnitude : Vector2.zero;
-            item.Velocity += Vector2.ClampMagnitude(
-                (pointerVelocity + outward) * this.cursorImpulse * distanceFactor,
-                this.maximumSpeedPixels * 0.65f);
+            this.requestAutoSort();
         }
     }
 
-    /// <summary>속도, 마찰과 작업대 경계를 적용합니다.</summary>
-    /// <param name="deltaSeconds">현재 프레임의 제한된 경과 시간입니다.</param>
-    private void integrateMotion(float deltaSeconds)
+    /// <summary>현재 포인터 입력을 기준으로 상품 하나를 직접 드래그합니다.</summary>
+    /// <param name="allowPickup">계산대 위에서 새 상품을 잡을 수 있는지 여부입니다.</param>
+    private void updatePlayerDrag(bool allowPickup)
     {
-        Rect bounds = this.workArea.rect;
-        foreach (SaleSortingItemView item in this.items)
+        bool isPressed;
+        bool wasPressedThisFrame;
+        this.getPointerButtonState(out isPressed, out wasPressedThisFrame);
+        Vector2 pointerScreenPosition = this.getPointerScreenPosition();
+
+        if (this.draggedItem == null && allowPickup && isPressed && wasPressedThisFrame &&
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(this.itemRoot, pointerScreenPosition, null,
+                out Vector2 pointerPosition))
         {
-            if (item.State == SaleSortingItemView.SortingState.Excluded)
+            SaleSortingItemView item = this.getTopItemAt(pointerScreenPosition);
+            if (item != null)
             {
-                continue;
+                this.draggedItem = item;
+                this.draggedItem.Manipulation = SaleSortingItemView.ManipulationState.PlayerDragging;
+                this.dragOffset = item.Position - pointerPosition;
             }
+        }
 
-            item.Velocity = Vector2.ClampMagnitude(item.Velocity, this.maximumSpeedPixels);
-            item.Position += item.Velocity * deltaSeconds;
-            item.Velocity *= Mathf.Exp(-this.frictionPerSecond * deltaSeconds);
-
-            Vector2 position = item.Position;
-            float radius = item.Radius;
-            if (position.x - radius < bounds.xMin)
-            {
-                position.x = bounds.xMin + radius;
-                item.Velocity = new Vector2(Mathf.Abs(item.Velocity.x) * this.itemRestitution, item.Velocity.y);
-            }
-            else if (position.x + radius > bounds.xMax)
-            {
-                position.x = bounds.xMax - radius;
-                item.Velocity = new Vector2(-Mathf.Abs(item.Velocity.x) * this.itemRestitution, item.Velocity.y);
-            }
-
-            if (position.y - radius < bounds.yMin)
-            {
-                position.y = bounds.yMin + radius;
-                item.Velocity = new Vector2(item.Velocity.x, Mathf.Abs(item.Velocity.y) * this.itemRestitution);
-            }
-            else if (position.y + radius > bounds.yMax)
-            {
-                position.y = bounds.yMax - radius;
-                item.Velocity = new Vector2(item.Velocity.x, -Mathf.Abs(item.Velocity.y) * this.itemRestitution);
-            }
-
-            item.Position = position;
+        if (this.draggedItem == null) return;
+        if (isPressed && RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                this.itemRoot, pointerScreenPosition, null, out Vector2 currentPointerPosition))
+        {
+            this.draggedItem.Position = this.clampItemPosition(currentPointerPosition + this.dragOffset, this.draggedItem);
+        }
+        else
+        {
+            this.releaseDraggedItem();
         }
     }
 
-    /// <summary>작업 중인 상품끼리 원형 충돌을 계산해 겹침과 속도를 분리합니다.</summary>
-    private void resolveItemCollisions()
+    /// <summary>포인터 아래 최상단의 활성 상품을 찾습니다.</summary>
+    /// <param name="pointerScreenPosition">포인터 화면 좌표.</param>
+    /// <returns>선택 가능한 상품 또는null.</returns>
+    private SaleSortingItemView getTopItemAt(Vector2 pointerScreenPosition)
     {
-        for (int leftIndex = 0; leftIndex < this.items.Count; leftIndex++)
+        for (int index = this.items.Count - 1; index >= 0; index--)
         {
-            SaleSortingItemView left = this.items[leftIndex];
-            if (left.State == SaleSortingItemView.SortingState.Excluded) continue;
+            SaleSortingItemView item = this.items[index];
+            if (item == null || !item.gameObject.activeInHierarchy ||
+                item.Manipulation == SaleSortingItemView.ManipulationState.PlayerDragging ||
+                item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving ||
+                item.Manipulation == SaleSortingItemView.ManipulationState.VacuumAttached ||
+                item.State == SaleSortingItemView.SortingState.Excluded) continue;
+            if (RectTransformUtility.RectangleContainsScreenPoint((RectTransform)item.transform, pointerScreenPosition, null))
+                return item;
+        }
 
-            for (int rightIndex = leftIndex + 1; rightIndex < this.items.Count; rightIndex++)
+        return null;
+    }
+
+    /// <summary>상품을 놓을 때 중심이 작업대 안에 있도록 위치를 제한합니다.</summary>
+    /// <param name="position">상품 중심 후보 위치.</param>
+    /// <param name="item">위치를 제한할 상품.</param>
+    /// <returns>작업대 내부의 위치.</returns>
+    private Vector2 clampItemPosition(Vector2 position, SaleSortingItemView item)
+    {
+        Rect bounds = this.itemRoot.rect;
+        Vector2 halfSize = item.HalfSize;
+        return new Vector2(
+            Mathf.Clamp(position.x, bounds.xMin + halfSize.x, bounds.xMax - halfSize.x),
+            Mathf.Clamp(position.y, bounds.yMin + halfSize.y, bounds.yMax - halfSize.y));
+    }
+
+    /// <summary>상품을 놓고 중심 위치 기준으로 한 번만 판매·제거·작업 구역을 판정합니다.</summary>
+    private void releaseDraggedItem()
+    {
+        if (this.draggedItem == null) return;
+        SaleSortingItemView releasedItem = this.draggedItem;
+        this.draggedItem = null;
+        this.dragOffset = Vector2.zero;
+        this.classifyItem(releasedItem);
+        releasedItem.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+        this.requestAutoSort();
+    }
+
+    /// <summary>판매 구역의 현재 상품을 고정된 앵커 순서로 자동 배치합니다.</summary>
+    private void requestAutoSort()
+    {
+        if (!this.autoSortingAvailable || this.state != ViewState.Sorting) return;
+
+        this.stopAutoSorting();
+        Dictionary<SaleSortingItemView, Vector2> targets = this.createAutoSortTargets();
+        if (targets == null) return;
+
+        if (targets.Count > 0)
+        {
+            this.autoSortingRoutine = StartCoroutine(this.playAutoSorting(targets));
+        }
+    }
+
+    /// <summary>현재 판매 상품에 대응하는 앵커 위치를 계산합니다.</summary>
+    /// <returns>상품별 목표 위치 또는 계약 위반 시 null입니다.</returns>
+    private Dictionary<SaleSortingItemView, Vector2> createAutoSortTargets()
+    {
+        if (!this.validateSaleLayoutContract()) return null;
+
+        var grouped = new Dictionary<uint, List<SaleSortingItemView>>();
+        foreach (SaleSortingItemView item in this.items)
+        {
+            if (item == null || item.State != SaleSortingItemView.SortingState.ForSale ||
+                item.Manipulation != SaleSortingItemView.ManipulationState.Idle) continue;
+
+            if (!grouped.TryGetValue(item.ProductId, out List<SaleSortingItemView> group))
             {
-                SaleSortingItemView right = this.items[rightIndex];
-                if (right.State == SaleSortingItemView.SortingState.Excluded) continue;
+                group = new List<SaleSortingItemView>();
+                grouped.Add(item.ProductId, group);
+            }
 
-                Vector2 delta = right.Position - left.Position;
-                float minimumDistance = left.Radius + right.Radius;
-                if (delta.sqrMagnitude >= minimumDistance * minimumDistance) continue;
+            group.Add(item);
+        }
 
-                float distance = Mathf.Max(delta.magnitude, 0.001f);
-                Vector2 normal = distance > 0.001f ? delta / distance : Vector2.right;
-                Vector2 correction = normal * ((minimumDistance - distance) * 0.5f);
-                left.Position -= correction;
-                right.Position += correction;
+        var targets = new Dictionary<SaleSortingItemView, Vector2>();
+        int row = 0;
+        foreach (KeyValuePair<uint, List<SaleSortingItemView>> pair in grouped.OrderBy(x => x.Key))
+        {
+            List<SaleSortingItemView> group = pair.Value;
+            group.Sort((left, right) => left.UnitIndex.CompareTo(right.UnitIndex));
+            for (int unitIndex = 0; unitIndex < group.Count; unitIndex++)
+            {
+                SaleSortingItemView item = group[unitIndex];
+                Vector2 target = this.getSaleAnchorPosition(row * SaleAnchorRowSize + unitIndex);
+                if ((item.Position - target).sqrMagnitude > 0.01f)
+                {
+                    targets.Add(item, target);
+                }
+            }
 
-                float relativeSpeed = Vector2.Dot(right.Velocity - left.Velocity, normal);
-                if (relativeSpeed >= 0f) continue;
-                float impulse = -(1f + this.itemRestitution) * relativeSpeed * 0.5f;
-                left.Velocity -= normal * impulse;
-                right.Velocity += normal * impulse;
+            row++;
+        }
+
+        return targets;
+    }
+
+    /// <summary>상품 생성 계약과 앵커 수를 검사하고 위반을 조용히 처리하지 않습니다.</summary>
+    /// <returns>자동 소팅을 진행할 수 있으면 true입니다.</returns>
+    private bool validateSaleLayoutContract()
+    {
+        if (this.saleAnchors == null || this.saleAnchors.Length != SaleAnchorCount ||
+            this.saleAnchors.Any(anchor => anchor == null))
+        {
+            this.reportSaleLayoutContractViolation("판매 구역 자동 소팅 앵커는 9개가 모두 연결되어야 합니다.");
+            return false;
+        }
+
+        var counts = new Dictionary<uint, int>();
+        foreach (SaleSortingItemView item in this.items)
+        {
+            if (item == null) continue;
+            counts.TryGetValue(item.ProductId, out int count);
+            counts[item.ProductId] = count + 1;
+        }
+
+        if (counts.Count > SaleAnchorRowSize || counts.Any(pair => pair.Value > SaleAnchorRowSize))
+        {
+            this.reportSaleLayoutContractViolation("방문 상품은 최대 3종이며 상품별 최대 수량은 3개입니다.");
+            return false;
+        }
+
+        HasSaleLayoutContractViolation = false;
+        return true;
+    }
+
+    /// <summary>계약 위반을 한 번 기록하고 상품을 삭제하거나 겹치게 만들지 않습니다.</summary>
+    /// <param name="message">개발자에게 전달할 위반 사유입니다.</param>
+    private void reportSaleLayoutContractViolation(string message)
+    {
+        HasSaleLayoutContractViolation = true;
+        if (this.layoutContractViolationLogged) return;
+        this.layoutContractViolationLogged = true;
+        Debug.LogError($"[SaleSortingPanel] {message}", this);
+    }
+
+    /// <summary>Inspector에서 조정한 앵커를 상품 작업대 좌표로 변환합니다.</summary>
+    /// <param name="anchorIndex">0부터 시작하는 앵커 인덱스입니다.</param>
+    /// <returns>상품 ItemRoot 기준 목표 좌표입니다.</returns>
+    private Vector2 getSaleAnchorPosition(int anchorIndex)
+    {
+        Vector3 localPosition = this.itemRoot.InverseTransformPoint(this.saleAnchors[anchorIndex].position);
+        return new Vector2(localPosition.x, localPosition.y);
+    }
+
+    /// <summary>자동 소팅 중인 상품을 짧게 보간하고 중단된 상품은 현재 위치에 둡니다.</summary>
+    /// <param name="targets">상품별 목표 위치입니다.</param>
+    /// <returns>Unity 프레임별 보간 열거자입니다.</returns>
+    private IEnumerator playAutoSorting(IReadOnlyDictionary<SaleSortingItemView, Vector2> targets)
+    {
+        var starts = new Dictionary<SaleSortingItemView, Vector2>();
+        foreach (KeyValuePair<SaleSortingItemView, Vector2> pair in targets)
+        {
+            SaleSortingItemView item = pair.Key;
+            if (item == null || !item.gameObject.activeInHierarchy ||
+                item.State != SaleSortingItemView.SortingState.ForSale ||
+                item.Manipulation != SaleSortingItemView.ManipulationState.Idle) continue;
+
+            starts.Add(item, item.Position);
+            item.Manipulation = SaleSortingItemView.ManipulationState.AutoSorting;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < AutoSortingDurationSeconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / AutoSortingDurationSeconds));
+            foreach (KeyValuePair<SaleSortingItemView, Vector2> pair in targets)
+            {
+                SaleSortingItemView item = pair.Key;
+                if (item != null && starts.ContainsKey(item) &&
+                    item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
+                {
+                    item.Position = Vector2.Lerp(starts[item], pair.Value, progress);
+                }
+            }
+
+            yield return null;
+        }
+
+        foreach (KeyValuePair<SaleSortingItemView, Vector2> pair in targets)
+        {
+            SaleSortingItemView item = pair.Key;
+            if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
+            {
+                item.Position = pair.Value;
+                item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+            }
+        }
+
+        this.autoSortingRoutine = null;
+    }
+
+    /// <summary>진행 중 자동 소팅을 중단하고 상품 조작 상태를 대기로 되돌립니다.</summary>
+    private void stopAutoSorting()
+    {
+        if (this.autoSortingRoutine != null)
+        {
+            StopCoroutine(this.autoSortingRoutine);
+            this.autoSortingRoutine = null;
+        }
+
+        foreach (SaleSortingItemView item in this.items)
+        {
+            if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
+            {
+                item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
             }
         }
     }
 
-    /// <summary>상품 중심이 판매 또는 제외 영역에 들어오면 즉시 분류 상태를 확정합니다.</summary>
-    private void classifyItems()
+    /// <summary>상품 하나의 중심 위치로 구역 상태를 결정합니다.</summary>
+    /// <param name="item">판정할 상품.</param>
+    private void classifyItem(SaleSortingItemView item)
     {
-        foreach (SaleSortingItemView item in this.items)
+        if (item == null || item.State == SaleSortingItemView.SortingState.Excluded) return;
+        Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(null, item.transform.position);
+        if (this.excludedZone != null && RectTransformUtility.RectangleContainsScreenPoint(this.excludedZone, screenPosition))
         {
-            if (item.State == SaleSortingItemView.SortingState.Excluded)
-            {
-                continue;
-            }
-
-            Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(null, item.transform.position);
-            if (this.excludedZone != null
-                && RectTransformUtility.RectangleContainsScreenPoint(this.excludedZone, screenPosition))
-            {
-                item.State = SaleSortingItemView.SortingState.Excluded;
-                item.Velocity = Vector2.zero;
-                item.gameObject.SetActive(false);
-            }
-            else if (this.saleZone != null
-                && RectTransformUtility.RectangleContainsScreenPoint(this.saleZone, screenPosition))
-            {
-                item.State = SaleSortingItemView.SortingState.ForSale;
-            }
-            else
-            {
-                item.State = SaleSortingItemView.SortingState.Working;
-            }
+            item.State = SaleSortingItemView.SortingState.Excluded;
+            item.gameObject.SetActive(false);
         }
+        else if (this.saleZone != null && RectTransformUtility.RectangleContainsScreenPoint(this.saleZone, screenPosition))
+        {
+            item.State = SaleSortingItemView.SortingState.ForSale;
+        }
+        else
+        {
+            item.State = SaleSortingItemView.SortingState.Working;
+        }
+    }
+
+    /// <summary>현재 입력 장치의 누름 상태를 반환합니다.</summary>
+    /// <param name="isPressed">현재 누르고 있는지 여부.</param>
+    /// <param name="wasPressedThisFrame">이번 프레임에 눌렸는지 여부.</param>
+    private void getPointerButtonState(out bool isPressed, out bool wasPressedThisFrame)
+    {
+#if ENABLE_INPUT_SYSTEM
+        var mouse = Mouse.current;
+        isPressed = mouse != null && mouse.leftButton.isPressed;
+        wasPressedThisFrame = mouse != null && mouse.leftButton.wasPressedThisFrame;
+#else
+        isPressed = Input.GetMouseButton(0);
+        wasPressedThisFrame = Input.GetMouseButtonDown(0);
+#endif
     }
 
     /// <summary>계산기 위의 포인터 조작을 상품 물리 입력에서 제외합니다.</summary>
@@ -572,8 +980,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         return this.isCalculatorOpen
             && this.calculatorPanel != null
-            && RectTransformUtility.RectangleContainsScreenPoint(this.calculatorPanel, this.getPointerScreenPosition())
-            && (EventSystem.current == null || EventSystem.current.IsPointerOverGameObject());
+            && RectTransformUtility.RectangleContainsScreenPoint(this.calculatorPanel, this.getPointerScreenPosition());
     }
 
     /// <summary>활성 입력 시스템에서 현재 포인터 화면 위치를 반환합니다.</summary>
@@ -593,7 +1000,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <returns>작업대 로컬 시작 위치입니다.</returns>
     private Vector2 getPourStartPosition(int index)
     {
-        return new Vector2(-this.workArea.rect.width * 0.28f + ((index % 3) * 6f), this.workArea.rect.height * 0.22f);
+        return new Vector2(-280f + ((index % 3) * 12f), 60f + ((index / 3) * 16f));
     }
 
     /// <summary>상품을 작업대 중앙에 겹치지 않게 펼칠 목표 위치를 계산합니다.</summary>
@@ -603,8 +1010,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private Vector2 getInitialSpreadPosition(int index, int count)
     {
         float angle = count <= 1 ? 0f : (Mathf.PI * 2f * index / count);
-        float ring = Mathf.Min(this.workArea.rect.width, this.workArea.rect.height) * (0.12f + (index % 3) * 0.04f);
-        return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * ring;
+        float ring = Mathf.Min(this.workArea.rect.width, this.workArea.rect.height) * (0.13f + (index % 3) * 0.04f);
+        return new Vector2(Mathf.Cos(angle) * ring - 40f, Mathf.Sin(angle) * ring + 10f);
     }
 
     /// <summary>현재 미분류 상품 수를 계산합니다.</summary>
@@ -646,6 +1053,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.items.Clear();
+        this.dividerMovedItems.Clear();
+        this.draggedItem = null;
+        this.dragOffset = Vector2.zero;
     }
 
     /// <summary>정면 거래 화면만 표시하고 작업 입력을 닫습니다.</summary>
@@ -658,6 +1068,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(false);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
-        this.hasPointerSample = false;
+        if (this.dividerBar != null) this.dividerBar.SetVisible(false);
+        if (this.vacuum != null) this.vacuum.SetVisible(false);
+        this.releaseDraggedItem();
     }
 }
