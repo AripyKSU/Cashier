@@ -36,6 +36,8 @@ public static class SaleSortingPrefabSetup
     private const string CanopyPath = "Assets/DystopiaPrototype/Art/BoothCanopy.png";
     private const string CounterPath = "Assets/DystopiaPrototype/Art/BoothCounter.png";
     private const string DailyInstructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
+    private const string CounterClockPath = "Assets/DystopiaPrototype/Art/시계.png";
+    private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]
@@ -100,11 +102,22 @@ public static class SaleSortingPrefabSetup
             SaleSortingItemView itemView = itemTemplate.gameObject.AddComponent<SaleSortingItemView>();
             itemTemplate.gameObject.SetActive(false);
 
-            RectTransform container = createRect("PouringContainer", sortingRoot, new Vector2(-410f, 185f), new Vector2(270f, 270f));
+            RectTransform dividerRect = createRect("DividerBar", workArea, new Vector2(-420f, 0f), new Vector2(480f, 48f));
+            dividerRect.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            dividerRect.SetAsLastSibling();
+            Image dividerImage = dividerRect.gameObject.AddComponent<Image>();
+            dividerImage.sprite = loadSprite(DividerBarPath);
+            dividerImage.preserveAspect = false;
+            dividerImage.raycastTarget = false;
+            DividerBarController dividerController = dividerRect.gameObject.AddComponent<DividerBarController>();
+
+            RectTransform container = createRect("PouringContainer", sortingRoot, new Vector2(-460f, 60f), new Vector2(420f, 420f));
+            container.localRotation = Quaternion.Euler(0f, 0f, -90f);
             Image containerImage = container.gameObject.AddComponent<Image>();
             containerImage.sprite = loadSprite(TiltedContainerPath);
             containerImage.preserveAspect = true;
             containerImage.raycastTarget = false;
+            container.gameObject.SetActive(false);
 
             RectTransform calculator = findChild(operating, "PriceInput") as RectTransform;
             if (calculator == null)
@@ -164,6 +177,7 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "calculatorClosedSprite", loadSprite(CalculatorTogglePath));
             setObject(panelObject, "itemPrefab", itemView);
             setObject(panelObject, "sortingStatusText", null);
+            setObject(panelObject, "dividerBar", dividerController);
             setFloat(panelObject, "cursorRadiusPixels", 30f);
             setFloat(panelObject, "cursorImpulse", 0.065f);
             setFloat(panelObject, "maximumSpeedPixels", 230f);
@@ -366,6 +380,30 @@ public static class SaleSortingPrefabSetup
 
         createFrontImage(frontView, "Canopy", CanopyPath, 0f, 0f, 1280f, 720f);
         createFrontImage(frontView, "Counter", CounterPath, 0f, 0f, 1280f, 720f);
+
+        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 1080f, 425f, 180f, 90f);
+        Image clockImage = clockRect.GetComponent<Image>();
+        clockImage.preserveAspect = true;
+        clockImage.raycastTarget = false;
+        BusinessClockController clockController = clockRect.gameObject.AddComponent<BusinessClockController>();
+
+        RectTransform clockTextRect = createRect("ClockText", clockRect, Vector2.zero, new Vector2(110f, 28f));
+        clockTextRect.anchorMin = new Vector2(0.5f, 0.5f);
+        clockTextRect.anchorMax = new Vector2(0.5f, 0.5f);
+        clockTextRect.pivot = new Vector2(0.5f, 0.5f);
+        clockTextRect.anchoredPosition = new Vector2(0f, -2f);
+        TextMeshProUGUI clockText = clockTextRect.gameObject.AddComponent<TextMeshProUGUI>();
+        clockText.text = "09:00";
+        clockText.fontSize = 22f;
+        clockText.fontStyle = FontStyles.Bold;
+        clockText.alignment = TextAlignmentOptions.Center;
+        clockText.color = new Color(0.40f, 0.58f, 0.43f, 1f);
+        clockText.raycastTarget = false;
+
+        SerializedObject clockObj = new SerializedObject(clockController);
+        setObject(clockObj, "clockText", clockText);
+        clockObj.ApplyModifiedPropertiesWithoutUndo();
+
         RectTransform container = createFrontImage(
             frontView,
             "FrontContainer",
@@ -686,6 +724,34 @@ public static class SaleSortingPrefabSetup
         SerializedProperty property = serializedObject.FindProperty(propertyName);
         if (property == null) throw new MissingFieldException(serializedObject.targetObject.GetType().Name, propertyName);
         property.floatValue = value;
+    }
+}
+
+/// <summary>에디터 리로드 시 프리팹 갱신을 자동으로 1회 실행하여 디스크의 프리팹 파일에 시계, 밀대, 대형 상자를 즉시 반영합니다.</summary>
+[InitializeOnLoad]
+public static class AutoSaleSortingPrefabUpdater
+{
+    private const string SessionKey = "SaleSortingUI_AutoSetup_Applied_v3";
+
+    static AutoSaleSortingPrefabUpdater()
+    {
+        EditorApplication.delayCall += checkAndRun;
+    }
+
+    private static void checkAndRun()
+    {
+        if (SessionState.GetBool(SessionKey, false)) return;
+        SessionState.SetBool(SessionKey, true);
+
+        try
+        {
+            SaleSortingPrefabSetup.Setup();
+            Debug.Log("[AutoSaleSortingPrefabUpdater] 시계, 밀대, 대형 상자가 포함된 SaleSortingUI 프리팹 갱신을 성공적으로 완료했습니다.");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[AutoSaleSortingPrefabUpdater] 자동 프리팹 갱신 중 예외: {ex.Message}");
+        }
     }
 }
 #endif
