@@ -15,6 +15,15 @@ public sealed class DailyAggregationService
     // 현재 영업일에 완료된 거래의 명성 변화 누적값입니다.
     private int dailyReputationDelta;
 
+    // 현재 영업일에 성립한 거래에서 발생한 정식 일일지침 위반 건수입니다.
+    private int dailyGuidelineViolationCount;
+
+    // 실제 차감 전인 현재 영업일의 지침 벌금 예정액입니다.
+    private long dailyGuidelinePenaltyAmount;
+
+    // 정산 표시와 지침별 집계를 위해 보존하는 현재 영업일의 위반 snapshot입니다.
+    private readonly List<DailyGuidelineViolation> dailyGuidelineViolations = new List<DailyGuidelineViolation>();
+
     // 현재 영업일에 접수한 모든 거래 결과 snapshot입니다. 결제 거절도 포함합니다.
     private readonly List<TransactionResult> dailyTransactions = new List<TransactionResult>();
 
@@ -35,6 +44,12 @@ public sealed class DailyAggregationService
     /// 현재 영업일에 누적된 명성 변화량입니다.
     /// </summary>
     public int DailyReputationDelta => this.dailyReputationDelta;
+
+    /// <summary>현재 영업일에 누적된 정식 일일지침 위반 건수입니다.</summary>
+    public int DailyGuidelineViolationCount => this.dailyGuidelineViolationCount;
+
+    /// <summary>현재 영업일에 누적된 지침 벌금 예정액입니다. 실제 지출 반영 전 값입니다.</summary>
+    public long DailyGuidelinePenaltyAmount => this.dailyGuidelinePenaltyAmount;
 
     /// <summary>현재 영업일에 접수한 성공·거절 거래 수입니다.</summary>
     public int DailyTransactionCount => this.dailyTransactions.Count;
@@ -81,6 +96,10 @@ public sealed class DailyAggregationService
         // 재정 변경 전에 모든 일일 누적값의 범위를 확인해 부분 갱신을 방지합니다.
         long nextDailySaleIncome = checked(this.dailySaleIncome + transactionResult.SaleIncome);
         int nextDailyReputationDelta = checked(this.dailyReputationDelta + transactionResult.ReputationDelta);
+        int nextDailyGuidelineViolationCount = checked(
+            this.dailyGuidelineViolationCount + transactionResult.DailyGuidelineViolationCount);
+        long nextDailyGuidelinePenaltyAmount = checked(
+            this.dailyGuidelinePenaltyAmount + transactionResult.DailyGuidelinePenaltyAmount);
 
         if (transactionResult.SaleIncome > 0)
         {
@@ -90,6 +109,10 @@ public sealed class DailyAggregationService
         // 재정 반영이 완료된 결과만 현재 영업일의 집계값으로 확정합니다.
         this.dailySaleIncome = nextDailySaleIncome;
         this.dailyReputationDelta = nextDailyReputationDelta;
+        this.dailyGuidelineViolationCount = nextDailyGuidelineViolationCount;
+        this.dailyGuidelinePenaltyAmount = nextDailyGuidelinePenaltyAmount;
+        foreach (DailyGuidelineViolation violation in transactionResult.DailyGuidelineViolations)
+            this.dailyGuidelineViolations.Add(violation);
         this.dailyTransactions.Add(transactionResult);
         return true;
     }
@@ -113,7 +136,10 @@ public sealed class DailyAggregationService
             this.dailySaleIncome,
             0,
             this.dailyReputationDelta,
-            this.dailyTransactions);
+            this.dailyTransactions,
+            this.dailyGuidelineViolationCount,
+            this.dailyGuidelinePenaltyAmount,
+            this.dailyGuidelineViolations);
 
         // 반환 결과와 현재 집계 상태를 분리한 뒤 다음 영업일을 위해 누적값을 초기화합니다.
         this.resetAggregation();
@@ -127,6 +153,9 @@ public sealed class DailyAggregationService
     {
         this.dailySaleIncome = 0;
         this.dailyReputationDelta = 0;
+        this.dailyGuidelineViolationCount = 0;
+        this.dailyGuidelinePenaltyAmount = 0;
+        this.dailyGuidelineViolations.Clear();
         this.dailyTransactions.Clear();
     }
 }

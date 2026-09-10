@@ -198,10 +198,18 @@ public sealed class CustomerCompositionSelector
             if (pair.Value == null || pair.Key != pair.Value.Idx)
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
             pair.Value.Validate();
-            if (!currentPrices.TryGetValue(pair.Key, out uint price) || price == 0)
-                throw new ArgumentException($"상품 PK={pair.Key}: 현재가 누락 또는 0", nameof(currentPrices));
-            if (CustomerProductAvailability.IsAvailable(pair.Value, elapsedDays, isFacilityActive))
-                availableProducts.Add(pair.Key, pair.Value);
+            if (!currentPrices.TryGetValue(pair.Key, out uint price)) continue;
+            if (price == 0)
+                throw new ArgumentException($"상품 PK={pair.Key}: 현재가가 0입니다.", nameof(currentPrices));
+            if (!CustomerProductAvailability.IsAvailable(pair.Value, elapsedDays, isFacilityActive))
+                throw new ArgumentException($"상품 PK={pair.Key}: 등장할 수 없는 상품의 현재가가 포함됐습니다.", nameof(currentPrices));
+            availableProducts.Add(pair.Key, pair.Value);
+        }
+
+        foreach (uint productIdx in currentPrices.Keys)
+        {
+            if (!products.ContainsKey(productIdx))
+                throw new ArgumentException($"상품 PK={productIdx}: 상품 원본에 없는 현재가입니다.", nameof(currentPrices));
         }
 
         return availableProducts;

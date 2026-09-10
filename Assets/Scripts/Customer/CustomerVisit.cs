@@ -32,6 +32,8 @@ public sealed class CustomerVisit
     private readonly HashSet<uint> availableProductIds;
     /// <summary>제출 시 한 번 조회하는 지침 공급자. null은 미연결이며 방문이 수명을 소유하지 않는다.</summary>
     private readonly Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions;
+    /// <summary>제출 시 한 번 조회하는 정식 일일지침 공급자. 방문은 세션 상태의 수명을 소유하지 않습니다.</summary>
+    private readonly Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines;
     private bool isSubmitting;
     /// <summary>생성 시 선택한 수락 대사.</summary>
     private readonly uint regularSaleTextIdx;
@@ -108,7 +110,8 @@ public sealed class CustomerVisit
     /// <param name="attributes">세 축이 모두 지정된 독립 속성.</param>
     /// <param name="regularPriceMinRate">생성기가 검증한 정가 인정 하한 배율.</param>
     /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
-    /// <param name="getSaleRestrictions">제출 시 지침 조회. null은 미연결.</param>
+    /// <param name="getSaleRestrictions">구형 판매 제한 조회. null은 미연결.</param>
+    /// <param name="getDailyGuidelines">정식 일일지침 조회. null은 미연결.</param>
     /// <param name="availableProductIds">생성일의 활성·등장·설비 조건을 통과한 전체 상품 PK.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
@@ -116,8 +119,11 @@ public sealed class CustomerVisit
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
+        Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines,
         IEnumerable<uint> availableProductIds)
     {
+        if (getSaleRestrictions != null && getDailyGuidelines != null)
+            throw new ArgumentException("구형 판매 제한과 정식 일일지침을 동시에 연결할 수 없습니다.");
         CustomerProfileValidation.ValidateType(dispositionType);
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         DispositionType = dispositionType;
@@ -137,6 +143,7 @@ public sealed class CustomerVisit
         this.getCurrentPrices = getCurrentPrices;
         this.availableProductIds = new HashSet<uint>(availableProductIds);
         this.getSaleRestrictions = getSaleRestrictions;
+        this.getDailyGuidelines = getDailyGuidelines;
     }
 
     /// <summary>입장 피드백을 표시한 뒤 한 번만 가격 제안 대기로 전환한다.</summary>
@@ -145,6 +152,34 @@ public sealed class CustomerVisit
     {
         if (State != CustomerState.Entering) throw new InvalidOperationException("이미 입장한 손님입니다.");
         State = CustomerState.AwaitingOffer;
+    }
+
+    /// <summary>손님의 최초 주문 중 일일지침에 따라 정상적으로 제외할 수 있는 최대 수량을 반환합니다.</summary>
+    /// <param name="productIdx">최초 주문에 포함된 상품 PK입니다.</param>
+    /// <returns>판매 금지는 주문 전량, 최대 1개 지침은 주문량에서 1개를 뺀 수량이며 적용 지침이 없으면 0입니다.</returns>
+    /// <exception cref="ArgumentException">상품이 이번 방문의 최초 주문에 없는 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">연결된 일일지침 공급자가 null 목록을 반환한 경우 발생합니다.</exception>
+    public int GetGuidelineAllowedExclusionQuantity(uint productIdx)
+    {
+        CustomerOrderItem requestedItem = null;
+        foreach (CustomerOrderItem item in Items)
+        {
+            if (item.ProductIdx != productIdx) continue;
+            requestedItem = item;
+            break;
+        }
+
+        if (requestedItem == null)
+            throw new ArgumentException("이번 방문의 최초 주문에 포함된 상품이 아닙니다.", nameof(productIdx));
+        if (getDailyGuidelines == null) return 0;
+
+        IReadOnlyList<DailyGuideline> guidelines = getDailyGuidelines() ??
+            throw new InvalidOperationException("일일지침 조회가 null을 반환했습니다.");
+        return DailyGuidelineExclusionAllowance.GetAllowedExclusionQuantity(
+            guidelines,
+            Attributes,
+            productIdx,
+            requestedItem.Quantity);
     }
 
     /// <summary>생성된 방문을 대기열에 한 번 등록한다.</summary>
@@ -211,7 +246,23 @@ public sealed class CustomerVisit
             // 정상 위반은 수락을 취소하지 않는다. 조회·검증 실패는 공개 상태 확정 전에 전파한다.
             bool evaluated = outcome != CustomerTradeOutcome.PaymentRefused && getSaleRestrictions != null;
             IReadOnlyList<SaleRestrictionViolation> violations = evaluated ? evaluateRestrictions(sold) : Array.Empty<SaleRestrictionViolation>();
-            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations, DispositionType, Attributes);
+            bool wereDailyGuidelinesEvaluated = outcome != CustomerTradeOutcome.PaymentRefused && getDailyGuidelines != null;
+            IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = wereDailyGuidelinesEvaluated
+                ? DailyGuidelineEvaluator.Evaluate(
+                    getDailyGuidelines() ?? throw new InvalidOperationException("일일지침 조회가 null을 반환했습니다."),
+                    Attributes,
+                    sold)
+                : Array.Empty<DailyGuidelineViolation>();
+            var result = new TransactionResult(
+                outcome,
+                offeredTotal,
+                sold,
+                evaluated,
+                violations,
+                DispositionType,
+                Attributes,
+                wereDailyGuidelinesEvaluated,
+                dailyGuidelineViolations);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;

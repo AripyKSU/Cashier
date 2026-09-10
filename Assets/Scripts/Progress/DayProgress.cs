@@ -468,7 +468,12 @@ public sealed class DayProgress
             : this.customerGenerator.Generate(
                 composition,
                 this.customerCatalog.Products.Rows,
-                () => this.session.EnsureDailyPrices().Prices);
+                () => this.session.EnsureDailyPrices().Prices,
+                getDailyGuidelines: () =>
+                {
+                    this.session.EnsureDailyPrices();
+                    return this.session.DailyGuidelines;
+                });
 
         if (visit == null)
         {

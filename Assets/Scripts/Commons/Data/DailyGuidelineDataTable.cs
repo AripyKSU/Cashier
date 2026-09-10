@@ -7,12 +7,14 @@ using CsvHelper;
 using UnityEngine;
 
 /// <summary>
-/// 당일 지침 CSV 데이터의 로딩, 파싱, 유효성 검증 및 일자별 조회를 담당하는 데이터 테이블.
+/// 무작위 일일지침 규칙 설정의 로딩, 검증 및 유형별 조회를 담당하는 데이터 테이블.
 /// </summary>
 public sealed class DailyGuidelineDataTable : IDataLoad
 {
-    private Dictionary<uint, DailyGuidelineData> dataDict = new Dictionary<uint, DailyGuidelineData>();
-    private Dictionary<uint, DailyGuidelineData> dayDict = new Dictionary<uint, DailyGuidelineData>();
+    private IReadOnlyDictionary<uint, DailyGuidelineData> dataDict =
+        new ReadOnlyDictionary<uint, DailyGuidelineData>(new Dictionary<uint, DailyGuidelineData>());
+    private IReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData> ruleTypeDict =
+        new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>());
 
     /// <summary>검증된 전체 지침 데이터 사전입니다.</summary>
     public IReadOnlyDictionary<uint, DailyGuidelineData> Rows => this.dataDict;
@@ -33,14 +35,14 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     }
 
     /// <summary>
-    /// 일차(day)로 지침 데이터를 조회합니다.
+    /// 지침 유형으로 무작위 생성 설정을 조회합니다.
     /// </summary>
-    /// <param name="day">게임 일차 (1부터 시작).</param>
-    /// <param name="data">해당 일차의 지침 데이터.</param>
+    /// <param name="ruleType">조회할 지침 유형.</param>
+    /// <param name="data">해당 유형의 설정.</param>
     /// <returns>존재 여부.</returns>
-    public bool TryGetByDay(uint day, out DailyGuidelineData data)
+    public bool TryGetByRuleType(DailyGuidelineRuleType ruleType, out DailyGuidelineData data)
     {
-        return this.dayDict.TryGetValue(day, out data);
+        return this.ruleTypeDict.TryGetValue(ruleType, out data);
     }
 
     /// <summary>
@@ -60,7 +62,7 @@ public sealed class DailyGuidelineDataTable : IDataLoad
                 csv.ValidateHeader<DailyGuidelineData>();
 
                 var parsed = new Dictionary<uint, DailyGuidelineData>();
-                var parsedByDay = new Dictionary<uint, DailyGuidelineData>();
+                var parsedByRuleType = new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>();
 
                 while (csv.Read())
                 {
@@ -73,10 +75,9 @@ public sealed class DailyGuidelineDataTable : IDataLoad
                     item.Validate();
                     parsed.Add(item.Idx, item);
 
-                    if (!parsedByDay.ContainsKey(item.Day))
-                    {
-                        parsedByDay.Add(item.Day, item);
-                    }
+                    if (parsedByRuleType.ContainsKey(item.RuleType))
+                        throw new InvalidDataException($"DailyGuideline rule_type={item.RuleType}: 중복 설정");
+                    parsedByRuleType.Add(item.RuleType, item);
                 }
 
                 if (parsed.Count == 0)
@@ -84,8 +85,16 @@ public sealed class DailyGuidelineDataTable : IDataLoad
                     throw new InvalidDataException("DailyGuidelineData: 데이터 행 누락");
                 }
 
-                this.dataDict = parsed;
-                this.dayDict = parsedByDay;
+                foreach (DailyGuidelineRuleType ruleType in new[]
+                {
+                    DailyGuidelineRuleType.SaleProhibited,
+                    DailyGuidelineRuleType.QuantityLimited
+                })
+                    if (!parsedByRuleType.ContainsKey(ruleType))
+                        throw new InvalidDataException($"DailyGuidelineData: rule_type={ruleType} 설정 누락");
+
+                this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(parsed);
+                this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(parsedByRuleType);
             }
             catch (Exception exception)
             {
@@ -102,7 +111,7 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     /// </summary>
     public void Release()
     {
-        this.dataDict.Clear();
-        this.dayDict.Clear();
+        this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(new Dictionary<uint, DailyGuidelineData>());
+        this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>());
     }
 }

@@ -1,6 +1,16 @@
 using System;
 using CsvHelper.Configuration.Attributes;
 
+/// <summary>기본 상품과 상품 해금 설비의 요구 가게 단계로 계산하는 등장 가중치 단계.</summary>
+public enum ProductUnlockStage
+{
+    Base = 0,
+    Stage1 = 1,
+    Stage2 = 2,
+    Stage3 = 3,
+    ProductUnlockStage_End
+}
+
 /// <summary>상품의 분류·정가·등장일과 표시 리소스. 재고 수량은 별도 계약이다.</summary>
 public sealed class ProductData
 {

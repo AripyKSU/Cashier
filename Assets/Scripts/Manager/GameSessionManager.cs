@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 /// <summary>
 /// 현재 게임 세션의 런타임 시스템을 생성하고 Scene 전환 동안 수명을 유지합니다.
@@ -15,6 +16,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private ReputationLogService reputationLogService;
 
     private readonly PriceEventScheduler priceScheduler = new PriceEventScheduler(new Random());
+    private readonly DailyProductSelector dailyProductSelector = new DailyProductSelector(new Random());
+    private readonly DailyGuidelineGenerator dailyGuidelineGenerator = new DailyGuidelineGenerator(new Random());
+    private uint? dailyGuidelineElapsedDays;
     private bool hasClosedDay;
     // 영업 시간으로만 감소하며 정산·오류 시 취소한다.
     private float radioRemainingSeconds;
@@ -159,7 +163,10 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             salesResult.SaleIncome,
             maintenanceAmount,
             salesResult.ReputationDelta,
-            salesResult.Transactions);
+            salesResult.Transactions,
+            salesResult.DailyGuidelineViolationCount,
+            salesResult.DailyGuidelinePenaltyAmount,
+            salesResult.DailyGuidelineViolations);
         hasClosedDay = true;
         return result.SaleIncome;
     }
@@ -167,6 +174,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public uint ElapsedDays { get; private set; }
     /// <summary>동일 날짜의 재추첨을 방지하는 확정 상태.</summary>
     public DailyPriceState DailyPrices { get; private set; }
+    /// <summary>동일 날짜 동안 유지되는 충돌 없는 일일지침 snapshot.</summary>
+    public System.Collections.Generic.IReadOnlyList<DailyGuideline> DailyGuidelines { get; private set; } =
+        Array.Empty<DailyGuideline>();
 
     /// <summary>오늘 가격을 한 번만 확정한다. UI 재진입 시 동일 객체를 반환한다.</summary>
     /// <returns>신문·라디오·현재가 snapshot.</returns>
@@ -174,14 +184,26 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public DailyPriceState EnsureDailyPrices()
     {
         if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
-        if (DailyPrices != null && DailyPrices.ElapsedDays == ElapsedDays) return DailyPrices;
+        if (DailyPrices != null && DailyPrices.ElapsedDays == ElapsedDays && dailyGuidelineElapsedDays == ElapsedDays)
+            return DailyPrices;
         try
         {
+            var products = dataTables.Customers.Products.Rows;
+            var facilityRows = dataTables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows;
+            var dailyProducts = dailyProductSelector.Select(products, facilityRows, ElapsedDays, IsFacilityActive);
             var next = priceScheduler.CreateDay(ElapsedDays,
                 dataTables.GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Rows,
                 dataTables.GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Rows,
-                dataTables.Customers.Products.Rows);
+                products,
+                dailyProducts.Select(product => product.Idx));
+            var nextGuidelines = dailyGuidelineGenerator.Generate(
+                ElapsedDays,
+                dataTables.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline).Rows,
+                next.Prices.Keys);
+            // 가격과 지침이 모두 생성된 뒤 함께 공개해 날짜 상태의 부분 갱신을 막습니다.
             DailyPrices = next;
+            DailyGuidelines = nextGuidelines;
+            dailyGuidelineElapsedDays = ElapsedDays;
             return DailyPrices;
         }
         catch (Exception exception)
@@ -313,6 +335,8 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.economy = null;
         this.IsInitialized = false;
         this.DailyPrices = null;
+        this.DailyGuidelines = Array.Empty<DailyGuideline>();
+        this.dailyGuidelineElapsedDays = null;
         this.radioPending = false;
         this.dataTables = null;
         this.facilities = null;

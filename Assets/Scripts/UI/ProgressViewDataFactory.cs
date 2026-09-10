@@ -84,21 +84,6 @@ public sealed class ProgressViewDataFactory
         string restriction = "영업이 시작되면 가격표를 다시 볼 수 없습니다.";
         string recheck = "당일 지침은 영업 중에도 다시 확인할 수 있습니다.";
 
-        DailyGuidelineDataTable targetGuidelineTable = this.guidelineTable
-            ?? (DataTableManager.Instance != null ? DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline) : null);
-
-        if (targetGuidelineTable != null && targetGuidelineTable.TryGetByDay(checked((uint)day), out DailyGuidelineData guideline))
-        {
-            if (this.textData.Rows.TryGetValue(guideline.NameIdx, out TextData titleData))
-            {
-                ruleTitle = titleData.Text;
-            }
-            if (this.textData.Rows.TryGetValue(guideline.DescriptionIdx, out TextData descData))
-            {
-                ruleContent = descData.Text;
-            }
-        }
-
         return new PreOpenGuidelineViewData(
             day,
             heading,

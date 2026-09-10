@@ -39,7 +39,8 @@ public sealed class CustomerGenerator
     /// <param name="composition">선택기가 확정한 불변 구성입니다.</param>
     /// <param name="products">상품 PK → 상품 데이터 사전입니다.</param>
     /// <param name="getCurrentPrices">제출 시 최신 현재가를 조회하는 callback입니다.</param>
-    /// <param name="getSaleRestrictions">제출 시 판매 지침을 조회하는 callback입니다.</param>
+    /// <param name="getSaleRestrictions">구형 판매 제한을 조회하는 호환 callback입니다.</param>
+    /// <param name="getDailyGuidelines">제출 시 해당 날짜의 일일지침 snapshot을 조회하는 callback입니다.</param>
     /// <returns>구성 snapshot을 복사한 방문 객체입니다.</returns>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentException">구성 상품 또는 현재가 참조가 잘못된 경우 발생합니다.</exception>
@@ -47,7 +48,8 @@ public sealed class CustomerGenerator
         CustomerComposition composition,
         IReadOnlyDictionary<uint, ProductData> products,
         Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
-        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null)
+        Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null,
+        Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines = null)
     {
         if (composition == null)
             throw new ArgumentNullException(nameof(composition));
@@ -71,8 +73,12 @@ public sealed class CustomerGenerator
             if (pair.Value == null || pair.Key != pair.Value.Idx)
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
             pair.Value.Validate();
-            if (!currentPrices.TryGetValue(pair.Key, out uint price) || price == 0)
-                throw new ArgumentException($"상품 PK={pair.Key}: 현재가 누락 또는 0", nameof(getCurrentPrices));
+        }
+
+        foreach (uint productId in availableIds)
+        {
+            if (!currentPrices.TryGetValue(productId, out uint price) || price == 0)
+                throw new ArgumentException($"상품 PK={productId}: 현재가 누락 또는 0", nameof(getCurrentPrices));
         }
 
         foreach (CustomerOrderItem item in composition.Items)
@@ -98,6 +104,7 @@ public sealed class CustomerGenerator
             composition.RegularPriceMinRate,
             composition.RegularPriceMaxRate,
             getSaleRestrictions,
+            getDailyGuidelines,
             availableIds);
     }
 }

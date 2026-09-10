@@ -1,9 +1,32 @@
 using System;
+using System.Globalization;
+using CsvHelper;
+using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
+using CsvHelper.TypeConversion;
+
+/// <summary>CSV 숫자 코드를 유효한 일일지침 유형으로 변환한다.</summary>
+public sealed class DailyGuidelineRuleTypeConverter : DefaultTypeConverter
+{
+    /// <summary>정의된 판매 금지·수량 제한 숫자 코드만 변환한다.</summary>
+    /// <param name="text">CSV 숫자 코드.</param>
+    /// <param name="row">현재 CSV 행.</param>
+    /// <param name="memberMapData">대상 컬럼 매핑.</param>
+    /// <returns>검증된 일일지침 유형.</returns>
+    /// <exception cref="FormatException">숫자가 아니거나 허용하지 않는 유형.</exception>
+    public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
+    {
+        if (!uint.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out uint value) ||
+            value == (uint)DailyGuidelineRuleType.None ||
+            value >= (uint)DailyGuidelineRuleType.DailyGuidelineRuleType_End ||
+            !Enum.IsDefined(typeof(DailyGuidelineRuleType), value))
+            throw new FormatException($"rule_type={text}: 정의된 숫자 일일지침 유형이 필요합니다.");
+        return (DailyGuidelineRuleType)value;
+    }
+}
 
 /// <summary>
-/// 일자별 당일 지침 DTO.
-/// 지침의 제목, 내용, 규칙 유형, 대상 물품 및 파라미터를 정의합니다.
+/// 무작위 일일지침 생성에 사용하는 규칙 유형별 설정 DTO.
 /// </summary>
 public sealed class DailyGuidelineData
 {
@@ -11,37 +34,41 @@ public sealed class DailyGuidelineData
     [Name("idx")]
     public uint Idx { get; set; }
 
-    /// <summary>적용 일차 (1일차, 2일차...).</summary>
-    [Name("day")]
-    public uint Day { get; set; }
+    /// <summary>무작위 생성 후보의 지침 유형.</summary>
+    [Name("rule_type"), TypeConverter(typeof(DailyGuidelineRuleTypeConverter))]
+    public DailyGuidelineRuleType RuleType { get; set; }
 
-    /// <summary>지침 소제목의 TextData.idx FK (예: "오늘의 지침").</summary>
-    [Name("nameidx")]
-    public uint NameIdx { get; set; }
+    /// <summary>거래당 판매 허용 수량. 판매 금지는 0, 수량 제한은 1.</summary>
+    [Name("allowed_quantity")]
+    public int AllowedQuantity { get; set; }
 
-    /// <summary>지침 상세 내용의 TextData.idx FK (예: "제한 없음.").</summary>
-    [Name("descriptionidx")]
-    public uint DescriptionIdx { get; set; }
-
-    /// <summary>규칙 유형 (0: 제한 없음, 1: 수량 제한, 2: 판매 금지 등).</summary>
-    [Name("rule_type")]
-    public uint RuleType { get; set; }
-
-    /// <summary>규칙 대상 물품 FK (ProductData.idx, 없으면 0).</summary>
-    [Name("target_product_idx")]
-    public uint TargetProductIdx { get; set; }
-
-    /// <summary>규칙 수치 파라미터 (예: 수량 제한 개수 등).</summary>
-    [Name("param_value")]
-    public int ParamValue { get; set; }
+    /// <summary>해당 지침을 한 거래에서 위반했을 때의 양수 벌금.</summary>
+    [Name("penalty_amount")]
+    public long PenaltyAmount { get; set; }
 
     /// <summary>행 내부의 필수값과 데이터 유효성을 검사합니다.</summary>
     /// <exception cref="ArgumentException">필수값이 누락되었거나 범위를 벗어난 경우 발생합니다.</exception>
     public void Validate()
     {
-        if (this.Idx == 0 || this.Day == 0 || this.NameIdx == 0 || this.DescriptionIdx == 0)
-        {
-            throw new ArgumentException($"DailyGuideline PK={this.Idx}: 필수 컬럼(idx, day, nameidx, descriptionidx) 누락");
-        }
+        if (Util.GetDataTableType(Idx) != DataTableType.DailyGuideline || Idx % 1000 == 0)
+            throw new ArgumentException($"DailyGuideline PK={Idx}: idx 대역 오류");
+        if (RuleType == DailyGuidelineRuleType.None || RuleType == DailyGuidelineRuleType.DailyGuidelineRuleType_End ||
+            !Enum.IsDefined(typeof(DailyGuidelineRuleType), RuleType))
+            throw new ArgumentException($"DailyGuideline PK={Idx}: rule_type 오류");
+        int expectedQuantity = RuleType == DailyGuidelineRuleType.SaleProhibited ? 0 : 1;
+        if (AllowedQuantity != expectedQuantity)
+            throw new ArgumentException($"DailyGuideline PK={Idx}: allowed_quantity는 {expectedQuantity}이어야 합니다.");
+        if (PenaltyAmount <= 0)
+            throw new ArgumentException($"DailyGuideline PK={Idx}: penalty_amount는 양수여야 합니다.");
+    }
+
+    /// <summary>런타임 대상 조건과 물품을 결합해 불변 일일지침을 생성한다.</summary>
+    /// <param name="requiredAttributes">성별·연령 AND 조건. None은 모든 손님.</param>
+    /// <param name="targetProductIdx">당일 등장 ProductData PK.</param>
+    /// <returns>검증된 런타임 일일지침.</returns>
+    public DailyGuideline CreateGuideline(CustomerAttributes requiredAttributes, uint targetProductIdx)
+    {
+        Validate();
+        return new DailyGuideline(Idx, RuleType, requiredAttributes, targetProductIdx, AllowedQuantity, PenaltyAmount);
     }
 }

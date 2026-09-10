@@ -4,7 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
-/// <summary>당일 지침(Daily Guidelines) CSV 파싱, 유효성 및 UI 뷰데이터 팩토리 연동 테스트.</summary>
+/// <summary>일일지침 규칙 설정 CSV와 런타임 계약의 최소 검증.</summary>
 public sealed class DailyGuidelineTests
 {
     private DailyGuidelineDataTable guidelineTable;
@@ -50,36 +50,25 @@ public sealed class DailyGuidelineTests
         {
             Assert.DoesNotThrow(row.Validate);
             Assert.That(Util.GetDataTableType(row.Idx), Is.EqualTo(DataTableType.DailyGuideline));
-            Assert.That(textTable.Rows.ContainsKey(row.NameIdx), $"DailyGuideline PK={row.Idx}: nameidx={row.NameIdx} not found in TextData");
-            Assert.That(textTable.Rows.ContainsKey(row.DescriptionIdx), $"DailyGuideline PK={row.Idx}: descriptionidx={row.DescriptionIdx} not found in TextData");
+            Assert.That(row.PenaltyAmount, Is.EqualTo(500));
         }
     }
 
     [Test]
-    public void DailyGuidelineData_Day1_ReturnsNoRestriction()
+    public void DailyGuidelineData_ProvidesBothRuleTypes()
     {
-        bool found = guidelineTable.TryGetByDay(1, out DailyGuidelineData day1Data);
-        Assert.That(found, Is.True);
-        Assert.That(day1Data.NameIdx, Is.EqualTo(8101u));
-        Assert.That(day1Data.DescriptionIdx, Is.EqualTo(8102u));
-
-        Assert.That(textTable.Rows[day1Data.NameIdx].Text, Is.EqualTo("오늘의 지침"));
-        Assert.That(textTable.Rows[day1Data.DescriptionIdx].Text, Is.EqualTo("제한 없음."));
+        Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.SaleProhibited, out DailyGuidelineData prohibited), Is.True);
+        Assert.That(prohibited.AllowedQuantity, Is.Zero);
+        Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.QuantityLimited, out DailyGuidelineData limited), Is.True);
+        Assert.That(limited.AllowedQuantity, Is.EqualTo(1));
     }
 
     [Test]
-    public void ProgressViewDataFactory_BindsGuidelineText_ForDay1()
+    public void DailyGuidelineData_CreatesValidatedRuntimeGuideline()
     {
-        var factory = new ProgressViewDataFactory(
-            catalog,
-            textTable,
-            new Dictionary<uint, Sprite>(),
-            guidelineTable);
-
-        PreOpenGuidelineViewData viewData = factory.CreatePreOpenGuidelineViewData(1);
-
-        Assert.That(viewData.Day, Is.EqualTo(1));
-        Assert.That(viewData.RuleTitle, Is.EqualTo("오늘의 지침"));
-        Assert.That(viewData.RuleContent, Is.EqualTo("제한 없음."));
+        Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.QuantityLimited, out DailyGuidelineData data), Is.True);
+        DailyGuideline guideline = data.CreateGuideline(CustomerAttributes.Female | CustomerAttributes.Adult, 1001);
+        Assert.That(guideline.AllowedQuantity, Is.EqualTo(1));
+        Assert.That(guideline.PenaltyAmount, Is.EqualTo(500));
     }
 }
