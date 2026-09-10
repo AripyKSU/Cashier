@@ -416,10 +416,19 @@ public sealed class GameSessionApiTests
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12005, out _));
         progress.Start();
         long balance = session.Economy.QueryService.CurrentBalance;
+        Assert.That(progress.CurrentStoreStage, Is.EqualTo(1));
+        Assert.That(progress.TryPurchaseFacility(12005, out var lockedPurchase), Is.False);
+        Assert.That(lockedPurchase.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        Assert.That(progress.TryPurchaseFacility(12008, out _));
+        Assert.That(progress.CurrentStoreStage, Is.EqualTo(2));
+        Assert.That(progress.TryPurchaseFacility(12010, out _));
+        Assert.That(progress.CurrentStoreStage, Is.EqualTo(3));
         long price = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12005].PurchasePrice;
+        long stagePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12008].PurchasePrice
+            + tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12010].PurchasePrice;
         Assert.That(progress.TryPurchaseFacility(12005, out var purchase));
         Assert.That(purchase.ActivationDay, Is.EqualTo(1));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance - price));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance - stagePrice - price));
         Assert.That(session.IsFacilityActive(12005), Is.False);
         Assert.That(progress.TryPurchaseFacility(12005, out purchase), Is.False);
         Assert.That(purchase.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
@@ -443,7 +452,7 @@ public sealed class GameSessionApiTests
         Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(1020, 1) }));
         // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
         var nextProgress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
-        Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1));
+        Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(3));
         Assert.Throws<InvalidOperationException>(() => session.InitializeNewGame(tables));
     }
 
@@ -472,7 +481,8 @@ public sealed class GameSessionApiTests
         var factory = new ProgressViewDataFactory(tables.Customers, tables.GetDB<TextDataTable>(DataTableType.Text),
             new System.Collections.Generic.Dictionary<uint, Sprite>());
         var view = factory.CreateFacilityShopViewData(tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
-            session.FacilityActivationDays, session.ElapsedDays, session.Economy.QueryService.CurrentBalance);
+            session.FacilityActivationDays, session.CurrentStoreStage, session.ElapsedDays,
+            session.Economy.QueryService.CurrentBalance);
         int purchases = 0, closes = 0; uint requested = 0;
         panel.OnPurchaseRequested += idx => { purchases++; requested = idx; };
         panel.OnCloseRequested += () => closes++;
@@ -488,7 +498,7 @@ public sealed class GameSessionApiTests
         panel.SetInteractionEnabled(false); button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1));
         uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke(); Assert.That(closes, Is.EqualTo(1));
         rows[0].UpdateView(new FacilityItemViewData(12001, new string('가', 30), long.MaxValue,
-            "방독면, 방호복, 방사능 측정기", FacilityDisplayState.Available, 4294967297UL), true);
+            "방독면, 방호복, 방사능 측정기", FacilityDisplayState.Purchasable, 4294967297UL), true);
         Canvas.ForceUpdateCanvases();
         foreach (var text in rows[0].GetComponentsInChildren<TMPro.TextMeshProUGUI>())
         {
@@ -520,10 +530,10 @@ public sealed class GameSessionApiTests
         var rows = panel.GetComponentsInChildren<FacilityItemView>(); var buy = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
         long previous = session.Economy.QueryService.CurrentBalance;
         buy.onClick.Invoke(); buy.onClick.Invoke();
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - 5000));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - 1000));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001), Is.False);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Does.Contain("적용 대기"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{previous - 5000:N0} G"));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{previous - 1000:N0} G"));
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Maintenance, out _);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "balanceText").text, Does.Contain("0 G"));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[1], "statusText").text, Is.EqualTo("잔액 부족"));
@@ -552,7 +562,7 @@ public sealed class GameSessionApiTests
         uiReference<UnityEngine.UI.Button>(row, "purchaseButton").onClick.Invoke();
         session.Economy.FinanceService.BalanceChanged -= fail;
         Assert.That(session.FacilityActivationDays.ContainsKey(12001));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(94800));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(98800));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(row, "statusText").text, Does.Contain("적용 대기"));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
         Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));

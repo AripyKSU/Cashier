@@ -24,6 +24,12 @@ public sealed class FacilityTests
         {
             [12001] = new FacilityData { Idx = 12001, NameIdx = 8056, PurchasePrice = 30,
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 1 },
+            [12002] = new FacilityData { Idx = 12002, NameIdx = 8057, PurchasePrice = 80,
+                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 1 },
+            [12008] = new FacilityData { Idx = 12008, NameIdx = 8078, PurchasePrice = 5,
+                UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 1, TargetStoreStage = 2 },
+            [12010] = new FacilityData { Idx = 12010, NameIdx = 8080, PurchasePrice = 5,
+                UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 2, TargetStoreStage = 3 },
             [12005] = new FacilityData { Idx = 12005, NameIdx = 8060, PurchasePrice = 80,
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 }
         };
@@ -32,16 +38,16 @@ public sealed class FacilityTests
 
     /// <summary>고단계부터 살 수 있고 같은 날 잠금·다음날 활성·중복 결제 방지를 보장한다.</summary>
     [Test]
-    public void IndependentPurchaseAndNextDayActivation()
+    public void PurchaseAndNextDayActivation()
     {
-        Assert.That(service.TryPurchase(12005, out var result));
+        Assert.That(service.TryPurchase(12001, out var result));
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.Purchased));
-        Assert.That(result.PaidAmount, Is.EqualTo(80)); Assert.That(result.ActivationDay, Is.EqualTo(1));
-        Assert.That(finance.CurrentBalance, Is.EqualTo(20)); Assert.That(service.IsActive(12005), Is.False);
-        Assert.That(service.ActivationDays.ContainsKey(12001), Is.False);
-        Assert.That(service.TryPurchase(12005, out result), Is.False);
+        Assert.That(result.PaidAmount, Is.EqualTo(30)); Assert.That(result.ActivationDay, Is.EqualTo(1));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(70)); Assert.That(service.IsActive(12001), Is.False);
+        Assert.That(service.ActivationDays.ContainsKey(12005), Is.False);
+        Assert.That(service.TryPurchase(12001, out result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned)); Assert.That(result.PaidAmount, Is.Zero);
-        day = 1; Assert.That(service.IsActive(12005)); Assert.That(finance.CurrentBalance, Is.EqualTo(20));
+        day = 1; Assert.That(service.IsActive(12001)); Assert.That(finance.CurrentBalance, Is.EqualTo(70));
     }
 
     /// <summary>잔액 부족은 정상 실패이며 보유와 금액을 변경하지 않는다.</summary>
@@ -49,7 +55,7 @@ public sealed class FacilityTests
     public void InsufficientFundsPreserveState()
     {
         service.TryPurchase(12001, out _);
-        Assert.That(service.TryPurchase(12005, out var result), Is.False);
+        Assert.That(service.TryPurchase(12002, out var result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.InsufficientFunds));
         Assert.That(result.ActivationDay, Is.Null); Assert.That(result.PaidAmount, Is.Zero);
         Assert.That(finance.CurrentBalance, Is.EqualTo(70)); Assert.That(service.ActivationDays.Count, Is.EqualTo(1));
@@ -64,6 +70,30 @@ public sealed class FacilityTests
         day = uint.MaxValue;
         Assert.Throws<OverflowException>(() => service.TryPurchase(12001, out _));
         Assert.That(finance.CurrentBalance, Is.EqualTo(100)); Assert.That(service.ActivationDays, Is.Empty);
+    }
+
+    /// <summary>단계 상승은 순서대로 즉시 반영되고, 일반 업그레이드는 다음 날 활성화된다.</summary>
+    [Test]
+    public void StagePurchaseUnlocksSequentiallyAndPublishesOnce()
+    {
+        int eventCount = 0;
+        FacilityPurchaseEvent lastEvent = default;
+        service.PurchaseCompleted += purchaseEvent => { eventCount++; lastEvent = purchaseEvent; };
+
+        Assert.That(service.CurrentStoreStage, Is.EqualTo(1));
+        Assert.That(service.TryPurchase(12010, out var result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        Assert.That(service.TryPurchase(12008, out result));
+        Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
+        Assert.That(lastEvent.PreviousStoreStage, Is.EqualTo(1));
+        Assert.That(lastEvent.CurrentStoreStage, Is.EqualTo(2));
+        Assert.That(service.TryPurchase(12010, out result));
+        Assert.That(service.CurrentStoreStage, Is.EqualTo(3));
+        Assert.That(service.TryPurchase(12005, out result));
+        Assert.That(service.IsActive(12005), Is.False);
+        Assert.That(eventCount, Is.EqualTo(3));
+        day = 1;
+        Assert.That(service.IsActive(12005));
     }
 
     /// <summary>알림 소비자는 차감·보유를 함께 보고 다른 설비 구매로도 재진입할 수 없다.</summary>
@@ -201,7 +231,7 @@ public sealed class FacilityTests
         var owned = new Dictionary<uint, uint>();
         var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 1000);
         Assert.That(before.Items.Count, Is.EqualTo(11));
-        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Available));
+        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
         Assert.That(before.Items[0].DisplayName, Is.EqualTo("식량 보관 선반"));
         Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
@@ -210,9 +240,9 @@ public sealed class FacilityTests
         Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("방사능 측정기, 열화상 카메라"));
         owned[12001] = 1; owned[12005] = 0;
         var current = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 0);
-        Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.Pending));
+        Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.ActivationPending));
         Assert.That(current.Items[4].State, Is.EqualTo(FacilityDisplayState.Active));
-        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Available));
+        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0).Items[0].State, Is.EqualTo(FacilityDisplayState.Active));
         owned.Clear();
         Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, uint.MaxValue, long.MaxValue).Items[0].ActivationDisplayDay, Is.EqualTo(4294967297UL));

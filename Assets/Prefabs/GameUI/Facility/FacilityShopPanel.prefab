@@ -583,6 +583,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Cashier.Runtime::FacilityShopPresenter
   balanceText: {fileID: 8966884146154212476}
+  activationGuideText: {fileID: 6560029375586343676}
   feedbackText: {fileID: 1822246479875456930}
   content: {fileID: 7305824421952005431}
   itemPrefab: {fileID: 7517778528128934641, guid: 43b5ba47b420742448ce7e95d11230ff, type: 3}

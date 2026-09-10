@@ -153,8 +153,24 @@ public sealed class ProgressViewDataFactory
     public FacilityShopViewData CreateFacilityShopViewData(IReadOnlyDictionary<uint, FacilityData> facilities,
         IReadOnlyDictionary<uint, uint> activationDays, uint elapsedDays, long balance)
     {
+        return this.CreateFacilityShopViewData(facilities, activationDays, 1, elapsedDays, balance);
+    }
+
+    /// <summary>현재 가게 단계까지 반영한 설비 상점 표시 snapshot을 만든다.</summary>
+    /// <param name="facilities">검증된 설비 원본.</param>
+    /// <param name="activationDays">보유 설비별 활성 경과일.</param>
+    /// <param name="currentStoreStage">현재 세션 가게 단계.</param>
+    /// <param name="elapsedDays">현재 경과일.</param>
+    /// <param name="balance">현재 잔액.</param>
+    /// <returns>PK순 불변 표시 스냅샷.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">단계 또는 잔액이 범위를 벗어남.</exception>
+    public FacilityShopViewData CreateFacilityShopViewData(IReadOnlyDictionary<uint, FacilityData> facilities,
+        IReadOnlyDictionary<uint, uint> activationDays, uint currentStoreStage, uint elapsedDays, long balance)
+    {
         if (facilities == null) throw new ArgumentNullException(nameof(facilities));
         if (activationDays == null) throw new ArgumentNullException(nameof(activationDays));
+        if (currentStoreStage < 1 || currentStoreStage > 3)
+            throw new ArgumentOutOfRangeException(nameof(currentStoreStage));
         if (balance < 0) throw new ArgumentOutOfRangeException(nameof(balance));
         var items = new List<FacilityItemViewData>(facilities.Count);
         foreach (var pair in facilities.OrderBy(x => x.Key))
@@ -163,15 +179,34 @@ public sealed class ProgressViewDataFactory
             if (facility == null || pair.Key != facility.Idx) throw new ArgumentException("설비 키와 원본이 다릅니다.", nameof(facilities));
             facility.Validate();
             bool owned = activationDays.TryGetValue(facility.Idx, out uint activationDay);
-            var state = owned ? (activationDay <= elapsedDays ? FacilityDisplayState.Active : FacilityDisplayState.Pending) :
-                (balance >= facility.PurchasePrice ? FacilityDisplayState.Available : FacilityDisplayState.InsufficientFunds);
+            bool stageLocked = currentStoreStage < facility.RequiredStoreStage ||
+                (facility.UpgradeKind == FacilityUpgradeKind.StoreStage &&
+                 facility.TargetStoreStage != currentStoreStage + 1);
+            FacilityDisplayState state;
+            if (owned)
+            {
+                state = facility.UpgradeKind == FacilityUpgradeKind.StoreStage
+                    ? FacilityDisplayState.OwnedStageUpgrade
+                    : (activationDay <= elapsedDays ? FacilityDisplayState.Active : FacilityDisplayState.ActivationPending);
+            }
+            else if (stageLocked)
+            {
+                state = FacilityDisplayState.StageLocked;
+            }
+            else
+            {
+                state = balance >= facility.PurchasePrice
+                    ? FacilityDisplayState.Purchasable
+                    : FacilityDisplayState.InsufficientFunds;
+            }
             string products = string.Join(", ", customerCatalog.Products.Rows.Values
                 .Where(x => x.IsAvailable && x.RequiredFacilityIdx == facility.Idx).OrderBy(x => x.Idx)
                 .Select(x => getFacilityText(x.NameIdx)));
             items.Add(new FacilityItemViewData(facility.Idx, getFacilityText(facility.NameIdx), facility.PurchasePrice,
-                products, state, owned ? (ulong)activationDay + 1 : (ulong)elapsedDays + 2));
+                products, facility.UpgradeKind, facility.RequiredStoreStage, facility.EffectType,
+                facility.TargetStoreStage, state, owned ? (ulong)activationDay + 1 : (ulong)elapsedDays + 2));
         }
-        return new FacilityShopViewData(balance, items);
+        return new FacilityShopViewData(currentStoreStage, balance, items);
     }
 
     /// <summary>손님 방문 데이터를 UI 표현용 스냅샷으로 변환합니다.</summary>

@@ -44,6 +44,61 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public System.Collections.Generic.IReadOnlyDictionary<uint, uint> FacilityActivationDays => facilities?.ActivationDays
         ?? throw new InvalidOperationException("설비 세션이 초기화되지 않았습니다.");
 
+    /// <summary>현재 세션의 가게 단계입니다. 새 세션은 1단계입니다.</summary>
+    public uint CurrentStoreStage => facilities?.CurrentStoreStage
+        ?? throw new InvalidOperationException("설비 세션이 초기화되지 않았습니다.");
+
+    /// <summary>설비 구매가 상태에 반영된 뒤 세션 경계를 통해 전달되는 완료 이벤트입니다.</summary>
+    public event Action<FacilityPurchaseEvent> FacilityPurchaseCompleted
+    {
+        add
+        {
+            if (facilities == null) throw new InvalidOperationException("설비 세션이 초기화되지 않았습니다.");
+            facilities.PurchaseCompleted += value;
+        }
+        remove
+        {
+            if (facilities != null) facilities.PurchaseCompleted -= value;
+        }
+    }
+
+    /// <summary>설비 업그레이드 보유 여부를 세션 권위로 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>구매했으면 true.</returns>
+    public bool IsFacilityOwned(uint facilityIdx)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.IsOwned(facilityIdx);
+    }
+
+    /// <summary>설비 업그레이드의 현재 활성 여부를 세션 권위로 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>현재 날짜에 활성화됐으면 true.</returns>
+    public bool IsFacilityUpgradeActive(uint facilityIdx)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.IsUpgradeActive(facilityIdx);
+    }
+
+    /// <summary>편의성 효과의 현재 활성 여부를 고정 enum으로 조회합니다.</summary>
+    /// <param name="effectType">조회할 편의성 효과.</param>
+    /// <returns>효과가 활성화됐으면 true.</returns>
+    public bool IsFacilityEffectActive(ConvenienceEffectType effectType)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.IsConvenienceEffectActive(effectType);
+    }
+
+    /// <summary>설비 업그레이드의 활성 경과일을 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <param name="activationDay">보유 설비의 활성 경과일.</param>
+    /// <returns>보유 설비이면 true.</returns>
+    public bool TryGetFacilityActivationDay(uint facilityIdx, out uint activationDay)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.TryGetActivationDay(facilityIdx, out activationDay);
+    }
+
     /// <summary>현재 세션 날짜의 설비 활성 여부를 조회한다.</summary>
     /// <param name="facilityIdx">설비 PK.</param>
     /// <returns>보유하며 활성일에 도달했는지 여부.</returns>

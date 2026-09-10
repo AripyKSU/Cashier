@@ -536,9 +536,13 @@ public sealed class GameUIController : MonoBehaviour
             this.gameProgress.TryPurchaseFacility(facilityIdx, out var result);
             this.facilityFeedback = result.Status switch
             {
-                FacilityPurchaseStatus.Purchased => $"구매 완료 · {result.PaidAmount:N0} G · DAY {(ulong)result.ActivationDay.Value + 1}부터 사용",
+                FacilityPurchaseStatus.Purchased => result.ActivationDay.HasValue &&
+                    result.ActivationDay.Value > GameSessionManager.Instance.ElapsedDays
+                    ? $"구매 완료 · {result.PaidAmount:N0} G · 다음 영업일부터 적용"
+                    : $"구매 완료 · {result.PaidAmount:N0} G · 단계가 즉시 확장되었습니다.",
                 FacilityPurchaseStatus.AlreadyOwned => "이미 구매한 설비입니다. 추가 결제하지 않았습니다.",
                 FacilityPurchaseStatus.InsufficientFunds => "보유금이 부족합니다. 결제하지 않았습니다.",
+                FacilityPurchaseStatus.StageLocked => "현재 가게 단계에서 잠긴 업그레이드입니다.",
                 _ => throw new InvalidOperationException("설비 구매 결과가 유효하지 않습니다.")
             };
         }
@@ -571,7 +575,8 @@ public sealed class GameUIController : MonoBehaviour
         var session = GameSessionManager.Instance;
         this.facilityShopPresenter.UpdateView(this.viewDataFactory.CreateFacilityShopViewData(
             DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
-            session.FacilityActivationDays, session.ElapsedDays, this.economy.QueryService.CurrentBalance), this.facilityFeedback);
+            session.FacilityActivationDays, session.CurrentStoreStage, session.ElapsedDays,
+            this.economy.QueryService.CurrentBalance), this.facilityFeedback);
         this.facilityShopPresenter.SetInteractionEnabled(!this.hasError && !this.isPurchasingFacility, !this.isPurchasingFacility);
         if (this.subscribedDay.AggregationResult.HasValue) this.renderSettlement(this.subscribedDay.AggregationResult.Value);
         this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(

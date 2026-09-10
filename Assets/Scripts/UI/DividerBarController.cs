@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 #endif
 
 /// <summary>
-/// 작업대 왼쪽 끝에 대기하며, 마우스로 클릭하여 잡고 드래그하여 상품들을 물리적으로 밀어내는 큰 밀대(DividerBar) 컨트롤러입니다.
+/// 작업대 왼쪽 끝에 대기하며, 마우스로 클릭하여 잡고 드래그하여 겹친 상품을 함께 이동시키는 큰 밀대 컨트롤러입니다.
 /// 마우스를 놓으면 그 자리에 멈추고, 다시 클릭하여 잡을 수 있습니다.
 /// </summary>
 public sealed class DividerBarController : MonoBehaviour
@@ -47,14 +47,6 @@ public sealed class DividerBarController : MonoBehaviour
     [Tooltip("밀대 위치 추종 보간 속도")]
     [SerializeField, Min(1f)] private float positionFollowSpeed = 32f;
 
-    [Header("Push Physics")]
-    [Tooltip("상품에 가해지는 밀기 힘 계수")]
-    [SerializeField, Min(0.1f)] private float pushForceMultiplier = 1.6f;
-
-    [Tooltip("최대 밀기 속도 (픽셀/초)")]
-    [SerializeField, Min(100f)] private float maxPushSpeed = 500f;
-
-
     // =========================================================================
     // 2. PROPERTIES & FIELDS
     // =========================================================================
@@ -66,6 +58,7 @@ public sealed class DividerBarController : MonoBehaviour
     private float currentAngle;
     private bool isHolding;
     private bool hasSample;
+    private Vector2 movementDelta;
     private Color originalColor = Color.white;
 
     /// <summary>현재 밀대의 로컬 위치입니다.</summary>
@@ -73,6 +66,9 @@ public sealed class DividerBarController : MonoBehaviour
 
     /// <summary>플레이어가 현재 밀대를 클릭하여 잡고 있는지 여부입니다.</summary>
     public bool IsHolding => this.isHolding;
+
+    /// <summary>직전 갱신에서 막대가 이동한 작업대 로컬 거리입니다.</summary>
+    public Vector2 MovementDelta => this.movementDelta;
 
 
     // =========================================================================
@@ -123,6 +119,7 @@ public sealed class DividerBarController : MonoBehaviour
         this.hasSample = false;
         this.currentVelocity = Vector2.zero;
         this.currentAngle = 0f;
+        this.movementDelta = Vector2.zero;
 
         Vector2 startPos = new Vector2(this.startOffsetX, 0f);
         if (this.barRect != null)
@@ -169,6 +166,7 @@ public sealed class DividerBarController : MonoBehaviour
             this.hasSample = false;
             this.currentVelocity = Vector2.zero;
             this.currentAngle = Mathf.Lerp(this.currentAngle, 0f, deltaSeconds * this.rotationSmoothSpeed);
+            this.movementDelta = Vector2.zero;
             this.barRect.localRotation = Quaternion.Euler(0f, 0f, 90f + this.currentAngle);
             return;
         }
@@ -224,6 +222,7 @@ public sealed class DividerBarController : MonoBehaviour
         if (!this.isHolding)
         {
             this.currentVelocity = Vector2.zero;
+            this.movementDelta = Vector2.zero;
             this.currentAngle = Mathf.Lerp(this.currentAngle, 0f, deltaSeconds * this.rotationSmoothSpeed);
             this.barRect.localRotation = Quaternion.Euler(0f, 0f, 90f + this.currentAngle);
 
@@ -255,6 +254,7 @@ public sealed class DividerBarController : MonoBehaviour
         Vector2 currentPos = this.barRect.anchoredPosition;
         Vector2 nextPos = Vector2.Lerp(currentPos, this.targetPosition, Mathf.Clamp01(deltaSeconds * this.positionFollowSpeed));
         this.barRect.anchoredPosition = nextPos;
+        this.movementDelta = nextPos - currentPos;
 
         // 속도 계산
         if (this.hasSample)
@@ -275,8 +275,8 @@ public sealed class DividerBarController : MonoBehaviour
     }
 
     /// <summary>
-    /// 작업대 위의 상품 목록에 밀대 충돌 및 밀기 물리 충격량을 적용합니다.
-    /// 플레이어가 밀대를 잡고 움직이고 있을 때만 작동합니다.
+    /// 작업대 위에서 막대와 겹친 상품을 막대의 이동 거리만큼 직접 이동시킵니다.
+    /// 상품에는 속도, 충격량 또는 충돌 해결을 적용하지 않습니다.
     /// </summary>
     /// <param name="items">작업대 위의 상품 목록입니다.</param>
     public void PushItems(IReadOnlyList<SaleSortingItemView> items)
@@ -302,25 +302,19 @@ public sealed class DividerBarController : MonoBehaviour
                 continue;
             }
 
-            Vector2 itemPos = item.Position;
-            Vector2 closest = this.getClosestPointOnSegment(segA, segB, itemPos);
-            Vector2 diff = itemPos - closest;
-            float distSqr = diff.sqrMagnitude;
-            float totalRadius = barRadius + item.Radius;
+                Vector2 itemPos = item.Position;
+                Vector2 closest = this.getClosestPointOnSegment(segA, segB, itemPos);
+                Vector2 diff = itemPos - closest;
+                float distSqr = diff.sqrMagnitude;
+                float totalRadius = barRadius + Mathf.Max(item.HalfSize.x, item.HalfSize.y);
 
             if (distSqr < totalRadius * totalRadius)
             {
-                float dist = Mathf.Sqrt(distSqr);
-                Vector2 normal = dist > 0.0001f ? diff / dist : new Vector2(Mathf.Cos(radians), Mathf.Sin(radians));
-
-                // 겹침 침투 즉시 해소
-                float penetration = totalRadius - dist;
-                item.Position += normal * penetration;
-
-                // 속도 가산
-                float approach = Vector2.Dot(this.currentVelocity, normal);
-                Vector2 pushVel = normal * Mathf.Max(approach * this.pushForceMultiplier, 80f);
-                item.Velocity = Vector2.ClampMagnitude(item.Velocity + pushVel, this.maxPushSpeed);
+                if (item.Manipulation == SaleSortingItemView.ManipulationState.PlayerDragging ||
+                    item.Manipulation == SaleSortingItemView.ManipulationState.VacuumAttached)
+                    continue;
+                item.Position += this.movementDelta;
+                item.Manipulation = SaleSortingItemView.ManipulationState.DividerMoving;
             }
         }
     }

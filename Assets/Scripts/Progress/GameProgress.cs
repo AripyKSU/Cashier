@@ -43,6 +43,39 @@ public sealed class GameProgress
     /// <summary>현재 세션의 거래별·일일 명성 계산 로그 서비스입니다.</summary>
     public ReputationLogService ReputationLogService => this.session.ReputationLogService;
 
+    /// <summary>설비 결제와 보유 반영이 끝난 뒤 세션에서 전달하는 완료 이벤트입니다.</summary>
+    public event Action<FacilityPurchaseEvent> FacilityPurchaseCompleted
+    {
+        add => this.session.FacilityPurchaseCompleted += value;
+        remove => this.session.FacilityPurchaseCompleted -= value;
+    }
+
+    /// <summary>현재 세션의 가게 단계입니다.</summary>
+    public uint CurrentStoreStage => this.session.CurrentStoreStage;
+
+    /// <summary>설비 업그레이드 보유 여부를 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>구매했으면 true.</returns>
+    public bool IsFacilityOwned(uint facilityIdx) => this.session.IsFacilityOwned(facilityIdx);
+
+    /// <summary>설비 업그레이드가 현재 활성인지 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>현재 날짜에 활성화됐으면 true.</returns>
+    public bool IsFacilityUpgradeActive(uint facilityIdx) => this.session.IsFacilityUpgradeActive(facilityIdx);
+
+    /// <summary>편의성 효과가 현재 활성인지 조회합니다.</summary>
+    /// <param name="effectType">조회할 편의성 효과.</param>
+    /// <returns>효과가 활성화됐으면 true.</returns>
+    public bool IsFacilityEffectActive(ConvenienceEffectType effectType) =>
+        this.session.IsFacilityEffectActive(effectType);
+
+    /// <summary>설비 업그레이드의 활성 경과일을 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <param name="activationDay">보유 설비의 활성 경과일.</param>
+    /// <returns>보유 설비이면 true.</returns>
+    public bool TryGetFacilityActivationDay(uint facilityIdx, out uint activationDay) =>
+        this.session.TryGetFacilityActivationDay(facilityIdx, out activationDay);
+
     /// <summary>전체 진행 상태가 변경된 뒤 발생합니다.</summary>
     public event Action<GameProgressState> StateChanged;
 

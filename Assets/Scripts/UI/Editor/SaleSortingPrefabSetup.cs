@@ -178,11 +178,6 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "itemPrefab", itemView);
             setObject(panelObject, "sortingStatusText", null);
             setObject(panelObject, "dividerBar", dividerController);
-            setFloat(panelObject, "cursorRadiusPixels", 30f);
-            setFloat(panelObject, "cursorImpulse", 0.065f);
-            setFloat(panelObject, "maximumSpeedPixels", 230f);
-            setFloat(panelObject, "frictionPerSecond", 6.5f);
-            setFloat(panelObject, "itemRestitution", 0.1f);
             setFloat(panelObject, "transitionSeconds", 1f);
             panelObject.ApplyModifiedPropertiesWithoutUndo();
 
