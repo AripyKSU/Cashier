@@ -1,0 +1,1 @@
+Five independent RectTransforms selected. LateUpdate preserves authored sizes and positions. Ceiling light origin follows the lamp Image.

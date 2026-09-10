@@ -24,6 +24,19 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
 
     /// <summary>연결하면 기존 커서 밀기 대신 구분봉으로 상품을 조작합니다.</summary>
     [SerializeField] private DividerBarController2D dividerBar;
+    /// <summary>원본 손 시트입니다. 4번은 사용하지 않으며 씬 배치와 무관한 커서로 그립니다.</summary>
+    [SerializeField] private Texture2D handArtwork;
+    /// <summary>손 커서의 화면 픽셀 크기입니다.</summary>
+    [SerializeField, Min(16)] private float handSizePixels = 64;
+    /// <summary>현재 잡은 상품과 상품 로컬 좌표의 잡기 지점입니다.</summary>
+    private DystopiaTopDownItem heldItem;
+    /// <summary>홀드 중에만 바꾼 물리 모드를 놓을 때 원래대로 돌립니다.</summary>
+    private RigidbodyType2D heldBodyType;
+    private RigidbodyInterpolation2D heldInterpolation;
+    private Vector2 heldLocalPoint, heldTarget, previousHandPointer;
+    /// <summary>가로 이동 판정의 프레임 간 속도와 커서 표시 복원 상태입니다.</summary>
+    private Vector2 handVelocity;
+    private bool hasHandPointer, showHand, ownsCursorVisibility, previousCursorVisible;
 
     /// <summary>쏟기 중 중앙 유도 지점과 확산 폭입니다. 월드 좌표 기준입니다.</summary>
     [SerializeField] private Vector2 pourCenter = new Vector2(-1.5f, 0);
@@ -105,8 +118,6 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private GameObject ownedEventSystem;
     private string amount = "";
     private bool isPaused;
-    private bool hasCursorSample;
-    private Vector2 previousCursorWorld;
     private float businessMinute = 9 * 60;
     private int nextInstanceId = 1;
     private Coroutine flowRoutine;
@@ -150,6 +161,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
 #if UNITY_EDITOR
         BindEditorAssets();
+        if (handArtwork == null) handArtwork = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/Hands.png");
 #endif
         if (!isEmbeddedInFrontScene) DisableOtherScenesDuringPlay();
         if (isEmbeddedInFrontScene)
@@ -191,13 +203,15 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>체크아웃 비활성화 시 연결된 구분봉의 충돌과 입력을 중지합니다.</summary>
     private void OnDisable()
     {
+        ReleaseHeldItem();
+        SetHandVisible(false);
         if (dividerBar != null) dividerBar.SampleInput(worldCamera, false);
     }
 
     /// <summary>커서 이동, 평면 물리 제한, 분류와 영업시간을 실제 프레임에서 갱신합니다.</summary>
     private void Update()
     {
-        if (dividerBar != null) dividerBar.SampleInput(worldCamera, isActiveAndEnabled && Session != null && state == ViewState.Sorting && !isPaused && !Session.IsPaused && Mouse.current != null && (dividerBar.IsHeld || !PointerOverUi(Mouse.current.position.ReadValue())));
+        ProcessGrabInput();
         if (hostScreen != null && hostScreen.gameObject.activeInHierarchy && !hostScreen.enabled && !isPaused) hostScreen.AnimatePeople();
         if (Session == null)
         {
@@ -216,6 +230,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
         if (clockRoot != null)
             clockRoot.gameObject.SetActive(!workUiRoot.activeSelf && !transitionBlock.activeSelf);
+        // 시계는 별도 Canvas에 있어 정산 배경보다 위에 남으므로 숫자 표시를 상태에 맞춰 끕니다.
+        if (clockText != null) clockText.enabled = Session.Phase != DystopiaPhase.Settlement;
         if (clockDay != Session.Day)
         {
             clockDay = Session.Day;
@@ -239,11 +255,10 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         {
             Session.Tick(deltaSeconds);
             ProcessNumberPad();
-            ProcessPhysicalCursor(deltaSeconds);
             ClampItemMotion();
             ClassifySettledItems();
         }
-        else ResetCursorSample();
+        else ResetGrabInput();
         RefreshUi();
     }
 
@@ -258,7 +273,10 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         uiSlices.Clear();
         items.Clear();
         currentCursorContacts.Clear();
-        hasCursorSample = false;
+        ReleaseHeldItem();
+        hasHandPointer = false;
+        handVelocity = Vector2.zero;
+        SetHandVisible(false);
         isPaused = false;
         businessMinute = 9 * 60;
         amount = "";
@@ -277,7 +295,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>포커스 복귀 직후의 큰 커서 속도 표본을 버립니다.</summary>
     private void OnApplicationFocus(bool hasFocus)
     {
-        ResetCursorSample();
+        ResetGrabInput();
     }
 
     /// <summary>테스트 브리지가 제거돼도 기존 상품 표시를 숨긴 채 남기지 않습니다.</summary>
@@ -367,7 +385,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         yield return PourItems();
         state = ViewState.Sorting;
         pouringContainerImage.gameObject.SetActive(false);
-        ResetCursorSample();
+        ResetGrabInput();
         RefreshUi();
     }
 
@@ -581,6 +599,14 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>쏟기 단계에서만 중앙 도착을 보조하고 분류 중에는 자유 물리를 유지합니다.</summary>
     private void FixedUpdate()
     {
+        if (heldItem != null && state == ViewState.Sorting && !isPaused && !Session.IsPaused)
+        {
+            // 홀드 중에는 스프링 추종과 속도 제한 없이 클릭 지점을 손에 고정합니다.
+            Vector2 grip = heldItem.transform.TransformPoint(heldLocalPoint);
+            heldItem.Body.position += heldTarget - grip;
+            heldItem.Body.linearVelocity = Vector2.zero;
+            heldItem.Body.angularVelocity = 0;
+        }
         if (state != ViewState.Pouring || isPaused) return;
         foreach (var pair in pourTargets)
         {
@@ -650,28 +676,6 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         throw new InvalidOperationException($"활성 상품에 없는 장바구니 품목입니다: {product.name}");
     }
 
-    /// <summary>클릭 여부와 무관하게 실제 포인터의 프레임 이동 구간 전체로 물품을 밉니다.</summary>
-    private void ProcessPhysicalCursor(float deltaSeconds)
-    {
-        if (dividerBar != null && dividerBar.isActiveAndEnabled) { ResetCursorSample(); return; }
-        if (Mouse.current == null || deltaSeconds <= 0) return;
-        Vector2 screenPosition = Mouse.current.position.ReadValue();
-        if (PointerOverUi(screenPosition))
-        {
-            ResetCursorSample();
-            return;
-        }
-        Vector2 worldPosition = worldCamera.ScreenToWorldPoint(screenPosition);
-        if (!hasCursorSample)
-        {
-            previousCursorWorld = worldPosition;
-            hasCursorSample = true;
-            return;
-        }
-        ApplyCursorSweep(previousCursorWorld, worldPosition, deltaSeconds);
-        previousCursorWorld = worldPosition;
-    }
-
     /// <summary>커서 이동에 비례한 충격과 회전을 접촉한 물품에 계속 전달합니다.</summary>
     /// <param name="from">이전 커서의 월드 위치입니다.</param>
     /// <param name="to">현재 커서의 월드 위치입니다.</param>
@@ -739,7 +743,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     {
         foreach (DystopiaTopDownItem item in items)
         {
-            if (item.State == TopDownItemState.Excluded) continue;
+            if (item == heldItem || item.State == TopDownItemState.Excluded) continue;
             Vector2 center = item.transform.localPosition;
             if (item.WasStirred && ZoneContains(placedExcludedZone, ExcludedZone, center)) TryClassify(item, TopDownItemState.Excluded);
             else if (ZoneContains(placedSaleZone, SaleZone, center)) item.State = TopDownItemState.ForSale;
@@ -898,7 +902,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         isPaused = paused;
         if (Session != null && Session.IsPaused != paused) Session.TogglePause();
         SetBodiesSimulated(!paused && state != ViewState.Locked && state != ViewState.Closed);
-        ResetCursorSample();
+        ResetGrabInput();
         noticeText.text = paused ? "일시정지" : "";
     }
 
@@ -909,18 +913,113 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     }
 
     /// <summary>뷰 전환·일시정지·포커스 복귀 때 이전 포인터 위치를 폐기합니다.</summary>
-    private void ResetCursorSample()
+    private void ResetGrabInput()
     {
-        hasCursorSample = false;
+        ReleaseHeldItem();
+        hasHandPointer = false;
+        handVelocity = Vector2.zero;
+        SetHandVisible(false);
     }
 
     /// <summary>다음 손님 전에 이전 물품 객체와 입력 상태를 제거합니다.</summary>
     private void ClearItems()
     {
+        ReleaseHeldItem();
         foreach (DystopiaTopDownItem item in items) if (item != null) Destroy(item.gameObject);
         items.Clear();
         amount = "";
         noticeText.text = "";
+    }
+
+    /// <summary>봉을 먼저 판정하고 봉을 잡지 않았을 때 클릭한 상품 하나만 잡습니다.</summary>
+    private void ProcessGrabInput()
+    {
+        var mouse = Mouse.current;
+        bool allowed = Session != null && state == ViewState.Sorting && !isPaused && !Session.IsPaused &&
+            Application.isFocused && worldCamera != null && worldCamera.isActiveAndEnabled && mouse != null;
+        Vector2 pointer = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
+        bool overUi = allowed && PointerOverUi(pointer);
+        if (!allowed || !mouse.leftButton.isPressed || overUi) ReleaseHeldItem();
+        if (dividerBar != null) dividerBar.SampleInput(worldCamera, allowed && heldItem == null && (dividerBar.IsHeld || !overUi));
+        SetHandVisible(allowed && !overUi && worldCamera.pixelRect.Contains(pointer) && handArtwork != null);
+        if (!allowed || overUi) { hasHandPointer = false; return; }
+        Vector2 velocity = hasHandPointer ? (pointer - previousHandPointer) / Mathf.Max(.001f,Time.unscaledDeltaTime) : Vector2.zero;
+        handVelocity = Vector2.Lerp(handVelocity,velocity,1-Mathf.Exp(-20*Time.unscaledDeltaTime));
+        previousHandPointer = pointer; hasHandPointer = true;
+        heldTarget = worldCamera.ScreenToWorldPoint(pointer);
+        if (heldItem != null || dividerBar != null && dividerBar.IsHeld || !mouse.leftButton.wasPressedThisFrame) return;
+        // 나중에 생성되어 위에 그려진 상품부터 확인합니다. 빈 곳을 누른 채 지나가는 것으로 잡지 않습니다.
+        for (int i = items.Count-1; i >= 0; i--)
+        {
+            var item = items[i];
+            if (item == null || !item.gameObject.activeInHierarchy || item.State == TopDownItemState.Excluded || !item.Body.simulated) continue;
+            var collider = item.GetComponent<Collider2D>();
+            if (collider == null || !collider.OverlapPoint(heldTarget)) continue;
+            heldItem = item;
+            heldLocalPoint = item.transform.InverseTransformPoint(heldTarget);
+            heldBodyType = item.Body.bodyType;
+            heldInterpolation = item.Body.interpolation;
+            item.Body.bodyType = RigidbodyType2D.Kinematic;
+            item.Body.interpolation = RigidbodyInterpolation2D.None;
+            item.Body.linearVelocity = Vector2.zero;
+            item.Body.angularVelocity = 0;
+            item.WasStirred = true;
+            item.State = TopDownItemState.Working;
+            break;
+        }
+    }
+
+    /// <summary>놓기·UI 진입·중단 시 물품의 잡기 제약만 해제합니다.</summary>
+    private void ReleaseHeldItem()
+    {
+        if (heldItem != null && heldItem.Body != null)
+        {
+            heldItem.Body.bodyType = heldBodyType;
+            heldItem.Body.interpolation = heldInterpolation;
+            heldItem.Body.linearVelocity = Vector2.zero;
+            heldItem.Body.angularVelocity = 0;
+        }
+        heldItem = null;
+    }
+
+    /// <summary>손 표시 중에만 OS 커서를 숨기고 이전 표시 상태를 복원합니다.</summary>
+    /// <param name="visible">작업대에 손 커서를 표시할지 여부입니다.</param>
+    private void SetHandVisible(bool visible)
+    {
+        showHand = visible;
+        if (visible && !ownsCursorVisibility)
+        {
+            previousCursorVisible = Cursor.visible; ownsCursorVisibility = true; Cursor.visible = false;
+        }
+        else if (!visible && ownsCursorVisibility)
+        {
+            Cursor.visible = previousCursorVisible; ownsCursorVisibility = false;
+        }
+    }
+
+    /// <summary>손바닥의 접점을 상품·막대의 실제 잡기 지점에 맞춰 세 가지 자세로 표시합니다.</summary>
+    private void OnGUI()
+    {
+        if (!showHand || Mouse.current == null || handArtwork == null) return;
+        bool holding = heldItem != null || dividerBar != null && dividerBar.IsHeld;
+        bool horizontal = holding && Mathf.Abs(handVelocity.x) > 30 && Mathf.Abs(handVelocity.x) > Mathf.Abs(handVelocity.y)*1.2f;
+        // 시트 순서: 1번을 90도 돌린 정지 자세, 2번 펼친 손, 3번 가로 잡기. 4번은 사용하지 않습니다.
+        Rect uv = !holding ? new Rect(.5f,.5f,.5f,.5f) : horizontal ? new Rect(.5f,0,-.5f,.5f) : new Rect(0,.5f,.5f,.5f);
+        Vector2 pointer = Mouse.current.position.ReadValue();
+        // 커서와 물리 프레임 간 차이, 경계 제한, 막대 회전에도 손이 물체에서 떨어지지 않습니다.
+        if (heldItem != null) pointer = worldCamera.WorldToScreenPoint(heldItem.transform.TransformPoint(heldLocalPoint));
+        else if (dividerBar != null && dividerBar.IsHeld) pointer = worldCamera.WorldToScreenPoint(dividerBar.GripWorldPoint);
+        Vector2 center = new Vector2(pointer.x,Screen.height-pointer.y);
+        // 64px 타일의 투명 여백 중심이 아니라 실제 손바닥 접점을 사용합니다.
+        Vector2 hotspot = !holding ? new Vector2(32,32) : horizontal ? new Vector2(30,23) : new Vector2(33,25);
+        var previousMatrix = GUI.matrix;
+        var previousColor = GUI.color;
+        GUI.color = Color.white;
+        float rotation = holding && !horizontal ? 90f : 0f;
+        if (dividerBar != null && dividerBar.IsHeld) rotation += 90f - dividerBar.transform.eulerAngles.z;
+        GUIUtility.RotateAroundPivot(rotation,center);
+        GUI.DrawTextureWithTexCoords(new Rect(center.x-hotspot.x*handSizePixels/64f,center.y-hotspot.y*handSizePixels/64f,handSizePixels,handSizePixels),handArtwork,uv,true);
+        GUI.matrix = previousMatrix; GUI.color = previousColor;
     }
 
     /// <summary>일시정지 중에는 경과하지 않는 unscaled 대기입니다.</summary>

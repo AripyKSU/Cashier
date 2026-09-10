@@ -27,12 +27,12 @@ public sealed class DividerBarController2D : MonoBehaviour
     private Vector2 target, barVelocity;
     /// <summary>홀드 중 로컬 잡기 지점과 고정 물리 프레임의 입력 기록입니다.</summary>
     private Vector2 grabLocalPoint, previousTarget, previousTargetVelocity;
-    /// <summary>손 아이콘을 표시할 실제 체크아웃 카메라입니다.</summary>
-    private Camera inputCamera;
     private float angleVelocity, barAngularVelocity;
     private bool hasSample, canControl;
     /// <summary>잡은 뒤 UI를 지나도 버튼을 놓기 전까지 홀드를 유지합니다.</summary>
     internal bool IsHeld => canControl;
+    /// <summary>렌더된 막대의 실제 잡기 지점입니다. 손 그림도 같은 지점에 붙입니다.</summary>
+    internal Vector3 GripWorldPoint => transform.TransformPoint(grabLocalPoint);
     /// <summary>새 손님마다 왼쪽 바를 잡기 전에는 이전 커서 위치를 무시합니다.</summary>
     private bool awaitingPickup;
     private Vector2 startingPosition;
@@ -117,7 +117,6 @@ public sealed class DividerBarController2D : MonoBehaviour
             hasSample = false;
         }
         target = pointer;
-        inputCamera = camera;
         canControl = true;
         body.simulated = true;
         visual.enabled = true;
@@ -207,36 +206,6 @@ public sealed class DividerBarController2D : MonoBehaviour
         foreach (var item in contacts)
             if (item != null && item.bodyType == RigidbodyType2D.Dynamic) item.linearVelocity = Vector2.ClampMagnitude(item.linearVelocity, maxItemVelocity);
     }
-    /// <summary>홀드 중 실제 잡기 지점 옆에 손가락과 엄지가 있는 픽셀 손을 표시합니다.</summary>
-    private void OnGUI()
-    {
-        if (!canControl || inputCamera == null || !visual.enabled) return;
-        Vector3 screen = inputCamera.WorldToScreenPoint(transform.TransformPoint(grabLocalPoint));
-        if (screen.z <= 0) return;
-        Vector2 origin = new Vector2(screen.x + 8, Screen.height - screen.y - 12);
-        Color previousColor = GUI.color;
-        DrawHandPart(origin, new Rect(3, 8, 20, 18));
-        DrawHandPart(origin, new Rect(3, 2, 5, 15));
-        DrawHandPart(origin, new Rect(8, 0, 5, 17));
-        DrawHandPart(origin, new Rect(13, 1, 5, 16));
-        DrawHandPart(origin, new Rect(18, 4, 5, 13));
-        DrawHandPart(origin, new Rect(-1, 14, 10, 8));
-        DrawHandPart(origin, new Rect(8, 24, 12, 7));
-        GUI.color = previousColor;
-    }
-
-    /// <summary>외부 이미지나 폰트 없이 손 부분의 테두리와 살색 면을 그립니다.</summary>
-    /// <param name="origin">화면 픽셀 기준 손 아이콘 시작점입니다.</param>
-    /// <param name="part">손 부분의 상대 픽셀 영역입니다.</param>
-    private static void DrawHandPart(Vector2 origin, Rect part)
-    {
-        part.position += origin;
-        GUI.color = new Color(.12f, .09f, .07f);
-        GUI.DrawTexture(part, Texture2D.whiteTexture);
-        GUI.color = new Color(.95f, .84f, .65f);
-        GUI.DrawTexture(new Rect(part.x + 1, part.y + 1, part.width - 2, part.height - 2), Texture2D.whiteTexture);
-    }
-
     /// <summary>첫 접촉에 속도 기반 밀기를 적용합니다.</summary>
     private void OnCollisionEnter2D(Collision2D collision) { Push(collision); }
     /// <summary>접촉 중에는 바깥 방향 속도 부족분만 적용합니다.</summary>

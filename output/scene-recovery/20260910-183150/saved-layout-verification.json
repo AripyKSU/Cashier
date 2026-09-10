@@ -1,0 +1,147 @@
+[
+  {
+    "name": "Canopy",
+    "fields": {
+      "m_AnchoredPosition": {
+        "saved": {
+          "x": 0.0,
+          "y": 0.0
+        },
+        "backup": {
+          "x": -64.0020751953125,
+          "y": 51.325225830078125
+        },
+        "matches": false
+      },
+      "m_LocalScale": {
+        "saved": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "backup": {
+          "x": 1.100000023841858,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "matches": false
+      }
+    }
+  },
+  {
+    "name": "Counter",
+    "fields": {
+      "m_AnchoredPosition": {
+        "saved": {
+          "x": 0.0,
+          "y": -470.56323
+        },
+        "backup": {
+          "x": -64.0020751953125,
+          "y": -514.0
+        },
+        "matches": false
+      },
+      "m_LocalScale": {
+        "saved": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "backup": {
+          "x": 1.100000023841858,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "matches": false
+      }
+    }
+  },
+  {
+    "name": "Stage3LeftPillar",
+    "fields": {
+      "m_AnchoredPosition": {
+        "saved": {
+          "x": 0.0,
+          "y": -125.48353
+        },
+        "backup": {
+          "x": -64.0020751953125,
+          "y": -76.0
+        },
+        "matches": false
+      },
+      "m_LocalScale": {
+        "saved": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "backup": {
+          "x": 1.100000023841858,
+          "y": 1.274999976158142,
+          "z": 1.0
+        },
+        "matches": false
+      }
+    }
+  },
+  {
+    "name": "Stage3RightPillar",
+    "fields": {
+      "m_AnchoredPosition": {
+        "saved": {
+          "x": 1142.9666,
+          "y": -125.48353
+        },
+        "backup": {
+          "x": 1193.300048828125,
+          "y": -76.00006103515625
+        },
+        "matches": false
+      },
+      "m_LocalScale": {
+        "saved": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "backup": {
+          "x": 1.100000023841858,
+          "y": 1.274999976158142,
+          "z": 1.0
+        },
+        "matches": false
+      }
+    }
+  },
+  {
+    "name": "Stage3CeilingLamp",
+    "fields": {
+      "m_AnchoredPosition": {
+        "saved": {
+          "x": 564.9761,
+          "y": -54.325188
+        },
+        "backup": {
+          "x": 557.469970703125,
+          "y": -3.0
+        },
+        "matches": false
+      },
+      "m_LocalScale": {
+        "saved": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "backup": {
+          "x": 1.100000023841858,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "matches": false
+      }
+    }
+  }
+]

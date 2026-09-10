@@ -1,0 +1,7 @@
+Validation: PARTIAL
+Unity 6000.3.18f1 Roslyn compiler, current project assembly references: zero C# compile errors.
+All 14 original ledger rows retained. Existing missing-cost and net-profit dashes retained.
+Source PNG hashes match user-provided files; no source pixels edited.
+Unity-generated asset metadata present; new GUIDs unique.
+Layout preview: HTML/SVG rendering using supplied art and corresponding UI coordinates; example amounts only, not a Unity runtime capture.
+Unity Editor import completion, PlayMode, actual mesh display, confirmation/reopen actions: pending because MCP and direct local WebSocket requests do not return.

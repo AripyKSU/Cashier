@@ -1,0 +1,10915 @@
+[
+  {
+    "id": 1971019,
+    "gameObject": 1971018,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 961.0,
+      "y": -567.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit7"
+  },
+  {
+    "id": 87797510,
+    "gameObject": 87797509,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 170.0,
+      "y": -420.0
+    },
+    "m_SizeDelta": {
+      "x": 400.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Restart"
+  },
+  {
+    "id": 88580360,
+    "gameObject": 88580359,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 154556134,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 92584206,
+    "gameObject": 92584205,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -128.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 36.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Heading오늘의 장사"
+  },
+  {
+    "id": 92780324,
+    "gameObject": 92780323,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 87797510,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 392.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 120052566,
+    "gameObject": 120052565,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "Items"
+  },
+  {
+    "id": 120995403,
+    "gameObject": 120995402,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1310754885,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 119.0,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 136501505,
+    "gameObject": 136501504,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 841263217,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 136541810,
+    "gameObject": 136541809,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1744390603,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 145396011,
+    "gameObject": 145396010,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 962.0,
+      "y": -416.0
+    },
+    "m_SizeDelta": {
+      "x": 120.0,
+      "y": 23.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "PriceHeading"
+  },
+  {
+    "id": 154556134,
+    "gameObject": 154556133,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1055.0,
+      "y": -605.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit0"
+  },
+  {
+    "id": 194616201,
+    "gameObject": 194616200,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 351.0,
+      "y": -300.0
+    },
+    "m_SizeDelta": {
+      "x": 50.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionProduct1"
+  },
+  {
+    "id": 197874608,
+    "gameObject": 197874607,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1800203649,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 28.0,
+      "y": -20.0
+    },
+    "m_SizeDelta": {
+      "x": 440.0,
+      "y": 54.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CustomerClue"
+  },
+  {
+    "id": 200840345,
+    "gameObject": 200840344,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 731125820,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InputBlocker"
+  },
+  {
+    "id": 206660812,
+    "gameObject": 1446984825,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 12.0,
+      "y": 10.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust3"
+  },
+  {
+    "id": 207828464,
+    "gameObject": 4352078219768184198,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.100000023841858,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -64.0020751953125,
+      "y": 51.325225830078125
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 125.48352813720703
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Canopy"
+  },
+  {
+    "id": 221051096,
+    "gameObject": 221051095,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2007193745,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 230541622,
+    "gameObject": 4352078219768184203,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -13.9998779296875,
+      "y": -305.0
+    },
+    "m_SizeDelta": {
+      "x": 1308.0,
+      "y": 270.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Barricade"
+  },
+  {
+    "id": 248926638,
+    "gameObject": 248926637,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1488177118,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 252138272,
+    "gameObject": 252138271,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2094196926,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 258401083,
+    "gameObject": 258401082,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1800203649,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1214.0,
+      "y": -659.0
+    },
+    "m_SizeDelta": {
+      "x": 54.0,
+      "y": 58.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CalculatorToggle"
+  },
+  {
+    "id": 268874689,
+    "gameObject": 268874688,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 902784998,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 304712266,
+    "gameObject": 304712265,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -322.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 1.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TradeDivider"
+  },
+  {
+    "id": 313647239,
+    "gameObject": 313647238,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "EventSystem"
+  },
+  {
+    "id": 325640502,
+    "gameObject": 325640501,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 360.0,
+      "y": -359.0
+    },
+    "m_SizeDelta": {
+      "x": 560.0,
+      "y": 70.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "DialoguePanel"
+  },
+  {
+    "id": 326900280,
+    "gameObject": 326900279,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -394.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ReputationLabel"
+  },
+  {
+    "id": 332003719,
+    "gameObject": 4352078219768184212,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -4.0,
+      "y": 119.0
+    },
+    "m_SizeDelta": {
+      "x": 1288.0,
+      "y": 979.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CrowdRow0"
+  },
+  {
+    "id": 347292047,
+    "gameObject": 347292046,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -484.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RecheckGuide"
+  },
+  {
+    "id": 357155757,
+    "gameObject": 357155756,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -389.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "SettlementDivider"
+  },
+  {
+    "id": 374327120,
+    "gameObject": 374327119,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 625.760009765625,
+      "y": -494.0
+    },
+    "m_SizeDelta": {
+      "x": 84.23999786376953,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "NextTributeValue"
+  },
+  {
+    "id": 387552584,
+    "gameObject": 387552583,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 51.0,
+      "y": -50.0
+    },
+    "m_SizeDelta": {
+      "x": 250.0,
+      "y": 51.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "PriceInput"
+  },
+  {
+    "id": 391035659,
+    "gameObject": 391035658,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 430.0,
+      "y": -100.0
+    },
+    "m_SizeDelta": {
+      "x": 114.0,
+      "y": 24.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "DayPaper"
+  },
+  {
+    "id": 399100347,
+    "gameObject": 399100346,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 202.0,
+      "y": -299.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 24.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionName0"
+  },
+  {
+    "id": 406296274,
+    "gameObject": 406296273,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1149.0,
+      "y": -567.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit9"
+  },
+  {
+    "id": 412788057,
+    "gameObject": 412788056,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 736.0,
+      "y": -494.0
+    },
+    "m_SizeDelta": {
+      "x": 100.44000244140625,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeDueLabel"
+  },
+  {
+    "id": 426323473,
+    "gameObject": 1446984821,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 16.0,
+      "y": 10.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust7"
+  },
+  {
+    "id": 434475290,
+    "gameObject": 434475289,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1149.0,
+      "y": -605.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Pause"
+  },
+  {
+    "id": 456823620,
+    "gameObject": 456823619,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 35.0,
+      "y": -85.0
+    },
+    "m_SizeDelta": {
+      "x": 670.0,
+      "y": 55.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ModalSubtitle"
+  },
+  {
+    "id": 461027547,
+    "gameObject": 461027546,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 961.0,
+      "y": -605.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Erase"
+  },
+  {
+    "id": 462672814,
+    "gameObject": 4352078219768184204,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1147835686,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -1132.0,
+      "y": 228.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RightWatchRail"
+  },
+  {
+    "id": 471027866,
+    "gameObject": 4352078219768184214,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 390.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Fog_Front"
+  },
+  {
+    "id": 490103815,
+    "gameObject": 1246202155,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 781572501,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -3.0,
+      "y": 1.0
+    },
+    "m_SizeDelta": {
+      "x": 10.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Flame"
+  },
+  {
+    "id": 491111001,
+    "gameObject": 491111000,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -194.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 26.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RuleTitle"
+  },
+  {
+    "id": 493996587,
+    "gameObject": 493996586,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 2.0,
+      "y": -2.0
+    },
+    "m_SizeDelta": {
+      "x": 736.0,
+      "y": 506.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Paper"
+  },
+  {
+    "id": 498319565,
+    "gameObject": 4352078219768184213,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 46.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 576.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MidBackground"
+  },
+  {
+    "id": 498776668,
+    "gameObject": 498776667,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 62.0,
+      "y": -171.0
+    },
+    "m_SizeDelta": {
+      "x": 132.0,
+      "y": 57.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LeftWatchRailMask"
+  },
+  {
+    "id": 503374429,
+    "gameObject": 503374428,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -276.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MarkupAmountLabel"
+  },
+  {
+    "id": 513298028,
+    "gameObject": 513298027,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -266.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RentLabel"
+  },
+  {
+    "id": 527122483,
+    "gameObject": 524856335,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.3484400510787964,
+      "y": 1.3484400510787964,
+      "z": 1.1237000226974487
+    },
+    "parent": 2077936469177367226,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 991.0,
+      "y": -428.0
+    },
+    "m_SizeDelta": {
+      "x": 170.5,
+      "y": 120.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CounterClock"
+  },
+  {
+    "id": 532464010,
+    "gameObject": 4352078219768184207,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 163.0,
+      "y": -174.0
+    },
+    "m_SizeDelta": {
+      "x": 44.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 1.0
+    },
+    "name": "LeftWatchGuard"
+  },
+  {
+    "id": 533397513,
+    "gameObject": 533397512,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1405271192,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 540061506,
+    "gameObject": 540061505,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1346665551,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 547633768,
+    "gameObject": 547633767,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 3.549999952316284,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "Boundary_Top"
+  },
+  {
+    "id": 555302565,
+    "gameObject": 555302564,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2140615513,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 352.0,
+      "y": 44.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 573462252,
+    "gameObject": 573462251,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 351.0,
+      "y": -364.0
+    },
+    "m_SizeDelta": {
+      "x": 50.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionProduct3"
+  },
+  {
+    "id": 575657760,
+    "gameObject": 575657759,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -94.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LedgerDay"
+  },
+  {
+    "id": 584505004,
+    "gameObject": 584505003,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1105432803,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InputBlocker"
+  },
+  {
+    "id": 585466977,
+    "gameObject": 585466976,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1813468303,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 586307914,
+    "gameObject": 586307913,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 488.0,
+      "y": -150.0
+    },
+    "m_SizeDelta": {
+      "x": 245.0,
+      "y": 350.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Inspector"
+  },
+  {
+    "id": 588086572,
+    "gameObject": 588086571,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 406296274,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 588768576,
+    "gameObject": 588768575,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1345030849,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 268.0,
+      "y": 44.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 599742158,
+    "gameObject": 599742157,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 527122483,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 28.13888931274414,
+      "y": -50.0
+    },
+    "m_SizeDelta": {
+      "x": 104.44444274902344,
+      "y": 28.88888931274414
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "BusinessClock"
+  },
+  {
+    "id": 600231176,
+    "gameObject": 600231175,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 182.29664611816406,
+      "y": -264.6889953613281
+    },
+    "m_SizeDelta": {
+      "x": 130.90908813476562,
+      "y": 54.83253479003906
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Confirm"
+  },
+  {
+    "id": 602416275,
+    "gameObject": 602416274,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "DawnBackground"
+  },
+  {
+    "id": 606792890,
+    "gameObject": 606792889,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1105432803,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 300.0,
+      "y": -5.0
+    },
+    "m_SizeDelta": {
+      "x": 680.0,
+      "y": 680.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Sheet"
+  },
+  {
+    "id": 607885315,
+    "gameObject": 607885314,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1971019,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 630781104,
+    "gameObject": 630781103,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1677251216,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 650016389,
+    "gameObject": 650016386,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.100000023841858,
+      "y": 1.274999976158142,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1193.300048828125,
+      "y": -76.00006103515625
+    },
+    "m_SizeDelta": {
+      "x": 137.0334930419922,
+      "y": 345.0797119140625
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Stage3RightPillar"
+  },
+  {
+    "id": 688897564,
+    "gameObject": 688897563,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 878.0,
+      "y": -282.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RentMissingValue"
+  },
+  {
+    "id": 699715713,
+    "gameObject": 699715712,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1722273147,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 260.0,
+      "y": 42.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 702110229,
+    "gameObject": 702110228,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 878.0,
+      "y": -322.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MedicalMissingValue"
+  },
+  {
+    "id": 710092278,
+    "gameObject": 710092277,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 40.0,
+      "y": -225.0
+    },
+    "m_SizeDelta": {
+      "x": 480.0,
+      "y": 70.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeCash"
+  },
+  {
+    "id": 711502773,
+    "gameObject": 711502772,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 961.0,
+      "y": -529.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit4"
+  },
+  {
+    "id": 715953613,
+    "gameObject": 715953612,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 962.0,
+      "y": -443.0
+    },
+    "m_SizeDelta": {
+      "x": 276.0,
+      "y": 40.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "PriceInput"
+  },
+  {
+    "id": 731125820,
+    "gameObject": 731125819,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "DailyLedger"
+  },
+  {
+    "id": 734570035,
+    "gameObject": 734570034,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 190.0,
+      "y": -320.0
+    },
+    "m_SizeDelta": {
+      "x": 360.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Resume"
+  },
+  {
+    "id": 748670408,
+    "gameObject": 748670407,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 407.0,
+      "y": -363.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 24.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionName3"
+  },
+  {
+    "id": 759046953,
+    "gameObject": 4352078219768184215,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 390.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Fog_Mid"
+  },
+  {
+    "id": 760152760,
+    "gameObject": 760152759,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1025272199,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 312.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 762962141,
+    "gameObject": 762962140,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 740.0,
+      "y": 510.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Border"
+  },
+  {
+    "id": 764557821,
+    "gameObject": 764557816,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.7071068286895752,
+      "w": 0.7071068286895752
+    },
+    "m_LocalPosition": {
+      "x": -5.699999809265137,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 90.0
+    },
+    "name": "DividerBar"
+  },
+  {
+    "id": 774467834,
+    "gameObject": 774467833,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": -6.349999904632568,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "Boundary_Left"
+  },
+  {
+    "id": 774943611,
+    "gameObject": 774943610,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 708.0,
+      "y": -526.0
+    },
+    "m_SizeDelta": {
+      "x": 190.0,
+      "y": 38.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LedgerConfirm"
+  },
+  {
+    "id": 779516012,
+    "gameObject": 779516011,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 600231176,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 65.45454406738281,
+      "y": -27.41626739501953
+    },
+    "m_SizeDelta": {
+      "x": 130.90908813476562,
+      "y": 54.83253479003906
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 781572501,
+    "gameObject": 781572500,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "WatchMuzzleFlash1"
+  },
+  {
+    "id": 782403919,
+    "gameObject": 782403918,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 461027547,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 784215686,
+    "gameObject": 784215685,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 35.0,
+      "y": -28.0
+    },
+    "m_SizeDelta": {
+      "x": 670.0,
+      "y": 44.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ModalTitle"
+  },
+  {
+    "id": 841263217,
+    "gameObject": 841263216,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 42.20095443725586,
+      "y": -122.87081146240234
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit1"
+  },
+  {
+    "id": 846139436,
+    "gameObject": 846139435,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -228.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MarkupCountLabel"
+  },
+  {
+    "id": 851341542,
+    "gameObject": 851341541,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -180.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RevenueLabel"
+  },
+  {
+    "id": 851547477,
+    "gameObject": 1446984819,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 12.0,
+      "y": 10.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust9"
+  },
+  {
+    "id": 855566460,
+    "gameObject": 855566459,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -222.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 58.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Rule"
+  },
+  {
+    "id": 860840031,
+    "gameObject": 860840030,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 204.0,
+      "y": -546.0
+    },
+    "m_SizeDelta": {
+      "x": 204.0,
+      "y": 46.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "OpenShopBorder"
+  },
+  {
+    "id": 864096363,
+    "gameObject": 864096362,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": -3.549999952316284,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "Boundary_Bottom"
+  },
+  {
+    "id": 865191989,
+    "gameObject": 865191988,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1926827193,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 873200176,
+    "gameObject": 873200175,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -494.0
+    },
+    "m_SizeDelta": {
+      "x": 100.44000244140625,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "NextTributeLabel"
+  },
+  {
+    "id": 877083651,
+    "gameObject": 877083650,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ExistingInputBlocker"
+  },
+  {
+    "id": 900439875,
+    "gameObject": 1246202158,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2008609935,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -3.0,
+      "y": 1.0
+    },
+    "m_SizeDelta": {
+      "x": 10.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Flame"
+  },
+  {
+    "id": 902784998,
+    "gameObject": 902784997,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 111.96171569824219,
+      "y": -122.87081146240234
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit2"
+  },
+  {
+    "id": 946370344,
+    "gameObject": 946370343,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 251.77032470703125,
+      "y": -122.87081146240234
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Backspace"
+  },
+  {
+    "id": 959446119,
+    "gameObject": 959446118,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 961.0,
+      "y": -491.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit1"
+  },
+  {
+    "id": 975314545,
+    "gameObject": 975314544,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -226.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "GoodsCostLabel"
+  },
+  {
+    "id": 976308551,
+    "gameObject": 976308550,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 146.0,
+      "y": -364.0
+    },
+    "m_SizeDelta": {
+      "x": 50.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionProduct2"
+  },
+  {
+    "id": 977010945,
+    "gameObject": 977010944,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 273.0,
+      "y": -674.0
+    },
+    "m_SizeDelta": {
+      "x": 655.0,
+      "y": 35.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Feedback"
+  },
+  {
+    "id": 995268805,
+    "gameObject": 995268804,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 202.0,
+      "y": -323.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 25.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionPrice0"
+  },
+  {
+    "id": 1008634268,
+    "gameObject": 1008634267,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": -10.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "TopDownCamera"
+  },
+  {
+    "id": 1014479570,
+    "gameObject": 4352078219768184210,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -4.0,
+      "y": 119.0
+    },
+    "m_SizeDelta": {
+      "x": 1288.0,
+      "y": 979.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CrowdRow2"
+  },
+  {
+    "id": 1018945187,
+    "gameObject": 1018945186,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 730.0,
+      "y": -449.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CashValue"
+  },
+  {
+    "id": 1025272199,
+    "gameObject": 1025272198,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 40.0,
+      "y": -420.0
+    },
+    "m_SizeDelta": {
+      "x": 320.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "BuyCitizenship"
+  },
+  {
+    "id": 1028589824,
+    "gameObject": 1028589823,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 722.0,
+      "y": -495.0
+    },
+    "m_SizeDelta": {
+      "x": 1.0,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeGuideSplit"
+  },
+  {
+    "id": 1032003195,
+    "gameObject": 1032003194,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 774943611,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 182.0,
+      "y": 38.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1038674814,
+    "gameObject": 1038674813,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1111119869,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "DystopiaEventSystem"
+  },
+  {
+    "id": 1066881517,
+    "gameObject": 1066881516,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 878.0,
+      "y": -419.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "NetProfitMissingValue"
+  },
+  {
+    "id": 1069253380,
+    "gameObject": 1069253379,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1150360221,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1071804329,
+    "gameObject": 1071804328,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 181.7224884033203,
+      "y": -218.1818084716797
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit9"
+  },
+  {
+    "id": 1073249032,
+    "gameObject": 1246202154,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 781572501,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 3.0
+    },
+    "m_SizeDelta": {
+      "x": 3.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Spark"
+  },
+  {
+    "id": 1087128597,
+    "gameObject": 4352078219768184202,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 240.0,
+      "y": -580.0
+    },
+    "m_SizeDelta": {
+      "x": 240.0,
+      "y": 240.0
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.0
+    },
+    "name": "WaitingRear"
+  },
+  {
+    "id": 1105432803,
+    "gameObject": 1105432802,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "DailyInstruction"
+  },
+  {
+    "id": 1111119869,
+    "gameObject": 1111119867,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 0,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "FrontCounter"
+  },
+  {
+    "id": 1137459698,
+    "gameObject": 1137459697,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 40.0,
+      "y": -190.0
+    },
+    "m_SizeDelta": {
+      "x": 470.0,
+      "y": 170.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Failure"
+  },
+  {
+    "id": 1142447188,
+    "gameObject": 1142447187,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -151.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MemoryHeading"
+  },
+  {
+    "id": 1143168721,
+    "gameObject": 1143168720,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 731125820,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 145.0,
+      "y": -30.0
+    },
+    "m_SizeDelta": {
+      "x": 990.0,
+      "y": 660.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Book"
+  },
+  {
+    "id": 1147835686,
+    "gameObject": 1147835685,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1132.0,
+      "y": -228.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 35.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RightWatchRailMask"
+  },
+  {
+    "id": 1148088831,
+    "gameObject": 1246202153,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 781572501,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -2.0,
+      "y": 1.0
+    },
+    "m_SizeDelta": {
+      "x": 5.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Core"
+  },
+  {
+    "id": 1150360221,
+    "gameObject": 1150360220,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 111.96171569824219,
+      "y": -218.1818084716797
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit8"
+  },
+  {
+    "id": 1155296737,
+    "gameObject": 1155296736,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 434475290,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1167568910,
+    "gameObject": 1167568909,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2110842039,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 65.16746520996094,
+      "y": -27.41626739501953
+    },
+    "m_SizeDelta": {
+      "x": 130.33493041992188,
+      "y": 54.83253479003906
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1170117728,
+    "gameObject": 4352078219768184211,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -4.0,
+      "y": 119.0
+    },
+    "m_SizeDelta": {
+      "x": 1288.0,
+      "y": 979.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CrowdRow1"
+  },
+  {
+    "id": 1189508871,
+    "gameObject": 1189508870,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 947.0,
+      "y": -405.0
+    },
+    "m_SizeDelta": {
+      "x": 305.0,
+      "y": 300.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Register"
+  },
+  {
+    "id": 1191376748,
+    "gameObject": 1191376747,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645507494,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1196626148,
+    "gameObject": 1196626147,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1800203649,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RegisterMotion"
+  },
+  {
+    "id": 1219539330,
+    "gameObject": 4352078219768184199,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.100000023841858,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -64.0020751953125,
+      "y": -514.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 249.436767578125
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Counter"
+  },
+  {
+    "id": 1238874756,
+    "gameObject": 1238874755,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CityLights"
+  },
+  {
+    "id": 1240960334,
+    "gameObject": 1246202157,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2008609935,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 3.0
+    },
+    "m_SizeDelta": {
+      "x": 3.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Spark"
+  },
+  {
+    "id": 1255045116,
+    "gameObject": 1255045115,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1925775151,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 392.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1257552084,
+    "gameObject": 1257552083,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.9955291748046875,
+      "w": -0.0944548174738884
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1157.0,
+      "y": -216.0
+    },
+    "m_SizeDelta": {
+      "x": 1800.0,
+      "y": 366.66668701171875
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 0.5
+    },
+    "name": "RightSearchlight"
+  },
+  {
+    "id": 1278554088,
+    "gameObject": 1278554087,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "EveningBackground"
+  },
+  {
+    "id": 1286457697,
+    "gameObject": 1286457696,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 813.760009765625,
+      "y": -494.0
+    },
+    "m_SizeDelta": {
+      "x": 84.23999786376953,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeDueValue"
+  },
+  {
+    "id": 1310754885,
+    "gameObject": 1310754884,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1110.0,
+      "y": -413.0
+    },
+    "m_SizeDelta": {
+      "x": 127.0,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "DailyInstructionButton"
+  },
+  {
+    "id": 1327502987,
+    "gameObject": 1327502986,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -167.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "HeadingRule오늘의 장사"
+  },
+  {
+    "id": 1329650528,
+    "gameObject": 4352078219768184200,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 640.1351318359375,
+      "y": -632.0
+    },
+    "m_SizeDelta": {
+      "x": 550.0,
+      "y": 550.0
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.0
+    },
+    "name": "Customer"
+  },
+  {
+    "id": 1345030849,
+    "gameObject": 1345030848,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 961.0,
+      "y": -646.0
+    },
+    "m_SizeDelta": {
+      "x": 276.0,
+      "y": 44.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Confirm"
+  },
+  {
+    "id": 1346665551,
+    "gameObject": 1346665550,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1055.0,
+      "y": -529.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit5"
+  },
+  {
+    "id": 1352882002,
+    "gameObject": 1352882001,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1800203649,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 315.0,
+      "y": -640.0
+    },
+    "m_SizeDelta": {
+      "x": 620.0,
+      "y": 44.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Notice"
+  },
+  {
+    "id": 1354276242,
+    "gameObject": 1354276241,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2089494274,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1377145783,
+    "gameObject": 1377145782,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -454.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 28.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "PriceRestriction"
+  },
+  {
+    "id": 1379281928,
+    "gameObject": 1379281927,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 430.0,
+      "y": -98.0
+    },
+    "m_SizeDelta": {
+      "x": 112.0,
+      "y": 31.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionDay"
+  },
+  {
+    "id": 1384411611,
+    "gameObject": 1384411610,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 274.0,
+      "y": -394.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ReputationValue"
+  },
+  {
+    "id": 1389584770,
+    "gameObject": 1389584769,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 959446119,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1390987966,
+    "gameObject": 1390987965,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1071804329,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1405271192,
+    "gameObject": 1405271191,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 181.7224884033203,
+      "y": -170.52630615234375
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit6"
+  },
+  {
+    "id": 1408947110,
+    "gameObject": 1408947109,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 355.0,
+      "y": -455.0
+    },
+    "m_SizeDelta": {
+      "x": 600.0,
+      "y": 180.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CounterLamplight"
+  },
+  {
+    "id": 1411781574,
+    "gameObject": 1411781573,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -449.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CashLabel"
+  },
+  {
+    "id": 1418365558,
+    "gameObject": 1418365557,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 946370344,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1427492629,
+    "gameObject": 4352078219768184201,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 385.0,
+      "y": -580.0
+    },
+    "m_SizeDelta": {
+      "x": 340.0,
+      "y": 340.0
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.0
+    },
+    "name": "WaitingLeft"
+  },
+  {
+    "id": 1435062127,
+    "gameObject": 1435062122,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": -0.7071068286895752,
+      "w": 0.7071068286895752
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1800203649,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 350.0,
+      "y": -150.0
+    },
+    "m_SizeDelta": {
+      "x": 450.0,
+      "y": 450.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "PouringContainer"
+  },
+  {
+    "id": 1488177118,
+    "gameObject": 1488177117,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1149.0,
+      "y": -529.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit6"
+  },
+  {
+    "id": 1504126991,
+    "gameObject": 1504126990,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1196626148,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 900.0,
+      "y": -310.0
+    },
+    "m_SizeDelta": {
+      "x": 360.0,
+      "y": 360.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Register"
+  },
+  {
+    "id": 1515278162,
+    "gameObject": 1446984822,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 12.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust6"
+  },
+  {
+    "id": 1515649259,
+    "gameObject": 1515649258,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -167.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "HeadingRule오늘의 정산"
+  },
+  {
+    "id": 1548128123,
+    "gameObject": 1446984820,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust8"
+  },
+  {
+    "id": 1553521393,
+    "gameObject": 1446984827,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 16.0,
+      "y": 10.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust1"
+  },
+  {
+    "id": 1557719356,
+    "gameObject": 1557719355,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 202.0,
+      "y": -387.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 25.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionPrice2"
+  },
+  {
+    "id": 1595516232,
+    "gameObject": 1595516229,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.100000023841858,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 557.469970703125,
+      "y": -3.0
+    },
+    "m_SizeDelta": {
+      "x": 150.0478515625,
+      "y": 20.658872604370117
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Stage3CeilingLamp"
+  },
+  {
+    "id": 1626893896,
+    "gameObject": 1626893895,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1967339947,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 30.717702865600586,
+      "y": -21.674640655517578
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Key"
+  },
+  {
+    "id": 1643616154,
+    "gameObject": 1643616153,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 274.0,
+      "y": -276.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MarkupAmountValue"
+  },
+  {
+    "id": 1645507494,
+    "gameObject": 1645507493,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 111.96171569824219,
+      "y": -170.52630615234375
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit5"
+  },
+  {
+    "id": 1645661884,
+    "gameObject": 1645661883,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 270.0,
+      "y": -111.0
+    },
+    "m_SizeDelta": {
+      "x": 740.0,
+      "y": 510.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Modal"
+  },
+  {
+    "id": 1666334041,
+    "gameObject": 1666334040,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -344.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MoralityLabel"
+  },
+  {
+    "id": 1677251216,
+    "gameObject": 1677251215,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 42.20095443725586,
+      "y": -170.52630615234375
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit4"
+  },
+  {
+    "id": 1679432843,
+    "gameObject": 1679432842,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 407.0,
+      "y": -387.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 25.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionPrice3"
+  },
+  {
+    "id": 1680180240,
+    "gameObject": 1680180238,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 4.199999809265137,
+      "y": -0.02499985694885254,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "SaleArea"
+  },
+  {
+    "id": 1684295823,
+    "gameObject": 1684295822,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1801174099,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 192.0,
+      "y": 42.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1686377072,
+    "gameObject": 1446984823,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 10.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust5"
+  },
+  {
+    "id": 1717865936,
+    "gameObject": 1717865935,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 6.349999904632568,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "Boundary_Right"
+  },
+  {
+    "id": 1718923751,
+    "gameObject": 559771571,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 512.0,
+      "y": -340.0
+    },
+    "m_SizeDelta": {
+      "x": 360.0,
+      "y": 240.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "FrontContainer"
+  },
+  {
+    "id": 1722273147,
+    "gameObject": 1722273146,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 206.0,
+      "y": -548.0
+    },
+    "m_SizeDelta": {
+      "x": 268.0,
+      "y": 42.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "CloseInstruction"
+  },
+  {
+    "id": 1724118189,
+    "gameObject": 1724118188,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 325640502,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_AnchorMax": {
+      "x": 1.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": -36.0,
+      "y": -20.0
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "name": "Dialogue"
+  },
+  {
+    "id": 1744390603,
+    "gameObject": 1744390602,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1055.0,
+      "y": -491.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit2"
+  },
+  {
+    "id": 1754415207,
+    "gameObject": 1754415206,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 202.0,
+      "y": -363.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 24.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionName2"
+  },
+  {
+    "id": 1763521587,
+    "gameObject": 1763521586,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 734570035,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 352.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1786304998,
+    "gameObject": 1786304997,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 407.0,
+      "y": -323.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 25.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionPrice1"
+  },
+  {
+    "id": 1792322657,
+    "gameObject": 4352078219768184205,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 498776668,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -62.0,
+      "y": 171.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LeftWatchRail"
+  },
+  {
+    "id": 1798070439,
+    "gameObject": 1798070438,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 50.0,
+      "y": -185.0
+    },
+    "m_SizeDelta": {
+      "x": 640.0,
+      "y": 195.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Ending"
+  },
+  {
+    "id": 1800203649,
+    "gameObject": 1800203648,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2077936469177367226,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "WorkViewUI"
+  },
+  {
+    "id": 1801174099,
+    "gameObject": 1801174098,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 206.0,
+      "y": -548.0
+    },
+    "m_SizeDelta": {
+      "x": 200.0,
+      "y": 42.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "OpenShop"
+  },
+  {
+    "id": 1813468303,
+    "gameObject": 1813468302,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1055.0,
+      "y": -567.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit8"
+  },
+  {
+    "id": 1822627027,
+    "gameObject": 1822627026,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 711502773,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 80.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1825223738,
+    "gameObject": 1825223737,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 274.0,
+      "y": -228.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MarkupCountValue"
+  },
+  {
+    "id": 1845052502,
+    "gameObject": 1845052501,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -374.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 30.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ViolationCount"
+  },
+  {
+    "id": 1854509130,
+    "gameObject": 1854509129,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 730.0,
+      "y": -180.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RevenueValue"
+  },
+  {
+    "id": 1869801983,
+    "gameObject": 1869801981,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": -5.775000095367432,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "ExcludedArea"
+  },
+  {
+    "id": 1870201505,
+    "gameObject": 1870201504,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 274.0,
+      "y": -180.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "HandledValue"
+  },
+  {
+    "id": 1882045519,
+    "gameObject": 1882045518,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -128.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 36.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Heading오늘의 정산"
+  },
+  {
+    "id": 1888798207,
+    "gameObject": 1888798206,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 275.0,
+      "y": -477.0
+    },
+    "m_SizeDelta": {
+      "x": 635.0,
+      "y": 138.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Basket"
+  },
+  {
+    "id": 1891603581,
+    "gameObject": 1891603579,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 0,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "TopDownCheckout"
+  },
+  {
+    "id": 1897222908,
+    "gameObject": 1897222907,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 730.0,
+      "y": -346.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeValue"
+  },
+  {
+    "id": 1901093215,
+    "gameObject": 1901093214,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": -0.13355417549610138,
+      "w": 0.9910415410995483
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 110.0,
+      "y": -164.0
+    },
+    "m_SizeDelta": {
+      "x": 1800.0,
+      "y": 360.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 0.5
+    },
+    "name": "LeftSearchlight"
+  },
+  {
+    "id": 1902635713,
+    "gameObject": 4352078219768184216,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 390.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Fog_Back"
+  },
+  {
+    "id": 1911710881,
+    "gameObject": 1911710880,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 407.0,
+      "y": -299.0
+    },
+    "m_SizeDelta": {
+      "x": 137.0,
+      "y": 24.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionName1"
+  },
+  {
+    "id": 1917972865,
+    "gameObject": 4352078219768184218,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 182.0,
+      "y": -12.0
+    },
+    "m_SizeDelta": {
+      "x": 62.0,
+      "y": 137.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LeftChimneySmoke"
+  },
+  {
+    "id": 1918281761,
+    "gameObject": 1918281760,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -306.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MedicalLabel"
+  },
+  {
+    "id": 1925775151,
+    "gameObject": 1925775150,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 80.0,
+      "y": -420.0
+    },
+    "m_SizeDelta": {
+      "x": 400.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "PayTribute"
+  },
+  {
+    "id": 1926827193,
+    "gameObject": 1926827192,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 181.7224884033203,
+      "y": -122.87081146240234
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit3"
+  },
+  {
+    "id": 1930407805,
+    "gameObject": 4352078219768184209,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LeftWatchTower"
+  },
+  {
+    "id": 1931410679,
+    "gameObject": 1931410677,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "MovementArea"
+  },
+  {
+    "id": 1946711301,
+    "gameObject": 1946711300,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -346.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeLabel"
+  },
+  {
+    "id": 1956036668,
+    "gameObject": 1956036667,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 390.0,
+      "y": -420.0
+    },
+    "m_SizeDelta": {
+      "x": 300.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "NextDay"
+  },
+  {
+    "id": 1967339947,
+    "gameObject": 1967339946,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 251.77032470703125,
+      "y": -218.1818084716797
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit00"
+  },
+  {
+    "id": 1971087496,
+    "gameObject": 1971087495,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 146.0,
+      "y": -300.0
+    },
+    "m_SizeDelta": {
+      "x": 50.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "InstructionProduct0"
+  },
+  {
+    "id": 1975280669,
+    "gameObject": 1975280668,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1956036668,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 4.0,
+      "y": -0.0
+    },
+    "m_SizeDelta": {
+      "x": 292.0,
+      "y": 48.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Label"
+  },
+  {
+    "id": 1988363451,
+    "gameObject": 4352078219768184208,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RightWatchTower"
+  },
+  {
+    "id": 1995579154,
+    "gameObject": 1995579153,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 92.0,
+      "y": -180.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "HandledLabel"
+  },
+  {
+    "id": 2007193745,
+    "gameObject": 2007193744,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 251.77032470703125,
+      "y": -170.52630615234375
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit000"
+  },
+  {
+    "id": 2008609935,
+    "gameObject": 2008609934,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "WatchMuzzleFlash0"
+  },
+  {
+    "id": 2008934276,
+    "gameObject": 2008934275,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "SunsetBackground"
+  },
+  {
+    "id": 2009060730,
+    "gameObject": 2009060729,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 606792890,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 137.0,
+      "y": -408.0
+    },
+    "m_SizeDelta": {
+      "x": 407.0,
+      "y": 55.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LatestViolation"
+  },
+  {
+    "id": 2009214653,
+    "gameObject": 2009214652,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2077936469177367226,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Transition"
+  },
+  {
+    "id": 2011516221,
+    "gameObject": 2011516220,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -403.0
+    },
+    "m_SizeDelta": {
+      "x": 196.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "NetProfitLabel"
+  },
+  {
+    "id": 2046175636,
+    "gameObject": 2046175635,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 548.0,
+      "y": -488.0
+    },
+    "m_SizeDelta": {
+      "x": 350.0,
+      "y": 1.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "TributeGuideDivider"
+  },
+  {
+    "id": 2089494274,
+    "gameObject": 2089494273,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 42.20095443725586,
+      "y": -218.1818084716797
+    },
+    "m_SizeDelta": {
+      "x": 61.43540573120117,
+      "y": 43.349281311035156
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit7"
+  },
+  {
+    "id": 2094196926,
+    "gameObject": 2094196925,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1149.0,
+      "y": -491.0
+    },
+    "m_SizeDelta": {
+      "x": 88.0,
+      "y": 33.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Digit3"
+  },
+  {
+    "id": 2104671831,
+    "gameObject": 2104671830,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 878.0,
+      "y": -242.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "GoodsCostMissingValue"
+  },
+  {
+    "id": 2105069907,
+    "gameObject": 2105069904,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.100000023841858,
+      "y": 1.274999976158142,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -64.0020751953125,
+      "y": -76.0
+    },
+    "m_SizeDelta": {
+      "x": 140.09568786621094,
+      "y": 345.0797119140625
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Stage3LeftPillar"
+  },
+  {
+    "id": 2110842039,
+    "gameObject": 2110842038,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1504126991,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 42.20095443725586,
+      "y": -264.6889953613281
+    },
+    "m_SizeDelta": {
+      "x": 130.33493041992188,
+      "y": 54.83253479003906
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Clear"
+  },
+  {
+    "id": 2113941787,
+    "gameObject": 2113941786,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1143168721,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 274.0,
+      "y": -344.0
+    },
+    "m_SizeDelta": {
+      "x": 168.0,
+      "y": 34.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "MoralityValue"
+  },
+  {
+    "id": 2115207241,
+    "gameObject": 2115207239,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 0,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "DystopiaCamera"
+  },
+  {
+    "id": 2116150006,
+    "gameObject": 1246202156,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2008609935,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": -2.0,
+      "y": 1.0
+    },
+    "m_SizeDelta": {
+      "x": 5.0,
+      "y": 2.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "Core"
+  },
+  {
+    "id": 2123688965,
+    "gameObject": 2123688964,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2077936469177367226,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "FrontView"
+  },
+  {
+    "id": 2140615513,
+    "gameObject": 2140615512,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 1645661884,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 190.0,
+      "y": -350.0
+    },
+    "m_SizeDelta": {
+      "x": 360.0,
+      "y": 44.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "ReopenLedger"
+  },
+  {
+    "id": 2077936469177367226,
+    "gameObject": 798203474,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "name": "TopDownTestCanvas"
+  },
+  {
+    "id": 2356696958130715524,
+    "gameObject": 1446984824,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 16.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust4"
+  },
+  {
+    "id": 2356696958130715526,
+    "gameObject": 1446984826,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 20.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust2"
+  },
+  {
+    "id": 2356696958130715528,
+    "gameObject": 1446984828,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 2123688965,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 12.0,
+      "y": 6.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "LandingDust0"
+  },
+  {
+    "id": 4352078219768184197,
+    "gameObject": 501455105,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "parent": 1111119869,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "name": "DystopiaCanvas"
+  },
+  {
+    "id": 4352078219768184239,
+    "gameObject": 4352078219768184206,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1170.0,
+      "y": -232.0
+    },
+    "m_SizeDelta": {
+      "x": 32.0,
+      "y": 24.0
+    },
+    "m_Pivot": {
+      "x": 0.5,
+      "y": 1.0
+    },
+    "name": "RightWatchGuard"
+  },
+  {
+    "id": 4352078219768184241,
+    "gameObject": 4352078219768184217,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 1152.0,
+      "y": -23.0
+    },
+    "m_SizeDelta": {
+      "x": 47.0,
+      "y": 106.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "RightChimneySmoke"
+  },
+  {
+    "id": 4352078219768184243,
+    "gameObject": 4352078219768184219,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 1.0,
+      "y": 1.0,
+      "z": 1.0
+    },
+    "parent": 4352078219768184197,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_AnchorMin": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchorMax": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "m_AnchoredPosition": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "m_SizeDelta": {
+      "x": 1280.0,
+      "y": 720.0
+    },
+    "m_Pivot": {
+      "x": 0.0,
+      "y": 1.0
+    },
+    "name": "FarBackground"
+  },
+  {
+    "id": 4836123561781405602,
+    "gameObject": 1157987731,
+    "m_LocalRotation": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0,
+      "w": 1.0
+    },
+    "m_LocalPosition": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "m_LocalScale": {
+      "x": 7.839234352111816,
+      "y": 7.876923084259033,
+      "z": 1.0
+    },
+    "parent": 1891603581,
+    "m_LocalEulerAnglesHint": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "name": "TopDownWorkbench"
+  }
+]

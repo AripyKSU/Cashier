@@ -24,6 +24,8 @@ public sealed class DystopiaSettings
     public int departureCount = 2, departureReputation = -5, greenReputation = 1;
     /// <summary>복합 거절은 허용치 초과를 우선하여 한 번만 차감합니다.</summary>
     public int toleranceReputation = -2, budgetReputation = -1, refusalMorality = -1;
+    /// <summary>정산 도장 등급의 최소 명성입니다. 악명은 악평 미만이며 네 값은 오름차순이어야 합니다.</summary>
+    [Range(0,100)] public int unpopularReputationMin = 20, neutralReputationMin = 40, popularReputationMin = 60, trustedReputationMin = 80;
     /// <summary>할인 80% 이하 +4, 그 외 할인 +2, 바가지 성공 -2입니다.</summary>
     public int discountMorality = 2, generousMorality = 4, markupMorality = -2;
     /// <summary>가난한 손님의 빈도와 정가 대비 예산 비율입니다.</summary>
@@ -32,7 +34,26 @@ public sealed class DystopiaSettings
     public int normalBudgetMinPercent = 110, normalBudgetMaxPercent = 150;
     /// <summary>짧은 결과 표시 동안 새 결제를 차단합니다. 단위 초.</summary>
     public float resultSeconds = .85f;
+
+    /// <summary>현재 누적 명성을 Inspector에 저장된 다섯 표시 등급으로 분류합니다.</summary>
+    /// <param name="reputation">현재 명성 점수입니다.</param>
+    /// <returns>명성 도장에 사용하는 등급입니다.</returns>
+    /// <exception cref="InvalidOperationException">등급 경계가 0~100의 엄격한 오름차순이 아닐 때 발생합니다.</exception>
+    public DystopiaReputationTier GetReputationTier(int reputation)
+    {
+        if (unpopularReputationMin < 0 || unpopularReputationMin >= neutralReputationMin ||
+            neutralReputationMin >= popularReputationMin || popularReputationMin >= trustedReputationMin || trustedReputationMin > 100)
+            throw new InvalidOperationException("Reputation tier minimums must be ascending within 0..100.");
+        if (reputation >= trustedReputationMin) return DystopiaReputationTier.Trusted;
+        if (reputation >= popularReputationMin) return DystopiaReputationTier.Popular;
+        if (reputation >= neutralReputationMin) return DystopiaReputationTier.Neutral;
+        if (reputation >= unpopularReputationMin) return DystopiaReputationTier.Unpopular;
+        return DystopiaReputationTier.Notorious;
+    }
 }
+
+/// <summary>누적 명성으로 결정되는 악명·악평·보통·호평·신뢰의 표시 등급입니다.</summary>
+public enum DystopiaReputationTier { Notorious, Unpopular, Neutral, Popular, Trusted }
 
 /// <summary>Scene에 직렬화하는 상품 한 종류입니다.</summary>
 [Serializable]
@@ -126,6 +147,11 @@ public sealed class DystopiaCustomer
 /// <summary>Scene 수명에 한정된 런 상태와 거래·시간·상납 불변 조건을 소유합니다.</summary>
 public sealed class DystopiaSession
 {
+    /// <summary>거래 결과 UI가 사용하는 손님의 반응입니다. 취소에는 표정을 표시하지 않습니다.</summary>
+    internal enum TradeReaction { None, Satisfied, Delighted, Reluctant, Refused }
+
+    /// <summary>마지막 거래 판정에서 확정된 반응이며 Result 단계에서만 표시합니다.</summary>
+    internal TradeReaction LastReaction { get; private set; }
     /// <summary>남성 외형 순서: 성인 24종, 남자아이 2종, 할아버지 3종입니다.</summary>
     internal const int MaleAppearanceCount = 29;
     /// <summary>여성 외형 순서: 성인 16종, 여자아이 2종, 할머니 2종입니다.</summary>
@@ -150,6 +176,8 @@ public sealed class DystopiaSession
     public int Day { get; private set; } = 1;
     public int Cash { get; private set; }
     public int Reputation { get; private set; } = 50;
+    /// <summary>현재 누적 명성의 표시 등급입니다. 당일 증감량과 구분합니다.</summary>
+    public DystopiaReputationTier ReputationTier => settings.GetReputationTier(Reputation);
     public int Morality { get; private set; } = 50;
     public int Visitors { get; private set; }
     public int Remaining { get; private set; }
@@ -289,6 +317,7 @@ public sealed class DystopiaSession
             moralDelta = price > Customer.total ? settings.markupMorality : price == Customer.total ? 0 :
                 (long)price * 100 <= (long)Customer.total * 80 ? settings.generousMorality : settings.discountMorality;
             Feedback = moralDelta > 0 ? "정말 고마워요. 오늘은 버틸 수 있겠네요." : moralDelta < 0 ? "…비싸군요. 그래도 가져가겠습니다." : "고맙습니다. 조심히 계세요.";
+            LastReaction = moralDelta > 0 ? TradeReaction.Delighted : moralDelta < 0 ? TradeReaction.Reluctant : TradeReaction.Satisfied;
             Reason = $"판매 +{price:N0}원 · " + (moralDelta > 0 ? "할인 배려" : moralDelta < 0 ? "비싼 가격" : "정상 거래");
             LastRuleViolation = EvaluateRuleViolations();
             if (!string.IsNullOrEmpty(LastRuleViolation))
@@ -302,6 +331,7 @@ public sealed class DystopiaSession
         else
         {
             Refused++;
+            LastReaction = TradeReaction.Refused;
             repDelta = exceedsTolerance ? settings.toleranceReputation : settings.budgetReputation;
             moralDelta = settings.refusalMorality;
             Feedback = exceedsTolerance ? "이 가격은 너무하군요. 다른 곳에 가겠어요." : "집에 아이가 기다리는데… 가진 돈이 모자라요.";
@@ -491,6 +521,7 @@ public sealed class DystopiaSession
         Cancelled++;
         LastAccepted = false;
         LastCancelled = true;
+        LastReaction = TradeReaction.None;
         LastRuleViolation = "";
         Feedback = "판매할 물품이 없어 거래를 취소했습니다.";
         Reason = "거래 취소 · 판매수익 0원 · 지침 위반 없음";

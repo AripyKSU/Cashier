@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -51,8 +51,28 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     [SerializeField] private UnityEngine.Rect leftWatchGuardRect = new UnityEngine.Rect(141,142,44,34);
     /// <summary>1280x720 화면 좌상단 기준 오른쪽 경비병의 X, Y, Width, Height입니다.</summary>
     [SerializeField] private UnityEngine.Rect rightWatchGuardRect = new UnityEngine.Rect(1154,207,32,24);
-    /// <summary>하루 정산을 표시하는 사용자 제공 펼친 책 Sprite입니다.</summary>
+    /// <summary>하루 정산의 방·책상·펼친 공책이 포함된 사용자 제공 배경입니다.</summary>
     [SerializeField] private Sprite dailyLedger;
+    /// <summary>공책 인쇄 영역의 가로·세로 여백입니다. 334×188 배경 원본 픽셀 단위로 Inspector에서 조절합니다.</summary>
+    [SerializeField] private Vector2 ledgerPageInset = new Vector2(4,3);
+    /// <summary>정산 방의 왼쪽 의자에 앉아 공책을 바라보는 사용자 제공 딸 이미지입니다.</summary>
+    [SerializeField] private Sprite ledgerDaughter;
+    /// <summary>정산 화면에서 딸의 머리 위에 표시하는 9-slice 말풍선입니다.</summary>
+    [SerializeField] private Sprite ledgerSpeechBubble;
+    /// <summary>신뢰 등급의 기존 '참 잘했어요!' 도장입니다.</summary>
+    [SerializeField] private Texture2D ledgerStamp;
+    /// <summary>호평 '잘했어요!', 보통 '힘내요!', 악평 '소문이 안 좋아요...', 악명 '아무도 안 믿어요...' 도장입니다.</summary>
+    [SerializeField] private Texture2D ledgerStampPopular, ledgerStampNeutral, ledgerStampUnpopular, ledgerStampNotorious;
+    /// <summary>정산화면 좌상단 기준 도장 부모 영역입니다. 기존 그림 배치값을 유지합니다.</summary>
+    [SerializeField] private Rect ledgerDrawingLayout = new Rect(1035,24,190,238);
+    /// <summary>그림 좌상단 기준 도장의 위치와 크기입니다. 기본 배치는 그림 중앙입니다.</summary>
+    [SerializeField] private Rect ledgerStampLayout = new Rect(27,51,136,136);
+    /// <summary>종이 위에 찍힌 도장의 불투명도입니다.</summary>
+    [SerializeField, Range(0,1)] private float ledgerStampOpacity = 1f;
+    /// <summary>어두운 정산방에 맞추는 도장 잉크 색 배율입니다. 불투명도는 별도 설정을 사용합니다.</summary>
+    [SerializeField] private Color ledgerStampTint = new Color(.5f,.65f,.6f);
+    /// <summary>딸 앞을 가리는 공책의 원본 영역입니다. 화면 수명 동안 재사용하고 파괴 시 해제합니다.</summary>
+    private Sprite ledgerForeground;
     /// <summary>영업 전 가격과 당일 규칙을 표시하는 사용자 제공 일일지침 Sprite입니다.</summary>
     [SerializeField] private Sprite dailyInstruction;
     /// <summary>화면에서 생성하는 모든 한글 UI에 사용하는 사용자 제공 물마루 폰트입니다.</summary>
@@ -76,6 +96,21 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     private RectTransform root, modal, basketRoot;
     private Text inputText, dialogue, reasonText, confirmButtonText;
     private Image portrait;
+    /// <summary>손님 얼굴 오른쪽에 배치된 거래 결과 표정입니다. 결과 단계 외에는 숨깁니다.</summary>
+    [SerializeField] private Image tradeReactionImage;
+    /// <summary>만족, 대만족, 불만족 승낙, 거절 순서의 사용자 제공 표정입니다.</summary>
+    [SerializeField] private Sprite[] tradeReactionSprites;
+    /// <summary>네 표정의 원본 시트입니다. 개별 Sprite 연결이 없는 씬에서만 분리합니다.</summary>
+    [SerializeField] private Texture2D tradeReactionSheet;
+    /// <summary>이 화면이 생성하여 파괴 시 해제하는 표정 Sprite입니다.</summary>
+    private Sprite[] ownedTradeReactionSprites;
+    /// <summary>동일 결과를 일시정지 갱신 등으로 재생하지 않도록 기억합니다.</summary>
+    private DystopiaCustomer reactionCustomer;
+    /// <summary>현재 표정 연출과 연출 시작 전 사용자가 배치한 상태입니다.</summary>
+    private Coroutine reactionAnimation;
+    private Vector2 reactionOrigin;
+    private Vector3 reactionScale;
+    private Color reactionColor;
     // 원경의 두 굴뚝에만 사용하는 연기 이미지와 기준 위치입니다.
     private readonly Image[] chimneySmoke = new Image[2];
     private readonly Vector2[] chimneySmokeOrigins = new Vector2[2];
@@ -151,11 +186,19 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (Session != null) return;
 #if UNITY_EDITOR
         BindEditorSmokeFrames();
+        if (tradeReactionSheet == null) tradeReactionSheet = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/TradeReactions.png");
         // 이미 열려 있던 씬의 신규 참조만 보완하며 Inspector의 기존 연결은 유지합니다.
         if (guardTone == null) guardTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/GuardNeutral.mat");
         if (leftTowerTone == null) leftTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat");
         if (rightTowerTone == null) rightTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/RightTowerNeutral.mat");
         if (dailyLedger == null) dailyLedger = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/DailyLedger.png");
+        if (ledgerDaughter == null) ledgerDaughter = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/LedgerDaughter.png");
+        if (ledgerSpeechBubble == null) ledgerSpeechBubble = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/LedgerSpeechBubble.png");
+        if (ledgerStamp == null) ledgerStamp = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStamp.png");
+        if (ledgerStampPopular == null) ledgerStampPopular = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampPopular.png");
+        if (ledgerStampNeutral == null) ledgerStampNeutral = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampNeutral.png");
+        if (ledgerStampUnpopular == null) ledgerStampUnpopular = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampUnpopular.png");
+        if (ledgerStampNotorious == null) ledgerStampNotorious = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampNotorious.png");
         if (dailyInstruction == null) dailyInstruction = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/DailyInstruction.png");
         BindEditorCustomers();
         if (inspectorPortraitPrefab == null) inspectorPortraitPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab");
@@ -170,6 +213,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         }
         if (font == null) throw new InvalidOperationException("UI에 사용할 한글 폰트가 필요합니다.");
         BuildScreen();
+        PrepareTradeReaction();
         Restart();
     }
 
@@ -225,8 +269,14 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         Debug.LogWarning("스크립트 재컴파일로 세션이 소실되어 새 영업을 시작했습니다.", this);
     }
 
-    /// <summary>런타임에 생성한 폰트 객체의 수명을 끝냅니다.</summary>
-    private void OnDestroy() { if (ownsRuntimeFont && font != null) Destroy(font); }
+    /// <summary>런타임에 생성한 폰트와 Sprite의 수명을 끝냅니다.</summary>
+    private void OnDestroy()
+    {
+        if (ownsRuntimeFont && font != null) Destroy(font);
+        if (ledgerForeground != null) Destroy(ledgerForeground);
+        if (ownedTradeReactionSprites != null)
+            foreach (var sprite in ownedTradeReactionSprites) Destroy(sprite);
+    }
 
     /// <summary>군중·손님의 대기 동작과 경비병의 좌우 경계·간헐적인 외곽 사격을 갱신합니다.</summary>
     internal void AnimatePeople()
@@ -351,6 +401,102 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (!BindPlacedScreen()) throw new InvalidOperationException("Scene에 배치된 DystopiaCanvas가 필요합니다.");
     }
 
+    /// <summary>누락된 표정 연결만 생성하며 이미 배치된 Image의 위치와 크기는 보존합니다.</summary>
+    private void PrepareTradeReaction()
+    {
+        if (tradeReactionSprites == null || tradeReactionSprites.Length != 4 || Array.Exists(tradeReactionSprites, sprite => sprite == null))
+        {
+            if (tradeReactionSheet == null)
+            {
+                Debug.LogError("거래 표정 시트 참조가 필요합니다.", this);
+                return;
+            }
+            ownedTradeReactionSprites = new Sprite[4];
+            for (int i = 0; i < 4; i++)
+            {
+                // 자동 슬라이싱이 눈·입을 별도 Sprite로 나누므로 표정 전체 영역을 사용합니다.
+                var region = new Rect(i % 2 == 0 ? 150 : 643, i < 2 ? 655 : 168, 462, 462);
+                ownedTradeReactionSprites[i] = Sprite.Create(tradeReactionSheet, region, new Vector2(.5f,.5f), 100, 0, SpriteMeshType.FullRect);
+            }
+            tradeReactionSprites = ownedTradeReactionSprites;
+        }
+        if (tradeReactionImage == null)
+        {
+            var existing = portrait.transform.Find("TradeReaction");
+            if (existing != null) tradeReactionImage = existing.GetComponent<Image>();
+            if (tradeReactionImage == null)
+            {
+                var go = new GameObject("TradeReaction", typeof(RectTransform), typeof(Image));
+                go.transform.SetParent(portrait.transform, false);
+                tradeReactionImage = go.GetComponent<Image>();
+                var rect = tradeReactionImage.rectTransform;
+                rect.anchorMin = rect.anchorMax = new Vector2(.8f,.78f);
+                rect.sizeDelta = new Vector2(56,56);
+                tradeReactionImage.preserveAspect = true;
+                tradeReactionImage.raycastTarget = false;
+            }
+        }
+        tradeReactionImage.gameObject.SetActive(false);
+    }
+
+    /// <summary>결과마다 한 번 표정을 띄우며 다음 손님과 취소에서는 연출을 정리합니다.</summary>
+    private void RefreshTradeReaction()
+    {
+        if (tradeReactionImage == null || tradeReactionSprites == null || tradeReactionSprites.Length != 4 || Array.Exists(tradeReactionSprites, sprite => sprite == null)) return;
+        bool visible = Session.Phase == DystopiaPhase.Result && Session.LastReaction != DystopiaSession.TradeReaction.None;
+        if (!visible)
+        {
+            if (reactionAnimation != null)
+            {
+                StopCoroutine(reactionAnimation);
+                ResetTradeReaction();
+            }
+            tradeReactionImage.gameObject.SetActive(false);
+            reactionCustomer = null;
+            return;
+        }
+        if (ReferenceEquals(reactionCustomer, Session.Customer)) return;
+        reactionCustomer = Session.Customer;
+        tradeReactionImage.sprite = tradeReactionSprites[(int)Session.LastReaction - 1];
+        reactionOrigin = tradeReactionImage.rectTransform.anchoredPosition;
+        reactionScale = tradeReactionImage.rectTransform.localScale;
+        reactionColor = tradeReactionImage.color;
+        tradeReactionImage.gameObject.SetActive(true);
+        reactionAnimation = StartCoroutine(AnimateTradeReaction());
+    }
+
+    /// <summary>얼굴 옆 표정을 짧게 확대하고 위로 띄우며 사라지게 합니다. 거래 진행 시간은 바꾸지 않습니다.</summary>
+    /// <returns>일시정지 시 함께 멈추는 프레임 연출입니다.</returns>
+    private System.Collections.IEnumerator AnimateTradeReaction()
+    {
+        float duration = Mathf.Max(.01f, Mathf.Min(.75f, settings.resultSeconds));
+        float elapsed = 0;
+        var rect = tradeReactionImage.rectTransform;
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            float pop = t < .2f ? Mathf.Lerp(.55f,1.15f,t / .2f) : Mathf.Lerp(1.15f,1,Mathf.Clamp01((t - .2f) / .2f));
+            rect.localScale = reactionScale * pop;
+            rect.anchoredPosition = reactionOrigin + Vector2.up * (40 * Mathf.SmoothStep(0,1,t));
+            var color = reactionColor;
+            color.a *= 1 - Mathf.Clamp01((t - .55f) / .45f);
+            tradeReactionImage.color = color;
+            yield return null;
+            if (!Session.IsPaused) elapsed += Time.unscaledDeltaTime;
+        }
+        ResetTradeReaction();
+    }
+
+    /// <summary>연출에서 바꾼 값만 원래대로 돌려놓아 사용자의 배치를 보존합니다.</summary>
+    private void ResetTradeReaction()
+    {
+        tradeReactionImage.gameObject.SetActive(false);
+        tradeReactionImage.rectTransform.anchoredPosition = reactionOrigin;
+        tradeReactionImage.rectTransform.localScale = reactionScale;
+        tradeReactionImage.color = reactionColor;
+        reactionAnimation = null;
+    }
+
     /// <summary>상태 전환 때만 상품·대화·안내창을 갱신합니다.</summary>
     private void Refresh()
     {
@@ -364,6 +510,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         ShowAmount();
         portrait.sprite = CustomerPoolSprite(Session.Customer.IsMale,Session.Customer.appearance);
         portrait.color = Session.Phase == DystopiaPhase.Result && !Session.LastAccepted && !Session.LastCancelled ? new Color(.8f,.6f,.6f) : Color.white;
+        RefreshTradeReaction();
         for (int i=0;i<waiting.Length;i++)
         {
             waiting[i].gameObject.SetActive(Session.WaitingCustomers.Count > i && Session.WaitingCustomers[i].Type != DystopiaCustomerType.Child);
@@ -568,26 +715,41 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             return;
         }
 
-        var ink = new Color(.18f,.18f,.17f);
-        var muted = new Color(.34f,.34f,.32f);
+        var ink = new Color(.08f,.07f,.06f);
+        var muted = new Color(.20f,.18f,.15f);
         modal = Rect(root,"DailyInstruction",0,0,1280,720);
         var blocker = Panel(modal,"InputBlocker",0,0,1280,720,new Color(0,0,0,.42f));
         blocker.raycastTarget = true;
         var sheet = Picture(modal,"Sheet",dailyInstruction,300,5,680,680,true).rectTransform;
 
+        // 세로 원화의 실제 표시 영역을 기준으로 새 런타임 내용만 생성합니다.
+        // 이미 만들어진 창과 내용의 사용자 편집 Transform은 다시 설정하지 않습니다.
+        var content = sheet.Find("PrintedContent") as RectTransform;
+        if (content == null)
+        {
+            Vector2 artwork = dailyInstruction.rect.size;
+            Vector2 available = sheet.rect.size;
+            float scale = Mathf.Min(available.x / artwork.x, available.y / artwork.y);
+            Vector2 drawn = artwork * scale;
+            Vector2 offset = Vector2.Scale(available - drawn, new Vector2(sheet.pivot.x, 1f - sheet.pivot.y));
+            content = Rect(sheet,"PrintedContent",offset.x,offset.y,224,280);
+            content.localScale = new Vector3(drawn.x / 224f, drawn.y / 280f, 1);
+        }
+        content.gameObject.SetActive(true);
+
         // 날짜 칸에 인쇄된 슬래시를 종이색으로 덮고 바깥 테두리는 보존합니다.
-        Panel(sheet,"DayPaper",430,100,114,24,new Color(.81f,.80f,.76f));
-        var day = Label(sheet,"InstructionDay",$"{Session.Day}일차",430,98,112,31,18,ink);
+        Panel(content,"DayPaper",140,52,48,8,new Color(.81f,.80f,.76f));
+        var day = Label(content,"InstructionDay",$"{Session.Day}일차",139,50,50,12,7,ink);
         day.alignment = TextAnchor.MiddleCenter;
         day.fontStyle = FontStyle.Bold;
 
-        var heading = Label(sheet,"MemoryHeading","영업 전, 가격을 기억하세요",137,151,407,34,24,ink);
+        var heading = Label(content,"MemoryHeading","영업 전, 가격을 기억하세요",32,78,164,14,8,ink);
         heading.alignment = TextAnchor.MiddleCenter;
         heading.fontStyle = FontStyle.Bold;
-        var ruleTitle = Label(sheet,"RuleTitle","오늘의 지침",137,194,407,26,18,muted);
+        var ruleTitle = Label(content,"RuleTitle","오늘의 지침",32,97,164,11,7,muted);
         ruleTitle.alignment = TextAnchor.MiddleCenter;
         ruleTitle.fontStyle = FontStyle.Bold;
-        var rule = Label(sheet,"Rule",Session.DailyRuleText,137,222,407,58,18,ink);
+        var rule = Label(content,"Rule",Session.DailyRuleText,32,110,164,24,7,ink);
         rule.alignment = TextAnchor.UpperCenter;
 
         if (beforeOpening)
@@ -597,22 +759,22 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 DystopiaProduct product = Session.ActiveProducts[i];
                 int column = i % 2;
                 int row = i / 2;
-                float x = 146 + column * 205;
-                float y = 300 + row * 64;
-                Picture(sheet,"InstructionProduct"+i,product.sprite,x,y,50,48,true);
-                var productName = Label(sheet,"InstructionName"+i,product.name,x+56,y-1,137,24,17,ink);
+                float x = 32 + column * 85;
+                float y = 143 + row * Mathf.Min(29f, 65f / Mathf.Max(1, (Session.ActiveProducts.Count + 1) / 2));
+                Picture(content,"InstructionProduct"+i,product.sprite,x,y,18,21,true);
+                var productName = Label(content,"InstructionName"+i,product.name,x+22,y,57,10,7,ink);
                 productName.alignment = TextAnchor.MiddleLeft;
-                var price = Label(sheet,"InstructionPrice"+i,$"{product.price:N0}원",x+56,y+23,137,25,18,ink);
+                var price = Label(content,"InstructionPrice"+i,$"{product.price:N0}원",x+22,y+10,57,11,8,ink);
                 price.alignment = TextAnchor.MiddleLeft;
                 price.fontStyle = FontStyle.Bold;
             }
-            var restriction = Label(sheet,"PriceRestriction","영업이 시작되면 가격표를 다시 볼 수 없습니다.",137,454,407,28,15,muted);
+            var restriction = Label(content,"PriceRestriction","영업이 시작되면 가격표를 다시 볼 수 없습니다.",30,214,168,12,5,muted);
             restriction.alignment = TextAnchor.MiddleCenter;
-            var recheck = Label(sheet,"RecheckGuide","당일 지침은 영업 중에도 다시 확인할 수 있습니다.",137,484,407,28,15,muted);
+            var recheck = Label(content,"RecheckGuide","당일 지침은 영업 중에도 다시 확인할 수 있습니다.",30,226,168,12,5,muted);
             recheck.alignment = TextAnchor.MiddleCenter;
             // 원본 도장을 가리지 않는 폭과 지침서의 잉크·종이 색으로 버튼을 맞춥니다.
-            Panel(sheet,"OpenShopBorder",204,546,204,46,muted);
-            var openShop = MakeButton(sheet,"OpenShop","영업 시작",206,548,200,42,()=>{Session.OpenShop();Refresh();},19);
+            Panel(content,"OpenShopBorder",73,242,82,18,muted);
+            var openShop = MakeButton(content,"OpenShop","영업 시작",74,243,80,16,()=>{Session.OpenShop();Refresh();},8);
             var paperColors = openShop.colors;
             paperColors.normalColor = new Color(.78f,.76f,.69f);
             paperColors.highlightedColor = new Color(.88f,.85f,.77f);
@@ -623,17 +785,22 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         }
         else
         {
-            var restriction = Label(sheet,"PriceRestriction","가격표는 영업 중 다시 볼 수 없습니다.",137,328,407,30,16,muted);
+            var restriction = Label(content,"PriceRestriction","가격표는 영업 중 다시 볼 수 없습니다.",32,151,164,15,7,muted);
             restriction.alignment = TextAnchor.MiddleCenter;
-            var violations = Label(sheet,"ViolationCount",$"오늘 적발 {Session.RuleViolationCount:N0}회",137,374,407,30,17,ink);
+            var violations = Label(content,"ViolationCount",$"오늘 적발 {Session.RuleViolationCount:N0}회",32,173,164,13,7,ink);
             violations.alignment = TextAnchor.MiddleCenter;
             violations.fontStyle = FontStyle.Bold;
             if (Session.RuleViolationCount > 0)
             {
-                var latest = Label(sheet,"LatestViolation",$"최근 위반: {Session.LastRuleViolation}",137,408,407,55,14,muted);
+                var latest = Label(content,"LatestViolation",$"최근 위반: {Session.LastRuleViolation}",32,191,164,25,6,muted);
                 latest.alignment = TextAnchor.UpperCenter;
             }
-            MakeButton(sheet,"CloseInstruction","지침 닫기",206,548,268,42,CloseDailyInstruction,19);
+            MakeButton(content,"CloseInstruction","지침 닫기",74,243,80,16,CloseDailyInstruction,8);
+        }
+        foreach (var label in content.GetComponentsInChildren<Text>(true))
+        {
+            if (label.GetComponent<DystopiaInstructionText>() == null)
+                label.gameObject.AddComponent<DystopiaInstructionText>();
         }
     }
 
@@ -648,15 +815,65 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             return;
         }
 
-        var ink = new Color(.15f,.16f,.17f);
-        var muted = new Color(.37f,.38f,.38f);
-        var rule = new Color(.26f,.27f,.27f,.52f);
-        var income = new Color(.22f,.40f,.29f);
-        var expense = new Color(.52f,.25f,.23f);
+        var ink = Color.black;
+        var muted = Color.black;
+        var rule = new Color(.25f,.17f,.11f,.45f);
+        var income = Color.black;
+        var expense = Color.black;
         modal = Rect(root,"DailyLedger",0,0,1280,720);
         var blocker = Panel(modal,"InputBlocker",0,0,1280,720,Color.clear);
         blocker.raycastTarget = true;
-        var book = Picture(modal,"Book",dailyLedger,145,30,990,660,true).rectTransform;
+        Picture(modal,"Room",dailyLedger,0,0,1280,720,false);
+        Texture2D reputationStamp = GetLedgerReputationStamp(Session.ReputationTier);
+        if (reputationStamp != null)
+        {
+            var drawingRect = Rect(modal,"WallDrawing",ledgerDrawingLayout.x,ledgerDrawingLayout.y,ledgerDrawingLayout.width,ledgerDrawingLayout.height);
+            var drawing = drawingRect.GetComponent<RawImage>();
+            // 이전에 만든 그림은 표시만 끄고 도장 자식의 편집된 Transform은 유지합니다.
+            if (drawing != null) drawing.enabled = false;
+            var stampRect = Rect(drawingRect,"Stamp",ledgerStampLayout.x,ledgerStampLayout.y,ledgerStampLayout.width,ledgerStampLayout.height);
+            var stamp = stampRect.GetComponent<RawImage>();
+            if (stamp == null)
+            {
+                stamp = stampRect.gameObject.AddComponent<RawImage>();
+                stamp.raycastTarget = false;
+            }
+            // 정산 UI를 재사용해도 현재 누적 명성에 맞는 도장으로 교체합니다.
+            stamp.texture = reputationStamp;
+            stamp.color = new Color(ledgerStampTint.r,ledgerStampTint.g,ledgerStampTint.b,ledgerStampOpacity);
+        }
+        if (ledgerDaughter != null)
+        {
+            var daughter = Picture(modal,"Daughter",ledgerDaughter,22*1280f/334,64*720f/188,78*1280f/334,78*720f/188,true);
+            // 창밖의 차가운 밤빛보다 방 안의 낮고 따뜻한 빛을 따르도록 원본 색을 곱합니다.
+            daughter.color = new Color(.62f,.50f,.40f);
+            if (ledgerSpeechBubble != null)
+            {
+                // 꼬리까지 Y=230에 끝나므로 Y=245에서 시작하는 공책을 가리지 않습니다.
+                var speech = Picture(modal,"DaughterSpeech",ledgerSpeechBubble,142,110,520,120,false);
+                speech.type = Image.Type.Sliced;
+                speech.pixelsPerUnitMultiplier = 6;
+                var speechText = Label(speech.transform,"Text","아빠 오늘 돈 많이 벌었어?",44,20,440,66,24,ink);
+                speechText.color = ink;
+                speechText.alignment = TextAnchor.MiddleCenter;
+                speechText.horizontalOverflow = HorizontalWrapMode.Wrap;
+                speechText.verticalOverflow = VerticalWrapMode.Truncate;
+            }
+        }
+        // 원본 하단을 다시 그려 딸의 몸이 책상 뒤로 들어가게 합니다.
+        var deskMask = Rect(modal,"DeskForeground",0,132*720f/188,1280,56*720f/188);
+        if (deskMask.GetComponent<RectMask2D>() == null) deskMask.gameObject.AddComponent<RectMask2D>();
+        Picture(deskMask,"Desk",dailyLedger,0,-132*720f/188,1280,720,false);
+        if (ledgerForeground == null)
+        {
+            ledgerForeground = Sprite.Create(dailyLedger.texture,new UnityEngine.Rect(84,8,188,116),Vector2.zero,1,0,SpriteMeshType.FullRect);
+            ledgerForeground.name = "Ledger notebook foreground";
+            // 공책의 실제 사다리꼴 외곽만 복사해 딸의 얼굴을 사각형으로 잘라내지 않습니다.
+            ledgerForeground.OverrideGeometry(new[] { new Vector2(22,116),new Vector2(166,116),new Vector2(188,0),Vector2.zero },new ushort[] { 0,1,2,2,3,0 });
+        }
+        var cover = Picture(modal,"NotebookForeground",ledgerForeground,84*1280f/334,64*720f/188,188*1280f/334,116*720f/188,false);
+        cover.useSpriteMesh = true;
+        var book = Rect(modal,"LedgerPageContent",0,0,1280,720);
 
         var day = LedgerLabel(book,"LedgerDay",$"영업 {Session.Day}일차",92,94,350,28,18,muted);
         day.alignment = TextAnchor.MiddleLeft;
@@ -681,10 +898,38 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         LedgerMini(book,"NextTribute","다음 상납까지",$"{Session.DaysUntilTribute}일",548,494,162,muted,ink);
         Panel(book,"TributeGuideSplit",722,495,1,28,new Color(rule.r,rule.g,rule.b,.3f));
         LedgerMini(book,"TributeDue","납부 예정",$"{Session.NextTributeAmount:N0}원",736,494,162,muted,ink);
-        ledgerConfirmButton = MakeButton(book,"LedgerConfirm","확인",708,526,190,38,ConfirmLedger,18);
+        // 글자뿐 아니라 구분선도 같은 페이지 원근으로 투영합니다.
+        foreach (var graphic in book.GetComponentsInChildren<Graphic>(true))
+        {
+            var projection = graphic.GetComponent<DystopiaLedgerPage>();
+            if (projection == null) projection = graphic.gameObject.AddComponent<DystopiaLedgerPage>();
+            projection.Configure(book,graphic.rectTransform.anchoredPosition.x > 500,ledgerPageInset);
+        }
+        ledgerConfirmButton = MakeButton(modal,"LedgerConfirm","확인",1080,646,150,44,ConfirmLedger,18);
+        var buttonColors = ledgerConfirmButton.colors;
+        buttonColors.normalColor = new Color(.25f,.17f,.11f);
+        buttonColors.highlightedColor = new Color(.39f,.28f,.18f);
+        buttonColors.pressedColor = new Color(.17f,.11f,.07f);
+        buttonColors.selectedColor = buttonColors.normalColor;
+        ledgerConfirmButton.colors = buttonColors;
         // 이전 날짜의 확인 처리로 비활성화된 재사용 버튼을 다시 열어 줍니다.
         ledgerConfirmButton.interactable = true;
         ledgerConfirmButton.GetComponentInChildren<Text>().fontStyle = FontStyle.Bold;
+    }
+
+    /// <summary>명성 등급에 해당하는 사용자 제공 도장을 반환합니다.</summary>
+    /// <param name="tier">세션이 분류한 현재 명성 등급입니다.</param>
+    /// <returns>등급별 도장 원본입니다. 미연결이면 null입니다.</returns>
+    private Texture2D GetLedgerReputationStamp(DystopiaReputationTier tier)
+    {
+        switch (tier)
+        {
+            case DystopiaReputationTier.Trusted: return ledgerStamp;
+            case DystopiaReputationTier.Popular: return ledgerStampPopular;
+            case DystopiaReputationTier.Neutral: return ledgerStampNeutral;
+            case DystopiaReputationTier.Unpopular: return ledgerStampUnpopular;
+            default: return ledgerStampNotorious;
+        }
     }
 
     /// <summary>가계부 확인을 한 번만 기록하고 기존 정산 후 선택으로 진행합니다.</summary>
@@ -750,10 +995,12 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         amountText.alignment = TextAnchor.MiddleRight;
     }
 
-    /// <summary>공통 물마루 폰트를 사용하는 가계부 텍스트를 생성합니다.</summary>
+    /// <summary>공통 물마루 폰트의 가계부 텍스트를 만들고 재사용한 항목에도 현재 잉크 색을 적용합니다.</summary>
     private Text LedgerLabel(Transform parent,string name,string value,float x,float y,float width,float height,int size,Color color)
     {
-        return Label(parent,name,value,x,y,width,height,size,color);
+        var text = Label(parent,name,value,x,y,width,height,size,color);
+        text.color = color;
+        return text;
     }
 
     /// <summary>변화량의 양수에만 더하기 기호를 붙입니다.</summary>

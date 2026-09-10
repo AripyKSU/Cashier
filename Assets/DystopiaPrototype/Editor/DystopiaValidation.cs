@@ -13,6 +13,18 @@ public static class DystopiaValidation
     {
         var report=new StringBuilder("Dystopia rule verification (not UI input verification)\n");
         var settings=new DystopiaSettings();
+        // 등급 경계의 바로 전·후와 초기 명성 50을 검증하며 기존 명성 증감 규칙은 변경하지 않습니다.
+        var reputationCases = new[] {
+            (0,DystopiaReputationTier.Notorious),(19,DystopiaReputationTier.Notorious),
+            (20,DystopiaReputationTier.Unpopular),(39,DystopiaReputationTier.Unpopular),
+            (40,DystopiaReputationTier.Neutral),(50,DystopiaReputationTier.Neutral),(59,DystopiaReputationTier.Neutral),
+            (60,DystopiaReputationTier.Popular),(79,DystopiaReputationTier.Popular),
+            (80,DystopiaReputationTier.Trusted),(100,DystopiaReputationTier.Trusted) };
+        foreach (var sample in reputationCases)
+            Require(settings.GetReputationTier(sample.Item1)==sample.Item2,$"reputation {sample.Item1}: {sample.Item2}",report);
+        var customReputationSettings = new DystopiaSettings { trustedReputationMin=90 };
+        Require(customReputationSettings.GetReputationTier(89)==DystopiaReputationTier.Popular &&
+            customReputationSettings.GetReputationTier(90)==DystopiaReputationTier.Trusted,"authored reputation threshold",report);
         DystopiaSession New() { var s=new DystopiaSession(settings,123); s.OpenShop(); return s; }
         var invalid=New();
         foreach(string value in new[]{"","-1","1.5","0","99999999"," 1000","abc"})
