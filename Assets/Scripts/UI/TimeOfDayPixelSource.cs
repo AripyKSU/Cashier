@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 /// <summary>편집 가능한 UI의 최종 메시를 월드 렌더에 전달하며 문자와 입력은 그대로 유지합니다.</summary>
 [ExecuteAlways]
-public sealed class DystopiaPixelSource : BaseMeshEffect
+public sealed class TimeOfDayPixelSource : BaseMeshEffect
 {
     /// <summary>저해상도 렌더가 활성화된 동안만 원래 그래픽을 대체합니다.</summary>
     [System.NonSerialized] public bool capture;

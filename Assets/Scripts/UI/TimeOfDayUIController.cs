@@ -75,7 +75,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
 
     [Header("Pixel Stage (Optional Shader)")]
     [Tooltip("표면 조명 및 노말맵 픽셀 스테이지 (선택 사항)")]
-    [SerializeField] private DystopiaPixelStage pixelStage;
+    [SerializeField] private TimeOfDayPixelStage pixelStage;
 
     [Header("Debug & Test Controls")]
     [Tooltip("수동 시간 오버라이드 활성화 (체크 시 슬라이더나 단축키로 시간 조절 가능)")]
@@ -105,7 +105,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         set => this.businessClock = value;
     }
 
-    public DystopiaPixelStage PixelStage
+    public TimeOfDayPixelStage PixelStage
     {
         get => this.pixelStage;
         set => this.pixelStage = value;

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 /// <summary>기존 UI 배치를 월드 메시로 렌더링하고 시간대별 조명을 거친 장면을 Point 확대합니다.</summary>
 [ExecuteAlways, DefaultExecutionOrder(10000)]
-public sealed class DystopiaPixelStage : MonoBehaviour
+public sealed class TimeOfDayPixelStage : MonoBehaviour
 {
     /// <summary>표면 형태와 기존 특수 효과 유지 여부입니다.</summary>
     public enum Surface { Unlit, Environment, Person, Metal, CityLights, OriginalEffect, Hidden, Sky }
@@ -24,7 +24,7 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         /// <summary>원본 Sprite의 정규화된 접점 X/Y와 그림자 폭/높이입니다. 높이 0은 미사용입니다.</summary>
         public Vector4 contactShadow;
         [NonSerialized] internal MeshRenderer contactRenderer;
-        [NonSerialized] internal DystopiaPixelSource capture;
+        [NonSerialized] internal TimeOfDayPixelSource capture;
         [NonSerialized] internal MeshRenderer renderer;
         [NonSerialized] internal MeshFilter filter;
         [NonSerialized] internal MaterialPropertyBlock properties;
@@ -189,8 +189,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         foreach (var layer in layers)
         {
             if (layer.source == null) continue;
-            layer.capture = layer.source.GetComponent<DystopiaPixelSource>();
-            if (layer.capture == null) layer.capture = layer.source.gameObject.AddComponent<DystopiaPixelSource>();
+            layer.capture = layer.source.GetComponent<TimeOfDayPixelSource>();
+            if (layer.capture == null) layer.capture = layer.source.gameObject.AddComponent<TimeOfDayPixelSource>();
             var go = new GameObject(layer.source.name, typeof(MeshFilter), typeof(MeshRenderer)) { hideFlags = HideFlags.HideAndDontSave, layer = 31 };
             go.transform.SetParent(renderRoot.transform, false);
             layer.filter = go.GetComponent<MeshFilter>(); layer.renderer = go.GetComponent<MeshRenderer>(); layer.properties = new MaterialPropertyBlock();
