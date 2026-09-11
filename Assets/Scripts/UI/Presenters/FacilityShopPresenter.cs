@@ -9,6 +9,8 @@ public sealed class FacilityShopPresenter : MonoBehaviour
 {
     /// <summary>세션 현재 잔액 표시.</summary>
     [SerializeField] private TextMeshProUGUI balanceText;
+    /// <summary>구매 후 실제 효과 적용 시점을 안내하는 텍스트.</summary>
+    [SerializeField] private TextMeshProUGUI activationGuideText;
     /// <summary>구매 처리 결과 안내.</summary>
     [SerializeField] private TextMeshProUGUI feedbackText;
     /// <summary>재사용할 설비 행의 부모.</summary>
@@ -19,6 +21,19 @@ public sealed class FacilityShopPresenter : MonoBehaviour
     [SerializeField] private Button closeButton;
     private readonly List<FacilityItemView> rows = new List<FacilityItemView>();
     private bool interactive = true;
+
+    /// <summary>패널이 만들어질 때 긴 설비 목록을 스크롤할 수 있도록 목록 컨테이너를 연결합니다.</summary>
+    private void Awake()
+    {
+        RectTransform contentRect = content as RectTransform;
+        if (contentRect == null) return;
+        ScrollRect scrollRect = GetComponent<ScrollRect>() ?? gameObject.AddComponent<ScrollRect>();
+        scrollRect.content = contentRect;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        scrollRect.scrollSensitivity = 24f;
+    }
 
     /// <summary>단일 설비 PK의 구매 요청.</summary>
     public event Action<uint> OnPurchaseRequested;
@@ -45,8 +60,15 @@ public sealed class FacilityShopPresenter : MonoBehaviour
     public void UpdateView(FacilityShopViewData data, string feedback)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
-        balanceText.text = $"보유금  {data.CurrentBalance:N0} G";
-        feedbackText.text = feedback ?? string.Empty;
+        if (balanceText != null) balanceText.text = $"가게 단계 {data.CurrentStoreStage}  ·  보유금 {data.CurrentBalance:N0} G";
+        if (activationGuideText != null)
+            activationGuideText.text = "구매 효과는 다음 영업일부터 적용됩니다. 단계 확장은 구매 즉시 해금됩니다.";
+        if (feedbackText != null) feedbackText.text = feedback ?? string.Empty;
+        if (content is RectTransform contentRect)
+        {
+            float height = Mathf.Max(contentRect.sizeDelta.y, data.Items.Count * 96f);
+            contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, height);
+        }
         for (int i = 0; i < data.Items.Count; i++)
         {
             if (i == rows.Count)

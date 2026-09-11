@@ -31,26 +31,27 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private KeypadController keypadController;
     [SerializeField] private GameInputRouter gameInputRouter;
     [SerializeField] private SaleSortingPanel saleSortingPanel;
+    /// <summary>세션 현재가·해금·이미지를 전달받는 영업 전 카드 표시.</summary>
+    [SerializeField] private PreOpenPanelPresenter preOpenPresenter;
+    /// <summary>진행 시각을 표시할 시계. 자체 시간은 사용하지 않는다.</summary>
+    [SerializeField] private BusinessClockController businessClock;
 
     [Header("Progress panels")]
     [SerializeField] private GameObject preOpenPanel;
     [SerializeField] private GameObject operatingPanel;
     [SerializeField] private GameObject settlementPanel;
-    [SerializeField] private GameObject tributePanel;
     [SerializeField] private GameObject failurePanel;
 
     [Header("Progress UI fields")]
     [SerializeField] private TextMeshProUGUI priceListText;
     [SerializeField] private TextMeshProUGUI validationText;
     [SerializeField] private TextMeshProUGUI transactionStatusText;
-    [SerializeField] private TextMeshProUGUI tributeText;
     [SerializeField] private TextMeshProUGUI failureText;
     [SerializeField] private TextMeshProUGUI errorText;
 
     [Header("Progress UI controls")]
     [SerializeField] private Button openBusinessButton;
     [SerializeField] private Button transactionContinueButton;
-    [SerializeField] private Button maintenanceButton;
     [SerializeField] private Button[] keypadButtons;
 
     /// <summary>독립 설비 상점 프리팹의 표시·입력 어댑터.</summary>
@@ -67,6 +68,23 @@ public sealed class GameUIController : MonoBehaviour
     private bool isReady;
     private bool hasError;
     private Sprite productPlaceholderSprite;
+    private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
+    private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
+
+    /// <summary>개인 씬에서 실제 FIFO 대기열을 사용할 때만 켠다. 공유 prefab 기본값은 false.</summary>
+    [SerializeField] private bool useCustomerQueue;
+    /// <summary>로컬 퇴장 이동과 마지막 정산 표시 대기에 사용하는 단일 시간(초).</summary>
+    [SerializeField, Min(0.01f)] private float queueExitSeconds = 0.45f;
+    private float queueExitRemaining;
+    private bool isSettlementPresentationPending;
+    /// <summary>로컬 외형 퇴장에 적용할 검증된 시간(초).</summary>
+    public float QueueExitSeconds => this.queueExitSeconds;
+    /// <summary>모델 정산은 완료했지만 마지막 퇴장 표시를 기다리는 상태.</summary>
+    public bool IsSettlementPresentationPending => this.isSettlementPresentationPending;
+    /// <summary>로컬 표현이 관찰하는 현재 하루. 비동기 초기화 전에는 null.</summary>
+    public DayProgress CurrentDayProgress => this.gameProgress?.CurrentDayProgress;
+    /// <summary>표현 시간이 멈춰야 하는 일시정지·기술 오류 상태.</summary>
+    public bool IsPresentationPaused => this.hasError || !this.isActiveAndEnabled || this.subscribedDay?.IsPaused == true;
 
     /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
     private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;
@@ -105,19 +123,22 @@ public sealed class GameUIController : MonoBehaviour
                 throw new InvalidOperationException("손님 또는 텍스트 데이터가 준비되지 않았습니다.");
             }
 
-            IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadProductSpritesAsync();
+            IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadDisplaySpritesAsync();
             this.viewDataFactory = new ProgressViewDataFactory(
                 this.customerCatalog,
                 this.textData,
-                productSprites, GameSessionManager.Instance.IsFacilityActive);
+                productSprites, GameSessionManager.Instance.IsFacilityActive, this.topViewSprites, this.appearanceSprites,
+                DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline));
 
             this.validateUiReferences();
+            if (this.businessClock != null) this.businessClock.StopClock();
+            if (this.useCustomerQueue) this.saleSortingPanel.SetPauseQuery(() => this.IsPresentationPaused);
             this.subscribeUi();
             this.gameProgress = new GameProgress(
                 GameSessionManager.Instance,
                 this.customerCatalog,
                 DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
-                new System.Random());
+                new System.Random(), useCustomerQueue: this.useCustomerQueue);
             this.subscribeProgress();
             this.isReady = true;
             this.gameProgress.Start();
@@ -143,6 +164,16 @@ public sealed class GameUIController : MonoBehaviour
 
         try
         {
+            if (this.useCustomerQueue && this.queueExitRemaining > 0 && !this.IsPresentationPaused)
+            {
+                this.queueExitRemaining = Mathf.Max(0, this.queueExitRemaining - Time.deltaTime);
+                if (this.isSettlementPresentationPending && this.queueExitRemaining <= 0)
+                {
+                    this.isSettlementPresentationPending = false;
+                    this.renderSettlement(this.subscribedDay.AggregationResult.Value);
+                    this.refreshAllViews();
+                }
+            }
             if (this.gameProgress.State == GameProgressState.DayInProgress)
             {
                 this.gameProgress.Tick(Time.deltaTime);
@@ -159,10 +190,10 @@ public sealed class GameUIController : MonoBehaviour
         }
     }
 
-    /// <summary>상품 데이터 FK를 따라 장바구니 표시용 Sprite를 한 번씩 로드합니다.</summary>
-    /// <returns>모든 상품 ID에 대응하는 로드 완료 Sprite 사전입니다. 이미지가 없으면 임시 흰색 Sprite를 사용합니다.</returns>
+    /// <summary>상품 기본·탑뷰와 손님 외형 Sprite를 Resource FK별로 한 번 로드한다.</summary>
+    /// <returns>상품 기본 Sprite 사전. 탑뷰·외형도 같은 화면 수명에 보관하며 상품의 두 FK가 빈 경우만 흰색을 사용한다.</returns>
     /// <exception cref="InvalidOperationException">리소스 시스템 또는 ResourceDataTable이 준비되지 않은 경우 발생합니다.</exception>
-    private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadProductSpritesAsync()
+    private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadDisplaySpritesAsync()
     {
         if (ResourceManager.Instance == null)
         {
@@ -177,65 +208,37 @@ public sealed class GameUIController : MonoBehaviour
 
         var spritesByResource = new Dictionary<uint, Sprite>();
         var spritesByProduct = new Dictionary<uint, Sprite>();
+        // 공용 manager가 핸들을 소유하고 이 화면은 동일 Resource FK의 로드 결과만 재사용한다.
         foreach (ProductData product in this.customerCatalog.Products.Rows.Values)
         {
             if (!product.ImageResourceIdx.HasValue)
             {
-                Debug.LogWarning(
-                    $"[GameUIController] 상품 {product.Idx}의 image_resource_idx가 비어 있어 임시 흰색 이미지를 사용합니다.",
-                    this);
+                Debug.LogWarning($"[GameUIController] 상품 {product.Idx}의 기본·탑뷰 이미지가 비어 있어 임시 흰색 이미지를 사용합니다.", this);
                 spritesByProduct.Add(product.Idx, this.getProductPlaceholderSprite());
+                this.topViewSprites.Add(product.Idx, this.getProductPlaceholderSprite());
                 continue;
             }
-
-            uint resourceId = product.ImageResourceIdx.Value;
-            if (!spritesByResource.TryGetValue(resourceId, out Sprite sprite))
-            {
-                string address = resources.GetResourcePath(resourceId);
-                if (string.IsNullOrWhiteSpace(address))
-                {
-                    Debug.LogWarning(
-                        $"[GameUIController] 상품 {product.Idx}의 ResourceData FK {resourceId}를 찾을 수 없어 임시 흰색 이미지를 사용합니다.",
-                        this);
-                    sprite = this.getProductPlaceholderSprite();
-                }
-                else
-                {
-                    try
-                    {
-                        sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address)
-                            .AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        throw;
-                    }
-                    catch (Exception exception)
-                    {
-                        Debug.LogWarning(
-                            $"[GameUIController] 상품 {product.Idx}의 Sprite 로드에 실패해 임시 흰색 이미지를 사용합니다. "
-                            + $"Resource {resourceId}, Address {address}, 원인: {exception.Message}",
-                            this);
-                        sprite = this.getProductPlaceholderSprite();
-                    }
-
-                    if (sprite == null)
-                    {
-                        Debug.LogWarning(
-                            $"[GameUIController] 상품 {product.Idx}의 Sprite가 비어 있어 임시 흰색 이미지를 사용합니다. "
-                            + $"Resource {resourceId}, Address {address}",
-                            this);
-                        sprite = this.getProductPlaceholderSprite();
-                    }
-                }
-
-                spritesByResource.Add(resourceId, sprite);
-            }
-
-            spritesByProduct.Add(product.Idx, sprite);
+            spritesByProduct.Add(product.Idx, await this.loadSpriteAsync(product.ImageResourceIdx.Value, resources, spritesByResource));
+            this.topViewSprites.Add(product.Idx, await this.loadSpriteAsync(product.TopViewImageResourceIdx.Value, resources, spritesByResource));
         }
-
+        foreach (CustomerAppearanceData appearance in this.customerCatalog.Appearances.Rows.Values)
+            this.appearanceSprites.Add(appearance.Idx, await this.loadSpriteAsync(appearance.ImageResourceIdx, resources, spritesByResource));
         return spritesByProduct;
+    }
+
+    /// <summary>상품·외형의 필수 FK를 로드한다. 실제 로드 실패를 placeholder로 바꾸지 않는다.</summary>
+    /// <param name="resourceIdx">Resource PK.</param><param name="resources">검증된 Resource 테이블.</param>
+    /// <param name="loaded">이번 화면에서 이미 로드한 Sprite.</param><returns>로드 완료 Sprite.</returns>
+    /// <exception cref="InvalidOperationException">FK 또는 로드 결과 누락.</exception>
+    private async UniTask<Sprite> loadSpriteAsync(uint resourceIdx, ResourceDataTable resources, Dictionary<uint, Sprite> loaded)
+    {
+        if (loaded.TryGetValue(resourceIdx, out var sprite)) return sprite;
+        string address = resources.GetResourcePath(resourceIdx);
+        if (string.IsNullOrWhiteSpace(address)) throw new InvalidOperationException($"Resource FK {resourceIdx}가 없습니다.");
+        sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(address, this.GetCancellationTokenOnDestroy());
+        if (sprite == null) throw new InvalidOperationException($"Resource {resourceIdx}, address={address}: Sprite 로드 결과가 없습니다.");
+        loaded.Add(resourceIdx, sprite);
+        return sprite;
     }
 
     /// <summary>상품 이미지 누락 시 사용할 임시 흰색 Sprite를 생성하고 재사용합니다.</summary>
@@ -259,6 +262,10 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
     private void OnDestroy()
     {
+        this.isSettlementPresentationPending = false;
+        this.queueExitRemaining = 0;
+        this.subscribedDay?.StopQueue();
+        if (this.useCustomerQueue && this.saleSortingPanel != null) this.saleSortingPanel.SetPauseQuery(null);
         if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
         this.unsubscribeUi();
@@ -269,10 +276,22 @@ public sealed class GameUIController : MonoBehaviour
         }
     }
 
+    /// <summary>개인 대기열도 화면 초기화 때 로드한 같은 외형을 재사용한다. 로드나 상태 변경은 하지 않는다.</summary>
+    /// <param name="appearanceIdx">외형 PK.</param><returns>공용 로드 결과 Sprite.</returns>
+    /// <exception cref="InvalidOperationException">초기화 전 또는 잘못된 외형 PK.</exception>
+    public Sprite GetCustomerAppearanceSprite(uint appearanceIdx)
+    {
+        if (!this.appearanceSprites.TryGetValue(appearanceIdx, out var sprite) || sprite == null)
+            throw new InvalidOperationException($"외형 {appearanceIdx}의 Sprite가 준비되지 않았습니다.");
+        return sprite;
+    }
+
     /// <summary>씬에 직렬화된 Presenter와 진행 필수 UI 참조가 연결됐는지 확인합니다.</summary>
     /// <exception cref="InvalidOperationException">진행에 필요한 씬 참조가 누락된 경우 발생합니다.</exception>
     private void validateUiReferences()
     {
+        if (this.useCustomerQueue && (float.IsNaN(this.queueExitSeconds) || float.IsInfinity(this.queueExitSeconds) || this.queueExitSeconds <= 0))
+            throw new InvalidOperationException("큐 퇴장 시간은 유한한 양수여야 합니다.");
         if (this.gameDayPresenter == null
             || this.businessTimerPresenter == null
             || this.economyStatusPresenter == null
@@ -285,11 +304,9 @@ public sealed class GameUIController : MonoBehaviour
             || this.preOpenPanel == null
             || this.operatingPanel == null
             || this.settlementPanel == null
-            || this.tributePanel == null
             || this.failurePanel == null
             || this.openBusinessButton == null
             || this.transactionContinueButton == null
-            || this.maintenanceButton == null
             || this.facilityShopPresenter == null
             || this.facilityOpenButton == null
             || this.settlementInputGroup == null)
@@ -316,7 +333,6 @@ public sealed class GameUIController : MonoBehaviour
         this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
         this.transactionContinueButton.onClick.AddListener(this.handleTransactionContinueClicked);
-        this.maintenanceButton.onClick.AddListener(this.handleMaintenanceClicked);
     }
 
     /// <summary>씬 UI 입력 이벤트를 해제합니다.</summary>
@@ -370,10 +386,6 @@ public sealed class GameUIController : MonoBehaviour
             this.transactionContinueButton.onClick.RemoveListener(this.handleTransactionContinueClicked);
         }
 
-        if (this.maintenanceButton != null)
-        {
-            this.maintenanceButton.onClick.RemoveListener(this.handleMaintenanceClicked);
-        }
     }
 
     /// <summary>진행 이벤트를 구독합니다.</summary>
@@ -381,7 +393,6 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.gameProgress.StateChanged += this.handleGameStateChanged;
         this.gameProgress.DayStarted += this.handleDayStarted;
-        this.gameProgress.GameFailed += this.handleGameFailed;
     }
 
     /// <summary>진행 이벤트와 현재 하루의 이벤트를 해제합니다.</summary>
@@ -391,13 +402,13 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.gameProgress.StateChanged -= this.handleGameStateChanged;
             this.gameProgress.DayStarted -= this.handleDayStarted;
-            this.gameProgress.GameFailed -= this.handleGameFailed;
         }
 
         if (this.subscribedDay != null)
         {
             this.subscribedDay.StateChanged -= this.handleDayStateChanged;
             this.subscribedDay.CustomerStarted -= this.handleCustomerStarted;
+            this.subscribedDay.CustomerDeparted -= this.handleCustomerDeparted;
             this.subscribedDay.TransactionCompleted -= this.handleTransactionCompleted;
             this.subscribedDay.SettlementStarted -= this.handleSettlementStarted;
         }
@@ -411,6 +422,7 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.subscribedDay.StateChanged -= this.handleDayStateChanged;
             this.subscribedDay.CustomerStarted -= this.handleCustomerStarted;
+            this.subscribedDay.CustomerDeparted -= this.handleCustomerDeparted;
             this.subscribedDay.TransactionCompleted -= this.handleTransactionCompleted;
             this.subscribedDay.SettlementStarted -= this.handleSettlementStarted;
         }
@@ -418,6 +430,7 @@ public sealed class GameUIController : MonoBehaviour
         this.subscribedDay = day;
         this.subscribedDay.StateChanged += this.handleDayStateChanged;
         this.subscribedDay.CustomerStarted += this.handleCustomerStarted;
+        this.subscribedDay.CustomerDeparted += this.handleCustomerDeparted;
         this.subscribedDay.TransactionCompleted += this.handleTransactionCompleted;
         this.subscribedDay.SettlementStarted += this.handleSettlementStarted;
         this.renderPriceList(day.Day);
@@ -429,40 +442,17 @@ public sealed class GameUIController : MonoBehaviour
     private void handleGameStateChanged(GameProgressState state)
     {
         if (state != GameProgressState.DayInProgress && this.IsFacilityShopOpen) this.closeFacilityShop();
-        if (state == GameProgressState.Maintenance)
+        if (state == GameProgressState.Failed)
         {
             this.setPanelVisibility(this.preOpenPanel, false);
             this.setPanelVisibility(this.operatingPanel, false);
             this.setPanelVisibility(this.settlementPanel, false);
-            this.setPanelVisibility(this.tributePanel, true);
-            this.setPanelVisibility(this.failurePanel, false);
-            long requiredAmount = this.economy.MaintenanceService.GetRequiredAmount(
-                this.gameProgress.CurrentMaintenanceRound);
-            this.tributeText.text = $"DAY {this.gameProgress.CurrentDay} · REQUIRED {requiredAmount:N0} G";
-        }
-        else if (state == GameProgressState.Failed)
-        {
-            this.setPanelVisibility(this.preOpenPanel, false);
-            this.setPanelVisibility(this.operatingPanel, false);
-            this.setPanelVisibility(this.settlementPanel, false);
-            this.setPanelVisibility(this.tributePanel, false);
             this.setPanelVisibility(this.failurePanel, true);
         }
         else if (state == GameProgressState.DayInProgress)
         {
-            this.setPanelVisibility(this.tributePanel, false);
             this.setPanelVisibility(this.failurePanel, false);
             this.refreshAllViews();
-        }
-    }
-
-    /// <summary>상납 실패 결과를 실패 화면 문구로 전달합니다.</summary>
-    /// <param name="result">실패한 유지비 납부 결과입니다.</param>
-    private void handleGameFailed(MaintenancePaymentResult result)
-    {
-        if (this.failureText != null)
-        {
-            this.failureText.text = $"Maintenance failed · required {result.RequiredAmount:N0} G, balance {result.PreviousBalance:N0} G.";
         }
     }
 
@@ -485,6 +475,16 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshRuntimeViews();
     }
 
+    /// <summary>빈 계산대에서도 이전 외형·대사·박스·상품이 남지 않도록 정리한다.</summary>
+    /// <param name="visit">거래 확인 후 퇴장한 방문. 새 방문을 생성하지 않는다.</param>
+    private void handleCustomerDeparted(CustomerVisit visit)
+    {
+        if (this.useCustomerQueue) this.queueExitRemaining = this.queueExitSeconds;
+        this.customerPresenter.UpdateView(CustomerViewData.Empty);
+        this.saleSortingPanel.ClearCustomer();
+        this.transactionStatusText.text = "다음 손님을 기다리는 중입니다.";
+    }
+
     /// <summary>거래 결과를 손님 대사에 반영하고 마우스 또는 Enter 입력을 기다립니다.</summary>
     /// <param name="visit">수락 또는 거절 판정이 완료된 손님 방문입니다.</param>
     private void handleTransactionCompleted(CustomerVisit visit)
@@ -502,6 +502,12 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="result">확정된 하루 재정 집계입니다.</param>
     private void handleSettlementStarted(DailyAggregationResult result)
     {
+        if (this.useCustomerQueue && this.queueExitRemaining > 0)
+        {
+            this.isSettlementPresentationPending = true;
+            this.refreshAllViews();
+            return;
+        }
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.renderSettlement(result);
@@ -518,19 +524,19 @@ public sealed class GameUIController : MonoBehaviour
         this.dailySettlementPresenter.UpdateView(new DailySettlementViewData(
             this.subscribedDay.Day,
             result.SaleIncome,
-            0,
-            result.SaleIncome,
+            result.Expenses,
+            result.NetProfit,
             this.economy.QueryService.CurrentBalance,
             finalReputationDelta,
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
-            0));
+            this.subscribedDay.DepartedCustomers));
     }
 
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>
     /// <returns>상납 화면을 포함한 다른 진행 단계는false.</returns>
     private bool canOpenFacilityShop() => this.isReady && !this.hasError &&
-        this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
+        !this.isSettlementPresentationPending && this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
 
     /// <summary>현재 설비 상태를 읽고 뒤 정산·키보드 입력을 차단한다.</summary>
     private void handleFacilityOpenClicked()
@@ -584,9 +590,13 @@ public sealed class GameUIController : MonoBehaviour
             this.gameProgress.TryPurchaseFacility(facilityIdx, out var result);
             this.facilityFeedback = result.Status switch
             {
-                FacilityPurchaseStatus.Purchased => $"구매 완료 · {result.PaidAmount:N0} G · DAY {(ulong)result.ActivationDay.Value + 1}부터 사용",
+                FacilityPurchaseStatus.Purchased => result.ActivationDay.HasValue &&
+                    result.ActivationDay.Value > GameSessionManager.Instance.ElapsedDays
+                    ? $"구매 완료 · {result.PaidAmount:N0} G · 다음 영업일부터 적용"
+                    : $"구매 완료 · {result.PaidAmount:N0} G · 단계가 즉시 확장되었습니다.",
                 FacilityPurchaseStatus.AlreadyOwned => "이미 구매한 설비입니다. 추가 결제하지 않았습니다.",
                 FacilityPurchaseStatus.InsufficientFunds => "보유금이 부족합니다. 결제하지 않았습니다.",
+                FacilityPurchaseStatus.StageLocked => "현재 가게 단계에서 잠긴 업그레이드입니다.",
                 _ => throw new InvalidOperationException("설비 구매 결과가 유효하지 않습니다.")
             };
         }
@@ -619,7 +629,8 @@ public sealed class GameUIController : MonoBehaviour
         var session = GameSessionManager.Instance;
         this.facilityShopPresenter.UpdateView(this.viewDataFactory.CreateFacilityShopViewData(
             DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
-            session.FacilityActivationDays, session.ElapsedDays, this.economy.QueryService.CurrentBalance), this.facilityFeedback);
+            session.FacilityActivationDays, session.CurrentStoreStage, session.ElapsedDays,
+            this.economy.QueryService.CurrentBalance), this.facilityFeedback);
         this.facilityShopPresenter.SetInteractionEnabled(!this.hasError && !this.isPurchasingFacility, !this.isPurchasingFacility);
         if (this.subscribedDay.AggregationResult.HasValue) this.renderSettlement(this.subscribedDay.AggregationResult.Value);
         this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(
@@ -723,12 +734,6 @@ public sealed class GameUIController : MonoBehaviour
         this.runProgressAction(this.gameProgress.CompleteSettlement);
     }
 
-    /// <summary>상납금 납부 요청을 전체 진행에 전달합니다.</summary>
-    private void handleMaintenanceClicked()
-    {
-        this.runProgressAction(() => this.gameProgress.TryPayMaintenance());
-    }
-
     /// <summary>타이머 일시정지 요청을 하루 진행에 전달합니다.</summary>
     private void handlePauseRequested()
     {
@@ -791,10 +796,15 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
+        this.saleSortingPanel.SetDividerBarAvailable(
+            GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.DividerBar));
+        this.saleSortingPanel.SetAutoSortingAvailable(
+            GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.AutoSorting));
+        this.saleSortingPanel.SetVacuumAvailable(
+            GameSessionManager.Instance.IsFacilityEffectActive(ConvenienceEffectType.Vacuum));
+
         this.gameDayPresenter.UpdateView(new GameDayViewData(
             this.gameProgress.CurrentDay,
-            this.gameProgress.DaysUntilMaintenance,
-            this.gameProgress.IsMaintenanceDay,
             this.toUiPhase(this.subscribedDay.State)));
 
         this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(
@@ -804,6 +814,13 @@ public sealed class GameUIController : MonoBehaviour
         float normalizedTime = this.subscribedDay.BusinessDurationSeconds <= 0f
             ? 0f
             : this.subscribedDay.RemainingSeconds / this.subscribedDay.BusinessDurationSeconds;
+        if (this.businessClock != null)
+        {
+            // DayProgress가 시간의 단일 권위이며 시계는 09:00~20:00 표시만 담당한다.
+            this.businessClock.StopClock();
+            int minutes = 540 + Mathf.FloorToInt(660f * (1f - Mathf.Clamp01(normalizedTime)));
+            this.businessClock.SetTime(minutes / 60, minutes % 60);
+        }
         this.businessTimerPresenter.UpdateView(new BusinessTimerViewData(
             this.subscribedDay.RemainingSeconds,
             normalizedTime,
@@ -910,32 +927,33 @@ public sealed class GameUIController : MonoBehaviour
         if (this.IsFacilityShopOpen && !this.canOpenFacilityShop()) this.closeFacilityShop();
         this.facilityOpenButton.gameObject.SetActive(this.canOpenFacilityShop());
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;
-        bool operating = this.subscribedDay.State == DayProgressState.Operating
+        bool operating = this.isSettlementPresentationPending || this.subscribedDay.State == DayProgressState.Operating
             || this.subscribedDay.State == DayProgressState.Sorting
             || this.subscribedDay.State == DayProgressState.TransactionResult
             || this.subscribedDay.State == DayProgressState.Closing;
-        bool settlement = this.subscribedDay.State == DayProgressState.Settlement;
+        bool settlement = !this.isSettlementPresentationPending && this.subscribedDay.State == DayProgressState.Settlement;
 
         this.setPanelVisibility(this.preOpenPanel, preOpen);
         this.setPanelVisibility(this.operatingPanel, operating);
         this.setPanelVisibility(this.settlementPanel, settlement);
-        this.setPanelVisibility(this.tributePanel, this.gameProgress.State == GameProgressState.Maintenance);
         this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
         this.openBusinessButton.interactable = preOpen;
-        this.maintenanceButton.interactable = this.gameProgress.State == GameProgressState.Maintenance;
     }
 
     /// <summary>현재 날짜에 등장 가능한 상품을 영업 전 가격표에 표시합니다.</summary>
     /// <param name="day">가격표를 표시할 1부터 시작하는 게임 날짜입니다.</param>
     private void renderPriceList(int day)
     {
-        if (this.priceListText == null || this.customerCatalog == null || this.textData == null)
+        if (this.customerCatalog == null || this.textData == null)
         {
             return;
         }
 
-        this.priceListText.text = this.viewDataFactory.CreatePriceListText(
-            day, GameSessionManager.Instance.EnsureDailyPrices());
+        var prices = GameSessionManager.Instance.EnsureDailyPrices();
+        if (this.priceListText != null)
+            this.priceListText.text = this.viewDataFactory.CreatePriceListText(day, prices);
+        if (this.preOpenPresenter != null)
+            this.preOpenPresenter.UpdateView(this.viewDataFactory.CreatePreOpenGuidelineViewData(day, prices));
     }
 
     /// <summary>진행 상태를 UI 표현 계약으로 변환합니다.</summary>
@@ -1017,7 +1035,6 @@ public sealed class GameUIController : MonoBehaviour
         this.setKeypadInteractable(false);
         if (this.openBusinessButton != null) this.openBusinessButton.interactable = false;
         if (this.transactionContinueButton != null) this.transactionContinueButton.interactable = false;
-        if (this.maintenanceButton != null) this.maintenanceButton.interactable = false;
     }
 
     /// <summary>패널의 활성 상태를 설정합니다.</summary>

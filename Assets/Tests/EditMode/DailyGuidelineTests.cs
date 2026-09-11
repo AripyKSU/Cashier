@@ -17,6 +17,7 @@ public sealed class DailyGuidelineTests
         string guidelineCsv = File.ReadAllText("Assets/Datas/DailyGuidelineData.csv");
         string textCsv = File.ReadAllText("Assets/Datas/TextData.csv");
         string productCsv = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
+        string customerRoot = "Assets/Datas/Customer/";
 
         guidelineTable = new DailyGuidelineDataTable();
         guidelineTable.LoadData(guidelineCsv);
@@ -32,6 +33,17 @@ public sealed class DailyGuidelineTests
             new CustomerDispositionDataTable(),
             new ProductCategoryDataTable(),
             productTable);
+        catalog.Appearances.LoadData(File.ReadAllText(customerRoot + "CustomerAppearanceData.csv"));
+        catalog.Dispositions.LoadData(File.ReadAllText(customerRoot + "CustomerDispositionData.csv"));
+        catalog.Categories.LoadData(File.ReadAllText(customerRoot + "ProductCategoryData.csv"));
+        var facilityTable = new FacilityDataTable();
+        facilityTable.LoadData(File.ReadAllText("Assets/Datas/FacilityData.csv"));
+        var resources = new ResourceDataTable();
+        resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
+        catalog.ValidateAndCommit(textTable, resources, facilities: facilityTable);
+        guidelineTable.Validate(textTable.Rows, productTable.Rows);
+        typeof(DailyGuidelineDataTable).GetMethod("Commit", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).Invoke(guidelineTable, null);
     }
 
     [Test]
@@ -69,10 +81,32 @@ public sealed class DailyGuidelineTests
             new Dictionary<uint, Sprite>(),
             guidelineTable);
 
-        PreOpenGuidelineViewData viewData = factory.CreatePreOpenGuidelineViewData(1);
+        var scheduler = new PriceEventScheduler(new System.Random(1));
+        var events = Util.ParseFromCSV<PriceEventData>(File.ReadAllText("Assets/Datas/PriceEventData.csv")).ToDictionary(x => x.Idx);
+        var schedules = Util.ParseFromCSV<PriceEventScheduleData>(File.ReadAllText("Assets/Datas/PriceEventScheduleData.csv")).ToDictionary(x => x.Idx);
+        var prices = scheduler.CreateDay(0, events, schedules, catalog.Products.Rows);
+        PreOpenGuidelineViewData viewData = factory.CreatePreOpenGuidelineViewData(1, prices);
 
         Assert.That(viewData.Day, Is.EqualTo(1));
         Assert.That(viewData.RuleTitle, Is.EqualTo("오늘의 지침"));
         Assert.That(viewData.RuleContent, Is.EqualTo("제한 없음."));
+        Assert.That(viewData.Products.Count, Is.EqualTo(4));
+        Assert.That(viewData.Products.All(x => x.Price == prices.Prices[x.ProductIdx]));
+        Assert.That(viewData.Products.Single(x => x.ProductIdx == 1004).Price, Is.EqualTo(200));
+        Assert.Throws<System.InvalidOperationException>(() => factory.CreatePreOpenGuidelineViewData(2, prices));
+    }
+
+    /// <summary>잘못된 지침 FK는 공개 전에 거부하며 기존 공개 데이터는 유지한다.</summary>
+    [Test]
+    public void DailyGuidelineRejectsMissingForeignKeysBeforeCommit()
+    {
+        var invalid = new DailyGuidelineDataTable();
+        string csv = File.ReadAllText("Assets/Datas/DailyGuidelineData.csv");
+        invalid.LoadData(csv.Replace("8101", "8999"));
+        Assert.Throws<InvalidDataException>(() => invalid.Validate(textTable.Rows, catalog.Products.Rows));
+        Assert.That(invalid.GetDataCount(), Is.Zero);
+        invalid.LoadData(csv.Replace(",1001,1", ",1999,1"));
+        Assert.Throws<InvalidDataException>(() => invalid.Validate(textTable.Rows, catalog.Products.Rows));
+        Assert.That(invalid.GetDataCount(), Is.Zero);
     }
 }

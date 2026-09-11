@@ -21,8 +21,7 @@ public enum GameDayPhase
     Operating,       // 영업 진행 중 (손님 거래)
     TradingResult,   // 거래 결과 확인
     Closing,         // 제한시간 만료 후 마지막 거래 마감
-    DailySettlement, // 일일 정산
-    Tribute          // 상납/공물
+    DailySettlement  // 일일 정산
 }
 
 /// <summary>
@@ -48,15 +47,11 @@ public struct EconomyStatusViewData
 public struct GameDayViewData
 {
     public int CurrentDay;            // 현재 게임 날짜
-    public int DaysUntilSettlement;   // 다음 정산(상납)일까지 남은 게임 내 날짜 수
-    public bool IsSettlementDay;      // 현재 날짜가 정산일인지 여부
     public GameDayPhase Phase;        // 영업 전, 영업 중, 거래 결과, 일일 정산 등 현재 진행 상태
 
-    public GameDayViewData(int currentDay, int daysUntilSettlement, bool isSettlementDay, GameDayPhase phase)
+    public GameDayViewData(int currentDay, GameDayPhase phase)
     {
         this.CurrentDay = currentDay;
-        this.DaysUntilSettlement = daysUntilSettlement;
-        this.IsSettlementDay = isSettlementDay;
         this.Phase = phase;
     }
 }
@@ -128,14 +123,17 @@ public struct CustomerBasketItemViewData
     public string DisplayName;  // 표시 상품명
     public int Quantity;        // 수량
     public Sprite Icon;         // 상품 아이콘
+    /// <summary>탑뷰 분류 작업에 표시할 Sprite. 실제 데이터 경로에서는 명시적으로 전달한다.</summary>
+    public Sprite TopViewIcon;
     public int UnitPrice;       // 화면 표시용 단가
 
-    public CustomerBasketItemViewData(uint itemId, string displayName, int quantity, Sprite icon = null, int unitPrice = 0)
+    public CustomerBasketItemViewData(uint itemId, string displayName, int quantity, Sprite icon = null, int unitPrice = 0, Sprite topViewIcon = null)
     {
         this.ItemId = itemId;
         this.DisplayName = displayName;
         this.Quantity = quantity;
         this.Icon = icon;
+        this.TopViewIcon = topViewIcon ?? icon;
         this.UnitPrice = unitPrice;
     }
 }

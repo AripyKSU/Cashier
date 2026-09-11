@@ -1,6 +1,6 @@
 # Prefab과 리소스 작업 규격
 
-이 문서는 Prefab, Addressables, `.meta`와 연관 리소스의 생성·수정·검증 기준을 정의한다. 공통 권한과 승인 절차는 [`AGENTS.md`](../AGENTS.md), 역할 명부는 [`TEAM_ROLES.md`](TEAM_ROLES.md)를 따른다.
+이 문서는 Prefab, Addressables, `.meta`와 연관 리소스의 생성·수정·검증 기준을 정의한다. 공통 권한과 승인 절차는 [`WORK_RULES.md`](WORK_RULES.md), 역할 명부는 [`TEAM_ROLES.md`](TEAM_ROLES.md)를 따른다.
 
 ## 역할 경계
 

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// </summary>
 /// <remarks>
 /// 제품 영업 흐름은 이 API를 사용하지 않고, 명성 기반 <see cref="CustomerCompositionSelector.SelectComposition"/>
-/// 을 호출한 뒤 <see cref="CustomerGenerator.Generate(CustomerComposition, IReadOnlyDictionary{uint, ProductData}, Func{IReadOnlyDictionary{uint, uint}}, Func{IReadOnlyList{SaleRestriction}})"/>를 사용합니다.
+/// 을 호출한 뒤 <see cref="CustomerGenerator.Generate"/>를 사용합니다.
 /// </remarks>
 public static class CustomerGeneratorCompatibility
 {
@@ -19,6 +19,7 @@ public static class CustomerGeneratorCompatibility
     /// <param name="getCurrentPrices">현재가 조회 callback입니다.</param>
     /// <param name="getSaleRestrictions">판매 지침 조회 callback입니다.</param>
     /// <param name="isFacilityActive">설비 활성 조회입니다.</param>
+    /// <param name="moralityCalculator">제출 시 도덕성 평가기. null이면 미평가입니다.</param>
     /// <returns>판매 가능 상품이 없으면 null, 아니면 방문입니다.</returns>
     [Obsolete("CustomerCompositionSelector와 CustomerGenerator.Generate(composition, ...)를 사용하세요.")]
     public static CustomerVisit Generate(
@@ -29,7 +30,8 @@ public static class CustomerGeneratorCompatibility
         uint elapsedDays = 0,
         Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices = null,
         Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null,
-        Func<uint, bool> isFacilityActive = null)
+        Func<uint, bool> isFacilityActive = null,
+        MoralityCalculator moralityCalculator = null)
     {
         if (generator == null)
             throw new ArgumentNullException(nameof(generator));
@@ -60,6 +62,6 @@ public static class CustomerGeneratorCompatibility
         };
         return composition == null
             ? null
-            : generator.Generate(composition, products, visitPriceProvider, getSaleRestrictions);
+            : generator.Generate(composition, products, visitPriceProvider, getSaleRestrictions, moralityCalculator);
     }
 }

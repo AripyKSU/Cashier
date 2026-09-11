@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 
-/// <summary>작업대 위에서 독립적으로 움직이고 분류되는 상품 한 개를 표시하며, 마우스 드래그 앤 드롭 조작을 지원합니다.</summary>
+/// <summary>작업대 위에서 독립적으로 움직이고 분류되는 상품 한 개를 표시합니다.</summary>
 [RequireComponent(typeof(RectTransform), typeof(Image))]
 public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler
 {
@@ -23,6 +23,22 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         Excluded
     }
 
+    /// <summary>상품 위치를 현재 변경하고 있는 주체입니다. 분류 상태와 별개로 관리합니다.</summary>
+    public enum ManipulationState
+    {
+        /// <summary>현재 조작되지 않는 상태입니다.</summary>
+        Idle,
+        /// <summary>플레이어가 직접 드래그하는 상태입니다.</summary>
+        PlayerDragging,
+        /// <summary>막대가 이동시키는 상태입니다.</summary>
+        DividerMoving,
+        /// <summary>청소기에 붙어 이동하는 상태입니다.</summary>
+        VacuumAttached,
+        /// <summary>자동 정렬이 이동시키는 상태입니다.</summary>
+        AutoSorting,
+        ManipulationState_End
+    }
+
     private RectTransform rectTransform;
     private Image itemImage;
     private TextMeshProUGUI itemNameText;
@@ -38,11 +54,19 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     /// <summary>현재 분류 상태입니다.</summary>
     public SortingState State { get; set; }
 
-    /// <summary>작업대 로컬 좌표에서의 현재 속도입니다.</summary>
-    public Vector2 Velocity { get; internal set; }
+    /// <summary>상품 위치를 변경하는 주체입니다. 분류 상태와 독립적입니다.</summary>
+    public ManipulationState Manipulation { get; internal set; }
 
     /// <summary>플레이어가 현재 이 아이템을 마우스로 드래그하고 있는지 여부입니다.</summary>
     public bool IsDragging => this.isDragging;
+
+    /// <summary>상품 RectTransform의 절반 크기입니다.</summary>
+    public Vector2 HalfSize => this.rectTransform == null
+        ? Vector2.zero
+        : this.rectTransform.rect.size * 0.5f;
+
+    /// <summary>작업대 로컬 좌표에서의 현재 속도입니다.</summary>
+    public Vector2 Velocity { get; internal set; }
 
     /// <summary>상품 충돌에 사용하는 반지름입니다.</summary>
     public float Radius => Mathf.Min(this.rectTransform.rect.width, this.rectTransform.rect.height) * CollisionRadiusScale;
@@ -92,6 +116,7 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         this.ProductId = productId;
         this.UnitIndex = unitIndex;
         this.State = SortingState.Working;
+        this.Manipulation = ManipulationState.Idle;
         this.Velocity = Vector2.zero;
         this.isDragging = false;
         this.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
@@ -118,19 +143,18 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     /// <summary>마우스 클릭 시 드래그 준비를 처리합니다.</summary>
     public void OnPointerDown(PointerEventData eventData)
     {
-        // 클릭 감지 및 피드백 준비
     }
 
     /// <summary>마우스 클릭 해제 시 처리를 수행합니다.</summary>
     public void OnPointerUp(PointerEventData eventData)
     {
-        // 클릭 해제 처리
     }
 
     /// <summary>아이템을 집어 올리고 드래그를 시작합니다.</summary>
     public void OnBeginDrag(PointerEventData eventData)
     {
         this.isDragging = true;
+        this.Manipulation = ManipulationState.PlayerDragging;
         this.Velocity = Vector2.zero;
         this.transform.SetAsLastSibling();
         this.transform.localScale = Vector3.one * 1.08f;
@@ -163,6 +187,10 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     public void OnEndDrag(PointerEventData eventData)
     {
         this.isDragging = false;
+        if (this.Manipulation == ManipulationState.PlayerDragging)
+        {
+            this.Manipulation = ManipulationState.Idle;
+        }
         this.transform.localScale = Vector3.one;
 
         float dt = Mathf.Max(Time.unscaledDeltaTime, 0.001f);

@@ -9,7 +9,6 @@ Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
 MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인스턴스, Camera와 InputSystem EventSystem을 포함한다. 설비·명성 통합 경로와 사용법은 MAINSCENE_INTEGRATION.md를 따른다.
 
-FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 경제 런타임 구조](FINANCE_SCENE_WORKFLOW.md)를 따른다. FinanceScene은 현재 InitScene을 거치지 않고 직접 실행하는 검증 씬이며, 실제 GameSessionManager 통합은 별도 작업 범위다.
 
 ## 개인 작업
 
@@ -35,7 +34,7 @@ FinanceScene의 경제 런타임 소유권과 테스트 경로는 [FinanceScene 
 
 - 개인 씬 파일을 Git 병합하는 대신 검증된 코드·Prefab·데이터·배치를 MainScene에 반영한다. 기능 담당자와 통합 작업자를 정해 순서대로 반영한다.
 - MainScene과 `.meta`, Addressables의 `MainScene` entry는 함께 관리한다.
-- 공용 manager·Addressables 변경은 AGENTS.md의 교차 리뷰 절차를 따른다.
+- 공용 manager·Addressables 변경은 [WORK_RULES.md 12절](WORK_RULES.md#12-팀-분업과-소유권-경계)의 교차 리뷰 절차를 따른다.
 - 최소 실행 확인: Main과 개인 씬 각각 Init에서 출발해 목적 씬 및 manager 유지, Console 오류를 확인한다.
 - 개인 씬 누락·허용 경로 밖 설정은 명시적 실패여야 하며 Main으로 자동 우회하면 안 된다.
 - 중복 전환 요청은 거부한다. 호출자 취소는 로딩 시작 전 반영하며, Unity Single 씬 로드 시작 후에는 목적지 활성화까지 완료한다.

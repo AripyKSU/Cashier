@@ -6,7 +6,7 @@ using CsvHelper;
 using UnityEngine;
 
 /// <summary>
-/// 회차별 상납금 CSV를 파싱하고 회차 순서가 검증된 설정을 보관합니다.
+/// 일자별 유지비 CSV를 파싱하고 날짜 순서가 검증된 설정을 보관합니다.
 /// </summary>
 public sealed class MaintenanceBalanceDataTable : IDataLoad
 {
@@ -36,7 +36,7 @@ public sealed class MaintenanceBalanceDataTable : IDataLoad
         }
 
         Dictionary<uint, MaintenanceBalanceData> loadedData = new Dictionary<uint, MaintenanceBalanceData>();
-        HashSet<int> loadedRounds = new HashSet<int>();
+        HashSet<int> loadedDays = new HashSet<int>();
 
         using (StringReader reader = new StringReader(csvText))
         using (CsvReader csv = new CsvReader(reader, Util.GetCsvConfiguration()))
@@ -52,9 +52,9 @@ public sealed class MaintenanceBalanceDataTable : IDataLoad
                     throw new InvalidDataException($"MaintenanceBalanceData.csv {rowNumber}행: idx {data.Idx}가 중복되었습니다.");
                 }
 
-                if (!loadedRounds.Add(data.PaymentRound))
+                if (!loadedDays.Add(data.Day))
                 {
-                    throw new InvalidDataException($"MaintenanceBalanceData.csv {rowNumber}행: paymentRound {data.PaymentRound}가 중복되었습니다.");
+                    throw new InvalidDataException($"MaintenanceBalanceData.csv {rowNumber}행: day {data.Day}가 중복되었습니다.");
                 }
             }
         }
@@ -64,12 +64,12 @@ public sealed class MaintenanceBalanceDataTable : IDataLoad
             throw new InvalidDataException("MaintenanceBalanceData.csv에는 한 회차 이상의 설정이 있어야 합니다.");
         }
 
-        int[] orderedRounds = loadedRounds.OrderBy(round => round).ToArray();
-        for (int index = 0; index < orderedRounds.Length; index++)
+        int[] orderedDays = loadedDays.OrderBy(day => day).ToArray();
+        for (int index = 0; index < orderedDays.Length; index++)
         {
-            if (orderedRounds[index] != index + 1)
+            if (orderedDays[index] != index + 1)
             {
-                throw new InvalidDataException("MaintenanceBalanceData.csv의 paymentRound는 1부터 중간 누락 없이 이어져야 합니다.");
+                throw new InvalidDataException("MaintenanceBalanceData.csv의 day는 1부터 중간 누락 없이 이어져야 합니다.");
             }
         }
 
@@ -101,7 +101,7 @@ public sealed class MaintenanceBalanceDataTable : IDataLoad
     public long[] GetMaintenanceAmounts()
     {
         return this.dataDict.Values
-            .OrderBy(data => data.PaymentRound)
+            .OrderBy(data => data.Day)
             .Select(data => data.MaintenanceAmount)
             .ToArray();
     }
@@ -127,9 +127,9 @@ public sealed class MaintenanceBalanceDataTable : IDataLoad
             throw new InvalidDataException($"MaintenanceBalanceData.csv {rowNumber}행: idx {data.Idx}는 회차별 상납금 ID 범위가 아닙니다.");
         }
 
-        if (data.PaymentRound <= 0)
+        if (data.Day <= 0)
         {
-            throw new InvalidDataException($"MaintenanceBalanceData.csv {rowNumber}행: paymentRound는 0보다 커야 합니다.");
+            throw new InvalidDataException($"MaintenanceBalanceData.csv {rowNumber}행: day는 0보다 커야 합니다.");
         }
 
         if (data.MaintenanceAmount <= 0)

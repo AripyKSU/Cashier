@@ -182,9 +182,24 @@ public sealed class CustomerContractTests
         {
             var arguments = new object[] { 1u, 1u, items,
                 1000, 1u, 2u, 3u, 4u, 5u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
-                CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys };
+                CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys, null };
             var error = Assert.Throws<System.Reflection.TargetInvocationException>(() => constructor.Invoke(arguments));
             Assert.That(error.InnerException, Is.InstanceOf<ArgumentException>());
+        }
+    }
+
+    /// <summary>가격 민감 손님은 현재가 합계와 정확히 같은 제안만 수락한다.</summary>
+    [Test]
+    public void PriceSensitiveAcceptsOnlyExactReferenceTotal()
+    {
+        config.DispositionType = CustomerDispositionType.PriceSensitive;
+        config.PriceTolerance = 1000;
+        var items = new[] { new SaleItem(4, 2) };
+        foreach (var pair in new[] { (Offered: 201L, Accepted: false), (Offered: 202L, Accepted: true), (Offered: 203L, Accepted: false) })
+        {
+            CustomerVisit visit = generate();
+            visit.BeginOffer();
+            Assert.That(visit.SubmitOffer(pair.Offered, items), Is.EqualTo(pair.Accepted));
         }
     }
 

@@ -5,6 +5,7 @@ public enum FacilityPurchaseStatus
     Purchased = 1,
     AlreadyOwned = 2,
     InsufficientFunds = 3,
+    StageLocked = 4,
     FacilityPurchaseStatus_End
 }
 

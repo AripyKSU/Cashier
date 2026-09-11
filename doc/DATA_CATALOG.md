@@ -1,12 +1,14 @@
 # 기획용 데이터 카탈로그
 
+ > 2026-09-10 Upgrade935cf93 + total_merge fcf1518 통합: 상품16종·설비11종·일일지침·유지비, 이미지/도덕성/대기열 계약과 CSV 원문을 갱신했다. 이미지 연결·검증 경계는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
+
 목차: [기준](#1-기준과-읽는-방법) · [로딩·형식](#2-원본에서-화면까지) · [CSV 스키마](#3-csv-스키마와-현재-값) · [현재 수치·계산](#4-현재-테스트-데이터의-기획-의미) · [Enum](#5-enum-값-전체) · [런타임 계약](#6-런타임-데이터결과-계약) · [UI 데이터](#7-ui용-데이터와-표시-한계) · [구형·저장 모델](#8-남아-있는-구형-모델과-저장-데이터) · [명칭 비교](#9-이름이-같거나-비슷한-값의-구분) · [검증 범위](#10-확인-범위와-후속-판단) · [전체 CSV 원문](#부록-a-전체-csv-원문-스냅샷)
 
 ## 1. 기준과 읽는 방법
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 12종, 컬럼 총 78개(테이블별 중복 컬럼 포함), 데이터 207행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 14종, 컬럼 총 94개(테이블별 중복 컬럼 포함), 데이터 336행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -38,42 +40,50 @@
 
 | CSV | 행 수 | 컬럼 수 | 연결 상태 요약 |
 |---|---:|---:|---|
-| [EconomyBalanceData](../Assets/Datas/EconomyBalanceData.csv) | 1 | 3 | 현재 데이터 경로 연결 |
-| [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 12 | 3 | 현재 데이터 경로 연결 |
+| [EconomyBalanceData](../Assets/Datas/EconomyBalanceData.csv) | 1 | 2 | 현재 데이터 경로 연결 |
+| [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 30 | 3 | 일자별 유지비 연결 |
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
-| [ResourceData](../Assets/Datas/ResourceData.csv) | 72 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 70 | 2 | 현재 데이터 경로 연결 |
-| [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 4 | 6 | 현재 데이터 경로 연결 |
-| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 3 | 21 | 구매 연결 / queue 독립 API |
-| [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 4 | 3 | 현재 데이터 경로 연결 |
-| [ProductData](../Assets/Datas/Customer/ProductData.csv) | 22 | 9 | 현재 데이터 경로 연결 |
-| [FacilityData](../Assets/Datas/FacilityData.csv) | 5 | 3 | 세션 구매·다음날 해금·정산 상점 UI 연결 |
-| [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백 연결, 생성 가중치는 미연결 |
+| [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
+| [TextData](../Assets/Datas/TextData.csv) | 128 | 2 | 현재 데이터 경로 연결 |
+| [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
+| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 7 | 21 | 구매 연결 / queue 독립 API |
+| [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
+| [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
+| [FacilityData](../Assets/Datas/FacilityData.csv) | 11 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
+| [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 11 | 거래 명성 계산·정산 피드백 연결, 생성 가중치는 미연결 |
+| [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 3 | 7 | PK·Text/Product FK 검증 후 공개, 지침 표시만 연결 |
+| [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
 
 ### ReputationBalanceData
 
 종류11, PK11001~11005. 모든 열은 필수 숫자다. `idx:uint`, 나머지는 `int`: `min_reputation,max_reputation`(-100~100 구간), `normal_weight,wealthy_weight,hasty_weight,special_weight`(각 비음수·합1000), `recovery_rate`(1000 이상), `settlement_min_score,settlement_max_score`(0~100 구간), `settlement_delta`(-15~10). 다섯 행이 명성·정산 점수 전체 범위를 각각 중복·공백 없이 덮는다. 상세 현재 값과 생성 연결 보류는 [명성 인계서](REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md)를 따른다.
 
-현재 명성·반영일 marker·거래/정산 로그는 세션 소유이며 화면 재생성으로 초기화하지 않는다. DayProgress의 시작 snapshot으로 명성을 계산하고 날짜 완료 직후 한 번 적용한다. 실제 손님 생성에는 아직 해당 가중치를 적용하지 않는다.
+현재 명성·반영일 marker·거래/정산 로그는 세션 소유이며 화면 재생성으로 초기화하지 않는다. DayProgress의 시작 snapshot으로 명성을 계산하고 날짜 완료 직후 한 번 적용한다. 실제 손님 생성은 CustomerCompositionSelector에서 해당 가중치를 적용한다.
 
 ### FacilityData
 
-`idx:uint`는 종류12의 12001~12005, `nameidx:uint`는 TextData FK(8056~8060), `purchase_price:long`은 양수 통화다. header·중복·대역·가격·Text FK 검사 후 공개한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
+`idx:uint`는 종류12의 12001~12011, `nameidx:uint`는 TextData FK, `purchase_price:long`은 양수 통화다. `upgrade_kind`는 상품 해금·편의성·가게 단계 상승을 구분하는 숫자 enum이고, `required_store_stage`는 실제 구매 요구 단계인 1~3이다. `target_store_stage=0`은 실제 가게 단계 0이 아니라 단계 상승 대상이 없다는 sentinel이며, 단계 상승 행만 2 또는 3을 사용한다. `effect_type`은 편의성 효과의 숫자 enum이고 일반 업그레이드는 None(0)이다.
 
-독립 구매이며 선행 설비가 없다. 보유·활성일은 세션 소유, 지불 즉시 차감하고 현재 경과일+1에 해금한다. 상세 API와 임시 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
+header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 공개한다. 편의성 효과별 설비와 단계 상승 목표별 설비는 하나씩만 존재해야 한다. `CustomerCatalog`는 상품 해금 설비가 활성 상품의 `required_facility_idx`로 참조되는지, 편의성·단계 상승 설비가 상품 FK로 사용되지 않는지 추가 검사한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
+
+구매 단계 제한·즉시 단계 상승·다음날 일반 효과 활성화는 FacilityService가 소유한다. 현재 데이터 행은 1단계 상품 해금 2개, 2단계 상품 해금 2개, 3단계 상품 해금 2개, 편의성 3개, 단계 상승 2개로 구성된다. 상세 API와 임시 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
 
 근거: [CSV](../Assets/Datas/FacilityData.csv), [DTO](../Assets/Scripts/Commons/Data/FacilityData.cs), [DataTable](../Assets/Scripts/Commons/Data/FacilityDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12005 |
-| 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060 |
-| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 5000,7000,12000,15000,25000 |
+| 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12011 |
+| 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060,8076~8081 |
+| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 800~2500 |
+| 4. `upgrade_kind` | UpgradeKind · FacilityUpgradeKind | 업그레이드 기능 분류 | 필수; ProductUnlock·Convenience·StoreStage만 허용 | 코드 분기 키 | 1,2,3 |
+| 5. `required_store_stage` | RequiredStoreStage · uint | 구매 요구 가게 단계 | 필수; 1~3 | 단계 구매 조건 | 1,2,3 |
+| 6. `effect_type` | EffectType · ConvenienceEffectType | 편의성 효과 키 | 일반/단계 상승은 None(0); 편의성은 DividerBar·AutoSorting·Vacuum | 코드 효과 분기 | 0,1,2,3 |
+| 7. `target_store_stage` | TargetStoreStage · uint | 단계 상승 목표 | 일반 업그레이드는 0; 단계 상승은 2 또는 3 | 가게 단계 전환 목표 | 0,2,3 |
 
 ### EconomyBalanceData
 
-현재 연결. 정확히 1행. EconomySettings → EconomyRuntime/FinanceService의 시작 보유금, GameProgress의 상납일 계산에 사용한다.
+현재 연결. 정확히 1행. EconomySettings → EconomyRuntime/FinanceService의 시작 보유금에 사용한다.
 
 근거: [CSV](../Assets/Datas/EconomyBalanceData.csv), [DTO](../Assets/Scripts/Finance/Data/EconomyBalanceData.cs), [DataTable](../Assets/Scripts/Finance/Data/EconomyBalanceDataTable.cs).
 
@@ -81,19 +91,18 @@
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 경제 설정 PK | 필수·0 금지; 종류/중복 검사, 내부번호0 검사 차이는 2절 | 없음 | 002001 |
 | 2. `initialBalance` | InitialBalance · long | 새 게임 시작 보유금, 정수 G | 필수; 0 이상 | 없음 | 100000 |
-| 3. `maintenanceCycleDays` | MaintenanceCycleDays · int | 상납 간격, 게임 일수 | 필수; 1 이상 | 없음 | 7 |
 
 ### MaintenanceBalanceData
 
-현재 연결. 최소1행이며 paymentRound는1부터 연속이다. EconomySettings → MaintenanceService. 현12회차 이후는 마지막 금액 반복이 아니라 범위 오류다. 7일 주기이므로 표시7·14·…·84일차에 해당한다.
+현재 연결. `day`는 1부터 연속이며 EconomySettings → MaintenanceService로 전달된다. 영업 종료 시 해당 표시일의 유지비를 정산창 전에 자동 차감한다. 현 30일 이후는 마지막 금액 반복이 아니라 범위 오류다.
 
 근거: [CSV](../Assets/Datas/MaintenanceBalanceData.csv), [DTO](../Assets/Scripts/Finance/Data/MaintenanceBalanceData.cs), [DataTable](../Assets/Scripts/Finance/Data/MaintenanceBalanceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 상납 설정 PK | 필수·0 금지; 종류/중복 검사, 내부번호0 검사 차이는 2절 | 없음 | 003001, 003002, 003003, 003004, 003005, 003006, 003007, 003008, 003009, 003010, 003011, 003012 |
-| 2. `paymentRound` | PaymentRound · int | 납부 회차, 1부터 | 필수; 양수·고유, 전체 1부터 연속 | 없음 | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 |
-| 3. `maintenanceAmount` | MaintenanceAmount · long | 해당 회차 상납액, 정수 G | 필수; 양수 | 없음 | 100000, 110000, 120000, 150000, 200000, 280000, 400000, 560000, 780000, 1100000, 1540000, 2150000 |
+| 1. `idx` | Idx · uint | 유지비 설정 PK | 필수·0 금지; 종류/중복 검사 | 없음 | 003001~003030 |
+| 2. `day` | Day · int | 적용 표시일, 1부터 | 필수; 양수·고유, 전체 1부터 연속 | 없음 | 1~30 |
+| 3. `maintenanceAmount` | MaintenanceAmount · long | 해당 일자 유지비, 정수 G | 필수; 양수 | 없음 | 200부터 100씩 증가, 30일 3100 |
 
 ### PriceEventData
 
@@ -129,64 +138,61 @@
 
 ### ResourceData
 
-현재 로드되는 리소스 경로 목록. 72행 등록 자체는 개별 자산 존재·로드 성공을 보증하지 않는다. Product_ 계열 등록도 있지만 ProductData.ImageResourceIdx는 전부 null이므로 상품 이미지 FK 연결 완료로 해석하지 않는다. 과거 Unit/Room/Effect 명칭 행은 보존된 등록값이며 현재 Cashier 소비·실자산 전수 검증은 미확인이다.
+현재 Resource54행(4201~4254)을 유지한다. 상품16종 중6종의 기본·탑뷰와 외형45종에서 고유53개를 참조한다. 삭제 상품1009의 Painkiller4250은 보존하되 다른 상품에 재사용하지 않는다. 상품10종은 양쪽 이미지 빈값을 사용한다.
 
 근거: [CSV](../Assets/Datas/ResourceData.csv), [DTO](../Assets/Scripts/Commons/Data/ResourceData.cs), [DataTable](../Assets/Scripts/Commons/Data/ResourceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 72개: 부록 |
-| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체72키: 부록 |
+| 1. `idx` | Idx · uint | 리소스 PK | 필수; 종류 대역·내부번호1~999·고유 | 이미지 등의 FK 대상 | 54개: 부록 |
+| 2. `path` | Path · string | Addressables key (디스크 상대경로와 다를 수 있음) | 필수; null/빈값/공백만 금지; 문자열 명시 허용; Path 중복 별도 검사는 없음 | ResourceManager/Addressables | 전체54키: 부록 |
 
 ### TextData
 
-현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 70개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
+현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 128개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
 
 근거: [CSV](../Assets/Datas/TextData.csv), [DTO](../Assets/Scripts/Commons/Data/TextData.cs), [DataTable](../Assets/Scripts/Commons/Data/TextDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 70개: 부록 |
-| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체70문구: 부록 |
+| 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 128개: 부록 |
+| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체128문구: 부록 |
 
 ### CustomerAppearanceData
 
-현재 연결. 생성기가 외형 PK를 방문마다 선정하고 ProgressViewDataFactory가 Color32를 만든다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 정식 외형 Sprite FK 컬럼은 없다.
+현재 연결. 생성기는 외형 PK를 방문마다 선정한다. GameUIController가 필수 Resource FK를 로드하고 ProgressViewDataFactory는 Sprite를 전달한다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 성별·연령·성향과 외형 선정은 독립이다.
 
 근거: [CSV](../Assets/Datas/Customer/CustomerAppearanceData.csv), [DTO](../Assets/Scripts/Customer/Data/CustomerAppearanceData.cs), [DataTable](../Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001, 5002, 5003, 5004 |
-| 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001, 8002, 8003, 8004 |
-| 3. `color_r` | ColorR · byte | 빨강 채널 | 필수; 0~255 | 없음 | 101, 255, 121, 198 |
-| 4. `color_g` | ColorG · byte | 초록 채널 | 필수; 0~255 | 없음 | 184, 179, 215, 160 |
-| 5. `color_b` | ColorB · byte | 파랑 채널 | 필수; 0~255 | 없음 | 255, 107, 174, 246 |
-| 6. `color_a` | ColorA · byte | 불투명도 | 필수; 1~255, 0은 로더 거부 | 없음 | 255 |
+| 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001~5045 |
+| 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001~8004,8082~8100,8107~8128 |
+| 3. `image_resource_idx` | ImageResourceIdx · uint | 외형 Sprite | 필수; 0·빈값·Resource 대역·존재 검사 | ResourceData.idx → path → Sprite | 4201~4245 |
 
 ### CustomerDispositionData
 
-구매·가격·대사·타입은 현재 연결. queue_*는 로딩/FK 검증되지만 CustomerQueue는 현재 GameUIController/DayProgress에 연결되지 않은 독립 API다. 이름은 검증되며 내부 성향 이름·허용액이 현재 UI에 자동 노출되는 것은 아니다.
+구매·가격·대사·타입은 현재 연결. queue_*는 MainScene의 GameUIController/DayProgress/CustomerQueueView에 연결된다. 이름은 검증되며 내부 성향 이름·허용액이 현재 UI에 자동 노출되는 것은 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/CustomerDispositionData.csv), [DTO](../Assets/Scripts/Customer/Data/CustomerDispositionData.cs), [DataTable](../Assets/Scripts/Customer/Data/CustomerDispositionDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 성향 설정 PK; 성향 타입과 별개 | 필수; 종류 대역·고유 | 없음 | 6001, 6002, 6003 |
-| 2. `nameidx` | NameIdx · uint | 성향 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8005, 8006, 8007 |
-| 3. `preferred_product_types` | PreferredProductTypes · IReadOnlyList<ProductType> | 주로 고를 상품 분류 목록 | 빈 배열 허용; 숫자_배열, 0·중복·미정의 금지 | ProductType 및 Category 표시 행 | 1_2, 3, 4 |
+| 1. `idx` | Idx · uint | 성향 설정 PK; 성향 타입과 별개 | 필수; 종류 대역·고유 | 없음 | 6001~6007 |
+| 2. `nameidx` | NameIdx · uint | 성향 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8005~8007,8071~8074 |
+| 3. `preferred_product_types` | PreferredProductTypes · IReadOnlyList<ProductType> | 주로 고를 상품 분류 목록 | 빈 배열 허용; 숫자_배열, 0·중복·미정의 금지 | ProductType 및 Category 표시 행 | 1_2,3,4,5,6,7,6_7 |
 | 4. `preferred_selection_chance` | PreferredSelectionChance · int | 선호군 선택 확률, 1000=100% | 필수; 0~1000. 양쪽 후보가 남을 때 적용 | 없음 | 900 |
 | 5. `min_product_kinds` | MinProductKinds · int | 희망 목록 상품 종류 수 최소 | 필수; 1 이상, 최대 이하; 후보 수 부족 시 축소 | 없음 | 1 |
 | 6. `max_product_kinds` | MaxProductKinds · int | 희망 목록 상품 종류 수 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
 | 7. `min_quantity` | MinQuantity · int | 상품별 수량 최소 | 필수; 1 이상, 최대 이하 | 없음 | 1 |
 | 8. `max_quantity` | MaxQuantity · int | 상품별 수량 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
-| 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 배율, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1100, 1300, 1000 |
+| 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 배율, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1300, 1500, 1000, 1400 |
 | 10. `entry_text_idxs` | EntryTextIdxs · IReadOnlyList<uint> | 입장 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8024_8025, 8030_8031, 8036_8037 |
 | 11. `regular_sale_text_idxs` | RegularSaleTextIdxs · IReadOnlyList<uint> | 기준가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 12. `discount_sale_text_idxs` | DiscountSaleTextIdxs · IReadOnlyList<uint> | 저가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 13. `exploitative_sale_text_idxs` | ExploitativeSaleTextIdxs · IReadOnlyList<uint> | 착취 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 14. `reject_text_idxs` | RejectTextIdxs · IReadOnlyList<uint> | 결제 거부 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8028_8029, 8034_8035, 8040_8041 |
-| 15. `queue_patience_seconds` | QueuePatienceSeconds · uint | 줄 합류부터 이탈까지 초 | 필수; 현재 재촉 잔여6초보다 커야 함 | 독립 CustomerQueue API | 12, 9, 18 |
+| 15. `queue_patience_seconds` | QueuePatienceSeconds · uint | 줄 합류부터 이탈까지 초 | 필수; 현재 재촉 잔여6초보다 커야 함 | MainScene CustomerQueue | 12,9,18,15 |
 | 16. `queue_warning_textidx` | QueueWarningTextIdx · uint | 재촉 대사 1회 | 필수; 0 금지 | TextData.idx | 8050, 8052, 8054 |
 | 17. `queue_leave_textidx` | QueueLeaveTextIdx · uint | 이탈 불만 대사 1회 | 필수; 0 금지 | TextData.idx | 8051, 8053, 8055 |
 | 18. `disposition_type` | DispositionTypeValue · uint → DispositionType | 성향 타입 선택 키 | 필수; 실제 enum 1~4, None/End/미정의 금지 | CustomerDispositionType | 1, 2, 3 |
@@ -196,34 +202,35 @@
 
 ### ProductCategoryData
 
-현재 연결. 분류 enum의 표시 이름 계약이며 전체4분류가 각1행 필요하다. 현재 가격표 본문은 상품 이름을 표시하고 분류 이름을 직접 표시하지 않는다. 분류 라벨을 조회할 수 있는 데이터 준비와 실제 화면 출력을 구분한다.
+현재 연결. 분류 enum의 표시 이름 계약이며 전체7분류가 각1행 필요하다. 현재 가격표 본문은 상품 이름을 표시하고 분류 이름을 직접 표시하지 않는다. 분류 라벨을 조회할 수 있는 데이터 준비와 실제 화면 출력을 구분한다.
 
 근거: [CSV](../Assets/Datas/Customer/ProductCategoryData.csv), [DTO](../Assets/Scripts/Commons/Data/ProductCategoryData.cs), [DataTable](../Assets/Scripts/Commons/Data/ProductCategoryDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 분류 표시 행 PK; 분류 숫자와 별개 | 필수; 종류 대역·고유 | 없음 | 7001, 7002, 7003, 7004 |
-| 2. `nameidx` | NameIdx · uint | 분류 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8008, 8009, 8010, 8011 |
-| 3. `product_type` | ProductType · ProductType(uint) | 표시 이름을 연결할 enum 값 | 필수; 1~4 각 1행, 전체 분류 누락 금지 | ProductType | 1, 2, 3, 4 |
+| 1. `idx` | Idx · uint | 분류 표시 행 PK; 분류 숫자와 별개 | 필수; 종류 대역·고유 | 없음 | 7001~7007 |
+| 2. `nameidx` | NameIdx · uint | 분류 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8008, 8009, 8010, 8011, 8058, 8059, 8060 |
+| 3. `product_type` | ProductType · ProductType(uint) | 표시 이름을 연결할 enum 값 | 필수; 1~7 각 1행, 전체 분류 누락 금지 | ProductType | 1, 2, 3, 4, 5, 6, 7 |
 
 ### ProductData
 
-현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본5·설비 해금13·비활성4행이며 모두0일 등장,이미지 FK 빈 셀이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
+현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본4·설비 해금12행이며 모두0일 등장이다. 이미지6종 연결·10종 양쪽 빈값이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/ProductData.csv), [DTO](../Assets/Scripts/Commons/Data/ProductData.cs), [DataTable](../Assets/Scripts/Commons/Data/ProductDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 상품 PK | 필수; 종류 대역·내부번호1~999·고유 | 없음 | 1001~1022 |
-| 2. `nameidx` | NameIdx · uint | 상품 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8012~8023, 8061~8070 |
-| 3. `product_type` | ProductType · ProductType(uint) | 구매 선호와 이벤트·지침에 쓰는 분류 | 필수; 정의된 1~4, 숫자 converter | ProductCategoryData.product_type (enum 대응) | 1, 2, 3, 4 |
-| 4. `is_available` | IsAvailable · bool | 판매 후보 활성 여부 | 필수; 정확히 0/1 | 없음 | 0, 1 |
-| 5. `base_price` | BasePrice · uint | 상품 1개의 고정 기본가격, G | 필수; 양수 | 없음 | 100~5000, 전체 행은 부록 |
+| 1. `idx` | Idx · uint | 상품 PK | 필수; 종류 대역·내부번호1~999·고유 | 없음 | 1001~1023 내 16종 |
+| 2. `nameidx` | NameIdx · uint | 상품 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8012, 8015~8018, 8021, 8061~8070, 8075 |
+| 3. `product_type` | ProductType · ProductType(uint) | 구매 선호와 이벤트·지침에 쓰는 분류 | 필수; 정의된 1~7, 숫자 converter | ProductCategoryData.product_type (enum 대응) | 1, 2, 3, 4, 5, 6, 7 |
+| 4. `is_available` | IsAvailable · bool | 판매 후보 활성 여부 | 필수; 정확히 0/1 | 없음 | 1 |
+| 5. `base_price` | BasePrice · uint | 상품 1개의 고정 기본가격, G | 필수; 양수 | 없음 | 100~6000, 전체 행은 부록 |
 | 6. `available_day` | AvailableDay · uint | 등장 경과일, 시작일0 | 필수; 0 허용 | GameSessionManager.ElapsedDays와 비교 | 0 |
-| 7. `image_resource_idx` | ImageResourceIdx · uint? | 상품 이미지 연결 | 빈 셀만 null=흰 사각형; 0 금지; Resource 대역·존재 | ResourceData.idx → Path → Sprite | 빈 셀 |
-| 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 50~2500, 전체 행은 부록 |
+| 7. `image_resource_idx` | ImageResourceIdx · uint? | 상품 기본 이미지 | 양쪽 빈값만 흰 사각형; 0·잘못된 FK 금지 | ResourceData.idx → Path → Sprite | 4246~4249,4254 또는 빈 셀 |
+| 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 50~3000, 전체 행은 부록 |
 
-| 9. `required_facility_idx` | RequiredFacilityIdx · uint? | 해금에 필요한 설비 | 빈 셀=null 기본상품; 0·대역 오류·미존재 거부 | FacilityData.idx | 빈 셀,12001~12005 |
+| 9. `required_facility_idx` | RequiredFacilityIdx · uint? | 해금에 필요한 설비 | 빈 셀=null 기본상품; 0·대역 오류·미존재 거부 | FacilityData.idx | 빈 셀,12001~12006 |
+| 10. `top_view_image_resource_idx` | TopViewImageResourceIdx · uint? | 작업대 탑뷰 이미지 | 기본 이미지와 함께 비우거나 유효 FK; 탑뷰 없으면 기본 FK 명시 | ResourceData.idx | 4246,4247,4251~4253 또는 빈 셀 |
 
 ## 4. 현재 테스트 데이터의 기획 의미
 
@@ -231,43 +238,37 @@
 
 상품 종류 숫자는 PK가 아니다. 예를 들어 물의 상품 PK는1001, 분류 Water는1, 분류 표시 행은7001, 상품 이름 Text는8012다.
 
-| 상품PK·이름 | 분류(enum) | 기본가격 G | 원가 G | 판매 조건 (등장일0 / 이미지 빈 셀) |
+| 상품PK·이름 | 분류(enum) | 기본가격 G | 원가 G | 판매 조건 (등장일0 / 이미지 매핑은 별도) |
 |---|---|---:|---:|---|
 | 1001 물 | Water=1 | 100 | 50 | 기본 |
-| 1002 정수 캔 | Water=1 | 150 | 75 | 비활성 |
-| 1003 휴대용 필터 | Water=1 | 500 | 250 | 비활성 |
 | 1004 통조림 | Food=2 | 250 | 125 | 기본 |
 | 1005 분말 수프 | Food=2 | 150 | 75 | 설비 12001 |
 | 1006 영양바 | Food=2 | 200 | 100 | 설비 12001 |
 | 1007 붕대 | Medicine=3 | 300 | 150 | 기본 |
-| 1008 소독제 | Medicine=3 | 350 | 175 | 비활성 |
-| 1009 해열제 | Medicine=3 | 400 | 200 | 설비 12002 |
 | 1010 건전지 | DailyNecessities=4 | 200 | 100 | 기본 |
-| 1011 성냥 | DailyNecessities=4 | 100 | 50 | 기본 |
-| 1012 방한포 | DailyNecessities=4 | 600 | 300 | 비활성 |
 | 1013 연고 | Medicine=3 | 500 | 250 | 설비 12002 |
 | 1014 응급 주사 | Medicine=3 | 900 | 450 | 설비 12002 |
 | 1015 손전등 | Tools=5 | 800 | 400 | 설비 12003 |
 | 1016 접이식 삽 | Tools=5 | 1000 | 500 | 설비 12003 |
-| 1017 쇠지렛대 | Tools=5 | 1200 | 600 | 설비 12003 |
 | 1018 무전기 | ElectricalEquipment=6 | 2000 | 1000 | 설비 12004 |
 | 1019 배터리 | ElectricalEquipment=6 | 1200 | 600 | 설비 12004 |
 | 1020 방독면 | ProtectiveEquipment=7 | 2500 | 1250 | 설비 12005 |
 | 1021 방호복 | ProtectiveEquipment=7 | 4000 | 2000 | 설비 12005 |
-| 1022 방사능 측정기 | ProtectiveEquipment=7 | 5000 | 2500 | 설비 12005 |
+| 1022 방사능 측정기 | ProtectiveEquipment=7 | 5000 | 2500 | 설비 12006 |
+| 1023 열화상 카메라 | ProtectiveEquipment=7 | 6000 | 3000 | 설비 12006 |
 
 모든 상품의 현재 원가는 기본가격의50%로 입력되어 있다. 이는 **현 행 값의 관계**이지 `CostPrice <= BasePrice` 검증이나 자동 원가 계산식이 아니다. 가격 이벤트는 CostPrice를 바꾸지 않는다.
 
-외형은 파랑5001/RGBA(101,184,255,255), 주황5002/(255,179,107,255), 초록5003/(121,215,174,255), 보라5004/(198,160,246,255)다. 외형 색은 가격·인내도 보정이 아니다.
+외형은5001~5045의 Female18/Male27 Sprite다. 표시 리소스는 가격·인내도·속성 보정이 아니며 기존 RGBA 열은 제거됐다.
 
 | 성향 PK·표시명 | 타입 | 주 선호 | 선호군 선택 | 결제 허용 배율 | 기준가 인정 | 줄 합류 후 재촉 / 이탈 |
 |---|---|---|---:|---:|---:|---|
-| 6001 평범 | Normal=1 | Water·Food | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
-| 6002 급함 | Hasty=2 | Medicine | 900=90% | 1300=130% | 1000~1000 | 3초 / 9초 |
+| 6001 평범 | Normal=1 | Water·Food | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
+| 6002 급함 | Hasty=2 | Medicine | 900=90% | 1500=150% | 1000~1000 | 3초 / 9초 |
 | 6003 가격 민감 | PriceSensitive=3 | DailyNecessities | 900=90% | 1000=100% | 1000~1000 | 12초 / 18초 |
-| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
-| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
-| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
+| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
+| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
 | 6007 부유한 손님 | Wealthy=4 | ElectricalEquipment·ProtectiveEquipment | 900=90% | 1400=140% | 1000~1000 | 9초 / 15초 |
 
 - 희망 목록은 각 성향 모두1~3종류, 종류당1~3개이며 동일 상품은 한 항목으로 표현한다. 후보가 부족하면 종류 수를 줄인다.
@@ -324,7 +325,7 @@
 
 | enum·근거 | 실제 이름=숫자 | 사용·제약 |
 |---|---|---|
-| [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, ReputationBalance=11, Facility=12, DataTableType_End=13(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
+| [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, ReputationBalance=11, Facility=12, DailyGuideline=13, Morality=14, DataTableType_End=15(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
 | [ProductType : uint](../Assets/Scripts/Commons/Data/ProductType.cs) | None=0, Water=1, Food=2, Medicine=3, DailyNecessities=4, Tools=5, ElectricalEquipment=6, ProtectiveEquipment=7 | 상품·선호·이벤트·지침. None 거부, End 없음 |
 | [CustomerDispositionType : int](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4, CustomerDispositionType_End=5(자동) | CSV 원시 uint를 enum으로 해석,1~4만 허용 |
 | [CustomerAttributes : int, Flags](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Male=1, Female=2, Child=4, Elderly=8, Adult=16, Normal=32 | bit OR. 성별·연령·특수 각각 최대1개. 실제 방문은 세 축 모두필수 |
@@ -333,11 +334,13 @@
 | [CustomerState : int](../Assets/Scripts/Customer/CustomerVisit.cs) | Entering=0, AwaitingOffer=1, Accepted=2, Rejected=3, Departed=4, Queued=5, Abandoned=6 | 방문 수명. Departed와 대기 만료 Abandoned 구분 |
 | [CustomerTradeOutcome : int](../Assets/Scripts/Customer/CustomerVisit.cs) | None=0, RegularSale=1, DiscountSale=2, ExploitativeSale=3, PaymentRefused=4 | 가격 판정. 퇴장 후에도 유지 |
 | [FinanceChangeReason : int](../Assets/Scripts/Finance/FinanceChangeReason.cs) | None=0, Sale=1, Maintenance=2, FacilityPurchase=3 | 재정 변경 사유. 현재 거래/상납이 각각1/2 |
+| [FacilityUpgradeKind : uint](../Assets/Scripts/Commons/Data/FacilityData.cs) | None=0, ProductUnlock=1, Convenience=2, StoreStage=3, FacilityUpgradeKind_End=4(자동) | 설비 업그레이드 분류. None/End는 CSV 금지 |
+| [ConvenienceEffectType : uint](../Assets/Scripts/Commons/Data/FacilityData.cs) | None=0, DividerBar=1, AutoSorting=2, Vacuum=3, ConvenienceEffectType_End=4(자동) | 편의성 효과 키. None은 상품 해금·단계 상승의 무효과 값 |
 | [FacilityPurchaseStatus](../Assets/Scripts/Facility/FacilityPurchaseResult.cs) | None=0, Purchased=1, AlreadyOwned=2, InsufficientFunds=3, FacilityPurchaseStatus_End=4(자동) | 정상 구매 결과; 입력·재진입·알림 오류는 예외 |
 | [FacilityDisplayState](../Assets/Scripts/UI/Contracts/FacilityUIContracts.cs) | Available=0, InsufficientFunds=1, Pending=2, Active=3, FacilityDisplayState_End=4(자동) | UI 표시 상태, 구매 요청 결과와 별개 |
-| [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Maintenance=2, Failed=3, Completed=4 | 전체 진행. Completed 값 존재가 최종 목표 기능 구현을 뜻하지 않음 |
+| [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Failed=3, Completed=4 | 전체 진행. 제거한 Maintenance=2 숫자는 재사용하지 않음 |
 | [DayProgressState : int](../Assets/Scripts/Progress/DayProgressState.cs) | Initializing=0, PreOpen=1, Operating=2, Sorting=3, TransactionResult=4, Closing=5, Settlement=6, Completed=7 | 하루 진행. Closing은 마지막 거래 마감 |
-| [GameDayPhase : int](../Assets/Scripts/UI/Contracts/UIContracts.cs) | PreOpen=0, PriceGuide=1, Operating=2, TradingResult=3, Closing=4, DailySettlement=5, Tribute=6 | UI 표시용. PriceGuide는 레거시 호환 |
+| [GameDayPhase : int](../Assets/Scripts/UI/Contracts/UIContracts.cs) | PreOpen=0, PriceGuide=1, Operating=2, TradingResult=3, Closing=4, DailySettlement=5 | UI 표시용. PriceGuide는 레거시 호환 |
 | [SaleSortingItemView.SortingState : int](../Assets/Scripts/UI/SaleSortingItemView.cs) | Working=0, ForSale=1, Excluded=2 | 작업대 상품1개 분류 |
 | [SaleSortingPanel.ViewState : int (private)](../Assets/Scripts/UI/SaleSortingPanel.cs) | Hidden=0, FrontWaiting=1, Transition=2, Pouring=3, Sorting=4, Locked=5 | 패널 표현 수명, CSV 저장값 아님 |
 | [GameSceneManager.SceneName : int](../Assets/Scripts/Manager/GameSceneManager.cs) | Init=0, Hub=1, Main=2 | 공유 씬 routing, 개인 씬은 enum 없음 |
@@ -374,17 +377,17 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 
 | 계약·근거 | 데이터·단위·소유권 | 현재 상태/제약 |
 |---|---|---|
-| [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceCycleDays:int, MaintenanceAmounts:IReadOnlyList<long> 회차순 | CSV 두 테이블을 검증·복사한 설정. 현재100000/7/12회차 |
+| [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceAmounts:IReadOnlyList<long> 일자순 | CSV 두 테이블을 검증·복사한 설정. 현재 초기금100000/30일 유지비 |
 | [FinanceChangeResult](../Assets/Scripts/Finance/FinanceChangeResult.cs) | PreviousBalance:long 이전잔액, BalanceDelta:long 부호있는증감, CurrentBalance:long 이후잔액, Reason:FinanceChangeReason | FinanceService 결과; 날짜/상품 내역 아님 |
 | [EconomyLogEntry](../Assets/Scripts/Finance/EconomyLogEntry.cs) | Sequence:long 기록순번, PreviousBalance:long, BalanceDelta:long, CurrentBalance:long, Reason:FinanceChangeReason | LogService 결과. 순번은 CSV PK나 날짜 아님 |
-| [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, ReputationDelta:int 거래 변화합, Transactions:IReadOnlyList<TransactionResult> | 수락·거절의 원본 snapshot을 EndDay에서 복사·확정. 일일 명성 최종값은 DailyReputationCalculationResult.FinalDelta |
-| [MaintenancePaymentResult](../Assets/Scripts/Finance/MaintenancePaymentResult.cs) | PaymentRound:int 회차, RequiredAmount:long 필요금액, IsPaid:bool 성공, PreviousBalance:long, CurrentBalance:long | 부족 시 잔액·LastPaidRound 유지. 연속 다음회차만 납부 |
+| [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, Expenses:long 유지비, NetProfit:long 순익, ReputationDelta:int 거래 변화합, MoralityDelta:decimal 일일 변화합, Transactions:IReadOnlyList<TransactionResult> | 거래 snapshot을 확정하고 유지비 성공 후 최종 정산 결과를 공개. 일일 명성 최종값은 DailyReputationCalculationResult.FinalDelta |
+| [MaintenancePaymentResult](../Assets/Scripts/Finance/MaintenancePaymentResult.cs) | Day:int 표시일, RequiredAmount:long 필요금액, IsPaid:bool 성공, PreviousBalance:long, CurrentBalance:long | 부족 시 잔액·LastPaidDay 유지. 다음 일자만 납부 |
 | [EconomyRuntime](../Assets/Scripts/Finance/EconomyRuntime.cs) | Settings, FinanceService, DailyAggregationService, MaintenanceService, LogService, QueryService | 서비스 묶음이며 추가 밸런스 원본 아님 |
-| [EconomyQueryService](../Assets/Scripts/Finance/EconomyQueryService.cs) | CurrentBalance:long, DailySaleIncome:long, IsDayOpen:bool, MaintenanceCycleDays:int | 소유 서비스의 읽기 결과. 새로운 보유금 저장소 아님 |
-| [MaintenanceService](../Assets/Scripts/Finance/MaintenanceService.cs) | LastPaidRound:int 초기0 | 복원 인수0~목록길이; 실제 저장 연결과 별도 |
+| [EconomyQueryService](../Assets/Scripts/Finance/EconomyQueryService.cs) | CurrentBalance:long, DailySaleIncome:long, IsDayOpen:bool | 소유 서비스의 읽기 결과. 새로운 보유금 저장소 아님 |
+| [MaintenanceService](../Assets/Scripts/Finance/MaintenanceService.cs) | LastPaidDay:int 초기0 | 복원 인수0~목록길이; 실제 저장 연결과 별도 |
 | [GameSessionManager](../Assets/Scripts/Manager/GameSessionManager.cs) | ElapsedDays:uint 시작0, Economy:EconomyRuntime, DailyPrices:DailyPriceState, IsInitialized:bool 초기false | 날짜·현재가 권위. DailyPrices는 준비 전null, Economy는 초기화 전 접근 오류. CompleteDay가 종료일을 한 번 진행 |
 | [DailyPriceState](../Assets/Scripts/Events/DailyPriceState.cs) | ElapsedDays:uint, NewspaperEventIdx:uint? 신문사건, RadioEventIdx:uint? 예정사건, IsRadioBroadcast:bool, Prices:IReadOnlyDictionary<uint,uint> 상품PK→현재가 | 후보 없음 null. 라디오 선정과 방송완료 구분. 새 snapshot 교체 |
-| [GameProgress](../Assets/Scripts/Progress/GameProgress.cs) | State:GameProgressState, CurrentDay:int, CurrentDayProgress:DayProgress, IsMaintenanceDay:bool, DaysUntilMaintenance:int, CurrentMaintenanceRound:int | CurrentDay는 시작 전0, 이후ElapsedDays+1. 별도 날짜 증가값 아님 |
+| [GameProgress](../Assets/Scripts/Progress/GameProgress.cs) | State:GameProgressState, CurrentDay:int, CurrentDayProgress:DayProgress | CurrentDay는 시작 전0, 이후ElapsedDays+1. 별도 날짜 증가값 아님 |
 | [DayProgress](../Assets/Scripts/Progress/DayProgress.cs) | Day:int, State:DayProgressState, CurrentVisit:CustomerVisit, RemainingSeconds:float, BusinessDurationSeconds:float, IsPaused:bool, IsBusinessTimeExpired:bool, CanSubmitOffer:bool, SuccessfulSales:int, RefusedCustomers:int, AggregationResult:DailyAggregationResult? | 현재 순차 손님 진행. 초 단위; 집계 확정 전null. 결과 재정 실패 시 진행차단 |
 | [CustomerQueue](../Assets/Scripts/Customer/CustomerQueue.cs) | Waiting/Leaving:IReadOnlyList<Entry>, 내부 now/nextArrival:double 초, running:bool | 독립 API. 계산 중 손님은 Waiting에서 제외 |
 | CustomerQueue.Entry | Visit:CustomerVisit; 내부 Deadline:double 만료시각, WarningTextIdx/LeaveTextIdx:uint, Warned:bool, SpeechIdx:uint, SpeechUntil:double | 합류 시 값 복사. GetSpeech의0은 표시대사 없음. 이탈 후3초 표시 기록과 논리 대기열 분리 |
@@ -400,16 +403,16 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 | 구조체 | 전체 필드 | 현재 소비·의미 |
 |---|---|---|
 | EconomyStatusViewData | CurrentBalance:long, DailySaleIncome:long | EconomyStatusPresenter, 현재 보유금과 당일 매출 |
-| GameDayViewData | CurrentDay:int, DaysUntilSettlement:int, IsSettlementDay:bool, Phase:GameDayPhase | GameDayPresenter. Settlement 명칭이지만 다음 **상납일**/상납일 여부로 공급 |
+| GameDayViewData | CurrentDay:int, Phase:GameDayPhase | GameDayPresenter의 날짜·일일 진행 상태 |
 | BusinessTimerViewData | RemainingSeconds:float, NormalizedTime:float, IsPaused:bool, CanPause:bool, CanResume:bool | BusinessTimerPresenter. NormalizedTime은 잔여/전체시간의0~1 |
 | ItemPriceViewData | ItemId:uint, DisplayName:string, Price:long, SpecialNote:string, Icon:Sprite, IsAvailable:bool | 계약만 존재, 현재 생성·소비 호출 없음. 현재 가격표는 CreatePriceListText 문자열 |
-| CustomerBasketItemViewData | ItemId:uint, DisplayName:string, Quantity:int, Icon:Sprite, UnitPrice:int | CustomerPresenter/CustomerBasketItemPresenter/SaleSortingPanel. 생성 시 희망 단가. 원본uint가 int.MaxValue보다 크면 factory가 표시값을 int.MaxValue로 제한함 |
-| CustomerViewData | HasCustomer:bool, AppearanceColor:Color, AppearanceSprite:Sprite, DialogueText:string, Basket:IReadOnlyList<CustomerBasketItemViewData> | 현재 연결. Empty는false/clear/null/빈문자열/빈목록. 현 factory는 AppearanceSprite=null, CSV색상 사용 |
+| CustomerBasketItemViewData | ItemId:uint, DisplayName:string, Quantity:int, Icon:Sprite, UnitPrice:int, TopViewIcon:Sprite | CustomerPresenter/CustomerBasketItemPresenter/SaleSortingPanel. 생성 시 희망 단가. 원본uint가 int.MaxValue보다 크면 factory가 표시값을 int.MaxValue로 제한함 |
+| CustomerViewData | HasCustomer:bool, AppearanceColor:Color, AppearanceSprite:Sprite, DialogueText:string, Basket:IReadOnlyList<CustomerBasketItemViewData> | 현재 연결. Empty는false/clear/null/빈문자열/빈목록. 현 factory는 필수 AppearanceSprite를 전달하고 흰색 tint를 사용 |
 | PriceInputViewData | InputAmount:long?, CanConfirm:bool, IsInputEnabled:bool, ValidationMessage:string | PriceInputPresenter. 빈 입력은null. 양수 총액 제출과 분류완료 조건은 진행/UI에서 검증 |
 | TransactionViewData | WasAccepted:bool, OfferedPrice:long, FeedbackMessage:string | 계약만 존재, 현재 생성·소비 호출 없음. 상세4판정·판매목록을 담는 원본 TransactionResult와 다름 |
-| DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. Expenses=0, NetProfit=SaleIncome, ReputationDelta=일일 FinalDelta, DepartedCustomers=0. 명성은 정성적 피드백 표시 |
+| DailySettlementViewData | Day:int, SaleIncome:long, Expenses:long, NetProfit:long, CurrentBalance:long, ReputationDelta:int, SuccessfulSales:int, RefusedCustomers:int, DepartedCustomers:int | DailySettlementPresenter 현재 연결. Expenses=해당 일자 유지비, NetProfit=SaleIncome-Expenses, CurrentBalance=유지비 차감 후 잔액. ReputationDelta는 일일 FinalDelta, DepartedCustomers=0 |
 
-DailySettlementPresenter는 전달된 NetProfit을 표시한다. 별도 [DailyResultPanel](../Assets/Scripts/UI/DailyResultPanel.cs)은 SaleIncome-Expenses로 다시 계산하는 구현이지만 현 controller가 직접 호출하는 경로는 아니다. 지출0 표시는 원가가 없다는 뜻도, 상납이 무료라는 뜻도 아니다. 상납은 별도 진행 단계다.
+DailySettlementPresenter는 확정된 유지비와 NetProfit을 표시한다. 별도 [DailyResultPanel](../Assets/Scripts/UI/DailyResultPanel.cs)은 SaleIncome-Expenses로 다시 계산하는 구현이지만 현 controller가 직접 호출하는 경로는 아니다. 설비 구매비와 상품 원가는 현재 일일 지출에 합산하지 않는다.
 
 ### 구형 가격표 패널의 별도 표시 데이터
 
@@ -530,11 +533,11 @@ CashierSaveManager의 키는 `Cashier_LocalGameSave_v1`이며 JsonUtility/Player
 | ProductData.BasePrice / DailyPriceState.Prices / CustomerOrderItem.UnitPrice / SoldItem.UnitPrice | 고정 기본단가 / 이벤트 현재단가 / 생성시 희망 단가 / 제출시 확정 단가 |
 | CustomerVisit.BaseTotal / TransactionResult.ReferenceTotal | **동일 의미 별칭**: 최종 제출 목록 현재가 합계. 이름 Base가 고정 기본가격을 뜻하지 않음 |
 | OfferedTotal / TransactionViewData.OfferedPrice / PriceInputViewData.InputAmount | 총액 제출 / 미연결 UI 총액계약 / 아직 입력중 null가능 값 |
-| CostPrice / UnitCostPrice / CostTotal / Expenses / NetProfit | 원본 단위원가 / 확정 단위원가 / 확정 원가합계 / 현재 UI0 / 현재 UI매출과동일. 서로 치환 불가 |
+| CostPrice / UnitCostPrice / CostTotal / Expenses / NetProfit | 원본 단위원가 / 확정 단위원가 / 확정 원가합계 / 일일 유지비 / 매출-유지비. 상품 원가는 현재 Expenses에 미포함 |
 | PriceTolerance / tolerancePercent / normalBudgetMinPercent | 현재1000분모 배율 / 구형100분모 허용률 / 구형100분모 예산률 |
 | PreferredSelectionChance / SelectionWeight / poorChance | 현재0~1000 확률 / 후보 간 상대가중치 / 구형0~1 확률 |
 | ElapsedDays / available_day / start_day / end_day / GameProgress.CurrentDay / DayProgress.Day / firstDay | 앞의4개0시작 경과일 / 현재표시1시작 / 하루표시1시작 / 구형1시작 해금 |
-| maintenanceCycleDays / paymentRound / MaintenanceAmounts / firstTribute | 간격일수 / 회차 / 회차별목록 / 구형첫상납액. 첫회차100000과50000은 충돌한 별도모델 |
+| day / MaintenanceAmounts / firstTribute | 일일 유지비 표시일 / 일자순 목록 / 비활성 구형 CashierSession의 별도 상납액 |
 | QueuePatienceSeconds / Gauge / customerArrivalSeconds / ArrivalSeconds / SpeechSeconds / resultSeconds | 줄이탈초 / 구형대기게이지 / UI도착대기 / Queue입장5초 또는 UI낙하0.85초(다른소유자) / 대사3초 / 구형결과0.85초 |
 | State / Outcome / GameDayPhase / CashierPhase | 방문수명 / 가격판정 / UI일간표현 / 구형진행. 숫자값을 서로 캐스팅하지 않음 |
 | NameIdx / Text / DisplayName / CashierProduct.name / ResourceData.Path | Text FK / 문자열원본 / 표시용문자열 / 구형직접이름 / 리소스키. 이름·리소스키는 상품ID 아님 |
@@ -545,7 +548,7 @@ CashierSaveManager의 키는 `Cashier_LocalGameSave_v1`이며 JsonUtility/Player
 
 - 문서 조사로 확인: 파일 목록, 모든 header·현재 행, DTO mapping, 주요 검증·FK 경계, 직접 소비 경로, enum 값, 공유 prefab 조작값과 코드 기본값 차이.
 - 설비 변경의 최신 검증은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 참조한다. UI 수동 조작·Addressables 전 자산 전수 검증은 별도이며 API 테스트 성공으로 대체하지 않는다.
-- 미연결/검토 포인트: 현 UI의 대기열, 정식 지침 공급·벌칙·명성·원가 지출, 구형 SaveData와 현재세션 복원, Wealthy 성향 행, Product 이미지 FK 전부빈값, Resource 옛경로의 실자산 유효성.
+- 미연결/검토 포인트: 지침 판매 제한 공급·벌칙, 원가 지출, 구형 SaveData와 현재세션 복원. 영업 전 카드는 최대4종만 표시하며 5종 이상 해금 시 전체 목록을 표시하지 않는다.
 - 유지보수: 밸런싱 변경 시 실제 CSV/DTO/소비자와 함께 이 관측 문서를 갱신한다. 본문 요약보다 실제 코드·승인 규격을 우선하며 새 ID나 기획 결정을 이 문서만 보고 배정하지 않는다.
 - 부록은 모든 원본 행·컬럼 순서·셀 문자열을 그대로 보존한다. Markdown의 개행 표시는 LF로 통일하며 원본 BOM/CRLF 여부를 재현하는 바이너리 백업은 아니다. SHA-256은 조사 당시 CSV 파일 바이트 기준이다.
 
@@ -554,36 +557,54 @@ CashierSaveManager의 키는 `Cashier_LocalGameSave_v1`이며 JsonUtility/Player
 
 ### Assets/Datas/EconomyBalanceData.csv
 
-데이터 1행, 3컬럼. SHA-256: `34BACCEDAAF3C697B2152A79E6D49028875CBC730195734EFD8F77A856E4A31E`.
+데이터 1행, 2컬럼. SHA-256: `C55D80B0A5365962CC85B9695FBE959C43FC25DF801F670F144B252109FF4115`.
 
 ```csv
-idx,initialBalance,maintenanceCycleDays
-002001,100000,7
+idx,initialBalance
+002001,100000
 ```
 
 ### Assets/Datas/MaintenanceBalanceData.csv
 
-데이터 12행, 3컬럼. SHA-256: `2420113BAB89A6C2A513CA684B8D8D70B7252DBD39EC7758B8B3044C06B57E0F`.
+데이터 30행, 3컬럼. SHA-256: `E7B4883514BF5E2715F9623A132779907DDE33F25D36577CFB408349772A4408`.
 
 ```csv
-idx,paymentRound,maintenanceAmount
-003001,1,100000
-003002,2,110000
-003003,3,120000
-003004,4,150000
-003005,5,200000
-003006,6,280000
-003007,7,400000
-003008,8,560000
-003009,9,780000
-003010,10,1100000
-003011,11,1540000
-003012,12,2150000
+idx,day,maintenanceAmount
+003001,1,200
+003002,2,300
+003003,3,400
+003004,4,500
+003005,5,600
+003006,6,700
+003007,7,800
+003008,8,900
+003009,9,1000
+003010,10,1100
+003011,11,1200
+003012,12,1300
+003013,13,1400
+003014,14,1500
+003015,15,1600
+003016,16,1700
+003017,17,1800
+003018,18,1900
+003019,19,2000
+003020,20,2100
+003021,21,2200
+003022,22,2300
+003023,23,2400
+003024,24,2500
+003025,25,2600
+003026,26,2700
+003027,27,2800
+003028,28,2900
+003029,29,3000
+003030,30,3100
 ```
 
 ### Assets/Datas/PriceEventData.csv
 
-데이터 4행, 7컬럼. SHA-256: `EE20ADE4BDDAE0C0944FC21A3CD5971E467134DB4B6E2101E0858D78AE837FE9`.
+데이터 4행, 7컬럼. SHA-256: `6C9F9B13B9AF40F11B08ADD41D4114AFB838380885986F193800EF64785FBA4A`.
 
 ```csv
 idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
@@ -595,7 +616,7 @@ idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
 
 ### Assets/Datas/PriceEventScheduleData.csv
 
-데이터 5행, 7컬럼. SHA-256: `15F8768511207D6819B7700250D62BDB478AA2536EF5DC90C0187BE38BD9CB7F`.
+데이터 5행, 7컬럼. SHA-256: `65176B3D51529D0C9B9B4D56B0ECEC70FBB054C97B425821AC78B4EC6206EB78`.
 
 ```csv
 idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
@@ -608,94 +629,76 @@ idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
 
 ### Assets/Datas/ResourceData.csv
 
-데이터 72행, 2컬럼. SHA-256: `655DE2649CF39E3DE648310C08DBA850EB4C16E13C1DA5D01A5419506981ABC9`.
+데이터 54행, 2컬럼. SHA-256: `930332E168354EAACFDE1CF867E201EB76C851DA8120BC27FBF12ADEDA0F89C8`.
 
 ```csv
 idx,path
-4001,Unit_3001
-4002,Unit_3201
-4003,Unit_3101
-4004,Unit_3102
-4005,Unit_3103
-4010,PlayerAnimatorController
-4011,GaronAnimatorController
-4012,SpearSentryAnimatorController
-4013,ShadowStalkerAnimatorController
-4014,WaveHeavyAnimatorController
-4015,ShieldSentinelAnimatorController
-4016,OrbitalMarksmanAnimatorController
-4020,Effect_8001
-4021,Effect_8002
-4022,Effect_8003
-4030,Effect_8010
-4031,Effect_8011
-4032,Effect_8012
-4033,Effect_8013
-4040,Prefab_1040
-4041,Prefab_1041
-4042,Prefab_1042
-4043,Tilemap_Room_Stage2_Entry
-4044,Tilemap_Room_Stage2_Boss
-4045,Projectile_1045
-4006,Unit_3104
-4007,Unit_3105
-4008,Unit_3106
-4050,Room_11050
-4051,Room_11051
-4052,Room_11052
-4053,Room_11053
-4056,Room_11056
-4057,Room_11057
-4061,Room_11061
-4063,Room_11063
-4070,Hazard_SpikeTrap
-4071,Hazard_SawBladeTrap
-4072,Room_11072
-4073,Room_11073
-4074,Room_11074
-4075,Room_11075
-4076,Room_11076
-4077,Room_11077
-4078,Room_11078
-4079,Room_11079
-4080,Room_11080
-4081,Effect_8014
-4082,Effect_8015
-4083,Effect_8016
-4084,Effect_8017
-4085,Effect_8018
-4086,Effect_8019
-4087,Effect_8020
-4088,Effect_8021
-4089,Effect_8022
-4090,Effect_8023
-4092,Effect_8025
-4093,Effect_8026
-4094,Effect_8027
-4095,Effect_8028
-4096,Effect_8029
-4097,Effect_8030
-4098,Effect_8031
-4099,Effect_8032
-4101,Product_1001_Water
-4104,Product_1004_Can
-4106,Product_1006_Crackers
-4107,Product_1007_Bandage
-4109,Product_1009_Painkiller
-4110,Product_1010_Battery
-4199,Product_Placeholder
+4201,FemaleCustomer_01
+4202,FemaleCustomer_02
+4203,FemaleCustomer_03
+4204,FemaleCustomer_04
+4205,FemaleCustomer_05
+4206,FemaleCustomer_06
+4207,FemaleCustomer_08
+4208,FemaleCustomer_09
+4209,FemaleCustomer_10
+4210,FemaleCustomer_11
+4211,FemaleCustomer_12
+4212,FemaleCustomer_14
+4213,FemaleCustomer_15
+4214,FemaleCustomer_16
+4215,FemaleCustomer_17
+4216,FemaleCustomer_18
+4217,FemaleCustomer_19
+4218,FemaleCustomer_20
+4219,MaleCustomer_01
+4220,MaleCustomer_02
+4221,MaleCustomer_03
+4222,MaleCustomer_04
+4223,MaleCustomer_05
+4224,MaleCustomer_06
+4225,MaleCustomer_07
+4226,MaleCustomer_08
+4227,MaleCustomer_09
+4228,MaleCustomer_10
+4229,MaleCustomer_12
+4230,MaleCustomer_13
+4231,MaleCustomer_14
+4232,MaleCustomer_15
+4233,MaleCustomer_16
+4234,MaleCustomer_17
+4235,MaleCustomer_18
+4236,MaleCustomer_19
+4237,MaleCustomer_21
+4238,MaleCustomer_22
+4239,MaleCustomer_23
+4240,MaleCustomer_24
+4241,MaleCustomer_25
+4242,MaleCustomer_26
+4243,MaleCustomer_28
+4244,MaleCustomer_29
+4245,MaleCustomer0
+4246,Bandage
+4247,Battery
+4248,Can
+4249,Crackers
+4250,Painkiller
+4251,TopDownCan
+4252,TopDownCrackers
+4253,TopDownWater
+4254,Water
 ```
 
 ### Assets/Datas/TextData.csv
 
-데이터 70행, 2컬럼. SHA-256: `47B42329F3463EC17A5212F70E7FE2FCDAD78EDD1FC9EE0064A567D3E45C9DDA`.
+데이터 128행, 2컬럼. SHA-256: `7D18E38803A4EB0F9F38AE8F0DD928DDEFECB89792C4E1BB4A1F8705E75BD59A`.
 
 ```csv
 idx,text
-8001,파랑
-8002,주황
-8003,초록
-8004,보라
+8001,여성 외형 01
+8002,여성 외형 02
+8003,여성 외형 03
+8004,여성 외형 04
 8005,평범
 8006,급함
 8007,가격 민감
@@ -748,10 +751,10 @@ idx,text
 8054,가격을 확인하려는데 오래 걸리네요.
 8055,이렇게 기다릴 바엔 다른 가게로 가겠어요.
 8056,식량 보관 선반
-8057,잠금 약품장
+8057,약품 보관장
 8058,공구대
-8059,전력 통신 장비
-8060,핵 보호 물품 설비
+8059,전력·통신 장비
+8060,핵보호 물품 설비
 8061,연고
 8062,응급 주사
 8063,손전등
@@ -762,34 +765,137 @@ idx,text
 8068,방독면
 8069,방호복
 8070,방사능 측정기
+8071,공구 선호
+8072,전기장비 선호
+8073,보호장비 선호
+8074,부유한 손님
+8075,열화상 카메라
+8076,정밀 전자장비 보관장
+8077,막대
+8078,2단계 확장
+8079,소팅
+8080,3단계 확장
+8081,청소기
+8082,여성 외형 18
+8083,여성 외형 19
+8084,여성 외형 20
+8085,남성 외형 01
+8086,남성 외형 02
+8087,남성 외형 03
+8088,남성 외형 04
+8089,남성 외형 05
+8090,남성 외형 06
+8091,남성 외형 07
+8092,남성 외형 08
+8093,남성 외형 09
+8094,남성 외형 10
+8095,남성 외형 12
+8096,남성 외형 13
+8097,남성 외형 14
+8098,남성 외형 15
+8099,남성 외형 16
+8100,남성 외형 17
+8101,오늘의 지침
+8102,제한 없음.
+8103,식수 배급 통제
+8104,식수 부족 사태로 인해 물은 1인당 1개까지만 판매할 수 있습니다.
+8105,의약품 판매 금지
+8106,비상사태 발령으로 민간인 대상 붕대 판매가 전면 금지됩니다.
+8107,남성 외형 25
+8108,남성 외형 26
+8109,남성 외형 28
+8110,남성 외형 29
+8111,남성 외형 0
+8112,여성 외형 05
+8113,여성 외형 06
+8114,여성 외형 08
+8115,여성 외형 09
+8116,여성 외형 10
+8117,여성 외형 11
+8118,여성 외형 12
+8119,여성 외형 14
+8120,여성 외형 15
+8121,여성 외형 16
+8122,여성 외형 17
+8123,남성 외형 18
+8124,남성 외형 19
+8125,남성 외형 21
+8126,남성 외형 22
+8127,남성 외형 23
+8128,남성 외형 24
 ```
 
 ### Assets/Datas/Customer/CustomerAppearanceData.csv
 
-데이터 4행, 6컬럼. SHA-256: `3DE08F7267DF41AA0CB9472AE86A92E2F40AAA670055E095AD169399465F6BE3`.
+데이터 45행, 3컬럼. SHA-256: `1156FEBFCA6C43296613378DFD14B61CCE0753AD72C378C96CA3B14B76AE304E`.
 
 ```csv
-idx,nameidx,color_r,color_g,color_b,color_a
-5001,8001,101,184,255,255
-5002,8002,255,179,107,255
-5003,8003,121,215,174,255
-5004,8004,198,160,246,255
+idx,nameidx,image_resource_idx
+5001,8001,4201
+5002,8002,4202
+5003,8003,4203
+5004,8004,4204
+5005,8112,4205
+5006,8113,4206
+5007,8114,4207
+5008,8115,4208
+5009,8116,4209
+5010,8117,4210
+5011,8118,4211
+5012,8119,4212
+5013,8120,4213
+5014,8121,4214
+5015,8122,4215
+5016,8082,4216
+5017,8083,4217
+5018,8084,4218
+5019,8085,4219
+5020,8086,4220
+5021,8087,4221
+5022,8088,4222
+5023,8089,4223
+5024,8090,4224
+5025,8091,4225
+5026,8092,4226
+5027,8093,4227
+5028,8094,4228
+5029,8095,4229
+5030,8096,4230
+5031,8097,4231
+5032,8098,4232
+5033,8099,4233
+5034,8100,4234
+5035,8123,4235
+5036,8124,4236
+5037,8125,4237
+5038,8126,4238
+5039,8127,4239
+5040,8128,4240
+5041,8107,4241
+5042,8108,4242
+5043,8109,4243
+5044,8110,4244
+5045,8111,4245
 ```
 
 ### Assets/Datas/Customer/CustomerDispositionData.csv
 
-데이터 3행, 21컬럼. SHA-256: `42A5012AB1D02D92DD4F043D0FF62DD10FA4640310002AB91C5BFC1D5CEDCF6F`.
+데이터 7행, 21컬럼. SHA-256: `A80DFD600AD0077C3E32F916E615427C741775EEC4B5B1D51040812B8A348388`.
 
 ```csv
 idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds,max_product_kinds,min_quantity,max_quantity,price_tolerance,entry_text_idxs,regular_sale_text_idxs,discount_sale_text_idxs,exploitative_sale_text_idxs,reject_text_idxs,queue_patience_seconds,queue_warning_textidx,queue_leave_textidx,disposition_type,preferred_product_idxs,regular_price_min_rate,regular_price_max_rate
-6001,8005,1_2,900,1,3,1,3,1100,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
-6002,8006,3,900,1,3,1,3,1300,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035,9,8052,8053,2,,1000,1000
+6001,8005,1_2,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6002,8006,3,900,1,3,1,3,1500,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035,9,8052,8053,2,,1000,1000
 6003,8007,4,900,1,3,1,3,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041,18,8054,8055,3,,1000,1000
+6004,8071,5,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6005,8072,6,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6006,8073,7,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6007,8074,6_7,900,1,3,1,3,1400,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,15,8050,8051,4,,1000,1000
 ```
 
 ### Assets/Datas/Customer/ProductCategoryData.csv
 
-데이터 4행, 3컬럼. SHA-256: `A933B7A998CCCDCD36A6A7D44C45AFC59FEE434FB849EA0A4AC3B7A3547514DF`.
+데이터 7행, 3컬럼. SHA-256: `A002313CF3D5B596DB4286DE6B47E152DF65D0C2ABE239C25A36FB3B135FB756`.
 
 ```csv
 idx,nameidx,product_type
@@ -797,48 +903,104 @@ idx,nameidx,product_type
 7002,8009,2
 7003,8010,3
 7004,8011,4
+7005,8058,5
+7006,8059,6
+7007,8060,7
 ```
 
 ### Assets/Datas/Customer/ProductData.csv
 
-데이터 22행, 9컬럼. SHA-256: `237167718BFB76309DBCF3E57A20D55F6F09014B4068027584B7E351061B8590`.
+데이터 16행, 10컬럼. SHA-256: `C5A3041015BA3FD1A641DFC8816DA291DA478A1502C18EC4FBAF5404C7E2D341`.
 
 ```csv
-idx,nameidx,product_type,is_available,base_price,available_day,image_resource_idx,cost_price,required_facility_idx
-1001,8012,1,1,100,0,,50,
-1002,8013,1,0,150,0,,75,
-1003,8014,1,0,500,0,,250,
-1004,8015,2,1,250,0,,125,
-1005,8016,2,1,150,0,,75,12001
-1006,8017,2,1,200,0,,100,12001
-1007,8018,3,1,300,0,,150,
-1008,8019,3,0,350,0,,175,
-1009,8020,3,1,400,0,,200,12002
-1010,8021,4,1,200,0,,100,
-1011,8022,4,1,100,0,,50,
-1012,8023,4,0,600,0,,300,
-1013,8061,3,1,500,0,,250,12002
-1014,8062,3,1,900,0,,450,12002
-1015,8063,4,1,800,0,,400,12003
-1016,8064,4,1,1000,0,,500,12003
-1017,8065,4,1,1200,0,,600,12003
-1018,8066,4,1,2000,0,,1000,12004
-1019,8067,4,1,1200,0,,600,12004
-1020,8068,4,1,2500,0,,1250,12005
-1021,8069,4,1,4000,0,,2000,12005
-1022,8070,4,1,5000,0,,2500,12005
+idx,nameidx,product_type,is_available,base_price,available_day,image_resource_idx,cost_price,required_facility_idx,top_view_image_resource_idx
+1001,8012,1,1,100,0,4254,50,,4253
+1004,8015,2,1,250,0,4248,125,,4251
+1005,8016,2,1,150,0,,75,12001,
+1006,8017,2,1,200,0,4249,100,12001,4252
+1007,8018,3,1,300,0,4246,150,,4246
+1010,8021,4,1,200,0,4247,100,,4247
+1013,8061,3,1,500,0,,250,12002,
+1014,8062,3,1,900,0,,450,12002,
+1015,8063,5,1,800,0,,400,12003,
+1016,8064,5,1,1000,0,,500,12003,
+1018,8066,6,1,2000,0,,1000,12004,
+1019,8067,6,1,1200,0,4247,600,12004,4247
+1020,8068,7,1,2500,0,,1250,12005,
+1021,8069,7,1,4000,0,,2000,12005,
+1022,8070,7,1,5000,0,,2500,12006,
+1023,8075,7,1,6000,0,,3000,12006,
 ```
-
 
 ### Assets/Datas/FacilityData.csv
 
-데이터 5행, 3컬럼. SHA-256: `1CAFFFF0B417D8D719199B8199009286219B8C2655102D4FD2ECEB4FDE7055AC`.
+데이터 11행, 7컬럼. SHA-256: `2BB24B7148FA69779F08547F2C7943456E6D9EFECBE87AADAF413222A1041932`.
 
 ```csv
-idx,nameidx,purchase_price
-12001,8056,5000
-12002,8057,7000
-12003,8058,12000
-12004,8059,15000
-12005,8060,25000
+idx,nameidx,purchase_price,upgrade_kind,required_store_stage,effect_type,target_store_stage
+12001,8056,1000,1,1,0,0
+12002,8057,1200,1,1,0,0
+12003,8058,1500,1,2,0,0
+12004,8059,1800,1,2,0,0
+12005,8060,2000,1,3,0,0
+12006,8076,2200,1,3,0,0
+12007,8077,800,2,1,1,0
+12008,8078,1500,3,1,0,2
+12009,8079,1200,2,2,2,0
+12010,8080,2500,3,2,0,3
+12011,8081,1500,2,3,3,0
+```
+
+### Assets/Datas/DailyGuidelineData.csv
+
+데이터 3행, 7컬럼. SHA-256: `F653062411B04B0171EB265E986B1A4A53EDADCF1209FA57ABCEF60A378911A4`.
+
+```csv
+idx,day,nameidx,descriptionidx,rule_type,target_product_idx,param_value
+13001,1,8101,8102,0,0,0
+13002,2,8101,8104,1,1001,1
+13003,3,8101,8106,2,1007,0
+```
+
+
+### Assets/Datas/MoralityData.csv
+
+데이터 20행, 9컬럼. SHA-256: `8412808854989204AA3BB3E096783C6A2188B1A113C6ED3C5B1B5005A4922100`.
+
+```csv
+idx,customer_disposition_type,is_accepted,offer_min_rate,offer_max_rate,include_min,include_max,adult_morality_point,child_elderly_morality_point
+14001,1,1,0,800,0,1,1,2
+14002,1,1,800,1000,0,0,0.5,1
+14003,1,1,1000,1000,1,1,0,0
+14004,1,1,1000,1050,0,1,-0.25,-0.5
+14005,1,1,1050,1100,0,1,-0.5,-1
+14006,1,1,1100,1200,0,1,-0.75,-1.5
+14007,1,1,1200,1300,0,1,-1,-2
+14008,1,0,1300,0,0,0,-2,-4
+14009,2,1,0,800,0,1,6,9
+14010,2,1,800,1000,0,0,3,4.5
+14011,2,1,1000,1000,1,1,0,0
+14012,2,1,1000,1100,0,1,-2,-3
+14013,2,1,1100,1200,0,1,-4,-6
+14014,2,1,1200,1300,0,1,-6,-9
+14015,2,1,1300,1400,0,1,-8,-12
+14016,2,1,1400,1500,0,1,-10,-15
+14017,2,0,1500,0,0,0,-10,-15
+14018,3,1,1000,1000,1,1,0,0
+14019,3,0,0,1000,0,0,-2,-4
+14020,3,0,1000,0,0,0,-2,-4
+```
+
+
+### Assets/Datas/ReputationBalanceData.csv
+
+데이터 5행, 11컬럼. SHA-256: `8A214D7E20CDF29013D7633BB60AC55CB730ABA101B8FB421C6D06FDFABFB43C`.
+
+```csv
+idx,min_reputation,max_reputation,normal_weight,wealthy_weight,hasty_weight,special_weight,recovery_rate,settlement_min_score,settlement_max_score,settlement_delta
+11001,-100,-61,667,33,300,0,2000,0,19,-15
+11002,-60,-21,707,65,228,0,1500,20,39,-7
+11003,-20,20,761,109,130,0,1000,40,60,0
+11004,21,60,730,180,90,0,1000,61,80,7
+11005,61,100,690,253,57,0,1000,81,100,10
 ```

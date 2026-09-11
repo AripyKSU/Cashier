@@ -56,47 +56,6 @@ public class PreOpenPanelPresenter : MonoBehaviour
     /// <summary>영업 시작 버튼의 공개 참조입니다.</summary>
     public Button OpenBusinessButton => this.openBusinessButton;
 
-    /// <summary>패널이 활성화될 때 기본 지침서 스냅샷을 자체 렌더링합니다.</summary>
-    private void OnEnable()
-    {
-        int day = GameSessionManager.Instance != null
-            ? checked((int)GameSessionManager.Instance.ElapsedDays + 1)
-            : 1;
-
-        if (DataTableManager.Instance != null
-            && DataTableManager.Instance.Customers != null
-            && DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text) != null)
-        {
-            var factory = new ProgressViewDataFactory(
-                DataTableManager.Instance.Customers,
-                DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text),
-                new System.Collections.Generic.Dictionary<uint, Sprite>(),
-                DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline));
-            this.UpdateView(factory.CreatePreOpenGuidelineViewData(day));
-        }
-        else
-        {
-            var defaultProducts = new[]
-            {
-                new PriceGuideProductViewData(1001, "물", 100, null),
-                new PriceGuideProductViewData(1002, "정수 캔", 150, null),
-                new PriceGuideProductViewData(1003, "휴대용 필터", 500, null),
-                new PriceGuideProductViewData(1004, "통조림", 250, null),
-            };
-
-            var fallbackData = new PreOpenGuidelineViewData(
-                day,
-                "영업 전, 가격을 기억하세요",
-                "오늘의 지침",
-                "제한 없음.",
-                defaultProducts,
-                "영업이 시작되면 가격표를 다시 볼 수 없습니다.",
-                "당일 지침은 영업 중에도 다시 확인할 수 있습니다.");
-
-            this.UpdateView(fallbackData);
-        }
-    }
-
     /// <summary>
     /// 지침서 스냅샷 데이터를 기반으로 화면을 갱신합니다.
     /// 추후 CSV 데이터가 연동되면 이 메서드에 전달되는 스냅샷을 통해 텍스트가 자동 반영됩니다.

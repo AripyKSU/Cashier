@@ -2,6 +2,8 @@
 
 현재 공개 API·CSV 의미·거래 판정의 단일 상세 명세는 [CUSTOMER_INTEGRATION.md](CUSTOMER_INTEGRATION.md)다. 이 문서는 진입 안내와 과거 검증 기록만 유지한다.
 
+아래의 "현재"·"미연결"·화면 담당 클래스 표현은 작성 당시 요약으로 보존한다. 실제 작업은 해당 상세 명세와 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md), 현재 checkout을 대조해 판단하고, 과거 요약을 근거로 구현을 되돌리지 않는다.
+
 ## 현재 데이터와 실행 흐름
 
 - 외형·성향·상품·상품 분류는 각각 전용 DataTable에서 파싱하고 CustomerCatalog의 FK 검증 후 공개한다. 제거된 CustomerCsvTable<T>를 복원하지 않는다.
@@ -30,7 +32,7 @@
 ### ID·nameidx 이관 검증
 
 - `PASS`: Unity compileFailed=False, InitScene → HubScene → GameplaySandbox 진입 및 버튼 100회 생성 확인.
-- 상품 1001~1012, Resource 3001~3099의 사용 중인 65행, Text 8001~8023의 enum·로더 분류 확인. Resource는 기존 PK에 2000만 더했고 모든 path 값과 행 순서는 동일하다.
+- 과거 상품·Resource·Text ID 이관 당시의 enum·로더 분류를 확인했다. 이 항목은 과거 이관 기록이며 현재 상품 카탈로그와 행 구성은 [DATA_CATALOG.md](DATA_CATALOG.md)를 따른다.
 - 외형·성향·상품군·상품·Text 4/3/4/12/23행 로딩. nameidx 조회 결과와 이전 RGBA 색상의 화면 표시 확인.
 - CSV 오류 16종 차단 및 실패 데이터 비공개 검사 통과. 기존 생성기 검사도 통과.
 - 정상 Play 후 제품 Console 오류·경고 0건. 검증 중만 사용한 runInBackground 옵션은 false로 복구했고 Play를 중지했다.

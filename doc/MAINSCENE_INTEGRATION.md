@@ -1,5 +1,14 @@
 # MainScene 진행·세션 API 통합
 
+## Upgrade 통합 (2026-09-10)
+
+- `Upgrade 935cf93`의 상품16종·설비11종·일일 유지비·지침 표시·막대/소팅/청소기를 `total_merge fcf1518`의 이미지·도덕성·대기열과 통합했다. 기존 MainScene 인스턴스 및 Local 원본은 보존하고 공유 GameUI의 새 참조를 연결했다.
+- 영업 전 카드는 Controller → 기존 factory → PreOpenPanelPresenter 경로 하나로 현재가·활성 설비·Sprite를 받는다. 최대4종 표시 제한은 유지한다. 5종 이상 해금 시 모든 상품을 표시하는 UI 확장은 미구현이다.
+- BusinessClock은 DayProgress의 남은 시간 비율을 09:00~20:00으로 표시하며 자체66초 카운트는 사용하지 않는다. 영업 시간·pause·Closing 권위는 변경하지 않았다.
+- DailyGuidelineData는 PK/날짜 중복 및 Text/Product FK를 검증한 뒤 공개한다. 현재 지침 문구 표시만 연결되며 SaleRestriction으로 변환해 거래에 공급하거나 벌칙을 적용하는 기능은 미연결이다.
+- 일일 정산의 Expenses/NetProfit과 Transactions/MoralityDelta를 함께 보존한다. 유지비 부족 시 집계가 먼저 종료·초기화되는 것은 Upgrade 원본 동작이며 자동 재시도/복구는 추가하지 않았다. 부족·알림 예외 후 정상 재개 정책은 별도 설계가 필요하다.
+- 실제 Main smoke: 기본4카드 Sprite·통조림 현재가200, 가게1→3단계, 당일 효과 잠금→다음날3효과 활성, 유지비200·정산·2일차 대기열1명 확인. 막대/청소기 실제 드래그 감각과 최종 배치는 사용자 수동 확인 대상이다. 증거와 미검증 범위는 [TESTING.md](TESTING.md).
+
 기준: 2026-09-09, `total_merge`에 설비 `65888e1`과 명성 `6976218`을 통합. 원본 브랜치는 보존하고 push는 별도다. MainScene에 공유 GameUI prefab·Camera·InputSystem EventSystem을 연결했다. 개인 Local 코드·씬은 포함하지 않는다.
 
 ## 현재 호출 경로
@@ -16,13 +25,13 @@ GameUI.prefab의 GameUIController → GameProgress → DayProgress → GameSessi
 | SubmitOffer | 최종 선택 SaleItem 목록으로 판정하고 visit.Result.Value를 그대로 일일집계에 한 번 전달한다. Outcome/SoldItems/CostTotal/지침 기록을 legacy TransactionResult로 재생성하지 않는다 |
 | 접수 실패 | false/예외면 확정 방문 결과를 보존하고 원본 예외를 전달한다. 성공 이벤트·다음 손님·Tick·정산 완료를 차단한다. rollback/자동 재시도 없음. 판정 입력 검증 실패는 올바른 재제출 가능 |
 | Tick | Controller의 기존 Time.deltaTime을 한 곳에서 전달. pause는 진행하지 않고 min(delta, 남은 영업초)만 라디오와 영업시간에 적용한다. Closing 이후 라디오 시간을 더 진행하지 않는다 |
-| 정산 | DayProgress가 session.EndTradingDay(out result)를 한 번 호출하고 수락·거절 원본 거래 목록으로 명성을 계산한다. 정산 UI는 FinalDelta 피드백을 표시하며 설비 구매 후에도 확정값은 유지한다 |
-| 다음 날 | 일반일 정산 확인 또는 상납 성공 뒤 CompleteDay(종료한 Day - 1)를 정확히 한 번 호출한다. EnsureDailyPrices 성공 후 다음 DayStarted/가격표를 공개한다. 상납 부족은 기존 Failed 상태이며 날짜·납부 회차가 증가하지 않는다 |
+| 정산 | DayProgress가 session.EndTradingDay(out result)를 한 번 호출한다. 세션은 해당 표시일 유지비를 자동 차감한 뒤 매출·유지비·순익·차감 후 잔액을 공개하고, 원본 거래 목록으로 명성을 계산한다. 유지비 부족은 오류를 기록하고 정산창 공개와 날짜 진행을 차단한다 |
+| 다음 날 | 일일 정산 확인 뒤 CompleteDay(종료한 Day - 1)를 정확히 한 번 호출한다. 별도 상납 상태는 없으며 EnsureDailyPrices 성공 후 다음 DayStarted/가격표를 공개한다 |
 | 가격표 | ProgressViewDataFactory.CreatePriceListText(day, session.EnsureDailyPrices())는 동일 날짜의 판매 가능 상품과 현재가를 표시한다. 날짜 불일치·단가 누락/0은 예외이며 BasePrice로 대체하지 않는다 |
 
 CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날짜 가격 계산 실패 시 날짜를 임의 rollback하거나 새 하루 성공 이벤트를 보내지 않는다. 현 UI 오류 처리가 진행을 중단하며 세션 복구는 별도 설계 대상이다.
 
-세션은 날짜 완료 직후 명성을 한 번 반영하고 다음 날 snapshot을 만든다. 상납 실패일은 날짜·명성을 적용하지 않는다. 새 세션은 명성0/빈 로그이며 기존 세션에서 화면을 재생성하면 명성·설비·로그가 유지된다.
+세션은 날짜 완료 직후 명성을 한 번 반영하고 다음 날 snapshot을 만든다. 유지비 실패일은 정산·날짜·명성을 적용하지 않는다. 새 세션은 명성0/빈 로그이며 기존 세션에서 화면을 재생성하면 명성·설비·로그가 유지된다.
 
 ## 유지한 정책과 미연결
 
@@ -38,7 +47,7 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 
 자동 검사는 [TESTING.md](TESTING.md)의 GameSessionApiTests에서 실제 진행 API를 거친다. API 통과를 MainScene 화면 통과로 해석하지 않는다.
 
-사용법: `Use MainScene` 선택 → InitScene에서 Play → Hub를 거쳐 MainScene 진입 → 영업 시작/상품 분류/가격 확정 → 마감 마지막 거래 → 정산의 설비 버튼 → 구매/닫기 → 정산 완료(상납일은 납부) → 다음날 해금과 명성 피드백 확인. 최종 화면 가독성·사용감은 사용자 수동 확인 대상이다.
+사용법: `Use MainScene` 선택 → InitScene에서 Play → Hub를 거쳐 MainScene 진입 → 영업 시작/상품 분류/가격 확정 → 마감 마지막 거래 → 유지비 자동 차감과 정산 표시 → 정산의 설비 버튼 → 구매/닫기 → 정산 완료 → 다음날 해금과 명성 피드백 확인. 최종 화면 가독성·사용감은 사용자 수동 확인 대상이다.
 
 ## 후속 설비 구현 완료 범위
 
@@ -74,3 +83,11 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 개별 UI 검사 셸은 제거했다. 새 Play 세션에서 Init → MainScene 로딩 후 위 사용법을 수동으로 수행하고 입장·4단계 판정·입금 1회·퇴장/FIFO·일일 종료·다음 날 진행을 확인한다. 최종 목록 선택 UI는 미구현이라 현재는 최초 희망 목록을 제출한다. API 검사는 [TESTING.md](TESTING.md)를 따르며 MainScene 직렬화 연결·버튼·표시 성공을 대신하지 않는다.
 
 이전 통합 기록에서는 당시 셸 검사와 컴파일, Console 오류·경고 0을 확인했다. Player 빌드, 저장 복구, 상납금 전체 회차 UI 검증은 미실행이다. MainScene 직접 Play 대신 Init 진입을 사용한다.
+# MainScene 대기열 통합 (2026-09-10)
+
+- InitScene → HubScene → MainScene으로 실행한다. `Cashier/Gameplay Scene Settings`의 `Use MainScene`으로 개인 씬 선택을 비운다. 개인 씬 파일은 삭제하지 않는다.
+- MainScene GameUI 인스턴스의 `useCustomerQueue=true`. 별도 `Customer Queue`의 `CustomerQueueView`가 실제 DayProgress를 관찰하며 모델·금액·방문 시계는 변경하지 않는다.
+- `AstraFrontView/Customer/QueueRoot`에 FIFO 슬롯10개와 입장·좌우 퇴장 anchor가 있다. 기존 CustomerPresenter는 계산대 대사·장바구니를 계속 담당하고 외형 Image 렌더만 QueueView가 대체한다.
+- 현재·대기 손님은 높이430/aspect 보존, 하단 기준 호흡과 cover12px를 사용한다. 이동0.65초, 퇴장은 기존 QueueExitSeconds(0.45초) 동안 이미지 검정 전환과 전체 alpha fade를 적용한다. pause·다음날·비활성화 시 기존 수명 규칙을 따른다.
+- 공유 Scene/코드는 Local 경로나 Local 컴포넌트를 참조하지 않는다. Local 원본은 이전 실험 버전으로 보존하며 공유 변경에 자동 동기화되지 않는다.
+- 확인 시나리오: 영업 시작→손님 및 대기열 생성→재촉/이탈→가격 제안·거래 퇴장→pause/resume→마감 후 정산. 실제 수행 결과는 TESTING.md에 기록하며 API 테스트와 화면 사용감 검증은 구분한다.

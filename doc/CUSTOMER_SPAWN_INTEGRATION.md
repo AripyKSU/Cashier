@@ -17,9 +17,10 @@
 
 `ProductType`에는 `Tools=5`, `ElectricalEquipment=6`, `ProtectiveEquipment=7`을 추가했다. ProductData의 설비 상품은 다음과 같이 분류된다.
 
-- 설비 12003: 상품 1015~1017, `Tools`
+- 설비 12003: 상품 1015~1016, `Tools`
 - 설비 12004: 상품 1018~1019, `ElectricalEquipment`
-- 설비 12005: 상품 1020~1022, `ProtectiveEquipment`
+- 설비 12005: 상품 1020~1021, `ProtectiveEquipment`
+- 설비 12006: 상품 1022~1023, `ProtectiveEquipment`
 
 상품 후보를 구성할 때 `CustomerProductAvailability`가 `IsAvailable`, `AvailableDay`, `RequiredFacilityIdx`를 모두 통과시킨 뒤에 선호 타입을 평가한다. 따라서 선호 타입이 잠금 상품만 가리켜도 잠금 전에는 기본 후보에서만 구성된다.
 
