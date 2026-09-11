@@ -13,7 +13,7 @@
 - 초기화한 세션을 사용하는 기존 `GameProgress`에서 `Start()` 이후 `TryPurchaseFacility(12001, out var result)`를 호출한다. 외부 입력은 설비 PK 하나이며 가격·날짜를 받지 않는다.
 - `true/Purchased`: CSV 가격 즉시 차감, `PaidAmount`에 지출, 일반 업그레이드는 `ActivationDay`에 현재 경과일+1을 등록한다. 단계 상승은 현재 단계와 상점 잠금을 즉시 변경한다.
 - `false/AlreadyOwned`: 재결제하지 않고 기존 활성일 반환. `false/InsufficientFunds`: 무변경, 활성일 null. `false/StageLocked`: 요구 단계 또는 순차 단계 조건을 만족하지 못한 상태로 무변경이다.
-- 0·미등록 ID, 구매 재진입, 날짜 overflow는 예외다. 진행의 Initializing/Failed/Completed 상태는 구매를 거부한다. 공개 API의 그 밖 상태는 유지하되 실제 구매 UI는 일일 정산(`DayInProgress` + `Settlement`)에서만 노출한다.
+- 0·미등록 ID, 구매 재진입, 날짜 overflow는 예외다. 진행의 Initializing/Failed/Completed 상태는 구매를 거부한다. 감독관 이벤트 미완료 중에도 세션 API가 구매를 거부한다([감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)). 공개 API의 그 밖 상태는 유지하되 실제 구매 UI는 일일 정산(`DayInProgress` + `Settlement`)에서만 노출한다.
 - 재정 이벤트 구독자가 예외를 던지면 원래 예외를 전달한다. 이미 차감 완료했다면 보유도 유지한다. 실패를 보고 무조건 재결제하지 말고 `session.FacilityActivationDays`를 조회한다.
 - 보유·활성일·가게 단계의 단일 권위는 세션 내부 FacilityService다. `CurrentStoreStage`, `IsFacilityOwned`, `IsFacilityUpgradeActive`, `IsFacilityEffectActive`, `TryGetFacilityActivationDay`, `IsFacilityActive`와 읽기 전용 `FacilityActivationDays`를 노출한다. 같은 세션의 표현 객체 교체는 보유를 유지하고 새 세션은 초기화한다. 저장 파일 복원은 미구현이다.
 

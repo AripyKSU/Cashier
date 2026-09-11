@@ -1,6 +1,6 @@
 # 감독관 시스템 명세
 
-상태: 구현·API 및 최소 실화면 검증 완료. 최종 UI/UX는 사용자 확인 대상. 기준: `total_merge d13d2e2`, 작업 브랜치 `codex/inspector-events`.
+상태: 2026-09-10 구현·API 및 최소 실화면 검증 완료 기록은 9절에 보존한다. 최종 UI/UX는 사용자 확인 대상이다. 구현 커밋 `6115ec0`, 공통 문서 통합 기준 `codex/inspector-events 50155f1` (2026-09-11). 이번 대조는 정적 검토이며 새 Unity 실행 결과가 아니다. [현재 작업 상태](work/inspector-events.md)와 [전체 담당 기능 감사](FEATURE_CONTRACT_AUDIT.md)를 함께 확인한다.
 2026-09-10 확인한 [감독관 문서](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.exfv0lp8nt0) 1~7절과 사용자의 최신 요청을 기준으로 한다.
 이 문서는 임시 병합 인계가 아니라 구현된 기능 계약과 검증 기록이다. 기존 파일명은 유지한다.
 
@@ -155,7 +155,7 @@ API는 기존 Unity EditMode Test Runner, 실제 로딩·UI 수명은 필요한 
 - GameUI는 독립 InspectorPanel nested 참조와 기존 Root/Background를 ProgressCanvas 직속 StartupCover로 이동한 구성을 사용한다. 덮개는 저장 상태부터 검정/alpha1/활성/stretch/입력차단이며 오류 문구는 덮개 자식이다. MainScene·Local 씬은 수정하지 않는다.
 - CSV/DTO/테이블/enum/loader/세션/DayProgress/Presenter/Controller, 두 prefab 및 신규 `.meta`, TextData, 승인된 CSV Addressables entry와 테스트를 함께 적용한다. 부분 적용 시 필수 CSV·패널 참조 검증이 의도적으로 초기화를 차단한다.
 - 새 저장 포맷은 도입하지 않았다. 세션을 새로 만들면 이력도 초기화한다. UI/UX·전용 이미지 교체는 별도 사용자 확인 대상이다.
-- 이번 프로그래머 작업에서는 stage·commit·push·merge를 하지 않는다. 폰트와 개인 씬 변경은 인계 묶음에서 제외한다.
+- 초기 프로그래머 구현에서는 Git 작업을 하지 않았고, 이후 설계 담당이 `6115ec0`으로 커밋·푸시했다. 폰트와 개인 씬 변경은 인계 묶음에서 제외했다. 현재 통합·후속 작업은 위 작업 상태 기록을 따른다.
 
 ## 9. 검증 결과 (2026-09-10)
 
