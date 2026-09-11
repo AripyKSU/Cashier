@@ -107,4 +107,4 @@ CSV별 관련 명세에 다음 항목을 기록한다. 이 설명을 CSV의 주�
 - CsvHelper로 실제 파일을 읽어 필수 header, 숫자 변환, enum·boolean·범위·빈값·배열 규칙을 검사한다. 문자열의 쉼표·따옴표·개행은 CSV 규격에 따라 보존하며 수동 Split으로 파싱하지 않는다.
 - 누락·잘못된 FK나 필수값은 파일·행/PK·컬럼·대상과 원인을 포함한 LogError와 예외로 보고하고 runtime 공개를 차단한다.
 - 영향을 받은 컴파일·최소 실행 경로에서 실제 데이터 조회·표시를 확인한다. 파싱 성공만으로 실행 성공을 보고하지 않는다.
-- 공통 완료 상태와 실행 검증 절차는 [`DATA_RULES.md`](DATA_RULES.md) 및 [`AGENTS.md`](../AGENTS.md)를 따른다.
+- 공통 완료 상태와 실행 검증 절차는 [`DATA_RULES.md`](DATA_RULES.md) 및 [`WORK_RULES.md`](WORK_RULES.md)를 따른다.
