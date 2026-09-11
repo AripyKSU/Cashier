@@ -72,6 +72,8 @@ public sealed class GameSessionApiTests
         Assert.That(session.AdvanceTradingTime(60, true), Is.False); Assert.That(session.DailyPrices, Is.SameAs(before));
         Assert.That(session.AdvanceTradingTime(60, false)); Assert.That(session.AdvanceTradingTime(60, false), Is.False);
         session.EndTradingDay(); session.CompleteDay(0); var day1 = session.EnsureDailyPrices();
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); completeInspectors(progress);
         session.BeginTradingDay(); session.EndTradingDay(); Assert.That(session.AdvanceTradingTime(60, false), Is.False);
         Assert.That(session.DailyPrices, Is.SameAs(day1)); Assert.That(day1.IsRadioBroadcast, Is.False);
     }
@@ -269,6 +271,9 @@ public sealed class GameSessionApiTests
         Assert.That(session.DailyMoralityDelta, Is.Zero);
         Assert.That(session.CurrentMorality, Is.EqualTo(expected));
         session.CompleteDay(0);
+        var nextProgress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        nextProgress.Start(); completeInspectors(nextProgress);
         session.BeginTradingDay();
         Assert.That(session.DailyMoralityDelta, Is.Zero);
         session.EndTradingDay(out var emptyDay);
@@ -787,7 +792,7 @@ public sealed class GameSessionApiTests
     {
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); completeInspectors(progress);
-        for(int i=0; i<2; i++) { closeProgressDay(progress); progress.CompleteSettlement(); }
+        for(int i=0; i<2; i++) { completeInspectors(progress); closeProgressDay(progress); progress.CompleteSettlement(); }
         Assert.That(progress.CurrentDay, Is.EqualTo(3));
         Assert.That(progress.TryPurchaseFacility(12008, out _)); Assert.That(progress.TryPurchaseFacility(12010, out _));
         Assert.That(session.CurrentStoreStage, Is.EqualTo(3));
@@ -801,6 +806,48 @@ public sealed class GameSessionApiTests
         completeInspectors(progress); Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
         closeProgressDay(progress); progress.CompleteSettlement();
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+    }
+
+    /// <summary>실제 CSV/FK로 로드한 임시 이벤트가 무설비 2일차에만 등장하고 퇴장 후 정상 진행되는지 검사한다.</summary>
+    [Test]
+    public void InspectorDayTwoTemporaryEventAppearsOnceWithoutFacilities()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); completeInspectors(progress);
+        closeProgressDay(progress); progress.CompleteSettlement();
+        Assert.That(progress.CurrentDay, Is.EqualTo(2));
+        Assert.That(session.FacilityActivationDays, Is.Empty);
+        Assert.That(session.CurrentStoreStage, Is.EqualTo(1));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        var snapshot = session.InspectorEvents.Current;
+        Assert.That(snapshot.EventIdx, Is.EqualTo(15003));
+        Assert.That(snapshot.TextIdx, Is.EqualTo(8181));
+        Assert.That(snapshot.PortraitResourceIdx, Is.EqualTo(4201));
+        var text = tables.GetDB<TextDataTable>(DataTableType.Text);
+        Assert.That(text.Rows[8180].Text, Is.EqualTo("2일차 등장 확인"));
+        Assert.That(text.Rows[snapshot.TextIdx].Text, Is.EqualTo("2일차 감독관 등장 확인용 임시 대사입니다."));
+        long balance = session.Economy.QueryService.CurrentBalance;
+        decimal morality = session.CurrentMorality;
+        int reputation = session.CurrentReputation;
+        Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
+        Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot));
+        Assert.That(session.InspectorEvents.Current.Phase, Is.EqualTo(InspectorEventPhase.AwaitingExit));
+        Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
+        Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot));
+        Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot), Is.False);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        Assert.That(session.CurrentMorality, Is.EqualTo(morality));
+        Assert.That(session.CurrentReputation, Is.EqualTo(reputation));
+        var reentry = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
+        reentry.Start();
+        Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        closeProgressDay(reentry); reentry.CompleteSettlement();
+        Assert.That(reentry.CurrentDay, Is.EqualTo(3));
+        Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(session.InspectorEvents.HasPending, Is.False);
     }
 
     /// <summary>초기화 실패 시 덮개가 입력을 계속 차단하고 오류 문구가 위에 표시되는지 검사한다.</summary>
@@ -935,6 +982,7 @@ public sealed class GameSessionApiTests
         next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
         Assert.That(open.gameObject.activeInHierarchy, Is.False);
         session.Economy.FinanceService.AddIncome(1000, FinanceChangeReason.Sale);
+        completeInspectors(progress);
         closeProgressDay(progress); open.onClick.Invoke();
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Is.EqualTo("사용 중"));
     }

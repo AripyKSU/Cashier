@@ -1,6 +1,6 @@
 # 기획용 데이터 카탈로그
 
-> 2026-09-11 감독관 브랜치 `50155f1`: InspectorEventData 2행·Text 51행 추가와 관련 enum, 대기열·설비 연결 설명을 대조했다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md), [전체 감사](FEATURE_CONTRACT_AUDIT.md).
+> 2026-09-11 감독관 브랜치 `ad72b17` 이후: 2일차 임시 이벤트15003·Text8180/8181을 추가해 감독관3행·Text181행이다. 이전 `50155f1` 기준에서 관련 enum, 대기열·설비 연결 설명을 대조했다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md), [전체 감사](FEATURE_CONTRACT_AUDIT.md).
 
  > 2026-09-10 Upgrade935cf93 + total_merge fcf1518 통합: 상품16종·설비11종·일일지침·유지비, 이미지/도덕성/대기열 계약과 CSV 원문을 갱신했다. 이미지 연결·검증 경계는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
 
@@ -10,7 +10,7 @@
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 15종, 컬럼 총 103개(테이블별 중복 컬럼 포함), 데이터 389행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 15종, 컬럼 총 103개(테이블별 중복 컬럼 포함), 데이터 392행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -47,7 +47,7 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 179 | 2 | 감독관 이름·대사 51행 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 181 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 7 | 21 | 구매·MainScene 대기열 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
@@ -56,11 +56,11 @@
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 11 | 거래 명성·정산 피드백·손님 생성 가중치 연결 |
 | [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 3 | 7 | PK·Text/Product FK 검증 후 공개, 지침 표시만 연결 |
 | [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
-| [InspectorEventData](../Assets/Datas/InspectorEventData.csv) | 2 | 9 | 영업 전 감독관 대화·조건·완료 이력 연결 |
+| [InspectorEventData](../Assets/Datas/InspectorEventData.csv) | 3 | 9 | 영업 전 감독관 대화·조건·완료 이력 연결 |
 
 ### InspectorEventData
 
-종류15, PK15001~15002. `idx`, `nameidx`, `day`, `required_facility_idx`, `min_store_stage`, `priority`, `repeat_mode`, `dialogue_text_idxs`, `portrait_resource_idx`의 9열이다. 첫날 20줄, 가게 3단계 구매 다음날 29줄이며 Resource4201을 재사용한다. 조건의 빈값·AND 판정, 반복 enum, FK와 로드 검증은 [감독관 명세 3절](INSPECTOR_SYSTEM_DRAFT.md#3-데이터-계약)을 단일 계약으로 따른다. 실제 금전·명성·도덕성을 변경하지 않는다. 전체 행은 아래 부록에 있다.
+종류15, PK15001~15003. `idx`, `nameidx`, `day`, `required_facility_idx`, `min_store_stage`, `priority`, `repeat_mode`, `dialogue_text_idxs`, `portrait_resource_idx`의 9열이다. 첫날 20줄, 가게 3단계 구매 다음날 29줄, 2일차 등장 확인용 임시 대사 1줄이며 Resource4201을 재사용한다. 2일차 행의 임시 유지·교체 기준은 [감독관 명세 10절](INSPECTOR_SYSTEM_DRAFT.md#10-2일차-등장-확인-데이터-2026-09-11)을 따른다. 조건의 빈값·AND 판정, 반복 enum, FK와 로드 검증은 [감독관 명세 3절](INSPECTOR_SYSTEM_DRAFT.md#3-데이터-계약)을 단일 계약으로 따른다. 실제 금전·명성·도덕성을 변경하지 않는다. 전체 행은 아래 부록에 있다.
 
 ### ReputationBalanceData
 
@@ -700,7 +700,7 @@ idx,path
 
 ### Assets/Datas/TextData.csv
 
-데이터 179행, 2컬럼. SHA-256: `B79A134A71B017E59009556A481ED2DEBC7AA92606CEEAD432D77C1BE96773F7`.
+데이터 181행, 2컬럼. SHA-256: `842237A8209644168022E1BD4CD2AC4D8AD1C77B05C887BBBB9F0F76034B9781`.
 
 ```csv
 idx,text
@@ -883,6 +883,8 @@ idx,text
 8177,"아픈 딸내미는 하루하루 더 죽어가고 있는데…"
 8178,"설마 이대로 보고만 있을 건 아니지?"
 8179,"…넌 아빠잖아."
+8180,"2일차 등장 확인"
+8181,"2일차 감독관 등장 확인용 임시 대사입니다."
 ```
 
 
@@ -1068,10 +1070,11 @@ idx,min_reputation,max_reputation,normal_weight,wealthy_weight,hasty_weight,spec
 
 ### Assets/Datas/InspectorEventData.csv
 
-데이터 2행, 9컬럼. SHA-256: `9281F634A87732B996114964C4BDB869B8824806C1748FCBF98B0228540FBAB4`.
+데이터 3행, 9컬럼. SHA-256: `19C7439DD26DA864D41750937F9E989F14352154DB9A0A7F247DBA066608B0FA`.
 
 ```csv
 idx,nameidx,day,required_facility_idx,min_store_stage,priority,repeat_mode,dialogue_text_idxs,portrait_resource_idx
 15001,8129,1,,,0,1,8131_8132_8133_8134_8135_8136_8137_8138_8139_8140_8141_8142_8143_8144_8145_8146_8147_8148_8149_8150,4201
 15002,8130,,,3,1,1,8151_8152_8153_8154_8155_8156_8157_8158_8159_8160_8161_8162_8163_8164_8165_8166_8167_8168_8169_8170_8171_8172_8173_8174_8175_8176_8177_8178_8179,4201
+15003,8180,2,,,0,1,8181,4201
 ```
