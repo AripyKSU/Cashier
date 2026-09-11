@@ -640,7 +640,6 @@ MonoBehaviour:
   operatingPanel: {fileID: 4153894106889497366}
   settlementPanel: {fileID: 4848903176888825905}
   failurePanel: {fileID: 4394457257517746855}
-  priceListText: {fileID: 3405634861439305905}
   validationText: {fileID: 3252960288601975291}
   transactionStatusText: {fileID: 4245227619641265218}
   failureText: {fileID: 8991342640671403398}
@@ -889,8 +888,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -560, y: 0}
-  m_SizeDelta: {x: 150, y: 610}
+  m_AnchoredPosition: {x: -540.46454, y: 0}
+  m_SizeDelta: {x: 189.0709, y: 720}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2898544688282610210
 GameObject:
@@ -1837,8 +1836,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 410, y: 125}
-  m_SizeDelta: {x: 300, y: 230}
+  m_AnchoredPosition: {x: 425.32, y: 0}
+  m_SizeDelta: {x: 429.36, y: 720}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6577257189565165331
 GameObject:
@@ -2888,17 +2887,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8959e01c907746f4599896fe108c60bc, type: 3}
---- !u!114 &3405634861439305905 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3491205344085604467, guid: 8959e01c907746f4599896fe108c60bc, type: 3}
-  m_PrefabInstance: {fileID: 2247434888668786882}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &4156963693494097974 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2774497109532305652, guid: 8959e01c907746f4599896fe108c60bc, type: 3}
