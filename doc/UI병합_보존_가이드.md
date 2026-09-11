@@ -4,6 +4,8 @@
 
 기준 문서: [`doc/BRANCH_INTEGRATION_RULES.md`](BRANCH_INTEGRATION_RULES.md), [`AGENTS.md`](../AGENTS.md)
 
+2026-09-11 감독관 통합: 편집기 리로드에서 `SetupDialoguePrefab()`을 자동 실행하는 updater는 제거한다. 브랜치 전환 시 구형 import 상태가 prefab 참조를 덮어쓰는 문제를 방지하며, 필요한 설치는 기존 수동 메뉴로 실행한다. 영업 시각의 최신 계약은 아래 B절을 따른다.
+
 ---
 
 ## 1. 핵심 보존 항목 요약
@@ -51,9 +53,10 @@
 
 ### B. 배경 시간대 전환 시스템 (TimeOfDay & BusinessClock)
 
-1. **시간 권위 (`BusinessClockController.cs`)**:
-   * 영업 시작 `09:00`부터 영업 마감 `21:00`까지 게임 내 시간을 단일 권위로 관리합니다.
-   * `CurrentBusinessMinutes` 및 `SetTime(hour, minute)` API를 통해 시간을 동기화합니다.
+1. **시간 권위 (2026-09-11 감독관 통합 계약)**:
+   * 실제 진행·일시정지·마감은 `DayProgress`가 소유합니다. `BusinessHours`의 09:00~21:00을 진행 비율에 맞춰 표시하며 실제 영업 기본30초는 유지합니다.
+   * `GameUIController`가 `BusinessClockController.DisplayTime(minutes)`으로 표시를 동기화합니다. 통합 플레이의 시계는 독립적으로 시간을 진행하거나 마감 이벤트를 발생시키지 않습니다.
+   * 배경 시작·끝도 공용 상수를 사용합니다. 낮·석양·야간의 중간 전환값과 기존 아트 레이어는 유지합니다. 상세 계약은 [MainScene 통합](MAINSCENE_INTEGRATION.md#감독관공용-영업-시각-통합-2026-09-11)을 따릅니다.
 2. **배경 아트 레이어 계층 순서 (`AstraFrontView`)**:
    * 스카이라인(아파트 및 남산타워)이 가려지지 않도록 잘못된 이전 안개 레이어(`FogBack`, `FogMid`, `FogFront`)는 비활성화 유지합니다.
    * 배경 레이어 순서:
@@ -71,7 +74,8 @@
    * **12:00 ~ 15:00 (주간)**: 기본 대낮 상태 (Tint: White).
    * **15:00 ~ 18:00 (주간 -> 석양)**: Sunset 레이어 페이드인, 주황/붉은빛 노을 틴트 적용.
    * **18:00 ~ 21:00 (석양 -> 야간/마감)**: Evening 레이어 페이드인, 야간 틴트(어두운 청회색) 적용, CityLights·CounterLight·좌우 탐조등 점등.
-4. **인게임 테스트 및 단축키 기능**:
+4. **배경 미리보기 및 단축키 기능**:
+   * 아래 조작은 배경 표현만 바꾸며 실제 영업 진행·표시 시계를 변경하지 않습니다. 통합 prefab의 debug/자동 진행은 기본 비활성화합니다.
    * `[`: 1시간 뒤로 이동
    * `]`: 1시간 앞으로 이동
    * `\` 또는 `T`: 주요 페이즈(아침 09:00 -> 주간 12:00 -> 석양 16:30 -> 저녁 19:30 -> 마감 21:00) 즉시 순환
@@ -163,7 +167,7 @@ ClockText:
 | `Assets/Scripts/UI/SaleSortingPanel.cs` | **[CRITICAL]** 상자 쏟기 연출(`playEntryFlow`), 틸트 및 빈 상자 퇴장 로직, 착지 시점(`elapsed >= 0.3f`) dust 호출 로직 유지. |
 | `Assets/Scripts/UI/SaleSortingItemView.cs` | 드래그 앤 드롭 필수 플래그(`raycastTarget = true`) 및 판정 영역 시각 피드백 유지. |
 | `Assets/Scripts/UI/TimeOfDayUIController.cs` | **[신규/유지]** 시간대별(아침/낮/노을/밤) 레이어 페이드 및 조명 점등 로직, 단축키 제어 필수 보존. |
-| `Assets/Scripts/UI/BusinessClockController.cs` | 09:00~21:00 영업 시간 단일 권위 유지. |
+| `Assets/Scripts/UI/BusinessClockController.cs` | DayProgress 비율을 BusinessHours의09:00~21:00으로 표시. 자체 마감 이벤트로 진행을 변경하지 않음. |
 | `Assets/DystopiaPrototype/Art/TimeOfDay/*` | Dawn, Sunset, Evening, CityLights, CounterLight, Searchlight 스프라이트 및 머티리얼·셰이더 보존. |
 | `Assets/Prefabs/GameUI/OperatingPanel.prefab` | **[CRITICAL]** 다른 브랜치의 구버전 프리팹(대화창 누락, 상자 Y=-405, 시계 X=1080)으로 덮어쓰지 말 것. 본 브랜치의 `DialoguePanel` 계층, RectTransform 수치, `PouringContainer` 직렬화 참조를 채택해야 함. |
 | `Assets/Prefabs/GameUI/GameUI.prefab` | `OperatingPanel` 인스턴스의 override에서 본 브랜치의 계층과 위치가 덮어써지지 않도록 확인. |
@@ -183,7 +187,7 @@ ClockText:
 2. **단위 테스트 실행**:
    * Unity Test Runner (EditMode)에서 `BusinessClockAndSortingTests` 전체 PASS 확인.
      * `SaleSortingItemView_InitializesRaycastTarget_AndSupportsDrag` PASS
-     * `TimeOfDayUIController_AppliesBusinessClockTime_Correctly` PASS
+     * `TimeOfDayUIController_EditorPreview_DoesNotChangeBusinessClock` PASS
      * `TimeOfDayUIController_BlendsDayAndNight_AccordingToBusinessClock` PASS
      * `LandingDustEffect_CalculatesContactPointAtBottomOfBox` PASS
 3. **Unity Editor 씬/프리팹 검증**:

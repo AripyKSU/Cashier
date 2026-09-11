@@ -1,5 +1,15 @@
 # 기능 API 검증
 
+## total_merge 감독관·공용 시계 통합 (2026-09-11)
+
+- 기준: `ba368c8` + `29c1ea5`, 병합 커밋 `cb60967` 이후 공용 영업 시각·시계/배경 참조·리로드 자동 저장 제거를 포함한다. 실제 작업 폴더는 `C:/Users/PC/Projects/Cashier`, 브랜치는 `total_merge`다.
+- EditMode **224/224**, 실패·skip·미완료0. `Temp/TestResults/20260911-114517-d7cf83ef8d7f403cb6a8015fa0ee1958/EditMode.xml` 및 `.log`.
+- 최초 EditMode는224중222통과·2실패(`20260911-114341-4c25c538ff1948ef9d1e8840f6fb1a6c`). 기존 테스트의 DividerBar.barRect와 CustomerPresenter.dialogueText fixture 참조 누락을 보완했고 기대 동작 검사는 유지했다. 기존 배경 테스트는 EditMode의 명시적 preview 설정과 시계 비간섭을 검사한다.
+- 초기 PlayMode 두 실행은 각각39중38통과·1실패였다. `114517-d7cf83ef8d7f403cb6a8015fa0ee1958`는 신규 테스트에 감독관 선행 완료 fixture가 적용된 문제여서 기존 Inspector 테스트 분류에 맞췄다. `114729-a3a01256c8944b1cb7eb2b93dcf093e6`는 영업 전 remainingSeconds=0을 마감시각으로 표시하는 실제 결함이었다. 모델 초기화는 유지하고 InspectorEvent/PreOpen의 표시 비율만 시작값으로 수정했다.
+- 최종 PlayMode **39/39**, 실패·skip·미완료0. `Temp/TestResults/20260911-115006-ccc6f23dfc2941c9b49b59774d225b60/PlayMode.xml` 및 `.log`. 실제 GameUI prefab에서 감독관 중 시각 유지, 영업 시작09시·절반15시·끝21시, 일시정지와 배경 미리보기의 영업 비간섭을 검증했다.
+- 실제 Init→Hub→Main→첫날 감독관 Next→PreOpen→영업 시작→15시→마감21시→거절 거래 정산→다음날 버튼→2일차 감독관15003을 확인했다. 제품 Console Error0, 컴파일 실패 없음. 시각 중간값은 진행 API와 Pause로 고정했고 버튼 listener를 사용한 최소 실행 검증이다. 화면 증거와 사용자 확인 경계는 [작업 기록](work/inspector-events.md)을 따른다.
+- 종료 시 InitScene dirty=false, Play/compile=false, background=false, playModeStartScene=null로 복원했다. 자동 TMP fallback atlas 변화만 제거했으며 기존 사용자 폰트는 보존했다. 최종 UI/UX와 Player build는 미검증이다.
+
 ## 2일차 감독관 임시 데이터 (2026-09-11)
 
 - `codex/inspector-events ad72b17` + 데이터·테스트 미커밋 변경: EditMode215/215, PlayMode38/38, 실패·skip·미완료0. 증거·보존 범위는 [작업 상태](work/inspector-events.md#2일차-등장-확인-데이터-추가-2026-09-11)를 따른다.

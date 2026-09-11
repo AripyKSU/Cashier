@@ -928,7 +928,7 @@ public sealed class GameUIController : MonoBehaviour
 #endif
     }
 
-    /// <summary>프레임 경과에 따라 실제로 변하는 타이머 표시만 갱신합니다.</summary>
+    /// <summary>DayProgress의 남은 시간으로 타이머와 공통 영업 시계 표시를 갱신한다.</summary>
     private void refreshFrameViews()
     {
         if (this.subscribedDay == null)
@@ -936,8 +936,11 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
-        float normalizedTime = this.subscribedDay.BusinessDurationSeconds <= 0f
-            ? 0f
+        // 영업 전 remainingSeconds는 아직 0이다. 감독관/준비 화면에서는 시작 시각을 유지한다.
+        bool beforeOpening = this.subscribedDay.State == DayProgressState.InspectorEvent
+            || this.subscribedDay.State == DayProgressState.PreOpen;
+        float normalizedTime = beforeOpening ? 1f
+            : this.subscribedDay.BusinessDurationSeconds <= 0f ? 0f
             : this.subscribedDay.RemainingSeconds / this.subscribedDay.BusinessDurationSeconds;
         if (this.businessClock != null)
         {

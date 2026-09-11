@@ -927,31 +927,4 @@ public static class SaleSortingPrefabSetup
     }
 }
 
-/// <summary>에디터 리로드 시 프리팹 갱신을 자동으로 1회 실행하여 디스크의 프리팹 파일에 대화창, 시계, 밀대, 대형 상자를 즉시 반영합니다.</summary>
-[InitializeOnLoad]
-public static class AutoSaleSortingPrefabUpdater
-{
-    private const string SessionKey = "SaleSortingUI_AutoSetup_Applied_v5";
-
-    static AutoSaleSortingPrefabUpdater()
-    {
-        EditorApplication.delayCall += checkAndRun;
-    }
-
-    private static void checkAndRun()
-    {
-        if (SessionState.GetBool(SessionKey, false)) return;
-        SessionState.SetBool(SessionKey, true);
-
-        try
-        {
-            SaleSortingPrefabSetup.SetupDialoguePrefab();
-            Debug.Log("[AutoSaleSortingPrefabUpdater] 대화창(마비노기 폰트) 프리팹 갱신을 성공적으로 완료했습니다.");
-        }
-        catch (Exception ex)
-        {
-            Debug.LogWarning($"[AutoSaleSortingPrefabUpdater] 자동 프리팹 갱신 중 예외: {ex.Message}");
-        }
-    }
-}
 #endif

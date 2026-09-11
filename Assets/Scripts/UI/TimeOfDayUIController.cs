@@ -16,7 +16,7 @@ using UnityEngine.InputSystem;
 public sealed class TimeOfDayUIController : MonoBehaviour
 {
     [Header("Clock Authority")]
-    [Tooltip("영업 시간 권위인 비즈니스 클럭 컨트롤러 (미할당 시 씬에서 자동 탐색)")]
+    [Tooltip("DayProgress의 시각을 표시하는 시계. 배경 미리보기는 이 값을 변경하지 않음")]
     [SerializeField] private BusinessClockController businessClock;
 
     [Header("TimeOfDay Art Layers")]
@@ -58,11 +58,9 @@ public sealed class TimeOfDayUIController : MonoBehaviour
     [SerializeField] private Graphic[] people;
 
     [Header("Time Settings (Hour)")]
-    [SerializeField] private float dawnStart = 9f;
     [SerializeField] private float dayStart = 12f;
     [SerializeField] private float sunsetStart = 15f;
     [SerializeField] private float eveningStart = 18f;
-    [SerializeField] private float nightEnd = 21f;
 
     [Header("Tints & Intensities")]
     [SerializeField] private Color dawnTint = new Color(1f, 0.90f, 0.80f);
@@ -82,7 +80,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
     [SerializeField] private bool debugOverrideTime;
 
     [Tooltip("수동 테스트 시간 슬라이더 (09:00 ~ 21:00)")]
-    [SerializeField, Range(9f, 21f)] private float debugHour = 9f;
+    [SerializeField, Range(BusinessHours.OpenHour, BusinessHours.CloseHour)] private float debugHour = BusinessHours.OpenHour;
 
     [Tooltip("배경 전환 테스트를 위해 시간을 09시부터 21시까지 부드럽게 자동 순환할지 여부")]
     [SerializeField] private bool autoAdvanceClockForTesting;
@@ -91,13 +89,13 @@ public sealed class TimeOfDayUIController : MonoBehaviour
     [SerializeField, Range(10f, 180f)] private float fullCycleSeconds = 45f;
 
     [Tooltip("화면 좌상단에 단축키 안내 오버레이 표시 여부")]
-    [SerializeField] private bool showDebugOverlay = true;
+    [SerializeField] private bool showDebugOverlay;
 
     [Header("Editor Preview")]
     [SerializeField] private bool previewInEditor;
-    [SerializeField, Range(9f, 21f)] private float previewHour = 9f;
+    [SerializeField, Range(BusinessHours.OpenHour, BusinessHours.CloseHour)] private float previewHour = BusinessHours.OpenHour;
 
-    private float currentAppliedHour = 9f;
+    private float currentAppliedHour = BusinessHours.OpenHour;
 
     public BusinessClockController BusinessClock
     {
@@ -130,6 +128,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         this.autoResolveReferences();
     }
 
+    /// <summary>테스트 입력은 배경 표시 시각만 바꾸며 영업 진행과 시계에는 쓰지 않는다.</summary>
     private void Update()
     {
         if (!Application.isPlaying) return;
@@ -156,22 +155,19 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         if (stepForward)
         {
             this.debugOverrideTime = true;
-            this.debugHour = Mathf.Min(this.debugHour + 1f, this.nightEnd);
-            this.syncTimeToClock(this.debugHour);
+            this.debugHour = Mathf.Min(this.debugHour + 1f, BusinessHours.CloseHour);
             Debug.Log($"<color=cyan>[TimeOfDay] 1시간 앞으로 이동 -> {this.formatHour(this.debugHour)}</color>");
         }
         else if (stepBackward)
         {
             this.debugOverrideTime = true;
-            this.debugHour = Mathf.Max(this.debugHour - 1f, this.dawnStart);
-            this.syncTimeToClock(this.debugHour);
+            this.debugHour = Mathf.Max(this.debugHour - 1f, BusinessHours.OpenHour);
             Debug.Log($"<color=cyan>[TimeOfDay] 1시간 뒤로 이동 -> {this.formatHour(this.debugHour)}</color>");
         }
         else if (cyclePhase)
         {
             this.debugOverrideTime = true;
             this.cycleNextPhase();
-            this.syncTimeToClock(this.debugHour);
             Debug.Log($"<color=cyan>[TimeOfDay] 페이즈 전환 -> {this.formatHour(this.debugHour)} ({this.getPhaseName(this.debugHour)})</color>");
         }
 
@@ -179,13 +175,12 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         if (this.autoAdvanceClockForTesting)
         {
             this.debugOverrideTime = true;
-            float speed = (this.nightEnd - this.dawnStart) / Mathf.Max(this.fullCycleSeconds, 5f);
+            float speed = (BusinessHours.CloseHour - BusinessHours.OpenHour) / Mathf.Max(this.fullCycleSeconds, 5f);
             this.debugHour += Time.unscaledDeltaTime * speed;
-            if (this.debugHour > this.nightEnd)
+            if (this.debugHour > BusinessHours.CloseHour)
             {
-                this.debugHour = this.dawnStart;
+                this.debugHour = BusinessHours.OpenHour;
             }
-            this.syncTimeToClock(this.debugHour);
         }
     }
 
@@ -442,14 +437,15 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         this.ApplyHour(hour);
     }
 
-    /// <summary>시간(09~20시)에 맞춰 각 레이어의 알파와 색상을 보간합니다.</summary>
+    /// <summary>공통 영업 시각 범위에 맞춰 각 레이어의 알파와 색상만 보간한다.</summary>
     /// <param name="hour">영업 시간 (시간 단위 소수점 포함, 예: 9.5는 09:30)</param>
     public void ApplyHour(float hour)
     {
+        hour = Mathf.Clamp(hour, BusinessHours.OpenHour, BusinessHours.CloseHour);
         this.currentAppliedHour = hour;
 
-        float morning = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(this.dawnStart, this.dayStart, hour));
-        float night = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(this.eveningStart, this.nightEnd, hour));
+        float morning = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(BusinessHours.OpenHour, this.dayStart, hour));
+        float night = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(this.eveningStart, BusinessHours.CloseHour, hour));
         float sunsetBlend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(this.sunsetStart, this.eveningStart, hour));
 
         setAlpha(this.sunset, sunsetBlend);
@@ -468,7 +464,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         bool lit = this.pixelStage != null && this.pixelStage.IsRendering;
         if (lit)
         {
-            this.pixelStage.SetTimeWeights(morning, sunsetBlend, night, Mathf.InverseLerp(this.dawnStart, this.eveningStart, hour), hour);
+            this.pixelStage.SetTimeWeights(morning, sunsetBlend, night, Mathf.InverseLerp(BusinessHours.OpenHour, this.eveningStart, hour), hour);
         }
 
         applyTint(this.environment, lit ? Color.white : tint);
@@ -519,6 +515,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         }
     }
 
+    /// <summary>배경 미리보기의 대표 시각만 순환한다.</summary>
     private void cycleNextPhase()
     {
         // 09:00 (아침) -> 12:00 (대낮) -> 16:30 (석양) -> 19:30 (저녁) -> 21:00 (마감) -> 09:00
@@ -536,21 +533,11 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         }
         else if (this.debugHour < 20.5f)
         {
-            this.debugHour = 21f;
+            this.debugHour = BusinessHours.CloseHour;
         }
         else
         {
-            this.debugHour = 9f;
-        }
-    }
-
-    private void syncTimeToClock(float hour)
-    {
-        if (this.businessClock != null)
-        {
-            int h = Mathf.FloorToInt(hour);
-            int m = Mathf.FloorToInt((hour - h) * 60f);
-            this.businessClock.SetTime(h, m);
+            this.debugHour = BusinessHours.OpenHour;
         }
     }
 

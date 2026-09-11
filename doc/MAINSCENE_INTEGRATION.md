@@ -1,5 +1,18 @@
 # MainScene 진행·세션 API 통합
 
+## 감독관·공용 영업 시각 통합 (2026-09-11)
+
+통합 기준: `total_merge ba368c8` + `codex/inspector-events 29c1ea5`. 아래는 사용자가 승인한 병합 계약이며 실제 검증 상태는 [작업 기록](work/inspector-events.md)을 따른다. 아래 과거 통합 절의 09~20시 표기는 당시 기록이다.
+
+- 최신 total_merge의 화면 배치·시간대 배경·말풍선·착지/쏟기·진공관·설비 상점을 유지하고 감독관 독립 패널과 초기 준비 가림을 연결한다. 첫날·2일차 임시 대사·3단계 구매 다음날 조건과 세션 완료 이력은 [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)를 따른다.
+- 게임 속 영업 시각은 `BusinessHours.OpenHour=9`, `CloseHour=21`, `OpenMinutes=540`, `CloseMinutes=1260`, `DurationMinutes=720`을 공통으로 사용한다. 분 값은 시각에서 계산하며 별도 조정값으로 저장하지 않는다.
+- 실제 영업 제한시간은 기존 DayProgress 기본30초와 생성자 입력을 유지한다. 게임 속12시간을 실제12시간 또는72초로 바꾸는 작업이 아니다.
+- DayProgress의 남은 시간 비율이 표시 시각의 기준이다. `OpenMinutes + floor(DurationMinutes × 경과비율)`로 환산해 시작09:00·절반15:00·끝21:00을 표시한다. MainScene의 BusinessClock은 별도 카운트나 마감 상태를 진행 시스템에 되먹이지 않는다.
+- 감독관·영업 전에는 영업 시간이 시작하지 않는다. 이때 아직0인 remainingSeconds를 마감으로 환산하지 않고 시작09:00으로 표시한다. 일시정지·Closing·정산에서는 모델 시간이 더 진행하지 않으며 시계와 시간대 배경도 이 상태를 따른다.
+- 배경의 시작·끝은 공용 영업 시각, 낮·석양·야간 중간 전환값은 기존 연출 조정값이다. 테스트용 미리보기는 표현값만 바꾸고 실제 영업 시간이나 통합 플레이의 표시 시계를 덮어쓰지 않는다.
+- 기존 prefab의 시작·마감 값과 자동 시작, 누락된 clock 참조는 같은 변경에서 정리한다. field 기본값 교체만으로 이전 직렬화 값이 이관되었다고 판단하지 않는다.
+- 편집기 리로드마다 자동 실행되던 `AutoSaleSortingPrefabUpdater`는 제거한다. 브랜치 전환 후 구형 import 상태로 최신 prefab을 저장하며 참조가 유실되는 경로를 차단한다. `SaleSortingPrefabSetup`의 명시적 수동 메뉴는 유지한다.
+
 ## Upgrade 통합 (2026-09-10)
 
 - `Upgrade 935cf93`의 상품16종·설비11종·일일 유지비·지침 표시·막대/소팅/청소기를 `total_merge fcf1518`의 이미지·도덕성·대기열과 통합했다. 기존 MainScene 인스턴스 및 Local 원본은 보존하고 공유 GameUI의 새 참조를 연결했다.

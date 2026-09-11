@@ -1,5 +1,10 @@
 # 기획용 데이터 카탈로그
 
+## 영업 시각 공통 기준 (2026-09-11 통합)
+
+- CSV 밸런스와 별도로 `BusinessHours`가 게임 속 시작09시·마감21시(540~1260분, 총720분)를 정의한다. 실제 영업 길이는 기존 `DayProgress` 기본30초/생성자 입력이다.
+- 진행 비율로 시계·배경을 연결하며 감독관·영업 전·일시정지에서는 영업 시간을 소비하지 않는다. 배경의 중간 전환값은 연출 설정으로 유지한다. [MainScene 계약](MAINSCENE_INTEGRATION.md#감독관공용-영업-시각-통합-2026-09-11)과 [검증 기록](work/inspector-events.md)을 참고한다.
+
 > 2026-09-11 감독관 브랜치 `ad72b17` 이후: 2일차 임시 이벤트15003·Text8180/8181을 추가해 감독관3행·Text181행이다. 이전 `50155f1` 기준에서 관련 enum, 대기열·설비 연결 설명을 대조했다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md), [전체 감사](FEATURE_CONTRACT_AUDIT.md).
 
  > 2026-09-10 Upgrade935cf93 + total_merge fcf1518 통합: 상품16종·설비11종·일일지침·유지비, 이미지/도덕성/대기열 계약과 CSV 원문을 갱신했다. 이미지 연결·검증 경계는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.

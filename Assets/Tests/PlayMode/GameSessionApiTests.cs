@@ -739,6 +739,63 @@ public sealed class GameSessionApiTests
     }
 
 #if UNITY_EDITOR
+    /// <summary>실제 UI의 시계와 배경은 DayProgress를 따르며 테스트 배경 시각은 영업 시간을 바꾸지 않는다.</summary>
+    /// <returns>실제 prefab 초기화 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorMainClockFollowsDayProgressAndPreviewCannotAdvanceBusiness()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        var clock = uiReference<BusinessClockController>(ui, "businessClock");
+        Assert.That(clock, Is.Not.Null);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        float beforeOpeningRemaining = progress.CurrentDayProgress.RemainingSeconds;
+        progress.Tick(60f);
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.OpenMinutes));
+        Assert.That(progress.CurrentDayProgress.RemainingSeconds, Is.EqualTo(beforeOpeningRemaining));
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.OpenMinutes));
+        var day = progress.CurrentDayProgress;
+        Assert.That(day.BusinessDurationSeconds, Is.EqualTo(30f));
+        progress.Tick(15f);
+        var refresh = typeof(GameUIController).GetMethod("refreshFrameViews", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        refresh.Invoke(ui, null);
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
+        Assert.That(clock.IsRunning, Is.False);
+        progress.Pause();
+        progress.Tick(10f);
+        refresh.Invoke(ui, null);
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
+        Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
+        progress.Resume();
+        var background = ui.GetComponentInChildren<TimeOfDayUIController>(true);
+        Assert.That(background.BusinessClock, Is.SameAs(clock));
+        background.RefreshTime();
+        Assert.That(background.CurrentAppliedHour, Is.EqualTo(15f));
+        var settings = new UnityEditor.SerializedObject(background);
+        settings.FindProperty("debugOverrideTime").boolValue = true;
+        settings.FindProperty("debugHour").floatValue = 20f;
+        settings.FindProperty("autoAdvanceClockForTesting").boolValue = true;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        typeof(TimeOfDayUIController).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(background, null);
+        background.RefreshTime();
+        Assert.That(background.CurrentAppliedHour, Is.GreaterThanOrEqualTo(20f));
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
+        Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
+        settings.Update();
+        settings.FindProperty("debugOverrideTime").boolValue = false;
+        settings.FindProperty("autoAdvanceClockForTesting").boolValue = false;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        progress.Tick(15f);
+        refresh.Invoke(ui, null);
+        background.RefreshTime();
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.CloseMinutes));
+        Assert.That(background.CurrentAppliedHour, Is.EqualTo(BusinessHours.CloseHour));
+        Assert.That(day.IsBusinessTimeExpired, Is.True);
+    }
+
     /// <summary>실제 CSV 첫 대사·불투명 초기 덮개·입력 잠금·패널 재생성·퇴장 후 영업을 검증한다.</summary>
     /// <returns>프리팹 초기화와 실제 페이드 대기.</returns>
     [UnityTest]

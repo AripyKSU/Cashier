@@ -12,7 +12,7 @@
 
 ## 전체 문서와 읽기 조건
 
-기준: 2026-09-11, `codex/inspector-events 50155f1`. 기존 total_merge 문서 25개, 공통 구조 문서 4개, 감독관 명세·담당 기능 감사·감독관 작업 상태 3개를 연결한다. 다른 브랜치 전용 문서를 현재 파일처럼 연결하지 않는다.
+기준: 2026-09-11, `total_merge ba368c8` + `inspector-events 29c1ea5` 통합 작업. 기존 문서32개와 최신 UI 병합 보존 가이드1개를 연결한다. 다른 브랜치 전용 문서를 현재 파일처럼 연결하지 않는다.
 
 | 문서 | 읽는 조건 | 내용 |
 |---|---|---|
@@ -32,6 +32,7 @@
 | [SCRIPT_GUIDE.md](SCRIPT_GUIDE.md) | 코드/API 위치 조사 | 스크립트·API 안내 |
 | [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md) | 개인 씬·공유 씬·진입 전환 | 개발 씬과 통합 씬 |
 | [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md) | MainScene 조립·세션 흐름 | 진행·세션 API 통합 |
+| [UI병합_보존_가이드.md](UI병합_보존_가이드.md) | 최신 UI 브랜치와 통합 | 배경·말풍선·착지/쏟기·직렬화 보존 |
 | [BRANCH_INTEGRATION_RULES.md](BRANCH_INTEGRATION_RULES.md) | 명시적으로 승인된 브랜치 통합 | Unity 자산 우선순위·병합·검증 |
 | [TESTING.md](TESTING.md) | 검증 계획·실행·결과 해석 | 실행 절차와 과거 XML·로그 증거 |
 | [CUSTOMER_SYSTEM.md](CUSTOMER_SYSTEM.md) | 손님 기능 전체 탐색 | 손님·상품 시스템 안내 |
