@@ -27,6 +27,43 @@ public class CustomerPresenter : MonoBehaviour
     [Tooltip("손님 대사 텍스트 (입장 인사 또는 판정 후 반응)")]
     [SerializeField] private TextMeshProUGUI dialogueText;
 
+    [Tooltip("말풍선 루트 오브젝트 (배경 패널)")]
+    [SerializeField] private GameObject speechBubbleRoot;
+
+    [Tooltip("말풍선 9-슬라이스 프레임 스프라이트 (DialogueFrame)")]
+    [SerializeField] private Sprite dialogueFrameSprite;
+
+    [Tooltip("손님 대사 폰트 (Mabinogi_Classic_OTF SDF)")]
+    [SerializeField] private TMP_FontAsset dialogueFont;
+
+    /// <summary>말풍선 루트 게임오브젝트</summary>
+    public GameObject SpeechBubbleRoot
+    {
+        get => this.speechBubbleRoot;
+        set => this.speechBubbleRoot = value;
+    }
+
+    /// <summary>손님 대사 텍스트 컴포넌트</summary>
+    public TextMeshProUGUI DialogueText
+    {
+        get => this.dialogueText;
+        set => this.dialogueText = value;
+    }
+
+    /// <summary>말풍선 9-슬라이스 프레임 스프라이트</summary>
+    public Sprite DialogueFrameSprite
+    {
+        get => this.dialogueFrameSprite;
+        set => this.dialogueFrameSprite = value;
+    }
+
+    /// <summary>손님 대사 폰트 에셋</summary>
+    public TMP_FontAsset DialogueFont
+    {
+        get => this.dialogueFont;
+        set => this.dialogueFont = value;
+    }
+
     [Header("Basket Display")]
     [Tooltip("장바구니 물품들이 배치되는 컨테이너 트랜스폼")]
     [SerializeField] private Transform basketContainer;
@@ -47,6 +84,7 @@ public class CustomerPresenter : MonoBehaviour
     private void Awake()
     {
         this.ensureTemporaryGenderText();
+        this.ensureSpeechBubble();
     }
 
     /// <summary>
@@ -55,6 +93,7 @@ public class CustomerPresenter : MonoBehaviour
     /// <param name="viewData">표시할 손님과 장바구니 스냅샷입니다.</param>
     public void UpdateView(CustomerViewData viewData)
     {
+        this.ensureSpeechBubble();
         if (!viewData.HasCustomer)
         {
             this.clearCustomerView();
@@ -93,10 +132,17 @@ public class CustomerPresenter : MonoBehaviour
             this.temporaryGenderText.gameObject.SetActive(true);
         }
 
-        // 2. 대사 렌더링
+        // 2. 대사 및 말풍선 렌더링
+        bool hasDialogue = !string.IsNullOrEmpty(viewData.DialogueText);
+        if (this.speechBubbleRoot != null)
+        {
+            this.speechBubbleRoot.SetActive(hasDialogue);
+        }
+
         if (this.dialogueText != null)
         {
-            this.dialogueText.text = !string.IsNullOrEmpty(viewData.DialogueText) ? viewData.DialogueText : "...";
+            this.dialogueText.gameObject.SetActive(hasDialogue);
+            this.dialogueText.text = hasDialogue ? viewData.DialogueText : "...";
         }
 
         // 3. 장바구니 렌더링
@@ -111,9 +157,15 @@ public class CustomerPresenter : MonoBehaviour
             this.customerUIRoot.SetActive(false);
         }
 
+        if (this.speechBubbleRoot != null)
+        {
+            this.speechBubbleRoot.SetActive(false);
+        }
+
         if (this.dialogueText != null)
         {
             this.dialogueText.text = string.Empty;
+            this.dialogueText.gameObject.SetActive(false);
         }
 
         if (this.appearanceImage != null)
@@ -343,5 +395,167 @@ public class CustomerPresenter : MonoBehaviour
         this.temporaryGenderText.raycastTarget = false;
         this.temporaryGenderText.transform.SetAsLastSibling();
         this.temporaryGenderText.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// 프로토타입 규격에 맞추어 손님 앞에 9-슬라이스 메탈 프레임(DialogueFrame) 말풍선 패널을 구성합니다.
+    /// </summary>
+    private void ensureSpeechBubble()
+    {
+        // 단위 테스트 등 외부에서 임의의 speechBubbleRoot를 주입한 경우 보존
+        if (this.speechBubbleRoot != null && this.speechBubbleRoot.name != "DialoguePanel" && this.dialogueText != null)
+        {
+            if (this.dialogueFont != null && this.dialogueText.font != this.dialogueFont)
+            {
+                this.dialogueText.font = this.dialogueFont;
+                this.dialogueText.fontSharedMaterial = this.dialogueFont.material;
+            }
+            return;
+        }
+
+        if (this.speechBubbleRoot != null && this.speechBubbleRoot.name == "DialoguePanel" && this.dialogueText != null)
+        {
+            if (this.dialogueFont != null && this.dialogueText.font != this.dialogueFont)
+            {
+                this.dialogueText.font = this.dialogueFont;
+                this.dialogueText.fontSharedMaterial = this.dialogueFont.material;
+            }
+            return;
+        }
+
+#if UNITY_EDITOR
+        if (this.dialogueFont == null)
+        {
+            this.dialogueFont = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset");
+        }
+
+        if (this.dialogueFrameSprite == null)
+        {
+            UnityEngine.Object[] assets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("Assets/DystopiaPrototype/Art/DialogueFrame.png");
+            foreach (var a in assets)
+            {
+                if (a is Sprite s)
+                {
+                    this.dialogueFrameSprite = s;
+                    if (s.name == "DialogueFrame") break;
+                }
+            }
+        }
+#endif
+
+        Transform panel = null;
+        Transform frontView = this.transform.Find("AstraFrontView");
+        if (frontView != null) panel = frontView.Find("DialoguePanel");
+        if (panel == null) panel = this.transform.Find("DialoguePanel");
+        if (panel == null && this.transform.parent != null)
+        {
+            Transform parentFront = this.transform.parent.Find("AstraFrontView");
+            if (parentFront != null) panel = parentFront.Find("DialoguePanel");
+            if (panel == null) panel = this.transform.parent.Find("DialoguePanel");
+        }
+
+        Transform targetParent = frontView ?? (this.transform.parent != null ? this.transform.parent : this.transform);
+
+        if (panel == null)
+        {
+            GameObject panelGo = new GameObject("DialoguePanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Canvas), typeof(Image));
+            panelGo.transform.SetParent(targetParent, false);
+            panelGo.transform.SetAsLastSibling();
+
+            RectTransform panelRect = panelGo.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+            panelRect.anchoredPosition = new Vector2(0f, -34f);
+            panelRect.sizeDelta = new Vector2(560f, 70f);
+
+            // 손님 및 배경보다 무조건 앞에 그려지도록 Canvas Sorting Order 지정
+            Canvas canvas = panelGo.GetComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 30;
+
+            Image frameImg = panelGo.GetComponent<Image>();
+            frameImg.sprite = this.dialogueFrameSprite;
+            frameImg.type = Image.Type.Sliced;
+            frameImg.fillCenter = true;
+            frameImg.pixelsPerUnitMultiplier = 4f;
+            frameImg.color = Color.white;
+            frameImg.raycastTarget = false;
+
+            GameObject textGo = new GameObject("Dialogue", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(panelGo.transform, false);
+            RectTransform textRect = textGo.GetComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.pivot = new Vector2(0.5f, 0.5f);
+            textRect.offsetMin = new Vector2(18f, 10f);
+            textRect.offsetMax = new Vector2(-18f, -10f);
+
+            TextMeshProUGUI tmp = textGo.GetComponent<TextMeshProUGUI>();
+            if (this.dialogueFont != null)
+            {
+                tmp.font = this.dialogueFont;
+                tmp.fontSharedMaterial = this.dialogueFont.material;
+            }
+
+            tmp.text = "...";
+            tmp.fontSize = 24f;
+            tmp.enableAutoSizing = true;
+            tmp.fontSizeMin = 16f;
+            tmp.fontSizeMax = 24f;
+            tmp.alignment = TextAlignmentOptions.Center;
+            tmp.color = Color.white;
+            tmp.raycastTarget = false;
+
+            Transform oldDialogue = this.transform.Find("Customer/Dialogue") ?? this.transform.Find("Dialogue");
+            if (oldDialogue != null && oldDialogue != textGo.transform)
+            {
+                oldDialogue.gameObject.SetActive(false);
+            }
+
+            panelGo.SetActive(false);
+            this.speechBubbleRoot = panelGo;
+            this.dialogueText = tmp;
+        }
+        else
+        {
+            this.speechBubbleRoot = panel.gameObject;
+            this.dialogueText = panel.GetComponentInChildren<TextMeshProUGUI>(true);
+
+            panel.SetAsLastSibling();
+            Canvas canvas = panel.GetComponent<Canvas>() ?? panel.gameObject.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 30;
+
+            Image frameImg = panel.GetComponent<Image>();
+            if (frameImg != null)
+            {
+                if (this.dialogueFrameSprite != null && frameImg.sprite == null)
+                {
+                    frameImg.sprite = this.dialogueFrameSprite;
+                }
+                else if (frameImg.sprite != null && this.dialogueFrameSprite == null)
+                {
+                    this.dialogueFrameSprite = frameImg.sprite;
+                }
+                frameImg.type = Image.Type.Sliced;
+                frameImg.fillCenter = true;
+                frameImg.pixelsPerUnitMultiplier = 4f;
+                frameImg.color = Color.white;
+                frameImg.raycastTarget = false;
+            }
+
+            if (this.dialogueFont != null && this.dialogueText != null && this.dialogueText.font != this.dialogueFont)
+            {
+                this.dialogueText.font = this.dialogueFont;
+                this.dialogueText.fontSharedMaterial = this.dialogueFont.material;
+            }
+
+            Transform oldDialogue = this.transform.Find("Customer/Dialogue") ?? this.transform.Find("Dialogue");
+            if (oldDialogue != null && oldDialogue != this.dialogueText?.transform)
+            {
+                oldDialogue.gameObject.SetActive(false);
+            }
+        }
     }
 }

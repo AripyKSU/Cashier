@@ -38,8 +38,8 @@ public static class SaleSortingPrefabSetup
     private const string DailyInstructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
     private const string CounterClockPath = "Assets/DystopiaPrototype/Art/시계.png";
     private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
-    private const int SaleAnchorCount = 9;
-    private const int SaleAnchorRowSize = 3;
+    private const string DialogueFramePath = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
+    private const string MabinogiFontPath = "Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset";
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]
@@ -92,7 +92,6 @@ public static class SaleSortingPrefabSetup
             RectTransform excluded = createRect("ExcludedZone", workArea, new Vector2(-560f, 0f), new Vector2(150f, 610f));
 
             RectTransform sale = createRect("ForSaleZone", workArea, new Vector2(410f, 125f), new Vector2(300f, 230f));
-            RectTransform[] saleAnchors = createSaleAnchors(sale);
 
             RectTransform itemRoot = createRect("ItemRoot", workArea, Vector2.zero, Vector2.zero);
             stretch(sortingtRoot: itemRoot);
@@ -113,23 +112,6 @@ public static class SaleSortingPrefabSetup
             dividerImage.preserveAspect = false;
             dividerImage.raycastTarget = false;
             DividerBarController dividerController = dividerRect.gameObject.AddComponent<DividerBarController>();
-
-            RectTransform vacuumRect = createRect("Vacuum", workArea, new Vector2(-330f, 0f), new Vector2(48f, 480f));
-            vacuumRect.SetAsLastSibling();
-            Image vacuumImage = vacuumRect.gameObject.AddComponent<Image>();
-            vacuumImage.color = new Color(0.72f, 0.82f, 0.88f, 0.95f);
-            vacuumImage.raycastTarget = false;
-            VacuumController vacuumController = vacuumRect.gameObject.AddComponent<VacuumController>();
-            RectTransform suctionArea = createRect("SuctionArea", vacuumRect, new Vector2(0f, -250f), new Vector2(96f, 64f));
-            SerializedObject vacuumObject = new SerializedObject(vacuumController);
-            setObject(vacuumObject, "vacuumRect", vacuumRect);
-            setObject(vacuumObject, "vacuumImage", vacuumImage);
-            setObject(vacuumObject, "suctionArea", suctionArea);
-            setFloat(vacuumObject, "startOffsetX", -330f);
-            setFloat(vacuumObject, "liftOffsetPixels", 18f);
-            setFloat(vacuumObject, "attachedSpacingPixels", 10f);
-            setFloat(vacuumObject, "positionFollowSpeed", 32f);
-            vacuumObject.ApplyModifiedPropertiesWithoutUndo();
 
             RectTransform container = createRect("PouringContainer", sortingRoot, new Vector2(-460f, 60f), new Vector2(420f, 420f));
             container.localRotation = Quaternion.Euler(0f, 0f, -90f);
@@ -184,7 +166,6 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "itemRoot", itemRoot);
             setObject(panelObject, "excludedZone", excluded);
             setObject(panelObject, "saleZone", sale);
-            setObjectArray(panelObject, "saleAnchors", saleAnchors);
             setObject(panelObject, "transitionOverlay", null);
             setObject(panelObject, "containerImage", containerImage);
             setObject(panelObject, "tiltedContainerSprite", loadSprite(TiltedContainerPath));
@@ -199,7 +180,11 @@ public static class SaleSortingPrefabSetup
             setObject(panelObject, "itemPrefab", itemView);
             setObject(panelObject, "sortingStatusText", null);
             setObject(panelObject, "dividerBar", dividerController);
-            setObject(panelObject, "vacuum", vacuumController);
+            setFloat(panelObject, "cursorRadiusPixels", 30f);
+            setFloat(panelObject, "cursorImpulse", 0.065f);
+            setFloat(panelObject, "maximumSpeedPixels", 230f);
+            setFloat(panelObject, "frictionPerSecond", 6.5f);
+            setFloat(panelObject, "itemRestitution", 0.1f);
             setFloat(panelObject, "transitionSeconds", 1f);
             panelObject.ApplyModifiedPropertiesWithoutUndo();
 
@@ -398,7 +383,8 @@ public static class SaleSortingPrefabSetup
         createFrontImage(frontView, "Canopy", CanopyPath, 0f, 0f, 1280f, 720f);
         createFrontImage(frontView, "Counter", CounterPath, 0f, 0f, 1280f, 720f);
 
-        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 1080f, 425f, 180f, 90f);
+        // 상자와 시계를 화면 및 매대 정중앙(X=640)에 맞춰 가운데 정렬 배치합니다.
+        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 550f, 605f, 180f, 90f);
         Image clockImage = clockRect.GetComponent<Image>();
         clockImage.preserveAspect = true;
         clockImage.raycastTarget = false;
@@ -421,12 +407,13 @@ public static class SaleSortingPrefabSetup
         setObject(clockObj, "clockText", clockText);
         clockObj.ApplyModifiedPropertiesWithoutUndo();
 
+        // FrontContainer(360x240, CenterX=640, Desk Contact Y=-578)
         RectTransform container = createFrontImage(
             frontView,
             "FrontContainer",
             FrontContainerPath,
             460f,
-            405f,
+            350f,
             360f,
             240f);
         Image containerImage = container.GetComponent<Image>();
@@ -435,6 +422,8 @@ public static class SaleSortingPrefabSetup
         Button button = container.gameObject.AddComponent<Button>();
         button.targetGraphic = containerImage;
         button.transition = Selectable.Transition.None;
+
+        setupDialoguePanel(frontView, operating);
     }
 
     /// <summary>Astra 지침서 배경 안에 현재 동적 가격 목록과 영업 시작 버튼을 배치합니다.</summary>
@@ -682,30 +671,6 @@ public static class SaleSortingPrefabSetup
         return rect;
     }
 
-    /// <summary>판매 구역 안에 ProductId 행 순서를 보존하는 3×3 앵커를 생성합니다.</summary>
-    /// <param name="saleZone">판매 구역 RectTransform입니다.</param>
-    /// <returns>위쪽에서 아래쪽, 왼쪽에서 오른쪽 순서의 9개 앵커입니다.</returns>
-    private static RectTransform[] createSaleAnchors(RectTransform saleZone)
-    {
-        var anchors = new RectTransform[SaleAnchorCount];
-        float[] xPositions = { -78f, 0f, 78f };
-        float[] yPositions = { 60f, 0f, -60f };
-        for (int row = 0; row < SaleAnchorRowSize; row++)
-        {
-            for (int column = 0; column < SaleAnchorRowSize; column++)
-            {
-                int index = row * SaleAnchorRowSize + column;
-                anchors[index] = createRect(
-                    $"SaleAnchor_Row{row + 1}_Slot{column + 1}",
-                    saleZone,
-                    new Vector2(xPositions[column], yPositions[row]),
-                    new Vector2(72f, 72f));
-            }
-        }
-
-        return anchors;
-    }
-
     /// <summary>RectTransform을 부모 전체에 맞춰 늘립니다.</summary>
     /// <param name="sortingtRoot">늘릴 RectTransform입니다.</param>
     private static void stretch(RectTransform sortingtRoot)
@@ -756,21 +721,6 @@ public static class SaleSortingPrefabSetup
         property.objectReferenceValue = value;
     }
 
-    /// <summary>직렬화된 Object 배열 참조를 순서대로 설정합니다.</summary>
-    /// <param name="serializedObject">대상 직렬화 객체입니다.</param>
-    /// <param name="propertyName">배열 필드 이름입니다.</param>
-    /// <param name="values">연결할 Object 배열입니다.</param>
-    private static void setObjectArray(SerializedObject serializedObject, string propertyName, UnityEngine.Object[] values)
-    {
-        SerializedProperty property = serializedObject.FindProperty(propertyName);
-        if (property == null) throw new MissingFieldException(serializedObject.targetObject.GetType().Name, propertyName);
-        property.arraySize = values.Length;
-        for (int index = 0; index < values.Length; index++)
-        {
-            property.GetArrayElementAtIndex(index).objectReferenceValue = values[index];
-        }
-    }
-
     /// <summary>직렬화된 실수 설정 필드를 갱신합니다.</summary>
     /// <param name="serializedObject">대상 직렬화 객체입니다.</param>
     /// <param name="propertyName">필드 이름입니다.</param>
@@ -781,13 +731,207 @@ public static class SaleSortingPrefabSetup
         if (property == null) throw new MissingFieldException(serializedObject.targetObject.GetType().Name, propertyName);
         property.floatValue = value;
     }
+
+    /// <summary>손님 대화창(DialoguePanel)과 TextMeshProUGUI(마비노기 폰트)를 전면 화면에 구성하고 CustomerPresenter에 바인딩합니다.</summary>
+    public static void setupDialoguePanel(Transform frontView, Transform operating)
+    {
+        Transform customer = frontView.Find("Customer");
+
+        // 1. DialoguePanel 확보 또는 생성
+        Transform existingPanel = frontView.Find("DialoguePanel");
+        GameObject panelGo;
+        RectTransform panelRect;
+
+        if (existingPanel == null)
+        {
+            panelGo = new GameObject("DialoguePanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Canvas), typeof(Image));
+            panelGo.transform.SetParent(frontView, false);
+            panelRect = panelGo.GetComponent<RectTransform>();
+        }
+        else
+        {
+            panelGo = existingPanel.gameObject;
+            panelRect = existingPanel.GetComponent<RectTransform>();
+            if (panelGo.GetComponent<CanvasRenderer>() == null) panelGo.AddComponent<CanvasRenderer>();
+            if (panelGo.GetComponent<Canvas>() == null) panelGo.AddComponent<Canvas>();
+            if (panelGo.GetComponent<Image>() == null) panelGo.AddComponent<Image>();
+        }
+
+        // 손님 및 매대보다 앞쪽에 렌더링되도록 FrontContainer 뒤(맨 마지막 자식)로 설정
+        panelRect.SetAsLastSibling();
+
+        // 프로토타입 기준: (560, 70), (0, -34)
+        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.pivot = new Vector2(0.5f, 0.5f);
+        panelRect.anchoredPosition = new Vector2(0f, -34f);
+        panelRect.sizeDelta = new Vector2(560f, 70f);
+
+        // Sorting Order 30 적용하여 확실히 앞에 오도록 보장
+        Canvas canvas = panelGo.GetComponent<Canvas>();
+        canvas.overrideSorting = true;
+        canvas.sortingOrder = 30;
+
+        // 9-슬라이스 DialogueFrame 프레임 이미지 설정
+        Image frameImg = panelGo.GetComponent<Image>();
+        Sprite frameSprite = loadDialogueFrameSprite();
+        frameImg.sprite = frameSprite;
+        frameImg.type = Image.Type.Sliced;
+        frameImg.fillCenter = true;
+        frameImg.pixelsPerUnitMultiplier = 4f;
+        frameImg.color = Color.white;
+        frameImg.raycastTarget = false;
+
+        // 2. 자식 Dialogue TextMeshProUGUI 확보 및 마비노기 폰트 적용
+        Transform textTrans = panelGo.transform.Find("Dialogue");
+        GameObject textGo;
+        RectTransform textRect;
+        TextMeshProUGUI tmp;
+
+        if (textTrans == null)
+        {
+            textGo = new GameObject("Dialogue", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+            textGo.transform.SetParent(panelGo.transform, false);
+            textRect = textGo.GetComponent<RectTransform>();
+            tmp = textGo.GetComponent<TextMeshProUGUI>();
+        }
+        else
+        {
+            textGo = textTrans.gameObject;
+            textRect = textTrans.GetComponent<RectTransform>();
+            tmp = textTrans.GetComponent<TextMeshProUGUI>();
+            if (tmp == null) tmp = textGo.AddComponent<TextMeshProUGUI>();
+        }
+
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.pivot = new Vector2(0.5f, 0.5f);
+        textRect.offsetMin = new Vector2(18f, 10f);
+        textRect.offsetMax = new Vector2(-18f, -10f);
+
+        TMP_FontAsset mabinogiFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(MabinogiFontPath);
+        if (mabinogiFont != null)
+        {
+            tmp.font = mabinogiFont;
+            tmp.fontSharedMaterial = mabinogiFont.material;
+        }
+
+        tmp.text = "...";
+        tmp.fontSize = 24f;
+        tmp.enableAutoSizing = true;
+        tmp.fontSizeMin = 16f;
+        tmp.fontSizeMax = 24f;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.color = Color.white;
+        tmp.raycastTarget = false;
+
+        // 초기에는 대사가 없으므로 패널 비활성화
+        panelGo.SetActive(false);
+
+        // 기존 Customer/Dialogue가 있다면 비활성화
+        if (customer != null)
+        {
+            Transform oldDialogue = customer.Find("Dialogue");
+            if (oldDialogue != null)
+            {
+                oldDialogue.gameObject.SetActive(false);
+            }
+        }
+
+        // 3. CustomerPresenter에 참조 연결
+        CustomerPresenter presenter = operating.GetComponent<CustomerPresenter>();
+        if (presenter != null)
+        {
+            SerializedObject presenterObj = new SerializedObject(presenter);
+            setObject(presenterObj, "speechBubbleRoot", panelGo);
+            setObject(presenterObj, "dialogueText", tmp);
+            setObject(presenterObj, "dialogueFrameSprite", frameSprite);
+            if (mabinogiFont != null)
+            {
+                setObject(presenterObj, "dialogueFont", mabinogiFont);
+            }
+            presenterObj.ApplyModifiedPropertiesWithoutUndo();
+        }
+    }
+
+    /// <summary>DialogueFrame 스프라이트를 안전하게 로드합니다.</summary>
+    private static Sprite loadDialogueFrameSprite()
+    {
+        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(DialogueFramePath);
+        if (sprite != null) return sprite;
+
+        UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(DialogueFramePath);
+        foreach (var a in assets)
+        {
+            if (a is Sprite s) return s;
+        }
+        throw new InvalidOperationException($"DialogueFrame Sprite를 로드할 수 없습니다: {DialogueFramePath}");
+    }
+
+    /// <summary>OperatingPanel과 GameUI Prefab에 대화창(DialoguePanel)과 마비노기 폰트를 구성합니다.</summary>
+    [MenuItem("Cashier/Setup Dialogue Prefab")]
+    public static void SetupDialoguePrefab()
+    {
+        GameObject root = PrefabUtility.LoadPrefabContents(OperatingPrefabPath);
+        try
+        {
+            Transform frontView = root.transform.Find("AstraFrontView");
+            if (frontView == null)
+            {
+                throw new InvalidOperationException("AstraFrontView를 찾을 수 없습니다.");
+            }
+
+            setupDialoguePanel(frontView, root.transform);
+
+            PrefabUtility.SaveAsPrefabAsset(root, OperatingPrefabPath);
+            Debug.Log("[SaleSortingPrefabSetup] OperatingPanel.prefab에 DialoguePanel 직렬화 완료!");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+
+        if (System.IO.File.Exists(GameUiPrefabPath))
+        {
+            GameObject gameUiRoot = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
+            try
+            {
+                Transform operating = gameUiRoot.transform.Find("OperatingPanel") ?? gameUiRoot.transform.Find("ProgressCanvas/OperatingPanel");
+                if (operating != null)
+                {
+                    Transform frontView = operating.Find("AstraFrontView");
+                    if (frontView != null)
+                    {
+                        Transform dialoguePanel = frontView.Find("DialoguePanel");
+                        CustomerPresenter presenter = operating.GetComponent<CustomerPresenter>();
+                        if (presenter != null && dialoguePanel != null)
+                        {
+                            SerializedObject presenterObj = new SerializedObject(presenter);
+                            setObject(presenterObj, "speechBubbleRoot", dialoguePanel.gameObject);
+                            TextMeshProUGUI tmp = dialoguePanel.GetComponentInChildren<TextMeshProUGUI>(true);
+                            if (tmp != null) setObject(presenterObj, "dialogueText", tmp);
+                            TMP_FontAsset mabinogiFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(MabinogiFontPath);
+                            if (mabinogiFont != null) setObject(presenterObj, "dialogueFont", mabinogiFont);
+                            presenterObj.ApplyModifiedPropertiesWithoutUndo();
+                        }
+                    }
+                }
+                PrefabUtility.SaveAsPrefabAsset(gameUiRoot, GameUiPrefabPath);
+                Debug.Log("[SaleSortingPrefabSetup] GameUI.prefab에 CustomerPresenter 연결 확인 완료!");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(gameUiRoot);
+            }
+        }
+    }
 }
 
-/// <summary>에디터 리로드 시 프리팹 갱신을 자동으로 1회 실행하여 디스크의 프리팹 파일에 시계, 밀대, 대형 상자를 즉시 반영합니다.</summary>
+/// <summary>에디터 리로드 시 프리팹 갱신을 자동으로 1회 실행하여 디스크의 프리팹 파일에 대화창, 시계, 밀대, 대형 상자를 즉시 반영합니다.</summary>
 [InitializeOnLoad]
 public static class AutoSaleSortingPrefabUpdater
 {
-    private const string SessionKey = "SaleSortingUI_AutoSetup_Applied_v3";
+    private const string SessionKey = "SaleSortingUI_AutoSetup_Applied_v5";
 
     static AutoSaleSortingPrefabUpdater()
     {
@@ -801,8 +945,8 @@ public static class AutoSaleSortingPrefabUpdater
 
         try
         {
-            SaleSortingPrefabSetup.Setup();
-            Debug.Log("[AutoSaleSortingPrefabUpdater] 시계, 밀대, 대형 상자가 포함된 SaleSortingUI 프리팹 갱신을 성공적으로 완료했습니다.");
+            SaleSortingPrefabSetup.SetupDialoguePrefab();
+            Debug.Log("[AutoSaleSortingPrefabUpdater] 대화창(마비노기 폰트) 프리팹 갱신을 성공적으로 완료했습니다.");
         }
         catch (Exception ex)
         {

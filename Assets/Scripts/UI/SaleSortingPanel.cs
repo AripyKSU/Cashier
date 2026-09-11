@@ -45,6 +45,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField] private Button frontContainerButton;
     [SerializeField] private GameObject frontBasketRoot;
 
+    [Header("Landing Dust")]
+    [Tooltip("상자 착지 충격 시 좌우로 흩뿌려지는 10개의 픽셀 먼지 효과 컴포넌트")]
+    [SerializeField] private LandingDustEffect landingDustEffect;
+
     [Header("Calculator")]
     [SerializeField] private RectTransform calculatorPanel;
     [SerializeField] private Button calculatorToggleButton;
@@ -219,7 +223,21 @@ public sealed class SaleSortingPanel : MonoBehaviour
             this.vacuum.Initialize(this.workArea, this.itemRoot);
         }
 
+        this.ensureLandingDustEffect();
         this.showFrontOnly();
+    }
+
+    private LandingDustEffect ensureLandingDustEffect()
+    {
+        if (this.landingDustEffect == null)
+        {
+            this.landingDustEffect = this.GetComponentInChildren<LandingDustEffect>(true);
+            if (this.landingDustEffect == null && this.frontView != null)
+            {
+                this.landingDustEffect = this.frontView.AddComponent<LandingDustEffect>();
+            }
+        }
+        return this.landingDustEffect;
     }
 
     /// <summary>현재 도구 또는 플레이어가 소유한 상품만 한 번 이동시킵니다.</summary>
@@ -499,9 +517,21 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             elapsed += this.PresentationDeltaSeconds;
             float t = this.pourSeconds <= 0f ? 1f : Mathf.Clamp01(elapsed / this.pourSeconds);
+
+            // 상자를 물품이 쏟아지는 방향으로 조금 더 기울입니다 (-90도 -> -100도)
+            if (this.containerImage != null)
+            {
+                this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-90f, -100f, t));
+            }
+
             for (int i = 0; i < this.items.Count; i++)
             {
                 SaleSortingItemView item = this.items[i];
+                if (item == null)
+                {
+                    continue;
+                }
+
                 Vector2 target = this.getInitialSpreadPosition(i, this.items.Count);
                 item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, t);
             }
@@ -509,12 +539,36 @@ public sealed class SaleSortingPanel : MonoBehaviour
             yield return null;
         }
 
-        // 쏟기가 끝나면 바구니를 숨기고 회전값을 원복합니다.
+        // 빈 상자로 이미지 변경 후 페이드아웃 및 퇴장
         if (this.containerImage != null)
         {
-            this.containerImage.sprite = this.emptyContainerSprite;
+            if (this.emptyContainerSprite != null)
+            {
+                this.containerImage.sprite = this.emptyContainerSprite;
+                this.containerImage.preserveAspect = true;
+            }
+
+            Vector2 exitStartPos = this.containerImage.rectTransform.anchoredPosition;
+            Vector2 exitTargetPos = exitStartPos + new Vector2(-150f, 80f);
+            float exitDuration = 0.35f;
+            float exitElapsed = 0f;
+            Color initialColor = this.containerImage.color;
+
+            while (exitElapsed < exitDuration)
+            {
+                exitElapsed += this.PresentationDeltaSeconds;
+                float exitT = Mathf.Clamp01(exitElapsed / exitDuration);
+
+                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(exitStartPos, exitTargetPos, exitT);
+                this.containerImage.color = new Color(initialColor.r, initialColor.g, initialColor.b, Mathf.Lerp(1f, 0f, exitT));
+
+                yield return null;
+            }
+
             this.containerImage.gameObject.SetActive(false);
             this.containerImage.rectTransform.localRotation = Quaternion.identity;
+            this.containerImage.rectTransform.anchoredPosition = exitStartPos;
+            this.containerImage.color = initialColor;
         }
 
         if (this.dividerBar != null)
@@ -545,6 +599,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
         if (this.vacuum != null) this.vacuum.SetVisible(false);
+        LandingDustEffect dust = this.ensureLandingDustEffect();
+        if (dust != null) dust.Stop();
+
         yield return this.waitUnscaled(this.customerArrivalSeconds);
         if (this.frontContainerButton != null)
         {
@@ -555,12 +612,24 @@ public sealed class SaleSortingPanel : MonoBehaviour
             Vector2 start = destination + new Vector2(0f, 180f);
             float elapsed = 0f;
             const float ArrivalSeconds = 0.85f;
+            bool dustPlayed = false;
             while (elapsed < ArrivalSeconds)
             {
                 elapsed += this.PresentationDeltaSeconds;
                 float t = Mathf.Clamp01(elapsed / ArrivalSeconds);
                 float eased = 1f - Mathf.Pow(1f - t, 3f);
                 box.anchoredPosition = Vector2.LerpUnclamped(start, destination, eased);
+
+                // DEV-2D-11-01: 착지 순간 10개의 픽셀 먼지 조각이 양옆으로 포물선 비산하는 연출
+                if (!dustPlayed && elapsed >= 0.3f)
+                {
+                    dustPlayed = true;
+                    if (dust != null)
+                    {
+                        dust.Play(box);
+                    }
+                }
+
                 yield return null;
             }
 
@@ -603,8 +672,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
             {
                 SaleSortingItemView item = Instantiate(this.itemPrefab, this.itemRoot);
                 item.name = $"SaleItem_{line.ItemId}_{quantityIndex}";
-                item.Initialize(line.ItemId, quantityIndex, line.TopViewIcon, this.itemSizePixels, line.DisplayName);
+                item.Initialize(line.ItemId, quantityIndex, line.TopViewIcon, this.itemSizePixels, line.DisplayName, this.workArea);
                 item.Position = this.getPourStartPosition(unitSequence);
+                item.DragStarted += this.handleItemDragStarted;
+                item.Dragged += this.handleItemDragged;
+                item.DragEnded += this.handleItemDragEnded;
                 this.items.Add(item);
                 unitSequence++;
             }
@@ -957,6 +1029,17 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             item.State = SaleSortingItemView.SortingState.Working;
         }
+
+        item.UpdateVisualState();
+    }
+
+    /// <summary>작업대 위의 모든 상품 구역 상태를 판정합니다.</summary>
+    private void classifyItems()
+    {
+        for (int index = 0; index < this.items.Count; index++)
+        {
+            this.classifyItem(this.items[index]);
+        }
     }
 
     /// <summary>현재 입력 장치의 누름 상태를 반환합니다.</summary>
@@ -1049,7 +1132,13 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         foreach (SaleSortingItemView item in this.items)
         {
-            if (item != null) Destroy(item.gameObject);
+            if (item != null)
+            {
+                item.DragStarted -= this.handleItemDragStarted;
+                item.Dragged -= this.handleItemDragged;
+                item.DragEnded -= this.handleItemDragEnded;
+                Destroy(item.gameObject);
+            }
         }
 
         this.items.Clear();
@@ -1058,11 +1147,42 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.dragOffset = Vector2.zero;
     }
 
+    /// <summary>아이템 드래그 시작 시 상태를 갱신합니다.</summary>
+    private void handleItemDragStarted(SaleSortingItemView item)
+    {
+        this.stopAutoSorting();
+        this.classifyItems();
+        this.refreshStatus();
+    }
+
+    /// <summary>아이템 드래그 이동 시 상태를 실시간 갱신합니다.</summary>
+    private void handleItemDragged(SaleSortingItemView item)
+    {
+        this.classifyItems();
+        this.refreshStatus();
+    }
+
+    /// <summary>아이템 드래그 종료(드롭) 시 분류 결과를 최종 확정하고 갱신합니다.</summary>
+    private void handleItemDragEnded(SaleSortingItemView item)
+    {
+        this.classifyItems();
+        this.refreshStatus();
+    }
+
     /// <summary>정면 거래 화면만 표시하고 작업 입력을 닫습니다.</summary>
     private void showFrontOnly()
     {
         this.state = ViewState.Hidden;
-        if (this.frontView != null) this.frontView.SetActive(true);
+        if (this.frontView != null)
+        {
+            this.frontView.SetActive(true);
+            var timeOfDay = this.frontView.GetComponent<TimeOfDayUIController>();
+            if (timeOfDay == null)
+            {
+                timeOfDay = this.frontView.AddComponent<TimeOfDayUIController>();
+            }
+            timeOfDay.RefreshTime();
+        }
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
         if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
@@ -1070,6 +1190,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
         if (this.vacuum != null) this.vacuum.SetVisible(false);
+        if (this.landingDustEffect != null) this.landingDustEffect.Stop();
         this.releaseDraggedItem();
     }
 }

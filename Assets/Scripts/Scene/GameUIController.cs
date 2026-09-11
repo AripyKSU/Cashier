@@ -89,6 +89,19 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
     private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;
 
+    /// <summary>
+    /// 구형 기본 UI 템플릿의 전체화면 단색 배경(Root/Background)이 전면 뷰를 가리지 않도록 비활성화합니다.
+    /// </summary>
+    private void Awake()
+    {
+        Transform bg = this.transform.Find("Root/Background");
+        if (bg == null) bg = this.transform.Find("ProgressCanvas/Root/Background");
+        if (bg != null && bg.gameObject.activeSelf)
+        {
+            bg.gameObject.SetActive(false);
+        }
+    }
+
     /// <summary>Scene 진입 후 부트스트랩된 런타임을 확인하고 UI와 진행을 초기화합니다.</summary>
     private async void Start()
     {
