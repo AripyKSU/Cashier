@@ -1,5 +1,15 @@
 # 기능 API 검증
 
+## Sprite world 환경 연출 선택 이관 (2026-09-11)
+
+- EditMode 230/230: `Temp/TestResults/20260911-153412-53aa915127894169826a0797c2364f8e/EditMode.xml` 및 `.log`. PlayMode 41/41: `Temp/TestResults/20260911-152810-cbb07e99ba0d49d9b2f3f629026ab6a2/PlayMode.xml` 및 `.log`. 실패·skip·미완료 0. Play 이후 WorldWhite texture를 Sprite rect와 같은 4×4로 보정했고 Edit를 재실행했다. 이후 제품 코드 변경이나 전체 suite 재실행은 없다.
+- 기존 fixture에서 연기 4프레임·총구 수명·pause 재활성·날짜 전환 시 표현 시간 유지·게임 시간 비간섭을 검사했다. 초기 MPB 생성자 오류, shader Color include 누락, 흰 Sprite UV 크기 불일치를 수정했다. 초기 magenta 스크린샷은 성공 증거가 아니다.
+- 실제 Local 렌더 증거: `Temp/WorldBirds-On.png`, `WorldBirds-Off.png`, `WorldBirds-Moved-On.png`, `WorldBirds-Moved-Off.png`. pause 상태의 새 renderer On/Off 차이 186픽셀, 0.2초 후 177픽셀, 두 차이 mask의 대칭차 219픽셀로 이동/날개 모양 변화가 렌더됨을 확인했다. 실제 UV는 (0,1),(1,1),(0,0),(1,0), shader error 0. 원본 5마리 수식이며 구조물에 가려 모든 새가 항상 노출되지는 않는다.
+- Local runtime API 확인: 표현 시간 10.05004에서 pause 5초·전면 숨김 5초 주입에도 유지, 재표시/resume 0.2초 후 10.25004 및 RenderRoot active=true. UI 활성 상태를 직접 전환한 검사이며 마우스 slide 사용감 검증은 아니다.
+- Init→Main 진입·영업 시작: `Temp/WorldEffects-Main-PreOpen.png`, `WorldEffects-Main-Open.png`. 시계와 FrontContainerMale Sprite 참조 유효, missing script 0, compileFailed=false, 제품 Console error 0. 실제 PreOpenPanel은 `Assets/Textures/UI/Dystopia/DailyInstruction.png` 사본을 사용한다. Open 이미지는 손님 fade 도중 표본이다.
+- 보호 검사: Main/meta·OperatingPanel·사용자 Mulmaru font·Local/meta 6개 SHA256이 `UserSettings/LocalBackups/AstraEffects-87844af-20260911`과 동일. TMP fallback 생성 데이터 정리 후 Git 내용 diff 0. ProjectSettings·Addressables 변경 없음, stash 2개 보존.
+- 최종 상태: Play 종료, SpriteWorldSandbox clean open, missing script/reference 0, compile error 0. 개인 GUID `e051e8369858a0949b19013e7a502dcb`, playModeStartScene=InitScene, runInBackground=false. 최종 배치·가독성·사용감과 Player build는 미확인. 사용자 후속 요청으로 선택 이관·환경 연출의 작업 브랜치 커밋·푸시를 진행하며 실제 결과는 Git 이력과 완료 보고를 따른다.
+
 ## Sprite world 표시 분리 (2026-09-11)
 
 ### 개인 씬 분리 후 최종 검증

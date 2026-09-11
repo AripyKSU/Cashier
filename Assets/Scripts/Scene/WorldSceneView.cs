@@ -31,6 +31,16 @@ public sealed class WorldSceneView : MonoBehaviour
     [SerializeField] private bool debugOverrideTime, enableDebugKeys, autoAdvanceClockForTesting;
     [SerializeField, Range(9, 21)] private float debugHour = BusinessHours.OpenHour;
     [SerializeField, Min(.1f)] private float fullCycleSeconds = 45f;
+    /// <summary>전용 material의 외부 시간만 갱신할 새·안개. 다른 MPB 소유자를 함께 붙이지 않는다.</summary>
+    [SerializeField] private SpriteRenderer[] timedEffects = Array.Empty<SpriteRenderer>();
+    /// <summary>원본의 4개 연기 프레임과 좌우 굴뚝 배치.</summary>
+    [SerializeField] private Sprite[] smokeFrames = Array.Empty<Sprite>();
+    [SerializeField] private Smoke[] smoke = Array.Empty<Smoke>();
+    /// <summary>좌우 경비병과 총구. 수치는 원본 표현이며 거래 판정과 무관하다.</summary>
+    [SerializeField] private Guard[] guards = Array.Empty<Guard>();
+    private MaterialPropertyBlock effectBlock;
+    private bool effectsInitialized;
+    private float effectSeconds;
     private readonly Vector3[] corners = new Vector3[4];
     private CanvasGroup[] opacityGroups;
 
@@ -71,7 +81,11 @@ public sealed class WorldSceneView : MonoBehaviour
     }
 
     /// <summary>UI 갱신 이후 viewport와 시간대 표시만 갱신한다.</summary>
-    private void LateUpdate() => RefreshPresentation();
+    private void LateUpdate()
+    {
+        RefreshPresentation();
+        if (Application.isPlaying) AdvanceEffects(Time.unscaledDeltaTime);
+    }
 
     /// <summary>꺼진 씬 표시가 월드에 남거나 UI tint를 점유하지 않도록 정리한다.</summary>
     private void OnDisable()
@@ -80,6 +94,7 @@ public sealed class WorldSceneView : MonoBehaviour
         if (renderRoot != null) renderRoot.gameObject.SetActive(false);
         if (counterLight != null) counterLight.canvasRenderer.SetColor(new Color(1, 1, 1, 0));
         if (counterGraphics != null) foreach (var graphic in counterGraphics) if (graphic != null) graphic.canvasRenderer.SetColor(Color.white);
+        foreach (var effect in timedEffects) if (effect != null) effect.SetPropertyBlock(null);
     }
 
     /// <summary>진행·시계 비간섭 배경 미리보기.</summary>
@@ -95,6 +110,65 @@ public sealed class WorldSceneView : MonoBehaviour
 
     /// <summary>테스트 override를 해제하고 기존 표시 시계를 다시 따른다.</summary>
     public void FollowClock() { debugOverrideTime = false; RefreshPresentation(); }
+
+    /// <summary>실제 화면이 진행 가능한 시간만 원본 환경 연출에 누적한다. 수동 검사도 같은 경계를 사용한다.</summary>
+    /// <param name="deltaSeconds">유한한 0 이상의 표현 경과 초.</param>
+    /// <exception cref="ArgumentOutOfRangeException">유효하지 않은 경과 시간.</exception>
+    public void AdvanceEffects(float deltaSeconds)
+    {
+        if (float.IsNaN(deltaSeconds) || float.IsInfinity(deltaSeconds) || deltaSeconds < 0)
+            throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
+        var currentDay = controller != null ? controller.CurrentDayProgress : null;
+        if (!isActiveAndEnabled || currentDay == null) return;
+        if (!effectsInitialized)
+        {
+            effectsInitialized = true;
+            for (int i = 0; i < guards.Length; i++) { guards[i].NextShot = 3 + i * 3; guards[i].FlashUntil = 0; }
+            // 원본 idleSeconds처럼 씬 수명 동안 유지한다. 매일 초기화하면 30초 영업에서 경비병 발사가 불가능하다.
+            deltaSeconds = 0;
+        }
+        bool canAdvance = Opacity > 0 && renderRoot != null && renderRoot.gameObject.activeInHierarchy && !controller.IsPresentationPaused;
+        if (canAdvance) effectSeconds += deltaSeconds;
+        // 재활성 중 pause라도 MPB에는 마지막 시간을 복원하여 shader 기본 시간으로 점프하지 않는다.
+        if (effectBlock == null) effectBlock = new MaterialPropertyBlock();
+        foreach (var effect in timedEffects)
+        {
+            if (effect == null) continue;
+            effect.GetPropertyBlock(effectBlock);
+            effectBlock.SetFloat("_UsePresentationTime", 1);
+            effectBlock.SetFloat("_PresentationSeconds", effectSeconds);
+            effect.SetPropertyBlock(effectBlock);
+            effectBlock.Clear();
+        }
+        for (int i = 0; i < smoke.Length; i++)
+        {
+            var item = smoke[i];
+            if (item.Renderer == null || smokeFrames.Length != 4) continue;
+            item.Renderer.sprite = smokeFrames[Mathf.FloorToInt(effectSeconds / (1.1f + i * .13f) + i * 1.7f) % 4];
+            item.Renderer.transform.localPosition = item.Origin + new Vector3(Mathf.Sin(effectSeconds * .28f + i) * 2, Mathf.Sin(effectSeconds * .4f + i) * 1.5f, 0);
+        }
+        for (int i = 0; i < guards.Length; i++)
+        {
+            var guard = guards[i];
+            if (guard.Root == null || guard.Flash == null) continue;
+            float turnPhase = effectSeconds * (.12f + i * .012f) + i * 1.7f;
+            float turn = Mathf.Sin(turnPhase);
+            float facing = Mathf.Sign(turn) * Mathf.Lerp(.12f, 1, Mathf.SmoothStep(0, 1, Mathf.Abs(turn)));
+            float outward = i == 0 ? -1 : 1;
+            if (canAdvance && effectSeconds >= guard.NextShot && facing * outward > .9f)
+            {
+                guard.FlashUntil = effectSeconds + .12f;
+                guard.NextShot = effectSeconds + 9 + i * 3.7f;
+            }
+            bool firing = effectSeconds < guard.FlashUntil;
+            guard.Root.localScale = new Vector3(facing, 1, 1);
+            float bob = Mathf.Sin(effectSeconds * 2.6f + i * 1.3f) * .65f * Mathf.Abs(Mathf.Cos(turnPhase));
+            guard.Root.localPosition = guard.Origin + new Vector3(turn * 2 - (firing ? outward : 0), bob, 0);
+            guard.Flash.localPosition = guard.Root.localPosition + new Vector3(facing * (guard.WidthPixels * .5f + 3), -guard.HeightPixels * .35f, 0);
+            guard.Flash.localScale = new Vector3(outward, 1, 1);
+            guard.Flash.gameObject.SetActive(firing);
+        }
+    }
 
     /// <summary>씬 조립 또는 테스트에서 이미 준비된 UI·카메라를 연결한다.</summary>
     /// <param name="ui">이미지 준비와 모델을 소유한 UI.</param><param name="camera">현재 orthographic 카메라.</param>
@@ -165,6 +239,22 @@ public sealed class WorldSceneView : MonoBehaviour
 
     /// <summary>배경의 시간대 alpha 역할. 데이터 enum이 아니다.</summary>
     public enum Phase { Constant, Dawn, Sunset, Night, CityLights, Beam }
+    /// <summary>원본 굴뚝 사각형의 중심을 유지하면서 Sprite만 교체한다.</summary>
+    [Serializable]
+    private sealed class Smoke
+    {
+        public SpriteRenderer Renderer;
+        public Vector3 Origin;
+    }
+    /// <summary>Sprite 크기는 자식에 두고 루트는 원본 top-center 피벗으로 회전·이동한다.</summary>
+    [Serializable]
+    private sealed class Guard
+    {
+        public Transform Root, Flash;
+        public Vector3 Origin;
+        public float WidthPixels, HeightPixels;
+        [NonSerialized] public float NextShot, FlashUntil;
+    }
     /// <summary>일회성 이관한 원본 Sprite·색·레이어 역할. UI Image 참조를 보관하지 않는다.</summary>
     [Serializable]
     public sealed class Layer

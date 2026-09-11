@@ -1269,6 +1269,94 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: 203058901}
   m_ActionId: c95b2375-e6d9-4b88-9c4c-c5e76515df4b
+--- !u!1 &650016386
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 650016389}
+  - component: {fileID: 650016388}
+  - component: {fileID: 650016387}
+  - component: {fileID: 650016390}
+  m_Layer: 0
+  m_Name: Stage3RightPillar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &650016387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650016386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 1559045197, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &650016388
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650016386}
+  m_CullTransparentMesh: 1
+--- !u!224 &650016389
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650016386}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.1, y: 1.275, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4352078219768184197}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1193.3, y: -75}
+  m_SizeDelta: {x: 137.0335, y: 345.0797}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &650016390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650016386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39e9a8e3423266a49bc0da9b9d58adbe, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::DystopiaPixelSource
 --- !u!114 &729448329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2109,6 +2197,10 @@ MonoBehaviour:
     toleranceReputation: -2
     budgetReputation: -1
     refusalMorality: -1
+    unpopularReputationMin: 20
+    neutralReputationMin: 40
+    popularReputationMin: 60
+    trustedReputationMin: 80
     discountMorality: 2
     generousMorality: 4
     markupMorality: -2
@@ -2144,7 +2236,31 @@ MonoBehaviour:
     width: 32
     height: 24
   dailyLedger: {fileID: 21300000, guid: 8d3c27e5fb984a4e979b295e18ee51b2, type: 3}
+  ledgerPageInset: {x: 4, y: 3}
+  ledgerDaughter: {fileID: 7260934103104776436, guid: 1c6d94798c72c534b87845aed78eac43, type: 3}
+  ledgerSpeechBubble: {fileID: 0}
+  ledgerStamp: {fileID: 0}
+  ledgerStampPopular: {fileID: 0}
+  ledgerStampNeutral: {fileID: 0}
+  ledgerStampUnpopular: {fileID: 0}
+  ledgerStampNotorious: {fileID: 0}
+  ledgerDrawing: {fileID: 2800000, guid: 55949d20b4695ef4cb924f3ad2ff79e3, type: 3}
+  ledgerDrawingLayout:
+    serializedVersion: 2
+    x: 1035
+    y: 24
+    width: 190
+    height: 238
+  ledgerStampLayout:
+    serializedVersion: 2
+    x: 27
+    y: 51
+    width: 136
+    height: 136
+  ledgerStampOpacity: 1
+  ledgerStampTint: {r: 0.5, g: 0.65, b: 0.6, a: 1}
   dailyInstruction: {fileID: 21300000, guid: 91cbf5fa51af4690bed80b78400fcbdb, type: 3}
+  instructionStartStamp: {fileID: 21300000, guid: 92448e477998d824896a965dabe399bf, type: 3}
   uiFont: {fileID: 12800000, guid: b3f0a6c94e8e4fc3a1f40d741190c0e6, type: 3}
   guardTone: {fileID: 2100000, guid: 5e537d872b1f4b928229e214b072484d, type: 2}
   leftTowerTone: {fileID: 2100000, guid: fe2e76b0754f4f01a56673cb38ceaae2, type: 2}
@@ -2214,6 +2330,9 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 968baf30567de104fa8ebe65f28ed793, type: 3}
   - {fileID: 21300000, guid: dc94dc6651ef29743bfe001a09c77f5e, type: 3}
   - {fileID: 21300000, guid: 6d35e6acfd47ef84da053f30ea02ba75, type: 3}
+  tradeReactionImage: {fileID: 0}
+  tradeReactionSprites: []
+  tradeReactionSheet: {fileID: 2800000, guid: 330cb57e802eb214088fe60f7e5eb063, type: 3}
 --- !u!4 &1111119869
 Transform:
   m_ObjectHideFlags: 0
@@ -2792,6 +2911,94 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39e9a8e3423266a49bc0da9b9d58adbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DystopiaPixelSource
+--- !u!1 &1595516229
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1595516232}
+  - component: {fileID: 1595516231}
+  - component: {fileID: 1595516230}
+  - component: {fileID: 1595516233}
+  m_Layer: 0
+  m_Name: Stage3CeilingLamp
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1595516230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595516229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 852394788, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1595516231
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595516229}
+  m_CullTransparentMesh: 1
+--- !u!224 &1595516232
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595516229}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4352078219768184197}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 557.47, y: -3}
+  m_SizeDelta: {x: 150.04785, y: 20.658873}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &1595516233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595516229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39e9a8e3423266a49bc0da9b9d58adbe, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::DystopiaPixelSource
 --- !u!114 &1636528321 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5479844277024771619, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
@@ -3130,6 +3337,8 @@ MonoBehaviour:
   frontArrivalSeconds: 2
   reactionSeconds: 0.9
   dividerBar: {fileID: 764557817}
+  handArtwork: {fileID: 0}
+  handSizePixels: 128
   pourCenter: {x: -1.5, y: 0}
   pourSpread: {x: 2.6, y: 2.2}
   cursorRadius: 0.42
@@ -3199,6 +3408,10 @@ MonoBehaviour:
     toleranceReputation: -2
     budgetReputation: -1
     refusalMorality: -1
+    unpopularReputationMin: 20
+    neutralReputationMin: 40
+    popularReputationMin: 60
+    trustedReputationMin: 80
     discountMorality: 2
     generousMorality: 4
     markupMorality: -2
@@ -3392,6 +3605,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 602416277}
@@ -3400,6 +3619,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2008934278}
@@ -3408,6 +3633,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1278554090}
@@ -3416,6 +3647,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1238874758}
@@ -3424,6 +3661,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2132357586}
@@ -3432,6 +3675,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1636528321}
@@ -3440,6 +3689,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 372208659}
@@ -3448,6 +3703,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 166556295}
@@ -3456,6 +3717,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184231}
@@ -3464,6 +3731,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184230}
@@ -3472,6 +3745,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 138629015}
@@ -3480,6 +3759,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2023236471}
@@ -3488,6 +3773,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184229}
@@ -3496,6 +3787,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184228}
@@ -3504,6 +3801,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184227}
@@ -3512,6 +3815,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184226}
@@ -3520,6 +3829,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184225}
@@ -3528,6 +3843,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184224}
@@ -3536,6 +3857,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184223}
@@ -3544,6 +3871,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184222}
@@ -3552,6 +3885,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184221}
@@ -3560,6 +3899,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 4352078219768184220}
@@ -3568,6 +3913,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1901093217}
@@ -3576,6 +3927,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1257552086}
@@ -3584,6 +3941,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 465611153}
@@ -3592,6 +3955,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 578463040}
@@ -3600,6 +3969,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1842233973}
@@ -3608,6 +3983,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 194660987}
@@ -3616,6 +3997,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 292542810}
@@ -3624,6 +4011,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.2
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1091883700}
@@ -3632,6 +4025,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.45
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 17788076}
@@ -3640,14 +4039,26 @@ MonoBehaviour:
     normalMap: {fileID: 2800000, guid: e458a6bab559136459f6873dd40adbca, type: 3}
     roomResponse: 0
     lampResponse: 1
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 829171938}
     surface: 3
-    normalSprite: {fileID: 0}
-    normalMap: {fileID: 0}
-    roomResponse: 0.7
-    lampResponse: 1
+    normalSprite: {fileID: 1877490182, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+    normalMap: {fileID: 2800000, guid: 03508faaded067842bb96042a176d71d, type: 3}
+    roomResponse: 0.3
+    lampResponse: 0.65
+    rimWidthPixels: 1
+    rimResponse: 0.1
+    normalResponse: 0.55
+    highlightResponse: 0.4
+    specularResponse: 0.12
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1408947112}
@@ -3656,14 +4067,68 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.15
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 1494773492}
     surface: 1
-    normalSprite: {fileID: 0}
+    normalSprite: {fileID: 1183149414, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+    normalMap: {fileID: 2800000, guid: 03508faaded067842bb96042a176d71d, type: 3}
+    roomResponse: 0.3
+    lampResponse: 0.4
+    rimWidthPixels: 1
+    rimResponse: 0.1
+    normalResponse: 0.55
+    highlightResponse: 0.75
+    specularResponse: 0.12
+    emission: 0
+    bottomShade: 0
+    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+  - source: {fileID: 2105069905}
+    surface: 1
+    normalSprite: {fileID: -975750694, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+    normalMap: {fileID: 2800000, guid: 03508faaded067842bb96042a176d71d, type: 3}
+    roomResponse: 0.3
+    lampResponse: 0.4
+    rimWidthPixels: 1
+    rimResponse: 0.1
+    normalResponse: 0.55
+    highlightResponse: 0.75
+    specularResponse: 0.12
+    emission: 0
+    bottomShade: 0
+    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+  - source: {fileID: 650016387}
+    surface: 1
+    normalSprite: {fileID: 1559045197, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+    normalMap: {fileID: 2800000, guid: 03508faaded067842bb96042a176d71d, type: 3}
+    roomResponse: 0.3
+    lampResponse: 0.4
+    rimWidthPixels: 1
+    rimResponse: 0.1
+    normalResponse: 0.55
+    highlightResponse: 0.75
+    specularResponse: 0.12
+    emission: 0
+    bottomShade: 0
+    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+  - source: {fileID: 1595516230}
+    surface: 0
+    normalSprite: {fileID: 852394788, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
     normalMap: {fileID: 0}
-    roomResponse: 1.4
-    lampResponse: 0.15
+    roomResponse: 0
+    lampResponse: 0.4
+    rimWidthPixels: 1
+    rimResponse: 0.1
+    normalResponse: 0.55
+    highlightResponse: 0.75
+    specularResponse: 0.12
+    emission: 1.5
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715518}
@@ -3672,6 +4137,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715517}
@@ -3680,6 +4151,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715516}
@@ -3688,6 +4165,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715515}
@@ -3696,6 +4179,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715514}
@@ -3704,6 +4193,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715513}
@@ -3712,6 +4207,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715512}
@@ -3720,6 +4221,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715511}
@@ -3728,6 +4235,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715510}
@@ -3736,6 +4249,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715509}
@@ -3744,6 +4263,12 @@ MonoBehaviour:
     normalMap: {fileID: 0}
     roomResponse: 0
     lampResponse: 0.7
+    rimWidthPixels: 3
+    rimResponse: 1
+    normalResponse: 1
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715508}
@@ -3752,6 +4277,12 @@ MonoBehaviour:
     normalMap: {fileID: 2800000, guid: 8a499c0e4e268f34fac0e7606018541a, type: 3}
     roomResponse: 0
     lampResponse: 1
+    rimWidthPixels: 2
+    rimResponse: 0.35
+    normalResponse: 0.55
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0.3
     contactShadow: {x: 0.504, y: 0.056, z: 1.5, w: 0.5}
   - source: {fileID: 2356696958130715507}
@@ -3760,16 +4291,23 @@ MonoBehaviour:
     normalMap: {fileID: 2800000, guid: b5a11b12b4ba4fd49b86e1c6674c0793, type: 3}
     roomResponse: 0
     lampResponse: 1
+    rimWidthPixels: 1
+    rimResponse: 0.2
+    normalResponse: 0.5
+    highlightResponse: 1
+    specularResponse: 1
+    emission: 0
     bottomShade: 0.3
     contactShadow: {x: 0.5034722, y: 0.1851852, z: 1.4, w: 0.65}
   lightingShader: {fileID: 4800000, guid: 4bb3a3480b9d7864ba03db51d2f31812, type: 3}
   width: 480
   previewInEditor: 1
-  lampPosition: {x: 700, y: 290}
+  lampPosition: {x: 640, y: 64}
+  ceilingLamp: {fileID: 1595516230}
   lampHeight: 240
-  lampRadius: 520
-  lampIntensity: 3.2
-  lampColor: {r: 1, g: 0.76, b: 0.46, a: 1}
+  lampRadius: 700
+  lampIntensity: 1.6
+  lampColor: {r: 0.95, g: 0.92, b: 0.82, a: 1}
   lightingSteps: 6
   rimIntensity: 1.3
   dawnFog: {r: 1, g: 0.84, b: 0.67, a: 1}
@@ -3979,14 +4517,15 @@ MonoBehaviour:
   propNightFill: 0.3
   roomLightStrength: 1.2
   eveningSpotlight: 1
-  spotOrigin: {x: 1050, y: -60}
-  spotTarget: {x: 600, y: 600}
-  spotIntensity: 4.5
-  spotHalfAngle: 21
-  spotHaze: 0.025
+  spotOrigin: {x: 640, y: 64}
+  spotTarget: {x: 640, y: 530}
+  spotIntensity: 1.4
+  spotHalfAngle: 32
+  spotSoftness: 0.65
+  spotHaze: 0.009
   towerBacklight: 3.2
   customerShadowOpacity: 0.65
-  shadowTableY: {x: 520, y: 625}
+  shadowTableY: {x: 470.56323, y: 540.9564}
 --- !u!1 &1901093214
 GameObject:
   m_ObjectHideFlags: 0
@@ -4304,6 +4843,94 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: 203058901}
   m_ActionId: 7607c7b6-cd76-4816-beef-bd0341cfe950
+--- !u!1 &2105069904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2105069907}
+  - component: {fileID: 2105069906}
+  - component: {fileID: 2105069905}
+  - component: {fileID: 2105069908}
+  m_Layer: 0
+  m_Name: Stage3LeftPillar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2105069905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105069904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -975750694, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2105069906
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105069904}
+  m_CullTransparentMesh: 1
+--- !u!224 &2105069907
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105069904}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.1, y: 1.275, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4352078219768184197}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -64.002075, y: -74.99997}
+  m_SizeDelta: {x: 140.09569, y: 345.0797}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &2105069908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2105069904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39e9a8e3423266a49bc0da9b9d58adbe, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::DystopiaPixelSource
 --- !u!114 &2111517247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4508,23 +5135,27 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 104.44444
+      value: 82
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 28.88889
+      value: 23
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 28.13889
+      value: 39
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -50
+      value: -57
       objectReference: {fileID: 0}
     - target: {fileID: 3208392661193809579, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Name
       value: TopDownTestCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 3208392661193809579, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Color.b
@@ -4540,7 +5171,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_FontData.m_FontSize
-      value: 24
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_FontData.m_AlignByGeometry
@@ -4652,7 +5283,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5052203668204684748, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -435
+      value: -427
       objectReference: {fileID: 0}
     - target: {fileID: 5368134821891500546, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Color.b
@@ -4668,23 +5299,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6256667893009481477, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Color.b
-      value: 0.6792453
+      value: 0.5039605
       objectReference: {fileID: 0}
     - target: {fileID: 6256667893009481477, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Color.g
-      value: 0.6792453
+      value: 0.5892614
       objectReference: {fileID: 0}
     - target: {fileID: 6256667893009481477, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Color.r
-      value: 0.6792453
+      value: 0.7075472
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 512
+      value: 502
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -335
+      value: -375
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4936,6 +5567,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1111119869}
     m_Modifications:
+    - target: {fileID: 7130573436366191, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_Sprite
+      value:
+      objectReference: {fileID: 1183149414, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
     - target: {fileID: 1077194771690481345, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       propertyPath: m_FontData.m_BestFit
       value: 1
@@ -5044,6 +5679,38 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6074115966392403193, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 249.43677
+      objectReference: {fileID: 0}
+    - target: {fileID: 6074115966392403193, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6074115966392403193, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -64.002075
+      objectReference: {fileID: 0}
+    - target: {fileID: 6074115966392403193, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -514
+      objectReference: {fileID: 0}
+    - target: {fileID: 6665031617287664013, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 125.48353
+      objectReference: {fileID: 0}
+    - target: {fileID: 6665031617287664013, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6665031617287664013, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -64.002075
+      objectReference: {fileID: 0}
+    - target: {fileID: 6665031617287664013, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 51.325226
+      objectReference: {fileID: 0}
     - target: {fileID: 7011523859823722782, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -5084,6 +5751,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 640.13513
       objectReference: {fileID: 0}
+    - target: {fileID: 7982132272346531055, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      propertyPath: m_Sprite
+      value:
+      objectReference: {fileID: 1877490182, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
     - target: {fileID: 8320283997789102218, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       propertyPath: m_Type
       value: 1
@@ -5141,6 +5812,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1689006060938564199, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       insertIndex: 30
       addedObject: {fileID: 1408947110}
+    - targetCorrespondingSourceObject: {fileID: 1689006060938564199, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2105069907}
+    - targetCorrespondingSourceObject: {fileID: 1689006060938564199, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 650016389}
+    - targetCorrespondingSourceObject: {fileID: 1689006060938564199, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1595516232}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 1278394219461639449, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       insertIndex: -1

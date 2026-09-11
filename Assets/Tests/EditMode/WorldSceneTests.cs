@@ -59,7 +59,7 @@ public sealed class WorldSceneTests
         Assert.That(prefab, Is.Not.Null);
         Assert.That(prefab.GetComponentsInChildren<Canvas>(true), Is.Empty);
         Assert.That(prefab.GetComponentsInChildren<Image>(true), Is.Empty);
-        Assert.That(prefab.GetComponentsInChildren<SpriteRenderer>(true).Length, Is.EqualTo(15));
+        Assert.That(prefab.GetComponentsInChildren<SpriteRenderer>(true).Length, Is.EqualTo(29));
         var queue = new SerializedObject(prefab.GetComponent<CustomerWorldQueueView>());
         Assert.That(queue.FindProperty("slots").arraySize, Is.EqualTo(CustomerQueue.Capacity));
         for (int i = 0; i < CustomerQueue.Capacity; i++)
@@ -69,9 +69,37 @@ public sealed class WorldSceneTests
             Assert.That(renderer.sprite, Is.Not.Null);
             Assert.That(renderer.sharedMaterial, Is.Not.Null);
             Assert.That(renderer.sharedMaterial.shader.isSupported, Is.True);
+            Assert.That(ShaderUtil.GetShaderMessages(renderer.sharedMaterial.shader), Is.Empty);
+            Assert.That(renderer.sprite.texture, Is.Not.Null);
         }
         var ui = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab");
         Assert.That(ui.GetComponentsInChildren<TimeOfDayUIController>(true).Length, Is.EqualTo(1));
         Assert.That(ui.GetComponentInChildren<SaleSortingPanel>(true).FrontView.Find("Customer/Appearance"), Is.Not.Null);
+    }
+
+    /// <summary>안개는 명시적 Sprite 시간·독립 FullRect 자산을 쓰고 prototype 로직을 실행하지 않는다.</summary>
+    [Test]
+    public void EffectsKeepSpriteTimeAndSourceBoundaries()
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/World/CustomerWorld.prefab");
+        var world = new SerializedObject(prefab.GetComponent<WorldSceneView>());
+        Assert.That(world.FindProperty("timedEffects").arraySize, Is.EqualTo(4));
+        Assert.That(world.FindProperty("smokeFrames").arraySize, Is.EqualTo(4));
+        Assert.That(world.FindProperty("guards").arraySize, Is.EqualTo(2));
+        var birds = (SpriteRenderer)world.FindProperty("timedEffects").GetArrayElementAtIndex(0).objectReferenceValue;
+        Assert.That(birds.sprite.rect.size, Is.EqualTo(new Vector2(birds.sprite.texture.width, birds.sprite.texture.height)));
+        foreach (var behaviour in prefab.GetComponentsInChildren<MonoBehaviour>(true))
+            Assert.That(behaviour.GetType().Name.StartsWith("Dystopia"), Is.False);
+        for (int i = 1; i < 4; i++)
+        {
+            var renderer = (SpriteRenderer)world.FindProperty("timedEffects").GetArrayElementAtIndex(i).objectReferenceValue;
+            Assert.That(renderer.sharedMaterial.GetFloat("_UseUI"), Is.Zero);
+            Assert.That(renderer.sharedMaterial.GetFloat("_UsePresentationTime"), Is.EqualTo(1));
+            Assert.That(renderer.sprite.vertices.Length, Is.EqualTo(4));
+            Assert.That(renderer.sprite.rect.size, Is.EqualTo(new Vector2(renderer.sprite.texture.width, renderer.sprite.texture.height)));
+        }
+        var uiFog = AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/FogBack.mat");
+        Assert.That(uiFog.GetFloat("_UseUI"), Is.EqualTo(1));
+        Assert.That(uiFog.GetFloat("_UsePresentationTime"), Is.Zero);
     }
 }

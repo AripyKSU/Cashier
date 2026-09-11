@@ -804,6 +804,64 @@ public sealed class GameSessionApiTests
         Assert.That(world.GetComponentsInChildren<SpriteRenderer>(true).Count(x => x.sortingOrder == 200), Is.EqualTo(1));
     }
 
+    /// <summary>환경 연출 시간은 게임 진행과 독립이며 pause·숨김·재활성 중 프레임과 shader 시간을 보존한다.</summary>
+    /// <returns>실제 UI 초기화 및 재활성 프레임.</returns>
+    [UnityTest]
+    public IEnumerator InspectorWorldEffectsPreservePausedTimeAndFlashLifetime()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        var world = createWorld(ui);
+        world.RefreshPresentation();
+        world.AdvanceEffects(0);
+        var settings = new UnityEditor.SerializedObject(world);
+        var bird = (SpriteRenderer)settings.FindProperty("timedEffects").GetArrayElementAtIndex(0).objectReferenceValue;
+        var smoke = (SpriteRenderer)settings.FindProperty("smoke").GetArrayElementAtIndex(0).FindPropertyRelative("Renderer").objectReferenceValue;
+        var flash = (Transform)settings.FindProperty("guards").GetArrayElementAtIndex(0).FindPropertyRelative("Flash").objectReferenceValue;
+        var block = new MaterialPropertyBlock();
+        float remaining = progress.CurrentDayProgress.RemainingSeconds;
+        for (int i = 0; i < 4; i++)
+        {
+            if (i > 0) world.AdvanceEffects(1.1f);
+            Assert.That(smoke.sprite, Is.SameAs(settings.FindProperty("smokeFrames").GetArrayElementAtIndex(i).objectReferenceValue));
+        }
+        world.AdvanceEffects(Mathf.PI * 1.5f / .12f - 3.3f);
+        Assert.That(flash.gameObject.activeSelf, Is.True);
+        world.AdvanceEffects(.13f);
+        Assert.That(flash.gameObject.activeSelf, Is.False);
+        Assert.That(progress.CurrentDayProgress.RemainingSeconds, Is.EqualTo(remaining));
+        bird.GetPropertyBlock(block); float seconds = block.GetFloat("_PresentationSeconds");
+        var position = smoke.transform.localPosition;
+        progress.Pause(); world.AdvanceEffects(10);
+        world.enabled = false; world.enabled = true;
+        world.RefreshPresentation(); world.AdvanceEffects(10);
+        yield return null;
+        bird.GetPropertyBlock(block);
+        Assert.That(block.GetFloat("_PresentationSeconds"), Is.EqualTo(seconds));
+        Assert.That(smoke.transform.localPosition, Is.EqualTo(position));
+        ui.FrontView.gameObject.SetActive(false); world.RefreshPresentation(); world.AdvanceEffects(10);
+        bird.GetPropertyBlock(block); Assert.That(block.GetFloat("_PresentationSeconds"), Is.EqualTo(seconds));
+        ui.FrontView.gameObject.SetActive(true); world.RefreshPresentation(); progress.Resume(); world.AdvanceEffects(.1f);
+        bird.GetPropertyBlock(block); Assert.That(block.GetFloat("_PresentationSeconds"), Is.GreaterThan(seconds));
+        Assert.Throws<ArgumentOutOfRangeException>(() => world.AdvanceEffects(float.NaN));
+        // 짧은 영업일마다 초기화하지 않아야 원본 경비병의 늦은 첫 발사에 도달할 수 있다.
+        seconds = block.GetFloat("_PresentationSeconds");
+        progress.BeginCustomerSorting();
+        var day = progress.CurrentDayProgress;
+        progress.SubmitOffer(long.MaxValue, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.Tick(day.BusinessDurationSeconds);
+        progress.CompleteTransactionResult();
+        progress.CompleteSettlement();
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        ui.FrontView.gameObject.SetActive(true); world.RefreshPresentation(); world.AdvanceEffects(.1f);
+        bird.GetPropertyBlock(block);
+        Assert.That(block.GetFloat("_PresentationSeconds"), Is.GreaterThanOrEqualTo(seconds));
+    }
+
     /// <summary>실제 UI의 시계와 배경은 DayProgress를 따르며 테스트 배경 시각은 영업 시간을 바꾸지 않는다.</summary>
     /// <returns>실제 prefab 초기화 대기.</returns>
     [UnityTest]
