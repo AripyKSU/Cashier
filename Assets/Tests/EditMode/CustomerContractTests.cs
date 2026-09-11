@@ -152,7 +152,7 @@ public sealed class CustomerContractTests
         for (int type = -1; type <= 5; type++)
         {
             int value = type;
-            if (type >= 1 && type <= 4) Assert.DoesNotThrow(() => CustomerProfileValidation.ValidateType((CustomerDispositionType)value));
+            if (type >= 1 && type <= 5) Assert.DoesNotThrow(() => CustomerProfileValidation.ValidateType((CustomerDispositionType)value));
             else Assert.Throws<ArgumentOutOfRangeException>(() => CustomerProfileValidation.ValidateType((CustomerDispositionType)value));
         }
         var valid = new HashSet<int>(from gender in new[] { 0, 1, 2 }
@@ -181,25 +181,10 @@ public sealed class CustomerContractTests
         foreach (int bits in new[] { 0, 1, 16, 32, 17, 33, 48, 51, 53, 113 })
         {
             var arguments = new object[] { 1u, 1u, items,
-                1000, 1u, 2u, 3u, 4u, 5u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
-                CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys, null };
+                1000, 0, 1u, 2u, 3u, 4u, 5u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
+                CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys, null, null };
             var error = Assert.Throws<System.Reflection.TargetInvocationException>(() => constructor.Invoke(arguments));
             Assert.That(error.InnerException, Is.InstanceOf<ArgumentException>());
-        }
-    }
-
-    /// <summary>가격 민감 손님은 현재가 합계와 정확히 같은 제안만 수락한다.</summary>
-    [Test]
-    public void PriceSensitiveAcceptsOnlyExactReferenceTotal()
-    {
-        config.DispositionType = CustomerDispositionType.PriceSensitive;
-        config.PriceTolerance = 1000;
-        var items = new[] { new SaleItem(4, 2) };
-        foreach (var pair in new[] { (Offered: 201L, Accepted: false), (Offered: 202L, Accepted: true), (Offered: 203L, Accepted: false) })
-        {
-            CustomerVisit visit = generate();
-            visit.BeginOffer();
-            Assert.That(visit.SubmitOffer(pair.Offered, items), Is.EqualTo(pair.Accepted));
         }
     }
 
@@ -241,6 +226,24 @@ public sealed class CustomerContractTests
     {
         config.RegularPriceMinRate = 950; config.RegularPriceMaxRate = 1050; config.PriceTolerance = 1200; prices[1] = (uint)price;
         var visit = generate(); visit.BeginOffer(); visit.SubmitOffer(offer, new[] { new SaleItem(1, 1) }); Assert.That(visit.Outcome, Is.EqualTo(expected));
+    }
+
+    /// <summary>가격 민감 손님은 기준가 미만을 거절하고 기준가 이상을 기존 상한 규칙으로 판정합니다.</summary>
+    [Test]
+    public void MinimumPriceToleranceRejectsBelowReference()
+    {
+        config.MinimumPriceTolerance = 1000;
+        config.PriceTolerance = 1100;
+
+        var below = generate();
+        below.BeginOffer();
+        Assert.That(below.SubmitOffer(100, new[] { new SaleItem(1, 1) }), Is.False);
+        Assert.That(below.Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
+
+        var exact = generate();
+        exact.BeginOffer();
+        Assert.That(exact.SubmitOffer(101, new[] { new SaleItem(1, 1) }), Is.True);
+        Assert.That(exact.Outcome, Is.EqualTo(CustomerTradeOutcome.RegularSale));
     }
 
     /// <summary>결제 거부는 인정범위보다 우선하며 큰 교차곱도 정확하다.</summary>
@@ -384,7 +387,8 @@ public sealed class CustomerContractTests
 
     /// <summary>현재 사례의 공개 생성 API를 호출한다.</summary>
     /// <param name="rules">선택 지침 공급자.</param><returns>생성 방문 또는 null.</returns>
-    private CustomerVisit generate(Func<IReadOnlyList<SaleRestriction>> rules = null) => generator.Generate(new uint[] { 1 }, new[] { config }, products, getCurrentPrices: () => prices, getSaleRestrictions: rules);
+    private CustomerVisit generate(Func<IReadOnlyList<SaleRestriction>> rules = null) => generator.Generate(new uint[] { 1 }, new[] { config }, products,
+        getCurrentPrices: () => CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x => x.Idx, x => prices[x.Idx]), getSaleRestrictions: rules);
 
     /// <summary>오류 이후 판정값이 하나도 공개되지 않았음을 검사한다.</summary>
     /// <param name="visit">검사 방문.</param>

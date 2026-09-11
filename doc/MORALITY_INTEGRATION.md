@@ -6,7 +6,7 @@
 - 배율은 `1000=100%`다. `offer_max_rate=0`, `include_max=0` 조합만 명시적 무상한이다. boolean은 `0/1`만 사용한다.
 - `MoralityDataTable`은 로드 시 PK·성향 FK·구간 누락·중복·무상한을 한 번 검증한다. 실패하면 LogError와 예외를 전달하고 공개하지 않는다.
 - `MoralityCalculator`는 거래 때 검증된 행에서 최초 일치 행만 조회한다. `offeredTotal*1000`과 `referenceTotal*rate`를 decimal로 비교하며 나누기·반올림을 하지 않는다.
-- Normal은 130%, Hasty는 150% 이하를 구매한다. PriceSensitive는 정확히 100%만 구매한다. 현재 Wealthy 도덕성 행은 없으므로 미평가(null)이며 신규 행을 추론하지 않는다.
+- Normal은 110%, Hasty는 130% 이하를 구매한다. PriceSensitive는 정확히 100%만 구매한다. 현재 Wealthy 도덕성 행은 없으므로 미평가(null)이며 신규 행을 추론하지 않는다.
 
 ## 결과와 세션
 
@@ -33,6 +33,6 @@ decimal total = session.CurrentMorality;
 
 - 기존 `Default Local Group`, 주소 `MoralityData`, 기존 `Datas` 라벨을 사용한다. 신규 group·label은 만들지 않는다.
 - 자동 검증은 실제 CSV 20행 경계·소수 점수·Wealthy 미평가·누락/중복/유한 꼬리 오류, PriceSensitive 현재가 ±1, 소수 누적과 재정 알림 실패 원자성을 포함한다.
-# total_merge 후속 결정 (2026-09-10)
+# DailyInstruction 병합 결정 (2026-09-11)
 
-일반 성향(Normal)6001·6004·6005·6006은 사용자 지시로 허용 가격 배율1300(130%)을 사용한다. MoralityData 판정 구간을 완화하거나 별도 점수를 추가하지 않았다. CustomerCompositionSelector의 선택 결과를 Generator가 방문으로 만들 때 세션 MoralityCalculator를 전달하며, 구형 호환 Generate API도 동일하게 전달한다.
+CustomerDispositionData를 권위 기준으로 사용하여 Normal 6001·6004~6006은 허용 가격 배율1100(110%), Hasty 6002는1300(130%)을 사용한다. MoralityData의 `is_accepted` 경계도 같은 값으로 맞추며, 기존 점수 구간과 점수 자체는 유지한다. CustomerCompositionSelector의 선택 결과를 Generator가 방문으로 만들 때 세션 MoralityCalculator를 전달하며, 구형 호환 Generate API도 동일하게 전달한다.

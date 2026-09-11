@@ -9,12 +9,21 @@ GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연
 - DayProgress가 시계를 소유한다. `UsesCustomerQueue`, `WaitingCustomers`, `LeavingCustomers`, `DepartedCustomers`, `GetQueueSpeech`로 조회하며 가변 큐를 외부에 공개하지 않는다.
 - 최초 손님은 즉시 생성한다. 이후 5초 입장과 FIFO를 사용하고 빈 계산대는 다음 입장을 기다린다. 긴 프레임은 프레임 종료까지 만료를 먼저 처리하고 생존한 방문만 인계한다.
 - `CustomerDeparted`는 거래 완료 방문을 알린다. 대기 이탈은 거래·명성 페널티를 추가하지 않고 이탈 수에만 반영한다. Closing은 대기열을 정리하고 마지막 거래는 유지한다.
-- 공유 CustomerQueueView는 방문 객체별 Image를 입구→대기 위치→계산대→무작위 좌/우 출구로 이동한다. 원본 Appearance Image만 숨기며 자식 디버그 표시는 유지한다. 이동은 모델을 변경하지 않는다.
+- MainScene의 CustomerQueueView는 기존 Image 경로를 유지한다. 개인 SpriteWorldSandbox의 CustomerWorldQueueView는 Canvas 밖 방문 객체별 SpriteRenderer를 입구→대기 위치→계산대→무작위 좌/우 출구로 이동한다. 개인 씬만 Appearance Image를 제거하고 성별 라벨·거래 대사는 UI에 유지한다. 이동은 모델을 변경하지 않는다.
 - 마지막 거래의 정산 모델은 즉시 확정하지만 `queueExitSeconds`(기본 0.45초) 동안 정산 화면을 지연한다. 공유 렌더러 퇴장도 같은 값을 사용한다. 일시정지는 큐와 UI 연출을 함께 정지한다.
 - 아래 Dev3 버튼·3초 자동 결과 인계 설명은 이전 화면의 계약이다. 현재 GameUI의 거래 결과 완료 경로와 혼동하지 않는다. UI/UX는 사용자 확인 대상이다.
 
 - 모든 손님은 같은 크기를 사용하며 원근 배율은 적용하지 않는다. 계산대 하단 가림선에 호흡 최대 상승량을 보정한다. 퇴장 이미지는 검정 틴트와 alpha 페이드를 적용한다.
-- 현재 표시 결함: 불만의 모델 수명은 3초지만 부모 CanvasGroup의 퇴장 alpha가 문구에도 적용된다. [감사 Q-01](FEATURE_CONTRACT_AUDIT.md#q-01--p2--불만-대사의-3초-표시와-퇴장-페이드-충돌)을 참조한다.
+- CustomerWorldQueueView의 월드 TMP는 불만의 모델 수명 3초를 보존하도록 외형과 별도 객체다. 이탈 당시 위치에 남고 외형의 0.45초 퇴장 alpha를 적용하지 않는다. pause·전면 숨김·날짜 교체·비활성 정리 계약을 유지한다. 이 Q-01 보완은 개인 월드 경로에만 적용되며 기존 MainScene의 Image 경로는 아직 미보완이다. 최종 가독성은 사용자 확인 대상이다.
+
+### 월드 표시 조립 (2026-09-11)
+
+- 개인 SpriteWorldSandbox의 독립 `Assets/Prefabs/World/CustomerWorld.prefab` 인스턴스에 WorldSceneView와 CustomerWorldQueueView를 함께 연결한다. Canvas 부모 아래에 두지 않는다. 공유 MainScene에는 아직 적용하지 않는다.
+- RenderRoot는 전면 UI의 화면 사각형만 카메라 viewport에 대응시킨다. 자식은 좌상단 기준 일반 Transform 좌표이며 UI Image를 실시간 복제하지 않는다. CounterAnchor·Entrance·LeftExit·RightExit·Slot01~10을 Scene/Prefab에서 편집한다.
+- 동일 Visit 객체를 표시 키로 쓰므로 같은 외형 PK의 손님도 별개이며 대기→현재 전환에는 같은 SpriteRenderer를 재사용한다. 현재·대기 높이430px, 이동0.65초, 하단12px+최대 bob 보정을 유지한다.
+- 정렬은 배경0~11→대기100~91→현재200→캐노피250→탐조등273~274→대사300이다. 매대/매대 조명은 Canvas UI가 월드를 가린다.
+- GameUIController의 기존 외형 preload와 `GetCustomerAppearanceSprite`를 사용한다. queue는 Sprite handle을 로드·해제하지 않는다. 시간대 인물 tint와 퇴장 검정/alpha는 `ComposeColor` 한 곳에서 합성한다.
+- 개인 씬은 GameUI·OperatingPanel 루트만 native unpack하여 UI 이관 상태를 보존했다. 향후 공유 통합은 [MainScene 조립 지침](MAINSCENE_INTEGRATION.md)을 따른다. 구형 Sale Sorting 설치기는 원본이며 월드 prefab 존재만으로 차단하지 않는다. 월드 개인 씬에 구형 UI 전체 재설치를 실행하지 않는다.
 
 ## 범위와 규칙
 
@@ -36,7 +45,7 @@ GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연
 | queue_warning_textidx | uint, 필수 TextData FK | 재촉 대사 |
 | queue_leave_textidx | uint, 필수 TextData FK | 이탈 불만 |
 
-테스트 배정: 평범(6001) 12초·8050/8051, 급함(6002) 9초·8052/8053, 가격 민감(6003) 18초·8054/8055. TextData의 기존 마지막 8049 뒤에 6개 문구를 추가했다. 새 CSV 종류·Addressables 등록은 없다. 병합 직전 다른 branch와 신규 Text PK 충돌을 다시 검사한다.
+테스트 배정: 평범(6001) 12초·8050/8051, 성급함(6002) 9초·8052/8053, 가격 민감(6003) 18초·8054/8055. TextData의 기존 마지막 8049 뒤에 6개 문구를 추가했다. 새 CSV 종류·Addressables 등록은 없다. 병합 직전 다른 branch와 신규 Text PK 충돌을 다시 검사한다.
 
 `CustomerDispositionDataTable`은 구매 및 대기 설정을 검증하고 `CustomerCatalog`는 두 신규 Text FK를 검사한 후 공개한다. 오류 시 기존 LogError·예외 경로를 따른다. 독립 구매 생성 테스트는 대기 설정을 요구하지 않지만 CSV 로드와 줄 합류에서는 필수다.
 
@@ -56,7 +65,7 @@ GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연
 
 1. InitScene부터 개인 GameplaySandbox로 진입한다. START SESSION → 여정 시작 → 영업 시작 → OPEN STORE.
 2. 계산 중인 손님을 그대로 두면 5초 간격으로 대기열이 증가한다. 최대 10명을 넘지 않는다.
-3. 급함 성향은 합류 3초 후 재촉, 9초 후 이탈한다. 평범은 6/12초, 가격 민감은 12/18초다. 입장 간격 5초·대사/결과 표시 3초·라디오 시간은 유지한다.
+3. 성급함 성향은 합류 3초 후 재촉, 9초 후 이탈한다. 평범은 6/12초, 가격 민감은 12/18초다. 입장 간격 5초·대사/결과 표시 3초·라디오 시간은 유지한다.
 4. 거래를 판정하면 3초 후 다음 대기 손님이 계산대로 이동한다. 종료하려면 결과 표시 중 END DAY를 누른다.
 5. 자동 API 검사는 [TESTING.md](TESTING.md)의 CustomerQueueTests/CustomerCsvTests를 사용한다. 기존 셸은 제거했다. 정확한 최신 건수·증거는 해당 문서를 따른다.
 6. 위 화면·버튼·말풍선 사용법은 사용자 수동 검증이며 자동 API 통과와 별개다.

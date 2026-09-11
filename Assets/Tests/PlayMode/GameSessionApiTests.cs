@@ -306,6 +306,35 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
     }
 
+    /// <summary>지침 누적 한계도 세션의 도덕성 변경 전에 거부한다.</summary>
+    /// <param name="countOverflow">건수 또는 벌금 누적 한계를 선택한다.</param>
+    [TestCase(true)]
+    [TestCase(false)]
+    public void GuidelineOverflowPreventsSessionMutation(bool countOverflow)
+    {
+        session.EnsureDailyPrices(); session.BeginTradingDay();
+        var aggregation = session.Economy.DailyAggregationService;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        typeof(DailyAggregationService).GetField(countOverflow ? "dailyGuidelineViolationCount" : "dailyGuidelinePenaltyAmount", flags)
+            .SetValue(aggregation, countOverflow ? (object)int.MaxValue : long.MaxValue);
+        var attributes = CustomerAttributes.Male | CustomerAttributes.Adult | CustomerAttributes.Normal;
+        var guideline = new DailyGuideline(13001, DailyGuidelineRuleType.SaleProhibited, CustomerAttributes.None, 1001, 0, 500);
+        var result = (TransactionResult)typeof(TransactionResult).GetConstructors(flags).Single().Invoke(new object[] {
+            CustomerTradeOutcome.RegularSale, 100L, Array.Empty<SoldItem>(), false,
+            Array.Empty<SaleRestrictionViolation>(), CustomerDispositionType.Normal, attributes, true,
+            new[] { new DailyGuidelineViolation(guideline, attributes, 1) }, new MoralityEvaluation(14001, 1m) });
+        long balance = session.Economy.QueryService.CurrentBalance;
+        Assert.Throws<OverflowException>(() =>
+            typeof(GameSessionManager).GetMethod("TryApplyTransaction", flags).Invoke(session, new object[] { result }));
+        Assert.That(session.CurrentMorality, Is.Zero);
+        Assert.That(session.DailyMoralityDelta, Is.Zero);
+        Assert.That(aggregation.DailyTransactionCount, Is.Zero);
+        Assert.That(aggregation.DailySaleIncome, Is.Zero);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        Assert.That(aggregation.DailyGuidelineViolationCount, Is.EqualTo(countOverflow ? int.MaxValue : 0));
+        Assert.That(aggregation.DailyGuidelinePenaltyAmount, Is.EqualTo(countOverflow ? 0 : long.MaxValue));
+    }
+
     /// <summary>재정 알림 실패에도 잔고·거래 기록·도덕성을 함께 보존하고 같은 방문 재제출을 막는다.</summary>
     [Test]
     public void FinanceNotificationFailurePreservesMoralityAndTransactionSnapshot()
@@ -429,7 +458,7 @@ public sealed class GameSessionApiTests
 
     /// <summary>잔액 부족 시 유지비·날짜를 반영하지 않고 오류를 기록하는지 검사한다.</summary>
     [Test]
-    public void DailyMaintenanceInsufficientBalanceLogsAndStopsSettlement()
+    public void DailyMaintenanceInsufficientBalanceDefersWholePayment()
     {
         Assert.That(session.Economy.FinanceService.TrySpend(
             session.Economy.QueryService.CurrentBalance,
@@ -443,13 +472,18 @@ public sealed class GameSessionApiTests
         progress.Tick(day.BusinessDurationSeconds);
         Assert.That(progress.SubmitOffer(long.MaxValue,
             day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
-        LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex(
-            @"\[Maintenance\] DAY 1 .*200 G.*0 G"));
-        Assert.Throws<InvalidOperationException>(() => progress.CompleteTransactionResult());
-        Assert.That(day.State, Is.EqualTo(DayProgressState.Closing));
+        LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(
+            @"\[Settlement\] DAY 1 .*200 G.*0 G"));
+        progress.CompleteTransactionResult();
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
+        Assert.That(day.SettlementResult.Value.PaidAmount, Is.Zero);
+        Assert.That(day.SettlementResult.Value.UnpaidAmount, Is.EqualTo(200));
+        Assert.That(day.SettlementResult.Value.GracePeriodEndDay, Is.EqualTo(4));
         Assert.That(session.ElapsedDays, Is.Zero);
         Assert.That(session.Economy.MaintenanceService.LastPaidDay, Is.Zero);
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.Zero);
+        progress.CompleteSettlement();
+        Assert.That(session.ElapsedDays, Is.EqualTo(1));
     }
 
     /// <summary>설비 구매와 명성 정산이 같은 날짜 완료 경계에서 각각 한 번 적용된다.</summary>
@@ -654,6 +688,7 @@ public sealed class GameSessionApiTests
         string name = tables.GetDB<TextDataTable>(DataTableType.Text).Rows[product.NameIdx].Text;
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start();
+        progress.DebugJumpToDay(1); // SetUp에서 확정한 snapshot을 fixture 변경 후 재생성한다.
         string firstList = factory.CreatePriceListText(progress.CurrentDay, session.DailyPrices);
         Assert.That(firstList, Does.Not.Contain(name + "  ·"));
         var discounted = CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 0)
@@ -670,7 +705,7 @@ public sealed class GameSessionApiTests
             new System.Collections.Generic.Dictionary<uint, PriceEventData>(),
             new System.Collections.Generic.Dictionary<uint, PriceEventScheduleData>(),
             tables.Customers.Products.Rows.Where(x => x.Key != product.Idx).ToDictionary(x => x.Key, x => x.Value));
-        Assert.Throws<InvalidOperationException>(() => factory.CreatePriceListText(progress.CurrentDay, missing));
+        Assert.That(factory.CreatePriceListText(progress.CurrentDay, missing), Does.Not.Contain(name + "  ·"));
     }
 
     /// <summary>실제 로더·진행 구매 API·가격표·생성·최종 제출의 다음날 해금 경계를 함께 검증한다.</summary>
@@ -709,14 +744,15 @@ public sealed class GameSessionApiTests
         progress.SubmitOffer(long.MaxValue, before.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
         progress.CompleteTransactionResult(); progress.CompleteSettlement();
         Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12005));
-        Assert.That(factory.CreatePriceListText(2, session.EnsureDailyPrices()), Does.Contain(name + "  ·"));
+        Assert.That(factory.CreatePriceListText(2, session.EnsureDailyPrices()).Contains(name + "  ·"),
+            Is.EqualTo(session.DailyPrices.Prices.ContainsKey(1020)));
         var expected = new uint[] { 1001, 1004, 1007, 1010, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
         completeInspectors(progress);
         progress.OpenBusiness(); progress.BeginCustomerSorting();
-        var facilityItems = new[] { new SaleItem(1020, 1) };
+        var facilityItems = new[] { new SaleItem(session.DailyPrices.Prices.Keys.First(), 1) };
         Assert.That(progress.SubmitOffer(acceptedOffer(progress.CurrentDayProgress.CurrentVisit, facilityItems), facilityItems));
         // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
         var nextProgress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
@@ -739,6 +775,129 @@ public sealed class GameSessionApiTests
     }
 
 #if UNITY_EDITOR
+    /// <summary>월드 표시의 방문 identity·퇴장/대사 수명·pause·숨김·재활성 정리를 검사한다.</summary>
+    /// <returns>실제 프레임과 표시 보간 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime()
+    {
+        var ui = createGameUi();
+        var settings = new UnityEditor.SerializedObject(ui);
+        settings.FindProperty("useCustomerQueue").boolValue = true;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        var world = createWorld(ui);
+        var queue = world.GetComponent<CustomerWorldQueueView>();
+        yield return waitForGameUi(ui);
+        Assert.That(queue.VisualCount, Is.Zero);
+        var progress = uiProgress(ui);
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        yield return new WaitForSeconds(.85f);
+        var day = progress.CurrentDayProgress;
+        var current = day.CurrentVisit;
+        var currentBody = world.GetComponentsInChildren<SpriteRenderer>(true).Single(x => x.sortingOrder == 200);
+        Assert.That(currentBody.GetComponentInParent<Canvas>(), Is.Null);
+        Assert.That(currentBody.color.a, Is.EqualTo(1).Within(.001f));
+        progress.Tick(5);
+        yield return null;
+        var waiting = day.WaitingCustomers[0].Visit;
+        var states = (IDictionary)typeof(CustomerWorldQueueView).GetField("visuals", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(queue);
+        var visual = states[waiting];
+        var type = visual.GetType();
+        var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
+        var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
+        yield return new WaitForSeconds(.8f);
+        Assert.That(states[waiting], Is.SameAs(visual));
+        progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
+        yield return null;
+        Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);
+        Vector3 speechPosition = speech.transform.localPosition;
+        yield return new WaitForSeconds(.55f);
+        Assert.That(body.color.a, Is.Zero.Within(.001f));
+        Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
+        Assert.That(speech.text, Is.Not.Empty);
+        Assert.That(speech.transform.localPosition, Is.EqualTo(speechPosition));
+        progress.Pause();
+        float remaining = day.RemainingSeconds;
+        yield return new WaitForSeconds(.2f);
+        Assert.That(day.RemainingSeconds, Is.EqualTo(remaining));
+        Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
+        ui.FrontView.gameObject.SetActive(false);
+        yield return null;
+        Assert.That(world.RenderRoot.gameObject.activeSelf, Is.False);
+        ui.FrontView.gameObject.SetActive(true);
+        yield return null;
+        Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
+        progress.Resume();
+        progress.Tick(3);
+        yield return null;
+        Assert.That(states.Contains(waiting), Is.False);
+        world.gameObject.SetActive(false);
+        Assert.That(queue.VisualCount, Is.Zero);
+        world.gameObject.SetActive(true);
+        yield return null;
+        Assert.That(day.CurrentVisit, Is.SameAs(current));
+        Assert.That(queue.VisualCount, Is.GreaterThan(0));
+        Assert.That(world.GetComponentsInChildren<SpriteRenderer>(true).Count(x => x.sortingOrder == 200), Is.EqualTo(1));
+    }
+
+    /// <summary>환경 연출 시간은 게임 진행과 독립이며 pause·숨김·재활성 중 프레임과 shader 시간을 보존한다.</summary>
+    /// <returns>실제 UI 초기화 및 재활성 프레임.</returns>
+    [UnityTest]
+    public IEnumerator InspectorWorldEffectsPreservePausedTimeAndFlashLifetime()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        var world = createWorld(ui);
+        world.RefreshPresentation();
+        world.AdvanceEffects(0);
+        var settings = new UnityEditor.SerializedObject(world);
+        var bird = (SpriteRenderer)settings.FindProperty("timedEffects").GetArrayElementAtIndex(0).objectReferenceValue;
+        var smoke = (SpriteRenderer)settings.FindProperty("smoke").GetArrayElementAtIndex(0).FindPropertyRelative("Renderer").objectReferenceValue;
+        var flash = (Transform)settings.FindProperty("guards").GetArrayElementAtIndex(0).FindPropertyRelative("Flash").objectReferenceValue;
+        var block = new MaterialPropertyBlock();
+        float remaining = progress.CurrentDayProgress.RemainingSeconds;
+        for (int i = 0; i < 4; i++)
+        {
+            if (i > 0) world.AdvanceEffects(1.1f);
+            Assert.That(smoke.sprite, Is.SameAs(settings.FindProperty("smokeFrames").GetArrayElementAtIndex(i).objectReferenceValue));
+        }
+        world.AdvanceEffects(Mathf.PI * 1.5f / .12f - 3.3f);
+        Assert.That(flash.gameObject.activeSelf, Is.True);
+        world.AdvanceEffects(.13f);
+        Assert.That(flash.gameObject.activeSelf, Is.False);
+        Assert.That(progress.CurrentDayProgress.RemainingSeconds, Is.EqualTo(remaining));
+        bird.GetPropertyBlock(block); float seconds = block.GetFloat("_PresentationSeconds");
+        var position = smoke.transform.localPosition;
+        progress.Pause(); world.AdvanceEffects(10);
+        world.enabled = false; world.enabled = true;
+        world.RefreshPresentation(); world.AdvanceEffects(10);
+        yield return null;
+        bird.GetPropertyBlock(block);
+        Assert.That(block.GetFloat("_PresentationSeconds"), Is.EqualTo(seconds));
+        Assert.That(smoke.transform.localPosition, Is.EqualTo(position));
+        ui.FrontView.gameObject.SetActive(false); world.RefreshPresentation(); world.AdvanceEffects(10);
+        bird.GetPropertyBlock(block); Assert.That(block.GetFloat("_PresentationSeconds"), Is.EqualTo(seconds));
+        ui.FrontView.gameObject.SetActive(true); world.RefreshPresentation(); progress.Resume(); world.AdvanceEffects(.1f);
+        bird.GetPropertyBlock(block); Assert.That(block.GetFloat("_PresentationSeconds"), Is.GreaterThan(seconds));
+        Assert.Throws<ArgumentOutOfRangeException>(() => world.AdvanceEffects(float.NaN));
+        // 짧은 영업일마다 초기화하지 않아야 원본 경비병의 늦은 첫 발사에 도달할 수 있다.
+        seconds = block.GetFloat("_PresentationSeconds");
+        progress.BeginCustomerSorting();
+        var day = progress.CurrentDayProgress;
+        progress.SubmitOffer(long.MaxValue, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.Tick(day.BusinessDurationSeconds);
+        progress.CompleteTransactionResult();
+        progress.CompleteSettlement();
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        ui.FrontView.gameObject.SetActive(true); world.RefreshPresentation(); world.AdvanceEffects(.1f);
+        bird.GetPropertyBlock(block);
+        Assert.That(block.GetFloat("_PresentationSeconds"), Is.GreaterThanOrEqualTo(seconds));
+    }
+
     /// <summary>실제 UI의 시계와 배경은 DayProgress를 따르며 테스트 배경 시각은 영업 시간을 바꾸지 않는다.</summary>
     /// <returns>실제 prefab 초기화 대기.</returns>
     [UnityTest]
@@ -770,17 +929,16 @@ public sealed class GameSessionApiTests
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
         Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
         progress.Resume();
-        var background = ui.GetComponentInChildren<TimeOfDayUIController>(true);
-        Assert.That(background.BusinessClock, Is.SameAs(clock));
-        background.RefreshTime();
+        var background = createWorld(ui);
+        background.RefreshPresentation();
         Assert.That(background.CurrentAppliedHour, Is.EqualTo(15f));
         var settings = new UnityEditor.SerializedObject(background);
         settings.FindProperty("debugOverrideTime").boolValue = true;
         settings.FindProperty("debugHour").floatValue = 20f;
         settings.FindProperty("autoAdvanceClockForTesting").boolValue = true;
         settings.ApplyModifiedPropertiesWithoutUndo();
-        typeof(TimeOfDayUIController).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(background, null);
-        background.RefreshTime();
+        typeof(WorldSceneView).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(background, null);
+        background.RefreshPresentation();
         Assert.That(background.CurrentAppliedHour, Is.GreaterThanOrEqualTo(20f));
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
         Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
@@ -790,7 +948,7 @@ public sealed class GameSessionApiTests
         settings.ApplyModifiedPropertiesWithoutUndo();
         progress.Tick(15f);
         refresh.Invoke(ui, null);
-        background.RefreshTime();
+        background.RefreshPresentation();
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.CloseMinutes));
         Assert.That(background.CurrentAppliedHour, Is.EqualTo(BusinessHours.CloseHour));
         Assert.That(day.IsBusinessTimeExpired, Is.True);
@@ -1081,6 +1239,39 @@ public sealed class GameSessionApiTests
     /// <returns>테스트 root와 함께 제거할 Controller.</returns>
     private GameUIController createGameUi() => UnityEngine.Object.Instantiate(
         UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab"), root.transform).GetComponent<GameUIController>();
+
+    /// <summary>공유 월드 prefab을 Canvas 밖 테스트 소유 카메라에 연결한다.</summary>
+    /// <param name="ui">테스트 UI.</param><returns>테스트 소유 월드.</returns>
+    private WorldSceneView createWorld(GameUIController ui)
+    {
+        // 공유 legacy prefab을 쓰는 테스트 인스턴스만 로컬 world UI 계약으로 전환한다.
+        // Local 씬/자산을 읽거나 수정하지 않으며 원본 prefab은 보존한다.
+        var front = ui.FrontView;
+        var legacyTime = front.GetComponent<TimeOfDayUIController>();
+        if (legacyTime != null) UnityEngine.Object.DestroyImmediate(legacyTime);
+        var presenter = ui.GetComponentInChildren<CustomerPresenter>(true);
+        var presenterSettings = new UnityEditor.SerializedObject(presenter);
+        var appearance = (UnityEngine.UI.Image)presenterSettings.FindProperty("appearanceImage").objectReferenceValue;
+        var label = (TMPro.TextMeshProUGUI)presenterSettings.FindProperty("temporaryGenderText").objectReferenceValue;
+        if (label != null && appearance != null && label.transform.IsChildOf(appearance.transform)) label.transform.SetParent(front, true);
+        presenterSettings.FindProperty("appearanceImage").objectReferenceValue = null;
+        presenterSettings.ApplyModifiedPropertiesWithoutUndo();
+        if (appearance != null) UnityEngine.Object.DestroyImmediate(appearance.gameObject);
+        foreach (string name in new[] { "FarBackground", "DawnBackground", "SunsetBackground", "EveningBackground", "CityLights",
+            "MidBackground", "FogBack", "FogMid", "FogFront", "CrowdBack", "CrowdMiddle", "CrowdFront", "LeftWatchTower",
+            "RightWatchTower", "Barricade", "Canopy", "LeftBeam", "RightBeam" })
+            if (front.Find(name) != null) UnityEngine.Object.DestroyImmediate(front.Find(name).gameObject);
+        var panelImage = presenter.GetComponent<UnityEngine.UI.Image>();
+        panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, 0);
+        var camera = new GameObject("WorldCamera").AddComponent<Camera>();
+        camera.transform.SetParent(root.transform, false);
+        camera.transform.localPosition = new Vector3(0, 0, -10);
+        camera.orthographic = true; camera.orthographicSize = 5;
+        var world = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/Prefabs/World/CustomerWorld.prefab"), root.transform).GetComponent<WorldSceneView>();
+        world.Bind(ui, camera);
+        return world;
+    }
 
     /// <summary>테스트에서 실제 직렬화 참조를 읽는다.</summary>
     /// <typeparam name="T">예상 UI 컴포넌트.</typeparam><param name="target">연결 소유자.</param><param name="field">직렬화 필드.</param>

@@ -1,5 +1,16 @@
 # MainScene 진행·세션 API 통합
 
+## 월드 표시 분리 (2026-09-11)
+
+DailyInstruction `99fc83e`와 Sprite world `b80dfda` 통합에서 MainScene에 Canvas 밖 CustomerWorld를 연결했다. 기존 Image 기반 CustomerQueueView와 배경 중복을 제거하고 개인 씬 파일은 변경하지 않았다. 실제 검증·Git 상태는 [통합 작업 기록](work/total-merge-daily-world.md)을 따른다.
+
+WorldSceneView·CustomerWorldQueueView는 기존 GameUIController·orthographic Camera를 사용한다. GameUI prefab을 복제하거나 unpack하지 않고 OperatingPanel의 배경/Appearance Image와 TimeOfDayUIController만 제거했으며 패널 배경 alpha는 0이다. CustomerPresenter.appearanceImage는 null이며 기존 생성 경로로 직렬화한 성별 TMP·거래 대사·Counter·CounterLight·감독관·가격 입력·작업대는 유지한다. DailyInstruction의 PreOpen/Settlement child prefab과 연결을 유지하고 GameUI nested 형제 순서는 Front→Sorting→PriceInput→CalculatorToggle, Dialogue Canvas overrideSorting=false다.
+
+- GameUIController의 로드·ready/startupCover와 DayProgress 권위는 유지한다. WorldSceneView는 FrontView의 화면 사각형·가시성과 표시 시계만 관찰한다.
+- 기존 전환은 작업대가 좌측에서 들어오는 slide다. slide 중에는 전면 월드를 유지하고 FrontView 비활성 시 숨긴다. 별도 fade나 전환 시계를 만들지 않는다. Inspector/startup UI 덮개는 월드보다 앞에서 가린다.
+- WorldSceneView의 `PreviewHour`/`FollowClock`, Inspector debug override·자동 45초 주기·선택적 단축키는 표현만 변경한다. 영업·시계·라디오 시간을 바꾸지 않으며 기본 비활성이다.
+- Prefab 조립/대기 수명은 [대기열 명세](CUSTOMER_QUEUE_INTEGRATION.md#월드-표시-조립-2026-09-11), 시간대·보존 경계는 [UI 보존 가이드](UI병합_보존_가이드.md)를 따른다.
+
 ## 감독관·공용 영업 시각 통합 (2026-09-11)
 
 통합 기준: `total_merge ba368c8` + `codex/inspector-events 29c1ea5`. 아래는 사용자가 승인한 병합 계약이며 실제 검증 상태는 [작업 기록](work/inspector-events.md)을 따른다. 아래 과거 통합 절의 09~20시 표기는 당시 기록이다.

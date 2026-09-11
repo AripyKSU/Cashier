@@ -37,6 +37,9 @@ public sealed class CustomerDispositionData
     /// <summary>가격 허용 배율. 1000=정가의 100%, 확률과 달리 1000 초과 허용.</summary>
     [Name("price_tolerance")]
     public int PriceTolerance { get; set; } = 1000;
+    /// <summary>결제 허용 하한 배율. 1000=100%이며 이보다 낮은 제안은 거절한다.</summary>
+    [Name("minimum_price_tolerance")]
+    public int MinimumPriceTolerance { get; set; } = 0;
     /// <summary>정가 인정 하한 배율. 1000=100%, 0보다 크고 1000 이하.</summary>
     [Name("regular_price_min_rate")]
     public int RegularPriceMinRate { get; set; } = 1000;
@@ -86,7 +89,8 @@ public sealed class CustomerDispositionData
     /// <exception cref="ArgumentException">확률·수량 범위 또는 선호 상품군 ID가 잘못된 경우.</exception>
     public void ValidatePurchaseSettings()
     {
-        if (RegularPriceMinRate <= 0 || RegularPriceMinRate > 1000 || RegularPriceMaxRate < 1000)
+        if (RegularPriceMinRate <= 0 || RegularPriceMinRate > 1000 || RegularPriceMaxRate < 1000 ||
+            MinimumPriceTolerance < 0 || MinimumPriceTolerance > 1000 || MinimumPriceTolerance > PriceTolerance)
             throw new ArgumentException($"성향 {Idx}: 0 < regular_price_min_rate <= 1000 <= regular_price_max_rate 필요");
         CustomerProfileValidation.ValidateType(DispositionType);
         if (PreferredProductIdxs == null) throw new ArgumentException($"성향 {Idx}: preferred_product_idxs null");
@@ -97,7 +101,7 @@ public sealed class CustomerDispositionData
         if (PreferredProductTypes == null || PreferredSelectionChance < 0 || PreferredSelectionChance > 1000 || PriceTolerance <= 0 ||
             MinProductKinds < 1 || MaxProductKinds < MinProductKinds || MaxProductKinds == int.MaxValue ||
             MinQuantity < 1 || MaxQuantity < MinQuantity || MaxQuantity == int.MaxValue)
-            throw new ArgumentException($"성향 {Idx}: 구매 설정 범위가 잘못되었습니다.");
+            throw new ArgumentException($"성향 {Idx}: minimum_price_tolerance는 0 이상 1000 이하이며 price_tolerance 이하이고 구매 설정 범위가 잘못되었습니다.");
         var categories = new HashSet<ProductType>();
         foreach (var category in PreferredProductTypes)
             if (category == ProductType.None || !Enum.IsDefined(typeof(ProductType), category) || !categories.Add(category))

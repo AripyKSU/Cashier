@@ -10,6 +10,10 @@
 
 ## 1. 핵심 보존 항목 요약
 
+2026-09-11 Sprite world 후속 계약: 배경/캐노피/손님의 CustomerWorld 전환은 개인 SpriteWorldSandbox에서만 적용한다. MainScene·OperatingPanel은 total_merge 원본으로 복원하여 기존 UI controller를 유지한다. WorldSceneView는 TimeOfDayUIController의 공통 정적 곡선을 사용한다. UI CityLights 원본은 보존하고 별도 `Assets/Shaders/WorldCityLights.shader`·material이 URP Sprite 색/alpha 경로로 같은 chroma mask를 적용한다. Counter·CounterLight는 UI 예외다. 향후 공유 UI에 적용할 변경과 보존 대상은 [MainScene](MAINSCENE_INTEGRATION.md#월드-표시-분리-2026-09-11)을 따른다.
+
+월드 단축키는 `enableDebugKeys`를 켜면 [ / ] / 역슬래시 / T로 사용한다. `debugOverrideTime`·`debugHour`·`autoAdvanceClockForTesting`·45초 전체 주기를 유지하며 실제 표시 시계는 바꾸지 않는다. 고급 PixelStage relighting은 도입하지 않는다.
+
 | 대상 | 핵심 유지 내용 | 관련 파일 |
 |---|---|---|
 | **배경 시간대 전환 (TimeOfDay)** | 09:00~21:00 시간 경과에 따른 배경 페이드(아침/주간/석양/야간), 도시 불빛·가판대 조명·탐조등 점등, 환경광/인물 틴트 제어 | `TimeOfDayUIController.cs`<br>`BusinessClockController.cs`<br>`Assets/DystopiaPrototype/Art/TimeOfDay/*` |

@@ -100,15 +100,81 @@ public sealed class MaintenanceService
     /// <exception cref="InvalidOperationException">이미 납부했거나 다음 순서가 아닌 회차를 요청한 경우 발생합니다.</exception>
     public bool TryPay(int day, out MaintenancePaymentResult result)
     {
+        return tryPay(day, 0, FinanceChangeReason.Maintenance, out result);
+    }
+
+    /// <summary>해당 일차의 유지비와 추가 정산액을 하나의 금액으로 전액 납부합니다.</summary>
+    /// <param name="day">납부할 게임 표시 일자입니다.</param>
+    /// <param name="additionalAmount">지침 벌금처럼 유지비와 함께 납부할 0 이상의 금액입니다.</param>
+    /// <param name="result">통합 납부 시도의 상세 결과입니다.</param>
+    /// <returns>전체 금액 납부에 성공하면 true, 보유금이 부족하면 false입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">일차가 범위를 벗어나거나 추가 금액이 음수인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">이미 납부했거나 다음 순서가 아닌 일차를 요청한 경우 발생합니다.</exception>
+    public bool TryPay(int day, long additionalAmount, out MaintenancePaymentResult result)
+    {
+        return tryPay(day, additionalAmount, FinanceChangeReason.DailySettlement, out result);
+    }
+
+    /// <summary>기존 미납을 포함해 외부에서 확정한 일일 정산 총액을 전액 납부합니다.</summary>
+    /// <param name="day">현재 정산할 게임 표시 일자입니다.</param>
+    /// <param name="totalPaymentDue">기존 미납, 오늘 유지비와 벌금을 모두 합친 양수 금액입니다.</param>
+    /// <param name="result">전액 납부 시도의 결과입니다.</param>
+    /// <returns>전액이 차감됐으면 true, 잔액이 부족해 아무것도 차감하지 않았으면 false입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">일차 또는 총 납부액이 유효하지 않은 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">이미 현재 일차 이후까지 납부 완료된 경우 발생합니다.</exception>
+    internal bool TryPaySettlement(int day, long totalPaymentDue, out MaintenancePaymentResult result)
+    {
+        this.validateDayRange(day);
+        if (day <= this.lastPaidDay)
+            throw new InvalidOperationException($"이미 납부 완료된 정산 일차입니다. 요청: {day}, 완료: {this.lastPaidDay}");
+        if (totalPaymentDue <= 0) throw new ArgumentOutOfRangeException(nameof(totalPaymentDue));
+
+        long previousBalance = this.financeService.CurrentBalance;
+        if (!this.financeService.TrySpend(
+                totalPaymentDue,
+                FinanceChangeReason.DailySettlement,
+                out FinanceChangeResult financeResult))
+        {
+            result = new MaintenancePaymentResult(day, totalPaymentDue, false, previousBalance, previousBalance);
+            return false;
+        }
+
+        // 누적 미납까지 완납했으므로 건너뛴 미납 일차를 포함해 현재 일차까지 완료 처리합니다.
+        this.lastPaidDay = day;
+        result = new MaintenancePaymentResult(
+            day,
+            totalPaymentDue,
+            true,
+            financeResult.PreviousBalance,
+            financeResult.CurrentBalance);
+        this.MaintenancePaid?.Invoke(result);
+        return true;
+    }
+
+    /// <summary>검증된 유지비와 추가 금액을 지정된 사유로 한 번에 차감합니다.</summary>
+    /// <param name="day">납부할 게임 표시 일자입니다.</param>
+    /// <param name="additionalAmount">유지비에 합산할 0 이상의 금액입니다.</param>
+    /// <param name="reason">재정 로그에 남길 납부 사유입니다.</param>
+    /// <param name="result">전액 납부 시도의 결과입니다.</param>
+    /// <returns>전액이 차감됐으면 true, 잔액이 부족해 아무것도 차감하지 않았으면 false입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">일차 또는 추가 금액이 유효하지 않은 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">납부 순서가 올바르지 않은 경우 발생합니다.</exception>
+    private bool tryPay(
+        int day,
+        long additionalAmount,
+        FinanceChangeReason reason,
+        out MaintenancePaymentResult result)
+    {
         this.validateDayRange(day);
         this.validatePaymentOrder(day);
+        if (additionalAmount < 0) throw new ArgumentOutOfRangeException(nameof(additionalAmount));
 
-        long requiredAmount = this.maintenanceAmounts[day - 1];
+        long requiredAmount = checked(this.maintenanceAmounts[day - 1] + additionalAmount);
         long previousBalance = this.financeService.CurrentBalance;
 
         if (!this.financeService.TrySpend(
                 requiredAmount,
-                FinanceChangeReason.Maintenance,
+                reason,
                 out FinanceChangeResult financeResult))
         {
             // 잔액 부족은 상태를 바꾸지 않고 게임 진행 시스템이 판단할 결과로 반환합니다.

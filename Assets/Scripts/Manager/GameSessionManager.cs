@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 
 /// <summary>
 /// 현재 게임 세션의 런타임 시스템을 생성하고 Scene 전환 동안 수명을 유지합니다.
@@ -20,6 +21,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private bool isApplyingTransaction;
 
     private readonly PriceEventScheduler priceScheduler = new PriceEventScheduler(new Random());
+    private readonly DailyProductSelector dailyProductSelector = new DailyProductSelector(new Random());
+    private readonly DailyGuidelineGenerator dailyGuidelineGenerator = new DailyGuidelineGenerator(new Random());
+    private uint? dailyGuidelineElapsedDays;
     private bool hasClosedDay;
     // 영업 시간으로만 감소하며 정산·오류 시 취소한다.
     private float radioRemainingSeconds;
@@ -199,10 +203,10 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     {
         return EndTradingDay(out _);
     }
-    /// <summary>일일 집계를 종료하고 유지비를 차감한 최종 일일 결과를 반환한다.</summary>
+    /// <summary>일일 집계를 종료하고 기존 미납·유지비·지침 벌금을 전액 납부하거나 미납으로 이월한다.</summary>
     /// <param name="result">경제 시스템이 확정한 일일 결과.</param>
     /// <returns>당일 판매 수입. 기존 무인자 API와 동일하다.</returns>
-    /// <exception cref="InvalidOperationException">초기화 전, 열린 영업일이 없거나 유지비를 납부할 수 없음.</exception>
+    /// <exception cref="InvalidOperationException">초기화 전이거나 열린 영업일이 없는 경우 발생합니다.</exception>
     public long EndTradingDay(out DailyAggregationResult result)
     {
         DailyAggregationResult salesResult = Economy.DailyAggregationService.EndDay();
@@ -210,20 +214,56 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
 
         int displayDay = checked((int)ElapsedDays + 1);
         long maintenanceAmount = Economy.MaintenanceService.GetRequiredAmount(displayDay);
-        if (!Economy.MaintenanceService.TryPay(displayDay, out MaintenancePaymentResult paymentResult))
+        SettlementDebtState debt = Economy.SettlementDebt;
+        long previousUnpaidAmount = debt.UnpaidAmount;
+        long todayPaymentDue = checked(maintenanceAmount + salesResult.DailyGuidelinePenaltyAmount);
+        long totalPaymentDue = checked(previousUnpaidAmount + todayPaymentDue);
+        bool isPaid = Economy.MaintenanceService.TryPaySettlement(
+            displayDay,
+            totalPaymentDue,
+            out MaintenancePaymentResult paymentResult);
+
+        long paidAmount;
+        if (isPaid)
         {
-            UnityEngine.Debug.LogError(
-                $"[Maintenance] DAY {displayDay} 유지비를 납부할 수 없습니다. "
-                + $"필요 금액: {paymentResult.RequiredAmount:N0} G, 현재 잔액: {paymentResult.PreviousBalance:N0} G.");
-            throw new InvalidOperationException($"DAY {displayDay} 유지비 납부에 실패했습니다.");
+            paidAmount = totalPaymentDue;
+            if (debt.HasUnpaidAmount) debt.Clear();
         }
+        else
+        {
+            paidAmount = 0;
+            if (debt.HasUnpaidAmount)
+                debt.Add(todayPaymentDue);
+            else
+                debt.Begin(displayDay, totalPaymentDue, checked(displayDay + 3));
+
+            UnityEngine.Debug.LogWarning(
+                $"[Settlement] DAY {displayDay} 통합 정산액 {totalPaymentDue:N0} G 미납. "
+                + $"유예 종료: DAY {debt.GracePeriodEndDay}, 현재 잔액: {paymentResult.CurrentBalance:N0} G.");
+        }
+
+        bool isGameOverConditionMet = !isPaid && debt.GracePeriodEndDay.HasValue &&
+            displayDay >= debt.GracePeriodEndDay.Value;
 
         result = new DailyAggregationResult(
             salesResult.SaleIncome,
-            maintenanceAmount,
+            paidAmount,
             salesResult.ReputationDelta,
             salesResult.Transactions,
+            salesResult.DailyGuidelineViolationCount,
+            salesResult.DailyGuidelinePenaltyAmount,
+            salesResult.DailyGuidelineViolations,
             salesResult.MoralityDelta);
+        LastSettlementResult = new DailySettlementResult(
+            salesResult,
+            maintenanceAmount,
+            previousUnpaidAmount,
+            paidAmount,
+            paymentResult.CurrentBalance,
+            debt.UnpaidAmount,
+            debt.GracePeriodEndDay,
+            debt.GetRemainingGraceDays(displayDay),
+            isGameOverConditionMet);
         hasClosedDay = true;
         return result.SaleIncome;
     }
@@ -231,6 +271,32 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public uint ElapsedDays { get; private set; }
     /// <summary>동일 날짜의 재추첨을 방지하는 확정 상태.</summary>
     public DailyPriceState DailyPrices { get; private set; }
+    /// <summary>동일 날짜 동안 유지되는 충돌 없는 일일지침 snapshot.</summary>
+    public System.Collections.Generic.IReadOnlyList<DailyGuideline> DailyGuidelines { get; private set; } =
+        Array.Empty<DailyGuideline>();
+    /// <summary>가장 최근에 완료된 최종 통합 정산 결과입니다.</summary>
+    public DailySettlementResult? LastSettlementResult { get; private set; }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>수동 UI 검증을 위해 영업 전 세션을 지정한 경과일로 이동하고 당일 콘텐츠 캐시를 폐기합니다.</summary>
+    /// <param name="elapsedDays">표시 일차보다 1 작은 경과일입니다.</param>
+    /// <exception cref="InvalidOperationException">세션이 초기화되지 않았거나 영업이 열린 경우 발생합니다.</exception>
+    internal void DebugSetElapsedDays(uint elapsedDays)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("초기화된 세션에서만 테스트 날짜를 변경할 수 있습니다.");
+        if (this.economy.QueryService.IsDayOpen)
+            throw new InvalidOperationException("영업 중에는 테스트 날짜를 변경할 수 없습니다.");
+
+        ElapsedDays = elapsedDays;
+        DailyPrices = null;
+        DailyGuidelines = Array.Empty<DailyGuideline>();
+        this.dailyGuidelineElapsedDays = null;
+        LastSettlementResult = null;
+        this.hasClosedDay = false;
+        this.radioPending = false;
+        this.radioRemainingSeconds = 0f;
+    }
+#endif
 
     /// <summary>오늘 가격을 한 번만 확정한다. UI 재진입 시 동일 객체를 반환한다.</summary>
     /// <returns>신문·라디오·현재가 snapshot.</returns>
@@ -238,14 +304,26 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public DailyPriceState EnsureDailyPrices()
     {
         if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
-        if (DailyPrices != null && DailyPrices.ElapsedDays == ElapsedDays) return DailyPrices;
+        if (DailyPrices != null && DailyPrices.ElapsedDays == ElapsedDays && dailyGuidelineElapsedDays == ElapsedDays)
+            return DailyPrices;
         try
         {
+            var products = dataTables.Customers.Products.Rows;
+            var facilityRows = dataTables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows;
+            var dailyProducts = dailyProductSelector.Select(products, facilityRows, ElapsedDays, IsFacilityActive);
             var next = priceScheduler.CreateDay(ElapsedDays,
                 dataTables.GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Rows,
                 dataTables.GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Rows,
-                dataTables.Customers.Products.Rows);
+                products,
+                dailyProducts.Select(product => product.Idx));
+            var nextGuidelines = dailyGuidelineGenerator.Generate(
+                ElapsedDays,
+                dataTables.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline).Rows,
+                next.Prices.Keys);
+            // 가격과 지침이 모두 생성된 뒤 함께 공개해 날짜 상태의 부분 갱신을 막습니다.
             DailyPrices = next;
+            DailyGuidelines = nextGuidelines;
+            dailyGuidelineElapsedDays = ElapsedDays;
             return DailyPrices;
         }
         catch (Exception exception)
@@ -388,6 +466,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.economy = null;
         this.IsInitialized = false;
         this.DailyPrices = null;
+        this.DailyGuidelines = Array.Empty<DailyGuideline>();
+        this.dailyGuidelineElapsedDays = null;
+        this.LastSettlementResult = null;
         this.radioPending = false;
         this.dataTables = null;
         this.facilities = null;

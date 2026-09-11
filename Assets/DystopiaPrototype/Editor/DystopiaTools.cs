@@ -10,6 +10,301 @@ using UnityEngine.SceneManagement;
 /// <summary>승인된 전용 경로에서만 Scene을 제작하고 검사하는 Editor 진입점입니다.</summary>
 public static class DystopiaTools
 {
+    /// <summary>손 시트와 교체 이미지만 import합니다. 씬 검색·수정·저장 또는 배치 적용은 수행하지 않습니다.</summary>
+    [MenuItem("Dystopia/Assets/Import Pending Artwork Only")]
+    public static void ImportPendingArtworkOnly()
+    {
+        const string handsPath = "Assets/DystopiaPrototype/Art/Hands.png";
+        const string boxPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png";
+        const string normalPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png";
+        const string instructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
+        foreach (string path in new[] { handsPath, boxPath, instructionPath })
+        {
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+            var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = path == handsPath ? SpriteImportMode.Multiple : SpriteImportMode.Single;
+            importer.filterMode = FilterMode.Point;
+            importer.mipmapEnabled = false;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.alphaIsTransparency = true;
+            importer.npotScale = TextureImporterNPOTScale.None;
+            importer.SaveAndReimport();
+        }
+        var handImporter = (TextureImporter)AssetImporter.GetAtPath(handsPath);
+        var factory = new SpriteDataProviderFactories(); factory.Init();
+        var provider = factory.GetSpriteEditorDataProviderFromObject(handImporter);
+        provider.InitSpriteEditorDataProvider();
+        var previous = provider.GetSpriteRects();
+        var rects = new SpriteRect[4];
+        for (int i = 0; i < rects.Length; i++)
+        {
+            string name = "Hand" + (i + 1);
+            var existing = previous.FirstOrDefault(rect => rect.name == name);
+            rects[i] = new SpriteRect { name = name, rect = new Rect(i % 2 * 64, i < 2 ? 64 : 0, 64, 64),
+                pivot = new Vector2(.5f,.5f), alignment = SpriteAlignment.Center,
+                spriteID = existing != null ? existing.spriteID : GUID.Generate() };
+        }
+        provider.SetSpriteRects(rects);
+        provider.GetDataProvider<ISpriteNameFileIdDataProvider>().SetNameFileIdPairs(rects.Select(rect => new SpriteNameFileIdPair(rect.name,rect.spriteID)));
+        provider.Apply(); handImporter.SaveAndReimport();
+
+        // 원본 픽셀과 UV가 정확히 일치하는 약한 요철 데이터입니다. 확산색 이미지는 수정하지 않습니다.
+        var source = new Texture2D(2,2,TextureFormat.RGBA32,false);
+        var normal = new Texture2D(2,2,TextureFormat.RGB24,false,true);
+        try
+        {
+            if (!source.LoadImage(File.ReadAllBytes(boxPath))) throw new InvalidOperationException("상자 PNG를 읽을 수 없습니다.");
+            int width = source.width, height = source.height;
+            var pixels = source.GetPixels();
+            var heights = new float[pixels.Length];
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+            {
+                float sum = 0, weight = 0;
+                for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++)
+                {
+                    int px = Mathf.Clamp(x+dx,0,width-1), py = Mathf.Clamp(y+dy,0,height-1);
+                    Color pixel = pixels[py*width+px];
+                    float w = (dx == 0 ? 2 : 1) * (dy == 0 ? 2 : 1) * pixel.a;
+                    sum += pixel.grayscale * w; weight += w;
+                }
+                heights[y*width+x] = weight > 0 ? sum / weight : 0;
+            }
+            var normals = new Color[pixels.Length];
+            for (int y = 0; y < height; y++)
+            for (int x = 0; x < width; x++)
+            {
+                int index = y*width+x;
+                int left = y*width+Mathf.Max(0,x-1), right = y*width+Mathf.Min(width-1,x+1);
+                int down = Mathf.Max(0,y-1)*width+x, up = Mathf.Min(height-1,y+1)*width+x;
+                // 투명 경계에서 과도한 테두리 노멀이 생기지 않도록 표면 내부만 미세하게 기울입니다.
+                bool interior = pixels[index].a > .5f && pixels[left].a > .5f && pixels[right].a > .5f && pixels[down].a > .5f && pixels[up].a > .5f;
+                Vector3 direction = interior ? new Vector3((heights[left]-heights[right])*.65f,(heights[down]-heights[up])*.65f,1).normalized : Vector3.forward;
+                normals[index] = new Color(direction.x*.5f+.5f,direction.y*.5f+.5f,direction.z*.5f+.5f,1);
+            }
+            normal.Reinitialize(width,height,TextureFormat.RGB24,false);
+            normal.SetPixels(normals); normal.Apply();
+            File.WriteAllBytes(normalPath,normal.EncodeToPNG());
+        }
+        finally { UnityEngine.Object.DestroyImmediate(source); UnityEngine.Object.DestroyImmediate(normal); }
+        AssetDatabase.ImportAsset(normalPath,ImportAssetOptions.ForceSynchronousImport);
+        var normalImporter = (TextureImporter)AssetImporter.GetAtPath(normalPath);
+        // 기존 셰이더는 RGB를 직접 복호화하므로 Unity 압축 노멀 형식으로 바꾸지 않습니다.
+        normalImporter.textureType = TextureImporterType.Default;
+        normalImporter.sRGBTexture = false;
+        normalImporter.filterMode = FilterMode.Point;
+        normalImporter.mipmapEnabled = false;
+        normalImporter.textureCompression = TextureImporterCompression.Uncompressed;
+        normalImporter.npotScale = TextureImporterNPOTScale.None;
+        normalImporter.SaveAndReimport();
+        Debug.Log("Assets only: Hand1–4 sliced; instruction/chest imported; UV-aligned subtle RGB normal generated. No scene objects or layout modified.");
+    }
+
+    /// <summary>사용자 말풍선을 꼬리까지 보존하는 9-slice Sprite로 가져와 정산 화면에 연결합니다.</summary>
+    [MenuItem("Dystopia/Apply Ledger Speech Bubble")]
+    public static void ApplyLedgerSpeechBubble()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
+        var screen = UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>();
+        if (screen == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
+        const string path = "Assets/DystopiaPrototype/Art/LedgerSpeechBubble.png";
+        AssetDatabase.ImportAsset(path);
+        var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+        importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
+        importer.spritePixelsPerUnit=100; importer.filterMode=FilterMode.Point; importer.mipmapEnabled=false;
+        importer.alphaIsTransparency=true; importer.npotScale=TextureImporterNPOTScale.None;
+        importer.textureCompression=TextureImporterCompression.Uncompressed; importer.maxTextureSize=128;
+        importer.SaveAndReimport();
+        var factory = new SpriteDataProviderFactories(); factory.Init();
+        var provider = factory.GetSpriteEditorDataProviderFromObject(importer); provider.InitSpriteEditorDataProvider();
+        var previous = provider.GetSpriteRects().FirstOrDefault();
+        var spriteRect = new SpriteRect { name="LedgerSpeechBubble",rect=new Rect(54,34,2069,597),
+            border=new Vector4(300,180,200,120),pivot=new Vector2(.5f,.5f),alignment=SpriteAlignment.Center,
+            spriteID=previous != null ? previous.spriteID : GUID.Generate() };
+        provider.SetSpriteRects(new[] { spriteRect });
+        provider.GetDataProvider<ISpriteNameFileIdDataProvider>().SetNameFileIdPairs(new[] { new SpriteNameFileIdPair(spriteRect.name,spriteRect.spriteID) });
+        provider.Apply(); importer.SaveAndReimport();
+        var data = new SerializedObject(screen);
+        data.FindProperty("ledgerSpeechBubble").objectReferenceValue=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().Single();
+        data.ApplyModifiedProperties();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(screen);
+        EditorSceneManager.MarkSceneDirty(screen.gameObject.scene);
+    }
+
+    /// <summary>3단계 가게 원본을 연결합니다. 기존 배치와 조명값은 보존하고 새 부위만 초기 배치합니다.</summary>
+    [MenuItem("Dystopia/Apply Stage 3 Shop")]
+    public static void ApplyStage3Shop()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
+        var stage = UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
+        if (stage == null || stage.frontCanvas == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
+        var counterLayer = stage.layers.Single(x => x.source != null && (x.source.name == "Counter" || x.source.name == "Stage3Counter"));
+        var canopyLayer = stage.layers.Single(x => x.source != null && (x.source.name == "Canopy" || x.source.name == "Stage3Ceiling"));
+        const string artPath = "Assets/DystopiaPrototype/Art/Stage3Shop.png";
+        const string normalPath = "Assets/DystopiaPrototype/Art/Stage3ShopNormal.png";
+        AssetDatabase.ImportAsset(artPath);
+        AssetDatabase.ImportAsset(normalPath);
+        var importer = (TextureImporter)AssetImporter.GetAtPath(artPath);
+        importer.textureType = TextureImporterType.Sprite; importer.spriteImportMode = SpriteImportMode.Multiple;
+        importer.spritePixelsPerUnit = 100; importer.filterMode = FilterMode.Point;
+        importer.mipmapEnabled = false; importer.npotScale = TextureImporterNPOTScale.None;
+        importer.textureCompression = TextureImporterCompression.Uncompressed;
+        importer.maxTextureSize = 2048; importer.SaveAndReimport();
+        string[] names = { "Stage3Counter", "Stage3Ceiling", "Stage3LeftPillar", "Stage3RightPillar", "Stage3CeilingLamp" };
+        // 동일한 원본 UV를 노멀맵에도 사용하며 중앙의 인물·배경·대사는 제외합니다.
+        var crops = new[] { new Rect(0,0,1672,326),new Rect(0,777,1672,164),new Rect(0,326,183,451),new Rect(1493,326,179,451),new Rect(738,843,196,27) };
+        var factory = new SpriteDataProviderFactories(); factory.Init();
+        var provider = factory.GetSpriteEditorDataProviderFromObject(importer); provider.InitSpriteEditorDataProvider();
+        var old = provider.GetSpriteRects();
+        var rects = new SpriteRect[names.Length];
+        for (int i = 0; i < names.Length; i++)
+        {
+            var previous = old.FirstOrDefault(x => x.name == names[i]);
+            rects[i] = new SpriteRect { name=names[i],rect=crops[i],pivot=new Vector2(.5f,.5f),alignment=SpriteAlignment.Center,spriteID=previous != null ? previous.spriteID : GUID.Generate() };
+        }
+        provider.SetSpriteRects(rects);
+        provider.GetDataProvider<ISpriteNameFileIdDataProvider>().SetNameFileIdPairs(rects.Select(x => new SpriteNameFileIdPair(x.name,x.spriteID)));
+        provider.Apply(); importer.SaveAndReimport();
+        // 셰이더가 선형 RGB를 직접 해석하므로 플랫폼별 압축 노멀 형식으로 변환하지 않습니다.
+        var normalImporter = (TextureImporter)AssetImporter.GetAtPath(normalPath);
+        normalImporter.textureType = TextureImporterType.Default; normalImporter.sRGBTexture = false;
+        normalImporter.filterMode = FilterMode.Point; normalImporter.mipmapEnabled = false;
+        normalImporter.npotScale = TextureImporterNPOTScale.None;
+        normalImporter.textureCompression = TextureImporterCompression.Uncompressed;
+        normalImporter.maxTextureSize = 2048; normalImporter.SaveAndReimport();
+        var normal = AssetDatabase.LoadAssetAtPath<Texture2D>(normalPath);
+        var sprites = AssetDatabase.LoadAllAssetsAtPath(artPath).OfType<Sprite>().ToArray();
+        Undo.RecordObject(stage,"Apply stage 3 shop lighting");
+        bool wasEnabled = stage.enabled;
+        stage.enabled = false; // 이전 메시를 해제해 추가된 레이어까지 다음 프레임에 생성합니다.
+        try
+        {
+            var layers = stage.layers.ToList();
+            for (int i = 0; i < names.Length; i++)
+            {
+                var sprite = sprites.Single(x => x.name == names[i]);
+                var layer = i == 0 ? counterLayer : i == 1 ? canopyLayer : layers.FirstOrDefault(x =>
+                    x.source is UnityEngine.UI.Image existing && (existing.sprite == sprite || existing.name == names[i]));
+                bool created = layer == null;
+                if (layer == null)
+                {
+                    var go = new GameObject(names[i],typeof(RectTransform),typeof(UnityEngine.UI.Image));
+                    Undo.RegisterCreatedObjectUndo(go,"Add stage 3 shop part");
+                    go.transform.SetParent(stage.frontCanvas,false);
+                    layer = new DystopiaPixelStage.Layer { source=go.GetComponent<UnityEngine.UI.Image>() };
+                    layers.Insert(layers.IndexOf(canopyLayer)+i-1,layer);
+                }
+                var image = (UnityEngine.UI.Image)layer.source;
+                // 이미 연결한 부위는 이름·색·표면 반응까지 사용자의 편집값을 그대로 유지합니다.
+                if (!created && image.sprite == sprite) continue;
+                Undo.RecordObject(image,"Set stage 3 sprite");
+                image.sprite = sprite;
+                if (created)
+                {
+                    image.color=Color.white; image.preserveAspect=false; image.raycastTarget=false;
+                    var rect = image.rectTransform;
+                    rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(0,1);
+                    rect.anchoredPosition=new Vector2(crops[i].x*1280/1672,-(941-crops[i].yMax)*720/941);
+                    rect.sizeDelta=new Vector2(crops[i].width*1280/1672,crops[i].height*720/941);
+                }
+                layer.surface = i == 4 ? DystopiaPixelStage.Surface.Unlit : i == 0 ? DystopiaPixelStage.Surface.Metal : DystopiaPixelStage.Surface.Environment;
+                layer.normalSprite=image.sprite; layer.normalMap=i == 4 ? null : normal;
+                if (created)
+                {
+                    layer.normalResponse=.55f; layer.roomResponse=i == 4 ? 0 : .3f; layer.lampResponse=.4f;
+                    layer.rimWidthPixels=1; layer.rimResponse=.1f;
+                    layer.highlightResponse=.75f; layer.specularResponse=.12f; layer.emission=i == 4 ? 1.5f : 0;
+                    if (i == 4 && stage.ceilingLamp == null) stage.ceilingLamp=image;
+                }
+                PrefabUtility.RecordPrefabInstancePropertyModifications(image);
+            }
+            stage.layers=layers.ToArray();
+        }
+        finally { stage.enabled=wasEnabled; }
+        EditorUtility.SetDirty(stage);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        Debug.Log("Stage 3 art connected. Existing layout and lighting preserved; scene not automatically saved.");
+    }
+
+    /// <summary>Scene에 저장된 3단계 가게 부위들을 선택하여 RectTransform 편집을 시작합니다.</summary>
+    [MenuItem("Dystopia/Select Stage 3 Shop Parts")]
+    public static void SelectStage3ShopParts()
+    {
+        var stage = UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
+        if (stage == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
+        var normal = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/Stage3ShopNormal.png");
+        Selection.objects = stage.layers.Where(x => x.source != null && (normal != null && x.normalMap == normal || x.source == stage.ceilingLamp))
+            .Select(x => (UnityEngine.Object)x.source.gameObject).ToArray();
+    }
+
+    /// <summary>사용자 표정 시트를 네 상태로 슬라이싱하고 현재 정면 화면의 손님 오른쪽에 연결합니다.</summary>
+    [MenuItem("Dystopia/Apply Trade Reactions")]
+    public static void ApplyTradeReactions()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
+        var screen = UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>();
+        if (screen == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
+        var portrait = screen.transform.Find("DystopiaCanvas/Customer");
+        if (portrait == null) throw new InvalidOperationException("Customer portrait is missing.");
+        const string path = "Assets/DystopiaPrototype/Art/TradeReactions.png";
+        AssetDatabase.ImportAsset(path);
+        var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+        importer.textureType = TextureImporterType.Sprite;
+        importer.spriteImportMode = SpriteImportMode.Multiple;
+        importer.spritePixelsPerUnit = 100;
+        importer.filterMode = FilterMode.Point;
+        importer.mipmapEnabled = false;
+        importer.alphaIsTransparency = true;
+        importer.textureCompression = TextureImporterCompression.Uncompressed;
+        importer.maxTextureSize = 2048;
+        importer.SaveAndReimport();
+        var factory = new SpriteDataProviderFactories(); factory.Init();
+        var provider = factory.GetSpriteEditorDataProviderFromObject(importer);
+        provider.InitSpriteEditorDataProvider();
+        var old = provider.GetSpriteRects();
+        string[] names = { "Satisfied", "Delighted", "Reluctant", "Refused" };
+        var rects = new SpriteRect[4];
+        for (int i = 0; i < rects.Length; i++)
+        {
+            var previous = old.FirstOrDefault(x => x.name == names[i]);
+            rects[i] = new SpriteRect { name = names[i], rect = new Rect(i % 2 == 0 ? 150 : 643, i < 2 ? 655 : 168, 462, 462),
+                pivot = new Vector2(.5f,.5f), alignment = SpriteAlignment.Center, spriteID = previous != null ? previous.spriteID : GUID.Generate() };
+        }
+        provider.SetSpriteRects(rects);
+        provider.GetDataProvider<ISpriteNameFileIdDataProvider>().SetNameFileIdPairs(rects.Select(x => new SpriteNameFileIdPair(x.name,x.spriteID)));
+        provider.Apply(); importer.SaveAndReimport();
+        var sprites = AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().ToArray();
+        var child = portrait.Find("TradeReaction");
+        if (child == null)
+        {
+            var go = new GameObject("TradeReaction", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+            Undo.RegisterCreatedObjectUndo(go,"Add trade reaction");
+            go.transform.SetParent(portrait,false); child = go.transform;
+            var rect = go.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(.8f,.78f);
+            rect.pivot = new Vector2(.5f,.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(56,56);
+        }
+        var image = child.GetComponent<UnityEngine.UI.Image>();
+        Undo.RecordObject(image,"Configure trade reaction");
+        image.preserveAspect = true; image.raycastTarget = false;
+        image.sprite = sprites.Single(x => x.name == names[0]);
+        image.gameObject.SetActive(false);
+        var serialized = new SerializedObject(screen);
+        serialized.FindProperty("tradeReactionImage").objectReferenceValue = image;
+        serialized.FindProperty("tradeReactionSheet").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        var list = serialized.FindProperty("tradeReactionSprites"); list.arraySize = 4;
+        for (int i = 0; i < 4; i++) list.GetArrayElementAtIndex(i).objectReferenceValue = sprites.Single(x => x.name == names[i]);
+        serialized.ApplyModifiedProperties();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(screen);
+        EditorSceneManager.MarkSceneDirty(screen.gameObject.scene);
+        Debug.Log("Trade reactions installed: satisfied, delighted, reluctant, refused.");
+    }
+
     /// <summary>프리팹 내부 대사를 박스의 자식으로 저장합니다.</summary>
     [MenuItem("Dystopia/Fix Dialogue Prefab Layout")]
     public static void FixDialoguePrefabLayout()
@@ -407,8 +702,11 @@ public sealed class DystopiaLightingWindow : EditorWindow
         }
         showNight = EditorGUILayout.Foldout(showNight, "기존 야간 램프 · 스포트 설정", true);
         if (showNight)
-            foreach (string field in new[] { "lampPosition", "lampHeight", "lampRadius", "lampIntensity", "lampColor", "eveningSpotlight", "spotOrigin", "spotTarget", "spotIntensity", "spotHalfAngle", "spotHaze", "towerBacklight", "customerShadowOpacity" })
+        {
+            EditorGUILayout.HelpBox("Ceiling Lamp가 연결되어 있으면 해당 오브젝트의 RectTransform으로 광원 위치를 옮깁니다. Spot Target은 비추는 지점(오른쪽 X+, 아래 Y+), Spot Half Angle은 빛의 폭, Spot Softness는 가장자리 부드러움입니다. Lamp Radius는 주변광 범위입니다.", MessageType.Info);
+            foreach (string field in new[] { "ceilingLamp", "lampPosition", "lampHeight", "lampRadius", "lampIntensity", "lampColor", "eveningSpotlight", "spotOrigin", "spotTarget", "spotIntensity", "spotHalfAngle", "spotSoftness", "spotHaze", "towerBacklight", "customerShadowOpacity" })
                 EditorGUILayout.PropertyField(data.FindProperty(field));
+        }
         EditorGUILayout.EndScrollView();
         bool changed = data.ApplyModifiedProperties();
         if ((timeChanged || changed) && clock != null)

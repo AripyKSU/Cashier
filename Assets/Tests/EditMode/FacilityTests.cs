@@ -182,7 +182,7 @@ public sealed class FacilityTests
             DiscountSaleTextIdxs = new uint[] { 1 }, ExploitativeSaleTextIdxs = new uint[] { 1 }, RejectTextIdxs = new uint[] { 1 } };
         var generator = new CustomerGenerator(new System.Random(1));
         Func<CustomerVisit> generate = () => generator.Generate(new uint[] { 5001 }, new[] { config }, products, day,
-            () => products.ToDictionary(x => x.Key, x => x.Value.BasePrice), isFacilityActive: service.IsActive);
+            () => CustomerProductAvailability.GetAvailableProducts(products, day, service.IsActive).ToDictionary(x => x.Idx, x => x.BasePrice), isFacilityActive: service.IsActive);
         service.TryPurchase(12001, out _);
         var before = generate(); Assert.That(before.Items.Select(x => x.ProductIdx), Is.EqualTo(new uint[] { 1001 }));
         before.BeginOffer(); Assert.Throws<ArgumentException>(() => before.SubmitOffer(1, new[] { new SaleItem(1005, 1) }));
@@ -228,7 +228,7 @@ public sealed class FacilityTests
             new[] { config },
             products,
             day,
-            () => products.ToDictionary(x => x.Key, x => x.Value.BasePrice),
+            () => CustomerProductAvailability.GetAvailableProducts(products, day, service.IsActive).ToDictionary(x => x.Idx, x => x.BasePrice),
             isFacilityActive: service.IsActive);
 
         CustomerVisit beforePurchase = generate();

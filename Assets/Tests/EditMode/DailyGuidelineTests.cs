@@ -4,7 +4,7 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
-/// <summary>당일 지침(Daily Guidelines) CSV 파싱, 유효성 및 UI 뷰데이터 팩토리 연동 테스트.</summary>
+/// <summary>일일지침 규칙 설정 CSV와 런타임 계약의 최소 검증.</summary>
 public sealed class DailyGuidelineTests
 {
     private DailyGuidelineDataTable guidelineTable;
@@ -41,9 +41,6 @@ public sealed class DailyGuidelineTests
         var resources = new ResourceDataTable();
         resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
         catalog.ValidateAndCommit(textTable, resources, facilities: facilityTable);
-        guidelineTable.Validate(textTable.Rows, productTable.Rows);
-        typeof(DailyGuidelineDataTable).GetMethod("Commit", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic).Invoke(guidelineTable, null);
     }
 
     [Test]
@@ -55,58 +52,56 @@ public sealed class DailyGuidelineTests
         {
             Assert.DoesNotThrow(row.Validate);
             Assert.That(Util.GetDataTableType(row.Idx), Is.EqualTo(DataTableType.DailyGuideline));
-            Assert.That(textTable.Rows.ContainsKey(row.NameIdx), $"DailyGuideline PK={row.Idx}: nameidx={row.NameIdx} not found in TextData");
-            Assert.That(textTable.Rows.ContainsKey(row.DescriptionIdx), $"DailyGuideline PK={row.Idx}: descriptionidx={row.DescriptionIdx} not found in TextData");
+            Assert.That(row.PenaltyAmount, Is.EqualTo(500));
         }
     }
 
     [Test]
-    public void DailyGuidelineData_Day1_ReturnsNoRestriction()
+    public void DailyGuidelineData_ProvidesBothRuleTypes()
     {
-        bool found = guidelineTable.TryGetByDay(1, out DailyGuidelineData day1Data);
-        Assert.That(found, Is.True);
-        Assert.That(day1Data.NameIdx, Is.EqualTo(8101u));
-        Assert.That(day1Data.DescriptionIdx, Is.EqualTo(8102u));
-
-        Assert.That(textTable.Rows[day1Data.NameIdx].Text, Is.EqualTo("오늘의 지침"));
-        Assert.That(textTable.Rows[day1Data.DescriptionIdx].Text, Is.EqualTo("제한 없음."));
+        Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.SaleProhibited, out DailyGuidelineData prohibited), Is.True);
+        Assert.That(prohibited.AllowedQuantity, Is.Zero);
+        Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.QuantityLimited, out DailyGuidelineData limited), Is.True);
+        Assert.That(limited.AllowedQuantity, Is.EqualTo(1));
     }
 
     [Test]
-    public void ProgressViewDataFactory_BindsGuidelineText_ForDay1()
+    public void DailyGuidelineData_CreatesValidatedRuntimeGuideline()
     {
-        var factory = new ProgressViewDataFactory(
-            catalog,
-            textTable,
-            new Dictionary<uint, Sprite>(),
-            guidelineTable);
-
-        var scheduler = new PriceEventScheduler(new System.Random(1));
-        var events = Util.ParseFromCSV<PriceEventData>(File.ReadAllText("Assets/Datas/PriceEventData.csv")).ToDictionary(x => x.Idx);
-        var schedules = Util.ParseFromCSV<PriceEventScheduleData>(File.ReadAllText("Assets/Datas/PriceEventScheduleData.csv")).ToDictionary(x => x.Idx);
-        var prices = scheduler.CreateDay(0, events, schedules, catalog.Products.Rows);
-        PreOpenGuidelineViewData viewData = factory.CreatePreOpenGuidelineViewData(1, prices);
-
-        Assert.That(viewData.Day, Is.EqualTo(1));
-        Assert.That(viewData.RuleTitle, Is.EqualTo("오늘의 지침"));
-        Assert.That(viewData.RuleContent, Is.EqualTo("제한 없음."));
-        Assert.That(viewData.Products.Count, Is.EqualTo(4));
-        Assert.That(viewData.Products.All(x => x.Price == prices.Prices[x.ProductIdx]));
-        Assert.That(viewData.Products.Single(x => x.ProductIdx == 1004).Price, Is.EqualTo(200));
-        Assert.Throws<System.InvalidOperationException>(() => factory.CreatePreOpenGuidelineViewData(2, prices));
+        Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.QuantityLimited, out DailyGuidelineData data), Is.True);
+        DailyGuideline guideline = data.CreateGuideline(CustomerAttributes.Female | CustomerAttributes.Adult, 1001);
+        Assert.That(guideline.AllowedQuantity, Is.EqualTo(1));
+        Assert.That(guideline.PenaltyAmount, Is.EqualTo(500));
     }
 
-    /// <summary>잘못된 지침 FK는 공개 전에 거부하며 기존 공개 데이터는 유지한다.</summary>
+    /// <summary>생성 대상이 모든 손님 또는 성별·연령 단일 속성으로만 구성되고 모든 손님이 우세한지 검사합니다.</summary>
     [Test]
-    public void DailyGuidelineRejectsMissingForeignKeysBeforeCommit()
+    public void DailyGuidelineGenerator_PrefersAllCustomersWithoutCombinedAttributes()
     {
-        var invalid = new DailyGuidelineDataTable();
-        string csv = File.ReadAllText("Assets/Datas/DailyGuidelineData.csv");
-        invalid.LoadData(csv.Replace("8101", "8999"));
-        Assert.Throws<InvalidDataException>(() => invalid.Validate(textTable.Rows, catalog.Products.Rows));
-        Assert.That(invalid.GetDataCount(), Is.Zero);
-        invalid.LoadData(csv.Replace(",1001,1", ",1999,1"));
-        Assert.Throws<InvalidDataException>(() => invalid.Validate(textTable.Rows, catalog.Products.Rows));
-        Assert.That(invalid.GetDataCount(), Is.Zero);
+        var generator = new DailyGuidelineGenerator(new System.Random(7));
+        uint[] productIds = { 1001, 1004, 1005, 1006 };
+        int allCustomerCount = 0;
+        int singleAttributeCount = 0;
+
+        for (int index = 0; index < 1000; index++)
+        {
+            DailyGuideline guideline = generator.Generate(9, guidelineTable.Rows, productIds)[0];
+            if (guideline.RequiredAttributes == CustomerAttributes.None)
+            {
+                allCustomerCount++;
+                continue;
+            }
+
+            bool isSingleAttribute = guideline.RequiredAttributes == CustomerAttributes.Male ||
+                guideline.RequiredAttributes == CustomerAttributes.Female ||
+                guideline.RequiredAttributes == CustomerAttributes.Child ||
+                guideline.RequiredAttributes == CustomerAttributes.Adult ||
+                guideline.RequiredAttributes == CustomerAttributes.Elderly;
+            if (isSingleAttribute) singleAttributeCount++;
+        }
+
+        Assert.That(allCustomerCount, Is.GreaterThanOrEqualTo(600));
+        Assert.That(singleAttributeCount, Is.GreaterThan(0));
+        Assert.That(allCustomerCount + singleAttributeCount, Is.EqualTo(1000));
     }
 }

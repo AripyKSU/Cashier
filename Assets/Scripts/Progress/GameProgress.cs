@@ -84,6 +84,26 @@ public sealed class GameProgress
     /// <summary>새로운 하루가 시작된 뒤 발생합니다.</summary>
     public event Action<DayProgress> DayStarted;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>수동 UI 검증을 위해 현재 영업 전 진행을 지정 일차의 새 진행으로 교체합니다.</summary>
+    /// <param name="displayDay">이동할 1부터 시작하는 표시 일차입니다.</param>
+    /// <exception cref="ArgumentOutOfRangeException">표시 일차가 1 미만인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">현재 영업 전 상태가 아닌 경우 발생합니다.</exception>
+    public void DebugJumpToDay(int displayDay)
+    {
+        if (displayDay <= 0) throw new ArgumentOutOfRangeException(nameof(displayDay));
+        if (this.State != GameProgressState.DayInProgress ||
+            this.currentDayProgress == null ||
+            this.currentDayProgress.State != DayProgressState.PreOpen)
+        {
+            throw new InvalidOperationException("영업 시작 전 화면에서만 테스트 날짜를 변경할 수 있습니다.");
+        }
+
+        this.session.DebugSetElapsedDays(checked((uint)(displayDay - 1)));
+        startCurrentDay();
+    }
+#endif
+
     /// <summary>
     /// 검증된 런타임 시스템을 사용하는 전체 진행을 생성합니다.
     /// </summary>
@@ -301,8 +321,9 @@ public sealed class GameProgress
     /// <summary>계산이 끝난 일일 명성 정산 과정을 로그 서비스에 기록합니다.</summary>
     /// <param name="aggregationResult">하루 동안 접수된 거래 snapshot입니다.</param>
     /// <exception cref="InvalidOperationException">일일 명성 계산 결과가 없는 경우 발생합니다.</exception>
-    private void handleSettlementStarted(DailyAggregationResult aggregationResult)
+    private void handleSettlementStarted(DailySettlementResult settlementResult)
     {
+        DailyAggregationResult aggregationResult = settlementResult.Aggregation;
         if (this.currentDayProgress == null || !this.currentDayProgress.DailyReputationResult.HasValue)
         {
             throw new InvalidOperationException("명성 정산 로그에는 일일 계산 결과가 필요합니다.");

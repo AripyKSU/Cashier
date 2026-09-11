@@ -20,6 +20,7 @@ public sealed class GameUIController : MonoBehaviour
     private CustomerCatalog customerCatalog;
     private TextDataTable textData;
     private ProgressViewDataFactory viewDataFactory;
+    private PreOpenPanelPresenter preOpenPanelPresenter;
 
     [Header("Presenter references")]
     [SerializeField] private GameDayPresenter gameDayPresenter;
@@ -74,6 +75,7 @@ public sealed class GameUIController : MonoBehaviour
     private bool isReady;
     private bool presentationReady;
     private bool hasError;
+    private bool isOpeningBusiness;
     private Sprite productPlaceholderSprite;
     private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
@@ -93,6 +95,10 @@ public sealed class GameUIController : MonoBehaviour
     public DayProgress CurrentDayProgress => this.gameProgress?.CurrentDayProgress;
     /// <summary>표현 시간이 멈춰야 하는 일시정지·기술 오류 상태.</summary>
     public bool IsPresentationPaused => this.hasError || !this.isActiveAndEnabled || this.subscribedDay?.IsPaused == true;
+    /// <summary>월드 표시가 정렬·가시성만 관찰하는 기존 전면 UI 영역.</summary>
+    public RectTransform FrontView => this.saleSortingPanel.FrontView;
+    /// <summary>진행 시간이 이미 반영된 표시 전용 시계.</summary>
+    public BusinessClockController BusinessClock => this.businessClock;
 
     /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
     private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;
@@ -147,6 +153,10 @@ public sealed class GameUIController : MonoBehaviour
                 this.textData,
                 productSprites, GameSessionManager.Instance.IsFacilityActive, this.topViewSprites, this.appearanceSprites,
                 DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline));
+            this.preOpenPanelPresenter = this.preOpenPanel != null
+                ? this.preOpenPanel.GetComponentInChildren<PreOpenPanelPresenter>(true)
+                : null;
+            this.openBusinessButton = this.preOpenPanelPresenter?.OpenBusinessButton;
 
             this.validateUiReferences();
             if (this.businessClock != null) this.businessClock.StopClock();
@@ -196,7 +206,7 @@ public sealed class GameUIController : MonoBehaviour
                 if (this.isSettlementPresentationPending && this.queueExitRemaining <= 0)
                 {
                     this.isSettlementPresentationPending = false;
-                    this.renderSettlement(this.subscribedDay.AggregationResult.Value);
+                    this.renderSettlement(this.subscribedDay.SettlementResult.Value);
                     this.refreshAllViews();
                 }
             }
@@ -333,6 +343,7 @@ public sealed class GameUIController : MonoBehaviour
             || this.keypadController == null
             || this.gameInputRouter == null
             || this.saleSortingPanel == null
+            || this.preOpenPanelPresenter == null
             || this.preOpenPanel == null
             || this.operatingPanel == null
             || this.settlementPanel == null
@@ -367,6 +378,12 @@ public sealed class GameUIController : MonoBehaviour
         this.saleSortingPanel.CalculatorVisibilityChanged += this.handleCalculatorVisibilityChanged;
         this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (this.preOpenPanelPresenter.DebugDay10Button != null)
+            this.preOpenPanelPresenter.DebugDay10Button.onClick.AddListener(this.handleDebugDay10Clicked);
+        if (this.preOpenPanelPresenter.DebugDay20Button != null)
+            this.preOpenPanelPresenter.DebugDay20Button.onClick.AddListener(this.handleDebugDay20Clicked);
+#endif
         this.transactionContinueButton.onClick.AddListener(this.handleTransactionContinueClicked);
     }
 
@@ -421,6 +438,15 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.openBusinessButton.onClick.RemoveListener(this.handleOpenBusinessClicked);
         }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (this.preOpenPanelPresenter != null)
+        {
+            if (this.preOpenPanelPresenter.DebugDay10Button != null)
+                this.preOpenPanelPresenter.DebugDay10Button.onClick.RemoveListener(this.handleDebugDay10Clicked);
+            if (this.preOpenPanelPresenter.DebugDay20Button != null)
+                this.preOpenPanelPresenter.DebugDay20Button.onClick.RemoveListener(this.handleDebugDay20Clicked);
+        }
+#endif
 
         if (this.transactionContinueButton != null)
         {
@@ -469,12 +495,13 @@ public sealed class GameUIController : MonoBehaviour
         }
 
         this.subscribedDay = day;
+        this.isOpeningBusiness = false;
         this.subscribedDay.StateChanged += this.handleDayStateChanged;
         this.subscribedDay.CustomerStarted += this.handleCustomerStarted;
         this.subscribedDay.CustomerDeparted += this.handleCustomerDeparted;
         this.subscribedDay.TransactionCompleted += this.handleTransactionCompleted;
         this.subscribedDay.SettlementStarted += this.handleSettlementStarted;
-        this.renderPriceList(day.Day);
+        this.renderPreOpen(day);
         this.refreshAllViews();
     }
 
@@ -501,6 +528,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="state">변경된 하루 진행 상태입니다.</param>
     private void handleDayStateChanged(DayProgressState state)
     {
+        if (state != DayProgressState.PreOpen) this.isOpeningBusiness = false;
         this.refreshAllViews();
     }
 
@@ -540,8 +568,8 @@ public sealed class GameUIController : MonoBehaviour
     }
 
     /// <summary>일일 집계 결과를 정산 Presenter에 전달합니다.</summary>
-    /// <param name="result">확정된 하루 재정 집계입니다.</param>
-    private void handleSettlementStarted(DailyAggregationResult result)
+    /// <param name="result">미납과 유예 조건까지 포함한 최종 하루 정산 결과입니다.</param>
+    private void handleSettlementStarted(DailySettlementResult result)
     {
         if (this.useCustomerQueue && this.queueExitRemaining > 0)
         {
@@ -556,22 +584,20 @@ public sealed class GameUIController : MonoBehaviour
     }
 
     /// <summary>확정된 정산 통계는 그대로 두고 현재 잔액을 다시 표시한다.</summary>
-    /// <param name="result">확정된 하루 집계.</param>
-    private void renderSettlement(DailyAggregationResult result)
+    /// <param name="result">미납과 유예까지 확정된 최종 정산 결과입니다.</param>
+    private void renderSettlement(DailySettlementResult result)
     {
         int finalReputationDelta = this.subscribedDay.DailyReputationResult.HasValue
             ? this.subscribedDay.DailyReputationResult.Value.FinalDelta
             : 0;
-        this.dailySettlementPresenter.UpdateView(new DailySettlementViewData(
+        this.dailySettlementPresenter.UpdateView(this.viewDataFactory.CreateDailySettlementViewData(
             this.subscribedDay.Day,
-            result.SaleIncome,
-            result.Expenses,
-            result.NetProfit,
-            this.economy.QueryService.CurrentBalance,
+            result,
             finalReputationDelta,
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
-            this.subscribedDay.DepartedCustomers));
+            this.subscribedDay.DepartedCustomers,
+            this.economy.QueryService.CurrentBalance));
     }
 
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>
@@ -673,7 +699,7 @@ public sealed class GameUIController : MonoBehaviour
             session.FacilityActivationDays, session.CurrentStoreStage, session.ElapsedDays,
             this.economy.QueryService.CurrentBalance), this.facilityFeedback);
         this.facilityShopPresenter.SetInteractionEnabled(!this.hasError && !this.isPurchasingFacility, !this.isPurchasingFacility);
-        if (this.subscribedDay.AggregationResult.HasValue) this.renderSettlement(this.subscribedDay.AggregationResult.Value);
+        if (this.subscribedDay.SettlementResult.HasValue) this.renderSettlement(this.subscribedDay.SettlementResult.Value);
         this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(
             this.economy.QueryService.CurrentBalance, this.economy.QueryService.DailySaleIncome));
     }
@@ -681,8 +707,53 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>영업 전 버튼 요청을 하루 진행에 전달합니다.</summary>
     private void handleOpenBusinessClicked()
     {
-        this.runProgressAction(this.gameProgress.OpenBusiness);
+        if (!this.isReady || this.hasError || this.isOpeningBusiness ||
+            this.subscribedDay == null || this.subscribedDay.State != DayProgressState.PreOpen)
+        {
+            return;
+        }
+
+        this.isOpeningBusiness = true;
+        this.openBusinessButton.interactable = false;
+        try
+        {
+            // 전환 직전에 동일한 세션 snapshot을 다시 검증해 잘못된 콘텐츠로 영업을 시작하지 않습니다.
+            this.preOpenPanelPresenter.UpdateView(this.viewDataFactory.CreatePreOpenGuidelineViewData(
+                this.subscribedDay.Day,
+                GameSessionManager.Instance.EnsureDailyPrices(),
+                GameSessionManager.Instance.DailyGuidelines,
+                false));
+            this.gameProgress.OpenBusiness();
+            this.refreshAllViews();
+        }
+        catch (Exception exception)
+        {
+            this.showError(exception);
+        }
+        finally
+        {
+            if (!this.hasError && this.subscribedDay?.State == DayProgressState.PreOpen)
+            {
+                this.isOpeningBusiness = false;
+                this.refreshPanelVisibility();
+            }
+        }
     }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>영업 전 수동 검증을 위해 10일차를 새로 준비합니다.</summary>
+    private void handleDebugDay10Clicked() => debugJumpToDay(10);
+
+    /// <summary>영업 전 수동 검증을 위해 20일차를 새로 준비합니다.</summary>
+    private void handleDebugDay20Clicked() => debugJumpToDay(20);
+
+    /// <summary>테스트 날짜 점프를 진행 경계에 전달하고 화면을 갱신합니다.</summary>
+    /// <param name="displayDay">이동할 표시 일차입니다.</param>
+    private void debugJumpToDay(int displayDay)
+    {
+        this.runProgressAction(() => this.gameProgress.DebugJumpToDay(displayDay));
+    }
+#endif
 
     /// <summary>가격 입력 결과를 하루 진행에 전달합니다.</summary>
     /// <param name="offeredTotal">플레이어가 확정한 전체 판매 가격입니다.</param>
@@ -973,7 +1044,7 @@ public sealed class GameUIController : MonoBehaviour
         this.setPanelVisibility(this.operatingPanel, operating);
         this.setPanelVisibility(this.settlementPanel, settlement);
         this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
-        this.openBusinessButton.interactable = preOpen && presentationReady && !hasError;
+        this.openBusinessButton.interactable = preOpen && !this.isOpeningBusiness && !this.hasError && presentationReady && !hasError;
         bool inspector = this.subscribedDay.State == DayProgressState.InspectorEvent;
         this.gameInputRouter.enabled = presentationReady && !hasError && !inspector && !IsFacilityShopOpen;
         this.inspectorPresenter.gameObject.SetActive(inspector && !hasError);
@@ -1001,20 +1072,19 @@ public sealed class GameUIController : MonoBehaviour
         runProgressAction(() => subscribedDay.CompleteInspectorExit(snapshot));
     }
 
-    /// <summary>현재 날짜에 등장 가능한 상품을 영업 전 가격표에 표시합니다.</summary>
-    /// <param name="day">가격표를 표시할 1부터 시작하는 게임 날짜입니다.</param>
-    private void renderPriceList(int day)
+    /// <summary>세션에서 확정된 당일 상품·가격·지침을 영업 시작 Presenter에 전달합니다.</summary>
+    /// <param name="day">현재 영업 전 상태의 하루 진행입니다.</param>
+    /// <exception cref="ArgumentNullException">하루 진행이 null인 경우 발생합니다.</exception>
+    private void renderPreOpen(DayProgress day)
     {
-        if (this.customerCatalog == null || this.textData == null)
-        {
-            return;
-        }
-
-        var prices = GameSessionManager.Instance.EnsureDailyPrices();
-        if (this.priceListText != null)
-            this.priceListText.text = this.viewDataFactory.CreatePriceListText(day, prices);
-        if (this.preOpenPresenter != null)
-            this.preOpenPresenter.UpdateView(this.viewDataFactory.CreatePreOpenGuidelineViewData(day, prices));
+        if (day == null) throw new ArgumentNullException(nameof(day));
+        DailyPriceState dailyPrices = GameSessionManager.Instance.EnsureDailyPrices();
+        PreOpenGuidelineViewData viewData = this.viewDataFactory.CreatePreOpenGuidelineViewData(
+            day.Day,
+            dailyPrices,
+            GameSessionManager.Instance.DailyGuidelines,
+            day.State == DayProgressState.PreOpen && !this.hasError);
+        this.preOpenPanelPresenter.UpdateView(viewData);
     }
 
     /// <summary>진행 상태를 UI 표현 계약으로 변환합니다.</summary>

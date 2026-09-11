@@ -18,7 +18,7 @@
 
 ### 정가 인정 범위·판매 지침 구조 (3차)
 
-- 성향 CSV 마지막에 필수 int `regular_price_min_rate`, `regular_price_max_rate`를 추가한다. DTO `RegularPriceMinRate`/`RegularPriceMaxRate` 기본값과 기존 세 행은 모두 1000/1000이다. 단위는 1000=100%이며 `0 < min <= 1000 <= max`를 검증한다. 기존 셀·가격 허용도는 보존하고 빈 셀·구형 header는 거부한다. CSV와 소비 코드를 함께 배포·복구한다.
+- 성향 CSV에 필수 int `minimum_price_tolerance`, `regular_price_min_rate`, `regular_price_max_rate`를 둔다. `MinimumPriceTolerance`는 0~1000, `PriceTolerance` 이하이며 1000=100%다. 가격 민감은 하한 1000·상한 1000이라 기준가 미만과 초과를 모두 거절하고, 나머지는 하한 0이다.
 - 두 배율은 방문 생성 시 getter-only 값 복사다. 기존 `PriceTolerance > 0` 계약은 그대로이며 `max <= PriceTolerance`는 강제하지 않는다. 결제 거부 판정이 항상 우선하고, 수락 범위 안에서만 정가 인정 범위가 의미 있다.
 - 수락 시 `(decimal)offeredTotal * 1000`과 `(decimal)ReferenceTotal * min/max`를 비교한다. 하한 미만은 저가, 상한 초과는 착취, 양끝 포함 안쪽은 정가 판매다. 하한·상한 금액을 먼저 floor하지 않는다. 예: 기준액 101, 배율 950~1050은 95 저가·96~106 정가·107 착취(각각 결제 허용 범위 내일 때). 1000/1000은 기존 4판정을 유지한다.
 - `SaleRestriction(RequiredAttributes, ProductType)`은 필요 속성을 **모두** 가진 손님에 대한 해당 분류 판매 제한이다. None·미정의·배타 속성, None·미정의 상품 분류 및 같은 속성+분류의 중복 규칙을 거부한다. 정식 지침 ID·CSV·기호품 분류·실제 규칙은 아직 없다.
@@ -30,8 +30,8 @@
 
 ### 성향 타입·개별 상품 선호·방문 속성 (2차)
 
-- `CustomerDispositionType`은 None=0(사용 금지), Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4다. 마지막 `CustomerDispositionType_End`는 자동 증가 종료 표식이며 데이터로 사용하지 않는다.
-- 기존 성향 CSV 끝에 `disposition_type`, `preferred_product_idxs`를 순서대로 추가했다. 기존 6001/6002/6003은 각각 1/2/3으로 매핑하며 다른 셀·PK·대사·가격·대기 수치는 보존한다. Wealthy는 타입만 정의하며 실제 행이 없어 등장하지 않는다.
+- `CustomerDispositionType`은 None=0(사용 금지), Normal=1, Hasty=2(표시명 성급함), PriceSensitive=3, Wealthy=4, Poor=5다. 마지막 `CustomerDispositionType_End`는 자동 증가 종료 표식이며 데이터로 사용하지 않는다.
+- 성향 행은 타입별 여러 선호 행을 지원한다. Hasty는 의약품 선호를 유지하고 Normal·PriceSensitive·Wealthy·Poor는 여러 상품군 선호 행을 균등 선택한다. Wealthy와 Poor의 실제 행도 데이터에 포함한다.
 - `disposition_type`은 필수 uint 숫자로 읽고 검증한 enum을 `DispositionType`으로 제공한다. 빈값·문자열·None·종료값·미정의 값은 거부한다. `preferred_product_idxs`는 필수 header, 빈 셀은 선호 없음이며 기존 `UIntArrayConverter`의 `_` 구분 uint 배열을 사용한다. 0·중복·null과 ProductData.idx FK 누락은 거부한다. 기존 세 행은 빈 셀이다.
 - 추첨은 실제 후보 타입을 정렬해 균등 선택한 뒤 그 타입의 설정을 Idx 순으로 정렬해 균등 선택한다. 따라서 타입별 행 개수는 타입 출현율을 바꾸지 않는다. 같은 seed·외형 후보 순서·후보 집합에서 재현되며 데이터·추첨 방식 변경 전 버전과의 난수열 호환은 보장하지 않는다.
 - 선호 풀은 품목 `preferred_product_types` **OR** 개별 `preferred_product_idxs`다. 둘 다 해당해도 상품은 한 번만 포함된다. 비활성·미등장 상품 제외, 기존 0~1000 선호 확률과 한쪽 풀 소진 시 fallback은 유지한다.

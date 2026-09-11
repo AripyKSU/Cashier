@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 영업 전 일일 지침서(가격표) 화면을 렌더링하는 Presenter.
-/// 지침, 당일 등장 상품 가격표 카드 4종, 일자 배지를 표시합니다.
+/// Controller가 전달한 영업 전 일일지침·당일 상품 스냅샷만 렌더링합니다.
 /// </summary>
 public class PreOpenPanelPresenter : MonoBehaviour
 {
@@ -35,30 +34,48 @@ public class PreOpenPanelPresenter : MonoBehaviour
     [Tooltip("지침 소제목 (오늘의 지침)")]
     [SerializeField] private TextMeshProUGUI ruleTitleText;
 
-    [Tooltip("지침 본문 내용 (제한 없음.)")]
-    [SerializeField] private TextMeshProUGUI ruleContentText;
+    [Tooltip("최대 2개의 일일지침 표시 텍스트")]
+    [SerializeField] private TextMeshProUGUI[] guidelineTexts = new TextMeshProUGUI[2];
 
-    [Header("Product Grid Slots (2x2)")]
-    [Tooltip("2열 2행 상품 카드 슬롯 목록")]
-    [SerializeField] private ProductCardSlot[] productSlots = new ProductCardSlot[4];
+    [Header("Product Grid Slots (2x4)")]
+    [Tooltip("2열 4행 상품 카드 슬롯 목록")]
+    [SerializeField] private ProductCardSlot[] productSlots = new ProductCardSlot[8];
 
     [Header("Notice Labels")]
-    [Tooltip("하단 주의사항 1 (영업이 시작되면 가격표를 다시 볼 수 없습니다.)")]
+    [Tooltip("영업 시작 후 일일지침을 다시 확인할 수 없음을 알리는 안내")]
     [SerializeField] private TextMeshProUGUI restrictionNoticeText;
-
-    [Tooltip("하단 주의사항 2 (당일 지침은 영업 중에도 다시 확인할 수 있습니다.)")]
-    [SerializeField] private TextMeshProUGUI recheckNoticeText;
 
     [Header("Action Controls")]
     [Tooltip("영업 시작 버튼")]
     [SerializeField] private Button openBusinessButton;
 
+    [Header("Temporary Test Controls")]
+    [SerializeField] private Button debugDay10Button;
+    [SerializeField] private Button debugDay20Button;
+
     /// <summary>영업 시작 버튼의 공개 참조입니다.</summary>
     public Button OpenBusinessButton => this.openBusinessButton;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>10일차 이동용 임시 테스트 버튼입니다.</summary>
+    public Button DebugDay10Button => this.debugDay10Button;
+    /// <summary>20일차 이동용 임시 테스트 버튼입니다.</summary>
+    public Button DebugDay20Button => this.debugDay20Button;
+#endif
+
+    private void Awake()
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (this.debugDay10Button != null) this.debugDay10Button.gameObject.SetActive(true);
+        if (this.debugDay20Button != null) this.debugDay20Button.gameObject.SetActive(true);
+#else
+        if (this.debugDay10Button != null) this.debugDay10Button.gameObject.SetActive(false);
+        if (this.debugDay20Button != null) this.debugDay20Button.gameObject.SetActive(false);
+#endif
+    }
+
     /// <summary>
-    /// 지침서 스냅샷 데이터를 기반으로 화면을 갱신합니다.
-    /// 추후 CSV 데이터가 연동되면 이 메서드에 전달되는 스냅샷을 통해 텍스트가 자동 반영됩니다.
+    /// Controller가 완성한 지침서 스냅샷만 사용해 화면을 갱신합니다.
     /// </summary>
     /// <param name="viewData">일일 지침서 표시용 스냅샷입니다.</param>
     public void UpdateView(PreOpenGuidelineViewData viewData)
@@ -68,29 +85,26 @@ public class PreOpenPanelPresenter : MonoBehaviour
             this.dayText.text = $"{viewData.Day}일차";
         }
 
-        if (this.headingText != null && !string.IsNullOrEmpty(viewData.Heading))
+        if (this.headingText != null)
         {
-            this.headingText.text = viewData.Heading;
+            this.headingText.text = "영업 전, 가격을 기억하세요";
         }
 
-        if (this.ruleTitleText != null && !string.IsNullOrEmpty(viewData.RuleTitle))
+        if (this.ruleTitleText != null)
         {
-            this.ruleTitleText.text = viewData.RuleTitle;
+            this.ruleTitleText.text = "오늘의 지침";
         }
 
-        if (this.ruleContentText != null)
+        updateGuidelineSlots(viewData.Guidelines);
+
+        if (this.restrictionNoticeText != null)
         {
-            this.ruleContentText.text = viewData.RuleContent;
+            this.restrictionNoticeText.text = viewData.Notice;
         }
 
-        if (this.restrictionNoticeText != null && !string.IsNullOrEmpty(viewData.RestrictionNotice))
+        if (this.openBusinessButton != null)
         {
-            this.restrictionNoticeText.text = viewData.RestrictionNotice;
-        }
-
-        if (this.recheckNoticeText != null && !string.IsNullOrEmpty(viewData.RecheckNotice))
-        {
-            this.recheckNoticeText.text = viewData.RecheckNotice;
+            this.openBusinessButton.interactable = viewData.CanOpenBusiness;
         }
 
         if (this.productSlots != null)
@@ -137,19 +151,40 @@ public class PreOpenPanelPresenter : MonoBehaviour
         TextMeshProUGUI dayDisplay,
         TextMeshProUGUI headingDisplay,
         TextMeshProUGUI ruleTitleDisplay,
-        TextMeshProUGUI ruleContentDisplay,
+        TextMeshProUGUI[] guidelineDisplays,
         ProductCardSlot[] slots,
         TextMeshProUGUI restrictionDisplay,
-        TextMeshProUGUI recheckDisplay,
         Button openButton)
     {
         this.dayText = dayDisplay;
         this.headingText = headingDisplay;
         this.ruleTitleText = ruleTitleDisplay;
-        this.ruleContentText = ruleContentDisplay;
+        this.guidelineTexts = guidelineDisplays;
         this.productSlots = slots;
         this.restrictionNoticeText = restrictionDisplay;
-        this.recheckNoticeText = recheckDisplay;
         this.openBusinessButton = openButton;
+    }
+
+    /// <summary>
+    /// 최대 두 개의 일일지침을 각 슬롯에 표시하고 사용하지 않는 슬롯을 비활성화합니다.
+    /// </summary>
+    /// <param name="guidelines">표시할 일일지침 목록입니다.</param>
+    private void updateGuidelineSlots(System.Collections.Generic.IReadOnlyList<DailyGuidelineViewData> guidelines)
+    {
+        if (this.guidelineTexts == null) return;
+
+        int guidelineCount = guidelines != null ? guidelines.Count : 0;
+        for (int i = 0; i < this.guidelineTexts.Length; i++)
+        {
+            TextMeshProUGUI guidelineText = this.guidelineTexts[i];
+            if (guidelineText == null) continue;
+
+            bool hasGuideline = i < guidelineCount;
+            bool showsEmptyState = guidelineCount == 0 && i == 0;
+            guidelineText.gameObject.SetActive(hasGuideline || showsEmptyState);
+            guidelineText.text = hasGuideline
+                ? $"{i + 1}. {guidelines[i].Content}"
+                : showsEmptyState ? "지침 없음." : string.Empty;
+        }
     }
 }

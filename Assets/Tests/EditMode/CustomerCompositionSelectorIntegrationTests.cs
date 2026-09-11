@@ -6,7 +6,7 @@ using NUnit.Framework;
 /// <summary>명성 구성군·설비 해금·성별 교대가 구성 선택 단계에서 함께 적용되는지 검사합니다.</summary>
 public sealed class CustomerCompositionSelectorIntegrationTests
 {
-    /// <summary>명성 일반군 안의 Normal·PriceSensitive 타입과 Wealthy·Hasty가 가중치대로 도달하는지 확인합니다.</summary>
+    /// <summary>명성별 Normal·Wealthy·Hasty·Poor 타입이 가중치대로 도달하는지 확인합니다.</summary>
     [Test]
     public void ReputationWeightsSelectTypeGroupsAndKeepPreferenceIndependent()
     {
@@ -15,21 +15,24 @@ public sealed class CustomerCompositionSelectorIntegrationTests
             [1] = product(1, ProductType.Water),
             [2] = product(2, ProductType.Food),
             [3] = product(3, ProductType.Medicine),
-            [4] = product(4, ProductType.DailyNecessities)
+            [4] = product(4, ProductType.DailyNecessities),
+            [5] = product(5, ProductType.Tools)
         };
         CustomerDispositionData[] dispositions =
         {
             disposition(6001, CustomerDispositionType.Normal, ProductType.Water),
             disposition(6002, CustomerDispositionType.PriceSensitive, ProductType.Food),
             disposition(6003, CustomerDispositionType.Wealthy, ProductType.Medicine),
-            disposition(6004, CustomerDispositionType.Hasty, ProductType.DailyNecessities)
+            disposition(6004, CustomerDispositionType.Hasty, ProductType.DailyNecessities),
+            disposition(6005, CustomerDispositionType.Poor, ProductType.Tools)
         };
         ReputationBalanceData balance = new ReputationBalanceData
         {
-            NormalWeight = 700,
-            WealthyWeight = 200,
-            HastyWeight = 100,
-            SpecialWeight = 0
+            NormalWeight = 600,
+            PriceSensitiveWeight = 100,
+            WealthyWeight = 150,
+            HastyWeight = 50,
+            PoorWeight = 100
         };
         Dictionary<uint, uint> prices = products.ToDictionary(pair => pair.Key, pair => pair.Value.BasePrice);
         CustomerCompositionSelector selector = new CustomerCompositionSelector(new Random(41));
@@ -43,10 +46,11 @@ public sealed class CustomerCompositionSelectorIntegrationTests
             counts[composition.DispositionType] = count + 1;
         }
 
-        Assert.That(counts[CustomerDispositionType.Normal], Is.InRange(3200, 3800));
-        Assert.That(counts[CustomerDispositionType.PriceSensitive], Is.InRange(3200, 3800));
-        Assert.That(counts[CustomerDispositionType.Wealthy], Is.InRange(1700, 2300));
-        Assert.That(counts[CustomerDispositionType.Hasty], Is.InRange(700, 1300));
+        Assert.That(counts[CustomerDispositionType.Normal], Is.InRange(5700, 6300));
+        Assert.That(counts[CustomerDispositionType.PriceSensitive], Is.InRange(700, 1300));
+        Assert.That(counts[CustomerDispositionType.Wealthy], Is.InRange(1200, 1800));
+        Assert.That(counts[CustomerDispositionType.Hasty], Is.InRange(200, 800));
+        Assert.That(counts[CustomerDispositionType.Poor], Is.InRange(700, 1300));
     }
 
     /// <summary>설비가 잠긴 동안에는 선호 타입을 만족하는 상품을 고르지 않고, 활성화 후에만 고르는지 확인합니다.</summary>
@@ -63,15 +67,16 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         ReputationBalanceData balance = new ReputationBalanceData
         {
             NormalWeight = 1000,
+            PriceSensitiveWeight = 0,
             WealthyWeight = 0,
             HastyWeight = 0,
-            SpecialWeight = 0
+            PoorWeight = 0
         };
         Dictionary<uint, uint> prices = products.ToDictionary(pair => pair.Key, pair => pair.Value.BasePrice);
         CustomerCompositionSelector selector = new CustomerCompositionSelector(new Random(7));
 
         CustomerComposition before = selector.SelectComposition(new uint[] { 5001 }, new[] { normalDisposition },
-            products, balance, prices, isFacilityActive: _ => false);
+            products, balance, new Dictionary<uint, uint> { [1] = prices[1] }, isFacilityActive: _ => false);
         CustomerComposition after = selector.SelectComposition(new uint[] { 5001 }, new[] { normalDisposition },
             products, balance, prices, isFacilityActive: _ => true);
 

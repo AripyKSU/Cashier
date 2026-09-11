@@ -209,33 +209,94 @@ public struct TransactionViewData
     }
 }
 
-/// <summary>
-/// 3.8 DailySettlementPresenter가 수신하는 일일 정산 결과 스냅샷
-/// </summary>
-[Serializable]
-public struct DailySettlementViewData
+/// <summary>정산 화면에 표시할 지침별 위반 횟수와 벌금입니다.</summary>
+public readonly struct SettlementGuidelineViolationViewData
 {
-    public int Day;                 // 정산 대상 게임 날짜
-    public long SaleIncome;         // 하루 동안 확정된 판매 수입
-    public long Expenses;           // 하루 동안 확정된 지출
-    public long NetProfit;          // 외부 로직에서 확정한 일일 순이익
-    public long CurrentBalance;     // 정산 완료 시점의 현재 보유금
-    public int ReputationDelta;     // formatter 입력용 내부 값이며 UI에는 숫자로 직접 표시하지 않음
-    public int SuccessfulSales;     // 거래에 성공한 손님 또는 거래 수
-    public int RefusedCustomers;    // 거래가 거절된 손님 수
-    public int DepartedCustomers;   // 대기 중 이탈한 손님 수
+    /// <summary>손님 조건·상품·제한을 조합한 완성 문구입니다.</summary>
+    public string Content { get; }
+    /// <summary>해당 지침의 당일 위반 횟수입니다.</summary>
+    public int ViolationCount { get; }
+    /// <summary>해당 지침의 당일 벌금 합계입니다.</summary>
+    public long PenaltyAmount { get; }
 
-    public DailySettlementViewData(int day, long saleIncome, long expenses, long netProfit, long currentBalance, int reputationDelta, int successfulSales, int refusedCustomers, int departedCustomers)
+    /// <summary>지침별 정산 표시 항목을 생성합니다.</summary>
+    /// <param name="content">완성된 지침 문구입니다.</param>
+    /// <param name="violationCount">양수 위반 횟수입니다.</param>
+    /// <param name="penaltyAmount">음수가 아닌 벌금 합계입니다.</param>
+    public SettlementGuidelineViolationViewData(string content, int violationCount, long penaltyAmount)
     {
-        this.Day = day;
-        this.SaleIncome = saleIncome;
-        this.Expenses = expenses;
-        this.NetProfit = netProfit;
-        this.CurrentBalance = currentBalance;
-        this.ReputationDelta = reputationDelta;
-        this.SuccessfulSales = successfulSales;
-        this.RefusedCustomers = refusedCustomers;
-        this.DepartedCustomers = departedCustomers;
+        if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("지침 표시 문구가 필요합니다.", nameof(content));
+        if (violationCount <= 0) throw new ArgumentOutOfRangeException(nameof(violationCount));
+        if (penaltyAmount < 0) throw new ArgumentOutOfRangeException(nameof(penaltyAmount));
+        Content = content;
+        ViolationCount = violationCount;
+        PenaltyAmount = penaltyAmount;
+    }
+}
+
+/// <summary>최종 통합 정산 결과를 화면에 그대로 전달하는 읽기 전용 스냅샷입니다.</summary>
+public readonly struct DailySettlementViewData
+{
+    public int Day { get; }
+    public long SaleIncome { get; }
+    public long Expenses { get; }
+    public long NetProfit { get; }
+    public long CurrentBalance { get; }
+    public int ReputationDelta { get; }
+    public int SuccessfulSales { get; }
+    public int RefusedCustomers { get; }
+    public int DepartedCustomers { get; }
+    public long MaintenanceAmount { get; }
+    public long GuidelinePenaltyAmount { get; }
+    public IReadOnlyList<SettlementGuidelineViolationViewData> GuidelineViolations { get; }
+    public long PreviousUnpaidAmount { get; }
+    public long TotalPaymentDue { get; }
+    public long PaidAmount { get; }
+    public long UnpaidAmount { get; }
+    public int? GracePeriodEndDay { get; }
+    public int RemainingGraceDays { get; }
+    public bool IsGameOverConditionMet { get; }
+
+    /// <summary>도메인에서 확정된 값을 재계산하지 않는 정산 표시 스냅샷을 생성합니다.</summary>
+    public DailySettlementViewData(
+        int day,
+        long saleIncome,
+        long currentBalance,
+        int reputationDelta,
+        int successfulSales,
+        int refusedCustomers,
+        int departedCustomers,
+        long maintenanceAmount,
+        long guidelinePenaltyAmount,
+        IReadOnlyList<SettlementGuidelineViolationViewData> guidelineViolations,
+        long previousUnpaidAmount,
+        long totalPaymentDue,
+        long paidAmount,
+        long unpaidAmount,
+        int? gracePeriodEndDay,
+        int remainingGraceDays,
+        bool isGameOverConditionMet)
+    {
+        Day = day;
+        SaleIncome = saleIncome;
+        MaintenanceAmount = maintenanceAmount;
+        GuidelinePenaltyAmount = guidelinePenaltyAmount;
+        Expenses = checked(maintenanceAmount + guidelinePenaltyAmount);
+        NetProfit = checked(saleIncome - Expenses);
+        CurrentBalance = currentBalance;
+        ReputationDelta = reputationDelta;
+        SuccessfulSales = successfulSales;
+        RefusedCustomers = refusedCustomers;
+        DepartedCustomers = departedCustomers;
+        GuidelineViolations = new List<SettlementGuidelineViolationViewData>(
+            guidelineViolations ?? Array.Empty<SettlementGuidelineViolationViewData>()).AsReadOnly();
+        PreviousUnpaidAmount = previousUnpaidAmount;
+        TotalPaymentDue = totalPaymentDue;
+        PaidAmount = paidAmount;
+        UnpaidAmount = unpaidAmount;
+        GracePeriodEndDay = gracePeriodEndDay;
+        RemainingGraceDays = remainingGraceDays;
+        IsGameOverConditionMet = isGameOverConditionMet;
     }
 }
 
@@ -259,35 +320,67 @@ public struct PriceGuideProductViewData
     }
 }
 
-/// <summary>
-/// PreOpenPanel(일일 지침서) 화면 표시용 읽기 전용 스냅샷
-/// </summary>
-[Serializable]
-public struct PreOpenGuidelineViewData
+/// <summary>영업 시작 화면에 표시할 일일지침 한 항목의 식별자와 완성 문구입니다.</summary>
+public readonly struct DailyGuidelineViewData
 {
-    public int Day;                                             // 게임 일자
-    public string Heading;                                      // "영업 전, 가격을 기억하세요"
-    public string RuleTitle;                                    // "오늘의 지침"
-    public string RuleContent;                                  // "제한 없음." (추후 지침 CSV 연동 지점)
-    public IReadOnlyList<PriceGuideProductViewData> Products;   // 표시할 상품 카드 목록
-    public string RestrictionNotice;                            // "영업이 시작되면 가격표를 다시 볼 수 없습니다."
-    public string RecheckNotice;                                // "당일 지침은 영업 중에도 다시 확인할 수 있습니다."
+    /// <summary>표시 문구의 원본이 된 일일지침 데이터 PK입니다.</summary>
+    public uint GuidelineIdx { get; }
+    /// <summary>손님 조건, 물품명과 제한 유형을 조합한 완성 문구입니다.</summary>
+    public string Content { get; }
 
+    /// <summary>일일지침 표시 항목을 생성합니다.</summary>
+    /// <param name="guidelineIdx">DailyGuidelineData PK입니다.</param>
+    /// <param name="content">화면에 바로 표시할 비어 있지 않은 문구입니다.</param>
+    /// <exception cref="ArgumentOutOfRangeException">지침 PK가 0인 경우 발생합니다.</exception>
+    /// <exception cref="ArgumentException">표시 문구가 비어 있는 경우 발생합니다.</exception>
+    public DailyGuidelineViewData(uint guidelineIdx, string content)
+    {
+        if (guidelineIdx == 0) throw new ArgumentOutOfRangeException(nameof(guidelineIdx));
+        if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("지침 표시 문구가 필요합니다.", nameof(content));
+        GuidelineIdx = guidelineIdx;
+        Content = content;
+    }
+}
+
+/// <summary>영업 시작 화면이 렌더링할 날짜·당일 상품·지침과 입력 가능 상태의 불변 스냅샷입니다.</summary>
+public readonly struct PreOpenGuidelineViewData
+{
+    /// <summary>1부터 시작하는 표시 일차입니다.</summary>
+    public int Day { get; }
+    /// <summary>아이콘·이름·당일 가격으로 구성된 최대 8개의 상품입니다.</summary>
+    public IReadOnlyList<PriceGuideProductViewData> Products { get; }
+    /// <summary>완성 문구를 포함한 최대 2개의 일일지침입니다.</summary>
+    public IReadOnlyList<DailyGuidelineViewData> Guidelines { get; }
+    /// <summary>영업 시작 후 일일지침을 다시 볼 수 없음을 알리는 단일 안내 문구입니다.</summary>
+    public string Notice { get; }
+    /// <summary>현재 영업 시작 입력을 받을 수 있는지 나타냅니다.</summary>
+    public bool CanOpenBusiness { get; }
+
+    /// <summary>검증된 영업 시작 화면 스냅샷을 생성합니다.</summary>
+    /// <param name="day">1부터 시작하는 표시 일차입니다.</param>
+    /// <param name="products">최대 8개의 당일 상품 표시 항목입니다.</param>
+    /// <param name="guidelines">최대 2개의 일일지침 표시 항목입니다.</param>
+    /// <param name="notice">비어 있지 않은 단일 안내 문구입니다.</param>
+    /// <param name="canOpenBusiness">영업 시작 버튼 활성 여부입니다.</param>
+    /// <exception cref="ArgumentOutOfRangeException">일차나 목록 개수가 범위를 벗어난 경우 발생합니다.</exception>
+    /// <exception cref="ArgumentException">안내 문구가 비어 있는 경우 발생합니다.</exception>
     public PreOpenGuidelineViewData(
         int day,
-        string heading,
-        string ruleTitle,
-        string ruleContent,
         IReadOnlyList<PriceGuideProductViewData> products,
-        string restrictionNotice,
-        string recheckNotice)
+        IReadOnlyList<DailyGuidelineViewData> guidelines,
+        string notice,
+        bool canOpenBusiness)
     {
-        this.Day = day;
-        this.Heading = heading;
-        this.RuleTitle = ruleTitle;
-        this.RuleContent = ruleContent;
-        this.Products = products ?? Array.Empty<PriceGuideProductViewData>();
-        this.RestrictionNotice = restrictionNotice;
-        this.RecheckNotice = recheckNotice;
+        if (day <= 0) throw new ArgumentOutOfRangeException(nameof(day));
+        if (products != null && products.Count > 8) throw new ArgumentOutOfRangeException(nameof(products));
+        if (guidelines != null && guidelines.Count > 2) throw new ArgumentOutOfRangeException(nameof(guidelines));
+        if (string.IsNullOrWhiteSpace(notice)) throw new ArgumentException("영업 시작 안내 문구가 필요합니다.", nameof(notice));
+
+        Day = day;
+        Products = new List<PriceGuideProductViewData>(products ?? Array.Empty<PriceGuideProductViewData>()).AsReadOnly();
+        Guidelines = new List<DailyGuidelineViewData>(guidelines ?? Array.Empty<DailyGuidelineViewData>()).AsReadOnly();
+        Notice = notice;
+        CanOpenBusiness = canOpenBusiness;
     }
+
 }

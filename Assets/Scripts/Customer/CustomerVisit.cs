@@ -32,6 +32,8 @@ public sealed class CustomerVisit
     private readonly HashSet<uint> availableProductIds;
     /// <summary>제출 시 한 번 조회하는 지침 공급자. null은 미연결이며 방문이 수명을 소유하지 않는다.</summary>
     private readonly Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions;
+    /// <summary>제출 시 한 번 조회하는 정식 일일지침 공급자. 방문은 세션 상태의 수명을 소유하지 않습니다.</summary>
+    private readonly Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines;
     /// <summary>검증된 데이터로 제출 snapshot을 한 번 평가한다. null은 도덕성 미연결.</summary>
     private readonly MoralityCalculator moralityCalculator;
     private bool isSubmitting;
@@ -51,6 +53,9 @@ public sealed class CustomerVisit
     public long? BaseTotal => Result?.ReferenceTotal;
     /// <summary>입장 시 고정한 가격 허용 배율. 1000=100%.</summary>
     public int PriceTolerance { get; }
+
+    /// <summary>결제 허용 하한 배율입니다. 1000=100%이며 이보다 낮은 제안은 거절합니다.</summary>
+    public int MinimumPriceTolerance { get; }
     /// <summary>방문 생성 시 복사한 정가 인정 하한. 1000=100%.</summary>
     public int RegularPriceMinRate { get; }
     /// <summary>방문 생성 시 복사한 정가 인정 상한. 결제 거부 판정이 우선한다.</summary>
@@ -108,19 +113,26 @@ public sealed class CustomerVisit
     /// <param name="getCurrentPrices">최신 현재가 조회 함수. 생성 시 가격표를 캡처하지 않는다.</param>
     /// <param name="dispositionType">검증 후 복사할 성향 타입.</param>
     /// <param name="attributes">세 축이 모두 지정된 독립 속성.</param>
+    /// <param name="minimumPriceTolerance">결제 허용 하한 배율.</param>
     /// <param name="regularPriceMinRate">생성기가 검증한 정가 인정 하한 배율.</param>
     /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
-    /// <param name="getSaleRestrictions">제출 시 지침 조회. null은 미연결.</param>
+    /// <param name="getSaleRestrictions">구형 판매 제한 조회. null은 미연결.</param>
+    /// <param name="getDailyGuidelines">정식 일일지침 조회. null은 미연결.</param>
     /// <param name="availableProductIds">생성일의 활성·등장·설비 조건을 통과한 전체 상품 PK.</param>
     /// <param name="moralityCalculator">제출 시 사용할 도덕성 계산기. null은 미평가다.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
-        int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
+        int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
-        IEnumerable<uint> availableProductIds, MoralityCalculator moralityCalculator = null)
+        IEnumerable<uint> availableProductIds, Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines, MoralityCalculator moralityCalculator = null)
     {
+        if (getSaleRestrictions != null && getDailyGuidelines != null)
+            throw new ArgumentException("구형 판매 제한과 정식 일일지침을 동시에 연결할 수 없습니다.");
+        if (priceTolerance <= 0 || minimumPriceTolerance < 0 || minimumPriceTolerance > 1000 ||
+            minimumPriceTolerance > priceTolerance)
+            throw new ArgumentException("결제 허용 가격 규칙의 범위가 잘못되었습니다.");
         CustomerProfileValidation.ValidateType(dispositionType);
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         DispositionType = dispositionType;
@@ -129,6 +141,7 @@ public sealed class CustomerVisit
         DispositionIdx = dispositionIdx;
         Items = new List<CustomerOrderItem>(items).AsReadOnly();
         PriceTolerance = priceTolerance;
+        MinimumPriceTolerance = minimumPriceTolerance;
         RegularPriceMinRate = regularPriceMinRate;
         RegularPriceMaxRate = regularPriceMaxRate;
         EntryTextIdx = entryTextIdx;
@@ -140,6 +153,7 @@ public sealed class CustomerVisit
         this.getCurrentPrices = getCurrentPrices;
         this.availableProductIds = new HashSet<uint>(availableProductIds);
         this.getSaleRestrictions = getSaleRestrictions;
+        this.getDailyGuidelines = getDailyGuidelines;
         this.moralityCalculator = moralityCalculator;
     }
 
@@ -149,6 +163,34 @@ public sealed class CustomerVisit
     {
         if (State != CustomerState.Entering) throw new InvalidOperationException("이미 입장한 손님입니다.");
         State = CustomerState.AwaitingOffer;
+    }
+
+    /// <summary>손님의 최초 주문 중 일일지침에 따라 정상적으로 제외할 수 있는 최대 수량을 반환합니다.</summary>
+    /// <param name="productIdx">최초 주문에 포함된 상품 PK입니다.</param>
+    /// <returns>판매 금지는 주문 전량, 최대 1개 지침은 주문량에서 1개를 뺀 수량이며 적용 지침이 없으면 0입니다.</returns>
+    /// <exception cref="ArgumentException">상품이 이번 방문의 최초 주문에 없는 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">연결된 일일지침 공급자가 null 목록을 반환한 경우 발생합니다.</exception>
+    public int GetGuidelineAllowedExclusionQuantity(uint productIdx)
+    {
+        CustomerOrderItem requestedItem = null;
+        foreach (CustomerOrderItem item in Items)
+        {
+            if (item.ProductIdx != productIdx) continue;
+            requestedItem = item;
+            break;
+        }
+
+        if (requestedItem == null)
+            throw new ArgumentException("이번 방문의 최초 주문에 포함된 상품이 아닙니다.", nameof(productIdx));
+        if (getDailyGuidelines == null) return 0;
+
+        IReadOnlyList<DailyGuideline> guidelines = getDailyGuidelines() ??
+            throw new InvalidOperationException("일일지침 조회가 null을 반환했습니다.");
+        return DailyGuidelineExclusionAllowance.GetAllowedExclusionQuantity(
+            guidelines,
+            Attributes,
+            productIdx,
+            requestedItem.Quantity);
     }
 
     /// <summary>생성된 방문을 대기열에 한 번 등록한다.</summary>
@@ -210,17 +252,34 @@ public sealed class CustomerVisit
             long allowed = checked((long)decimal.Floor((decimal)reference * PriceTolerance / 1000m));
             bool priceSensitiveRejected = DispositionType == CustomerDispositionType.PriceSensitive &&
                 (decimal)offeredTotal * 1000m != (decimal)reference * 1000m;
-            var outcome = offeredTotal > allowed || priceSensitiveRejected ? CustomerTradeOutcome.PaymentRefused
+            bool belowMinimum = (decimal)offeredTotal * 1000m < (decimal)reference * MinimumPriceTolerance;
+            var outcome = belowMinimum || offeredTotal > allowed || priceSensitiveRejected ? CustomerTradeOutcome.PaymentRefused
                 : (decimal)offeredTotal * 1000m < (decimal)reference * RegularPriceMinRate ? CustomerTradeOutcome.DiscountSale
                 : (decimal)offeredTotal * 1000m > (decimal)reference * RegularPriceMaxRate ? CustomerTradeOutcome.ExploitativeSale
                 : CustomerTradeOutcome.RegularSale;
             // 정상 위반은 수락을 취소하지 않는다. 조회·검증 실패는 공개 상태 확정 전에 전파한다.
             bool evaluated = outcome != CustomerTradeOutcome.PaymentRefused && getSaleRestrictions != null;
             IReadOnlyList<SaleRestrictionViolation> violations = evaluated ? evaluateRestrictions(sold) : Array.Empty<SaleRestrictionViolation>();
+            bool wereDailyGuidelinesEvaluated = outcome != CustomerTradeOutcome.PaymentRefused && getDailyGuidelines != null;
+            IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = wereDailyGuidelinesEvaluated
+                ? DailyGuidelineEvaluator.Evaluate(
+                    getDailyGuidelines() ?? throw new InvalidOperationException("일일지침 조회가 null을 반환했습니다."),
+                    Attributes,
+                    sold)
+                : Array.Empty<DailyGuidelineViolation>();
             MoralityEvaluation? morality = this.moralityCalculator?.Calculate(DispositionType, Attributes,
                 outcome != CustomerTradeOutcome.PaymentRefused, offeredTotal, reference);
-            var result = new TransactionResult(outcome, offeredTotal, sold, evaluated, violations,
-                DispositionType, Attributes, morality);
+            var result = new TransactionResult(
+                outcome,
+                offeredTotal,
+                sold,
+                evaluated,
+                violations,
+                DispositionType,
+                Attributes,
+                wereDailyGuidelinesEvaluated,
+                dailyGuidelineViolations
+                , morality);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;

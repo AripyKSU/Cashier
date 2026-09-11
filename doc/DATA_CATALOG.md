@@ -52,14 +52,14 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 181 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 182 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
-| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 7 | 21 | 구매·MainScene 대기열 연결 |
+| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 22 | 구매·MainScene 대기열·명성별 성향 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 11 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
-| [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 11 | 거래 명성·정산 피드백·손님 생성 가중치 연결 |
-| [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 3 | 7 | PK·Text/Product FK 검증 후 공개, 지침 표시만 연결 |
+| [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백·손님 생성 가중치 연결 |
+| [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 2 | 4 | 일일 지침 생성·거래 위반·정산 벌금 연결 |
 | [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
 | [InspectorEventData](../Assets/Datas/InspectorEventData.csv) | 3 | 9 | 영업 전 감독관 대화·조건·완료 이력 연결 |
 
@@ -69,9 +69,9 @@
 
 ### ReputationBalanceData
 
-종류11, PK11001~11005. 모든 열은 필수 숫자다. `idx:uint`, 나머지는 `int`: `min_reputation,max_reputation`(-100~100 구간), `normal_weight,wealthy_weight,hasty_weight,special_weight`(각 비음수·합1000), `recovery_rate`(1000 이상), `settlement_min_score,settlement_max_score`(0~100 구간), `settlement_delta`(-15~10). 다섯 행이 명성·정산 점수 전체 범위를 각각 중복·공백 없이 덮는다. 상세 현재 값과 생성 계약은 [명성 인계서](REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md)를 따른다.
+종류11, PK11001~11005. 모든 열은 필수 숫자다. `idx:uint`, 나머지는 `int`: `min_reputation,max_reputation`(-100~100 구간), `normal_weight,price_sensitive_weight,wealthy_weight,hasty_weight,poor_weight`(각 비음수·합1000), `recovery_rate`(1000 이상), `settlement_min_score,settlement_max_score`(0~100 구간), `settlement_delta`(-15~10). 다섯 행이 명성·정산 점수 전체 범위를 각각 중복·공백 없이 덮는다. 일반은 항상 최다, 부자는 고명성 상승, Hasty(성급함)는 저명성 상승, Poor(가난)는 전 구간 100(10%)으로 고정한다.
 
-현재 명성·반영일 marker·거래/정산 로그는 세션 소유이며 화면 재생성으로 초기화하지 않는다. DayProgress의 시작 snapshot으로 명성을 계산하고 날짜 완료 직후 한 번 적용한다. 실제 손님 생성은 CustomerCompositionSelector에서 해당 가중치를 적용한다.
+현재 명성·반영일 marker·거래/정산 로그는 세션 소유이며 화면 재생성으로 초기화하지 않는다. DayProgress의 시작 snapshot으로 명성을 계산하고 날짜 완료 직후 한 번 적용한다. 실제 손님 생성은 해당 snapshot의 다섯 성향 가중치를 적용한다.
 
 ### FacilityData
 
@@ -161,7 +161,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### TextData
 
-현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 128개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
+현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 182개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
 
 근거: [CSV](../Assets/Datas/TextData.csv), [DTO](../Assets/Scripts/Commons/Data/TextData.cs), [DataTable](../Assets/Scripts/Commons/Data/TextDataTable.cs).
 
@@ -190,15 +190,16 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 성향 설정 PK; 성향 타입과 별개 | 필수; 종류 대역·고유 | 없음 | 6001~6007 |
-| 2. `nameidx` | NameIdx · uint | 성향 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8005~8007,8071~8074 |
-| 3. `preferred_product_types` | PreferredProductTypes · IReadOnlyList<ProductType> | 주로 고를 상품 분류 목록 | 빈 배열 허용; 숫자_배열, 0·중복·미정의 금지 | ProductType 및 Category 표시 행 | 1_2,3,4,5,6,7,6_7 |
+| 1. `idx` | Idx · uint | 성향 설정 PK; 성향 타입과 별개 | 필수; 종류 대역·고유 | 없음 | 6001~6015 |
+| 2. `nameidx` | NameIdx · uint | 성향 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8005~8007, 8071~8074, 8182 |
+| 3. `preferred_product_types` | PreferredProductTypes · IReadOnlyList<ProductType> | 주로 고를 상품 분류 목록 | 빈 배열 허용; 숫자_배열, 0·중복·미정의 금지 | ProductType 및 Category 표시 행 | 1,2,3,4,5,6,7 및 조합 |
 | 4. `preferred_selection_chance` | PreferredSelectionChance · int | 선호군 선택 확률, 1000=100% | 필수; 0~1000. 양쪽 후보가 남을 때 적용 | 없음 | 900 |
 | 5. `min_product_kinds` | MinProductKinds · int | 희망 목록 상품 종류 수 최소 | 필수; 1 이상, 최대 이하; 후보 수 부족 시 축소 | 없음 | 1 |
 | 6. `max_product_kinds` | MaxProductKinds · int | 희망 목록 상품 종류 수 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
 | 7. `min_quantity` | MinQuantity · int | 상품별 수량 최소 | 필수; 1 이상, 최대 이하 | 없음 | 1 |
 | 8. `max_quantity` | MaxQuantity · int | 상품별 수량 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
-| 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 배율, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1300, 1500, 1000, 1400 |
+| 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 상한, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1100, 1300, 1400, 1050 |
+| 10. `minimum_price_tolerance` | MinimumPriceTolerance · int | 현재가 합계에 대한 결제 허용 하한, 1000=100% | 필수; 0~1000; `minimum <= price_tolerance` | 없음 | 0, 1000 |
 | 10. `entry_text_idxs` | EntryTextIdxs · IReadOnlyList<uint> | 입장 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8024_8025, 8030_8031, 8036_8037 |
 | 11. `regular_sale_text_idxs` | RegularSaleTextIdxs · IReadOnlyList<uint> | 기준가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 12. `discount_sale_text_idxs` | DiscountSaleTextIdxs · IReadOnlyList<uint> | 저가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
@@ -209,7 +210,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 17. `queue_leave_textidx` | QueueLeaveTextIdx · uint | 이탈 불만 대사 1회 | 필수; 0 금지 | TextData.idx | 8051, 8053, 8055 |
 | 18. `disposition_type` | DispositionTypeValue · uint → DispositionType | 성향 타입 선택 키 | 필수; 실제 enum 1~4, None/End/미정의 금지 | CustomerDispositionType | 1, 2, 3 |
 | 19. `preferred_product_idxs` | PreferredProductIdxs · IReadOnlyList<uint> | 개별 선호 상품; 분류 선호와 OR | 빈 배열 허용; 0·중복 금지, 각 행 존재 | ProductData.idx | 빈 셀 |
-| 20. `regular_price_min_rate` | RegularPriceMinRate · int | 기준가 판매 인정 하한 배율, 1000=100% | 필수; 0 < 값 ≤ 1000 | 없음 | 1000 |
+| 21. `regular_price_min_rate` | RegularPriceMinRate · int | 기준가 판매 인정 하한 배율, 1000=100% | 필수; 0 < 값 ≤ 1000 | 없음 | 1000 |
 | 21. `regular_price_max_rate` | RegularPriceMaxRate · int | 기준가 판매 인정 상한 배율, 1000=100% | 필수; 1000 이상; 결제 거부 상한과 독립 | 없음 | 1000 |
 
 ### ProductCategoryData
@@ -273,20 +274,23 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 외형은5001~5045의 Female18/Male27 Sprite다. 표시 리소스는 가격·인내도·속성 보정이 아니며 기존 RGBA 열은 제거됐다.
 
-| 성향 PK·표시명 | 타입 | 주 선호 | 선호군 선택 | 결제 허용 배율 | 기준가 인정 | 줄 합류 후 재촉 / 이탈 |
+| 성향 PK·표시명 | 타입 | 주 선호 | 선호군 선택 | 결제 하한 / 상한 | 기준가 인정 | 줄 합류 후 재촉 / 이탈 |
 |---|---|---|---:|---:|---:|---|
-| 6001 평범 | Normal=1 | Water·Food | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
-| 6002 급함 | Hasty=2 | Medicine | 900=90% | 1500=150% | 1000~1000 | 3초 / 9초 |
-| 6003 가격 민감 | PriceSensitive=3 | DailyNecessities | 900=90% | 1000=100% | 1000~1000 | 12초 / 18초 |
-| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
-| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
-| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1300=130% | 1000~1000 | 6초 / 12초 |
-| 6007 부유한 손님 | Wealthy=4 | ElectricalEquipment·ProtectiveEquipment | 900=90% | 1400=140% | 1000~1000 | 9초 / 15초 |
+| 6001 평범 | Normal=1 | Water·Food | 900=90% | 0% / 110% | 1000~1000 | 6초 / 12초 |
+| 6002 성급함 | Hasty=2 | Medicine | 900=90% | 0% / 130% | 1000~1000 | 3초 / 9초 |
+| 6003 가격 민감 | PriceSensitive=3 | DailyNecessities·Water·Food·Medicine | 900=90% | 100% / 100% | 1000~1000 | 12초 / 18초 |
+| 6004 공구 선호 | Normal=1 | Tools | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6005 전기장비 선호 | Normal=1 | ElectricalEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6006 보호장비 선호 | Normal=1 | ProtectiveEquipment | 900=90% | 1100=110% | 1000~1000 | 6초 / 12초 |
+| 6007 부유한 손님 | Wealthy=4 | ElectricalEquipment·ProtectiveEquipment·Tools·Medicine | 900=90% | 0% / 140% | 1000~1000 | 9초 / 15초 |
+| 6008~6009 가격 민감 | PriceSensitive=3 | Water·Food / Medicine·DailyNecessities | 900=90% | 100% / 100% | 1000~1000 | 12초 / 18초 |
+| 6010~6011 부유한 손님 | Wealthy=4 | Tools / Medicine | 900=90% | 0% / 140% | 1000~1000 | 9초 / 15초 |
+| 6012~6015 가난 | Poor=5 | Food·Water·DailyNecessities·Tools | 900=90% | 0% / 105% | 1000~1000 | 6초 / 12초 |
 
 - 희망 목록은 각 성향 모두1~3종류, 종류당1~3개이며 동일 상품은 한 항목으로 표현한다. 후보가 부족하면 종류 수를 줄인다.
 - 선호 분류와 개별 상품은 OR다. 현재 개별 선호 상품 목록은 모두 비어 있다. 양쪽 후보군이 남아 있을 때만90%가 적용되고 한쪽 소진 시 남은 쪽에서 고르므로 최종 장바구니의 정확히90%가 선호 상품이라는 뜻은 아니다.
-- 명성 출현은 하루 시작 명성의 `ReputationBalanceData` 가중치로 일반군(Normal·PriceSensitive), Wealthy, Hasty 구성군을 먼저 선택한 뒤 구성군 내부 타입과 같은 타입의 성향 행을 균등 선택한다. 현재 특수군 가중치는 0이며 매핑이 확정되기 전에는 양수 값을 거부한다. 명성 정산은 같은 타입의 여러 행 중 선호·대사와 무관하게 가격 규칙만 대표값으로 사용하며, 같은 타입 행의 가격 규칙이 다르면 데이터 오류로 거부한다. 외형은 전달된 후보에서 균등, 대사는 선택된 행의 후보 목록에서 균등 선택한다.
-- 6004~6006은 기존 Normal 타입의 전문 선호 행이고 6007은 Wealthy 실제 행이다. 따라서 선호 행 증가는 명성 일반군의 타입 비율을 바꾸지 않는다.
+- 명성 출현은 하루 시작 명성의 `ReputationBalanceData` 가중치로 Normal, PriceSensitive, Wealthy, Hasty, Poor를 각각 선택한 뒤 같은 타입의 성향 행을 균등 선택한다. 일반은 모든 구간에서 최다, 가격 민감은 5% 고정, 부자는 고명성 상승, Hasty(성급함)는 저명성 상승, Poor(가난)는 10% 고정이다. 명성 정산은 같은 타입의 여러 행 중 선호·대사와 무관하게 가격 규칙만 대표값으로 사용하며, 같은 타입 행의 가격 규칙이 다르면 데이터 오류로 거부한다.
+- 6004~6006은 Normal, 6008~6009는 PriceSensitive, 6010~6011은 Wealthy, 6012~6015는 Poor의 추가 선호 행이다. 타입을 먼저 선택하므로 선호 행 증가는 타입 출현율을 바꾸지 않는다.
 - 손님 선호는 `ProductType`와 개별 `preferred_product_idxs`의 OR이며 날짜·활성·설비 필터 이후의 상품 후보에만 적용한다. 설비 상품은 Tools/ElectricalEquipment/ProtectiveEquipment로 분류되어 해당 타입 선호 손님이 설비 활성 뒤에만 해당 상품을 고를 수 있다.
 - 성별2종과 연령3종은 독립 균등이며 외형·성향과 별개다. 성인은Adult=16, 특수 속성은 현재Normal=32 하나뿐이며 전체2×3×1=6조합이다. Normal만을 위해 난수를 추가 소비하지 않는다.
 - 현재 같은 성향의 기준가·저가·착취 대사 목록이 동일하다. 판정이 달라도 문구가 같을 수 있다. 결제 거부는 별도 목록이다.
@@ -339,7 +343,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 |---|---|---|
 | [DataTableType : uint](../Assets/Scripts/Commons/Commons.cs) | None=0, Product=1, EconomyBalance=2, MaintenanceBalance=3, Resource=4, CustomerAppearance=5, CustomerDisposition=6, ProductCategory=7, Text=8, PriceEvent=9, PriceEventSchedule=10, ReputationBalance=11, Facility=12, DailyGuideline=13, Morality=14, InspectorEvent=15, DataTableType_End=16(자동) | idx/1000 로더 routing 관측값. None/End 로더 없음; 예약 권위 아님 |
 | [ProductType : uint](../Assets/Scripts/Commons/Data/ProductType.cs) | None=0, Water=1, Food=2, Medicine=3, DailyNecessities=4, Tools=5, ElectricalEquipment=6, ProtectiveEquipment=7 | 상품·선호·이벤트·지침. None 거부, End 없음 |
-| [CustomerDispositionType : int](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4, CustomerDispositionType_End=5(자동) | CSV 원시 uint를 enum으로 해석,1~4만 허용 |
+| [CustomerDispositionType : int](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Normal=1, Hasty=2, PriceSensitive=3, Wealthy=4, Poor=5, CustomerDispositionType_End=6(자동) | CSV 원시 uint를 enum으로 해석,1~5만 허용 |
 | [CustomerAttributes : int, Flags](../Assets/Scripts/Commons/CustomerProfileTypes.cs) | None=0, Male=1, Female=2, Child=4, Elderly=8, Adult=16, Normal=32 | bit OR. 성별·연령·특수 각각 최대1개. 실제 방문은 세 축 모두필수 |
 | [PriceChangeType : int](../Assets/Scripts/Commons/Data/PriceEventData.cs) | None=0, Rate=1, Amount=2, PriceChangeType_End=3(자동) | CSV0~2만; None은 무효과 데이터로 유효 |
 | [PriceEventChannel : int](../Assets/Scripts/Commons/Data/PriceEventScheduleData.cs) | None=0, Newspaper=1, Radio=2, PriceEventChannel_End=3(자동) | CSV1·2만 |
@@ -360,7 +364,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 CustomerAttributes의 생성 가능한6조합(모두일반): 성인 남49(1|16|32), 성인 여50(2|16|32), 남아37(1|4|32), 여아38(2|4|32), 노인 남41(1|8|32), 노인 여42(2|8|32). `ValidateAttributes`는 None·부분조건도 허용하지만 `ValidateCompleteAttributes`와 실제 방문은 세 축 각각1개를 요구한다. SaleRestriction.RequiredAttributes에는 None0을 거부하며 `(방문 속성 & 필요 속성) == 필요 속성`의 AND로 검사한다. Adult16/Normal32 단독 지침도 가능하다.
 
-기존 비트0/1/2/4/8은 유지했다. 성인이 연령 비트0인 이전 생성값은 더 이상 완전 프로필이 아니다. 현재 속성 저장·복원 경로는 없으므로 migration을 만들지 않았다. 특수속성 Wealthy/Poor는 없으며 기존 `CustomerDispositionType.Wealthy=4`와 속성은 별개다. 이 변경은 CSV·허용가격·선호 정책을 바꾸지 않는다.
+기존 비트0/1/2/4/8은 유지했다. 성인이 연령 비트0인 이전 생성값은 더 이상 완전 프로필이 아니다. 현재 속성 저장·복원 경로는 없으므로 migration을 만들지 않았다. Wealthy/Poor는 손님 성향 타입이며 CustomerAttributes 특수속성과는 별개다.
 
 ## 6. 런타임 데이터·결과 계약
 
@@ -705,7 +709,7 @@ idx,path
 
 ### Assets/Datas/TextData.csv
 
-데이터 181행, 2컬럼. SHA-256: `842237A8209644168022E1BD4CD2AC4D8AD1C77B05C887BBBB9F0F76034B9781`.
+데이터 182행, 2컬럼. SHA-256: `C096A9B7810CF45EB024368E3A08FF148BE5D2F1E1D475C0602CBD3C3B650C31`.
 
 ```csv
 idx,text
@@ -714,7 +718,7 @@ idx,text
 8003,여성 외형 03
 8004,여성 외형 04
 8005,평범
-8006,급함
+8006,성급함
 8007,가격 민감
 8008,식수
 8009,식량
@@ -890,6 +894,7 @@ idx,text
 8179,"…넌 아빠잖아."
 8180,"2일차 등장 확인"
 8181,"2일차 감독관 등장 확인용 임시 대사입니다."
+8182,가난
 ```
 
 
@@ -948,17 +953,25 @@ idx,nameidx,image_resource_idx
 
 ### Assets/Datas/Customer/CustomerDispositionData.csv
 
-데이터 7행, 21컬럼. SHA-256: `A80DFD600AD0077C3E32F916E615427C741775EEC4B5B1D51040812B8A348388`.
+데이터 15행, 22컬럼. SHA-256: `C926C8CF2FEA2E654657B82E05270F999BB39C6A3AD71A47F467156C7F14036B`.
 
 ```csv
-idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds,max_product_kinds,min_quantity,max_quantity,price_tolerance,entry_text_idxs,regular_sale_text_idxs,discount_sale_text_idxs,exploitative_sale_text_idxs,reject_text_idxs,queue_patience_seconds,queue_warning_textidx,queue_leave_textidx,disposition_type,preferred_product_idxs,regular_price_min_rate,regular_price_max_rate
-6001,8005,1_2,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
-6002,8006,3,900,1,3,1,3,1500,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035,9,8052,8053,2,,1000,1000
-6003,8007,4,900,1,3,1,3,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041,18,8054,8055,3,,1000,1000
-6004,8071,5,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
-6005,8072,6,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
-6006,8073,7,900,1,3,1,3,1300,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
-6007,8074,6_7,900,1,3,1,3,1400,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,15,8050,8051,4,,1000,1000
+idx,nameidx,preferred_product_types,preferred_selection_chance,min_product_kinds,max_product_kinds,min_quantity,max_quantity,price_tolerance,minimum_price_tolerance,entry_text_idxs,regular_sale_text_idxs,discount_sale_text_idxs,exploitative_sale_text_idxs,reject_text_idxs,queue_patience_seconds,queue_warning_textidx,queue_leave_textidx,disposition_type,preferred_product_idxs,regular_price_min_rate,regular_price_max_rate
+6001,8005,1_2,900,1,3,1,3,1100,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6002,8006,3,900,1,3,1,3,1300,0,8030_8031,8032_8033,8032_8033,8032_8033,8034_8035,9,8052,8053,2,,1000,1000
+6003,8007,4,900,1,3,1,3,1000,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041,18,8054,8055,3,,1000,1000
+6004,8071,5,900,1,3,1,3,1100,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6005,8072,6,900,1,3,1,3,1100,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6006,8073,7,900,1,3,1,3,1100,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,1,,1000,1000
+6007,8074,6_7,900,1,3,1,3,1400,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,15,8050,8051,4,,1000,1000
+6008,8007,1_2,900,1,3,1,3,1000,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041,18,8054,8055,3,,1000,1000
+6009,8007,3_4,900,1,3,1,3,1000,1000,8036_8037,8038_8039,8038_8039,8038_8039,8040_8041,18,8054,8055,3,,1000,1000
+6010,8074,5,900,1,3,1,3,1400,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,15,8050,8051,4,,1000,1000
+6011,8074,3,900,1,3,1,3,1400,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,15,8050,8051,4,,1000,1000
+6012,8182,2,900,1,3,1,3,1050,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,5,,1000,1000
+6013,8182,1,900,1,3,1,3,1050,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,5,,1000,1000
+6014,8182,4,900,1,3,1,3,1050,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,5,,1000,1000
+6015,8182,5,900,1,3,1,3,1050,0,8024_8025,8026_8027,8026_8027,8026_8027,8028_8029,12,8050,8051,5,,1000,1000
 ```
 
 ### Assets/Datas/Customer/ProductCategoryData.csv
@@ -1033,7 +1046,7 @@ idx,day,nameidx,descriptionidx,rule_type,target_product_idx,param_value
 
 ### Assets/Datas/MoralityData.csv
 
-데이터 20행, 9컬럼. SHA-256: `8412808854989204AA3BB3E096783C6A2188B1A113C6ED3C5B1B5005A4922100`.
+데이터 20행, 9컬럼. SHA-256: `81E6A2DA52D9A1381F3B90B449CB70500A2E2489247446999B0E33DBDB637C11`.
 
 ```csv
 idx,customer_disposition_type,is_accepted,offer_min_rate,offer_max_rate,include_min,include_max,adult_morality_point,child_elderly_morality_point
@@ -1042,8 +1055,8 @@ idx,customer_disposition_type,is_accepted,offer_min_rate,offer_max_rate,include_
 14003,1,1,1000,1000,1,1,0,0
 14004,1,1,1000,1050,0,1,-0.25,-0.5
 14005,1,1,1050,1100,0,1,-0.5,-1
-14006,1,1,1100,1200,0,1,-0.75,-1.5
-14007,1,1,1200,1300,0,1,-1,-2
+14006,1,0,1100,1200,0,1,-0.75,-1.5
+14007,1,0,1200,1300,0,1,-1,-2
 14008,1,0,1300,0,0,0,-2,-4
 14009,2,1,0,800,0,1,6,9
 14010,2,1,800,1000,0,0,3,4.5
@@ -1051,8 +1064,8 @@ idx,customer_disposition_type,is_accepted,offer_min_rate,offer_max_rate,include_
 14012,2,1,1000,1100,0,1,-2,-3
 14013,2,1,1100,1200,0,1,-4,-6
 14014,2,1,1200,1300,0,1,-6,-9
-14015,2,1,1300,1400,0,1,-8,-12
-14016,2,1,1400,1500,0,1,-10,-15
+14015,2,0,1300,1400,0,1,-8,-12
+14016,2,0,1400,1500,0,1,-10,-15
 14017,2,0,1500,0,0,0,-10,-15
 14018,3,1,1000,1000,1,1,0,0
 14019,3,0,0,1000,0,0,-2,-4

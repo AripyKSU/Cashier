@@ -135,6 +135,7 @@ public sealed class CustomerCompositionSelector
             selectText(disposition.ExploitativeSaleTextIdxs),
             selectText(disposition.RejectTextIdxs),
             disposition.PriceTolerance,
+            disposition.MinimumPriceTolerance,
             disposition.RegularPriceMinRate,
             disposition.RegularPriceMaxRate,
             availableProducts.Keys.OrderBy(id => id));
@@ -198,10 +199,18 @@ public sealed class CustomerCompositionSelector
             if (pair.Value == null || pair.Key != pair.Value.Idx)
                 throw new ArgumentException("상품 사전 키와 PK가 다릅니다.", nameof(products));
             pair.Value.Validate();
-            if (!currentPrices.TryGetValue(pair.Key, out uint price) || price == 0)
-                throw new ArgumentException($"상품 PK={pair.Key}: 현재가 누락 또는 0", nameof(currentPrices));
-            if (CustomerProductAvailability.IsAvailable(pair.Value, elapsedDays, isFacilityActive))
-                availableProducts.Add(pair.Key, pair.Value);
+            if (!currentPrices.TryGetValue(pair.Key, out uint price)) continue;
+            if (price == 0)
+                throw new ArgumentException($"상품 PK={pair.Key}: 현재가가 0입니다.", nameof(currentPrices));
+            if (!CustomerProductAvailability.IsAvailable(pair.Value, elapsedDays, isFacilityActive))
+                throw new ArgumentException($"상품 PK={pair.Key}: 등장할 수 없는 상품의 현재가가 포함됐습니다.", nameof(currentPrices));
+            availableProducts.Add(pair.Key, pair.Value);
+        }
+
+        foreach (uint productIdx in currentPrices.Keys)
+        {
+            if (!products.ContainsKey(productIdx))
+                throw new ArgumentException($"상품 PK={productIdx}: 상품 원본에 없는 현재가입니다.", nameof(currentPrices));
         }
 
         return availableProducts;
@@ -223,35 +232,47 @@ public sealed class CustomerCompositionSelector
         IReadOnlyList<CustomerDispositionData> dispositions,
         ReputationBalanceData balance)
     {
-        if (balance.NormalWeight < 0 || balance.WealthyWeight < 0 || balance.HastyWeight < 0 || balance.SpecialWeight < 0 ||
-            balance.NormalWeight + balance.WealthyWeight + balance.HastyWeight + balance.SpecialWeight != 1000)
+        if (balance.NormalWeight < 0 || balance.PriceSensitiveWeight < 0 || balance.WealthyWeight < 0 ||
+            balance.HastyWeight < 0 || balance.PoorWeight < 0 ||
+            balance.NormalWeight + balance.PriceSensitiveWeight + balance.WealthyWeight + balance.HastyWeight + balance.PoorWeight != 1000)
             throw new InvalidDataException("명성 손님 구성 가중치 합은 1000이어야 합니다.");
-        if (balance.SpecialWeight > 0)
-            throw new InvalidDataException("특수 손님 구성군의 타입 매핑이 아직 정의되지 않았습니다.");
 
         List<CustomerDispositionData> normal = dispositions.Where(data =>
-            data.DispositionType == CustomerDispositionType.Normal ||
+            data.DispositionType == CustomerDispositionType.Normal).ToList();
+        List<CustomerDispositionData> priceSensitive = dispositions.Where(data =>
             data.DispositionType == CustomerDispositionType.PriceSensitive).ToList();
         List<CustomerDispositionData> wealthy = dispositions.Where(data =>
             data.DispositionType == CustomerDispositionType.Wealthy).ToList();
         List<CustomerDispositionData> hasty = dispositions.Where(data =>
             data.DispositionType == CustomerDispositionType.Hasty).ToList();
+        List<CustomerDispositionData> poor = dispositions.Where(data =>
+            data.DispositionType == CustomerDispositionType.Poor).ToList();
         if (balance.NormalWeight > 0 && normal.Count == 0)
             throw new InvalidDataException("일반 손님 구성군에 사용할 성향 행이 없습니다.");
+        if (balance.PriceSensitiveWeight > 0 && priceSensitive.Count == 0)
+            throw new InvalidDataException("가격 민감 손님 구성군에 사용할 성향 행이 없습니다.");
         if (balance.WealthyWeight > 0 && wealthy.Count == 0)
             throw new InvalidDataException("Wealthy 손님 구성군에 사용할 성향 행이 없습니다.");
         if (balance.HastyWeight > 0 && hasty.Count == 0)
             throw new InvalidDataException("Hasty 손님 구성군에 사용할 성향 행이 없습니다.");
+        if (balance.PoorWeight > 0 && poor.Count == 0)
+            throw new InvalidDataException("Poor 손님 구성군에 사용할 성향 행이 없습니다.");
 
         int roll = this.random.Next(1000);
         if (roll < balance.NormalWeight)
             return selectTypeThenRow(normal);
         roll -= balance.NormalWeight;
+        if (roll < balance.PriceSensitiveWeight)
+            return selectTypeThenRow(priceSensitive);
+        roll -= balance.PriceSensitiveWeight;
         if (roll < balance.WealthyWeight)
             return selectTypeThenRow(wealthy);
         roll -= balance.WealthyWeight;
         if (roll < balance.HastyWeight)
             return selectTypeThenRow(hasty);
+        roll -= balance.HastyWeight;
+        if (roll < balance.PoorWeight)
+            return selectTypeThenRow(poor);
 
         throw new InvalidDataException("명성 손님 구성군 추첨 결과가 매핑되지 않았습니다.");
     }

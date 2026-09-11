@@ -24,6 +24,18 @@ public sealed class EconomyQueryService
     /// </summary>
     public bool IsDayOpen => this.economy.DailyAggregationService.IsDayOpen;
 
+    /// <summary>현재 통합 정산 미납이 활성화됐는지 나타냅니다.</summary>
+    public bool HasUnpaidSettlement => this.economy.SettlementDebt.HasUnpaidAmount;
+
+    /// <summary>현재 누적된 통합 정산 미납액입니다.</summary>
+    public long UnpaidSettlementAmount => this.economy.SettlementDebt.UnpaidAmount;
+
+    /// <summary>현재 유예를 처음 발생시킨 미납 일차입니다.</summary>
+    public int? FirstUnpaidSettlementDay => this.economy.SettlementDebt.FirstUnpaidDay;
+
+    /// <summary>현재 활성 유예의 고정 종료 일차입니다.</summary>
+    public int? SettlementGracePeriodEndDay => this.economy.SettlementDebt.GracePeriodEndDay;
+
     /// <summary>
     /// 지정한 경제 런타임을 읽는 조회 서비스를 생성합니다.
     /// </summary>
@@ -51,5 +63,14 @@ public sealed class EconomyQueryService
 
         amount = this.economy.MaintenanceService.GetRequiredAmount(nextDay);
         return true;
+    }
+
+    /// <summary>지정한 현재 일차를 기준으로 통합 정산 유예가 며칠 남았는지 계산합니다.</summary>
+    /// <param name="currentDay">현재 양수 게임 일차입니다.</param>
+    /// <returns>유예가 없거나 종료 일차에 도달했으면 0입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">현재 일차가 양수가 아닌 경우 발생합니다.</exception>
+    public int GetRemainingSettlementGraceDays(int currentDay)
+    {
+        return this.economy.SettlementDebt.GetRemainingGraceDays(currentDay);
     }
 }

@@ -22,6 +22,7 @@
 | [INSPECTOR_SYSTEM_DRAFT.md](INSPECTOR_SYSTEM_DRAFT.md) | 영업 전 감독관 이벤트 | 구현된 데이터·진행·UI 계약과 과거 검증 |
 | [FEATURE_CONTRACT_AUDIT.md](FEATURE_CONTRACT_AUDIT.md) | 담당 기능의 명세·구현 차이 확인 | 손님·설비·도덕성·대기열·감독관 대조와 미해결 항목 |
 | [work/inspector-events.md](work/inspector-events.md) | 감독관 작업 재개·통합 | 현재 브랜치·완료·후속 작업 |
+| [work/sprite-world-presentation.md](work/sprite-world-presentation.md) | 월드 배경·손님 로컬 개발 | Main 원본 복원·개인 씬 분리·향후 통합 경계 |
 | [work/README.md](work/README.md) | 담당 전환·중단 | 도구와 무관한 작업 상태·인계 기준 |
 | [AGENT_REQUEST_GUIDE.md](AGENT_REQUEST_GUIDE.md) | 목적만 제시된 자연어 요청 구체화 | 검토 요약→승인→실행 명세 |
 | [TEAM_ROLES.md](TEAM_ROLES.md) | 담당·권한·검토자 확인 | 실제 참여자와 복수 역할 명부 |

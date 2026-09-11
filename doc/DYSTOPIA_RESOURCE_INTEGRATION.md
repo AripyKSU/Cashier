@@ -4,6 +4,17 @@
 
 ## 기준과 사용 위치
 
+### 2026-09-11 최신 선택 이관
+
+- 입력 SHA `87844af6a25a2a2c8f66affa31d1adff36de09f4`, 작업 기준 `60a729f`. `Temp/Astra-87844af-source.zip`의 `Assets/DystopiaPrototype/`·폴더meta와 `FogMotionController.cs`·`PixelFog.shader` pair만 선택 이관했다. 총386파일, 기존363파일은 `UserSettings/LocalBackups/AstraEffects-87844af-20260911`에 해시 확인 백업했다. 전체 branch merge 이력은 만들지 않는다.
+- 원격에 없는 기존 파일을 삭제하지 않았다. output/browser cache, Packages, ProjectSettings, Addressables, 원격의 다른 shared 코드·사본은 제외한다. `FogMotionController`는 원본 참고용이고 World prefab에는 붙이지 않아 MPB 소유권을 중복하지 않는다.
+- 기존 충돌 해결 GUID8개(상품6개 및 Customers/TimeOfDay 폴더)를 유지하고 원본 Scene/Prefab 등의 원격 GUID 소비자를 local GUID로 치환했다. 나머지 원본 import/slicing 설정은 최신 입력을 따른다. 기존 사용용 사본은 덮어쓰지 않았다.
+- MainScene/OperatingPanel 파일을 보존해도 직접 참조한 원본 이미지의 결과는 달라진다. OperatingPanel의 CityLights·시계(slicing)·FrontContainerMale, CustomerWorld의 CityLights가 영향을 받는다. 실제 MainScene의 PreOpenPanel은 `Assets/Textures/UI/Dystopia/DailyInstruction.png` 사본을 참조하므로 이번 원본 DailyInstruction 변경의 직접 영향 대상이 아니다. 공용 프리팹 bytes 불변을 화면 불변으로 해석하지 않는다.
+- World 효과의 Smoke0~3/WatchGuard/FogBack·Mid·Front는 기존 환경 사본8개와 원본 PNG hash가 일치하므로 재사용한다. 기존 resource map의8개 경로/GUID/hash 연결은 유지한다. 새 WorldBirds/WorldGuard shader, WorldFog3·Birds·Guard 재질과 흰 Sprite/Texture asset은 제품 표현용 생성 자산이며 원본 사본을 덮지 않는다.
+- 상세 연출 계약·후속 상태는 [작업 기록](work/sprite-world-presentation.md), 최종 실행 증거는 [TESTING](TESTING.md)을 따른다. 아래 bd48cb5 및 SOURCE_AUDIT.csv는 최초 이관 당시 기록이며 이번 원본 전체의 최신 hash 목록은 아니다.
+
+### 최초 이관 기준
+
 - 원격 기준: `origin/astra-prototype`, 고정 SHA `bd48cb5146e2521eeaaf181c706efcbf770cf9f3`.
 - 원본 계열: `Assets/DystopiaPrototype/` 및 `.meta`. 독립 prototype 참조용 스크립트·씬이며 현재 gameplay를 대체하지 않는다.
 - 원본 외부 의존성: Fog 재질의 GUID `6816116619de75b4db7736c3398ba82a`를 따라 `Assets/Shaders/PixelFog.shader`와 meta를 이관했다. 나머지 정상 외부 참조는 기존 uGUI·TMP·Input System·URP 자산을 사용한다.

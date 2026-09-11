@@ -14,7 +14,6 @@ public sealed class ProgressViewDataFactory
     private readonly IReadOnlyDictionary<uint, Sprite> productSprites;
     private readonly IReadOnlyDictionary<uint, Sprite> topViewSprites;
     private readonly IReadOnlyDictionary<uint, Sprite> appearanceSprites;
-    private readonly DailyGuidelineDataTable guidelineTable;
     private readonly Func<uint, bool> isFacilityActive;
 
     /// <summary>검증된 카탈로그와 텍스트 테이블로 변환기를 생성합니다.</summary>
@@ -29,7 +28,8 @@ public sealed class ProgressViewDataFactory
     public ProgressViewDataFactory(
         CustomerCatalog customerCatalog,
         TextDataTable textData,
-        IReadOnlyDictionary<uint, Sprite> productSprites, Func<uint, bool> isFacilityActive = null,
+        IReadOnlyDictionary<uint, Sprite> productSprites,
+        Func<uint, bool> isFacilityActive = null,
         IReadOnlyDictionary<uint, Sprite> topViewSprites = null, IReadOnlyDictionary<uint, Sprite> appearanceSprites = null, DailyGuidelineDataTable guidelineTable = null)
     {
         this.customerCatalog = customerCatalog ?? throw new ArgumentNullException(nameof(customerCatalog));
@@ -38,7 +38,6 @@ public sealed class ProgressViewDataFactory
         this.isFacilityActive = isFacilityActive;
         this.topViewSprites = topViewSprites;
         this.appearanceSprites = appearanceSprites;
-        this.guidelineTable = guidelineTable;
     }
 
     /// <summary>지침 테이블을 포함하는 이전 시그니처 호환용 생성자입니다.</summary>
@@ -49,75 +48,6 @@ public sealed class ProgressViewDataFactory
         DailyGuidelineDataTable guidelineTable)
         : this(customerCatalog, textData, productSprites, isFacilityActive: null, guidelineTable: guidelineTable)
     {
-    }
-
-    /// <summary>
-    /// 지정된 날짜의 영업 전 일일 지침서 화면 데이터를 만듭니다.
-    /// 추후 지침 CSV 데이터가 추가되면 지침 텍스트 조회 로직을 교체할 수 있도록 설계되었습니다.
-    /// </summary>
-    /// <param name="day">1부터 시작하는 게임 날짜입니다.</param>
-    /// <param name="dailyPrices">표시일과 일치하는 세션 현재가.</param>
-    /// <returns>일일 지침서 화면 렌더링에 필요한 스냅샷입니다.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">날짜가 1 미만인 경우 발생합니다.</exception>
-    public PreOpenGuidelineViewData CreatePreOpenGuidelineViewData(int day, DailyPriceState dailyPrices)
-    {
-        if (day <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(day), day, "게임 날짜는 1 이상이어야 합니다.");
-        }
-
-        if (dailyPrices == null) throw new ArgumentNullException(nameof(dailyPrices));
-        if (dailyPrices.ElapsedDays != checked((uint)(day - 1)))
-            throw new InvalidOperationException("지침 가격표와 세션 현재가 날짜가 다릅니다.");
-        IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
-            this.customerCatalog.Products.Rows,
-            checked((uint)(day - 1)),
-            this.isFacilityActive);
-
-        var productList = new List<PriceGuideProductViewData>();
-        int maxSlots = Math.Min(4, products.Count);
-        for (int i = 0; i < maxSlots; i++)
-        {
-            ProductData product = products[i];
-            string name = this.textData.Rows.TryGetValue(product.NameIdx, out TextData text)
-                ? text.Text
-                : $"Product {product.Idx}";
-
-            this.productSprites.TryGetValue(product.Idx, out Sprite icon);
-            if (!dailyPrices.Prices.TryGetValue(product.Idx, out uint price) || price == 0)
-                throw new InvalidOperationException($"상품 {product.Idx}의 현재가가 준비되지 않았습니다.");
-            productList.Add(new PriceGuideProductViewData(product.Idx, name, price, icon));
-        }
-
-        string heading = "영업 전, 가격을 기억하세요";
-        string ruleTitle = "오늘의 지침";
-        string ruleContent = "제한 없음.";
-        string restriction = "영업이 시작되면 가격표를 다시 볼 수 없습니다.";
-        string recheck = "당일 지침은 영업 중에도 다시 확인할 수 있습니다.";
-
-        DailyGuidelineDataTable targetGuidelineTable = this.guidelineTable
-            ?? (DataTableManager.Instance != null ? DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline) : null);
-
-        if (targetGuidelineTable != null && targetGuidelineTable.TryGetByDay(checked((uint)day), out DailyGuidelineData guideline))
-        {
-            if (this.textData.Rows.TryGetValue(guideline.NameIdx, out TextData titleData))
-            {
-                ruleTitle = titleData.Text;
-            }
-            if (this.textData.Rows.TryGetValue(guideline.DescriptionIdx, out TextData descData))
-            {
-                ruleContent = descData.Text;
-            }
-        }
-
-        return new PreOpenGuidelineViewData(
-            day,
-            heading,
-            ruleTitle,
-            ruleContent,
-            productList,
-            restriction,
-            recheck);
     }
 
     /// <summary>지정된 날짜에 판매 가능한 상품의 가격표 문자열을 만듭니다.</summary>
@@ -138,18 +68,12 @@ public sealed class ProgressViewDataFactory
         if (dailyPrices.ElapsedDays != checked((uint)(day - 1)))
             throw new InvalidOperationException("가격표 날짜와 세션 현재가 날짜가 다릅니다.");
 
-        IReadOnlyList<ProductData> products = CustomerProductAvailability.GetAvailableProducts(
-            this.customerCatalog.Products.Rows,
-            checked((uint)(day - 1)), this.isFacilityActive);
         var lines = new List<string> { "AVAILABLE PRODUCTS" };
-        foreach (ProductData product in products)
+        foreach (var entry in dailyPrices.Prices.OrderBy(pair => pair.Key))
         {
-            string name = this.textData.Rows.TryGetValue(product.NameIdx, out TextData text)
-                ? text.Text
-                : $"Product {product.Idx}";
-            if (!dailyPrices.Prices.TryGetValue(product.Idx, out uint price) || price == 0)
-                throw new InvalidOperationException($"상품 {product.Idx}의 현재가가 준비되지 않았습니다.");
-            lines.Add($"{name}  ·  {price:N0} G");
+            if (!this.customerCatalog.Products.Rows.TryGetValue(entry.Key, out var product) || entry.Value == 0)
+                throw new InvalidOperationException($"상품 {entry.Key}의 원본 또는 현재가가 유효하지 않습니다.");
+            lines.Add($"{this.getProductName(product)}  ·  {entry.Value:N0} G");
         }
 
         return string.Join("\n", lines);
@@ -165,6 +89,113 @@ public sealed class ProgressViewDataFactory
         IReadOnlyDictionary<uint, uint> activationDays, uint elapsedDays, long balance)
     {
         return this.CreateFacilityShopViewData(facilities, activationDays, 1, elapsedDays, balance);
+    }
+
+    /// <summary>세션에서 확정한 당일 상품·가격·지침으로 영업 시작 화면 스냅샷을 만듭니다.</summary>
+    /// <param name="day">1부터 시작하는 게임 표시 일차입니다.</param>
+    /// <param name="dailyPrices">같은 날짜에 확정된 당일 상품별 현재가입니다.</param>
+    /// <param name="dailyGuidelines">같은 날짜에 확정된 최대 2개의 일일지침입니다.</param>
+    /// <param name="canOpenBusiness">영업 시작 버튼 활성 여부입니다.</param>
+    /// <returns>Presenter가 추가 조회 없이 렌더링할 수 있는 불변 스냅샷입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">날짜가 1 미만인 경우 발생합니다.</exception>
+    /// <exception cref="ArgumentNullException">당일 가격 또는 지침 목록이 null인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">날짜·상품·가격·지침 참조가 서로 일치하지 않는 경우 발생합니다.</exception>
+    public PreOpenGuidelineViewData CreatePreOpenGuidelineViewData(
+        int day,
+        DailyPriceState dailyPrices,
+        IReadOnlyList<DailyGuideline> dailyGuidelines,
+        bool canOpenBusiness)
+    {
+        if (day <= 0) throw new ArgumentOutOfRangeException(nameof(day), day, "게임 날짜는 1 이상이어야 합니다.");
+        if (dailyPrices == null) throw new ArgumentNullException(nameof(dailyPrices));
+        if (dailyGuidelines == null) throw new ArgumentNullException(nameof(dailyGuidelines));
+        if (dailyPrices.ElapsedDays != checked((uint)(day - 1)))
+            throw new InvalidOperationException("영업 시작 화면과 당일 가격의 날짜가 다릅니다.");
+        if (dailyPrices.Prices.Count > 8)
+            throw new InvalidOperationException("영업 시작 화면의 당일 상품은 최대 8개여야 합니다.");
+
+        var products = new List<PriceGuideProductViewData>(dailyPrices.Prices.Count);
+        foreach (KeyValuePair<uint, uint> price in dailyPrices.Prices.OrderBy(pair => pair.Key))
+        {
+            if (!this.customerCatalog.Products.Rows.TryGetValue(price.Key, out ProductData product) || product == null)
+                throw new InvalidOperationException($"당일 상품 PK={price.Key}를 상품 데이터에서 찾을 수 없습니다.");
+            if (price.Value == 0)
+                throw new InvalidOperationException($"당일 상품 PK={price.Key}의 가격이 0입니다.");
+            string name = this.getProductName(product);
+            this.productSprites.TryGetValue(product.Idx, out Sprite icon);
+            products.Add(new PriceGuideProductViewData(product.Idx, name, price.Value, icon));
+        }
+
+        var guidelines = new List<DailyGuidelineViewData>(dailyGuidelines.Count);
+        foreach (DailyGuideline guideline in dailyGuidelines)
+        {
+            guideline.Validate();
+            if (!dailyPrices.Prices.ContainsKey(guideline.TargetProductIdx))
+                throw new InvalidOperationException($"일일지침 대상 상품 PK={guideline.TargetProductIdx}가 당일 상품에 없습니다.");
+            ProductData product = this.customerCatalog.Products.Rows[guideline.TargetProductIdx];
+            guidelines.Add(new DailyGuidelineViewData(guideline.Idx, this.formatGuideline(guideline, this.getProductName(product))));
+        }
+
+        return new PreOpenGuidelineViewData(
+            day,
+            products,
+            guidelines,
+            "일일 지침은 영업 시작 후 다시 확인할 수 없습니다.",
+            canOpenBusiness);
+    }
+
+    /// <summary>최종 통합 정산 결과를 Presenter 전용 표시 스냅샷으로 변환합니다.</summary>
+    /// <param name="day">정산 대상 일차입니다.</param>
+    /// <param name="settlement">도메인에서 확정된 통합 정산 결과입니다.</param>
+    /// <param name="reputationDelta">확정된 일일 명성 변화량입니다.</param>
+    /// <param name="successfulSales">성공한 거래 수입니다.</param>
+    /// <param name="refusedCustomers">거절된 거래 수입니다.</param>
+    /// <param name="departedCustomers">이탈한 손님 수입니다.</param>
+    /// <param name="currentBalance">설비 구매 이후에도 갱신되는 현재 세션 잔액입니다.</param>
+    /// <returns>UI가 금액을 다시 계산하지 않고 표시할 수 있는 정산 스냅샷입니다.</returns>
+    public DailySettlementViewData CreateDailySettlementViewData(
+        int day,
+        DailySettlementResult settlement,
+        int reputationDelta,
+        int successfulSales,
+        int refusedCustomers,
+        int departedCustomers,
+        long currentBalance)
+    {
+        var violations = new List<SettlementGuidelineViolationViewData>(
+            settlement.Aggregation.DailyGuidelineViolationSummaries.Count);
+        foreach (DailyGuidelineViolationSummary summary in settlement.Aggregation.DailyGuidelineViolationSummaries)
+        {
+            if (!this.customerCatalog.Products.Rows.TryGetValue(summary.Guideline.TargetProductIdx, out ProductData product) ||
+                product == null)
+            {
+                throw new InvalidOperationException(
+                    $"정산 지침 대상 상품 PK={summary.Guideline.TargetProductIdx}를 상품 데이터에서 찾을 수 없습니다.");
+            }
+            violations.Add(new SettlementGuidelineViolationViewData(
+                this.formatGuideline(summary.Guideline, this.getProductName(product)),
+                summary.ViolationCount,
+                summary.PenaltyAmount));
+        }
+
+        return new DailySettlementViewData(
+            day,
+            settlement.Aggregation.SaleIncome,
+            currentBalance,
+            reputationDelta,
+            successfulSales,
+            refusedCustomers,
+            departedCustomers,
+            settlement.MaintenanceAmount,
+            settlement.GuidelinePenaltyAmount,
+            violations,
+            settlement.PreviousUnpaidAmount,
+            settlement.TotalPaymentDue,
+            settlement.PaidAmount,
+            settlement.UnpaidAmount,
+            settlement.GracePeriodEndDay,
+            settlement.RemainingGraceDays,
+            settlement.IsGameOverConditionMet);
     }
 
     /// <summary>현재 가게 단계까지 반영한 설비 상점 표시 snapshot을 만든다.</summary>
@@ -278,5 +309,39 @@ public sealed class ProgressViewDataFactory
         if (!textData.Rows.TryGetValue(idx, out var text) || string.IsNullOrWhiteSpace(text.Text))
             throw new InvalidOperationException($"설비 화면 TextData FK={idx} 참조 실패");
         return text.Text;
+    }
+
+    /// <summary>상품 표시 이름 FK를 조회합니다.</summary>
+    /// <param name="product">이름을 조회할 상품 데이터입니다.</param>
+    /// <returns>TextData에 등록된 상품 이름입니다.</returns>
+    /// <exception cref="InvalidOperationException">상품 이름 FK가 없거나 빈 문자열인 경우 발생합니다.</exception>
+    private string getProductName(ProductData product)
+    {
+        if (product == null || !this.textData.Rows.TryGetValue(product.NameIdx, out TextData text) ||
+            string.IsNullOrWhiteSpace(text.Text))
+            throw new InvalidOperationException($"상품 이름 TextData FK={product?.NameIdx ?? 0} 참조 실패");
+        return text.Text;
+    }
+
+    /// <summary>구조화된 일일지침을 영업 시작 화면의 완성 문구로 변환합니다.</summary>
+    /// <param name="guideline">표시할 검증된 일일지침입니다.</param>
+    /// <param name="productName">대상 상품 표시 이름입니다.</param>
+    /// <returns>손님 조건·상품·제한 유형이 포함된 문장입니다.</returns>
+    private string formatGuideline(DailyGuideline guideline, string productName)
+    {
+        string target = guideline.RequiredAttributes == CustomerAttributes.None
+            ? "모든"
+            : string.Join(" ", new[]
+            {
+                (guideline.RequiredAttributes & CustomerAttributes.Male) != 0 ? "남자" :
+                    (guideline.RequiredAttributes & CustomerAttributes.Female) != 0 ? "여자" : string.Empty,
+                (guideline.RequiredAttributes & CustomerAttributes.Child) != 0 ? "아이" :
+                    (guideline.RequiredAttributes & CustomerAttributes.Adult) != 0 ? "성인" :
+                    (guideline.RequiredAttributes & CustomerAttributes.Elderly) != 0 ? "노인" : string.Empty
+            }.Where(value => !string.IsNullOrEmpty(value)));
+
+        return guideline.RuleType == DailyGuidelineRuleType.SaleProhibited
+            ? $"{target} 손님에게는 {productName}을(를) 팔지 않는다."
+            : $"{target} 손님에게는 {productName}을(를) 하나까지만 판다.";
     }
 }
