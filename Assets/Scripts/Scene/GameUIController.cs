@@ -29,6 +29,7 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private CustomerPresenter customerPresenter;
     [SerializeField] private PriceInputPresenter priceInputPresenter;
     [SerializeField] private DailySettlementPresenter dailySettlementPresenter;
+    [SerializeField] private DaughterDialoguePresenter daughterDialoguePresenter;
     [SerializeField] private KeypadController keypadController;
     [SerializeField] private GameInputRouter gameInputRouter;
     [SerializeField] private SaleSortingPanel saleSortingPanel;
@@ -80,6 +81,7 @@ public sealed class GameUIController : MonoBehaviour
     private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Sprite> inspectorSprites = new Dictionary<uint, Sprite>();
+    private readonly Dictionary<uint, Sprite> daughterSprites = new Dictionary<uint, Sprite>();
 
     /// <summary>개인 씬에서 실제 FIFO 대기열을 사용할 때만 켠다. 공유 prefab 기본값은 false.</summary>
     [SerializeField] private bool useCustomerQueue;
@@ -262,6 +264,9 @@ public sealed class GameUIController : MonoBehaviour
         foreach (InspectorEventData inspector in DataTableManager.Instance.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent).Rows.Values)
             if (!inspectorSprites.ContainsKey(inspector.PortraitResourceIdx))
                 inspectorSprites.Add(inspector.PortraitResourceIdx, await loadSpriteAsync(inspector.PortraitResourceIdx, resources, spritesByResource));
+        foreach (DaughterAppearanceData appearance in DataTableManager.Instance.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance).Rows.Values)
+            if (!daughterSprites.ContainsKey(appearance.ResourceIdx))
+                daughterSprites.Add(appearance.ResourceIdx, await loadSpriteAsync(appearance.ResourceIdx, resources, spritesByResource));
         return spritesByProduct;
     }
 
@@ -332,6 +337,7 @@ public sealed class GameUIController : MonoBehaviour
         if (inspectorPresenter == null || startupCover == null || startupErrorText == null)
             throw new InvalidOperationException("감독관 패널 또는 초기화 덮개 참조가 누락되었습니다.");
         inspectorPresenter.ValidateReferences();
+        daughterDialoguePresenter?.ValidateReferences();
         if (this.useCustomerQueue && (float.IsNaN(this.queueExitSeconds) || float.IsInfinity(this.queueExitSeconds) || this.queueExitSeconds <= 0))
             throw new InvalidOperationException("큐 퇴장 시간은 유한한 양수여야 합니다.");
         if (this.gameDayPresenter == null
@@ -340,6 +346,7 @@ public sealed class GameUIController : MonoBehaviour
             || this.customerPresenter == null
             || this.priceInputPresenter == null
             || this.dailySettlementPresenter == null
+            || this.daughterDialoguePresenter == null
             || this.keypadController == null
             || this.gameInputRouter == null
             || this.saleSortingPanel == null
@@ -598,6 +605,10 @@ public sealed class GameUIController : MonoBehaviour
             this.subscribedDay.RefusedCustomers,
             this.subscribedDay.DepartedCustomers,
             this.economy.QueryService.CurrentBalance));
+        if (!this.subscribedDay.DaughterDialogueResult.HasValue)
+            throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
+        this.daughterDialoguePresenter.UpdateView(this.viewDataFactory.CreateDaughterDialogueViewData(
+            this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites));
     }
 
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>

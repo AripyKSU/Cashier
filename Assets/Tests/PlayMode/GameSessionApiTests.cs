@@ -335,6 +335,69 @@ public sealed class GameSessionApiTests
         Assert.That(aggregation.DailyGuidelinePenaltyAmount, Is.EqualTo(countOverflow ? 0 : long.MaxValue));
     }
 
+    /// <summary>정산 뒤 딸 대사 준비 실패가 경제 정산을 재실행하거나 완료 상태로 우회하지 못하게 한다.</summary>
+    [Test]
+    public void DaughterDialogueFailureLatchesAfterSingleEconomicSettlement()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        DayProgress day = progress.CurrentDayProgress;
+        progress.Tick(day.BusinessDurationSeconds);
+        progress.SubmitOffer(long.MaxValue,
+            day.CurrentVisit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray());
+        var service = typeof(GameSessionManager).GetField("daughterDialogues",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(session);
+        typeof(DaughterDialogueService).GetField("dialogues",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(service, Array.Empty<DaughterDialogueData>());
+        long balanceBeforeSettlement = session.Economy.QueryService.CurrentBalance;
+        Assert.Throws<InvalidOperationException>(progress.CompleteTransactionResult);
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Closing));
+        Assert.That(day.SettlementResult.HasValue);
+        long settledBalance = session.Economy.QueryService.CurrentBalance;
+        Assert.That(settledBalance, Is.LessThan(balanceBeforeSettlement));
+        Assert.DoesNotThrow(() => progress.Tick(1));
+        Assert.Throws<InvalidOperationException>(progress.CompleteSettlement);
+        var method = typeof(DayProgress).GetMethod("tryBeginSettlement",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        var retry = Assert.Catch<System.Reflection.TargetInvocationException>(() => method.Invoke(day, null));
+        Assert.That(retry.InnerException, Is.TypeOf<InvalidOperationException>());
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(settledBalance));
+        Assert.That(session.ElapsedDays, Is.Zero);
+    }
+
+    /// <summary>정산 당시 누적 도덕성을 보관하고 재표시에는 유지하며 다음 날 새 결과를 만든다.</summary>
+    [Test]
+    public void DaughterDialogueUsesSettlementMoralityAndDayLifetime()
+    {
+        typeof(GameSessionManager).GetField("currentMorality",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(session, 12.5m);
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        DayProgress closingDay = progress.CurrentDayProgress;
+        progress.Tick(closingDay.BusinessDurationSeconds);
+        progress.SubmitOffer(long.MaxValue,
+            closingDay.CurrentVisit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray());
+        decimal moralityAtSettlement = session.CurrentMorality;
+        progress.CompleteTransactionResult();
+        DayProgress firstDay = progress.CurrentDayProgress;
+        DaughterDialogueResult first = firstDay.DaughterDialogueResult.Value;
+        Assert.That(first.Day, Is.EqualTo(1));
+        Assert.That(first.Morality, Is.EqualTo(moralityAtSettlement));
+        Assert.That(first.ResourceIdx, Is.EqualTo(4201));
+        Assert.That(session.DailyMoralityDelta, Is.Zero);
+        DaughterDialogueResult redisplayed = firstDay.DaughterDialogueResult.Value;
+        Assert.That(redisplayed.TextIdx, Is.EqualTo(first.TextIdx));
+        progress.CompleteSettlement();
+        completeInspectors(progress);
+        closeProgressDay(progress);
+        DaughterDialogueResult second = progress.CurrentDayProgress.DaughterDialogueResult.Value;
+        Assert.That(second.Day, Is.EqualTo(2));
+        Assert.That(second.Morality, Is.EqualTo(session.CurrentMorality));
+        Assert.That(progress.CurrentDayProgress, Is.Not.SameAs(firstDay));
+    }
+
     /// <summary>재정 알림 실패에도 잔고·거래 기록·도덕성을 함께 보존하고 같은 방문 재제출을 막는다.</summary>
     [Test]
     public void FinanceNotificationFailurePreservesMoralityAndTransactionSnapshot()

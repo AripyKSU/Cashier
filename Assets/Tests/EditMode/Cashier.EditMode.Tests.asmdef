@@ -1,6 +1,6 @@
 {
   "name": "Cashier.EditMode.Tests",
-  "references": ["Cashier.Runtime"],
+  "references": ["Cashier.Runtime", "Unity.TextMeshPro"],
   "includePlatforms": ["Editor"],
   "optionalUnityReferences": ["TestAssemblies"]
 }

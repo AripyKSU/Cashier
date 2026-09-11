@@ -32,7 +32,7 @@ public sealed class InspectorEventTests
         Assert.That(rows[2].RepeatMode, Is.EqualTo(InspectorRepeatMode.OncePerSession));
         Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8181 }));
         Assert.That(rows.All(x => x.PortraitResourceIdx == 4201));
-        Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(16));
+        Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(18));
 
         var service = new InspectorEventService(rows);
         service.BeginDay(1, Array.Empty<uint>(), 1);

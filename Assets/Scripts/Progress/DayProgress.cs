@@ -58,6 +58,10 @@ public sealed class DayProgress
     // 미납과 유예 조건까지 포함해 정산 완료 후 확정된 최종 결과입니다.
     private DailySettlementResult? settlementResult;
 
+    // 경제 정산 완료 후 표현 데이터 실패가 같은 경제 정산을 다시 호출하지 못하게 한다.
+    private DaughterDialogueResult? daughterDialogueResult;
+    private Exception settlementError;
+
     // 정산 완료 후 다음 날에 적용할 명성 계산 결과입니다.
     private DailyReputationCalculationResult? dailyReputationResult;
 
@@ -127,6 +131,9 @@ public sealed class DayProgress
 
     /// <summary>미납·유예·게임오버 조건까지 포함한 최종 정산 결과입니다.</summary>
     public DailySettlementResult? SettlementResult => this.settlementResult;
+
+    /// <summary>정산 시점의 누적 도덕성으로 하루 한 번 확정한 딸 표시 결과.</summary>
+    public DaughterDialogueResult? DaughterDialogueResult => this.daughterDialogueResult;
 
     /// <summary>이 날의 명성 정산에 사용하며 향후 손님 구성 요청에도 전달할 시작 명성입니다.</summary>
     public int DayStartReputation => this.dayStartReputation;
@@ -581,16 +588,27 @@ public sealed class DayProgress
             this.currentVisit = null;
         }
 
-        this.session.EndTradingDay(out DailyAggregationResult result);
-        this.aggregationResult = result;
-        this.settlementResult = this.session.LastSettlementResult ??
-            throw new InvalidOperationException("세션에서 최종 정산 결과를 생성하지 않았습니다.");
-        DailyReputationCalculator calculator = new DailyReputationCalculator(
-            this.reputationBalanceTable,
-            this.customerCatalog.Dispositions);
-        this.dailyReputationResult = calculator.Calculate(
-            this.dayStartReputation,
-            this.aggregationResult.Value.Transactions);
+        if (this.settlementError != null)
+            throw new InvalidOperationException("정산 후 딸 대화 준비가 실패해 하루 진행이 중단되었습니다.", this.settlementError);
+        try
+        {
+            this.session.EndTradingDay(out DailyAggregationResult result);
+            this.aggregationResult = result;
+            this.settlementResult = this.session.LastSettlementResult ??
+                throw new InvalidOperationException("세션에서 최종 정산 결과를 생성하지 않았습니다.");
+            DailyReputationCalculator calculator = new DailyReputationCalculator(
+                this.reputationBalanceTable,
+                this.customerCatalog.Dispositions);
+            this.dailyReputationResult = calculator.Calculate(
+                this.dayStartReputation,
+                this.aggregationResult.Value.Transactions);
+            this.daughterDialogueResult = this.session.SelectDaughterDialogue(checked((uint)this.day));
+        }
+        catch (Exception exception)
+        {
+            this.settlementError = exception;
+            throw;
+        }
         this.changeState(DayProgressState.Settlement);
         this.SettlementStarted?.Invoke(this.settlementResult.Value);
     }

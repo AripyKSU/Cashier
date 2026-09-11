@@ -88,6 +88,8 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.Morality] = new MoralityDataTable();
         this.dataList[DataTableType.DailyGuideline] = new DailyGuidelineDataTable();
         this.dataList[DataTableType.InspectorEvent] = new InspectorEventDataTable();
+        this.dataList[DataTableType.DaughterDialogue] = new DaughterDialogueDataTable();
+        this.dataList[DataTableType.DaughterAppearance] = new DaughterAppearanceDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -145,6 +147,10 @@ public class DataTableManager : Singleton<DataTableManager>
             InspectorEventDataTable inspectors = GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent);
             inspectors.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows,
                 GetDB<ResourceDataTable>(DataTableType.Resource), GetDB<FacilityDataTable>(DataTableType.Facility).PendingRows);
+            DaughterDialogueDataTable daughterDialogues = GetDB<DaughterDialogueDataTable>(DataTableType.DaughterDialogue);
+            DaughterAppearanceDataTable daughterAppearances = GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance);
+            daughterDialogues.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows);
+            daughterAppearances.Validate(GetDB<ResourceDataTable>(DataTableType.Resource));
             Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource),
                 GetDB<FacilityDataTable>(DataTableType.Facility));
             GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
@@ -152,6 +158,8 @@ public class DataTableManager : Singleton<DataTableManager>
             morality.Commit();
             guidelines.Commit();
             inspectors.Commit();
+            daughterDialogues.Commit();
+            daughterAppearances.Commit();
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }

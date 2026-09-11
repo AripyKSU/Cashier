@@ -234,6 +234,31 @@ public readonly struct SettlementGuidelineViolationViewData
     }
 }
 
+/// <summary>정산과 함께 표시할 하루 한 번 확정된 딸 대사와 이미지.</summary>
+public readonly struct DaughterDialogueViewData
+{
+    /// <summary>표시 일차.</summary>
+    public uint Day { get; }
+    /// <summary>TextData에서 해석한 대사.</summary>
+    public string Text { get; }
+    /// <summary>ResourceData 경로에서 로드한 이미지.</summary>
+    public Sprite Sprite { get; }
+
+    /// <summary>검증된 딸 표시 스냅샷을 생성한다.</summary>
+    /// <param name="day">1부터 시작하는 일차.</param>
+    /// <param name="text">빈 값이 아닌 대사.</param>
+    /// <param name="sprite">로드된 이미지.</param>
+    /// <exception cref="ArgumentException">표시값이 누락된 경우.</exception>
+    public DaughterDialogueViewData(uint day, string text, Sprite sprite)
+    {
+        if (day == 0 || string.IsNullOrWhiteSpace(text) || sprite == null)
+            throw new ArgumentException("딸 표시에는 일차·대사·이미지가 필요합니다.");
+        Day = day;
+        Text = text;
+        Sprite = sprite;
+    }
+}
+
 /// <summary>최종 통합 정산 결과를 화면에 그대로 전달하는 읽기 전용 스냅샷입니다.</summary>
 public readonly struct DailySettlementViewData
 {

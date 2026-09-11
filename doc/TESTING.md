@@ -1,5 +1,14 @@
 # 기능 API 검증
 
+## 딸 대화 시스템 (2026-09-11)
+
+- 기준: total_merge c756bec에서 분기한 `codex/daughter-dialogue`의 미커밋 구현. 최종 EditMode **230/230**, PlayMode **45/45**, 각각 실패·skip·미완료 0. 기존 `Tools/Run-Tests.ps1 -Mode Both -TimeoutSeconds 240`으로 실행했다. 증거: `Temp/TestResults/20260911-175315-d81c54e6473249f8b170c72af1a39e98/EditMode.xml`, `PlayMode.xml` 및 각 `.log`.
+- 실제 CSV/FK·6개 도덕성 구간 경계와 소수/무한 범위·후보 선택·날짜별 이미지 전환·모든 후보 대사의 폰트 글리프를 검사했다. PlayMode는 정산 시 누적 도덕성 선택/당일 결과 고정/다음날 수명과 선택 실패 시 경제 정산 중복 방지까지 확인했다.
+- 초기 개별 Edit 필터 5/5 이후 Play 필터는 개인 playModeStartScene 설정 때문에 지연·중단되어 통과로 집계하지 않았다. 활성 job 취소 후 기존 runner로 전환했다. `20260911-174531-0f5ca0038442476eb24ed3cf58dc4c9a/EditMode.xml` 229/230은 기존 TextData 행 수 기대182→200 보정 전이다. `20260911-174736-b224acf79ae8411f9f21457cddf2eb71/`은 Edit230/230·Play44/45이며 Mulmaru의 한글 글리프 누락을 발견했다. 기존 Mabinogi 폰트 참조로 교체하고 글리프 검사를 추가했다. test assembly의 Unity.TextMeshPro 참조 누락 컴파일 오류도 최종 실행 전에 해결했다.
+- 실제 Init→SpriteWorldSandbox→감독관→영업→수락 거래→정산에서 Morality0/TextIdx8192/Resource4201 표시, 설비 상점 열기·닫기 후 대사 고정을 확인했다. `Temp/Daughter-Smoke.txt`, `Temp/Daughter-Settlement-Final.png`. 최종 suite 후 수정은 딸 패널을 정산 보드 아래로 옮기는 직렬화 배치뿐이며, 실제 화면으로 검증했다.
+- 최종 컴파일 실패 없음·제품 Console error0·missing script0. Play 종료, 개인 씬 저장, InitScene 시작/개인 씬 선택, runInBackground=false. MainScene 파일과 기존 사용자 Mulmaru hash를 보존했다. 테스트 생성 TMP fallback glyph만 사전 내용으로 복구했다.
+- 기존 개인 씬의 명성·유지비/시설 버튼 겹침은 이번 범위 밖이며 전체 UI/UX·다른 화면비·Player build·저장 복원은 미검증이다. 계약과 병합 연결은 [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md)를 따른다.
+
 ## DailyInstruction + Sprite world Main 통합 (2026-09-11)
 
 - 입력: total_merge e62fcaf + DailyInstruction 99fc83e + Sprite world b80dfda. 최종 EditMode **225/225**, 실패·skip·미완료 0: `Temp/TestResults/20260911-161803-6305b91b5e4c4dbc92318c87283d07c1/EditMode.xml` 및 `.log`. 최종 PlayMode **43/43**, 실패·skip·미완료 0: `Temp/TestResults/20260911-162058-b5c3dbede73d4f65a1a01dca9b02aeb8/PlayMode.xml` 및 `.log`.
