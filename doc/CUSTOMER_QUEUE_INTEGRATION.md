@@ -1,17 +1,29 @@
 # 손님 대기열 구현·병합 명세
 
-## 현재 통합 상태 (2026-09-09)
+## 현재 통합 상태 (2026-09-11)
 
-아래는 CustomerQueue API와 이전 Dev3 화면의 계약이다. 현재 GameUIController/DayProgress는 손님을 순차 생성하며 이 대기열을 연결하지 않았다. API 회귀 통과는 현 UI의 줄·말풍선 표시를 의미하지 않는다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다.
+GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연결한다. GameUI prefab 기본값은 false지만 공유 MainScene은 override로 true를 지정하고 공유 CustomerQueueView를 연결한다. 개인 씬이나 Local 코드 없이 공유 씬에서 대기열을 표시한다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다. 아래 과거 Dev3 설치·검증 기록은 보존하되 현재 공유 씬 사용법으로 해석하지 않는다.
+
+### 현재 GameUI 연결 계약
+
+- DayProgress가 시계를 소유한다. `UsesCustomerQueue`, `WaitingCustomers`, `LeavingCustomers`, `DepartedCustomers`, `GetQueueSpeech`로 조회하며 가변 큐를 외부에 공개하지 않는다.
+- 최초 손님은 즉시 생성한다. 이후 5초 입장과 FIFO를 사용하고 빈 계산대는 다음 입장을 기다린다. 긴 프레임은 프레임 종료까지 만료를 먼저 처리하고 생존한 방문만 인계한다.
+- `CustomerDeparted`는 거래 완료 방문을 알린다. 대기 이탈은 거래·명성 페널티를 추가하지 않고 이탈 수에만 반영한다. Closing은 대기열을 정리하고 마지막 거래는 유지한다.
+- 공유 CustomerQueueView는 방문 객체별 Image를 입구→대기 위치→계산대→무작위 좌/우 출구로 이동한다. 원본 Appearance Image만 숨기며 자식 디버그 표시는 유지한다. 이동은 모델을 변경하지 않는다.
+- 마지막 거래의 정산 모델은 즉시 확정하지만 `queueExitSeconds`(기본 0.45초) 동안 정산 화면을 지연한다. 공유 렌더러 퇴장도 같은 값을 사용한다. 일시정지는 큐와 UI 연출을 함께 정지한다.
+- 아래 Dev3 버튼·3초 자동 결과 인계 설명은 이전 화면의 계약이다. 현재 GameUI의 거래 결과 완료 경로와 혼동하지 않는다. UI/UX는 사용자 확인 대상이다.
+
+- 모든 손님은 같은 크기를 사용하며 원근 배율은 적용하지 않는다. 계산대 하단 가림선에 호흡 최대 상승량을 보정한다. 퇴장 이미지는 검정 틴트와 alpha 페이드를 적용한다.
+- 현재 표시 결함: 불만의 모델 수명은 3초지만 부모 CanvasGroup의 퇴장 alpha가 문구에도 적용된다. [감사 Q-01](FEATURE_CONTRACT_AUDIT.md#q-01--p2--불만-대사의-3초-표시와-퇴장-페이드-충돌)을 참조한다.
 
 ## 범위와 규칙
 
-- 대기 정원·표시 최대 10명. 계산 중인 손님은 별도다. FIFO 순서는 화면의 #번호로 표시한다.
+- 대기 정원·표시 최대 10명. 계산 중인 손님은 별도다. 이전 Dev3 화면의 #번호는 현재 공유 렌더러의 필수 계약이 아니다.
 - OPEN STORE에서 최초 손님을 바로 계산대에 배치하고 이후 5초마다 줄에 합류한다. 꽉 찬 시점의 입장은 건너뛰며 재시도 물량을 쌓지 않는다.
 - 합류 시 외형·성향·최초 희망 목록과 표시 단가를 고정한다. 실제 거래 기준액·허용액·원가는 SubmitOffer 시점의 최종 목록·최신 현재가로 확정한다. 라디오 이후에도 최초 표시 단가는 보존하지만 판정은 최신 가격을 사용한다.
 - 성향별 한도에 도달하면 즉시 논리적 이탈. 계산 중인 손님에게 대기 한도는 적용하지 않는다.
 - 남은 시간 6초 이하일 때 재촉 1회, 만료 시 불만 1회. 말풍선은 각각 3초 표시한다. 긴 프레임에서 재촉·만료를 함께 넘으면 불만만 표시한다.
-- 만료를 처리한 뒤 계산대로 인계한다. 거래 결과는 3초 보여준 뒤 자동으로 다음 손님을 인계한다. NEXT CUSTOMER로 먼저 인계할 수도 있지만 빈 줄에서 새 손님을 생성하지 않는다.
+- 만료를 처리한 뒤 계산대로 인계한다. 현재 GameUI는 거래 결과 완료 입력에서 DayProgress.CompleteTransactionResult를 호출한다. 아래 3초 자동 인계·NEXT CUSTOMER 설명은 이전 Dev3 화면에만 해당한다. 빈 줄에서는 새 손님을 즉시 생성하지 않는다.
 - 게임 일시정지 시 입장·대기·대사 표시·결과 표시 시간이 멈춘다. 영업 종료 시 줄과 남은 말풍선은 불만 없이 제거한다. 이탈 페널티·일수별 인원 증가는 범위 밖이다.
 
 ## CSV migration
@@ -40,7 +52,7 @@
 - `Dev3SandboxTester.Queue`: 통합 화면 소유 대기열 조회. Update가 시계를 진행하며 고정 10개 색상 사각형을 재사용한다. 테스트 배치는 계산대 왼쪽 2열이며 최종 공간상 줄 배치는 아트/UI 통합 시 교체할 수 있다.
 - 화면 파괴와 영업 종료 시 Stop. 영업 중 씬 재진입·세이브 복원은 기존 제한을 유지한다. 구형 CustomerSandbox는 Git 제외 Local 개인 코드이며 공유 설치에 필요하지 않다.
 
-## 사용법·검증
+## 이전 Dev3 사용법·검증 기록
 
 1. InitScene부터 개인 GameplaySandbox로 진입한다. START SESSION → 여정 시작 → 영업 시작 → OPEN STORE.
 2. 계산 중인 손님을 그대로 두면 5초 간격으로 대기열이 증가한다. 최대 10명을 넘지 않는다.
@@ -51,7 +63,7 @@
 
 이전 개인 씬 구현 검증 기록(현재 Test Runner 실행과 별개): PASS. 순수 로직·CSV·기존 CustomerGenerator 회귀 통과. Unity 컴파일 통과. GameplaySandbox에서 10명 색상·PK 표시, 재촉·이탈 표시, 3초 결과 이후 자동 FIFO 인계, 기존 거래 수락/거부·중복 수입 방지·정산·다음 날 전환 통과. Console error 0. 시간 경계 검사는 Advance로 시간을 주입했고 자동 인계는 실제 Update 경과로 확인했다. 최종 아트·공간상 줄 배치는 미작업이다.
 
-## 병합 주의
+## 초기 대기열 병합 기록 (현재 통합 시 실제 diff 재확인)
 
 - 성향 CSV와 DTO·로더·catalog·TextData를 같은 변경으로 병합한다. 기존 header를 유지한 채 3개 열을 끝에 추가한다.
 - MainScene/prefab을 새로 저장할 필요 없이 기존 Dev3SandboxTester 연결을 사용한다. 개인 씬은 Git 제외 유지.

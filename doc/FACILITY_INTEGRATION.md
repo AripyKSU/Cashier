@@ -1,5 +1,11 @@
 # 설비 구매·상품 해금 인계
 
+## total_merge 병합 보완 (2026-09-10)
+
+- 가게 단계도 결제 알림 전에 보유와 함께 예약한다. 차감 실패이면 단계·보유를 함께 되돌리고, 결제가 확정된 뒤 구독자가 예외를 던지면 잔액·보유·단계를 함께 유지한다. 중복 구매는 재차감하지 않는다.
+- 상품16종과 Resource54행을 유지하며 이미지가 연결된6종만 기존 FK를 이관했다. 해열제1009 삭제 이후 Painkiller4250은 미참조 보존한다. 외형 Text 충돌 이관은 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
+- MainScene의 기존 대기열과 신규9앵커·막대·청소기 참조를 확인했다. API/활성화 검증과 실제 도구 드래그 UX는 구분한다.
+
 기준: 2026-09-10, `Upgrade`. 세션·재정·손님·현재 가격표와 일일 정산의 설비 상점을 연결한다. 공유 GameUI와 독립 설비 프리팹만 변경하며 공유 Scene은 수정하지 않는다.
 
 ## 사용법과 책임
@@ -7,7 +13,7 @@
 - 초기화한 세션을 사용하는 기존 `GameProgress`에서 `Start()` 이후 `TryPurchaseFacility(12001, out var result)`를 호출한다. 외부 입력은 설비 PK 하나이며 가격·날짜를 받지 않는다.
 - `true/Purchased`: CSV 가격 즉시 차감, `PaidAmount`에 지출, 일반 업그레이드는 `ActivationDay`에 현재 경과일+1을 등록한다. 단계 상승은 현재 단계와 상점 잠금을 즉시 변경한다.
 - `false/AlreadyOwned`: 재결제하지 않고 기존 활성일 반환. `false/InsufficientFunds`: 무변경, 활성일 null. `false/StageLocked`: 요구 단계 또는 순차 단계 조건을 만족하지 못한 상태로 무변경이다.
-- 0·미등록 ID, 구매 재진입, 날짜 overflow는 예외다. 진행의 Initializing/Failed/Completed 상태는 구매를 거부한다. 공개 API의 그 밖 상태는 유지하되 실제 구매 UI는 일일 정산(`DayInProgress` + `Settlement`)에서만 노출한다.
+- 0·미등록 ID, 구매 재진입, 날짜 overflow는 예외다. 진행의 Initializing/Failed/Completed 상태는 구매를 거부한다. 감독관 이벤트 미완료 중에도 세션 API가 구매를 거부한다([감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)). 공개 API의 그 밖 상태는 유지하되 실제 구매 UI는 일일 정산(`DayInProgress` + `Settlement`)에서만 노출한다.
 - 재정 이벤트 구독자가 예외를 던지면 원래 예외를 전달한다. 이미 차감 완료했다면 보유도 유지한다. 실패를 보고 무조건 재결제하지 말고 `session.FacilityActivationDays`를 조회한다.
 - 보유·활성일·가게 단계의 단일 권위는 세션 내부 FacilityService다. `CurrentStoreStage`, `IsFacilityOwned`, `IsFacilityUpgradeActive`, `IsFacilityEffectActive`, `TryGetFacilityActivationDay`, `IsFacilityActive`와 읽기 전용 `FacilityActivationDays`를 노출한다. 같은 세션의 표현 객체 교체는 보유를 유지하고 새 세션은 초기화한다. 저장 파일 복원은 미구현이다.
 
@@ -133,4 +139,4 @@ GameUI (기존 루트 / GameUIController)
 3. API 검증: ID 전달·1회 차감, 부족/중복/예외 후 상태 재조회, 같은 날 대기/다음 날 활성 표시, 날짜 표기, 재진입 listener 중복 없음. 기존 NUnit/Test Runner 경로를 사용한다.
 4. 수동 검증: 최종 사용자 확인에서 11행 정보 가독성, 긴 이름·금액, 클릭/스크롤/뒤쪽 입력 차단과 닫기 복귀를 확인한다. 이번 구현에서는 세부 플레이테스트를 별도로 확대하지 않는다.
 
-기존 PlayMode 테스트 assembly에는 승인된 `Unity.ugui`, `Unity.TextMeshPro` 참조만 추가했다. 새 package나 runtime assembly는 없다. 기존 LocalDebug는 개인 씬에 유지하고 공유 프리팹으로 옮기지 않았다. 최신 자동 검증 XML/로그는 [TESTING.md](TESTING.md)를 따른다. UI의 최종 사용성 승인은 별도다. 공용 변경의 작업 branch 리뷰·기본 branch 통합 절차는 AGENTS.md와 기존 통합 규칙을 따른다.
+기존 PlayMode 테스트 assembly에는 승인된 `Unity.ugui`, `Unity.TextMeshPro` 참조만 추가했다. 새 package나 runtime assembly는 없다. 기존 LocalDebug는 개인 씬에 유지하고 공유 프리팹으로 옮기지 않았다. 최신 자동 검증 XML/로그는 [TESTING.md](TESTING.md)를 따른다. UI의 최종 사용성 승인은 별도다. 공용 변경의 작업 branch 리뷰·기본 branch 통합 절차는 [WORK_RULES.md 12절](WORK_RULES.md#12-팀-분업과-소유권-경계)과 기존 통합 규칙을 따른다.

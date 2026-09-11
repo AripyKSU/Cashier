@@ -267,7 +267,7 @@ public sealed class ReputationSystemTests
         texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
         FacilityDataTable facilities = new FacilityDataTable();
         facilities.LoadData(File.ReadAllText("Assets/Datas/FacilityData.csv"));
-        catalog.ValidateAndCommit(texts, facilities: facilities);
+        catalog.ValidateAndCommit(texts, loadResources(), facilities: facilities);
         return catalog;
     }
 
@@ -331,5 +331,14 @@ public sealed class ReputationSystemTests
     private static TransactionResult[] repeat(TransactionResult transaction, int count)
     {
         return Enumerable.Repeat(transaction, count).ToArray();
+    }
+    /// <summary>실제 Resource CSV를 FK 검증에 사용한다.</summary>
+    /// <returns>파싱한 Resource 테이블.</returns>
+    private static ResourceDataTable loadResources()
+    {
+        var resources = new ResourceDataTable();
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex("^\\[ResourceDataTable\\]"));
+        resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
+        return resources;
     }
 }

@@ -2,7 +2,7 @@
 
 이 문서는 사용자의 목적 중심 자연어 요청을 프로젝트 규칙에 맞는 실행 프롬프트 초안으로 변환하는 방법을 정의한다.
 
-공통 작업 규칙은 [`AGENTS.md`](../AGENTS.md), 역할과 권한은 [`TEAM_ROLES.md`](TEAM_ROLES.md), CSV 작업은 [`DATA_RULES.md`](DATA_RULES.md), Prefab과 리소스 작업은 [`PREFAB_RESOURCE_RULES.md`](PREFAB_RESOURCE_RULES.md)를 따른다.
+공통 작업 규칙은 [`WORK_RULES.md`](WORK_RULES.md), 역할과 권한은 [`TEAM_ROLES.md`](TEAM_ROLES.md), CSV 작업은 [`DATA_RULES.md`](DATA_RULES.md), Prefab과 리소스 작업은 [`PREFAB_RESOURCE_RULES.md`](PREFAB_RESOURCE_RULES.md)를 따른다.
 
 ## 적용 대상
 

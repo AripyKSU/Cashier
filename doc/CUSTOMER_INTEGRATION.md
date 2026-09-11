@@ -4,6 +4,10 @@
 
 ## 1. 통합 범위와 책임
 
+### 2026-09-10 상품·외형 이미지
+
+현재 외형은 RGBA 대신 필수 Resource FK이며 상품은 기본·탑뷰 두 FK를 사용한다. 이 문서의 과거 색상 블록·빈 상품 이미지 기록보다 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)의 스키마·매핑·이관 절차를 우선한다. 성향·속성 생성과 판정은 변경하지 않았다.
+
 ### 2026-09-09 설비 상품 해금
 
 상품에 `required_facility_idx`를 추가했다. 생성과 현재 가격표는 활성·등장일·세션 설비 활성 조건을 함께 사용하며, 최종 제출은 방문 생성 시 판매 가능했던 전체 PK 스냅샷 안에서만 허용한다. 희망 목록 밖 상품은 그 범위 안에서 계속 허용한다. 새 CSV와 loader·소비 코드는 함께 배포하며 상세 API/테스트 값은 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다. 생성기 마지막 선택 인자는 이제 `isFacilityActive`이며 기존 지침 공급자는 그대로 유지한다.
@@ -77,7 +81,7 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.
 - 현재 연결: GameUIController의 선택 목록을 DayProgress가 판정·정산한다. CustomerQueue는 현 진행에 미연결이며 Dev3 연결은 과거 경로다. 미연결: 원가 차감·일일 원가 집계·명성 계산·지침 공급. 재고 예약·저장 복구·재방문 인물·이동 연출은 미구현이다. `Accepted`는 가격 수락이지 후속 반영 완료가 아니다.
 - `CustomerSandbox`와 `CustomerSandboxSetup`은 `Assets/Scripts/Local/`의 개인 코드이며 Git 제외다. 다른 checkout이나 공유 assembly에서 존재를 가정하지 않는다. 현재 실제 UI는 GameUIController이며 비활성화된 Dev3 파일을 이 작업에서 이동/삭제하지 않는다.
-- 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [AGENTS.md 12절](../AGENTS.md)을 따른다.
+- 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [WORK_RULES.md 12절](WORK_RULES.md#12-팀-분업과-소유권-경계)을 따른다.
 
 ## 2. 초기화와 공개 API
 
@@ -159,7 +163,7 @@ visit.Depart();
 
 | 대상 | 현재 연결 |
 |---|---|
-| 외형 | `Appearances.Rows[visit.AppearanceIdx]`의 RGBA. 현재는 사각형+색상, 외형 파츠·정식 sprite 계약 없음. |
+| 외형 | `Appearances.Rows[visit.AppearanceIdx].ImageResourceIdx` → ResourceData → Sprite. 화면 초기화 시 로드하며 Local 큐도 같은 결과를 조회한다. |
 | 상품 이름 | `Products.Rows[item.ProductIdx].NameIdx → Texts.Rows[idx].Text` |
 | 상품 종류 | `ProductData.ProductType` enum. `Categories.Rows.Values`에서 동일 ProductType 행을 찾아 `NameIdx → Text`로 UI 표시. enum 이름을 표시명이나 내부 문자열 키로 쓰지 않는다. |
 | 상품 이미지 | `ImageResourceIdx`가 null이면 흰색 기본 사각형+상품 이름. 값이 있으면 `GetDB<ResourceDataTable>(DataTableType.Resource).GetResourcePath(idx)` → `ResourceManager.LoadAssetAsync<Sprite>(path)`. |

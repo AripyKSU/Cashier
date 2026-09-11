@@ -73,6 +73,18 @@ public sealed class DayProgress
     // 현재 날짜의 거절 거래 수입니다.
     private int refusedCustomers;
 
+    // 옵션이 켜진 하루만 큐를 소유하고 시간·인계를 수행합니다.
+    private readonly CustomerQueue queue;
+
+    /// <summary>현재 하루가 FIFO 큐를 사용하는지 여부.</summary>
+    public bool UsesCustomerQueue => this.queue != null;
+    /// <summary>FIFO 순서의 대기 조회. 표현은 목록이나 방문 상태를 변경하지 않는다.</summary>
+    public IReadOnlyList<CustomerQueue.Entry> WaitingCustomers => this.queue?.Waiting ?? Array.Empty<CustomerQueue.Entry>();
+    /// <summary>대사 유지 중인 만료 이탈 조회. 계산대 소유권은 포함하지 않는다.</summary>
+    public IReadOnlyList<CustomerQueue.Entry> LeavingCustomers => this.queue?.Leaving ?? Array.Empty<CustomerQueue.Entry>();
+    /// <summary>대기 만료로 이탈한 수. 별도 금액·명성 벌칙을 적용하지 않는다.</summary>
+    public int DepartedCustomers => this.queue?.AbandonedCount ?? 0;
+
     /// <summary>담당하는 게임 날짜입니다.</summary>
     public int Day => this.day;
 
@@ -127,6 +139,8 @@ public sealed class DayProgress
 
     /// <summary>새로운 손님이 계산대에 활성화된 뒤 발생합니다.</summary>
     public event Action<CustomerVisit> CustomerStarted;
+    /// <summary>거래 확인 후 계산대 소유권을 반납한 원본 방문. 연출 완료를 기다리지 않는다.</summary>
+    public event Action<CustomerVisit> CustomerDeparted;
 
     /// <summary>거래 판정과 재정 반영이 완료된 뒤 발생합니다.</summary>
     public event Action<CustomerVisit> TransactionCompleted;
@@ -147,6 +161,7 @@ public sealed class DayProgress
     /// <param name="random">손님 생성에 사용할 난수원입니다.</param>
     /// <param name="dayStartReputation">하루 시작 시점에 고정할 명성입니다.</param>
     /// <param name="businessDurationSeconds">영업 제한시간(초)입니다.</param>
+    /// <param name="useCustomerQueue">true면 후속 방문을 5초 간격 FIFO에서 인계한다.</param>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentOutOfRangeException">날짜 또는 영업시간이 허용 범위를 벗어난 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">세션이 초기화되지 않았거나 날짜가 다른 경우.</exception>
@@ -157,7 +172,8 @@ public sealed class DayProgress
         ReputationBalanceDataTable reputationBalanceTable,
         Random random,
         int dayStartReputation = 0,
-        float businessDurationSeconds = DefaultBusinessDurationSeconds)
+        float businessDurationSeconds = DefaultBusinessDurationSeconds,
+        bool useCustomerQueue = false)
     {
         if (day <= 0)
         {
@@ -222,6 +238,7 @@ public sealed class DayProgress
         dispositions.Sort((left, right) => left.Idx.CompareTo(right.Idx));
         this.appearanceIds = appearanceIds.AsReadOnly();
         this.dispositions = dispositions.AsReadOnly();
+        if (useCustomerQueue) this.queue = new CustomerQueue(this.createCustomer, customerCatalog.Dispositions.Rows);
         this.State = DayProgressState.Initializing;
     }
 
@@ -236,7 +253,28 @@ public sealed class DayProgress
             throw new InvalidOperationException("하루 진행은 한 번만 시작할 수 있습니다.");
         }
 
-        this.changeState(DayProgressState.PreOpen);
+        this.session.EnsureInspectorDay();
+        this.changeState(this.session.InspectorEvents.HasPending ? DayProgressState.InspectorEvent : DayProgressState.PreOpen);
+    }
+
+    /// <summary>현재 화면의 감독관 대사 입력만 적용한다.</summary>
+    /// <param name="snapshot">사용자가 보고 있던 대사 상태.</param>
+    /// <returns>입력을 적용했으면 true.</returns>
+    public bool AdvanceInspector(InspectorEventSnapshot snapshot)
+    {
+        return State == DayProgressState.InspectorEvent && snapshot.Day == (uint)Day &&
+            session.InspectorEvents.Advance(snapshot.Day, snapshot.EventIdx, snapshot.LineIndex);
+    }
+
+    /// <summary>감독관 퇴장 완료 후 남은 이벤트가 없을 때만 영업 전 단계로 이동한다.</summary>
+    /// <param name="snapshot">퇴장을 시작한 화면 상태.</param>
+    /// <returns>이번 퇴장 완료를 적용했으면 true.</returns>
+    public bool CompleteInspectorExit(InspectorEventSnapshot snapshot)
+    {
+        if (State != DayProgressState.InspectorEvent || snapshot.Day != (uint)Day ||
+            !session.InspectorEvents.CompleteExit(snapshot.Day, snapshot.EventIdx)) return false;
+        if (!session.InspectorEvents.HasPending) changeState(DayProgressState.PreOpen);
+        return true;
     }
 
     /// <summary>
@@ -253,8 +291,20 @@ public sealed class DayProgress
         }
 
         // 외부 집계를 열기 전에 첫 손님을 준비해 초기화 실패 시 부분 상태를 만들지 않습니다.
-        CustomerVisit firstVisit = this.createCustomer();
-        this.session.BeginTradingDay();
+        CustomerVisit firstVisit;
+        if (this.queue == null) firstVisit = this.createCustomer();
+        else
+        {
+            this.queue.Start();
+            try
+            {
+                if (!this.queue.TryAdd()) throw new InvalidOperationException("첫 대기 손님을 생성할 수 없습니다.");
+                firstVisit = this.queue.TakeNext();
+            }
+            catch { this.queue.Stop(); throw; }
+        }
+        try { this.session.BeginTradingDay(); }
+        catch { this.queue?.Stop(); throw; }
         this.remainingSeconds = this.businessDurationSeconds;
         this.isPaused = false;
         this.currentVisit = firstVisit;
@@ -292,11 +342,13 @@ public sealed class DayProgress
         // 긴 프레임도 실제 남은 영업시간만 방송 시계에 전달합니다. Closing에는 진행하지 않습니다.
         float tradingSeconds = Math.Min(deltaSeconds, this.remainingSeconds);
         this.session.AdvanceTradingTime(tradingSeconds, false);
+        this.queue?.Advance(tradingSeconds, false);
         this.remainingSeconds = Math.Max(0f, this.remainingSeconds - tradingSeconds);
         if (this.remainingSeconds <= 0f)
         {
             this.beginClosing();
         }
+        else if (this.queue != null && this.currentVisit == null) this.startNextCustomer();
     }
 
     /// <summary>
@@ -369,8 +421,10 @@ public sealed class DayProgress
             throw new InvalidOperationException("확인할 거래 결과가 없습니다.");
         }
 
-        this.currentVisit.Depart();
+        CustomerVisit departed = this.currentVisit;
+        departed.Depart();
         this.currentVisit = null;
+        this.CustomerDeparted?.Invoke(departed);
 
         if (this.State == DayProgressState.Closing)
         {
@@ -448,7 +502,8 @@ public sealed class DayProgress
             return;
         }
 
-        CustomerVisit nextVisit = this.createCustomer();
+        CustomerVisit nextVisit = this.queue == null ? this.createCustomer() : this.queue.TakeNext();
+        if (nextVisit == null) return;
         nextVisit.BeginOffer();
         this.currentVisit = nextVisit;
         this.CustomerStarted?.Invoke(this.currentVisit);
@@ -475,6 +530,7 @@ public sealed class DayProgress
                 composition,
                 this.customerCatalog.Products.Rows,
                 () => this.session.EnsureDailyPrices().Prices,
+                moralityCalculator: this.session.MoralityCalculator,
                 getDailyGuidelines: () =>
                 {
                     this.session.EnsureDailyPrices();
@@ -502,6 +558,7 @@ public sealed class DayProgress
 
         this.remainingSeconds = 0f;
         this.isPaused = false;
+        this.queue?.Stop();
         this.changeState(DayProgressState.Closing);
         this.tryBeginSettlement();
     }
@@ -546,12 +603,25 @@ public sealed class DayProgress
             throw new InvalidOperationException("확정 거래의 재정 반영이 실패해 하루 진행이 중단되었습니다.");
     }
 
+    /// <summary>표현 소유자가 파괴될 때 대기 방문과 남은 말풍선을 불만 없이 정리한다.</summary>
+    internal void StopQueue() => this.queue?.Stop();
+
+    /// <summary>모델 시계 기준으로 현재 표시할 대사 PK를 조회한다.</summary>
+    /// <param name="entry">현재 대기 또는 이탈 항목.</param>
+    /// <returns>표시할 대사 PK. 대사가 없으면 0.</returns>
+    /// <exception cref="ArgumentNullException">항목이 null.</exception>
+    public uint GetQueueSpeech(CustomerQueue.Entry entry)
+    {
+        if (entry == null) throw new ArgumentNullException(nameof(entry));
+        return this.queue?.GetSpeech(entry) ?? 0;
+    }
+
     /// <summary>방문이 확정한 원본 거래 결과를 현재 일일 재정 집계에 반영합니다.</summary>
     /// <param name="transactionResult">반영할 거래 결과입니다.</param>
     /// <exception cref="InvalidOperationException">종료된 일일 집계에 반영하려는 경우 발생합니다.</exception>
     private void applyTransactionResult(TransactionResult transactionResult)
     {
-        if (!this.economy.DailyAggregationService.TryApplyTransaction(transactionResult))
+        if (!this.session.TryApplyTransaction(transactionResult))
         {
             throw new InvalidOperationException("종료된 일일 집계에는 거래를 반영할 수 없습니다.");
         }

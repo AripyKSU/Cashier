@@ -43,6 +43,10 @@ public readonly struct TransactionResult
     public long SaleIncome { get; }
     /// <summary>완료된 거래의 명성 변화량. 지침 위반으로 자동 계산하지 않는다.</summary>
     public int ReputationDelta { get; }
+    /// <summary>적용한 도덕성 데이터 PK. 미평가 거래는 null.</summary>
+    public uint? MoralityDataIdx { get; }
+    /// <summary>반올림하지 않은 도덕성 변화량. 미평가와 0점을 구분한다.</summary>
+    public decimal? MoralityDelta { get; }
 
     /// <summary>최종 검증 목록에서 기준액·원가를 합산하고 거래 결과를 생성한다.</summary>
     /// <param name="outcome">방문이 계산한 판정.</param>
@@ -54,12 +58,14 @@ public readonly struct TransactionResult
     /// <param name="customerAttributes">거래 손님의 속성 snapshot.</param>
     /// <param name="wereDailyGuidelinesEvaluated">수락 경로에서 정식 일일지침을 평가했는지 여부.</param>
     /// <param name="dailyGuidelineViolations">판정기가 확정한 지침별 위반값.</param>
+    /// <param name="moralityEvaluation">확정한 도덕성 행·점수. null은 미평가다.</param>
     /// <exception cref="OverflowException">합계 범위 초과.</exception>
     internal TransactionResult(CustomerTradeOutcome outcome, long offeredTotal, IReadOnlyList<SoldItem> items,
         bool wereRestrictionsEvaluated, IReadOnlyList<SaleRestrictionViolation> violations,
         CustomerDispositionType dispositionType, CustomerAttributes customerAttributes,
         bool wereDailyGuidelinesEvaluated = false,
-        IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = null)
+        IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = null,
+        MoralityEvaluation? moralityEvaluation = null)
     {
         var copy = new List<SoldItem>(items);
         long reference = 0, cost = 0;
@@ -73,6 +79,8 @@ public readonly struct TransactionResult
         CustomerProfileValidation.ValidateAttributes(customerAttributes);
         DispositionType = dispositionType;
         CustomerAttributes = customerAttributes;
+        MoralityDataIdx = moralityEvaluation?.DataIdx;
+        MoralityDelta = moralityEvaluation?.Delta;
         bool accepted = outcome != CustomerTradeOutcome.PaymentRefused;
         SaleIncome = accepted ? offeredTotal : 0;
         CostTotal = accepted ? cost : 0;
@@ -118,6 +126,8 @@ public readonly struct TransactionResult
 
         this.SaleIncome = saleIncome;
         this.ReputationDelta = reputationDelta;
+        MoralityDataIdx = null;
+        MoralityDelta = null;
         Outcome = CustomerTradeOutcome.None;
         DispositionType = CustomerDispositionType.None;
         CustomerAttributes = CustomerAttributes.None;

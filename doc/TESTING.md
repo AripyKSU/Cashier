@@ -1,5 +1,77 @@
 # 기능 API 검증
 
+## total_merge 감독관·공용 시계 통합 (2026-09-11)
+
+- 기준: `ba368c8` + `29c1ea5`, 병합 커밋 `cb60967` 이후 공용 영업 시각·시계/배경 참조·리로드 자동 저장 제거를 포함한다. 실제 작업 폴더는 `C:/Users/PC/Projects/Cashier`, 브랜치는 `total_merge`다.
+- EditMode **224/224**, 실패·skip·미완료0. `Temp/TestResults/20260911-114517-d7cf83ef8d7f403cb6a8015fa0ee1958/EditMode.xml` 및 `.log`.
+- 최초 EditMode는224중222통과·2실패(`20260911-114341-4c25c538ff1948ef9d1e8840f6fb1a6c`). 기존 테스트의 DividerBar.barRect와 CustomerPresenter.dialogueText fixture 참조 누락을 보완했고 기대 동작 검사는 유지했다. 기존 배경 테스트는 EditMode의 명시적 preview 설정과 시계 비간섭을 검사한다.
+- 초기 PlayMode 두 실행은 각각39중38통과·1실패였다. `114517-d7cf83ef8d7f403cb6a8015fa0ee1958`는 신규 테스트에 감독관 선행 완료 fixture가 적용된 문제여서 기존 Inspector 테스트 분류에 맞췄다. `114729-a3a01256c8944b1cb7eb2b93dcf093e6`는 영업 전 remainingSeconds=0을 마감시각으로 표시하는 실제 결함이었다. 모델 초기화는 유지하고 InspectorEvent/PreOpen의 표시 비율만 시작값으로 수정했다.
+- 최종 PlayMode **39/39**, 실패·skip·미완료0. `Temp/TestResults/20260911-115006-ccc6f23dfc2941c9b49b59774d225b60/PlayMode.xml` 및 `.log`. 실제 GameUI prefab에서 감독관 중 시각 유지, 영업 시작09시·절반15시·끝21시, 일시정지와 배경 미리보기의 영업 비간섭을 검증했다.
+- 실제 Init→Hub→Main→첫날 감독관 Next→PreOpen→영업 시작→15시→마감21시→거절 거래 정산→다음날 버튼→2일차 감독관15003을 확인했다. 제품 Console Error0, 컴파일 실패 없음. 시각 중간값은 진행 API와 Pause로 고정했고 버튼 listener를 사용한 최소 실행 검증이다. 화면 증거와 사용자 확인 경계는 [작업 기록](work/inspector-events.md)을 따른다.
+- 종료 시 InitScene dirty=false, Play/compile=false, background=false, playModeStartScene=null로 복원했다. 자동 TMP fallback atlas 변화만 제거했으며 기존 사용자 폰트는 보존했다. 최종 UI/UX와 Player build는 미검증이다.
+
+## 2일차 감독관 임시 데이터 (2026-09-11)
+
+- `codex/inspector-events ad72b17` + 데이터·테스트 미커밋 변경: EditMode215/215, PlayMode38/38, 실패·skip·미완료0. 증거·보존 범위는 [작업 상태](work/inspector-events.md#2일차-등장-확인-데이터-추가-2026-09-11)를 따른다.
+- 실제 CSV15003/Text8180·8181 로드, 설비 없는 2일차 선정, 첫날·3일차 미등장, 대사·퇴장 후 PreOpen, 중복 완료·재생성 시 재등장 없음, 잔액·명성·도덕성 보존을 확인한다. 이전 2일차 직행 테스트는 감독관 완료 단계를 거쳐 기존 기능을 검증한다. 최종 2일차 화면 사용감은 사용자 확인 대상이다.
+
+## 감독관 시스템 (2026-09-10)
+
+- `codex/inspector-events`에서 EditMode215/215, 최종 PlayMode37/37, 실패·skip·미완료0. XML/log 및 초기 실패·수정 이력은 [감독관 명세 9절](INSPECTOR_SYSTEM_DRAFT.md#9-검증-결과-2026-09-10)에 기록한다.
+- 첫날/전날 구매 조건·빈 선정 캐시·중복/전날 콜백·퇴장 완료 이력, 실제 CSV·초기 덮개·오류 안내·UI 재생성/동일 root 재활성, 금액·명성·도덕성 미변경 및 기존 회귀를 검증했다.
+- 실제 Init→Main→감독관→PreOpen→영업 시작과 색·알파 중간값을 확인했고 제품 Console Error0. 전용 이미지·최종 UI/UX는 사용자 확인 대상이다. Git 통합은 수행하지 않았다.
+
+## Upgrade 통합 (2026-09-10)
+
+- 기준 `total_merge fcf1518` + `origin/Upgrade 935cf93`. EditMode **209/209**, PlayMode **34/34**, 실패·skip·미완료0.
+- XML/log: `Temp/TestResults/20260910-163420-6ec527081ca8438ab48ce405d2e0a856/EditMode.xml`, `Temp/TestResults/20260910-163516-af5b02f004c944fe8370a7ffead169bf/PlayMode.xml` 및 같은 이름의 `.log`.
+- CSV14종 로더와 지침 FK 공개 경계, 상품16종/외형45종/실사용Sprite53개, 설비11종·단계 구매 알림 예외의 잔액/보유/단계 일관성, 현재가 카드와 일일 유지비·도덕성 결과 보존을 검증했다. Resource54행은 유지한다.
+- 초기 Edit 실패: `163144-4cff8d6fa9704c34af3f6dcaff58178a` 208중5실패(신규 UI fixture 초기화·이미지 기대값), `163317-f88ce4f09b0a426088b78dde4d197db1` 209중4실패(EditMode SendMessage assertion). fixture reflection 초기화와 실제 상품 기대값으로 보정했으며 제품 assertion을 무시하지 않았다.
+- 실제 Main: `Temp/UpgradeMain-Smoke.txt`. 기본4카드 Sprite/current가격200, 단계1→3, 구매 당일 효과 잠금/다음날3효과 연결, 일일 유지비200·정산·다음날·대기열1명, 제품 Console Error0을 확인했다. 초기 probe의 잘못된 Closing→BeginSorting 호출은 정상 제출 경로로 보정한 뒤 계속 확인했다.
+- 실제 도구 드래그·청소기 흡착 감각·자동소팅9앵커 최종 배치 및 UI/UX는 사용자 수동 확인 대상이다. 지침 거래 적용·벌칙과 유지비 오류 후 복구는 미구현/별도 정책이다. 카드4종 표시 제한을 그대로 둔다.
+- 승인된 Addressables 변화는 기존 Default Local Group/Datas의 DailyGuidelineData 1개이며 총71entry(54이미지/14CSV/3scene). 새group/label은 없다. 자동 새로고침 hold 및 테스트 시작 씬 임시 변경은 복원한다.
+
+## total_merge 대기열·이미지·도덕성 통합 (2026-09-10)
+
+- EditMode187/187: `Temp/TestResults/20260910-154916-4bd90ea490c04d7c94ddeeb6e0ff7145/EditMode.xml` 및 `.log`.
+- 최종 PlayMode34/34: `Temp/TestResults/20260910-160336-90e8c723e12b4bdda3f4df1363320458/PlayMode.xml` 및 `.log`. 실패·skip·미완료0, 실제54Sprite 로드와 명성/성별교대·도덕성·큐/정산 경계 포함.
+- 최초 Play 두 실행(155547-b057d3ebc0bb46eca958db1c5b6ac2f9, 155818-1ae3bda81277406592f0c99612608c73)은 각각34중29 SetUp 실패였다. 병합 후 Editor의 오래된 Addressables 상태에 Morality CSV·54이미지 등록이 없었다. dirty group을 `Temp/MainMerge-StaleGroup.asset.txt`에 보관하고 승인된 HEAD 등록을 복원했다. 첫 ForceUpdate 코드는 namespace 오류로 실행되지 않았으며 이후 정확한 import로 실제 메모리70entries/54images/Morality Datas 라벨을 확인했다. 제품 오류 검증을 완화하지 않았다.
+- 등록 복원 후160035-104e7ecdd91d4dd994c02cf9490aa3e4는33/34였다. 기존 성별교대 테스트의 1원 수락 가정만 기존 acceptedOffer helper로 수정했다. 가격민감형은 정가만 수락한다는 제품 규칙과 성별교대 assert는 보존했다. 실패 XML·로그도 Temp에 보존한다.
+- 실제 Init→Hub→Main, GameUI PreOpen/UsesCustomerQueue=true 확인. `Temp/MainQueue-Smoke.txt`: 높이430, 거래퇴장 중간색/alpha701표본·대기이탈297표본, pause 시 색/alpha/위치/시계 보존. 마감→Settlement 후 waiting/leaving/visuals0 확인. `Temp/MainQueue-Operating.png` 화면 확인, 실제 실행 Console Error0. 이 API 조작 검사는 전체 마우스 사용감이나 다음날 수동 조작 완료를 의미하지 않는다.
+- 최종 Play/compile 종료·오류0·MainScene dirty=False. 개인 씬 선택은 Use Main으로 비우고 이전 GUID는 Editor SessionState `MainMerge.PreviousLocal`에 보관했다. start scene은 InitScene, 임시 runInBackground는false로 복원했다. Local 씬·코드 hash는 사전 백업과 동일하다. Main의 추가/수정 YAML 행만 trailing whitespace를 정리했다.
+
+## 상품·외형 이미지 migration (2026-09-10)
+
+- 컴파일 오류 없음. CustomerCsvTests에 실제 CSV 두 FK·45외형·빈값/누락·표시 선택 검사를, GameSessionApiTests에 실제 Sprite54개 ResourceManager 로드를 추가했다.
+- 최초 EditMode 시작은 개인 씬 dirty gate로 거부됐다(0건/XML없음). 저장 요청도 안전 검토에서 차단됐으나 직접 승인 작업에서 백업·저장 완료 후 재개했다.
+- 최종 EditMode174/174: `Temp/TestResults/20260910-140531-7c3304297493471bb17cf481bc41c3f6/EditMode.xml`. 최종 PlayMode33/33: `Temp/TestResults/20260910-140803-fee27b1d673648d7819b27c78d3be31f/PlayMode.xml` 및 각 로그. 실패·skip·미완료0. 실제 Sprite54개 로드 포함.
+- 초기 EditMode 두 실행의 실패는 테스트 가격 공급/정상 Resource 로그 기대 누락이었다. 이후 Play3실패는 기존1프레임 초기화 가정으로, 실제 GameUI 준비까지20초 제한 대기로 수정했다. 제품 계약을 완화하지 않았다. 실패 증거는 `20260910-140305-085bf35bee744f0886f26acfca201591`, `20260910-140411-bebca359348549598a9b3b21c666e561`, `20260910-140531-7c3304297493471bb17cf481bc41c3f6`에 보존한다.
+- 최종 compile 오류 없음, Console Error4건은 기대된 알림1/ResourcePool3 실패 주입. 사용자 씬으로 복귀(dirty=False), Play 종료, 개인 playModeStartScene=InitScene 복원. 실제 화면 배치·마우스 사용감은 별도 사용자 확인 대상이다.
+- 연결·migration·UI 수동 확인 범위는 [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md)를 따른다.
+
+## 일일 도덕성 정산 검증 (2026-09-10)
+
+- EditMode 165/165, PlayMode 32/32, 실패·skip·미완료 0. 증거: `Temp/TestResults/20260910-123818-a7254722d2044b398dedfe5636e87a4c/`의 두 XML 및 로그.
+- 실제 CSV 방문의 양수·음수 소수점/0/거절, legacy null, 정산 snapshot·일일값 초기화·다음날·거래 없는 날·총누적 유지, 알림 관찰/예외, 일일 decimal overflow 사전 차단을 검사했다. overflow 사례는 누적 필드만 한계로 설정하고 실제 상품·방문 경로를 사용한다.
+- 컴파일 완료 후 기존 runner의 assembly 단위 실행을 한 차례 사용했다. 개인 시작 씬을 테스트 동안 임시 해제하고 종료 후 복원했다. UI 조작은 수행하지 않았다.
+
+## 도덕성 거래 연동 검증 (2026-09-10)
+
+- 사용자 인게임 확인 완료. 도덕성 값 변경 시 현재 값과 변화량을 출력하는 로그를 포함한다. 로그 추가 후 컴파일 오류 없음 확인; 아래 자동 테스트 결과는 로그 추가 전 실행이다.
+- 최종 EditMode `20260910-115037-ae34232897084aa784c82babd5be055a`: 165/165, 실패·skip·미완료 0. 추가된 PriceSensitive 실제 제출 경계 검사를 포함한다.
+- 최초 전체 실행 `20260910-114237-fe402f4d842447a6879f646c92d87897`은 EditMode 164건 중 기존 기대값 3건이 신규 ID·수락 상한과 달라 실패했고 PlayMode는 시작하지 않았다.
+- 수정 후 `20260910-114413-594cfc38ff1841faac99cbaa9db07d87`: EditMode 164/164 통과. PlayMode는 옛 1원 수락 가정 3건이 실패했다.
+- 제품 규칙을 유지하고 기존 테스트 입력을 성향별 수락가로 수정했다. PriceSensitive 현재가-1/동일/+1 검사는 1/1 통과했다.
+- 최종 PlayMode `20260910-114825-735336072f404f3c8bbb12cf1eda7bcd`: 30/30, 실패·skip·미완료 0. 실제 Datas 로더, decimal 누적, 정상 재정 알림 관찰값과 알림 예외 후 거래·잔고·도덕성 동시 보존을 포함한다.
+- 상세 계약은 [MORALITY_INTEGRATION.md](MORALITY_INTEGRATION.md)를 따른다. UI 노출은 구현·검증 범위가 아니다.
+
+## 대기열 진행 연결 검증 (2026-09-09)
+
+- `codex/customer-queue-scene`: EditMode 162/162, PlayMode 28/28, 실패·skip·미완료 0.
+- 증거: `Temp/TestResults/20260909-161215-f9d249073a0041899dd3ce93677922f5/`의 XML 및 로그. Temp는 Git 제외다.
+- 추가 4건은 FIFO·빈 계산대·pause, 긴 프레임 만료 우선·Closing 마지막 거래, 빈 계산대의 만료 방문 배제, 실제 GameUI 옵션·빈 화면 정리·최종 퇴장 후 정산 표시를 검증한다.
+- 테스트 중 개인 playModeStartScene을 임시 해제하고 종료 후 복원한다. 개인 씬의 실제 이동·말풍선·배치는 이번 자동 결과로 검증했다고 간주하지 않으며 사용자 확인이 남는다.
+
 Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·문구·버튼·연출은 사용자 수동 확인이며 API 통과와 분리한다.
 
 ## 실행 및 결과

@@ -2,6 +2,8 @@
 
 현재 공개 API·CSV 의미·거래 판정의 단일 상세 명세는 [CUSTOMER_INTEGRATION.md](CUSTOMER_INTEGRATION.md)다. 이 문서는 진입 안내와 과거 검증 기록만 유지한다.
 
+아래의 "현재"·"미연결"·화면 담당 클래스 표현은 작성 당시 요약으로 보존한다. 실제 작업은 해당 상세 명세와 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md), 현재 checkout을 대조해 판단하고, 과거 요약을 근거로 구현을 되돌리지 않는다.
+
 ## 현재 데이터와 실행 흐름
 
 - 외형·성향·상품·상품 분류는 각각 전용 DataTable에서 파싱하고 CustomerCatalog의 FK 검증 후 공개한다. 제거된 CustomerCsvTable<T>를 복원하지 않는다.

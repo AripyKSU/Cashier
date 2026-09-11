@@ -10,10 +10,15 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private EconomyRuntime economy;
     private DataTableManager dataTables;
     private FacilityService facilities;
+    private InspectorEventService inspectorEvents;
+
     // 화면 재진입으로 초기화하지 않는 세션 명성과 마지막 반영 표시일입니다.
     private int currentReputation;
     private int lastReputationAppliedDay;
     private ReputationLogService reputationLogService;
+    private MoralityCalculator moralityCalculator;
+    private decimal currentMorality;
+    private bool isApplyingTransaction;
 
     private readonly PriceEventScheduler priceScheduler = new PriceEventScheduler(new Random());
     private readonly DailyProductSelector dailyProductSelector = new DailyProductSelector(new Random());
@@ -26,9 +31,41 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
 
     /// <summary>현재 세션의 명성. 다음 하루는 이 값을 snapshot으로 사용한다.</summary>
     public int CurrentReputation => this.currentReputation;
+    /// <summary>게임 시작부터 반올림 없이 누적한 현재 도덕성.</summary>
+    public decimal CurrentMorality => this.currentMorality;
+    /// <summary>현재 영업일의 도덕성 변화량. 정산 후에는 0입니다.</summary>
+    public decimal DailyMoralityDelta => this.Economy.DailyAggregationService.DailyMoralityDelta;
+    /// <summary>검증된 도덕성 계산기. 손님 거래 snapshot 생성에만 사용한다.</summary>
+    internal MoralityCalculator MoralityCalculator => this.moralityCalculator
+        ?? throw new InvalidOperationException("도덕성 데이터가 초기화되지 않았습니다.");
     /// <summary>화면 전환과 무관하게 유지되는 거래·정산 명성 로그.</summary>
     public ReputationLogService ReputationLogService => this.reputationLogService
         ?? throw new InvalidOperationException("명성 세션이 초기화되지 않았습니다.");
+
+    /// <summary>화면 재생성에도 유지하는 감독관 선정·대사·완료 이력.</summary>
+    public InspectorEventService InspectorEvents => inspectorEvents
+        ?? throw new InvalidOperationException("감독관 세션이 초기화되지 않았습니다.");
+
+    /// <summary>구매 당일을 제외한 설비·단계 스냅샷으로 오늘 감독관을 한 번 선정한다.</summary>
+    /// <exception cref="InvalidOperationException">초기화 전 또는 이전 감독관 미완료.</exception>
+    internal void EnsureInspectorDay()
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        var owned = new System.Collections.Generic.List<uint>();
+        uint priorStage = 1;
+        var rows = dataTables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows;
+        foreach (var pair in FacilityActivationDays)
+        {
+            FacilityData row = rows[pair.Key];
+            // 단계는 즉시 활성화, 나머지는 익일 활성화이므로 구매일 경계가 서로 다르다.
+            bool boughtBeforeToday = row.UpgradeKind == FacilityUpgradeKind.StoreStage
+                ? pair.Value < ElapsedDays : pair.Value <= ElapsedDays;
+            if (!boughtBeforeToday) continue;
+            owned.Add(pair.Key);
+            if (row.UpgradeKind == FacilityUpgradeKind.StoreStage) priorStage = Math.Max(priorStage, row.TargetStoreStage);
+        }
+        InspectorEvents.BeginDay(checked(ElapsedDays + 1), owned, priorStage);
+    }
 
     /// <summary>날짜 완료 직후 해당 날짜의 명성을 세션에 한 번 반영한다.</summary>
     /// <param name="completedDisplayDay">완료한 1기반 표시일.</param>
@@ -121,7 +158,31 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     internal bool TryPurchaseFacility(uint facilityIdx, out FacilityPurchaseResult result)
     {
         if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        EnsureInspectorDay();
+        if (InspectorEvents.HasPending) throw new InvalidOperationException("감독관 대사·퇴장 중에는 설비를 구매할 수 없습니다.");
         return facilities.TryPurchase(facilityIdx, out result);
+    }
+
+    /// <summary>한 거래의 재정·도덕성 누적을 같은 확정 경계에서 한 번 반영한다.</summary>
+    /// <param name="transactionResult">도덕성 snapshot을 포함한 확정 거래.</param>
+    /// <returns>열린 영업일에 반영했으면 true.</returns>
+    internal bool TryApplyTransaction(TransactionResult transactionResult)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        if (isApplyingTransaction) throw new InvalidOperationException("거래 반영 중 재진입할 수 없습니다.");
+        if (!economy.DailyAggregationService.IsDayOpen) return false;
+        decimal nextMorality = checked(this.currentMorality + (transactionResult.MoralityDelta ?? 0m));
+        economy.DailyAggregationService.ValidateTransaction(transactionResult);
+        bool hasMoralityChanged = nextMorality != this.currentMorality;
+        isApplyingTransaction = true;
+        this.currentMorality = nextMorality;
+        try
+        {
+            if (hasMoralityChanged)
+                UnityEngine.Debug.Log($"[Morality] current={this.currentMorality}, delta={transactionResult.MoralityDelta}");
+            return economy.DailyAggregationService.TryApplyTransaction(transactionResult);
+        }
+        finally { isApplyingTransaction = false; }
     }
 
     /// <summary>가격 확정 이후 현재일 영업을 시작한다.</summary>
@@ -129,6 +190,8 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public void BeginTradingDay()
     {
         EnsureDailyPrices();
+        EnsureInspectorDay();
+        if (InspectorEvents.HasPending) throw new InvalidOperationException("감독관 퇴장 후 영업을 시작할 수 있습니다.");
         if (hasClosedDay || economy.QueryService.IsDayOpen) throw new InvalidOperationException("이미 시작하거나 정산한 날짜입니다.");
         economy.DailyAggregationService.BeginDay();
         radioRemainingSeconds = priceScheduler.GetRadioDelaySeconds();
@@ -189,7 +252,8 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             salesResult.Transactions,
             salesResult.DailyGuidelineViolationCount,
             salesResult.DailyGuidelinePenaltyAmount,
-            salesResult.DailyGuidelineViolations);
+            salesResult.DailyGuidelineViolations,
+            salesResult.MoralityDelta);
         LastSettlementResult = new DailySettlementResult(
             salesResult,
             maintenanceAmount,
@@ -364,8 +428,17 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
                 ?? throw new InvalidOperationException("설비 데이터 테이블이 준비되지 않았습니다.");
             if (facilityTable.Rows.Count == 0) throw new InvalidOperationException("설비 데이터가 공개되지 않았습니다.");
             this.facilities = new FacilityService(this.economy.FinanceService, facilityTable.Rows, () => this.ElapsedDays);
+            var inspectorTable = dataTableManager.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent)
+                ?? throw new InvalidOperationException("감독관 데이터 테이블이 준비되지 않았습니다.");
+            if (inspectorTable.Rows.Count == 0) throw new InvalidOperationException("감독관 데이터가 공개되지 않았습니다.");
+            this.inspectorEvents = new InspectorEventService(inspectorTable.Rows.Values);
             this.reputationLogService = new ReputationLogService(dataTableManager.Customers.Dispositions);
+            var moralityRows = new System.Collections.Generic.List<MoralityData>(
+                dataTableManager.GetDB<MoralityDataTable>(DataTableType.Morality).Rows.Values);
+            moralityRows.Sort((left, right) => left.Idx.CompareTo(right.Idx));
+            this.moralityCalculator = new MoralityCalculator(moralityRows.AsReadOnly());
             this.currentReputation = 0;
+            this.currentMorality = 0m;
             this.lastReputationAppliedDay = 0;
             this.IsInitialized = true;
             EnsureDailyPrices();
@@ -376,7 +449,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             this.economy = null;
             this.IsInitialized = false;
             this.facilities = null;
+            this.inspectorEvents = null;
             this.reputationLogService = null;
+            this.moralityCalculator = null;
             throw;
         }
     }
@@ -397,8 +472,11 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.radioPending = false;
         this.dataTables = null;
         this.facilities = null;
+        this.inspectorEvents = null;
         this.reputationLogService = null;
+        this.moralityCalculator = null;
         this.currentReputation = 0;
+        this.currentMorality = 0m;
         this.lastReputationAppliedDay = 0;
         base.OnSingletonDestroyed();
     }

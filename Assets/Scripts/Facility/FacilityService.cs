@@ -142,15 +142,16 @@ public sealed class FacilityService
         {
             // 외부 알림 전에 차감과 보유가 함께 관찰되도록 먼저 예약한다.
             activationDays.Add(facilityIdx, activationDay);
-            if (!finance.TrySpend(price, FinanceChangeReason.FacilityPurchase, out payment))
-            {
-                activationDays.Remove(facilityIdx);
-                result = new FacilityPurchaseResult(FacilityPurchaseStatus.InsufficientFunds, facilityIdx, 0, null);
-                return false;
-            }
             if (upgradeKind == FacilityUpgradeKind.StoreStage)
             {
                 CurrentStoreStage = targetStoreStage;
+            }
+            if (!finance.TrySpend(price, FinanceChangeReason.FacilityPurchase, out payment))
+            {
+                activationDays.Remove(facilityIdx);
+                CurrentStoreStage = previousStoreStage;
+                result = new FacilityPurchaseResult(FacilityPurchaseStatus.InsufficientFunds, facilityIdx, 0, null);
+                return false;
             }
             result = new FacilityPurchaseResult(FacilityPurchaseStatus.Purchased, facilityIdx, price, activationDay);
             this.PurchaseCompleted?.Invoke(new FacilityPurchaseEvent(

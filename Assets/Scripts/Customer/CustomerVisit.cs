@@ -34,6 +34,8 @@ public sealed class CustomerVisit
     private readonly Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions;
     /// <summary>제출 시 한 번 조회하는 정식 일일지침 공급자. 방문은 세션 상태의 수명을 소유하지 않습니다.</summary>
     private readonly Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines;
+    /// <summary>검증된 데이터로 제출 snapshot을 한 번 평가한다. null은 도덕성 미연결.</summary>
+    private readonly MoralityCalculator moralityCalculator;
     private bool isSubmitting;
     /// <summary>생성 시 선택한 수락 대사.</summary>
     private readonly uint regularSaleTextIdx;
@@ -117,14 +119,14 @@ public sealed class CustomerVisit
     /// <param name="getSaleRestrictions">구형 판매 제한 조회. null은 미연결.</param>
     /// <param name="getDailyGuidelines">정식 일일지침 조회. null은 미연결.</param>
     /// <param name="availableProductIds">생성일의 활성·등장·설비 조건을 통과한 전체 상품 PK.</param>
+    /// <param name="moralityCalculator">제출 시 사용할 도덕성 계산기. null은 미평가다.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
         int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
-        Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines,
-        IEnumerable<uint> availableProductIds)
+        IEnumerable<uint> availableProductIds, Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines, MoralityCalculator moralityCalculator = null)
     {
         if (getSaleRestrictions != null && getDailyGuidelines != null)
             throw new ArgumentException("구형 판매 제한과 정식 일일지침을 동시에 연결할 수 없습니다.");
@@ -152,6 +154,7 @@ public sealed class CustomerVisit
         this.availableProductIds = new HashSet<uint>(availableProductIds);
         this.getSaleRestrictions = getSaleRestrictions;
         this.getDailyGuidelines = getDailyGuidelines;
+        this.moralityCalculator = moralityCalculator;
     }
 
     /// <summary>입장 피드백을 표시한 뒤 한 번만 가격 제안 대기로 전환한다.</summary>
@@ -247,8 +250,10 @@ public sealed class CustomerVisit
                 reference = checked(reference + (long)price * pair.Value);
             }
             long allowed = checked((long)decimal.Floor((decimal)reference * PriceTolerance / 1000m));
+            bool priceSensitiveRejected = DispositionType == CustomerDispositionType.PriceSensitive &&
+                (decimal)offeredTotal * 1000m != (decimal)reference * 1000m;
             bool belowMinimum = (decimal)offeredTotal * 1000m < (decimal)reference * MinimumPriceTolerance;
-            var outcome = belowMinimum || offeredTotal > allowed ? CustomerTradeOutcome.PaymentRefused
+            var outcome = belowMinimum || offeredTotal > allowed || priceSensitiveRejected ? CustomerTradeOutcome.PaymentRefused
                 : (decimal)offeredTotal * 1000m < (decimal)reference * RegularPriceMinRate ? CustomerTradeOutcome.DiscountSale
                 : (decimal)offeredTotal * 1000m > (decimal)reference * RegularPriceMaxRate ? CustomerTradeOutcome.ExploitativeSale
                 : CustomerTradeOutcome.RegularSale;
@@ -262,6 +267,8 @@ public sealed class CustomerVisit
                     Attributes,
                     sold)
                 : Array.Empty<DailyGuidelineViolation>();
+            MoralityEvaluation? morality = this.moralityCalculator?.Calculate(DispositionType, Attributes,
+                outcome != CustomerTradeOutcome.PaymentRefused, offeredTotal, reference);
             var result = new TransactionResult(
                 outcome,
                 offeredTotal,
@@ -271,7 +278,8 @@ public sealed class CustomerVisit
                 DispositionType,
                 Attributes,
                 wereDailyGuidelinesEvaluated,
-                dailyGuidelineViolations);
+                dailyGuidelineViolations
+                , morality);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;

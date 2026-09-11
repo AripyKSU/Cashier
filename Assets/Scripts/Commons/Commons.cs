@@ -26,6 +26,8 @@ public enum DataTableType : uint
     ReputationBalance = 11,
     Facility = 12,
     DailyGuideline = 13,
+    Morality = 14,
+    InspectorEvent = 15,
     DataTableType_End
 }
 

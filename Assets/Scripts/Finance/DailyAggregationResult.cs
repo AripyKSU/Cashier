@@ -125,6 +125,9 @@ public readonly struct DailyAggregationResult
     /// <summary>대상 물품과 손님 조건까지 동일한 지침별 위반 집계입니다.</summary>
     public IReadOnlyList<DailyGuidelineViolationSummary> DailyGuidelineViolationSummaries { get; }
 
+    /// <summary>정산 시 확정된 하루 도덕성 변화량입니다.</summary>
+    public decimal MoralityDelta { get; }
+
     /// <summary>하루 동안 접수된 성공·거절 거래 snapshot입니다.</summary>
     public IReadOnlyList<TransactionResult> Transactions { get; }
 
@@ -135,6 +138,7 @@ public readonly struct DailyAggregationResult
     /// <param name="expenses">하루 종료 시 차감된 유지비입니다.</param>
     /// <param name="reputationDelta">기존 호환용 하루 명성 변화량입니다.</param>
     /// <param name="transactions">하루 동안 접수된 거래 snapshot입니다.</param>
+    /// <param name="moralityDelta">하루 동안 누적된 도덕성 변화량입니다.</param>
     /// <param name="dailyGuidelineViolationCount">정식 일일지침 위반 건수입니다.</param>
     /// <param name="dailyGuidelinePenaltyAmount">실제 차감 전 지침 벌금 예정액입니다.</param>
     /// <param name="dailyGuidelineViolations">정산 표시용 지침 위반 내역입니다.</param>
@@ -145,7 +149,8 @@ public readonly struct DailyAggregationResult
         IReadOnlyList<TransactionResult> transactions,
         int dailyGuidelineViolationCount = 0,
         long dailyGuidelinePenaltyAmount = 0,
-        IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = null)
+        IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = null,
+        decimal moralityDelta = 0m)
     {
         if (dailyGuidelineViolationCount < 0)
             throw new ArgumentOutOfRangeException(nameof(dailyGuidelineViolationCount));
@@ -176,6 +181,7 @@ public readonly struct DailyAggregationResult
         this.Expenses = expenses;
         this.NetProfit = checked(saleIncome - expenses);
         this.ReputationDelta = reputationDelta;
+        this.MoralityDelta = moralityDelta;
         this.DailyGuidelineViolationCount = dailyGuidelineViolationCount;
         this.DailyGuidelinePenaltyAmount = dailyGuidelinePenaltyAmount;
         this.DailyGuidelineViolations = violationCopy.AsReadOnly();

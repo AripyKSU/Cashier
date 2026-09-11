@@ -1,5 +1,27 @@
 # MainScene 진행·세션 API 통합
 
+## 감독관·공용 영업 시각 통합 (2026-09-11)
+
+통합 기준: `total_merge ba368c8` + `codex/inspector-events 29c1ea5`. 아래는 사용자가 승인한 병합 계약이며 실제 검증 상태는 [작업 기록](work/inspector-events.md)을 따른다. 아래 과거 통합 절의 09~20시 표기는 당시 기록이다.
+
+- 최신 total_merge의 화면 배치·시간대 배경·말풍선·착지/쏟기·진공관·설비 상점을 유지하고 감독관 독립 패널과 초기 준비 가림을 연결한다. 첫날·2일차 임시 대사·3단계 구매 다음날 조건과 세션 완료 이력은 [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)를 따른다.
+- 게임 속 영업 시각은 `BusinessHours.OpenHour=9`, `CloseHour=21`, `OpenMinutes=540`, `CloseMinutes=1260`, `DurationMinutes=720`을 공통으로 사용한다. 분 값은 시각에서 계산하며 별도 조정값으로 저장하지 않는다.
+- 실제 영업 제한시간은 기존 DayProgress 기본30초와 생성자 입력을 유지한다. 게임 속12시간을 실제12시간 또는72초로 바꾸는 작업이 아니다.
+- DayProgress의 남은 시간 비율이 표시 시각의 기준이다. `OpenMinutes + floor(DurationMinutes × 경과비율)`로 환산해 시작09:00·절반15:00·끝21:00을 표시한다. MainScene의 BusinessClock은 별도 카운트나 마감 상태를 진행 시스템에 되먹이지 않는다.
+- 감독관·영업 전에는 영업 시간이 시작하지 않는다. 이때 아직0인 remainingSeconds를 마감으로 환산하지 않고 시작09:00으로 표시한다. 일시정지·Closing·정산에서는 모델 시간이 더 진행하지 않으며 시계와 시간대 배경도 이 상태를 따른다.
+- 배경의 시작·끝은 공용 영업 시각, 낮·석양·야간 중간 전환값은 기존 연출 조정값이다. 테스트용 미리보기는 표현값만 바꾸고 실제 영업 시간이나 통합 플레이의 표시 시계를 덮어쓰지 않는다.
+- 기존 prefab의 시작·마감 값과 자동 시작, 누락된 clock 참조는 같은 변경에서 정리한다. field 기본값 교체만으로 이전 직렬화 값이 이관되었다고 판단하지 않는다.
+- 편집기 리로드마다 자동 실행되던 `AutoSaleSortingPrefabUpdater`는 제거한다. 브랜치 전환 후 구형 import 상태로 최신 prefab을 저장하며 참조가 유실되는 경로를 차단한다. `SaleSortingPrefabSetup`의 명시적 수동 메뉴는 유지한다.
+
+## Upgrade 통합 (2026-09-10)
+
+- `Upgrade 935cf93`의 상품16종·설비11종·일일 유지비·지침 표시·막대/소팅/청소기를 `total_merge fcf1518`의 이미지·도덕성·대기열과 통합했다. 기존 MainScene 인스턴스 및 Local 원본은 보존하고 공유 GameUI의 새 참조를 연결했다.
+- 영업 전 카드는 Controller → 기존 factory → PreOpenPanelPresenter 경로 하나로 현재가·활성 설비·Sprite를 받는다. 최대4종 표시 제한은 유지한다. 5종 이상 해금 시 모든 상품을 표시하는 UI 확장은 미구현이다.
+- BusinessClock은 DayProgress의 남은 시간 비율을 09:00~20:00으로 표시하며 자체66초 카운트는 사용하지 않는다. 영업 시간·pause·Closing 권위는 변경하지 않았다.
+- DailyGuidelineData는 PK/날짜 중복 및 Text/Product FK를 검증한 뒤 공개한다. 현재 지침 문구 표시만 연결되며 SaleRestriction으로 변환해 거래에 공급하거나 벌칙을 적용하는 기능은 미연결이다.
+- 일일 정산의 Expenses/NetProfit과 Transactions/MoralityDelta를 함께 보존한다. 유지비 부족 시 집계가 먼저 종료·초기화되는 것은 Upgrade 원본 동작이며 자동 재시도/복구는 추가하지 않았다. 부족·알림 예외 후 정상 재개 정책은 별도 설계가 필요하다.
+- 실제 Main smoke: 기본4카드 Sprite·통조림 현재가200, 가게1→3단계, 당일 효과 잠금→다음날3효과 활성, 유지비200·정산·2일차 대기열1명 확인. 막대/청소기 실제 드래그 감각과 최종 배치는 사용자 수동 확인 대상이다. 증거와 미검증 범위는 [TESTING.md](TESTING.md).
+
 기준: 2026-09-09, `total_merge`에 설비 `65888e1`과 명성 `6976218`을 통합. 원본 브랜치는 보존하고 push는 별도다. MainScene에 공유 GameUI prefab·Camera·InputSystem EventSystem을 연결했다. 개인 Local 코드·씬은 포함하지 않는다.
 
 ## 현재 호출 경로
@@ -74,3 +96,11 @@ CurrentDay는 별도 저장/증가하지 않는다. CompleteDay 이후 새 날�
 개별 UI 검사 셸은 제거했다. 새 Play 세션에서 Init → MainScene 로딩 후 위 사용법을 수동으로 수행하고 입장·4단계 판정·입금 1회·퇴장/FIFO·일일 종료·다음 날 진행을 확인한다. 최종 목록 선택 UI는 미구현이라 현재는 최초 희망 목록을 제출한다. API 검사는 [TESTING.md](TESTING.md)를 따르며 MainScene 직렬화 연결·버튼·표시 성공을 대신하지 않는다.
 
 이전 통합 기록에서는 당시 셸 검사와 컴파일, Console 오류·경고 0을 확인했다. Player 빌드, 저장 복구, 상납금 전체 회차 UI 검증은 미실행이다. MainScene 직접 Play 대신 Init 진입을 사용한다.
+# MainScene 대기열 통합 (2026-09-10)
+
+- InitScene → HubScene → MainScene으로 실행한다. `Cashier/Gameplay Scene Settings`의 `Use MainScene`으로 개인 씬 선택을 비운다. 개인 씬 파일은 삭제하지 않는다.
+- MainScene GameUI 인스턴스의 `useCustomerQueue=true`. 별도 `Customer Queue`의 `CustomerQueueView`가 실제 DayProgress를 관찰하며 모델·금액·방문 시계는 변경하지 않는다.
+- `AstraFrontView/Customer/QueueRoot`에 FIFO 슬롯10개와 입장·좌우 퇴장 anchor가 있다. 기존 CustomerPresenter는 계산대 대사·장바구니를 계속 담당하고 외형 Image 렌더만 QueueView가 대체한다.
+- 현재·대기 손님은 높이430/aspect 보존, 하단 기준 호흡과 cover12px를 사용한다. 이동0.65초, 퇴장은 기존 QueueExitSeconds(0.45초) 동안 이미지 검정 전환과 전체 alpha fade를 적용한다. pause·다음날·비활성화 시 기존 수명 규칙을 따른다.
+- 공유 Scene/코드는 Local 경로나 Local 컴포넌트를 참조하지 않는다. Local 원본은 이전 실험 버전으로 보존하며 공유 변경에 자동 동기화되지 않는다.
+- 확인 시나리오: 영업 시작→손님 및 대기열 생성→재촉/이탈→가격 제안·거래 퇴장→pause/resume→마감 후 정산. 실제 수행 결과는 TESTING.md에 기록하며 API 테스트와 화면 사용감 검증은 구분한다.

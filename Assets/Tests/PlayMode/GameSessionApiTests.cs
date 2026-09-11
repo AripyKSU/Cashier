@@ -25,6 +25,13 @@ public sealed class GameSessionApiTests
         tables = root.AddComponent<DataTableManager>(); yield return wait(tables.EnsureDataLoadedAsync().AsTask());
         session = root.AddComponent<GameSessionManager>(); session.InitializeNewGame(tables);
         Assert.That(session.IsInitialized); Assert.That(session.ElapsedDays, Is.Zero);
+        // 기존 회귀도 실제 첫날 대사/퇴장 API를 완료하고 시작한다. 감독관 자체 검사는 아래 별도 사례에서 수행한다.
+        if (!TestContext.CurrentContext.Test.Name.StartsWith("Inspector", StringComparison.Ordinal))
+        {
+            var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+            progress.Start();
+            completeInspectors(progress);
+        }
     }
 
     /// <summary>테스트 소유 객체를 제거한다. 사용자 씬·prefs·저장 파일은 접근하지 않는다.</summary>
@@ -37,6 +44,25 @@ public sealed class GameSessionApiTests
         LogAssert.NoUnexpectedReceived();
     }
 
+    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 53개를 실제 ResourceManager로 로드한다.</summary>
+    /// <returns>Addressables 로드 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator ActualProductAndCustomerSpritesLoad()
+    {
+        var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+        var ids = tables.Customers.Appearances.Rows.Values.Select(x => x.ImageResourceIdx)
+            .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
+            .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
+        Assert.That(ids.Length, Is.EqualTo(53));
+        foreach (var id in ids)
+        {
+            var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(id)).AsTask();
+            yield return wait(task);
+            Assert.That(task.Result, Is.Not.Null, $"Sprite FK {id}");
+            Assert.That(task.Result.rect.width, Is.GreaterThan(0));
+        }
+    }
+
     /// <summary>라디오는 입장/일시정지에 방송하지 않고 영업 후 60초 안에 한 번만 방송한다.</summary>
     [Test]
     public void RadioTimingPauseAndCloseCancellation()
@@ -46,6 +72,8 @@ public sealed class GameSessionApiTests
         Assert.That(session.AdvanceTradingTime(60, true), Is.False); Assert.That(session.DailyPrices, Is.SameAs(before));
         Assert.That(session.AdvanceTradingTime(60, false)); Assert.That(session.AdvanceTradingTime(60, false), Is.False);
         session.EndTradingDay(); session.CompleteDay(0); var day1 = session.EnsureDailyPrices();
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); completeInspectors(progress);
         session.BeginTradingDay(); session.EndTradingDay(); Assert.That(session.AdvanceTradingTime(60, false), Is.False);
         Assert.That(session.DailyPrices, Is.SameAs(day1)); Assert.That(day1.IsRadioBroadcast, Is.False);
     }
@@ -156,7 +184,10 @@ public sealed class GameSessionApiTests
         for (int i = 0; i < 3; i++)
         {
             CustomerVisit visit = progress.CurrentDayProgress.CurrentVisit;
-            Assert.That(progress.SubmitOffer(1, visit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray()), Is.True);
+            var saleItems = visit.Items.Select(item => new SaleItem(item.ProductIdx, item.Quantity)).ToArray();
+            // 성별 교대 검사는 기존 수락가 helper로 거래한다. 1원은 가격 민감형이 거절한다.
+            long offered = acceptedOffer(visit, saleItems);
+            Assert.That(progress.SubmitOffer(offered, saleItems), Is.True);
             progress.CompleteTransactionResult();
             progress.BeginCustomerSorting();
             CustomerAttributes nextGender = progress.CurrentDayProgress.CurrentVisit.Attributes &
@@ -164,6 +195,142 @@ public sealed class GameSessionApiTests
             Assert.That(nextGender, Is.Not.EqualTo(gender));
             gender = nextGender;
         }
+    }
+
+    /// <summary>소수 도덕성을 거래마다 한 번 누적하고 재정 알림 시 세 상태가 함께 확정됐는지 확인한다.</summary>
+    [Test]
+    public void ProgressAccumulatesDecimalMoralityAndPreservesItAcrossProgressObjects()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        for (int index = 0; index < 4; index++)
+        {
+            CustomerVisit visit = generateAdultNormalWithMorality(index);
+            visit.BeginOffer();
+            typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+            progress.BeginCustomerSorting();
+            var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long reference = items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
+            long offered = checked((reference * 1001 + 999) / 1000);
+            bool observed = false;
+            Action<FinanceChangeResult> observer = _ =>
+            {
+                observed = true;
+                Assert.That(session.CurrentMorality, Is.EqualTo(-0.25m * (index + 1)));
+                Assert.That(session.DailyMoralityDelta, Is.EqualTo(session.CurrentMorality));
+                Assert.That(session.Economy.DailyAggregationService.DailyTransactionCount, Is.EqualTo(index + 1));
+            };
+            session.Economy.FinanceService.BalanceChanged += observer;
+            Assert.That(progress.SubmitOffer(offered, items));
+            session.Economy.FinanceService.BalanceChanged -= observer;
+            Assert.That(observed);
+            Assert.That(visit.Result.Value.MoralityDataIdx, Is.EqualTo(14004));
+            Assert.That(visit.Result.Value.MoralityDelta, Is.EqualTo(-0.25m));
+            progress.CompleteTransactionResult();
+        }
+        Assert.That(session.CurrentMorality, Is.EqualTo(-1m));
+        _ = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
+        Assert.That(session.CurrentMorality, Is.EqualTo(-1m));
+    }
+
+    /// <summary>실제 양음수·0·거절 거래를 정산하고 다음날에도 총누적과 이전 snapshot을 보존한다.</summary>
+    [Test]
+    public void DailyMoralitySettlementResetsOnlyDailyTotal()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        decimal[] deltas = { 0.5m, 0m, -0.25m, -2m };
+        decimal expected = 0m;
+        for (int i = 0; i < deltas.Length; i++)
+        {
+            var visit = generateAdultNormalWithMorality(i + 50);
+            visit.BeginOffer();
+            typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+            progress.BeginCustomerSorting();
+            var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long reference = items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
+            long offered = i == 0 ? reference - 1 : i == 1 ? reference : i == 2 ? reference + 1 : long.MaxValue;
+            Assert.That(progress.SubmitOffer(offered, items), Is.EqualTo(i != 3));
+            Assert.That(visit.Result.Value.MoralityDelta, Is.EqualTo(deltas[i]));
+            expected += deltas[i];
+            Assert.That(session.DailyMoralityDelta, Is.EqualTo(expected));
+            Assert.That(session.CurrentMorality, Is.EqualTo(expected));
+            progress.CompleteTransactionResult();
+        }
+        // 기존 재정 전용 결과의 미평가 null은 일일값을 바꾸지 않는다.
+        Assert.That(session.Economy.DailyAggregationService.TryApplyTransaction(new TransactionResult(0, 0)));
+        session.EndTradingDay(out var result);
+        Assert.That(result.MoralityDelta, Is.EqualTo(expected));
+        Assert.That(result.Expenses, Is.GreaterThan(0));
+        Assert.That(result.NetProfit, Is.EqualTo(result.SaleIncome - result.Expenses));
+        Assert.That(session.DailyMoralityDelta, Is.Zero);
+        Assert.That(session.CurrentMorality, Is.EqualTo(expected));
+        session.CompleteDay(0);
+        var nextProgress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        nextProgress.Start(); completeInspectors(nextProgress);
+        session.BeginTradingDay();
+        Assert.That(session.DailyMoralityDelta, Is.Zero);
+        session.EndTradingDay(out var emptyDay);
+        Assert.That(emptyDay.MoralityDelta, Is.Zero);
+        Assert.That(result.MoralityDelta, Is.EqualTo(expected));
+        Assert.That(session.CurrentMorality, Is.EqualTo(expected));
+    }
+
+    /// <summary>일일 decimal 한계에서 실패하면 총누적·잔고·거래 기록을 변경하지 않는다.</summary>
+    [Test]
+    public void DailyMoralityOverflowPreventsSessionMutation()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        var visit = generateAdultNormalWithMorality(80);
+        visit.BeginOffer();
+        typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+        progress.BeginCustomerSorting();
+        var aggregation = session.Economy.DailyAggregationService;
+        typeof(DailyAggregationService).GetField("dailyMoralityDelta", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).SetValue(aggregation, decimal.MaxValue);
+        long balance = session.Economy.QueryService.CurrentBalance;
+        var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        Assert.Throws<OverflowException>(() => progress.SubmitOffer(1, items));
+        Assert.That(session.CurrentMorality, Is.Zero);
+        Assert.That(session.DailyMoralityDelta, Is.EqualTo(decimal.MaxValue));
+        Assert.That(aggregation.DailyTransactionCount, Is.Zero);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+    }
+
+    /// <summary>재정 알림 실패에도 잔고·거래 기록·도덕성을 함께 보존하고 같은 방문 재제출을 막는다.</summary>
+    [Test]
+    public void FinanceNotificationFailurePreservesMoralityAndTransactionSnapshot()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); progress.OpenBusiness();
+        CustomerVisit visit = generateAdultNormalWithMorality(10);
+        visit.BeginOffer();
+        typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic).SetValue(progress.CurrentDayProgress, visit);
+        progress.BeginCustomerSorting();
+        var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        long reference = items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
+        long offered = checked((reference * 1001 + 999) / 1000);
+        long balance = session.Economy.QueryService.CurrentBalance;
+        Action<FinanceChangeResult> failure = _ => throw new InvalidOperationException("morality notification failure");
+        session.Economy.FinanceService.BalanceChanged += failure;
+        Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(offered, items));
+        session.Economy.FinanceService.BalanceChanged -= failure;
+        Assert.That(session.CurrentMorality, Is.EqualTo(-0.25m));
+        Assert.That(session.DailyMoralityDelta, Is.EqualTo(-0.25m));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + offered));
+        Assert.That(session.Economy.DailyAggregationService.DailyTransactionCount, Is.EqualTo(1));
+        Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(offered, items));
     }
 
     /// <summary>준비된 지침 방문을 진행 경계에 넣어 위반 snapshot이 정산 이후에도 보존되는지 검사한다.</summary>
@@ -294,14 +461,25 @@ public sealed class GameSessionApiTests
         progress.Start(); progress.OpenBusiness();
         var day = progress.CurrentDayProgress;
         long balance = session.Economy.QueryService.CurrentBalance;
+        long acceptedIncome = 0;
         for (int index = 0; index < 5; index++)
         {
+            CustomerVisit normal = generateAdultNormalWithMorality(index + 30);
+            normal.BeginOffer();
+            typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic).SetValue(day, normal);
             progress.BeginCustomerSorting();
-            Assert.That(progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()));
+            var items = day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long offered = acceptedOffer(day.CurrentVisit, items);
+            Assert.That(progress.SubmitOffer(offered, items));
+            acceptedIncome += offered;
             progress.CompleteTransactionResult();
         }
         progress.Tick(day.BusinessDurationSeconds);
+        decimal moralityBeforeRefusal = session.CurrentMorality;
         Assert.That(progress.SubmitOffer(long.MaxValue, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
+        Assert.That(day.CurrentVisit.Result.Value.MoralityDelta.HasValue);
+        Assert.That(session.CurrentMorality, Is.EqualTo(moralityBeforeRefusal + day.CurrentVisit.Result.Value.MoralityDelta.Value));
         progress.CompleteTransactionResult();
         Assert.That(day.AggregationResult.Value.Transactions.Count, Is.EqualTo(6));
         Assert.That(day.AggregationResult.Value.Transactions.Last().Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
@@ -311,7 +489,7 @@ public sealed class GameSessionApiTests
         int delta = day.DailyReputationResult.Value.FinalDelta;
         Assert.That(delta, Is.GreaterThan(0));
         Assert.That(progress.TryPurchaseFacility(12001, out var purchase));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + 5 - 200 - purchase.PaidAmount));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + acceptedIncome - day.AggregationResult.Value.Expenses - purchase.PaidAmount));
         Assert.That(progress.CurrentReputation, Is.Zero);
         Assert.That(session.IsFacilityActive(12001), Is.False);
         progress.CompleteSettlement();
@@ -329,6 +507,93 @@ public sealed class GameSessionApiTests
         Assert.That(reentered.CurrentReputation, Is.EqualTo(delta));
         Assert.That(reentered.CurrentDayProgress.DayStartReputation, Is.EqualTo(delta));
         Assert.That(reentered.ReputationLogService, Is.SameAs(progress.ReputationLogService));
+    }
+
+    /// <summary>대기열은 Visit 정체성을 유지하고 빈 계산대에서 새 방문을 즉석 생성하지 않는다.</summary>
+    [Test]
+    public void QueueProgressFifoEmptyCounterAndPause()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 90, true);
+        progress.Start(); progress.OpenBusiness();
+        var day = progress.CurrentDayProgress;
+        Assert.That(day.UsesCustomerQueue);
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+        Assert.That(day.WaitingCustomers, Is.Empty);
+        progress.BeginCustomerSorting();
+        var first = day.CurrentVisit;
+        progress.SubmitOffer(1, first.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(first.State, Is.EqualTo(CustomerState.Departed));
+        Assert.That(day.CurrentVisit, Is.Null);
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Operating));
+        progress.Pause(); progress.Tick(50);
+        Assert.That(day.CurrentVisit, Is.Null); Assert.That(day.WaitingCustomers, Is.Empty);
+        progress.Resume(); progress.Tick(5);
+        Assert.That(day.CurrentVisit, Is.Not.Null);
+        var counter = day.CurrentVisit;
+        progress.Tick(5);
+        var queued = day.WaitingCustomers[0].Visit;
+        progress.BeginCustomerSorting();
+        progress.SubmitOffer(1, counter.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(day.CurrentVisit, Is.SameAs(queued));
+        Assert.That(day.WaitingCustomers, Is.Empty);
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+        Assert.Throws<InvalidOperationException>(() => progress.CompleteTransactionResult());
+        progress.Tick(20);
+        Assert.That(day.CurrentVisit, Is.SameAs(queued));
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+    }
+
+    /// <summary>긴 프레임은 만료를 먼저 확정하며 계산대 인계와 마감 시 새 거래를 만들지 않는다.</summary>
+    [Test]
+    public void QueueProgressExpiryHitchAndClosing()
+    {
+        foreach (var disposition in tables.Customers.Dispositions.Rows.Values) disposition.QueuePatienceSeconds = 9;
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 30, true);
+        progress.Start(); progress.OpenBusiness(); progress.Tick(5);
+        var day = progress.CurrentDayProgress;
+        var expired = day.WaitingCustomers[0].Visit;
+        progress.BeginCustomerSorting();
+        progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.Tick(9); // 5초 입장자는 14초에 만료한다.
+        Assert.That(expired.State, Is.EqualTo(CustomerState.Abandoned));
+        Assert.That(expired.Result.HasValue, Is.False);
+        var next = day.WaitingCustomers[0].Visit;
+        progress.CompleteTransactionResult();
+        Assert.That(day.CurrentVisit, Is.SameAs(next));
+        Assert.That(day.CurrentVisit, Is.Not.SameAs(expired));
+        Assert.That(day.DepartedCustomers, Is.EqualTo(1));
+        progress.Tick(1000);
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Closing));
+        Assert.That(day.WaitingCustomers, Is.Empty); Assert.That(day.LeavingCustomers, Is.Empty);
+        Assert.That(day.CurrentVisit, Is.SameAs(next));
+        var nextItems = next.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        Assert.That(progress.SubmitOffer(acceptedOffer(next, nextItems), nextItems));
+        progress.CompleteTransactionResult();
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
+        Assert.That(day.AggregationResult.Value.Transactions.Count, Is.EqualTo(2));
+        Assert.That(progress.ReputationLogService.TransactionEntries.Count, Is.EqualTo(2));
+    }
+
+    /// <summary>긴 빈 계산대 프레임에서는 프레임 종료 시 살아 있는 맨 앞만 인계한다.</summary>
+    [Test]
+    public void QueueEmptyCounterHitchSkipsExpiredArrivals()
+    {
+        foreach (var disposition in tables.Customers.Dispositions.Rows.Values) disposition.QueuePatienceSeconds = 9;
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 90, true);
+        progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
+        progress.SubmitOffer(1, progress.CurrentDayProgress.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult(); progress.Tick(20);
+        var day = progress.CurrentDayProgress;
+        Assert.That(day.DepartedCustomers, Is.EqualTo(2));
+        Assert.That(day.LeavingCustomers.All(x => x.Visit.State == CustomerState.Abandoned));
+        Assert.That(day.CurrentVisit.State, Is.EqualTo(CustomerState.AwaitingOffer));
+        Assert.That(day.WaitingCustomers.Count, Is.EqualTo(1));
+        Assert.That(day.LeavingCustomers.All(x => !ReferenceEquals(x.Visit, day.CurrentVisit)));
     }
 
     /// <summary>진행 Tick의 pause와 방송, 방문 snapshot 및 제출 단가의 동일 원본을 검사한다.</summary>
@@ -448,8 +713,11 @@ public sealed class GameSessionApiTests
         var expected = new uint[] { 1001, 1004, 1007, 1010, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        completeInspectors(progress);
         progress.OpenBusiness(); progress.BeginCustomerSorting();
-        Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(1020, 1) }));
+        var facilityItems = new[] { new SaleItem(1020, 1) };
+        Assert.That(progress.SubmitOffer(acceptedOffer(progress.CurrentDayProgress.CurrentVisit, facilityItems), facilityItems));
         // 표현/진행 객체 수명이 바뀌어도 보유는 세션에 남는다. 실제 씬은 수정하지 않는다.
         var nextProgress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(3));
@@ -471,6 +739,234 @@ public sealed class GameSessionApiTests
     }
 
 #if UNITY_EDITOR
+    /// <summary>실제 UI의 시계와 배경은 DayProgress를 따르며 테스트 배경 시각은 영업 시간을 바꾸지 않는다.</summary>
+    /// <returns>실제 prefab 초기화 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorMainClockFollowsDayProgressAndPreviewCannotAdvanceBusiness()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        var clock = uiReference<BusinessClockController>(ui, "businessClock");
+        Assert.That(clock, Is.Not.Null);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        float beforeOpeningRemaining = progress.CurrentDayProgress.RemainingSeconds;
+        progress.Tick(60f);
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.OpenMinutes));
+        Assert.That(progress.CurrentDayProgress.RemainingSeconds, Is.EqualTo(beforeOpeningRemaining));
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.OpenMinutes));
+        var day = progress.CurrentDayProgress;
+        Assert.That(day.BusinessDurationSeconds, Is.EqualTo(30f));
+        progress.Tick(15f);
+        var refresh = typeof(GameUIController).GetMethod("refreshFrameViews", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        refresh.Invoke(ui, null);
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
+        Assert.That(clock.IsRunning, Is.False);
+        progress.Pause();
+        progress.Tick(10f);
+        refresh.Invoke(ui, null);
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
+        Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
+        progress.Resume();
+        var background = ui.GetComponentInChildren<TimeOfDayUIController>(true);
+        Assert.That(background.BusinessClock, Is.SameAs(clock));
+        background.RefreshTime();
+        Assert.That(background.CurrentAppliedHour, Is.EqualTo(15f));
+        var settings = new UnityEditor.SerializedObject(background);
+        settings.FindProperty("debugOverrideTime").boolValue = true;
+        settings.FindProperty("debugHour").floatValue = 20f;
+        settings.FindProperty("autoAdvanceClockForTesting").boolValue = true;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        typeof(TimeOfDayUIController).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(background, null);
+        background.RefreshTime();
+        Assert.That(background.CurrentAppliedHour, Is.GreaterThanOrEqualTo(20f));
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
+        Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
+        settings.Update();
+        settings.FindProperty("debugOverrideTime").boolValue = false;
+        settings.FindProperty("autoAdvanceClockForTesting").boolValue = false;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        progress.Tick(15f);
+        refresh.Invoke(ui, null);
+        background.RefreshTime();
+        Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.CloseMinutes));
+        Assert.That(background.CurrentAppliedHour, Is.EqualTo(BusinessHours.CloseHour));
+        Assert.That(day.IsBusinessTimeExpired, Is.True);
+    }
+
+    /// <summary>실제 CSV 첫 대사·불투명 초기 덮개·입력 잠금·패널 재생성·퇴장 후 영업을 검증한다.</summary>
+    /// <returns>프리팹 초기화와 실제 페이드 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorStartupCoverDialogueRecreationAndExit()
+    {
+        long balance = session.Economy.QueryService.CurrentBalance;
+        var ui = createGameUi();
+        var cover = uiReference<CanvasGroup>(ui, "startupCover");
+        Assert.That(cover.gameObject.activeInHierarchy); Assert.That(cover.alpha, Is.EqualTo(1)); Assert.That(cover.blocksRaycasts);
+        Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled, Is.False);
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        Assert.That(cover.gameObject.activeSelf, Is.False); Assert.That(cover.blocksRaycasts, Is.False);
+        Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
+        Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
+        progress.Tick(60); Assert.That(session.Economy.QueryService.IsDayOpen, Is.False);
+        var panel = uiReference<InspectorPresenter>(ui, "inspectorPresenter");
+        var next = uiReference<UnityEngine.UI.Button>(panel, "nextButton");
+        Assert.That(next.interactable, Is.False);
+        yield return new WaitForSeconds(.5f); Assert.That(next.interactable);
+        ui.gameObject.SetActive(false); ui.gameObject.SetActive(true);
+        Assert.That(next.interactable, Is.False);
+        yield return new WaitForSeconds(.5f); Assert.That(next.interactable, "same root re-enable must resume entry");
+        var first = session.InspectorEvents.Current;
+        next.onClick.Invoke(); Assert.That(session.InspectorEvents.Current.LineIndex, Is.EqualTo(1));
+        Assert.That(progress.CurrentDayProgress.AdvanceInspector(first), Is.False);
+        UnityEngine.Object.Destroy(ui.gameObject); yield return null;
+        ui = createGameUi(); yield return waitForGameUi(ui); progress = uiProgress(ui);
+        Assert.That(session.InspectorEvents.Current.LineIndex, Is.EqualTo(1));
+        panel = uiReference<InspectorPresenter>(ui, "inspectorPresenter");
+        next = uiReference<UnityEngine.UI.Button>(panel, "nextButton");
+        yield return new WaitForSeconds(.5f);
+        for (int i=1; i<20; i++) next.onClick.Invoke();
+        Assert.That(session.InspectorEvents.Current.Phase, Is.EqualTo(InspectorEventPhase.AwaitingExit));
+        // 퇴장 중 비활성화는 세션 완료를 만들지 않는다. 새 화면이 같은 퇴장을 이어 처리한다.
+        UnityEngine.Object.Destroy(ui.gameObject); yield return null;
+        Assert.That(session.InspectorEvents.HasPending);
+        ui = createGameUi(); yield return waitForGameUi(ui);
+        yield return new WaitForSeconds(.5f);
+        Assert.That(ui.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(session.InspectorEvents.HasPending, Is.False);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        Assert.That(session.CurrentMorality, Is.Zero); Assert.That(session.CurrentReputation, Is.Zero);
+        uiProgress(ui).OpenBusiness(); Assert.That(session.Economy.QueryService.IsDayOpen);
+    }
+
+    /// <summary>실제 단계 구매가 3일차에 즉시 감독관을 추가하지 않고 4일차에 한 번 나타나는지 검사한다.</summary>
+    [Test]
+    public void InspectorPurchaseDayThreeAppearsDayFourOnce()
+    {
+        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); completeInspectors(progress);
+        for(int i=0; i<2; i++) { completeInspectors(progress); closeProgressDay(progress); progress.CompleteSettlement(); }
+        Assert.That(progress.CurrentDay, Is.EqualTo(3));
+        Assert.That(progress.TryPurchaseFacility(12008, out _)); Assert.That(progress.TryPurchaseFacility(12010, out _));
+        Assert.That(session.CurrentStoreStage, Is.EqualTo(3));
+        var reentry = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        reentry.Start(); Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        closeProgressDay(progress); progress.CompleteSettlement();
+        Assert.That(progress.CurrentDay, Is.EqualTo(4));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        Assert.That(session.InspectorEvents.Current.EventIdx, Is.EqualTo(15002));
+        long balance=session.Economy.QueryService.CurrentBalance;
+        completeInspectors(progress); Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        closeProgressDay(progress); progress.CompleteSettlement();
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+    }
+
+    /// <summary>실제 CSV/FK로 로드한 임시 이벤트가 무설비 2일차에만 등장하고 퇴장 후 정상 진행되는지 검사한다.</summary>
+    [Test]
+    public void InspectorDayTwoTemporaryEventAppearsOnceWithoutFacilities()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start(); completeInspectors(progress);
+        closeProgressDay(progress); progress.CompleteSettlement();
+        Assert.That(progress.CurrentDay, Is.EqualTo(2));
+        Assert.That(session.FacilityActivationDays, Is.Empty);
+        Assert.That(session.CurrentStoreStage, Is.EqualTo(1));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
+        var snapshot = session.InspectorEvents.Current;
+        Assert.That(snapshot.EventIdx, Is.EqualTo(15003));
+        Assert.That(snapshot.TextIdx, Is.EqualTo(8181));
+        Assert.That(snapshot.PortraitResourceIdx, Is.EqualTo(4201));
+        var text = tables.GetDB<TextDataTable>(DataTableType.Text);
+        Assert.That(text.Rows[8180].Text, Is.EqualTo("2일차 등장 확인"));
+        Assert.That(text.Rows[snapshot.TextIdx].Text, Is.EqualTo("2일차 감독관 등장 확인용 임시 대사입니다."));
+        long balance = session.Economy.QueryService.CurrentBalance;
+        decimal morality = session.CurrentMorality;
+        int reputation = session.CurrentReputation;
+        Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
+        Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot));
+        Assert.That(session.InspectorEvents.Current.Phase, Is.EqualTo(InspectorEventPhase.AwaitingExit));
+        Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
+        Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot));
+        Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot), Is.False);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        Assert.That(session.CurrentMorality, Is.EqualTo(morality));
+        Assert.That(session.CurrentReputation, Is.EqualTo(reputation));
+        var reentry = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(2));
+        reentry.Start();
+        Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        closeProgressDay(reentry); reentry.CompleteSettlement();
+        Assert.That(reentry.CurrentDay, Is.EqualTo(3));
+        Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(session.InspectorEvents.HasPending, Is.False);
+    }
+
+    /// <summary>초기화 실패 시 덮개가 입력을 계속 차단하고 오류 문구가 위에 표시되는지 검사한다.</summary>
+    /// <returns>UI 오류 처리 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorStartupFailureKeepsVisibleErrorCover()
+    {
+        var ui=createGameUi();
+        var serialized=new UnityEditor.SerializedObject(ui);
+        serialized.FindProperty("inspectorPresenter").objectReferenceValue=null;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        LogAssert.Expect(LogType.Exception, new System.Text.RegularExpressions.Regex("감독관 패널 또는 초기화 덮개 참조"));
+        float deadline=Time.realtimeSinceStartup+20;
+        var error=uiReference<TMPro.TextMeshProUGUI>(ui,"startupErrorText");
+        while(string.IsNullOrEmpty(error.text) && Time.realtimeSinceStartup<deadline) yield return null;
+        Assert.That(error.text, Does.Contain("감독관 패널")); Assert.That(error.gameObject.activeInHierarchy);
+        var cover=uiReference<CanvasGroup>(ui,"startupCover"); Assert.That(cover.alpha,Is.EqualTo(1)); Assert.That(cover.blocksRaycasts);
+        Assert.That(uiReference<GameInputRouter>(ui,"gameInputRouter").enabled,Is.False);
+    }
+
+    /// <summary>로컬 큐 옵션의 빈 계산대와 마지막 퇴장 표시 대기가 도메인 정산을 중복시키지 않는다.</summary>
+    /// <returns>UI 초기화와 표현 지연 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator QueueControllerEmptyCounterAndFinalExitPresentation()
+    {
+        var ui = createGameUi();
+        var serialized = new UnityEditor.SerializedObject(ui);
+        serialized.FindProperty("useCustomerQueue").boolValue = true;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        yield return waitForGameUi(ui);
+        var progress = uiProgress(ui);
+        var customer = uiReference<CustomerPresenter>(ui, "customerPresenter");
+        var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
+        progress.OpenBusiness();
+        progress.Pause();
+        yield return new WaitForSecondsRealtime(0.1f);
+        Assert.That(progress.CurrentDayProgress.RemainingSeconds, Is.EqualTo(30));
+        Assert.That(uiReference<UnityEngine.UI.Button>(sorting, "frontContainerButton").gameObject.activeSelf, Is.False);
+        progress.Resume();
+        progress.BeginCustomerSorting();
+        var day = progress.CurrentDayProgress;
+        progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(day.CurrentVisit, Is.Null);
+        Assert.That(uiReference<GameObject>(customer, "customerUIRoot").activeSelf, Is.False);
+        Assert.That(uiReference<UnityEngine.UI.Button>(sorting, "frontContainerButton").gameObject.activeSelf, Is.False);
+        progress.Tick(5);
+        Assert.That(day.CurrentVisit, Is.Not.Null);
+        progress.Tick(100);
+        progress.SubmitOffer(1, day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray());
+        progress.CompleteTransactionResult();
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
+        Assert.That(ui.IsSettlementPresentationPending);
+        Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf, Is.False);
+        Assert.That(uiReference<GameObject>(ui, "operatingPanel").activeSelf);
+        Assert.That(uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").gameObject.activeSelf, Is.False);
+        yield return new WaitForSeconds(ui.QueueExitSeconds + 0.1f);
+        Assert.That(ui.IsSettlementPresentationPending, Is.False);
+        Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf);
+        Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
+    }
+
     /// <summary>독립 프리팹의 반복 열기·표시 갱신은 요청을 만들지 않고 클릭만 PK를 한 번 전달한다.</summary>
     /// <returns>UI 수명과 TMP 배치 갱신 대기.</returns>
     [UnityTest]
@@ -512,7 +1008,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerPurchaseAndModalBoundaries()
     {
-        var ui = createGameUi(); yield return null;
+        var ui = createGameUi(); yield return waitForGameUi(ui);
         var progress = uiProgress(ui); var open = uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton");
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
         Assert.That(open.gameObject.activeInHierarchy, Is.False); open.onClick.Invoke(); Assert.That(panel.gameObject.activeSelf, Is.False);
@@ -543,6 +1039,7 @@ public sealed class GameSessionApiTests
         next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
         Assert.That(open.gameObject.activeInHierarchy, Is.False);
         session.Economy.FinanceService.AddIncome(1000, FinanceChangeReason.Sale);
+        completeInspectors(progress);
         closeProgressDay(progress); open.onClick.Invoke();
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Is.EqualTo("사용 중"));
     }
@@ -552,7 +1049,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerNotificationFailurePreservesPurchase()
     {
-        var ui = createGameUi(); yield return null;
+        var ui = createGameUi(); yield return waitForGameUi(ui);
         closeProgressDay(uiProgress(ui)); uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").onClick.Invoke();
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
         var row = panel.GetComponentsInChildren<FacilityItemView>()[0];
@@ -568,6 +1065,16 @@ public sealed class GameSessionApiTests
         Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
         uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke();
         Assert.That(panel.gameObject.activeSelf, Is.False); Assert.That(uiReference<CanvasGroup>(ui, "settlementInputGroup").interactable, Is.False);
+    }
+
+    /// <summary>고정 한 프레임 대신 실제 이미지 로드와 진행 초기화 완료를 기다린다.</summary>
+    /// <param name="ui">테스트 소유 화면.</param><returns>최대20초 초기화 대기.</returns>
+    private static IEnumerator waitForGameUi(GameUIController ui)
+    {
+        float deadline = Time.realtimeSinceStartup + 20;
+        while ((uiProgress(ui) == null || uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf) && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(uiProgress(ui), Is.Not.Null, "GameUI image loading/initialization timed out");
+        Assert.That(uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf, Is.False, "GameUI first binding/layout did not finish");
     }
 
     /// <summary>공유 원본을 수정하지 않고 테스트 소유 GameUI 인스턴스를 만든다.</summary>
@@ -587,6 +1094,19 @@ public sealed class GameSessionApiTests
         .GetField("gameProgress", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(ui);
 #endif
 
+    /// <summary>테스트 선행 단계도 제품 대사·퇴장 API를 통해 완료한다.</summary>
+    /// <param name="progress">시작된 진행.</param>
+    private void completeInspectors(GameProgress progress)
+    {
+        for (int guard=0; guard<100 && session.InspectorEvents.HasPending; guard++)
+        {
+            var snapshot=session.InspectorEvents.Current;
+            if(snapshot.Phase==InspectorEventPhase.Dialogue) Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot));
+            else Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot));
+        }
+        Assert.That(session.InspectorEvents.HasPending,Is.False);
+    }
+
     /// <summary>현재 진행의 마지막 손님을 거절하고 일일 집계까지 실제 API로 종료한다.</summary>
     /// <param name="progress">시작된 영업 전 진행.</param>
     private static void closeProgressDay(GameProgress progress)
@@ -604,6 +1124,33 @@ public sealed class GameSessionApiTests
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>
     /// <returns>현재일 방문.</returns>
     private CustomerVisit generate() => new CustomerGenerator(new System.Random(1)).Generate(tables.Customers.Appearances.Rows.Keys.ToArray(), tables.Customers.Dispositions.Rows.Values.ToArray(), tables.Customers.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, isFacilityActive: session.IsFacilityActive);
+
+    /// <summary>가격 민감 성향만 정확한 현재가를 사용하고 나머지는 기존 최소 제안을 유지한다.</summary>
+    /// <param name="visit">현재 방문.</param><param name="items">최종 판매 목록.</param>
+    /// <returns>현재 성향이 수락하는 제안 총액.</returns>
+    private long acceptedOffer(CustomerVisit visit, SaleItem[] items) =>
+        visit.DispositionType == CustomerDispositionType.PriceSensitive
+            ? items.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId])
+            : 1;
+
+    /// <summary>성인 평범 성향과 실제 도덕성 계산기를 갖는 방문을 생성한다.</summary>
+    /// <param name="seedOffset">반복 생성의 시작 seed.</param>
+    /// <returns>성인 평범 방문.</returns>
+    private CustomerVisit generateAdultNormalWithMorality(int seedOffset)
+    {
+        var dispositions = tables.Customers.Dispositions.Rows.Values
+            .Where(x => x.DispositionType == CustomerDispositionType.Normal).ToArray();
+        var morality = new MoralityCalculator(tables.GetDB<MoralityDataTable>(DataTableType.Morality).Rows.Values.ToList().AsReadOnly());
+        for (int seed = seedOffset; seed < seedOffset + 100; seed++)
+        {
+            CustomerVisit visit = new CustomerGenerator(new System.Random(seed)).Generate(
+                tables.Customers.Appearances.Rows.Keys.ToArray(), dispositions, tables.Customers.Products.Rows,
+                session.ElapsedDays, () => session.EnsureDailyPrices().Prices,
+                isFacilityActive: session.IsFacilityActive, moralityCalculator: morality);
+            if ((visit.Attributes & CustomerAttributes.Adult) != 0) return visit;
+        }
+        throw new InvalidOperationException("성인 테스트 방문을 생성하지 못했습니다.");
+    }
 
     /// <summary>비동기 로더가 종료되지 않거나 실패하면 실패로 보고한다.</summary>
     /// <param name="task">로더 작업.</param><returns>완료 대기.</returns>

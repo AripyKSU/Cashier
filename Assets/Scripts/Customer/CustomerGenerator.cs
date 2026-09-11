@@ -41,6 +41,8 @@ public sealed class CustomerGenerator
     /// <param name="getCurrentPrices">제출 시 최신 현재가를 조회하는 callback입니다.</param>
     /// <param name="getSaleRestrictions">구형 판매 제한을 조회하는 호환 callback입니다.</param>
     /// <param name="getDailyGuidelines">제출 시 해당 날짜의 일일지침 snapshot을 조회하는 callback입니다.</param>
+    /// <param name="getSaleRestrictions">제출 시 판매 지침을 조회하는 callback입니다.</param>
+    /// <param name="moralityCalculator">제출 시 도덕성 평가기. null이면 미평가입니다.</param>
     /// <returns>구성 snapshot을 복사한 방문 객체입니다.</returns>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentException">구성 상품 또는 현재가 참조가 잘못된 경우 발생합니다.</exception>
@@ -49,7 +51,8 @@ public sealed class CustomerGenerator
         IReadOnlyDictionary<uint, ProductData> products,
         Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions = null,
-        Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines = null)
+        Func<IReadOnlyList<DailyGuideline>> getDailyGuidelines = null,
+        MoralityCalculator moralityCalculator = null)
     {
         if (composition == null)
             throw new ArgumentNullException(nameof(composition));
@@ -105,7 +108,8 @@ public sealed class CustomerGenerator
             composition.RegularPriceMinRate,
             composition.RegularPriceMaxRate,
             getSaleRestrictions,
+            availableIds,
             getDailyGuidelines,
-            availableIds);
+            moralityCalculator);
     }
 }

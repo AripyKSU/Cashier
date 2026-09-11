@@ -25,5 +25,8 @@ public enum DayProgressState
     Settlement,
 
     /// <summary>정산 결과 확인이 끝난 하루 완료 상태입니다.</summary>
-    Completed
+    Completed,
+
+    /// <summary>영업 전에 감독관 대사와 퇴장 완료를 기다리는 상태입니다.</summary>
+    InspectorEvent
 }

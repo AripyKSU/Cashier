@@ -43,7 +43,11 @@ public sealed class CustomerCatalog
                 Categories.PendingRows == null || Products.PendingRows == null || texts.PendingRows == null)
                 throw new InvalidDataException("손님 CSV 4종과 TextData.csv가 필요합니다. Datas 라벨과 로더 등록을 확인하세요.");
             foreach (var row in Appearances.PendingRows.Values)
+            {
                 validateNameReference(texts, "CustomerAppearanceData.csv", row.Idx, row.NameIdx);
+                if (resources == null || !resources.TryGetResource(row.ImageResourceIdx, out _))
+                    throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
+            }
             foreach (var row in Dispositions.PendingRows.Values)
                 validateNameReference(texts, "CustomerDispositionData.csv", row.Idx, row.NameIdx);
             foreach (var row in Categories.PendingRows.Values)
@@ -70,6 +74,8 @@ public sealed class CustomerCatalog
                     throw new InvalidDataException($"ProductData.csv PK={row.Idx}, product_type 표시 참조 실패");
                 if (row.ImageResourceIdx.HasValue && (resources == null || !resources.TryGetResource(row.ImageResourceIdx.Value, out _)))
                     throw new InvalidDataException($"ProductData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
+                if (row.TopViewImageResourceIdx.HasValue && (resources == null || !resources.TryGetResource(row.TopViewImageResourceIdx.Value, out _)))
+                    throw new InvalidDataException($"ProductData.csv PK={row.Idx}, top_view_image_resource_idx={row.TopViewImageResourceIdx}: Resource 참조 실패");
             }
             foreach (var pair in Dispositions.PendingRows)
             {

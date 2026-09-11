@@ -123,14 +123,17 @@ public struct CustomerBasketItemViewData
     public string DisplayName;  // 표시 상품명
     public int Quantity;        // 수량
     public Sprite Icon;         // 상품 아이콘
+    /// <summary>탑뷰 분류 작업에 표시할 Sprite. 실제 데이터 경로에서는 명시적으로 전달한다.</summary>
+    public Sprite TopViewIcon;
     public int UnitPrice;       // 화면 표시용 단가
 
-    public CustomerBasketItemViewData(uint itemId, string displayName, int quantity, Sprite icon = null, int unitPrice = 0)
+    public CustomerBasketItemViewData(uint itemId, string displayName, int quantity, Sprite icon = null, int unitPrice = 0, Sprite topViewIcon = null)
     {
         this.ItemId = itemId;
         this.DisplayName = displayName;
         this.Quantity = quantity;
         this.Icon = icon;
+        this.TopViewIcon = topViewIcon ?? icon;
         this.UnitPrice = unitPrice;
     }
 }

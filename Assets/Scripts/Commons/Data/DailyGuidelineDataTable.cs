@@ -16,6 +16,9 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     private IReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData> ruleTypeDict =
         new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>());
 
+    /// <summary>전체 FK 검증을 기다리는 파싱 결과.</summary>
+    internal Dictionary<uint, DailyGuidelineData> PendingRows { get; private set; }
+
     /// <summary>검증된 전체 지침 데이터 사전입니다.</summary>
     public IReadOnlyDictionary<uint, DailyGuidelineData> Rows => this.dataDict;
 
@@ -52,6 +55,7 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     /// <exception cref="InvalidDataException">헤더, 대역, 필수값 누락 등 유효성 실패 시 발생합니다.</exception>
     public void LoadData(string csvText)
     {
+        PendingRows = null;
         using (var reader = new StringReader(csvText ?? string.Empty))
         using (var csv = new CsvReader(reader, Util.GetCsvConfiguration()))
         {
@@ -95,6 +99,7 @@ public sealed class DailyGuidelineDataTable : IDataLoad
 
                 this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(parsed);
                 this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(parsedByRuleType);
+                this.PendingRows = parsed;
             }
             catch (Exception exception)
             {
@@ -103,7 +108,28 @@ public sealed class DailyGuidelineDataTable : IDataLoad
             }
         }
 
-        Debug.Log($"[DailyGuidelineDataTable] 총 {this.dataDict.Count}개의 당일 지침 데이터 로드 완료.");
+    }
+
+    /// <summary>공개 전 새 규칙 스키마의 파싱 완료 여부를 검증한다.</summary>
+    /// <param name="texts">통합 로더 호출 순서를 유지하기 위한 인수. 새 스키마에는 Text FK가 없다.</param>
+    /// <param name="products">통합 로더 호출 순서를 유지하기 위한 인수. 대상 상품은 매일 런타임에 선택한다.</param>
+    /// <exception cref="InvalidDataException">파싱 결과가 준비되지 않은 경우.</exception>
+    public void Validate(IReadOnlyDictionary<uint, TextData> texts, IReadOnlyDictionary<uint, ProductData> products)
+    {
+        if (PendingRows == null)
+            throw new InvalidDataException("DailyGuidelineData: 파싱 결과가 필요합니다.");
+    }
+
+    /// <summary>전체 검증 성공 후 PK와 규칙 유형 조회를 함께 공개한다.</summary>
+    internal void Commit()
+    {
+        var committedRows = new Dictionary<uint, DailyGuidelineData>(PendingRows);
+        var committedRuleTypes = new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>();
+        foreach (DailyGuidelineData row in committedRows.Values)
+            committedRuleTypes.Add(row.RuleType, row);
+        this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(committedRows);
+        this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(committedRuleTypes);
+        PendingRows = null;
     }
 
     /// <summary>
@@ -113,5 +139,6 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     {
         this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(new Dictionary<uint, DailyGuidelineData>());
         this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>());
+        PendingRows = null;
     }
 }

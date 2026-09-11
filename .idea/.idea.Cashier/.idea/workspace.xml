@@ -3,18 +3,745 @@
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
-  <component name="CMakeProjectFlavorService">
-    <option name="flavorId" value="CMakePlainProjectFlavor" />
-  </component>
   <component name="CMakeSettings">
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerSandbox.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerSandbox.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/SaleItem.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/SaleItem.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Dev3SandboxTester.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Dev3SandboxTester.cs" afterDir="false" />
+    <list default="true" id="1e839742-9882-4957-acbe-3c778ffc85f6" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/.agents/rules/project.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Datas/InspectorEventData.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Datas/InspectorEventData.csv.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Datas/MoralityData.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Datas/MoralityData.csv.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/ART_PROMPTS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/ART_PROMPTS.md.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Bandage.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Bandage.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Battery.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Battery.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Can.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Can.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke0.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke1.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke2.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/ChimneySmoke3.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Counter.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Counter.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/CounterClock1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/CounterClock1.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/CounterClockNormal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/CounterClockNormal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Crackers.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Crackers.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Crowd.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Crowd.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_01.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_01.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_02.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_02.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_03.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_03.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_04.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_04.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_05.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_05.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_06.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_06.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_08.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_08.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_09.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_09.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_10.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_11.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_12.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_14.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_15.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_16.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_17.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_18.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_18.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_19.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_19.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_20.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_20.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_01.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_01.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_02.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_02.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_03.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_03.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_04.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_04.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_05.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_05.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_06.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_06.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_07.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_07.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_08.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_08.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_09.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_09.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_10.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_12.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_13.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_13.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_14.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_15.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_16.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_17.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18_Normal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18_Normal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_19.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_19.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_21.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_21.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_22.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_22.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_23.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_24.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_24.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_25.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_25.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_26.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_26.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_28.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_28.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_29.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Customers/MaleCustomer_29.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/DailyLedger.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/DailyLedger.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/DialogueFrame.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/DialogueFrame.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/FogBack.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/FogBack.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/FogFront.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/FogFront.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/FogMid.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/FogMid.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Fuel.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Fuel.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/GuardNeutral.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/GuardNeutral.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Inspector.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Inspector.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorBody.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorBody.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorHead.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorHead.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorNormal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorNormal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorPortrait.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/InspectorPortrait.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/MaleCustomer0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/MaleCustomer0.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Mask.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Mask.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Mulmaru SDF.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Mulmaru SDF.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Mulmaru.otf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Mulmaru.otf.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Painkiller.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Painkiller.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/RightTowerNeutral.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/RightTowerNeutral.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Seoul.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Seoul.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Soap.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Soap.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/PixelStageLighting.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/PixelStageLighting.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/SunsetClouded.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/TimeOfDay/SunsetClouded.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/WatchGuard.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/WatchGuard.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/WatchNeutral.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/WatchNeutral.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Water.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Art/Water.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/EDITABLE_SCENE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/EDITABLE_SCENE.md.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor/DystopiaPlayVerification.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor/DystopiaPlayVerification.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor/DystopiaTools.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor/DystopiaTools.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor/DystopiaValidation.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Editor/DystopiaValidation.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/IMPLEMENTATION_NOTES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/IMPLEMENTATION_NOTES.md.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/FrontView.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/FrontView.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product0.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product0.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product1.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product1.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product2.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product2.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product3.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Product3.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice0.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice0.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice1.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice1.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice10.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice10.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice11.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice11.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice12.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice12.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice13.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice13.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice14.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice14.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice2.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice2.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice3.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice3.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice4.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice4.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice5.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice5.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice6.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice6.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice7.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice7.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice8.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice8.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice9.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/UiSlice9.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Workbench.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Prefabs/Workbench.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/README.md.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scenes.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaCrowdImage.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaCrowdImage.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaDayNight.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaDayNight.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaInspectorPortrait.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaInspectorPortrait.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaPixelSource.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaPixelSource.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaSession.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/Scripts/DystopiaSession.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/CounterClock.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/CounterClock.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/CounterClockUpdated.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/CounterClockUpdated.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Editor.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Evidence.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Evidence/IntegratedContainer.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Evidence/IntegratedContainer.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Evidence/IntegratedTopDown.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Evidence/IntegratedTopDown.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scenes.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DividerBarController2D.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DividerBarController2D.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaKeyFeedback.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaKeyFeedback.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownItem.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownItem.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia/LICENSE.txt.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia/Mulmaru SDF.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia/Mulmaru SDF.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia/Mulmaru.otf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Fonts/Dystopia/Mulmaru.otf.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/CityLights.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/CityLights.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/FogBack.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/FogBack.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/FogFront.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/FogFront.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/FogMid.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/FogMid.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/GuardNeutral.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/GuardNeutral.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/LeftTowerNeutral.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/LeftTowerNeutral.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/RightTowerNeutral.mat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Materials/Dystopia/RightTowerNeutral.mat.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/CheckoutUI.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/CheckoutUI.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/FrontView.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/FrontView.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/InspectorPortrait.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/InspectorPortrait.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product0.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product0.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product1.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product1.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product2.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product2.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product3.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Product3.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Workbench.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/Templates/Workbench.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice0.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice0.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice1.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice1.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice10.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice10.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice11.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice11.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice12.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice12.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice13.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice13.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice14.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice14.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice2.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice2.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice3.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice3.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice4.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice4.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice5.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice5.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice6.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice6.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice7.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice7.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice8.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice8.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice9.asset" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/Dystopia/UiSlices/UiSlice9.asset.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/BusinessHours.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/BusinessHours.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/InspectorEventData.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/InspectorEventData.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/InspectorEventDataTable.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/InspectorEventDataTable.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/MoralityData.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/MoralityData.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/MoralityDataTable.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/MoralityDataTable.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Inspector.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Inspector/InspectorEventService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Inspector/InspectorEventService.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Morality.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Morality/MoralityCalculator.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Morality/MoralityCalculator.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Morality/MoralityEvaluation.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Morality/MoralityEvaluation.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerQueueView.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerQueueView.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/LandingDustEffect.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/LandingDustEffect.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/InspectorPresenter.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/InspectorPresenter.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/TimeOfDayPixelSource.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/TimeOfDayPixelSource.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/TimeOfDayPixelStage.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/TimeOfDayPixelStage.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/TimeOfDayUIController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Scripts/UI/TimeOfDayUIController.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/CityLights.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/CityLights.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/InspectorPortrait.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/InspectorPortrait.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/PixelFog.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/PixelFog.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/PixelStageLighting.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/PixelStageLighting.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/WatchNeutral.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/Dystopia/WatchNeutral.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/PixelFog.shader" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Shaders/PixelFog.shader.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/InspectorEventTests.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/InspectorEventTests.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/MoralityTests.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/MoralityTests.cs.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_01.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_01.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_02.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_02.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_03.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_03.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_04.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_04.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_05.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_05.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_06.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_06.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_08.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_08.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_09.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_09.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_10.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_11.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_12.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_14.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_15.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_16.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_17.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_18.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_18.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_19.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_19.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_20.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/FemaleCustomer_20.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/Inspector.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/Inspector.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/InspectorBody.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/InspectorBody.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/InspectorHead.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/InspectorHead.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer0.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_01.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_01.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_02.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_02.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_03.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_03.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_04.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_04.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_05.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_05.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_06.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_06.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_07.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_07.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_08.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_08.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_09.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_09.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_10.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_12.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_13.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_13.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_14.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_15.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_16.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_17.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_18.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_18.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_19.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_19.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_21.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_21.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_22.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_22.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_23.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_24.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_24.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_25.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_25.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_26.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_26.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_28.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_28.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_29.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/MaleCustomer_29.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/NormalMaps.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/NormalMaps/InspectorNormal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/NormalMaps/InspectorNormal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/NormalMaps/MaleCustomer_18_Normal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Customer/Dystopia/NormalMaps/MaleCustomer_18_Normal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/BoothBarricade.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/BoothBarricade.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/BoothCanopy.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/BoothCanopy.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/BoothCounter.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/BoothCounter.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke0.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke1.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke2.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/ChimneySmoke3.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/Counter.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/Counter.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/Crowd.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/Crowd.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/CrowdBack.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/CrowdBack.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/CrowdFront.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/CrowdFront.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/CrowdMiddle.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/CrowdMiddle.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FARBACKGROUND.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FARBACKGROUND.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FogBack.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FogBack.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FogFront.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FogFront.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FogMid.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/FogMid.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/LeftWatchTower.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/LeftWatchTower.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/MidBackground.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/MidBackground.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/RightWatchTower.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/RightWatchTower.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/Seoul.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/Seoul.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/CityLights.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/CityLights.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/CounterLight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/CounterLight.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Dawn.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Dawn.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Evening.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Evening.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Searchlight.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Searchlight.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Sunset.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/Sunset.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/SunsetClouded.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TimeOfDay/SunsetClouded.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/DividerBar.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/DividerBar.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerFemale.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerFemale.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerMale.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerMale.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerNormal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerNormal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/NormalMaps.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/TopDownContainerEmpty.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/TopDownContainerEmpty.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/TopDownContainerTilted.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/TopDownContainerTilted.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/TopDownWorkbench.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/TopDownWorkbench.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/WatchGuard.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/WatchGuard.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Bandage.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Bandage.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Battery.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Battery.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Can.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Can.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Crackers.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Crackers.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Fuel.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Fuel.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Mask.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Mask.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Painkiller.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Painkiller.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Rice.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Rice.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Soap.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Soap.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownCan.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownCan.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownCrackers.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownCrackers.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownRiceRound.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownRiceRound.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownWater.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/TopDown/TopDownWater.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Water.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/Products/Dystopia/Water.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/CounterClock1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/CounterClock1.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/CounterClockNormal.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/CounterClockNormal.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/DailyInstruction.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/DailyInstruction.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/DailyLedger.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/DailyLedger.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/DialogueFrame.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/DialogueFrame.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/NormalMaps.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/Calculator.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/Calculator.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/CalculatorToggle.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/CalculatorToggle.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/CounterClock.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/CounterClock.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/CounterClockUpdated.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/TopDown/CounterClockUpdated.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/시계.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/시계.png.meta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/CODING_RULES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/DYSTOPIA_RESOURCE_INTEGRATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/FEATURE_CONTRACT_AUDIT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/IMAGE_RESOURCE_INTEGRATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/INDEX.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/INSPECTOR_SYSTEM_DRAFT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/MORALITY_INTEGRATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/UI병합_보존_가이드.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/WORK_RULES.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/data/DYSTOPIA_RESOURCE_MAP.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/data/DYSTOPIA_SOURCE_AUDIT.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/data/IMAGE_RESOURCE_REGISTRATION.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/work/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/work/inspector-events.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AddressableAssetsData/AddressableAssetSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AddressableAssetsData/AddressableAssetSettings.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerAppearanceData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerAppearanceData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerDispositionData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerDispositionData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/Customer/ProductData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/Customer/ProductData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/ResourceData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/ResourceData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/TextData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/TextData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Commons/Commons.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Commons.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/DailyGuidelineDataTable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/DailyGuidelineDataTable.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/ProductData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/ProductData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/ResourceData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Commons/Data/ResourceData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGeneratorCompatibility.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGeneratorCompatibility.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerQueue.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerQueue.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerVisit.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerVisit.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Facility/FacilityService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Facility/FacilityService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationResult.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationResult.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Manager/DataTableManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Manager/DataTableManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Manager/GameSessionManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Manager/GameSessionManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgress.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgress.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgressState.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/DayProgressState.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Progress/GameProgress.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Progress/GameProgress.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/Cashier.Scene.Editor.asmdef" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/Cashier.Scene.Editor.asmdef" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/BusinessClockController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/BusinessClockController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Editor/SaleSortingPrefabSetup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/SaleSortingPrefabSetup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Editor/SaleSortingPrefabSetup.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/SaleSortingPrefabSetup.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingItemView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingItemView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/BusinessClockAndSortingTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/BusinessClockAndSortingTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/FacilityTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/FacilityTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationSystemTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationSystemTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/AGENT_REQUEST_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/AGENT_REQUEST_GUIDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/BRANCH_INTEGRATION_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/BRANCH_INTEGRATION_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/CSV_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CSV_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_INTEGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_QUEUE_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_QUEUE_INTEGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/DATA_CATALOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DATA_CATALOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/DATA_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DATA_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/FACILITY_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/FACILITY_INTEGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/MAINSCENE_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/MAINSCENE_INTEGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/PREFAB_RESOURCE_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/PREFAB_RESOURCE_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/RESOURCE_POOL_CONTRACT.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/RESOURCE_POOL_CONTRACT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/SALE_ITEM_LAYOUT_RULES.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/SALE_ITEM_LAYOUT_RULES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/SCENE_WORKFLOW.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/SCENE_WORKFLOW.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/SCRIPT_GUIDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/SCRIPT_GUIDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/TEAM_ROLES.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/TEAM_ROLES.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/TESTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/TESTING.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -77,6 +804,19 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/6dfc39632b934e5f897b6880e20aded812600/43/337fef97/02000017pdb15.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/702fa5cc79f14012a65327e35cf2e8a83ba00/e1/e8526357/0200004Fpdb64.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/7291d10359344d138880ec8c241dcf0537800/d1/21d24146/02000029pdb26.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/31/846ede98/02000065pdb69.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/4a/23690e7b/0200006Fpdb79.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/50/02806876/02000048pdb41.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/52/2e6a998b/02000037pdb30.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/57/22777033/020000A5pdb110.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/58/ad683f28/0200000Dpdb4.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/80/b207dd71/0200009Fpdb105.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/b4/eb67d0f3/02000068pdb72.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/b6/8ab77118/0200006Bpdb75.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/b9/7907c3b5/0200004Apdb42.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/e5/1b99aa8a/02000032pdb26.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/ea/b3573104/02000039pdb30.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/780494af99f544d8b429b7a66ab2a6a250400/ed/f39a77b2/02000046pdb41.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/89c6389f27a64ab49ba199b8067880fa31000/4a/2e2b3049/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/8e9e1b81e9c44a718f634e48445c972c30800/8e/462b691f/0200001Dpdb20.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/8e9e1b81e9c44a718f634e48445c972c30800/b4/e8946987/0200001Cpdb19.il" root0="FORCE_HIGHLIGHTING" />
@@ -109,23 +849,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000005911386967" />
-      <entry key="MS500" value="1.0572181261029197" />
-      <entry key="S2" value="1.708962004364622" />
-      <entry key="S5" value="2.7474888832850533" />
-      <entry key="S10" value="3.623857884550855" />
-      <entry key="S30" value="5.741289419322842" />
-      <entry key="S60" value="8.44165889472482" />
-      <entry key="M2" value="12.222580012117135" />
-      <entry key="M5" value="18.628347337248368" />
-      <entry key="M10" value="23.040859721497434" />
-      <entry key="M15" value="25.006385366966445" />
-      <entry key="M30" value="27.303637373409845" />
-      <entry key="H1" value="28.597177430631557" />
-      <entry key="H2" value="29.284281464086355" />
-      <entry key="H4" value="29.638479485380802" />
-      <entry key="D1" value="29.939230735381056" />
-      <entry key="W1" value="29.99130594664622" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0002976697007022" />
+      <entry key="S2" value="1.1313510829301507" />
+      <entry key="S5" value="1.4439902806098273" />
+      <entry key="S10" value="1.6663259567282573" />
+      <entry key="S30" value="1.8734316206039128" />
+      <entry key="S60" value="1.9345756366415254" />
+      <entry key="M2" value="1.9667345287213527" />
+      <entry key="M5" value="1.9873587718121573" />
+      <entry key="M10" value="2.0332605969940856" />
+      <entry key="M15" value="2.1428704481206085" />
+      <entry key="M30" value="2.540648802092831" />
+      <entry key="H1" value="3.0408917987396484" />
+      <entry key="H2" value="3.4430559669804834" />
+      <entry key="H4" value="3.698905953800564" />
+      <entry key="D1" value="3.9463521125800334" />
+      <entry key="W1" value="3.99224657753882" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -147,134 +887,34 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9460582098667805" />
-      <entry key="MS500" value="1.0456352209496158" />
-      <entry key="S2" value="1.7040876820865467" />
-      <entry key="S5" value="2.7437711103544435" />
-      <entry key="S10" value="3.6211719807080662" />
-      <entry key="S30" value="5.739813716548549" />
-      <entry key="S60" value="8.440587089831611" />
-      <entry key="M2" value="12.221715073979679" />
-      <entry key="M5" value="18.627522631132937" />
-      <entry key="M10" value="23.040200755697935" />
-      <entry key="M15" value="25.005862111761964" />
-      <entry key="M30" value="27.303323198243604" />
-      <entry key="H1" value="28.597004802681287" />
-      <entry key="H2" value="29.28419092141069" />
-      <entry key="H4" value="29.638433110908018" />
-      <entry key="D1" value="29.93922284904005" />
-      <entry key="W1" value="29.99130481612093" />
+      <entry key="MS100" value="1.382384339056821E-14" />
+      <entry key="MS500" value="0.0019663268216830506" />
+      <entry key="S2" value="0.3316081731833114" />
+      <entry key="S5" value="0.9687728523097588" />
+      <entry key="S10" value="1.3905292662522186" />
+      <entry key="S30" value="1.7713896787666303" />
+      <entry key="S60" value="1.8821734341853535" />
+      <entry key="M2" value="1.9401786238908028" />
+      <entry key="M5" value="1.9766496627031287" />
+      <entry key="M10" value="2.0278830012772855" />
+      <entry key="M15" value="2.1392665669968434" />
+      <entry key="M30" value="2.5388165339275304" />
+      <entry key="H1" value="3.039957144937133" />
+      <entry key="H2" value="3.4425812508960414" />
+      <entry key="H4" value="3.698666251498777" />
+      <entry key="D1" value="3.9463117848255855" />
+      <entry key="W1" value="3.992240806438511" />
     </decayedShown>
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 8,
-  &quot;fromUser&quot;: false
-}</component>
-  <component name="ProjectId" id="3IqLTJQum26JVmemRQT2od1Du21" />
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.readMode.enableVisualFormatting": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "cidr.known.project.marker": "true",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "customer__create",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+    "git-widget-placeholder": "DailyInstruction 병합 중",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
-  <component name="RunManager" selected="Unity 에디터에 연결.Unity 에디터에 연결">
-    <configuration name="유닛 테스트(배치 모드)" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.18f1\Editor\Unity.exe" />
-      <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath C:\UnityProject\Cashier -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
-      <option name="WORKING_DIRECTORY" value="C:\UnityProject\Cashier" />
-      <option name="PASS_PARENT_ENVS" value="1" />
-      <option name="ENV_FILE_PATHS" value="" />
-      <option name="REDIRECT_INPUT_PATH" value="" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Unity 시작" type="RunUnityExe" factoryName="Unity Executable">
-      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.3.18f1\Editor\Unity.exe" />
-      <option name="PROGRAM_PARAMETERS" value="-projectPath C:\UnityProject\Cashier -debugCodeOptimization" />
-      <option name="WORKING_DIRECTORY" value="C:\UnityProject\Cashier" />
-      <option name="PASS_PARENT_ENVS" value="1" />
-      <option name="ENV_FILE_PATHS" value="" />
-      <option name="REDIRECT_INPUT_PATH" value="" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Unity 에디터에 연결" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" useMixedMode="false">
-      <option name="allowRunningInParallel" value="false" />
-      <option name="listenPortForConnections" value="false" />
-      <option name="pid" />
-      <option name="projectPathOnTarget" />
-      <option name="runtimes">
-        <list />
-      </option>
-      <option name="selectedOptions">
-        <list />
-      </option>
-      <method v="2" />
-    </configuration>
-    <configuration name="연결 대상" type="UnityDevicePlayer" factoryName="UnityAttachToDevicePlayer">
-      <method v="2" />
-    </configuration>
-  </component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="디폴트 작업">
-      <changelist id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="" />
-      <created>1788487159994</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1788487159994</updated>
-      <workItem from="1788487160146" duration="3893000" />
-      <workItem from="1788743272615" duration="6497000" />
-      <workItem from="1788914650040" duration="5493000" />
-    </task>
     <servers />
   </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
   <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
-  <component name="UnityProjectDiscoverer">
-    <option name="hasUnityReference" value="true" />
-    <option name="unityProject" value="true" />
-    <option name="unityProjectFolder" value="true" />
-  </component>
   <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
-  <component name="VcsManagerConfiguration">
-    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
-          <option name="timeStamp" value="1" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
-          <option name="timeStamp" value="2" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
-          <option name="timeStamp" value="3" />
-        </breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
 </project>

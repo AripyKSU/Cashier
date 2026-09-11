@@ -134,6 +134,26 @@ public sealed class FacilityTests
         Assert.That(finance.CurrentBalance, Is.EqualTo(75));
     }
 
+    /// <summary>단계 결제 알림이 실패해도 확정한 잔액·보유·단계는 함께 유지한다.</summary>
+    [Test]
+    public void StagePurchaseSubscriberFailureKeepsStageAndRejectsDuplicate()
+    {
+        Action<FinanceChangeResult> handler = payment =>
+        {
+            Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
+            throw new InvalidOperationException("stage notification failure");
+        };
+        finance.BalanceChanged += handler;
+        Assert.Throws<InvalidOperationException>(() => service.TryPurchase(12008, out _));
+        finance.BalanceChanged -= handler;
+        Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
+        Assert.That(service.IsOwned(12008), Is.True);
+        Assert.That(finance.CurrentBalance, Is.EqualTo(95));
+        Assert.That(service.TryPurchase(12008, out var result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(95));
+    }
+
     /// <summary>외부 가격 변경과 읽기 전용 보유 목록을 통한 수정으로 상태를 바꿀 수 없다.</summary>
     [Test]
     public void CatalogPricesAreCopiedAndOwnershipIsReadonly()
@@ -336,7 +356,7 @@ public sealed class FacilityTests
         catalog.Dispositions.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
         catalog.Categories.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductCategoryData.csv"));
         catalog.Products.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductData.csv"));
-        texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv")); catalog.ValidateAndCommit(texts, facilities: table);
+        texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv")); catalog.ValidateAndCommit(texts, loadResources(), facilities: table);
         return (new ProgressViewDataFactory(catalog, texts, new Dictionary<uint, Sprite>()), table);
     }
 
@@ -359,6 +379,7 @@ public sealed class FacilityTests
         var table = new FacilityDataTable();
         var catalog = new CustomerCatalog(new CustomerAppearanceDataTable(), new CustomerDispositionDataTable(), new ProductCategoryDataTable(), new ProductDataTable());
         var texts = new TextDataTable();
+        var resources = loadResources();
         LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("FacilityData|ProductData|Customer CSV"));
         Assert.Catch(() =>
         {
@@ -367,9 +388,18 @@ public sealed class FacilityTests
             catalog.Dispositions.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
             catalog.Categories.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductCategoryData.csv"));
             catalog.Products.LoadData(product); texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
-            catalog.ValidateAndCommit(texts, facilities: table);
+            catalog.ValidateAndCommit(texts, resources, facilities: table);
         });
         Assert.That(table.GetDataCount(), Is.Zero); Assert.That(catalog.Products.GetDataCount(), Is.Zero);
         LogAssert.NoUnexpectedReceived();
+    }
+    /// <summary>실제 Resource CSV를 FK 검증에 사용한다.</summary>
+    /// <returns>파싱한 Resource 테이블.</returns>
+    private static ResourceDataTable loadResources()
+    {
+        var resources = new ResourceDataTable();
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex("^\\[ResourceDataTable\\]"));
+        resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
+        return resources;
     }
 }
