@@ -10,3 +10,5 @@
 - 향후 통합: [MainScene](../MAINSCENE_INTEGRATION.md#월드-표시-분리-2026-09-11)의 공유 UI 최소 변경을 적용하고 World prefab을 Canvas 밖에 연결한다. 개인 씬을 Git으로 병합하거나 GameUI prefab을 복제하지 않는다. unpack된 개인 UI에는 공유 prefab 변경이 자동 전파되지 않으므로 필요한 변경만 명시적으로 이관한다.
 - 인계: Play 종료, SpriteWorldSandbox clean, 해당 개인 GUID 선택, Play 시작은 InitScene. 최종 가독성·배치·사용감과 Player build는 미확인이다.
 - 보호: 사용자 Mulmaru 폰트 변경·stash2 유지. Main/Operating·Addressables·ProjectSettings·Local·백업은 커밋에서 제외한다. Git 결과는 완료 보고와 실제 커밋 이력을 따른다.
+- 로컬 slide 정렬 보완: OperatingPanel 자식 순서를 AstraFrontView→SaleSortingUI→PriceInput→CalculatorToggle로 두고 DialoguePanel의 기존 Canvas는 overrideSorting=false로 부모 정렬을 따른다. 이전 sibling 역전과 대사 Canvas order30 때문에 Counter·대사가 작업대 위에 남았다. 공용 코드·prefab은 변경하지 않았다.
+- 확인: 전면 대사·slide 중간·완료 및 계산기/상품 raycast 확인, Console error0. 중간 표본은 실행 중에만 전환10초로 늦췄고 저장된 사용자값1초는 유지했다. 재진입 Awake/Refresh 후 override=false 유지. 화면 증거는 Git 제외 `Temp/SortingOrder-Front-Final.png`, `SortingOrder-Mid-Fixed.png`, `SortingOrder-Complete.png`. 실제 드래그 사용감은 사용자 확인 대상이며 이번 정렬 수정에 자동 suite는 재실행하지 않았다.
