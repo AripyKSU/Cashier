@@ -20,6 +20,7 @@
 | [CODING_RULES.md](CODING_RULES.md) | 코드 수정에서 필수. 자산·경로·설정 변경은 7·8절, CSV enum·식별자 변경은 관련 9절 | 프로그래머 규칙·기술 기준·폴더·C# 규격 |
 | [INDEX.md](INDEX.md) | 작업 시작·범위 변경 | 현재 체크아웃의 문서 색인과 이동 대응 |
 | [INSPECTOR_SYSTEM_DRAFT.md](INSPECTOR_SYSTEM_DRAFT.md) | 영업 전 감독관 이벤트 | 구현된 데이터·진행·UI 계약과 과거 검증 |
+| [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md) | 정산 화면의 딸 대사·날짜별 이미지 | 구현 계약·상태 소유권, 임시 데이터·병합 연결과 검증 결과 |
 | [FEATURE_CONTRACT_AUDIT.md](FEATURE_CONTRACT_AUDIT.md) | 담당 기능의 명세·구현 차이 확인 | 손님·설비·도덕성·대기열·감독관 대조와 미해결 항목 |
 | [work/inspector-events.md](work/inspector-events.md) | 감독관 작업 재개·통합 | 현재 브랜치·완료·후속 작업 |
 | [work/sprite-world-presentation.md](work/sprite-world-presentation.md) | 월드 배경·손님 로컬 개발 | Main 원본 복원·개인 씬 분리·향후 통합 경계 |

@@ -11,6 +11,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private DataTableManager dataTables;
     private FacilityService facilities;
     private InspectorEventService inspectorEvents;
+    private DaughterDialogueService daughterDialogues;
 
     // 화면 재진입으로 초기화하지 않는 세션 명성과 마지막 반영 표시일입니다.
     private int currentReputation;
@@ -45,6 +46,13 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// <summary>화면 재생성에도 유지하는 감독관 선정·대사·완료 이력.</summary>
     public InspectorEventService InspectorEvents => inspectorEvents
         ?? throw new InvalidOperationException("감독관 세션이 초기화되지 않았습니다.");
+
+    /// <summary>정산 시 누적 도덕성과 표시 일차로 딸 대사를 선택한다.</summary>
+    /// <param name="day">1부터 시작하는 표시 일차.</param>
+    /// <returns>선택한 대사·이미지와 평가 도덕성.</returns>
+    internal DaughterDialogueResult SelectDaughterDialogue(uint day) =>
+        (daughterDialogues ?? throw new InvalidOperationException("딸 대화 세션이 초기화되지 않았습니다."))
+        .Select(day, CurrentMorality);
 
     /// <summary>구매 당일을 제외한 설비·단계 스냅샷으로 오늘 감독관을 한 번 선정한다.</summary>
     /// <exception cref="InvalidOperationException">초기화 전 또는 이전 감독관 미완료.</exception>
@@ -432,6 +440,14 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
                 ?? throw new InvalidOperationException("감독관 데이터 테이블이 준비되지 않았습니다.");
             if (inspectorTable.Rows.Count == 0) throw new InvalidOperationException("감독관 데이터가 공개되지 않았습니다.");
             this.inspectorEvents = new InspectorEventService(inspectorTable.Rows.Values);
+            var daughterDialogueTable = dataTableManager.GetDB<DaughterDialogueDataTable>(DataTableType.DaughterDialogue)
+                ?? throw new InvalidOperationException("딸 대사 데이터 테이블이 준비되지 않았습니다.");
+            var daughterAppearanceTable = dataTableManager.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance)
+                ?? throw new InvalidOperationException("딸 이미지 데이터 테이블이 준비되지 않았습니다.");
+            if (daughterDialogueTable.Rows.Count == 0 || daughterAppearanceTable.Rows.Count == 0)
+                throw new InvalidOperationException("딸 대사 또는 이미지 데이터가 공개되지 않았습니다.");
+            this.daughterDialogues = new DaughterDialogueService(daughterDialogueTable.Rows.Values,
+                daughterAppearanceTable.Rows.Values, new Random());
             this.reputationLogService = new ReputationLogService(dataTableManager.Customers.Dispositions);
             var moralityRows = new System.Collections.Generic.List<MoralityData>(
                 dataTableManager.GetDB<MoralityDataTable>(DataTableType.Morality).Rows.Values);
@@ -450,6 +466,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             this.IsInitialized = false;
             this.facilities = null;
             this.inspectorEvents = null;
+            this.daughterDialogues = null;
             this.reputationLogService = null;
             this.moralityCalculator = null;
             throw;
@@ -469,6 +486,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.DailyGuidelines = Array.Empty<DailyGuideline>();
         this.dailyGuidelineElapsedDays = null;
         this.LastSettlementResult = null;
+        this.daughterDialogues = null;
         this.radioPending = false;
         this.dataTables = null;
         this.facilities = null;
