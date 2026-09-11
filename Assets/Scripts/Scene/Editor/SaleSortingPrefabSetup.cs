@@ -38,6 +38,7 @@ public static class SaleSortingPrefabSetup
     private const string DailyInstructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
     private const string CounterClockPath = "Assets/DystopiaPrototype/Art/시계.png";
     private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
+    private const string HandsPath = "Assets/DystopiaPrototype/Art/Hands.png";
     private const string DialogueFramePath = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
     private const string MabinogiFontPath = "Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset";
 
@@ -202,6 +203,8 @@ public static class SaleSortingPrefabSetup
             Transform visualRoot = findChild(root.transform, "Root");
             setDirectChildrenInactive(visualRoot, "Background", "Timer", "Pause", "Resume", "PauseIndicator", "CommonHUD");
 
+            setupHandCursor(root, panel);
+
             PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
             Debug.Log("[SaleSortingPrefabSetup] GameUI Prefab 판매 분류 UI 구성을 완료했습니다.");
         }
@@ -209,6 +212,64 @@ public static class SaleSortingPrefabSetup
         {
             PrefabUtility.UnloadPrefabContents(root);
         }
+    }
+
+    /// <summary>다른 UI 설치 상태와 무관하게 GameUI Prefab의 손 커서만 반복 가능하게 구성합니다.</summary>
+    [MenuItem("Cashier/Setup Sale Sorting Hand Cursor")]
+    public static void SetupHandCursorPrefab()
+    {
+        GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
+        try
+        {
+            SaleSortingPanel panel = root.GetComponentInChildren<SaleSortingPanel>(true);
+            if (panel == null) throw new InvalidOperationException("GameUI Prefab의 SaleSortingPanel을 찾을 수 없습니다.");
+            setupHandCursor(root, panel);
+            PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
+            Debug.Log("[SaleSortingPrefabSetup] GameUI Prefab 손 커서 구성을 완료했습니다.");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    /// <summary>GameUI 루트의 최상단 Canvas에 손 커서를 만들고 분류 패널에 연결합니다.</summary>
+    /// <param name="root">편집 중인 GameUI Prefab 루트입니다.</param>
+    /// <param name="panel">통합 잡기 상태를 제공할 판매 분류 패널입니다.</param>
+    private static void setupHandCursor(GameObject root, SaleSortingPanel panel)
+    {
+        Transform existingHandCursor = root.transform.Find("HandCursorCanvas");
+        if (existingHandCursor != null) UnityEngine.Object.DestroyImmediate(existingHandCursor.gameObject);
+
+        RectTransform handCanvasRect = createRect("HandCursorCanvas", root.transform, Vector2.zero, Vector2.zero);
+        stretch(sortingtRoot: handCanvasRect);
+        Canvas handCanvas = handCanvasRect.gameObject.AddComponent<Canvas>();
+        handCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        handCanvas.sortingOrder = 32760;
+        SerializedObject handCanvasObject = new SerializedObject(handCanvas);
+        handCanvasObject.FindProperty("m_OverrideSorting").boolValue = true;
+        handCanvasObject.ApplyModifiedPropertiesWithoutUndo();
+        SaleSortingHandCursor handCursor = handCanvasRect.gameObject.AddComponent<SaleSortingHandCursor>();
+        RectTransform handImageRect = createRect("HandCursorImage", handCanvasRect, Vector2.zero, new Vector2(320f, 320f));
+        Image handImage = handImageRect.gameObject.AddComponent<Image>();
+        handImage.preserveAspect = true;
+        handImage.raycastTarget = false;
+        handCanvasRect.SetAsLastSibling();
+
+        SerializedObject handCursorObject = new SerializedObject(handCursor);
+        setObject(handCursorObject, "cursorCanvas", handCanvas);
+        setObject(handCursorObject, "cursorRect", handImageRect);
+        setObject(handCursorObject, "cursorImage", handImage);
+        setObject(handCursorObject, "releasedSprite", loadSprite(HandsPath, "Hand2"));
+        setObject(handCursorObject, "holdingStillSprite", loadSprite(HandsPath, "Hand1"));
+        setObject(handCursorObject, "holdingLeftSprite", loadSprite(HandsPath, "Hand3"));
+        setObject(handCursorObject, "holdingRightSprite", loadSprite(HandsPath, "Hand4"));
+        handCursorObject.ApplyModifiedPropertiesWithoutUndo();
+        handCanvas.enabled = false;
+
+        SerializedObject panelObject = new SerializedObject(panel);
+        setObject(panelObject, "handCursor", handCursor);
+        panelObject.ApplyModifiedPropertiesWithoutUndo();
     }
 
     /// <summary>기존 버튼 그래픽을 제거하고 계산기 원본 이미지 위에 기능별 투명 버튼 영역을 배치합니다.</summary>
@@ -689,6 +750,21 @@ public static class SaleSortingPrefabSetup
         Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
         if (sprite == null) throw new InvalidOperationException($"Sprite를 로드하지 못했습니다: {path}");
         return sprite;
+    }
+
+    /// <summary>다중 Sprite 시트에서 이름이 일치하는 Sprite를 필수 에셋으로 로드합니다.</summary>
+    /// <param name="path">프로젝트 상대 에셋 경로입니다.</param>
+    /// <param name="spriteName">가져올 하위 Sprite 이름입니다.</param>
+    /// <returns>이름이 일치하는 Sprite입니다.</returns>
+    private static Sprite loadSprite(string path, string spriteName)
+    {
+        UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+        for (int index = 0; index < assets.Length; index++)
+        {
+            if (assets[index] is Sprite sprite && sprite.name == spriteName) return sprite;
+        }
+
+        throw new InvalidOperationException($"Sprite를 로드하지 못했습니다: {path}#{spriteName}");
     }
 
     /// <summary>RectTransform 전체를 채우는 TMP 안내 텍스트를 생성합니다.</summary>
