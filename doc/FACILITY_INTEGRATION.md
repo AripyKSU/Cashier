@@ -139,4 +139,4 @@ GameUI (기존 루트 / GameUIController)
 3. API 검증: ID 전달·1회 차감, 부족/중복/예외 후 상태 재조회, 같은 날 대기/다음 날 활성 표시, 날짜 표기, 재진입 listener 중복 없음. 기존 NUnit/Test Runner 경로를 사용한다.
 4. 수동 검증: 최종 사용자 확인에서 11행 정보 가독성, 긴 이름·금액, 클릭/스크롤/뒤쪽 입력 차단과 닫기 복귀를 확인한다. 이번 구현에서는 세부 플레이테스트를 별도로 확대하지 않는다.
 
-기존 PlayMode 테스트 assembly에는 승인된 `Unity.ugui`, `Unity.TextMeshPro` 참조만 추가했다. 새 package나 runtime assembly는 없다. 기존 LocalDebug는 개인 씬에 유지하고 공유 프리팹으로 옮기지 않았다. 최신 자동 검증 XML/로그는 [TESTING.md](TESTING.md)를 따른다. UI의 최종 사용성 승인은 별도다. 공용 변경의 작업 branch 리뷰·기본 branch 통합 절차는 AGENTS.md와 기존 통합 규칙을 따른다.
+기존 PlayMode 테스트 assembly에는 승인된 `Unity.ugui`, `Unity.TextMeshPro` 참조만 추가했다. 새 package나 runtime assembly는 없다. 기존 LocalDebug는 개인 씬에 유지하고 공유 프리팹으로 옮기지 않았다. 최신 자동 검증 XML/로그는 [TESTING.md](TESTING.md)를 따른다. UI의 최종 사용성 승인은 별도다. 공용 변경의 작업 branch 리뷰·기본 branch 통합 절차는 [WORK_RULES.md 12절](WORK_RULES.md#12-팀-분업과-소유권-경계)과 기존 통합 규칙을 따른다.

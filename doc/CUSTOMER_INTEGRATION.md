@@ -81,7 +81,7 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 - 통합 담당자 작업: MainScene의 화면·입력·입퇴장 연출 연결, 게임 날짜 공급, 거래 결과의 다른 시스템 전달.
 - 현재 연결: GameUIController의 선택 목록을 DayProgress가 판정·정산한다. CustomerQueue는 현 진행에 미연결이며 Dev3 연결은 과거 경로다. 미연결: 원가 차감·일일 원가 집계·명성 계산·지침 공급. 재고 예약·저장 복구·재방문 인물·이동 연출은 미구현이다. `Accepted`는 가격 수락이지 후속 반영 완료가 아니다.
 - `CustomerSandbox`와 `CustomerSandboxSetup`은 `Assets/Scripts/Local/`의 개인 코드이며 Git 제외다. 다른 checkout이나 공유 assembly에서 존재를 가정하지 않는다. 현재 실제 UI는 GameUIController이며 비활성화된 Dev3 파일을 이 작업에서 이동/삭제하지 않는다.
-- 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [AGENTS.md 12절](../AGENTS.md)을 따른다.
+- 개인 씬 파일을 병합하지 않는다. 공유할 코드·데이터와 승인된 prefab·배치만 통합한다. 씬 규칙은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md), 보호 변경 리뷰는 [WORK_RULES.md 12절](WORK_RULES.md#12-팀-분업과-소유권-경계)을 따른다.
 
 ## 2. 초기화와 공개 API
 

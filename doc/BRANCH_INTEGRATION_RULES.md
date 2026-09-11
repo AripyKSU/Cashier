@@ -2,7 +2,7 @@
 
 ## 적용과 우선순위
 
-사용자가 이 문서를 참조해 병합을 요청하면 지정한 브랜치와 범위에 적용한다. 문서 참조만으로 Git 변경·push를 수행하지 않는다. 최신 사용자 지시와 [AGENTS.md](../AGENTS.md)가 우선하며, 이 규칙은 보호 변경 승인·교차 리뷰·검증을 면제하지 않는다.
+사용자가 이 문서를 참조해 병합을 요청하면 지정한 브랜치와 범위에 적용한다. 문서 참조만으로 Git 변경·push를 수행하지 않는다. 최신 사용자 지시와 [WORK_RULES.md](WORK_RULES.md)가 우선하며, 이 규칙은 보호 변경 승인·교차 리뷰·검증을 면제하지 않는다.
 
 핵심 기준은 **화면·자산은 요청 순서 우선, 로직은 기능별 최신 유효 구현 우선**이다. 이는 통합 결과의 기준이지 Git 명령 실행 순서나 파일 전체 덮어쓰기 규칙이 아니다.
 
@@ -59,7 +59,7 @@
 - 실행: InitScene부터 HubScene을 거쳐 MainScene 진입, manager 중복 없음, 요청 기능들의 연계·실제 입력·결과 처리·재진입 확인. 개인 씬 검사만으로 대체하지 않는다.
 - Console: 기존 오류·신규 제품 오류·의도된 실패 검사를 분리한다. Player build는 요청 시 별도 검증하며 Editor 성공으로 대체하지 않는다.
 - 기존 [DATA_RULES.md](DATA_RULES.md), [CSV_RULES.md](CSV_RULES.md), [PREFAB_RESOURCE_RULES.md](PREFAB_RESOURCE_RULES.md)의 상세 검사를 재사용한다. 새 test framework를 임의 도입하지 않는다.
-- 보고: 입력/대상 SHA, 자산 기준, 기능별 채택·제외·이관 내역, 변경 파일, 미해결 충돌, 검증 근거와 한계, commit·push 여부. 상태는 AGENTS.md의 PASS / STATIC PASS / PARTIAL / BLOCKED / FAIL을 따른다.
+- 보고: 입력/대상 SHA, 자산 기준, 기능별 채택·제외·이관 내역, 변경 파일, 미해결 충돌, 검증 근거와 한계, commit·push 여부. 상태는 [WORK_RULES.md 10절](WORK_RULES.md#10-검증-절차와-실행-시점)의 PASS / STATIC PASS / PARTIAL / BLOCKED / FAIL을 따른다.
 
 ## 요청 템플릿
 
