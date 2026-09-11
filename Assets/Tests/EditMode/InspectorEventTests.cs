@@ -8,9 +8,9 @@ using UnityEngine.TestTools;
 /// <summary>감독관 조건·날짜 캐시·대사 입력·완료 이력 및 실제 CSV 형식을 검사한다.</summary>
 public sealed class InspectorEventTests
 {
-    /// <summary>실제 세 행의 대사·조건과 2일차 임시 이벤트의 선정·완료·날짜 제한을 검사한다.</summary>
+    /// <summary>실제 세 이벤트의 1·10·21일 페이지와 다중행 Text 표시 계약을 검사한다.</summary>
     [Test]
-    public void ActualCsvHasThreeEventsAndDayTwoRunsOnce()
+    public void ActualCsvHasThreeScheduledEventsAndMultilinePages()
     {
         var table = new InspectorEventDataTable();
         table.LoadData(File.ReadAllText("Assets/Datas/InspectorEventData.csv"));
@@ -19,37 +19,61 @@ public sealed class InspectorEventTests
         var rows = pending.Values.OrderBy(x => x.Idx).ToArray();
         Assert.That(rows.Length, Is.EqualTo(3));
         foreach (var row in rows) Assert.DoesNotThrow(row.Validate);
-        Assert.That(rows[0].DialogueTextIdxs, Is.EqualTo(Enumerable.Range(8131,20).Select(x => (uint)x)));
-        Assert.That(rows[1].DialogueTextIdxs, Is.EqualTo(Enumerable.Range(8151,29).Select(x => (uint)x)));
-        Assert.That(rows[0].Day, Is.EqualTo(1)); Assert.That(rows[1].Day, Is.Null);
-        Assert.That(rows[1].MinStoreStage, Is.EqualTo(3));
+        Assert.That(rows[0].DialogueTextIdxs, Is.EqualTo(new uint[] { 8131, 8132, 8133, 8134 }));
+        Assert.That(rows[1].DialogueTextIdxs, Is.EqualTo(new uint[] { 8151, 8152, 8153 }));
+        Assert.That(rows[0].Day, Is.EqualTo(1)); Assert.That(rows[1].Day, Is.EqualTo(21));
         Assert.That(rows[2].Idx, Is.EqualTo(15003));
         Assert.That(rows[2].NameIdx, Is.EqualTo(8180));
-        Assert.That(rows[2].Day, Is.EqualTo(2));
+        Assert.That(rows[2].Day, Is.EqualTo(10));
         Assert.That(rows[2].RequiredFacilityIdx, Is.Null);
         Assert.That(rows[2].MinStoreStage, Is.Null);
         Assert.That(rows[2].Priority, Is.Zero);
         Assert.That(rows[2].RepeatMode, Is.EqualTo(InspectorRepeatMode.OncePerSession));
-        Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8181 }));
+        Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8181, 8135 }));
+        Assert.That(rows.All(x => !x.RequiredFacilityIdx.HasValue && !x.MinStoreStage.HasValue &&
+            x.Priority == 0 && x.RepeatMode == InspectorRepeatMode.OncePerSession), Is.True);
         Assert.That(rows.All(x => x.PortraitResourceIdx == 4201));
         Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(18));
+
+        var texts = new TextDataTable();
+        texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
+        var textRows = (System.Collections.Generic.Dictionary<uint, TextData>)typeof(TextDataTable)
+            .GetProperty("PendingRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(texts);
+        Assert.That(textRows.Count, Is.EqualTo(230), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
+        uint[] pageIds = rows.SelectMany(x => x.DialogueTextIdxs).ToArray();
+        Assert.That(pageIds.Length, Is.EqualTo(9));
+        Assert.That(rows.All(x => textRows.ContainsKey(x.NameIdx)) && pageIds.All(textRows.ContainsKey), Is.True);
+        var panel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab");
+        var dialogue = panel.transform.Find("Dialogue/Text").GetComponent<TMPro.TextMeshProUGUI>();
+        foreach (uint pageId in pageIds)
+        {
+            string text = textRows[pageId].Text.Replace("\r\n", "\n");
+            Assert.That(text.Count(character => character == '\n'), Is.EqualTo(2), $"TextData={pageId}");
+            Assert.That(text.Where(character => character != '\n').All(character => dialogue.font.HasCharacter(character)), Is.True, $"TextData={pageId} glyph");
+            Vector2 unwrapped = dialogue.GetPreferredValues(text, float.PositiveInfinity, float.PositiveInfinity);
+            foreach (var bounds in new[] { new Vector2(571, 124), new Vector2(537, 116) })
+            {
+                Vector2 preferred = dialogue.GetPreferredValues(text, bounds.x, float.PositiveInfinity);
+                Assert.That(unwrapped.x, Is.LessThanOrEqualTo(bounds.x), $"TextData={pageId} unwrapped width={bounds.x}");
+                Assert.That(preferred.y, Is.EqualTo(unwrapped.y).Within(.01f), $"TextData={pageId} must keep three lines");
+                Assert.That(preferred.y, Is.LessThanOrEqualTo(bounds.y), $"TextData={pageId} height={bounds.y}");
+            }
+        }
 
         var service = new InspectorEventService(rows);
         service.BeginDay(1, Array.Empty<uint>(), 1);
         Assert.That(service.Current.EventIdx, Is.EqualTo(15001));
         finish(service);
-        Assert.That(service.HasPending, Is.False, "2일차 이벤트는 첫날에 등장하지 않는다.");
-        service.BeginDay(2, Array.Empty<uint>(), 1);
-        Assert.That(service.Current.EventIdx, Is.EqualTo(15003));
-        Assert.That(service.Current.TextIdx, Is.EqualTo(8181));
+        service.BeginDay(2, new uint[] { 12001, 12008, 12010 }, 3);
+        Assert.That(service.HasPending, Is.False, "조기 설비·단계 구매는 정확한 공개일을 앞당기지 않는다.");
+        service.BeginDay(10, new uint[] { 12001, 12008, 12010 }, 3);
+        Assert.That(service.Current.EventIdx, Is.EqualTo(15003)); Assert.That(service.Current.TextIdx, Is.EqualTo(8181));
         finish(service);
-        service.BeginDay(2, Array.Empty<uint>(), 1);
+        service.BeginDay(10, Array.Empty<uint>(), 1);
         Assert.That(service.HasPending, Is.False);
-        service.BeginDay(3, Array.Empty<uint>(), 1);
-        Assert.That(service.HasPending, Is.False);
-        var missedDay = new InspectorEventService(rows);
-        missedDay.BeginDay(3, Array.Empty<uint>(), 1);
-        Assert.That(missedDay.HasPending, Is.False, "미완료 2일차 이벤트도 다른 날짜로 이월하지 않는다.");
+        service.BeginDay(20, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
+        service.BeginDay(21, Array.Empty<uint>(), 1); Assert.That(service.Current.EventIdx, Is.EqualTo(15002));
+        finish(service); service.BeginDay(22, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
     }
 
     /// <summary>전체 조건 AND·priority/PK 정렬·완료 이력·중복 입력을 확인한다.</summary>

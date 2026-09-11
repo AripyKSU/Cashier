@@ -41,19 +41,26 @@ public sealed class DaughterDialogueTests
     {
         DaughterDialogueService service = actualService(1);
         foreach (var sample in new[] {
-            (decimal.MinValue, 16001u), (-20.0001m, 16001u), (-20m, 16002u), (-10m, 16003u),
-            (-0.0001m, 16003u), (0m, 16004u), (9.9999m, 16004u), (10m, 16005u),
-            (19.9999m, 16005u), (20m, 16006u), (decimal.MaxValue, 16006u) })
+            (decimal.MinValue, 16001u), (-120.0001m, 16001u), (-120m, 16002u), (-119.9999m, 16002u),
+            (-40.0001m, 16002u), (-40m, 16003u), (-39.9999m, 16003u), (-0.0001m, 16003u),
+            (0m, 16004u), (0.0001m, 16004u), (39.9999m, 16004u), (40m, 16005u),
+            (40.0001m, 16005u), (119.9999m, 16005u), (120m, 16006u), (120.0001m, 16006u),
+            (decimal.MaxValue, 16006u) })
             Assert.That(service.Select(1, sample.Item1).DialogueIdx, Is.EqualTo(sample.Item2));
     }
 
-    /// <summary>각 구간 후보 3개가 동일 Random 선택 경로에서 모두 도달하고 날짜 꼬리가 유지되는지 검사한다.</summary>
+    /// <summary>여섯 구간의 후보 3개가 모두 도달하고 날짜 꼬리가 유지되는지 검사한다.</summary>
     [Test]
     public void EveryCandidateAndAppearancePeriodIsReachable()
     {
-        var expected = new[] { 8183u, 8184u, 8185u };
-        var selected = Enumerable.Range(0, 100).Select(seed => actualService(seed).Select(1, -21m).TextIdx).Distinct();
-        Assert.That(selected, Is.EquivalentTo(expected));
+        foreach (var sample in new[] {
+            (-121m, new[] { 8183u, 8184u, 8185u }), (-41m, new[] { 8186u, 8187u, 8188u }),
+            (-1m, new[] { 8189u, 8190u, 8191u }), (1m, new[] { 8192u, 8193u, 8194u }),
+            (41m, new[] { 8195u, 8196u, 8197u }), (121m, new[] { 8198u, 8199u, 8200u }) })
+        {
+            var selected = Enumerable.Range(0, 100).Select(seed => actualService(seed).Select(1, sample.Item1).TextIdx).Distinct();
+            Assert.That(selected, Is.EquivalentTo(sample.Item2));
+        }
         DaughterDialogueDataTable dialogues = loadDialogues(File.ReadAllText("Assets/Datas/DaughterDialogueData.csv"));
         var periodService = new DaughterDialogueService(
             pending<DaughterDialogueDataTable, DaughterDialogueData>(dialogues).Values,

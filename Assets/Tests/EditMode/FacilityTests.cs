@@ -249,7 +249,7 @@ public sealed class FacilityTests
     {
         var (factory, table) = loadShopData();
         var owned = new Dictionary<uint, uint>();
-        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 1000);
+        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 18000);
         Assert.That(before.Items.Count, Is.EqualTo(11));
         Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
@@ -257,7 +257,8 @@ public sealed class FacilityTests
         Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
         Assert.That(before.Items[0].ActivationDisplayDay, Is.EqualTo(2UL));
         Assert.That(before.Items[5].FacilityIdx, Is.EqualTo(12006));
-        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("방사능 측정기, 열화상 카메라"));
+        Assert.That(before.Items[4].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
+        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
         owned[12001] = 1; owned[12005] = 0;
         var current = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 0);
         Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.ActivationPending));
@@ -326,9 +327,9 @@ public sealed class FacilityTests
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         switch (kind)
         {
-            case "upgrade enum": csv = csv.Replace("12001,8056,1000,1,1,0,0", "12001,8056,1000,99,1,0,0"); break;
+            case "upgrade enum": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,99,1,0,0"); break;
             case "effect enum": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,99,0"); break;
-            case "product target": csv = csv.Replace("12001,8056,1000,1,1,0,0", "12001,8056,1000,1,1,0,2"); break;
+            case "product target": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,1,1,0,2"); break;
             case "convenience target": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,1,2"); break;
             case "stage effect": csv = csv.Replace("12008,8078,1500,3,1,0,2", "12008,8078,1500,3,1,1,2"); break;
             case "stage requirement": csv = csv.Replace("12008,8078,1500,3,1,0,2", "12008,8078,1500,3,2,0,2"); break;
@@ -368,8 +369,8 @@ public sealed class FacilityTests
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         string product = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
         if (kind == "id") csv = csv.Replace("12001,", "11001,");
-        if (kind == "duplicate") csv += "12001,8056,1000,1,1,0,0\n";
-        if (kind == "price") csv = csv.Replace("8056,1000", "8056,0");
+        if (kind == "duplicate") csv += "12001,8056,18000,1,1,0,0\n";
+        if (kind == "price") csv = csv.Replace("8056,18000", "8056,0");
         if (kind == "name") csv = csv.Replace("8056,", "8999,");
         if (kind == "product") product = product.Replace(",12001", ",12999");
         if (kind == "zero-product") product = product.Replace(",12001", ",0");

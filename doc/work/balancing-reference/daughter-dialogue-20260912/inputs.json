@@ -1,0 +1,604 @@
+{
+  "MoralityData": [
+    {
+      "idx": "14001",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "0",
+      "offer_max_rate": "800",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "1",
+      "child_elderly_morality_point": "2"
+    },
+    {
+      "idx": "14002",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "800",
+      "offer_max_rate": "1000",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "0.5",
+      "child_elderly_morality_point": "1"
+    },
+    {
+      "idx": "14003",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1000",
+      "include_min": "1",
+      "include_max": "1",
+      "adult_morality_point": "0",
+      "child_elderly_morality_point": "0"
+    },
+    {
+      "idx": "14004",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1050",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.25",
+      "child_elderly_morality_point": "-0.5"
+    },
+    {
+      "idx": "14005",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "1050",
+      "offer_max_rate": "1100",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.5",
+      "child_elderly_morality_point": "-1"
+    },
+    {
+      "idx": "14006",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "1100",
+      "offer_max_rate": "1200",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.75",
+      "child_elderly_morality_point": "-1.5"
+    },
+    {
+      "idx": "14007",
+      "customer_disposition_type": "1",
+      "is_accepted": "1",
+      "offer_min_rate": "1200",
+      "offer_max_rate": "1300",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-1",
+      "child_elderly_morality_point": "-2"
+    },
+    {
+      "idx": "14008",
+      "customer_disposition_type": "1",
+      "is_accepted": "0",
+      "offer_min_rate": "1300",
+      "offer_max_rate": "0",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "-2",
+      "child_elderly_morality_point": "-4"
+    },
+    {
+      "idx": "14009",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "0",
+      "offer_max_rate": "800",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "6",
+      "child_elderly_morality_point": "9"
+    },
+    {
+      "idx": "14010",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "800",
+      "offer_max_rate": "1000",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "3",
+      "child_elderly_morality_point": "4.5"
+    },
+    {
+      "idx": "14011",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1000",
+      "include_min": "1",
+      "include_max": "1",
+      "adult_morality_point": "0",
+      "child_elderly_morality_point": "0"
+    },
+    {
+      "idx": "14012",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1100",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-2",
+      "child_elderly_morality_point": "-3"
+    },
+    {
+      "idx": "14013",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "1100",
+      "offer_max_rate": "1200",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-4",
+      "child_elderly_morality_point": "-6"
+    },
+    {
+      "idx": "14014",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "1200",
+      "offer_max_rate": "1300",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-6",
+      "child_elderly_morality_point": "-9"
+    },
+    {
+      "idx": "14015",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "1300",
+      "offer_max_rate": "1400",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-8",
+      "child_elderly_morality_point": "-12"
+    },
+    {
+      "idx": "14016",
+      "customer_disposition_type": "2",
+      "is_accepted": "1",
+      "offer_min_rate": "1400",
+      "offer_max_rate": "1500",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-10",
+      "child_elderly_morality_point": "-15"
+    },
+    {
+      "idx": "14017",
+      "customer_disposition_type": "2",
+      "is_accepted": "0",
+      "offer_min_rate": "1500",
+      "offer_max_rate": "0",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "-10",
+      "child_elderly_morality_point": "-15"
+    },
+    {
+      "idx": "14018",
+      "customer_disposition_type": "3",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1000",
+      "include_min": "1",
+      "include_max": "1",
+      "adult_morality_point": "0",
+      "child_elderly_morality_point": "0"
+    },
+    {
+      "idx": "14019",
+      "customer_disposition_type": "3",
+      "is_accepted": "0",
+      "offer_min_rate": "0",
+      "offer_max_rate": "1000",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "-2",
+      "child_elderly_morality_point": "-4"
+    },
+    {
+      "idx": "14020",
+      "customer_disposition_type": "3",
+      "is_accepted": "0",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "0",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "-2",
+      "child_elderly_morality_point": "-4"
+    },
+    {
+      "idx": "14021",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "0",
+      "offer_max_rate": "720",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "6",
+      "child_elderly_morality_point": "9"
+    },
+    {
+      "idx": "14022",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "720",
+      "offer_max_rate": "900",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "3",
+      "child_elderly_morality_point": "4.5"
+    },
+    {
+      "idx": "14023",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "900",
+      "offer_max_rate": "900",
+      "include_min": "1",
+      "include_max": "1",
+      "adult_morality_point": "0",
+      "child_elderly_morality_point": "0"
+    },
+    {
+      "idx": "14024",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "900",
+      "offer_max_rate": "945",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-1.5",
+      "child_elderly_morality_point": "-2.25"
+    },
+    {
+      "idx": "14025",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "945",
+      "offer_max_rate": "990",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-3",
+      "child_elderly_morality_point": "-4.5"
+    },
+    {
+      "idx": "14026",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "990",
+      "offer_max_rate": "1080",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-4.5",
+      "child_elderly_morality_point": "-6.75"
+    },
+    {
+      "idx": "14027",
+      "customer_disposition_type": "5",
+      "is_accepted": "1",
+      "offer_min_rate": "1080",
+      "offer_max_rate": "1150",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-6",
+      "child_elderly_morality_point": "-9"
+    },
+    {
+      "idx": "14028",
+      "customer_disposition_type": "5",
+      "is_accepted": "0",
+      "offer_min_rate": "1150",
+      "offer_max_rate": "0",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "-6",
+      "child_elderly_morality_point": "-9"
+    },
+    {
+      "idx": "14029",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "0",
+      "offer_max_rate": "800",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "0.5",
+      "child_elderly_morality_point": "1"
+    },
+    {
+      "idx": "14030",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "800",
+      "offer_max_rate": "1000",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "0.25",
+      "child_elderly_morality_point": "0.5"
+    },
+    {
+      "idx": "14031",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1000",
+      "include_min": "1",
+      "include_max": "1",
+      "adult_morality_point": "0",
+      "child_elderly_morality_point": "0"
+    },
+    {
+      "idx": "14032",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "1000",
+      "offer_max_rate": "1200",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.1",
+      "child_elderly_morality_point": "-0.2"
+    },
+    {
+      "idx": "14033",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "1200",
+      "offer_max_rate": "1400",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.2",
+      "child_elderly_morality_point": "-0.4"
+    },
+    {
+      "idx": "14034",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "1400",
+      "offer_max_rate": "1600",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.3",
+      "child_elderly_morality_point": "-0.6"
+    },
+    {
+      "idx": "14035",
+      "customer_disposition_type": "4",
+      "is_accepted": "1",
+      "offer_min_rate": "1600",
+      "offer_max_rate": "1800",
+      "include_min": "0",
+      "include_max": "1",
+      "adult_morality_point": "-0.5",
+      "child_elderly_morality_point": "-1"
+    },
+    {
+      "idx": "14036",
+      "customer_disposition_type": "4",
+      "is_accepted": "0",
+      "offer_min_rate": "1800",
+      "offer_max_rate": "0",
+      "include_min": "0",
+      "include_max": "0",
+      "adult_morality_point": "-0.5",
+      "child_elderly_morality_point": "-1"
+    }
+  ],
+  "ReputationBalanceData": [
+    {
+      "idx": "11001",
+      "min_reputation": "-100",
+      "max_reputation": "-61",
+      "normal_weight": "500",
+      "price_sensitive_weight": "50",
+      "wealthy_weight": "20",
+      "hasty_weight": "330",
+      "poor_weight": "100",
+      "recovery_rate": "2000",
+      "settlement_min_score": "0",
+      "settlement_max_score": "19",
+      "settlement_delta": "-15"
+    },
+    {
+      "idx": "11002",
+      "min_reputation": "-60",
+      "max_reputation": "-21",
+      "normal_weight": "550",
+      "price_sensitive_weight": "50",
+      "wealthy_weight": "60",
+      "hasty_weight": "240",
+      "poor_weight": "100",
+      "recovery_rate": "1500",
+      "settlement_min_score": "20",
+      "settlement_max_score": "39",
+      "settlement_delta": "-7"
+    },
+    {
+      "idx": "11003",
+      "min_reputation": "-20",
+      "max_reputation": "20",
+      "normal_weight": "600",
+      "price_sensitive_weight": "50",
+      "wealthy_weight": "100",
+      "hasty_weight": "150",
+      "poor_weight": "100",
+      "recovery_rate": "1000",
+      "settlement_min_score": "40",
+      "settlement_max_score": "60",
+      "settlement_delta": "0"
+    },
+    {
+      "idx": "11004",
+      "min_reputation": "21",
+      "max_reputation": "60",
+      "normal_weight": "600",
+      "price_sensitive_weight": "50",
+      "wealthy_weight": "180",
+      "hasty_weight": "70",
+      "poor_weight": "100",
+      "recovery_rate": "1000",
+      "settlement_min_score": "61",
+      "settlement_max_score": "80",
+      "settlement_delta": "7"
+    },
+    {
+      "idx": "11005",
+      "min_reputation": "61",
+      "max_reputation": "100",
+      "normal_weight": "550",
+      "price_sensitive_weight": "50",
+      "wealthy_weight": "250",
+      "hasty_weight": "50",
+      "poor_weight": "100",
+      "recovery_rate": "1000",
+      "settlement_min_score": "81",
+      "settlement_max_score": "100",
+      "settlement_delta": "10"
+    }
+  ],
+  "DaughterDialogueData": [
+    {
+      "idx": "16001",
+      "morality_min": "",
+      "morality_max": "-20",
+      "text_idxs": "8183_8184_8185"
+    },
+    {
+      "idx": "16002",
+      "morality_min": "-20",
+      "morality_max": "-10",
+      "text_idxs": "8186_8187_8188"
+    },
+    {
+      "idx": "16003",
+      "morality_min": "-10",
+      "morality_max": "0",
+      "text_idxs": "8189_8190_8191"
+    },
+    {
+      "idx": "16004",
+      "morality_min": "0",
+      "morality_max": "10",
+      "text_idxs": "8192_8193_8194"
+    },
+    {
+      "idx": "16005",
+      "morality_min": "10",
+      "morality_max": "20",
+      "text_idxs": "8195_8196_8197"
+    },
+    {
+      "idx": "16006",
+      "morality_min": "20",
+      "morality_max": "",
+      "text_idxs": "8198_8199_8200"
+    }
+  ],
+  "TextData": [
+    {
+      "idx": "8183",
+      "text": "아빠가 조금 낯설게 느껴져."
+    },
+    {
+      "idx": "8184",
+      "text": "오늘은 혼자 있고 싶어."
+    },
+    {
+      "idx": "8185",
+      "text": "예전처럼 웃어주면 안 돼?"
+    },
+    {
+      "idx": "8186",
+      "text": "아빠, 무슨 일 있었어?"
+    },
+    {
+      "idx": "8187",
+      "text": "요즘은 아빠 표정이 무서워."
+    },
+    {
+      "idx": "8188",
+      "text": "나한테는 솔직하게 말해줘."
+    },
+    {
+      "idx": "8189",
+      "text": "오늘 많이 힘들었어?"
+    },
+    {
+      "idx": "8190",
+      "text": "아빠가 걱정돼."
+    },
+    {
+      "idx": "8191",
+      "text": "잠깐만 내 옆에 있어줘."
+    },
+    {
+      "idx": "8192",
+      "text": "아빠, 오늘도 다녀왔네."
+    },
+    {
+      "idx": "8193",
+      "text": "같이 조금만 이야기하자."
+    },
+    {
+      "idx": "8194",
+      "text": "오늘 하루는 어땠어?"
+    },
+    {
+      "idx": "8195",
+      "text": "아빠랑 이야기하면 마음이 편해."
+    },
+    {
+      "idx": "8196",
+      "text": "오늘은 좋은 꿈을 꿀 것 같아."
+    },
+    {
+      "idx": "8197",
+      "text": "아빠가 웃어서 나도 좋아."
+    },
+    {
+      "idx": "8198",
+      "text": "나는 아빠가 자랑스러워."
+    },
+    {
+      "idx": "8199",
+      "text": "내일도 아빠랑 함께하고 싶어."
+    },
+    {
+      "idx": "8200",
+      "text": "아빠 덕분에 오늘은 덜 무서웠어."
+    }
+  ],
+  "assumptions": {
+    "seed": 20260912,
+    "runs": 5000,
+    "days": 31,
+    "tradesPerDay": 8,
+    "ageProbabilities": [
+      0.3333333333333333,
+      0.3333333333333333,
+      0.3333333333333333
+    ],
+    "reputationMode": "fixed CSV band; not a reputation feedback simulation",
+    "referenceTotal": 1000,
+    "candidateBoundaries": [
+      -120,
+      -40,
+      0,
+      40,
+      120
+    ]
+  }
+}

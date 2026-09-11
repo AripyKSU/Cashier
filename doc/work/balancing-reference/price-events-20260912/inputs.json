@@ -1,0 +1,527 @@
+{
+  "events": [
+    {
+      "idx": "9001",
+      "nameidx": "8042",
+      "descriptionidx": "8043",
+      "product_idxs": "",
+      "product_types": "2",
+      "change_type": "1",
+      "change_value": "-200"
+    },
+    {
+      "idx": "9002",
+      "nameidx": "8044",
+      "descriptionidx": "8045",
+      "product_idxs": "1001",
+      "product_types": "",
+      "change_type": "2",
+      "change_value": "30"
+    },
+    {
+      "idx": "9003",
+      "nameidx": "8046",
+      "descriptionidx": "8047",
+      "product_idxs": "",
+      "product_types": "",
+      "change_type": "0",
+      "change_value": "0"
+    },
+    {
+      "idx": "9004",
+      "nameidx": "8048",
+      "descriptionidx": "8049",
+      "product_idxs": "",
+      "product_types": "3",
+      "change_type": "1",
+      "change_value": "300"
+    }
+  ],
+  "previousSchedule": [
+    {
+      "idx": "10001",
+      "event_idx": "9001",
+      "channel": "1",
+      "start_day": "0",
+      "end_day": "",
+      "repeat_days": "2",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10002",
+      "event_idx": "9003",
+      "channel": "1",
+      "start_day": "3",
+      "end_day": "",
+      "repeat_days": "4",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10003",
+      "event_idx": "9002",
+      "channel": "2",
+      "start_day": "0",
+      "end_day": "",
+      "repeat_days": "0",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10004",
+      "event_idx": "9004",
+      "channel": "2",
+      "start_day": "0",
+      "end_day": "",
+      "repeat_days": "0",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10005",
+      "event_idx": "9003",
+      "channel": "2",
+      "start_day": "0",
+      "end_day": "",
+      "repeat_days": "0",
+      "selection_weight": "1"
+    }
+  ],
+  "proposedSchedule": [
+    {
+      "idx": "10001",
+      "event_idx": "9001",
+      "channel": "1",
+      "start_day": "2",
+      "end_day": "30",
+      "repeat_days": "7",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10002",
+      "event_idx": "9003",
+      "channel": "1",
+      "start_day": "5",
+      "end_day": "26",
+      "repeat_days": "7",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10003",
+      "event_idx": "9002",
+      "channel": "2",
+      "start_day": "0",
+      "end_day": "30",
+      "repeat_days": "0",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10004",
+      "event_idx": "9004",
+      "channel": "2",
+      "start_day": "0",
+      "end_day": "30",
+      "repeat_days": "0",
+      "selection_weight": "1"
+    },
+    {
+      "idx": "10005",
+      "event_idx": "9003",
+      "channel": "2",
+      "start_day": "0",
+      "end_day": "30",
+      "repeat_days": "0",
+      "selection_weight": "4"
+    }
+  ],
+  "products": [
+    {
+      "idx": "1001",
+      "nameidx": "8012",
+      "product_type": "1",
+      "is_available": "1",
+      "base_price": "100",
+      "available_day": "0",
+      "image_resource_idx": "4254",
+      "cost_price": "50",
+      "required_facility_idx": "",
+      "top_view_image_resource_idx": "4253"
+    },
+    {
+      "idx": "1004",
+      "nameidx": "8015",
+      "product_type": "2",
+      "is_available": "1",
+      "base_price": "250",
+      "available_day": "0",
+      "image_resource_idx": "4248",
+      "cost_price": "125",
+      "required_facility_idx": "",
+      "top_view_image_resource_idx": "4251"
+    },
+    {
+      "idx": "1005",
+      "nameidx": "8016",
+      "product_type": "2",
+      "is_available": "1",
+      "base_price": "350",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "75",
+      "required_facility_idx": "12001",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1006",
+      "nameidx": "8017",
+      "product_type": "2",
+      "is_available": "1",
+      "base_price": "450",
+      "available_day": "0",
+      "image_resource_idx": "4249",
+      "cost_price": "100",
+      "required_facility_idx": "12001",
+      "top_view_image_resource_idx": "4252"
+    },
+    {
+      "idx": "1007",
+      "nameidx": "8018",
+      "product_type": "3",
+      "is_available": "1",
+      "base_price": "300",
+      "available_day": "0",
+      "image_resource_idx": "4246",
+      "cost_price": "150",
+      "required_facility_idx": "",
+      "top_view_image_resource_idx": "4246"
+    },
+    {
+      "idx": "1009",
+      "nameidx": "8020",
+      "product_type": "3",
+      "is_available": "1",
+      "base_price": "700",
+      "available_day": "0",
+      "image_resource_idx": "4250",
+      "cost_price": "350",
+      "required_facility_idx": "12002",
+      "top_view_image_resource_idx": "4250"
+    },
+    {
+      "idx": "1010",
+      "nameidx": "8021",
+      "product_type": "4",
+      "is_available": "1",
+      "base_price": "200",
+      "available_day": "0",
+      "image_resource_idx": "4247",
+      "cost_price": "100",
+      "required_facility_idx": "",
+      "top_view_image_resource_idx": "4247"
+    },
+    {
+      "idx": "1011",
+      "nameidx": "8022",
+      "product_type": "4",
+      "is_available": "1",
+      "base_price": "150",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "75",
+      "required_facility_idx": "",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1013",
+      "nameidx": "8061",
+      "product_type": "3",
+      "is_available": "1",
+      "base_price": "500",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "250",
+      "required_facility_idx": "12002",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1014",
+      "nameidx": "8062",
+      "product_type": "3",
+      "is_available": "1",
+      "base_price": "900",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "450",
+      "required_facility_idx": "12002",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1015",
+      "nameidx": "8063",
+      "product_type": "5",
+      "is_available": "1",
+      "base_price": "800",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "400",
+      "required_facility_idx": "12003",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1016",
+      "nameidx": "8064",
+      "product_type": "5",
+      "is_available": "1",
+      "base_price": "1000",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "500",
+      "required_facility_idx": "12003",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1017",
+      "nameidx": "8065",
+      "product_type": "5",
+      "is_available": "1",
+      "base_price": "1200",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "600",
+      "required_facility_idx": "12003",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1018",
+      "nameidx": "8066",
+      "product_type": "6",
+      "is_available": "1",
+      "base_price": "2000",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "1000",
+      "required_facility_idx": "12004",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1019",
+      "nameidx": "8067",
+      "product_type": "6",
+      "is_available": "1",
+      "base_price": "1200",
+      "available_day": "0",
+      "image_resource_idx": "4247",
+      "cost_price": "600",
+      "required_facility_idx": "12004",
+      "top_view_image_resource_idx": "4247"
+    },
+    {
+      "idx": "1020",
+      "nameidx": "8068",
+      "product_type": "7",
+      "is_available": "1",
+      "base_price": "2500",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "1250",
+      "required_facility_idx": "12005",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1021",
+      "nameidx": "8069",
+      "product_type": "7",
+      "is_available": "1",
+      "base_price": "4000",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "2000",
+      "required_facility_idx": "12005",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1022",
+      "nameidx": "8070",
+      "product_type": "7",
+      "is_available": "1",
+      "base_price": "5000",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "2500",
+      "required_facility_idx": "12005",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1023",
+      "nameidx": "8075",
+      "product_type": "7",
+      "is_available": "1",
+      "base_price": "6000",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "3000",
+      "required_facility_idx": "12006",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1024",
+      "nameidx": "8201",
+      "product_type": "7",
+      "is_available": "1",
+      "base_price": "6500",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "3250",
+      "required_facility_idx": "12006",
+      "top_view_image_resource_idx": ""
+    },
+    {
+      "idx": "1025",
+      "nameidx": "8202",
+      "product_type": "7",
+      "is_available": "1",
+      "base_price": "7000",
+      "available_day": "0",
+      "image_resource_idx": "",
+      "cost_price": "3500",
+      "required_facility_idx": "12006",
+      "top_view_image_resource_idx": ""
+    }
+  ],
+  "facilities": [
+    {
+      "idx": "12001",
+      "nameidx": "8056",
+      "purchase_price": "18000",
+      "upgrade_kind": "1",
+      "required_store_stage": "1",
+      "effect_type": "0",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12002",
+      "nameidx": "8057",
+      "purchase_price": "39000",
+      "upgrade_kind": "1",
+      "required_store_stage": "1",
+      "effect_type": "0",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12003",
+      "nameidx": "8058",
+      "purchase_price": "46000",
+      "upgrade_kind": "1",
+      "required_store_stage": "2",
+      "effect_type": "0",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12004",
+      "nameidx": "8059",
+      "purchase_price": "42000",
+      "upgrade_kind": "1",
+      "required_store_stage": "2",
+      "effect_type": "0",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12005",
+      "nameidx": "8060",
+      "purchase_price": "176000",
+      "upgrade_kind": "1",
+      "required_store_stage": "3",
+      "effect_type": "0",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12006",
+      "nameidx": "8076",
+      "purchase_price": "198000",
+      "upgrade_kind": "1",
+      "required_store_stage": "3",
+      "effect_type": "0",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12007",
+      "nameidx": "8077",
+      "purchase_price": "800",
+      "upgrade_kind": "2",
+      "required_store_stage": "1",
+      "effect_type": "1",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12008",
+      "nameidx": "8078",
+      "purchase_price": "1500",
+      "upgrade_kind": "3",
+      "required_store_stage": "1",
+      "effect_type": "0",
+      "target_store_stage": "2"
+    },
+    {
+      "idx": "12009",
+      "nameidx": "8079",
+      "purchase_price": "1200",
+      "upgrade_kind": "2",
+      "required_store_stage": "2",
+      "effect_type": "2",
+      "target_store_stage": "0"
+    },
+    {
+      "idx": "12010",
+      "nameidx": "8080",
+      "purchase_price": "2500",
+      "upgrade_kind": "3",
+      "required_store_stage": "2",
+      "effect_type": "0",
+      "target_store_stage": "3"
+    },
+    {
+      "idx": "12011",
+      "nameidx": "8081",
+      "purchase_price": "1500",
+      "upgrade_kind": "2",
+      "required_store_stage": "3",
+      "effect_type": "3",
+      "target_store_stage": "0"
+    }
+  ],
+  "proposedEvents": [
+    {
+      "idx": "9001",
+      "nameidx": "8042",
+      "descriptionidx": "8043",
+      "product_idxs": "",
+      "product_types": "2",
+      "change_type": "1",
+      "change_value": "-100"
+    },
+    {
+      "idx": "9002",
+      "nameidx": "8044",
+      "descriptionidx": "8045",
+      "product_idxs": "1001",
+      "product_types": "",
+      "change_type": "2",
+      "change_value": "15"
+    },
+    {
+      "idx": "9003",
+      "nameidx": "8046",
+      "descriptionidx": "8047",
+      "product_idxs": "",
+      "product_types": "",
+      "change_type": "0",
+      "change_value": "0"
+    },
+    {
+      "idx": "9004",
+      "nameidx": "8048",
+      "descriptionidx": "8049",
+      "product_idxs": "",
+      "product_types": "3",
+      "change_type": "1",
+      "change_value": "150"
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "poor": {
+    "status": "source-confirmed, applied",
+    "rows": [
+      {
+        "idx": 14021,
+        "offer_min_rate": 0,
+        "offer_max_rate": 720,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": 6,
+        "child_elderly_morality_point": 9
+      },
+      {
+        "idx": 14022,
+        "offer_min_rate": 720,
+        "offer_max_rate": 900,
+        "include_min": 0,
+        "include_max": 0,
+        "is_accepted": 1,
+        "adult_morality_point": 3,
+        "child_elderly_morality_point": 4.5
+      },
+      {
+        "idx": 14023,
+        "offer_min_rate": 900,
+        "offer_max_rate": 900,
+        "include_min": 1,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": 0,
+        "child_elderly_morality_point": 0
+      },
+      {
+        "idx": 14024,
+        "offer_min_rate": 900,
+        "offer_max_rate": 945,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -1.5,
+        "child_elderly_morality_point": -2.25
+      },
+      {
+        "idx": 14025,
+        "offer_min_rate": 945,
+        "offer_max_rate": 990,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -3,
+        "child_elderly_morality_point": -4.5
+      },
+      {
+        "idx": 14026,
+        "offer_min_rate": 990,
+        "offer_max_rate": 1080,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -4.5,
+        "child_elderly_morality_point": -6.75
+      },
+      {
+        "idx": 14027,
+        "offer_min_rate": 1080,
+        "offer_max_rate": 1150,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -6,
+        "child_elderly_morality_point": -9
+      },
+      {
+        "idx": 14028,
+        "offer_min_rate": 1150,
+        "offer_max_rate": 0,
+        "include_min": 0,
+        "include_max": 0,
+        "is_accepted": 0,
+        "adult_morality_point": -6,
+        "child_elderly_morality_point": -9
+      }
+    ]
+  },
+  "wealthy": {
+    "status": "user-approved draft, applied",
+    "rows": [
+      {
+        "idx": 14029,
+        "offer_min_rate": 0,
+        "offer_max_rate": 800,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": 0.5,
+        "child_elderly_morality_point": 1
+      },
+      {
+        "idx": 14030,
+        "offer_min_rate": 800,
+        "offer_max_rate": 1000,
+        "include_min": 0,
+        "include_max": 0,
+        "is_accepted": 1,
+        "adult_morality_point": 0.25,
+        "child_elderly_morality_point": 0.5
+      },
+      {
+        "idx": 14031,
+        "offer_min_rate": 1000,
+        "offer_max_rate": 1000,
+        "include_min": 1,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": 0,
+        "child_elderly_morality_point": 0
+      },
+      {
+        "idx": 14032,
+        "offer_min_rate": 1000,
+        "offer_max_rate": 1200,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -0.1,
+        "child_elderly_morality_point": -0.2
+      },
+      {
+        "idx": 14033,
+        "offer_min_rate": 1200,
+        "offer_max_rate": 1400,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -0.2,
+        "child_elderly_morality_point": -0.4
+      },
+      {
+        "idx": 14034,
+        "offer_min_rate": 1400,
+        "offer_max_rate": 1600,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -0.3,
+        "child_elderly_morality_point": -0.6
+      },
+      {
+        "idx": 14035,
+        "offer_min_rate": 1600,
+        "offer_max_rate": 1800,
+        "include_min": 0,
+        "include_max": 1,
+        "is_accepted": 1,
+        "adult_morality_point": -0.5,
+        "child_elderly_morality_point": -1
+      },
+      {
+        "idx": 14036,
+        "offer_min_rate": 1800,
+        "offer_max_rate": 0,
+        "include_min": 0,
+        "include_max": 0,
+        "is_accepted": 0,
+        "adult_morality_point": -0.5,
+        "child_elderly_morality_point": -1
+      }
+    ]
+  },
+  "idsAssigned": true
+}
