@@ -52,7 +52,7 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 경제 문서의 FinanceService.CanAfford/TrySpend/BalanceChanged, MaintenanceService의 성공/부족/순차 회차/MaintenancePaid, LogService의 순서·전후 금액/Dispose 구독해제는 코드에 있지만 등록된 세션 fixture가 전체 계약을 독립 검증하지 않는다. 현재 매출 AddIncome·Query 잔고·종료 거부·session teardown 증거를 경제 전체 PASS로 확장하지 않는다. 추가 경제 suite는 별도 범위다.
 - TryApplyTransaction은 거래 ID 중복 제거 API가 아니다. 현 DayProgress가 방문 상태로 중복 전달을 거부하고 접수 실패 latch를 소유한다. UI 버튼의 실제 조작/오류표시는 수동 검증 대상이다.
 - 상품 원가는 SoldItems/CostTotal에 기록만 한다. 일일 원가 차감·명성 계산·지침 벌칙은 미연결이다. 명성0~100 등의 구형 예시를 기대값으로 복원하지 않았다.
-- 과거 손님 문서의 공통 행복도·무작위 이탈과 최신 보류/제거 기획이 충돌한다. 현 대기열은 성향별 시간 만료 계약만 검사한다. 현 Normal/Hasty/PriceSensitive 유지+Wealthy 타입 추가 합의가 오래된 성향 목록보다 우선한다. Wealthy 데이터 행은 없다.
+- 과거 손님 문서의 공통 행복도·무작위 이탈과 최신 보류/제거 기획이 충돌한다. 현 대기열은 성향별 시간 만료 계약만 검사한다. 현재 유효 성향은 Normal/PriceSensitive/Hasty(표시명 성급함)/Wealthy/Poor이며 다섯 타입의 데이터 행을 검사한다.
 - 회의록의 라디오 추후 피처 표기와 이미 승인·구현된 기능을 구분한다. 현재 API 회귀 통과는 최종 기획 활성화 승인이나 UI 완성을 뜻하지 않는다.
 - MainScene bootstrap/직렬화·레이아웃·폰트·이미지 실자산·버튼/연출·Player build·저장 복원은 이번 자동 API 범위 밖이다.
 
@@ -67,7 +67,7 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 
 ## 손님 속성 세 축 검증 (2026-09-09)
 
-- `CustomerAttributes`는 기존 비트 유지+Adult16/Normal32만 추가했다. 성별2×연령3×특수1=6조합, 특수 속성 Wealthy/Poor는 없고 성향 enum은 변경하지 않았다.
+- `CustomerAttributes`는 기존 비트 유지+Adult16/Normal32만 추가했다. 성별2×연령3×특수1=6조합이며 Wealthy/Poor는 성향 enum으로만 사용한다.
 - Unity 6000.3.18f1, Cashier PID29172, `Tools/Run-Tests.ps1`: EditMode139/139, PlayMode20/20, 실패0·skip/미완료0.
 - 증거: `Temp/TestResults/20260909-124924-72e789a824f34e5d80227f188ac3806b/`의 EditMode.xml/PlayMode.xml 및 각각 .log. Git 제외 임시 증거다.
 - CustomerContractTests에서6조합 도달·균등성·외형/성향 독립·seed 재현, 부분조건/완전프로필 분리, 미정의bits·동축중복·축누락 및 실제 방문 생성자 거부, Adult/Normal/Child 단독·세 축 AND 지침을 검사했다. 기존 성향 Wealthy도 Normal 속성과 별개이며 금액 효과가 없음을 확인했다.

@@ -44,6 +44,9 @@ public sealed class CustomerComposition
     /// <summary>생성 시 복사한 가격 허용 배율입니다. 1000=100%입니다.</summary>
     public int PriceTolerance { get; }
 
+    /// <summary>생성 시 복사한 결제 허용 하한 배율입니다. 1000=100%입니다.</summary>
+    public int MinimumPriceTolerance { get; }
+
     /// <summary>정가 인정 하한 배율입니다. 1000=100%입니다.</summary>
     public int RegularPriceMinRate { get; }
 
@@ -67,6 +70,7 @@ public sealed class CustomerComposition
     /// <param name="exploitativeSaleTextIdx">착취 판매 대사 FK입니다.</param>
     /// <param name="rejectTextIdx">거절 대사 FK입니다.</param>
     /// <param name="priceTolerance">가격 허용 배율입니다.</param>
+    /// <param name="minimumPriceTolerance">결제 허용 하한 배율입니다.</param>
     /// <param name="regularPriceMinRate">정가 인정 하한 배율입니다.</param>
     /// <param name="regularPriceMaxRate">정가 인정 상한 배율입니다.</param>
     /// <param name="availableProductIds">생성 시 활성화된 전체 상품 PK입니다.</param>
@@ -84,6 +88,7 @@ public sealed class CustomerComposition
         uint exploitativeSaleTextIdx,
         uint rejectTextIdx,
         int priceTolerance,
+        int minimumPriceTolerance,
         int regularPriceMinRate,
         int regularPriceMaxRate,
         IEnumerable<uint> availableProductIds)
@@ -99,7 +104,8 @@ public sealed class CustomerComposition
         if (entryTextIdx == 0 || regularSaleTextIdx == 0 || discountSaleTextIdx == 0 ||
             exploitativeSaleTextIdx == 0 || rejectTextIdx == 0)
             throw new ArgumentException("모든 대사 FK가 필요합니다.");
-        if (priceTolerance <= 0 || regularPriceMinRate <= 0 || regularPriceMinRate > 1000 || regularPriceMaxRate < 1000)
+        if (priceTolerance <= 0 || minimumPriceTolerance < 0 || minimumPriceTolerance > 1000 ||
+            minimumPriceTolerance > priceTolerance || regularPriceMinRate <= 0 || regularPriceMinRate > 1000 || regularPriceMaxRate < 1000)
             throw new ArgumentException("가격 규칙 범위가 잘못되었습니다.");
 
         try
@@ -147,8 +153,22 @@ public sealed class CustomerComposition
         ExploitativeSaleTextIdx = exploitativeSaleTextIdx;
         RejectTextIdx = rejectTextIdx;
         PriceTolerance = priceTolerance;
+        MinimumPriceTolerance = minimumPriceTolerance;
         RegularPriceMinRate = regularPriceMinRate;
         RegularPriceMaxRate = regularPriceMaxRate;
         AvailableProductIds = new ReadOnlyCollection<uint>(copiedAvailableIds);
+    }
+
+    /// <summary>기존 호출부와의 호환을 위해 결제 하한을 0%로 사용하는 구성 생성자입니다.</summary>
+    public CustomerComposition(
+        uint appearanceIdx, uint dispositionIdx, CustomerDispositionType dispositionType,
+        CustomerAttributes attributes, IEnumerable<CustomerOrderItem> items,
+        uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx,
+        uint exploitativeSaleTextIdx, uint rejectTextIdx, int priceTolerance,
+        int regularPriceMinRate, int regularPriceMaxRate, IEnumerable<uint> availableProductIds)
+        : this(appearanceIdx, dispositionIdx, dispositionType, attributes, items,
+            entryTextIdx, regularSaleTextIdx, discountSaleTextIdx, exploitativeSaleTextIdx,
+            rejectTextIdx, priceTolerance, 0, regularPriceMinRate, regularPriceMaxRate, availableProductIds)
+    {
     }
 }

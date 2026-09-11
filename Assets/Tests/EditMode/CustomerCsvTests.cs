@@ -33,7 +33,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 7 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 87) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 4 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 88) throw new Exception("Unexpected sample counts");
 var expectedProductIds = new uint[] { 1001, 1004, 1005, 1006, 1007, 1010, 1013, 1014, 1015, 1016, 1018, 1019, 1020, 1021, 1022, 1023 };
 if (!valid.Products.Rows.Keys.OrderBy(x => x).SequenceEqual(expectedProductIds)) throw new Exception("Unexpected final product IDs");
 if (valid.Products.Rows.Values.Count(x => !x.RequiredFacilityIdx.HasValue) != 4) throw new Exception("Unexpected default product count");
@@ -46,7 +46,7 @@ if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) 
 
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.RegularPriceMinRate==1000 && x.RegularPriceMaxRate==1000));
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.PreferredProductIdxs.Count==0));
-Assert.That(valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.DispositionType), Is.EqualTo(new[]{CustomerDispositionType.Normal,CustomerDispositionType.Hasty,CustomerDispositionType.PriceSensitive,CustomerDispositionType.Normal,CustomerDispositionType.Normal,CustomerDispositionType.Normal,CustomerDispositionType.Wealthy}));
+Assert.That(valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.DispositionType), Is.EqualTo(new[]{CustomerDispositionType.Normal,CustomerDispositionType.Hasty,CustomerDispositionType.PriceSensitive,CustomerDispositionType.Normal,CustomerDispositionType.Normal,CustomerDispositionType.Normal,CustomerDispositionType.Wealthy,CustomerDispositionType.PriceSensitive,CustomerDispositionType.PriceSensitive,CustomerDispositionType.Wealthy,CustomerDispositionType.Wealthy,CustomerDispositionType.Poor,CustomerDispositionType.Poor,CustomerDispositionType.Poor,CustomerDispositionType.Poor}));
     }
     /// <summary>명명된 잘못된 파일 하나가 LogError와 예외를 내며 공개되지 않는지 확인한다.</summary>
     /// <param name="name">오류 사례.</param>
@@ -88,10 +88,13 @@ Assert.That(valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.Disposit
     [TestCase("zero cost")]
     [TestCase("type header")]
     [TestCase("product preference header")]
-    [TestCase("regular min header")]
-    [TestCase("regular max header")]
+[TestCase("regular min header")]
+[TestCase("regular max header")]
+[TestCase("minimum tolerance header")]
+[TestCase("minimum tolerance overflow")]
+[TestCase("minimum tolerance above maximum")]
     [TestCase("type 0")]
-    [TestCase("type 5")]
+[TestCase("type 6")]
     [TestCase("type 99")]
     [TestCase("type Normal")]
     [TestCase("type empty")]
@@ -165,8 +168,11 @@ case "type header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("disp
 case "product preference header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("preferred_product_idxs", "missing_products")); break;
 case "regular min header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("regular_price_min_rate","missing_min")); break;
 case "regular max header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("regular_price_max_rate","missing_max")); break;
+case "minimum tolerance header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("minimum_price_tolerance","missing_minimum_tolerance")); break;
+case "minimum tolerance overflow": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",1000,8036_8037", ",1001,8036_8037")); break;
+case "minimum tolerance above maximum": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",0,8024_8025", ",1200,8024_8025")); break;
 case "type 0": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,0,")); break;
-case "type 5": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,5,")); break;
+case "type 6": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,6,")); break;
 case "type 99": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,99,")); break;
 case "type Normal": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,Normal,")); break;
 case "type empty": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,", "8051,,")); break;

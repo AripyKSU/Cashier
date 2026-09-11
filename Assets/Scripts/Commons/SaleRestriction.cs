@@ -192,23 +192,60 @@ public static class DailyGuidelineExclusionAllowance
     }
 }
 
-/// <summary>일차와 당일 등장 상품을 기준으로 서로 충돌하지 않는 일일지침을 무작위 생성합니다.</summary>
+/// <summary>
+/// 일차와 당일 등장 상품을 기준으로 서로 충돌하지 않는 일일지침을 무작위 생성합니다.
+/// 대상 손님은 모든 손님을 70%로, 성별·연령 단일 속성을 각각 6%로 선택합니다.
+/// </summary>
 public sealed class DailyGuidelineGenerator
 {
-    private static readonly CustomerAttributes[] TargetAttributes =
+    private const int AllCustomerTargetWeight = 70;
+    private const int SingleAttributeTargetWeight = 6;
+
+    /// <summary>속성 후보와 상대 선택 가중치를 묶은 생성 전용 값입니다.</summary>
+    private readonly struct TargetAttributeOption
     {
-        CustomerAttributes.None,
-        CustomerAttributes.Male,
-        CustomerAttributes.Female,
-        CustomerAttributes.Child,
-        CustomerAttributes.Adult,
-        CustomerAttributes.Elderly,
-        CustomerAttributes.Male | CustomerAttributes.Child,
-        CustomerAttributes.Male | CustomerAttributes.Adult,
-        CustomerAttributes.Male | CustomerAttributes.Elderly,
-        CustomerAttributes.Female | CustomerAttributes.Child,
-        CustomerAttributes.Female | CustomerAttributes.Adult,
-        CustomerAttributes.Female | CustomerAttributes.Elderly
+        /// <summary>지침에 기록할 손님 대상 조건입니다.</summary>
+        public CustomerAttributes Attributes { get; }
+        /// <summary>후보 선택 시 적용할 상대 가중치입니다.</summary>
+        public int Weight { get; }
+
+        /// <summary>속성 후보를 생성합니다.</summary>
+        /// <param name="attributes">손님 대상 조건입니다.</param>
+        /// <param name="weight">양의 상대 가중치입니다.</param>
+        public TargetAttributeOption(CustomerAttributes attributes, int weight)
+        {
+            Attributes = attributes;
+            Weight = weight;
+        }
+    }
+
+    /// <summary>지침과 속성 후보의 상대 선택 가중치를 묶은 생성 전용 값입니다.</summary>
+    private readonly struct WeightedGuidelineCandidate
+    {
+        /// <summary>생성된 지침입니다.</summary>
+        public DailyGuideline Guideline { get; }
+        /// <summary>속성 후보에서 상속한 상대 가중치입니다.</summary>
+        public int Weight { get; }
+
+        /// <summary>가중치가 적용된 지침 후보를 생성합니다.</summary>
+        /// <param name="guideline">생성된 지침입니다.</param>
+        /// <param name="weight">양의 상대 가중치입니다.</param>
+        public WeightedGuidelineCandidate(DailyGuideline guideline, int weight)
+        {
+            Guideline = guideline;
+            Weight = weight;
+        }
+    }
+
+    // None은 모든 손님을 뜻하며, 나머지는 성별 또는 연령 중 하나만 지정한다.
+    private static readonly TargetAttributeOption[] TargetAttributeOptions =
+    {
+        new TargetAttributeOption(CustomerAttributes.None, AllCustomerTargetWeight),
+        new TargetAttributeOption(CustomerAttributes.Male, SingleAttributeTargetWeight),
+        new TargetAttributeOption(CustomerAttributes.Female, SingleAttributeTargetWeight),
+        new TargetAttributeOption(CustomerAttributes.Child, SingleAttributeTargetWeight),
+        new TargetAttributeOption(CustomerAttributes.Adult, SingleAttributeTargetWeight),
+        new TargetAttributeOption(CustomerAttributes.Elderly, SingleAttributeTargetWeight)
     };
 
     // 같은 생성기 인스턴스에서 날짜별 추첨 순서를 이어가는 난수원입니다.
@@ -266,26 +303,57 @@ public sealed class DailyGuidelineGenerator
         if (productIds.Length < guidelineCount)
             throw new InvalidOperationException($"일일지침 {guidelineCount}개에 사용할 서로 다른 당일 상품이 부족합니다.");
 
-        var candidates = new List<DailyGuideline>();
+        var candidates = new List<WeightedGuidelineCandidate>();
         foreach (DailyGuidelineData template in templates)
-            foreach (CustomerAttributes attributes in TargetAttributes)
+            foreach (TargetAttributeOption target in TargetAttributeOptions)
                 foreach (uint productIdx in productIds)
-                    candidates.Add(template.CreateGuideline(attributes, productIdx));
+                    candidates.Add(new WeightedGuidelineCandidate(
+                        template.CreateGuideline(target.Attributes, productIdx), target.Weight));
 
         var selected = new List<DailyGuideline>(guidelineCount);
         while (selected.Count < guidelineCount)
         {
-            List<DailyGuideline> available = candidates.Where(candidate =>
-                selected.All(existing => !conflicts(existing, candidate))).ToList();
+            List<WeightedGuidelineCandidate> available = candidates.Where(candidate =>
+                selected.All(existing => !conflicts(existing, candidate.Guideline))).ToList();
             if (available.Count == 0)
                 throw new InvalidOperationException($"일일지침 {guidelineCount}개를 충돌 없이 생성할 수 없습니다.");
 
-            DailyGuideline guideline = available[this.random.Next(available.Count)];
+            DailyGuideline guideline = available[selectWeightedCandidateIndex(available)].Guideline;
             selected.Add(guideline);
-            candidates.RemoveAll(candidate => sameCandidate(candidate, guideline));
+            candidates.RemoveAll(candidate => sameCandidate(candidate.Guideline, guideline));
         }
 
         return selected.AsReadOnly();
+    }
+
+    /// <summary>후보의 상대 가중치에 따라 하나의 후보 인덱스를 선택합니다.</summary>
+    /// <param name="candidates">하나 이상이며 양의 가중치를 가진 후보 목록입니다.</param>
+    /// <returns>선택된 후보의 인덱스입니다.</returns>
+    /// <exception cref="ArgumentException">후보가 없거나 가중치가 유효하지 않은 경우 발생합니다.</exception>
+    private int selectWeightedCandidateIndex(IReadOnlyList<WeightedGuidelineCandidate> candidates)
+    {
+        if (candidates == null || candidates.Count == 0)
+            throw new ArgumentException("가중치 선택 후보가 필요합니다.", nameof(candidates));
+
+        int totalWeight = 0;
+        foreach (WeightedGuidelineCandidate candidate in candidates)
+        {
+            if (candidate.Weight <= 0)
+                throw new ArgumentException("가중치는 양수여야 합니다.", nameof(candidates));
+            totalWeight = checked(totalWeight + candidate.Weight);
+        }
+
+        int roll = this.random.Next(totalWeight);
+        int cumulativeWeight = 0;
+        for (int index = 0; index < candidates.Count; index++)
+        {
+            cumulativeWeight += candidates[index].Weight;
+            if (roll < cumulativeWeight)
+                return index;
+        }
+
+        // totalWeight와 누적값은 위 루프에서 동일한 후보 집합을 사용하므로 도달하지 않는다.
+        throw new InvalidOperationException("가중치 후보 선택에 실패했습니다.");
     }
 
     /// <summary>한 물품에 복수 제한이 겹쳐 중복·포함·규칙 유형 충돌이 생기는지 검사합니다.</summary>

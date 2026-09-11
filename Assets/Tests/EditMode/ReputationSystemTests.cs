@@ -57,8 +57,8 @@ public sealed class ReputationSystemTests
         }
 
         Assert.That(this.balanceTable.Rows.Values.All(row =>
-            row.NormalWeight + row.WealthyWeight + row.HastyWeight + row.SpecialWeight == 1000), Is.True);
-        Assert.That(this.balanceTable.Rows.Values.All(row => row.SpecialWeight == 0), Is.True);
+            row.NormalWeight + row.PriceSensitiveWeight + row.WealthyWeight + row.HastyWeight + row.PoorWeight == 1000), Is.True);
+        Assert.That(this.balanceTable.Rows.Values.All(row => row.PoorWeight == 100), Is.True);
     }
 
     /// <summary>명성 CSV의 각 불변 조건 위반을 거부하고 이전 공개 데이터를 보존하는지 확인합니다.</summary>
@@ -82,8 +82,8 @@ public sealed class ReputationSystemTests
             "pk" => validCsv.Replace("11001,-100", "10001,-100"),
             "gap" => validCsv.Replace("11001,-100,-61", "11001,-100,-62"),
             "overlap" => validCsv.Replace("11001,-100,-61", "11001,-100,-60"),
-            "weight" => validCsv.Replace("667,33,300,0", "666,33,300,0"),
-            "negative-weight" => validCsv.Replace("667,33,300,0", "1001,-1,0,0"),
+            "weight" => validCsv.Replace("500,50,20,330,100", "499,50,20,330,100"),
+            "negative-weight" => validCsv.Replace("500,50,20,330,100", "1001,-1,0,0,0"),
             "recovery" => validCsv.Replace("300,0,2000", "300,0,999"),
             "settlement-gap" => validCsv.Replace("2000,0,19", "2000,0,18"),
             "delta" => validCsv.Replace("0,19,-15", "0,19,-16"),
@@ -114,6 +114,18 @@ public sealed class ReputationSystemTests
         TransactionResult transaction = makeTransaction(disposition, offeredTotal);
 
         Assert.That(ReputationTransactionClassifier.Classify(transaction, disposition), Is.EqualTo(expectedGrade));
+    }
+
+    /// <summary>가격 민감 손님의 하한 미달 거절은 판매자 폭리로 기록하지 않습니다.</summary>
+    [Test]
+    public void BelowMinimumRefusalIsNeutralForReputation()
+    {
+        CustomerDispositionData disposition = makeDisposition(CustomerDispositionType.PriceSensitive, 1000);
+        disposition.MinimumPriceTolerance = 1000;
+        TransactionResult transaction = makeTransaction(disposition, 99);
+
+        Assert.That(ReputationTransactionClassifier.Classify(transaction, disposition),
+            Is.EqualTo(ReputationTransactionGrade.Regular));
     }
 
     /// <summary>거래가 없거나 4건 이하이면 가상 정가와 20~80 제한이 극단 정산을 막는지 확인합니다.</summary>

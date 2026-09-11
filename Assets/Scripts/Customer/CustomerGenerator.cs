@@ -92,6 +92,7 @@ public sealed class CustomerGenerator
             composition.DispositionIdx,
             new List<CustomerOrderItem>(composition.Items),
             composition.PriceTolerance,
+            composition.MinimumPriceTolerance,
             composition.EntryTextIdx,
             composition.RegularSaleTextIdx,
             composition.DiscountSaleTextIdx,

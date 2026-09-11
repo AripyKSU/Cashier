@@ -8,6 +8,7 @@ public enum CustomerDispositionType
     Hasty = 2,
     PriceSensitive = 3,
     Wealthy = 4,
+    Poor = 5,
     CustomerDispositionType_End
 }
 
@@ -37,7 +38,8 @@ public static class CustomerProfileValidation
     public static void ValidateType(CustomerDispositionType type)
     {
         if (type != CustomerDispositionType.Normal && type != CustomerDispositionType.Hasty &&
-            type != CustomerDispositionType.PriceSensitive && type != CustomerDispositionType.Wealthy)
+            type != CustomerDispositionType.PriceSensitive && type != CustomerDispositionType.Wealthy &&
+            type != CustomerDispositionType.Poor)
             throw new ArgumentOutOfRangeException(nameof(type), type, "유효한 손님 타입이 필요합니다.");
     }
 

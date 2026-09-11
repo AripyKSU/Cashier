@@ -213,6 +213,27 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// <summary>가장 최근에 완료된 최종 통합 정산 결과입니다.</summary>
     public DailySettlementResult? LastSettlementResult { get; private set; }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>수동 UI 검증을 위해 영업 전 세션을 지정한 경과일로 이동하고 당일 콘텐츠 캐시를 폐기합니다.</summary>
+    /// <param name="elapsedDays">표시 일차보다 1 작은 경과일입니다.</param>
+    /// <exception cref="InvalidOperationException">세션이 초기화되지 않았거나 영업이 열린 경우 발생합니다.</exception>
+    internal void DebugSetElapsedDays(uint elapsedDays)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("초기화된 세션에서만 테스트 날짜를 변경할 수 있습니다.");
+        if (this.economy.QueryService.IsDayOpen)
+            throw new InvalidOperationException("영업 중에는 테스트 날짜를 변경할 수 없습니다.");
+
+        ElapsedDays = elapsedDays;
+        DailyPrices = null;
+        DailyGuidelines = Array.Empty<DailyGuideline>();
+        this.dailyGuidelineElapsedDays = null;
+        LastSettlementResult = null;
+        this.hasClosedDay = false;
+        this.radioPending = false;
+        this.radioRemainingSeconds = 0f;
+    }
+#endif
+
     /// <summary>오늘 가격을 한 번만 확정한다. UI 재진입 시 동일 객체를 반환한다.</summary>
     /// <returns>신문·라디오·현재가 snapshot.</returns>
     /// <exception cref="InvalidOperationException">초기화 전 호출.</exception>

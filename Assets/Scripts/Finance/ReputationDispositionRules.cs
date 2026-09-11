@@ -51,6 +51,7 @@ public static class ReputationDispositionRules
             }
 
             if (representative.PriceTolerance != data.PriceTolerance ||
+                representative.MinimumPriceTolerance != data.MinimumPriceTolerance ||
                 representative.RegularPriceMinRate != data.RegularPriceMinRate ||
                 representative.RegularPriceMaxRate != data.RegularPriceMaxRate)
             {

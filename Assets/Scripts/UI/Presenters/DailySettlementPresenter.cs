@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -53,6 +54,16 @@ public class DailySettlementPresenter : MonoBehaviour
 
     [Tooltip("손님 통계 텍스트 (성공/거절/이탈)")]
     [SerializeField] private TextMeshProUGUI customerStatsText;
+
+    [Header("Payment Breakdown")]
+    [SerializeField] private TextMeshProUGUI maintenanceText;
+    [SerializeField] private TextMeshProUGUI guidelinePenaltyText;
+    [SerializeField] private TextMeshProUGUI guidelineViolationDetailsText;
+    [SerializeField] private TextMeshProUGUI previousUnpaidText;
+    [SerializeField] private TextMeshProUGUI totalPaymentDueText;
+    [SerializeField] private TextMeshProUGUI paidAmountText;
+    [SerializeField] private TextMeshProUGUI unpaidAmountText;
+    [SerializeField] private TextMeshProUGUI gracePeriodText;
 
     [Header("Buttons")]
     [Tooltip("다음 단계 요청 버튼")]
@@ -117,6 +128,24 @@ public class DailySettlementPresenter : MonoBehaviour
         {
             this.customerStatsText.text = $"Sales: <b>{viewData.SuccessfulSales}</b>  |  Refused: <b>{viewData.RefusedCustomers}</b>  |  Departed: <b>{viewData.DepartedCustomers}</b>";
         }
+
+        if (this.maintenanceText != null) this.maintenanceText.text = $"유지비  {viewData.MaintenanceAmount:N0} G";
+        if (this.guidelinePenaltyText != null) this.guidelinePenaltyText.text = $"지침 벌금  {viewData.GuidelinePenaltyAmount:N0} G";
+        if (this.previousUnpaidText != null) this.previousUnpaidText.text = $"기존 미납액  {viewData.PreviousUnpaidAmount:N0} G";
+        if (this.totalPaymentDueText != null) this.totalPaymentDueText.text = $"총 납부 필요액  {viewData.TotalPaymentDue:N0} G";
+        if (this.paidAmountText != null) this.paidAmountText.text = $"실제 납부액  {viewData.PaidAmount:N0} G";
+        if (this.unpaidAmountText != null) this.unpaidAmountText.text = $"남은 미납액  {viewData.UnpaidAmount:N0} G";
+        if (this.guidelineViolationDetailsText != null)
+        {
+            this.guidelineViolationDetailsText.text = viewData.GuidelineViolations.Count == 0
+                ? "지침 위반 없음"
+                : string.Join("\n", viewData.GuidelineViolations.Select(item =>
+                    $"{item.Content} × {item.ViolationCount}  -{item.PenaltyAmount:N0} G"));
+        }
+        if (this.gracePeriodText != null)
+        {
+            this.gracePeriodText.text = formatGracePeriod(viewData);
+        }
     }
 
     /// <summary>정산 패널 닫기</summary>
@@ -155,6 +184,18 @@ public class DailySettlementPresenter : MonoBehaviour
     {
         this.Close();
         this.OnNextStepRequested?.Invoke();
+    }
+
+    /// <summary>미납과 유예 상태를 한 줄의 확정 표시 문구로 변환합니다.</summary>
+    /// <param name="viewData">도메인 결과가 담긴 정산 스냅샷입니다.</param>
+    /// <returns>완납, 유예 또는 게임오버 조건 문구입니다.</returns>
+    private static string formatGracePeriod(DailySettlementViewData viewData)
+    {
+        if (viewData.UnpaidAmount == 0) return "납부 완료";
+        if (viewData.IsGameOverConditionMet) return "유예 종료 · 게임오버 조건 성립";
+        return viewData.GracePeriodEndDay.HasValue
+            ? $"상환 기한 {viewData.GracePeriodEndDay.Value}일차 · {viewData.RemainingGraceDays}일 남음"
+            : "미납";
     }
 
     /// <summary>

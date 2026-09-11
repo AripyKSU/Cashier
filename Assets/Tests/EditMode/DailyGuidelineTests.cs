@@ -71,4 +71,35 @@ public sealed class DailyGuidelineTests
         Assert.That(guideline.AllowedQuantity, Is.EqualTo(1));
         Assert.That(guideline.PenaltyAmount, Is.EqualTo(500));
     }
+
+    /// <summary>생성 대상이 모든 손님 또는 성별·연령 단일 속성으로만 구성되고 모든 손님이 우세한지 검사합니다.</summary>
+    [Test]
+    public void DailyGuidelineGenerator_PrefersAllCustomersWithoutCombinedAttributes()
+    {
+        var generator = new DailyGuidelineGenerator(new System.Random(7));
+        uint[] productIds = { 1001, 1004, 1005, 1006 };
+        int allCustomerCount = 0;
+        int singleAttributeCount = 0;
+
+        for (int index = 0; index < 1000; index++)
+        {
+            DailyGuideline guideline = generator.Generate(9, guidelineTable.Rows, productIds)[0];
+            if (guideline.RequiredAttributes == CustomerAttributes.None)
+            {
+                allCustomerCount++;
+                continue;
+            }
+
+            bool isSingleAttribute = guideline.RequiredAttributes == CustomerAttributes.Male ||
+                guideline.RequiredAttributes == CustomerAttributes.Female ||
+                guideline.RequiredAttributes == CustomerAttributes.Child ||
+                guideline.RequiredAttributes == CustomerAttributes.Adult ||
+                guideline.RequiredAttributes == CustomerAttributes.Elderly;
+            if (isSingleAttribute) singleAttributeCount++;
+        }
+
+        Assert.That(allCustomerCount, Is.GreaterThanOrEqualTo(600));
+        Assert.That(singleAttributeCount, Is.GreaterThan(0));
+        Assert.That(allCustomerCount + singleAttributeCount, Is.EqualTo(1000));
+    }
 }

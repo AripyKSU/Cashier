@@ -51,6 +51,9 @@ public sealed class CustomerVisit
     public long? BaseTotal => Result?.ReferenceTotal;
     /// <summary>입장 시 고정한 가격 허용 배율. 1000=100%.</summary>
     public int PriceTolerance { get; }
+
+    /// <summary>결제 허용 하한 배율입니다. 1000=100%이며 이보다 낮은 제안은 거절합니다.</summary>
+    public int MinimumPriceTolerance { get; }
     /// <summary>방문 생성 시 복사한 정가 인정 하한. 1000=100%.</summary>
     public int RegularPriceMinRate { get; }
     /// <summary>방문 생성 시 복사한 정가 인정 상한. 결제 거부 판정이 우선한다.</summary>
@@ -108,6 +111,7 @@ public sealed class CustomerVisit
     /// <param name="getCurrentPrices">최신 현재가 조회 함수. 생성 시 가격표를 캡처하지 않는다.</param>
     /// <param name="dispositionType">검증 후 복사할 성향 타입.</param>
     /// <param name="attributes">세 축이 모두 지정된 독립 속성.</param>
+    /// <param name="minimumPriceTolerance">결제 허용 하한 배율.</param>
     /// <param name="regularPriceMinRate">생성기가 검증한 정가 인정 하한 배율.</param>
     /// <param name="regularPriceMaxRate">생성기가 검증한 정가 인정 상한 배율.</param>
     /// <param name="getSaleRestrictions">구형 판매 제한 조회. null은 미연결.</param>
@@ -115,7 +119,7 @@ public sealed class CustomerVisit
     /// <param name="availableProductIds">생성일의 활성·등장·설비 조건을 통과한 전체 상품 PK.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
-        int priceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
+        int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
@@ -124,6 +128,9 @@ public sealed class CustomerVisit
     {
         if (getSaleRestrictions != null && getDailyGuidelines != null)
             throw new ArgumentException("구형 판매 제한과 정식 일일지침을 동시에 연결할 수 없습니다.");
+        if (priceTolerance <= 0 || minimumPriceTolerance < 0 || minimumPriceTolerance > 1000 ||
+            minimumPriceTolerance > priceTolerance)
+            throw new ArgumentException("결제 허용 가격 규칙의 범위가 잘못되었습니다.");
         CustomerProfileValidation.ValidateType(dispositionType);
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         DispositionType = dispositionType;
@@ -132,6 +139,7 @@ public sealed class CustomerVisit
         DispositionIdx = dispositionIdx;
         Items = new List<CustomerOrderItem>(items).AsReadOnly();
         PriceTolerance = priceTolerance;
+        MinimumPriceTolerance = minimumPriceTolerance;
         RegularPriceMinRate = regularPriceMinRate;
         RegularPriceMaxRate = regularPriceMaxRate;
         EntryTextIdx = entryTextIdx;
@@ -239,7 +247,8 @@ public sealed class CustomerVisit
                 reference = checked(reference + (long)price * pair.Value);
             }
             long allowed = checked((long)decimal.Floor((decimal)reference * PriceTolerance / 1000m));
-            var outcome = offeredTotal > allowed ? CustomerTradeOutcome.PaymentRefused
+            bool belowMinimum = (decimal)offeredTotal * 1000m < (decimal)reference * MinimumPriceTolerance;
+            var outcome = belowMinimum || offeredTotal > allowed ? CustomerTradeOutcome.PaymentRefused
                 : (decimal)offeredTotal * 1000m < (decimal)reference * RegularPriceMinRate ? CustomerTradeOutcome.DiscountSale
                 : (decimal)offeredTotal * 1000m > (decimal)reference * RegularPriceMaxRate ? CustomerTradeOutcome.ExploitativeSale
                 : CustomerTradeOutcome.RegularSale;
