@@ -14,6 +14,10 @@ public class DailySettlementPresenter : MonoBehaviour
     [Header("Panel Root")]
     [SerializeField] private GameObject panelRoot;
 
+    [Header("Ledger")]
+    [Tooltip("정산 snapshot을 양쪽 가계부 페이지에 순차 출력하는 View")]
+    [SerializeField] private DailySettlementLedgerView ledgerView;
+
     [Header("Text Displays")]
     [Tooltip("정산 대상 일자 텍스트")]
     [SerializeField] private TextMeshProUGUI dayText;
@@ -69,14 +73,33 @@ public class DailySettlementPresenter : MonoBehaviour
     [Tooltip("다음 단계 요청 버튼")]
     [SerializeField] private Button nextStepButton;
 
+    private int presentedLedgerDay = -1;
+    private bool hasCompletedLedgerPresentation;
+
     /// <summary>사용자가 일일 정산 확인을 완료하고 다음 단계 진행을 요청할 때 발생하는 이벤트</summary>
     public event Action OnNextStepRequested;
 
+    /// <summary>가계부 양쪽 페이지의 순차 출력이 완료됐을 때 발생하는 이벤트입니다.</summary>
+    public event Action OnLedgerPresentationCompleted;
+
     private void Awake()
     {
+        if (this.ledgerView != null)
+        {
+            this.ledgerView.OnPresentationCompleted += this.handleLedgerPresentationCompleted;
+        }
+
         if (this.nextStepButton != null)
         {
             this.nextStepButton.onClick.AddListener(this.handleNextStepClicked);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (this.ledgerView != null)
+        {
+            this.ledgerView.OnPresentationCompleted -= this.handleLedgerPresentationCompleted;
         }
     }
 
@@ -93,6 +116,21 @@ public class DailySettlementPresenter : MonoBehaviour
         if (this.dayText != null)
         {
             this.dayText.text = $"DAY {viewData.Day} SETTLEMENT";
+        }
+
+        if (this.ledgerView != null)
+        {
+            DailySettlementLedgerText ledgerText = DailySettlementLedgerFormatter.Format(viewData);
+            if (this.presentedLedgerDay == viewData.Day && this.hasCompletedLedgerPresentation)
+            {
+                this.ledgerView.RefreshCompleted(ledgerText);
+            }
+            else
+            {
+                this.presentedLedgerDay = viewData.Day;
+                this.hasCompletedLedgerPresentation = false;
+                this.ledgerView.Present(ledgerText);
+            }
         }
 
         if (this.saleIncomeText != null)
@@ -184,6 +222,14 @@ public class DailySettlementPresenter : MonoBehaviour
     {
         this.Close();
         this.OnNextStepRequested?.Invoke();
+    }
+
+    /// <summary>가계부 View의 완료를 이후 딸 대사 흐름이 구독할 수 있도록 전달합니다.</summary>
+    private void handleLedgerPresentationCompleted()
+    {
+        if (this.hasCompletedLedgerPresentation) return;
+        this.hasCompletedLedgerPresentation = true;
+        this.OnLedgerPresentationCompleted?.Invoke();
     }
 
     /// <summary>미납과 유예 상태를 한 줄의 확정 표시 문구로 변환합니다.</summary>
