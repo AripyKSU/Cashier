@@ -12,13 +12,16 @@
 
 ## 전체 문서와 읽기 조건
 
-기준: 2026-09-11, `total_merge d13d2e2`에서 존재한 doc 문서 25개와 이번 공통 구조 문서 4개. 다른 브랜치 전용 문서를 현재 파일처럼 연결하지 않는다.
+기준: 2026-09-11, `codex/inspector-events 50155f1`. 기존 total_merge 문서 25개, 공통 구조 문서 4개, 감독관 명세·담당 기능 감사·감독관 작업 상태 3개를 연결한다. 다른 브랜치 전용 문서를 현재 파일처럼 연결하지 않는다.
 
 | 문서 | 읽는 조건 | 내용 |
 |---|---|---|
 | [WORK_RULES.md](WORK_RULES.md) | 모든 작업에서 필수 | 공통 절차·승인·보호·Git·검증·역할 경계 |
 | [CODING_RULES.md](CODING_RULES.md) | 코드 수정에서 필수. 자산·경로·설정 변경은 7·8절, CSV enum·식별자 변경은 관련 9절 | 프로그래머 규칙·기술 기준·폴더·C# 규격 |
 | [INDEX.md](INDEX.md) | 작업 시작·범위 변경 | 현재 체크아웃의 문서 색인과 이동 대응 |
+| [INSPECTOR_SYSTEM_DRAFT.md](INSPECTOR_SYSTEM_DRAFT.md) | 영업 전 감독관 이벤트 | 구현된 데이터·진행·UI 계약과 과거 검증 |
+| [FEATURE_CONTRACT_AUDIT.md](FEATURE_CONTRACT_AUDIT.md) | 담당 기능의 명세·구현 차이 확인 | 손님·설비·도덕성·대기열·감독관 대조와 미해결 항목 |
+| [work/inspector-events.md](work/inspector-events.md) | 감독관 작업 재개·통합 | 현재 브랜치·완료·후속 작업 |
 | [work/README.md](work/README.md) | 담당 전환·중단 | 도구와 무관한 작업 상태·인계 기준 |
 | [AGENT_REQUEST_GUIDE.md](AGENT_REQUEST_GUIDE.md) | 목적만 제시된 자연어 요청 구체화 | 검토 요약→승인→실행 명세 |
 | [TEAM_ROLES.md](TEAM_ROLES.md) | 담당·권한·검토자 확인 | 실제 참여자와 복수 역할 명부 |
@@ -91,7 +94,7 @@ Claude의 [공식 메모리 문서](https://code.claude.com/docs/en/memory)는 �
 
 설계 담당은 설치된 Antigravity 확장의 rule parser에서 `always_on` 기본값과 Always On 옵션을 확인했다. 이는 설정 형식 확인이며, 세 클라이언트의 **새 대화에서 자동으로 입구를 읽고 본문까지 적용하는 동작은 아직 검증하지 않았다**. 도구가 입구를 자동으로 읽지 않았다면 사용자가 해당 입구 파일을 명시적으로 지정한다. 특정 도구의 세션 ID·모델 배분·개인 지침은 공통 규칙에 넣지 않는다.
 
-## 문서 이동 검증 기록
+## 문서 이동 검증 기록 (d8ea9ef 작성 시점)
 
 - 2026-09-11 기준 원문은 `d13d2e25a46c0030bdfea9ae58cd00315ff3790b:AGENTS.md`다. 위 대응표로 12개 절을 대조했으며, 링크 경로와 두 곳의 12절 참조 표기를 정규화한 후 12/12절이 일치한다. 비제목·비공백 본문 266줄은 누락 없이 보존했다.
 - 기존 doc Markdown 25개, 신규 공통 Markdown 4개와 doc/data CSV 3개를 모두 이 색인에서 연결했다. 자료 자체의 값이나 기능 계약은 수정하지 않았다.

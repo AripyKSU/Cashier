@@ -87,6 +87,7 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.ReputationBalance] = new ReputationBalanceDataTable();
         this.dataList[DataTableType.Morality] = new MoralityDataTable();
         this.dataList[DataTableType.DailyGuideline] = new DailyGuidelineDataTable();
+        this.dataList[DataTableType.InspectorEvent] = new InspectorEventDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -141,12 +142,16 @@ public class DataTableManager : Singleton<DataTableManager>
                 GetDB<ProductDataTable>(DataTableType.Product).PendingRows);
             MoralityDataTable morality = GetDB<MoralityDataTable>(DataTableType.Morality);
             morality.Validate(GetDB<CustomerDispositionDataTable>(DataTableType.CustomerDisposition).PendingRows);
+            InspectorEventDataTable inspectors = GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent);
+            inspectors.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows,
+                GetDB<ResourceDataTable>(DataTableType.Resource), GetDB<FacilityDataTable>(DataTableType.Facility).PendingRows);
             Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource),
                 GetDB<FacilityDataTable>(DataTableType.Facility));
             GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
             GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Commit();
             morality.Commit();
             guidelines.Commit();
+            inspectors.Commit();
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }

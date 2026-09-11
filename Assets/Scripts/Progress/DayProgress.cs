@@ -247,7 +247,28 @@ public sealed class DayProgress
             throw new InvalidOperationException("하루 진행은 한 번만 시작할 수 있습니다.");
         }
 
-        this.changeState(DayProgressState.PreOpen);
+        this.session.EnsureInspectorDay();
+        this.changeState(this.session.InspectorEvents.HasPending ? DayProgressState.InspectorEvent : DayProgressState.PreOpen);
+    }
+
+    /// <summary>현재 화면의 감독관 대사 입력만 적용한다.</summary>
+    /// <param name="snapshot">사용자가 보고 있던 대사 상태.</param>
+    /// <returns>입력을 적용했으면 true.</returns>
+    public bool AdvanceInspector(InspectorEventSnapshot snapshot)
+    {
+        return State == DayProgressState.InspectorEvent && snapshot.Day == (uint)Day &&
+            session.InspectorEvents.Advance(snapshot.Day, snapshot.EventIdx, snapshot.LineIndex);
+    }
+
+    /// <summary>감독관 퇴장 완료 후 남은 이벤트가 없을 때만 영업 전 단계로 이동한다.</summary>
+    /// <param name="snapshot">퇴장을 시작한 화면 상태.</param>
+    /// <returns>이번 퇴장 완료를 적용했으면 true.</returns>
+    public bool CompleteInspectorExit(InspectorEventSnapshot snapshot)
+    {
+        if (State != DayProgressState.InspectorEvent || snapshot.Day != (uint)Day ||
+            !session.InspectorEvents.CompleteExit(snapshot.Day, snapshot.EventIdx)) return false;
+        if (!session.InspectorEvents.HasPending) changeState(DayProgressState.PreOpen);
+        return true;
     }
 
     /// <summary>
