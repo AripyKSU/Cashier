@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 217ee08da4d0cd64db67ed1d821928df
+guid: 8c5509423fa570745bc62cafae857f42
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 229605716126201394
-    second: LedgerStampNeutral_0
+      213: 9050546967464764145
+    second: Vacuum_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -34,10 +34,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 128
+  maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -72,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -85,10 +85,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -98,10 +98,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: WebGL
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: LedgerStampNeutral_0
+      name: Vacuum_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1243
-        height: 1236
+        x: 4
+        y: 1
+        width: 74
+        height: 127
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 236f91cae29bf2300800000000000000
-      internalID: 229605716126201394
+      spriteID: 1f2e9bad3800a9d70800000000000000
+      internalID: 9050546967464764145
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      LedgerStampNeutral_0: 229605716126201394
+      Vacuum_0: 9050546967464764145
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

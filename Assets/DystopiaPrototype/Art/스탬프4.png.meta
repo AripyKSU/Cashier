@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 2ecd5ef005f81b940b58c50d58f13014
+guid: 0701f83b5ab19f5499a21bf0d14d2147
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1268333380569568626
-    second: LedgerStampNotorious_0
-  - first:
-      213: -9145922509082134922
-    second: LedgerStampNotorious_1
-  - first:
-      213: 8946694293106341398
-    second: LedgerStampNotorious_2
+      213: -5616068814476457165
+    second: "\uC2A4\uD0EC\uD5044_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,10 +34,10 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 128
+  maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -78,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -91,10 +85,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -104,10 +98,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: WebGL
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -119,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: LedgerStampNotorious_0
+      name: "\uC2A4\uD0EC\uD5044_0"
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1237
-        height: 1238
+        x: 6
+        y: 6
+        width: 114
+        height: 112
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -134,52 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e8a6162a289f56ee0800000000000000
-      internalID: -1268333380569568626
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LedgerStampNotorious_1
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 1215
-        width: 9
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 676f8e66fe7231180800000000000000
-      internalID: -9145922509082134922
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LedgerStampNotorious_2
-      rect:
-        serializedVersion: 2
-        x: 116
-        y: 17
-        width: 14
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6163e96de0b092c70800000000000000
-      internalID: 8946694293106341398
+      spriteID: 33b4bfe1b27bf02b0800000000000000
+      internalID: -5616068814476457165
       vertices: []
       indices: 
       edges: []
@@ -198,9 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      LedgerStampNotorious_0: -1268333380569568626
-      LedgerStampNotorious_1: -9145922509082134922
-      LedgerStampNotorious_2: 8946694293106341398
+      "\uC2A4\uD0EC\uD5044_0": -5616068814476457165
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

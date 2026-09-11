@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 36a4929045f66384ea291586594cf487
+guid: f0cdeb5bb8b8fac4483d0120b1ae52ca
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4046678869945397763
-    second: LedgerStamp_0
+      213: 1710068079133520313
+    second: "\uC2A4\uD0EC\uD5041_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: LedgerStamp_0
+      name: "\uC2A4\uD0EC\uD5041_0"
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 302bc23fdf0b82830800000000000000
-      internalID: 4046678869945397763
+      spriteID: 9b1fc7e8bd16bb710800000000000000
+      internalID: 1710068079133520313
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      LedgerStamp_0: 4046678869945397763
+      "\uC2A4\uD0EC\uD5041_0": 1710068079133520313
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -129,6 +129,11 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     private Vector2 reactionOrigin;
     private Vector3 reactionScale;
     private Color reactionColor;
+    /// <summary>거래 반응 중에만 보존하는 손님 그림의 시작 자세와 색입니다.</summary>
+    private Vector2 reactionPortraitPosition;
+    private Vector3 reactionPortraitScale;
+    private Color reactionPortraitColor;
+    private bool isPortraitReacting;
     // 원경의 두 굴뚝에만 사용하는 연기 이미지와 기준 위치입니다.
     private readonly Image[] chimneySmoke = new Image[2];
     private readonly Vector2[] chimneySmokeOrigins = new Vector2[2];
@@ -298,10 +303,15 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             foreach (var sprite in ownedTradeReactionSprites) Destroy(sprite);
     }
 
-    /// <summary>정면 화면이 숨겨지면 정산 연출의 상대 변형을 남기지 않습니다.</summary>
+    /// <summary>정면 화면이 숨겨지면 정산·거래 연출의 상대 변형을 복원합니다.</summary>
     private void OnDisable()
     {
         ResetLedgerPresentation();
+        if (reactionAnimation != null)
+        {
+            StopCoroutine(reactionAnimation);
+            ResetTradeReaction();
+        }
     }
 
     /// <summary>군중·손님의 대기 동작과 경비병의 좌우 경계·간헐적인 외곽 사격을 갱신합니다.</summary>
@@ -346,6 +356,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         for (int i = 0; i < idlePeople.Length; i++)
         {
             if (queueMovement != null) continue;
+            if (isPortraitReacting && idlePeople[i] == portrait.rectTransform) continue;
             var sprite = idlePeople[i].GetComponent<Image>().sprite;
             int maleIndex = Array.IndexOf(maleCustomers, sprite);
             int femaleIndex = Array.IndexOf(femaleCustomers, sprite);
@@ -493,13 +504,17 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         reactionAnimation = StartCoroutine(AnimateTradeReaction());
     }
 
-    /// <summary>얼굴 옆 표정을 짧게 확대하고 위로 띄우며 사라지게 합니다. 거래 진행 시간은 바꾸지 않습니다.</summary>
+    /// <summary>거래 결과 네 종류를 손님의 짧은 크기·흔들림·색 변화와 기존 표정으로 전달합니다.</summary>
     /// <returns>일시정지 시 함께 멈추는 프레임 연출입니다.</returns>
     private System.Collections.IEnumerator AnimateTradeReaction()
     {
         float duration = Mathf.Max(.01f, Mathf.Min(.75f, settings.resultSeconds));
         float elapsed = 0;
         var rect = tradeReactionImage.rectTransform;
+        reactionPortraitPosition = portrait.rectTransform.anchoredPosition;
+        reactionPortraitScale = portrait.rectTransform.localScale;
+        reactionPortraitColor = portrait.color;
+        isPortraitReacting = true;
         while (elapsed < duration)
         {
             float t = elapsed / duration;
@@ -509,6 +524,36 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             var color = reactionColor;
             color.a *= 1 - Mathf.Clamp01((t - .55f) / .45f);
             tradeReactionImage.color = color;
+            // 처음 0.45초에만 반응하고, 이미지 하단이 고정되도록 확대 오프셋을 보정합니다.
+            float response = Mathf.Clamp01(elapsed / Mathf.Min(.45f,duration));
+            float pulse = Mathf.Sin(response * Mathf.PI);
+            float scale = 1;
+            float shake = 0;
+            Color tint = Color.white;
+            switch (Session.LastReaction)
+            {
+                case DystopiaSession.TradeReaction.Delighted:
+                    scale += .04f * pulse;
+                    tint = Color.Lerp(Color.white,new Color(1.18f,1.08f,.96f),pulse);
+                    break;
+                case DystopiaSession.TradeReaction.Satisfied:
+                    scale -= .02f * pulse;
+                    break;
+                case DystopiaSession.TradeReaction.Reluctant:
+                    shake = Mathf.Sin(response * Mathf.PI * 4) * 3 * pulse;
+                    tint = Color.Lerp(Color.white,new Color(.76f,.76f,.76f),pulse);
+                    break;
+                case DystopiaSession.TradeReaction.Refused:
+                    shake = Mathf.Sin(response * Mathf.PI * 12) * 9 * pulse;
+                    tint = Color.Lerp(Color.white,new Color(1.18f,.48f,.42f),pulse);
+                    break;
+            }
+            var person = portrait.rectTransform;
+            Vector3 foot = new Vector3(person.rect.center.x,person.rect.yMin,0);
+            Vector3 correction = person.localRotation * Vector3.Scale(foot,reactionPortraitScale) * (1-scale);
+            person.anchoredPosition = reactionPortraitPosition + (Vector2)correction + Vector2.right * shake;
+            person.localScale = reactionPortraitScale * scale;
+            portrait.color = reactionPortraitColor * tint;
             yield return null;
             if (!Session.IsPaused) elapsed += Time.unscaledDeltaTime;
         }
@@ -518,6 +563,13 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     /// <summary>연출에서 바꾼 값만 원래대로 돌려놓아 사용자의 배치를 보존합니다.</summary>
     private void ResetTradeReaction()
     {
+        if (isPortraitReacting && portrait != null)
+        {
+            portrait.rectTransform.anchoredPosition = reactionPortraitPosition;
+            portrait.rectTransform.localScale = reactionPortraitScale;
+            portrait.color = reactionPortraitColor;
+        }
+        isPortraitReacting = false;
         tradeReactionImage.gameObject.SetActive(false);
         tradeReactionImage.rectTransform.anchoredPosition = reactionOrigin;
         tradeReactionImage.rectTransform.localScale = reactionScale;
@@ -772,18 +824,18 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         content.gameObject.SetActive(true);
 
         // 날짜 칸에 인쇄된 슬래시를 종이색으로 덮고 바깥 테두리는 보존합니다.
-        Panel(content,"DayPaper",140,52,48,8,new Color(.81f,.80f,.76f));
-        var day = Label(content,"InstructionDay",$"{Session.Day}일차",139,50,50,12,7,ink);
+        Panel(content,"DayPaper",140,51,51,9,new Color(.85f,.83f,.79f));
+        var day = Label(content,"InstructionDay",$"{Session.Day}일차",140,50,51,12,8,ink);
         day.alignment = TextAnchor.MiddleCenter;
         day.fontStyle = FontStyle.Bold;
 
-        var heading = Label(content,"MemoryHeading","영업 전, 가격을 기억하세요",32,78,164,14,8,ink);
+        var heading = Label(content,"MemoryHeading","영업 전, 가격을 기억하세요",32,76,160,16,9,ink);
         heading.alignment = TextAnchor.MiddleCenter;
         heading.fontStyle = FontStyle.Bold;
-        var ruleTitle = Label(content,"RuleTitle","오늘의 지침",32,97,164,11,7,muted);
+        var ruleTitle = Label(content,"RuleTitle","오늘의 지침",32,99,160,12,8,muted);
         ruleTitle.alignment = TextAnchor.MiddleCenter;
         ruleTitle.fontStyle = FontStyle.Bold;
-        var rule = Label(content,"Rule",Session.DailyRuleText,32,110,164,24,7,ink);
+        var rule = Label(content,"Rule",Session.DailyRuleText,32,114,160,30,8,ink);
         rule.alignment = TextAnchor.UpperCenter;
 
         if (beforeOpening)
@@ -793,8 +845,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 DystopiaProduct product = Session.ActiveProducts[i];
                 int column = i % 2;
                 int row = i / 2;
-                float x = 32 + column * 85;
-                float y = 143 + row * Mathf.Min(29f, 65f / Mathf.Max(1, (Session.ActiveProducts.Count + 1) / 2));
+                float x = 32 + column * 83;
+                float y = 154 + row * Mathf.Min(26f, 58f / Mathf.Max(1, (Session.ActiveProducts.Count + 1) / 2));
                 Picture(content,"InstructionProduct"+i,product.sprite,x,y,18,21,true);
                 var productName = Label(content,"InstructionName"+i,product.name,x+22,y,57,10,7,ink);
                 productName.alignment = TextAnchor.MiddleLeft;
