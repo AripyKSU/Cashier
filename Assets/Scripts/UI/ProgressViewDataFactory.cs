@@ -198,6 +198,21 @@ public sealed class ProgressViewDataFactory
             settlement.IsGameOverConditionMet);
     }
 
+    /// <summary>이미 선택된 딸 결과의 FK를 표시값으로 변환한다.</summary>
+    /// <param name="result">DayProgress가 확정한 결과.</param>
+    /// <param name="sprites">ResourceData PK별로 로드한 Sprite.</param>
+    /// <returns>추가 선택 없이 표시할 대사와 이미지.</returns>
+    /// <exception cref="InvalidOperationException">Text 또는 Sprite FK가 준비되지 않은 경우.</exception>
+    public DaughterDialogueViewData CreateDaughterDialogueViewData(DaughterDialogueResult result,
+        IReadOnlyDictionary<uint, Sprite> sprites)
+    {
+        if (!textData.Rows.TryGetValue(result.TextIdx, out TextData text) || string.IsNullOrWhiteSpace(text.Text))
+            throw new InvalidOperationException($"딸 대사 TextData FK={result.TextIdx} 참조 실패");
+        if (sprites == null || !sprites.TryGetValue(result.ResourceIdx, out Sprite sprite) || sprite == null)
+            throw new InvalidOperationException($"딸 이미지 ResourceData FK={result.ResourceIdx} 로드 실패");
+        return new DaughterDialogueViewData(result.Day, text.Text, sprite);
+    }
+
     /// <summary>현재 가게 단계까지 반영한 설비 상점 표시 snapshot을 만든다.</summary>
     /// <param name="facilities">검증된 설비 원본.</param>
     /// <param name="activationDays">보유 설비별 활성 경과일.</param>

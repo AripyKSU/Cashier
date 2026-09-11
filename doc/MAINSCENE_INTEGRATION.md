@@ -1,5 +1,9 @@
 # MainScene 진행·세션 API 통합
 
+## 딸 정산 대화 통합 (2026-09-11)
+
+`total_merge c756bec`에 `codex/daughter-dialogue e19bd0f`를 병합했다. 기존 GameUI 인스턴스가 DaughterDialoguePanel과 필수 presenter를 상속하므로 MainScene 파일은 유지했다. 정산 보드 아래 누적 도덕성 기준 대사와 날짜별 이미지를 표시하며 설비 상점 재표시에서 같은 대사를 유지한다. 임시 데이터·구간·병합 계약은 [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md), 통합 API/실제 Main 실행 증거는 [TESTING.md](TESTING.md)를 따른다.
+
 ## 월드 표시 분리 (2026-09-11)
 
 DailyInstruction `99fc83e`와 Sprite world `b80dfda` 통합에서 MainScene에 Canvas 밖 CustomerWorld를 연결했다. 기존 Image 기반 CustomerQueueView와 배경 중복을 제거하고 개인 씬 파일은 변경하지 않았다. 실제 검증·Git 상태는 [통합 작업 기록](work/total-merge-daily-world.md)을 따른다.

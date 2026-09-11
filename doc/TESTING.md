@@ -1,5 +1,23 @@
 # 기능 API 검증
 
+## total_merge 딸 대화 통합 (2026-09-11)
+
+- fetch 후 입력: `total_merge c756bec` + `codex/daughter-dialogue e19bd0f`. 충돌 없이 병합했으며 제품·데이터·프리팹 내용은 딸 대화 브랜치와 동일하다. MainScene은 기존 GameUI prefab의 nested DaughterDialoguePanel/presenter 연결을 상속한다. Scene 파일 수정은 없다.
+- 통합 checkout에서 EditMode **230/230**, 실패·skip·미완료0: `Temp/TestResults/20260911-182145-292ce84f05d74e03a07299bbbfc5c5f9/EditMode.xml` 및 `.log`. PlayMode **45/45**, 실패·skip·미완료0: `Temp/TestResults/20260911-182707-b35c83103157424dbe2629239754798d/PlayMode.xml` 및 `.log`.
+- 최초 Play 실행은 playModeStartScene=InitScene이 개인 게임으로 라우팅해240초 timeout이었다. `43b6b911-1136-44c1-b38a-86b42587e930` job 취소와 active=false/playing=false 확인 후, 완료 callback 없이 남은 해당 runner pending 상태를 정리했다. 첫 run 폴더의 `PlayMode-Aborted.txt`에 기록했으며 성공으로 집계하지 않는다. 시작 씬 override를 null로 해제한 새 run이 위45/45 결과다. 코드/테스트 변경은 없다.
+- 실제 Init→Hub→MainScene→감독관→PreOpen→영업 버튼→현재가 수락 거래→정산: 누적 도덕성0, TextIdx8194(오늘 하루는 어땠어?), Resource4201을 표시했다. 설비 창 열기·닫기 후8194 유지. `Temp/DaughterMerge-Main-Smoke.txt`, `Temp/DaughterMerge-Main-Settlement.png`. Inspector 진행과 거래/마감은 API를 호출한 확인이며 전체 마우스 UX 검증을 의미하지 않는다.
+- 최종 compileFailed=false, 제품 Console error0, Main missing script0. 신규 GUID11개 중복 없음, 자산/meta 짝 유효. MainScene/Local씬·meta/기존 폰트2개는 준비 백업5개 hash와 동일하다. 기존 stash2개는 보존했다.
+- 최종 MainScene clean open, Play 종료, InitScene 시작 및 Use MainScene, runInBackground=false. 개인 씬 파일을 삭제하거나 변경하지 않았다. 원격 push와 최종 UI/UX·다른 화면비·Player build·저장 복원은 이번 완료 범위 밖이다.
+
+## 딸 대화 시스템 (2026-09-11)
+
+- 기준: total_merge c756bec에서 분기한 `codex/daughter-dialogue`의 미커밋 구현. 최종 EditMode **230/230**, PlayMode **45/45**, 각각 실패·skip·미완료 0. 기존 `Tools/Run-Tests.ps1 -Mode Both -TimeoutSeconds 240`으로 실행했다. 증거: `Temp/TestResults/20260911-175315-d81c54e6473249f8b170c72af1a39e98/EditMode.xml`, `PlayMode.xml` 및 각 `.log`.
+- 실제 CSV/FK·6개 도덕성 구간 경계와 소수/무한 범위·후보 선택·날짜별 이미지 전환·모든 후보 대사의 폰트 글리프를 검사했다. PlayMode는 정산 시 누적 도덕성 선택/당일 결과 고정/다음날 수명과 선택 실패 시 경제 정산 중복 방지까지 확인했다.
+- 초기 개별 Edit 필터 5/5 이후 Play 필터는 개인 playModeStartScene 설정 때문에 지연·중단되어 통과로 집계하지 않았다. 활성 job 취소 후 기존 runner로 전환했다. `20260911-174531-0f5ca0038442476eb24ed3cf58dc4c9a/EditMode.xml` 229/230은 기존 TextData 행 수 기대182→200 보정 전이다. `20260911-174736-b224acf79ae8411f9f21457cddf2eb71/`은 Edit230/230·Play44/45이며 Mulmaru의 한글 글리프 누락을 발견했다. 기존 Mabinogi 폰트 참조로 교체하고 글리프 검사를 추가했다. test assembly의 Unity.TextMeshPro 참조 누락 컴파일 오류도 최종 실행 전에 해결했다.
+- 실제 Init→SpriteWorldSandbox→감독관→영업→수락 거래→정산에서 Morality0/TextIdx8192/Resource4201 표시, 설비 상점 열기·닫기 후 대사 고정을 확인했다. `Temp/Daughter-Smoke.txt`, `Temp/Daughter-Settlement-Final.png`. 최종 suite 후 수정은 딸 패널을 정산 보드 아래로 옮기는 직렬화 배치뿐이며, 실제 화면으로 검증했다.
+- 최종 컴파일 실패 없음·제품 Console error0·missing script0. Play 종료, 개인 씬 저장, InitScene 시작/개인 씬 선택, runInBackground=false. MainScene 파일과 기존 사용자 Mulmaru hash를 보존했다. 테스트 생성 TMP fallback glyph만 사전 내용으로 복구했다.
+- 기존 개인 씬의 명성·유지비/시설 버튼 겹침은 이번 범위 밖이며 전체 UI/UX·다른 화면비·Player build·저장 복원은 미검증이다. 계약과 병합 연결은 [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md)를 따른다.
+
 ## DailyInstruction + Sprite world Main 통합 (2026-09-11)
 
 - 입력: total_merge e62fcaf + DailyInstruction 99fc83e + Sprite world b80dfda. 최종 EditMode **225/225**, 실패·skip·미완료 0: `Temp/TestResults/20260911-161803-6305b91b5e4c4dbc92318c87283d07c1/EditMode.xml` 및 `.log`. 최종 PlayMode **43/43**, 실패·skip·미완료 0: `Temp/TestResults/20260911-162058-b5c3dbede73d4f65a1a01dca9b02aeb8/PlayMode.xml` 및 `.log`.
@@ -118,6 +136,8 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 ## 실행 및 결과
 
 컴파일이 끝난 EditMode에서 Window → General → Test Runner의 Cashier.EditMode.Tests/Cashier.PlayMode.Tests를 실행한다. Save Results로 XML을 저장할 수 있다.
+
+PlayMode 실행 전 `EditorSceneManager.playModeStartScene`에 InitScene 또는 개인 씬이 지정되어 있으면 원래 값을 기록하고 테스트 동안 null로 해제한다. 지정된 시작 씬은 Test Runner의 임시 씬 대신 게임을 실행하여 테스트가 진행되지 않을 수 있다. 실행 종료와 활성 job 정리를 확인한 뒤 원래 값을 복원한다. 기존 runner는 이 개인 설정을 자동 변경하지 않는다.
 
 반복 로컬 검증에서 두 모드의 XML·로그 자동 보관과 0건/실패/skip 종료 판정이 필요하면 유일한 셸 진입점을 사용한다.
 

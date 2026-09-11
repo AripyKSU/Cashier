@@ -28,6 +28,8 @@ public enum DataTableType : uint
     DailyGuideline = 13,
     Morality = 14,
     InspectorEvent = 15,
+    DaughterDialogue = 16,
+    DaughterAppearance = 17,
     DataTableType_End
 }
 
