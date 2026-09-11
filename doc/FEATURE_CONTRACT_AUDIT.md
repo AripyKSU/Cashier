@@ -20,9 +20,10 @@
 ### Q-01 · P2 · 불만 대사의 3초 표시와 퇴장 페이드 충돌
 
 - 계약: [대기열 명세](CUSTOMER_QUEUE_INTEGRATION.md)의 만료 불만은 3초 표시한다. CustomerQueue.cs:124도 SpeechUntil을 프레임 종료 + 3초로 설정한다.
-- 구현: CustomerQueueView.cs:113은 퇴장 방문의 부모 CanvasGroup을 QueueExitSeconds(기본 0.45초)에 alpha 0으로 만든다. 같은 파일 :178의 Speech도 이 부모 자식이므로 이미지와 함께 사라진다. 논리적 이탈 기록을 3초 유지해도 문구는 보이지 않는다.
-- 재현 조건: 영업 중 대기 손님을 만료시켜 불만 문구를 관찰한다. 정적 경로상 약 0.45초 이내에 함께 사라진다. 이번 감사에서 실화면 재현은 하지 않았다.
-- 최소 수정 방향: 이미지 퇴장 페이드와 말풍선 표시 수명을 분리한다. 만약 최신 UX 의도가 문구까지 함께 퇴장시키는 것이라면 3초 표시 명세를 변경해야 한다. 현재는 미수정이며 사용자 UI 확인 대상으로 남긴다.
+- 감사 당시 구현: 퇴장 방문의 부모 CanvasGroup이 0.45초에 alpha0이 되어 자식 Speech도 함께 사라졌다. 당시 실화면 재현은 하지 않았다.
+- 2026-09-11 `codex/sprite-world-presentation` 보완: SpriteRenderer 외형과 월드 TMP 대사를 별도 객체로 분리했다. 불만은 이탈 당시 위치에 남아 모델의3초 수명을 사용하고, 이미지 검정/alpha만0.45초로 전환한다. pause·전면숨김·비활성/날짜교체 정리도 같은 수명 경계에 적용한다.
+- `InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime` 실행에서 외형 alpha0 이후 대사 유지, pause·숨김·재활성·만료 정리를 통과했다. 최종 실행 묶음은 [작업 기록](work/sprite-world-presentation.md)에 기록한다. 문구 가독성과 위치의 최종 UX는 사용자 확인 대기이며 자동 검사를 화면 승인으로 확대하지 않는다.
+- 상세 계약: [월드 표시 조립](CUSTOMER_QUEUE_INTEGRATION.md#월드-표시-조립-2026-09-11). 보완 구현은 개인 씬의 CustomerWorldQueueView다. MainScene은 기존 CustomerQueueView로 복원했으므로 Q-01은 공유 Main 경로에서 여전히 미해결이다.
 
 ### V-01 · P3 · 노인 도덕성 점수 직접 회귀 미등록
 
@@ -63,7 +64,7 @@ FacilityService.cs:98은 고단계도 선행 구매를 요구하지 않는다고
 
 ## 후속 작업 순서와 제외 범위
 
-1. Q-01의 표시 정책을 확정하고 해당 표현만 수정·사용자 확인한다. API 테스트만으로 UI 완료를 선언하지 않는다.
+1. Q-01의 브랜치 구현·검증 기록을 통합 시 확인하고 최종 대사 위치/가독성은 사용자 확인한다. API 테스트만으로 UI 완료를 선언하지 않는다.
 2. 관련 코드 수정 시 V-01~V-03과 D-01을 함께 보완하고 해당 Unity Test Runner 검사를 실행한다. V-04는 실제 화면·로딩 검증으로 확인한다. 단순 문서 수정 때문에 전체 테스트를 반복하지 않는다.
 3. 감독관을 total_merge에 반영할 때 최신 원격 기준과 데이터·GUID·Addressables 차이를 재검토하고 필요한 통합 검증을 수행한다.
 

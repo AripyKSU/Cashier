@@ -444,9 +444,8 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         hour = Mathf.Clamp(hour, BusinessHours.OpenHour, BusinessHours.CloseHour);
         this.currentAppliedHour = hour;
 
-        float morning = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(BusinessHours.OpenHour, this.dayStart, hour));
-        float night = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(this.eveningStart, BusinessHours.CloseHour, hour));
-        float sunsetBlend = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(this.sunsetStart, this.eveningStart, hour));
+        Vector3 weights = GetBlendWeights(hour, this.dayStart, this.sunsetStart, this.eveningStart);
+        float morning = weights.x, sunsetBlend = weights.y, night = weights.z;
 
         setAlpha(this.sunset, sunsetBlend);
         setAlpha(this.dawn, morning);
@@ -456,10 +455,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         setAlpha(this.rightBeam, night * this.beamIntensity);
         setAlpha(this.counterLight, night * this.counterIntensity);
 
-        Color tint = Color.Lerp(
-            Color.Lerp(Color.Lerp(Color.white, this.dawnTint, morning), this.sunsetTint, sunsetBlend),
-            this.nightTint,
-            night);
+        Color tint = GetEnvironmentTint(weights, this.dawnTint, this.sunsetTint, this.nightTint);
 
         bool lit = this.pixelStage != null && this.pixelStage.IsRendering;
         if (lit)
@@ -470,6 +466,20 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         applyTint(this.environment, lit ? Color.white : tint);
         applyTint(this.people, lit ? Color.white : Color.Lerp(Color.white, new Color(this.peopleBrightness, this.peopleBrightness, this.peopleBrightness), night));
     }
+
+    /// <summary>UI와 실제 SpriteRenderer가 공유하는 기존 시간대 곡선.</summary>
+    /// <param name="hour">표시 시각.</param><param name="dayStart">낮 경계.</param><param name="sunsetStart">석양 경계.</param><param name="eveningStart">야간 시작.</param>
+    /// <returns>아침·석양·야간 가중치.</returns>
+    public static Vector3 GetBlendWeights(float hour, float dayStart, float sunsetStart, float eveningStart) => new Vector3(
+        1f - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(BusinessHours.OpenHour, dayStart, hour)),
+        Mathf.SmoothStep(0, 1, Mathf.InverseLerp(sunsetStart, eveningStart, hour)),
+        Mathf.SmoothStep(0, 1, Mathf.InverseLerp(eveningStart, BusinessHours.CloseHour, hour)));
+
+    /// <summary>원본 시간대 색조 보간을 두 렌더 경로에 동일 적용한다.</summary>
+    /// <param name="weights">아침·석양·야간 가중치.</param><param name="dawn">아침 색.</param><param name="sunset">석양 색.</param><param name="night">밤 색.</param>
+    /// <returns>환경에 곱할 시간대 색.</returns>
+    public static Color GetEnvironmentTint(Vector3 weights, Color dawn, Color sunset, Color night) =>
+        Color.Lerp(Color.Lerp(Color.Lerp(Color.white, dawn, weights.x), sunset, weights.y), night, weights.z);
 
     /// <summary>초기 주간 기본 상태로 복원합니다.</summary>
     public void Restore()

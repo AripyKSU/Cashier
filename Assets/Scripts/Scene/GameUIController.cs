@@ -93,6 +93,10 @@ public sealed class GameUIController : MonoBehaviour
     public DayProgress CurrentDayProgress => this.gameProgress?.CurrentDayProgress;
     /// <summary>표현 시간이 멈춰야 하는 일시정지·기술 오류 상태.</summary>
     public bool IsPresentationPaused => this.hasError || !this.isActiveAndEnabled || this.subscribedDay?.IsPaused == true;
+    /// <summary>월드 표시가 정렬·가시성만 관찰하는 기존 전면 UI 영역.</summary>
+    public RectTransform FrontView => this.saleSortingPanel.FrontView;
+    /// <summary>진행 시간이 이미 반영된 표시 전용 시계.</summary>
+    public BusinessClockController BusinessClock => this.businessClock;
 
     /// <summary>설비 패널의 실제 활성 상태가 열린 여부의 권위다.</summary>
     private bool IsFacilityShopOpen => facilityShopPresenter != null && facilityShopPresenter.gameObject.activeSelf;

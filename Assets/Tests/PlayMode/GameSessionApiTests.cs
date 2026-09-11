@@ -739,6 +739,71 @@ public sealed class GameSessionApiTests
     }
 
 #if UNITY_EDITOR
+    /// <summary>월드 표시의 방문 identity·퇴장/대사 수명·pause·숨김·재활성 정리를 검사한다.</summary>
+    /// <returns>실제 프레임과 표시 보간 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime()
+    {
+        var ui = createGameUi();
+        var settings = new UnityEditor.SerializedObject(ui);
+        settings.FindProperty("useCustomerQueue").boolValue = true;
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        var world = createWorld(ui);
+        var queue = world.GetComponent<CustomerWorldQueueView>();
+        yield return waitForGameUi(ui);
+        Assert.That(queue.VisualCount, Is.Zero);
+        var progress = uiProgress(ui);
+        completeInspectors(progress);
+        progress.OpenBusiness();
+        yield return new WaitForSeconds(.85f);
+        var day = progress.CurrentDayProgress;
+        var current = day.CurrentVisit;
+        var currentBody = world.GetComponentsInChildren<SpriteRenderer>(true).Single(x => x.sortingOrder == 200);
+        Assert.That(currentBody.GetComponentInParent<Canvas>(), Is.Null);
+        Assert.That(currentBody.color.a, Is.EqualTo(1).Within(.001f));
+        progress.Tick(5);
+        yield return null;
+        var waiting = day.WaitingCustomers[0].Visit;
+        var states = (IDictionary)typeof(CustomerWorldQueueView).GetField("visuals", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(queue);
+        var visual = states[waiting];
+        var type = visual.GetType();
+        var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
+        var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
+        yield return new WaitForSeconds(.8f);
+        Assert.That(states[waiting], Is.SameAs(visual));
+        progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
+        yield return null;
+        Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);
+        Vector3 speechPosition = speech.transform.localPosition;
+        yield return new WaitForSeconds(.55f);
+        Assert.That(body.color.a, Is.Zero.Within(.001f));
+        Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
+        Assert.That(speech.text, Is.Not.Empty);
+        Assert.That(speech.transform.localPosition, Is.EqualTo(speechPosition));
+        progress.Pause();
+        float remaining = day.RemainingSeconds;
+        yield return new WaitForSeconds(.2f);
+        Assert.That(day.RemainingSeconds, Is.EqualTo(remaining));
+        Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
+        ui.FrontView.gameObject.SetActive(false);
+        yield return null;
+        Assert.That(world.RenderRoot.gameObject.activeSelf, Is.False);
+        ui.FrontView.gameObject.SetActive(true);
+        yield return null;
+        Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
+        progress.Resume();
+        progress.Tick(3);
+        yield return null;
+        Assert.That(states.Contains(waiting), Is.False);
+        world.gameObject.SetActive(false);
+        Assert.That(queue.VisualCount, Is.Zero);
+        world.gameObject.SetActive(true);
+        yield return null;
+        Assert.That(day.CurrentVisit, Is.SameAs(current));
+        Assert.That(queue.VisualCount, Is.GreaterThan(0));
+        Assert.That(world.GetComponentsInChildren<SpriteRenderer>(true).Count(x => x.sortingOrder == 200), Is.EqualTo(1));
+    }
+
     /// <summary>실제 UI의 시계와 배경은 DayProgress를 따르며 테스트 배경 시각은 영업 시간을 바꾸지 않는다.</summary>
     /// <returns>실제 prefab 초기화 대기.</returns>
     [UnityTest]
@@ -770,17 +835,16 @@ public sealed class GameSessionApiTests
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
         Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
         progress.Resume();
-        var background = ui.GetComponentInChildren<TimeOfDayUIController>(true);
-        Assert.That(background.BusinessClock, Is.SameAs(clock));
-        background.RefreshTime();
+        var background = createWorld(ui);
+        background.RefreshPresentation();
         Assert.That(background.CurrentAppliedHour, Is.EqualTo(15f));
         var settings = new UnityEditor.SerializedObject(background);
         settings.FindProperty("debugOverrideTime").boolValue = true;
         settings.FindProperty("debugHour").floatValue = 20f;
         settings.FindProperty("autoAdvanceClockForTesting").boolValue = true;
         settings.ApplyModifiedPropertiesWithoutUndo();
-        typeof(TimeOfDayUIController).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(background, null);
-        background.RefreshTime();
+        typeof(WorldSceneView).GetMethod("Update", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(background, null);
+        background.RefreshPresentation();
         Assert.That(background.CurrentAppliedHour, Is.GreaterThanOrEqualTo(20f));
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(900f));
         Assert.That(day.RemainingSeconds, Is.EqualTo(15f));
@@ -790,7 +854,7 @@ public sealed class GameSessionApiTests
         settings.ApplyModifiedPropertiesWithoutUndo();
         progress.Tick(15f);
         refresh.Invoke(ui, null);
-        background.RefreshTime();
+        background.RefreshPresentation();
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.CloseMinutes));
         Assert.That(background.CurrentAppliedHour, Is.EqualTo(BusinessHours.CloseHour));
         Assert.That(day.IsBusinessTimeExpired, Is.True);
@@ -1081,6 +1145,39 @@ public sealed class GameSessionApiTests
     /// <returns>테스트 root와 함께 제거할 Controller.</returns>
     private GameUIController createGameUi() => UnityEngine.Object.Instantiate(
         UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab"), root.transform).GetComponent<GameUIController>();
+
+    /// <summary>공유 월드 prefab을 Canvas 밖 테스트 소유 카메라에 연결한다.</summary>
+    /// <param name="ui">테스트 UI.</param><returns>테스트 소유 월드.</returns>
+    private WorldSceneView createWorld(GameUIController ui)
+    {
+        // 공유 legacy prefab을 쓰는 테스트 인스턴스만 로컬 world UI 계약으로 전환한다.
+        // Local 씬/자산을 읽거나 수정하지 않으며 원본 prefab은 보존한다.
+        var front = ui.FrontView;
+        var legacyTime = front.GetComponent<TimeOfDayUIController>();
+        if (legacyTime != null) UnityEngine.Object.DestroyImmediate(legacyTime);
+        var presenter = ui.GetComponentInChildren<CustomerPresenter>(true);
+        var presenterSettings = new UnityEditor.SerializedObject(presenter);
+        var appearance = (UnityEngine.UI.Image)presenterSettings.FindProperty("appearanceImage").objectReferenceValue;
+        var label = (TMPro.TextMeshProUGUI)presenterSettings.FindProperty("temporaryGenderText").objectReferenceValue;
+        if (label != null && appearance != null && label.transform.IsChildOf(appearance.transform)) label.transform.SetParent(front, true);
+        presenterSettings.FindProperty("appearanceImage").objectReferenceValue = null;
+        presenterSettings.ApplyModifiedPropertiesWithoutUndo();
+        if (appearance != null) UnityEngine.Object.DestroyImmediate(appearance.gameObject);
+        foreach (string name in new[] { "FarBackground", "DawnBackground", "SunsetBackground", "EveningBackground", "CityLights",
+            "MidBackground", "FogBack", "FogMid", "FogFront", "CrowdBack", "CrowdMiddle", "CrowdFront", "LeftWatchTower",
+            "RightWatchTower", "Barricade", "Canopy", "LeftBeam", "RightBeam" })
+            if (front.Find(name) != null) UnityEngine.Object.DestroyImmediate(front.Find(name).gameObject);
+        var panelImage = presenter.GetComponent<UnityEngine.UI.Image>();
+        panelImage.color = new Color(panelImage.color.r, panelImage.color.g, panelImage.color.b, 0);
+        var camera = new GameObject("WorldCamera").AddComponent<Camera>();
+        camera.transform.SetParent(root.transform, false);
+        camera.transform.localPosition = new Vector3(0, 0, -10);
+        camera.orthographic = true; camera.orthographicSize = 5;
+        var world = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/Prefabs/World/CustomerWorld.prefab"), root.transform).GetComponent<WorldSceneView>();
+        world.Bind(ui, camera);
+        return world;
+    }
 
     /// <summary>테스트에서 실제 직렬화 참조를 읽는다.</summary>
     /// <typeparam name="T">예상 UI 컴포넌트.</typeparam><param name="target">연결 소유자.</param><param name="field">직렬화 필드.</param>

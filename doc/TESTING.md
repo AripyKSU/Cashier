@@ -1,5 +1,24 @@
 # 기능 API 검증
 
+## Sprite world 표시 분리 (2026-09-11)
+
+### 개인 씬 분리 후 최종 검증
+
+- EditMode **229/229**, 실패·skip·미완료0: `Temp/TestResults/20260911-133815-2a247445b89f47f3978bbb79849981a9/EditMode.xml` 및 `.log`.
+- PlayMode **40/40**, 실패·skip·미완료0: `Temp/TestResults/20260911-133839-6abdc9359cbb476795f5b4a18120d03b/PlayMode.xml` 및 `.log`. 공유 legacy prefab의 테스트 인스턴스만 월드 UI로 구성하며 Local 자산에 의존하지 않는다.
+- 실제 Init→Main 진입: GameUI 존재, legacy CustomerQueueView 1개·WorldSceneView 0개. Init→Local/SpriteWorldSandbox 진입: GameUI 존재, legacy 0개·CustomerWorldQueueView 1개. 각 경로 Console error0, 컴파일 실패 없음. 이번 후속 실행은 진입 확인이며 전체 거래/다음날 경로 재실행은 아니다.
+- Play 종료 후 SpriteWorldSandbox clean으로 열고 개인 GUID를 선택했다. Play 시작 씬은 InitScene, runInBackground=false다. 실제 UI/UX와 Player build는 미검증이다.
+
+### 이전 월드 Main 조립 시점의 검증 (현재 Main 상태 아님)
+
+- 기준 `codex/sprite-world-presentation e62fcaf` + 표시 전환 diff. Unity6000.3.18f1, 기존 Editor PID14048.
+- EditMode **228/228**: `Temp/TestResults/20260911-130534-3a729387a96f4fc490763a3fb7026422/EditMode.xml`.
+- PlayMode **40/40**: `Temp/TestResults/20260911-130731-f17b9d818dbe493788c0521aa80b7e90/PlayMode.xml`. 각각 log 포함, 실패·skip·미완료0.
+- 신규 화면비2종 viewport/색상 합성/실제 prefab 경계4건, 실제 큐 identity·별도 대사 수명·pause·전면숨김·재활성1건과 기존 시계 미리보기 회귀를 포함한다. 초기 viewport fixture의 clamp/float 비교2건과 자동 preview 시작시각1건을 수정 후 재실행했다. 기대값을 낮추거나 제품 가드를 우회하지 않았다.
+- 실제 Init→Hub→Main·감독관·PreOpen·전면/대기열·기존 slide/topview·거래·마감/정산·NEXT→2일차 재개를 확인했다. 16:9/16:10의 월드와 UI 정렬, City shader 실제 alpha0/.5/1 및 야간 표시를 확인했다. 상세 `Temp/WorldSmoke-Result.md`, 스크린샷 `Temp/WorldSmoke-*.png`.
+- 지연 검사 closure의 파괴된 renderer 접근 오류는 검사 코드 오류로 분리했다. 해당 중간 퇴장 표본을 성공 증거로 쓰지 않는다. 최종 제품 Console error0, compileFailedFalse, MainScene/3prefab missing script/reference0, shader message0.
+- 개인 선택/화면비/백그라운드 설정·InitScene을 복원했다. 테스트 생성 TMP fallback atlas는 원상 복원했고 사용자 Mulmaru 변경은 보존했다. 실제 조작감·문구 가독성·Player build는 별도 사용자 확인/미실행이다.
+
 ## total_merge 감독관·공용 시계 통합 (2026-09-11)
 
 - 기준: `ba368c8` + `29c1ea5`, 병합 커밋 `cb60967` 이후 공용 영업 시각·시계/배경 참조·리로드 자동 저장 제거를 포함한다. 실제 작업 폴더는 `C:/Users/PC/Projects/Cashier`, 브랜치는 `total_merge`다.

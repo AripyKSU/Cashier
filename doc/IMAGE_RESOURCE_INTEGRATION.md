@@ -39,6 +39,8 @@
 
 ## 로드·소비자
 
+2026-09-11 월드 표시는 개인 SpriteWorldSandbox에서 개발하며 CustomerWorld prefab의 CustomerWorldQueueView가 SpriteRenderer를 사용한다. 개인 CustomerPresenter는 appearanceImage=null로 두고 기존 성별/대사/장바구니 UI를 유지한다. 공유 MainScene은 total_merge의 CustomerQueueView·Image 경로로 복원했다. preload·준비 가림·ResourceManager handle 수명과 CSV/FK는 변경하지 않는다. 아래 Local 설명은 과거 기록이며 현재 조립은 [대기열 명세](CUSTOMER_QUEUE_INTEGRATION.md#월드-표시-조립-2026-09-11)를 따른다.
+
 - 승인된54이미지만 기존 Default Local Group에 확장자 없는 파일명 address로 등록했다. 새 label·group은 없다. Datas 라벨은 기존 CSV에만 유지한다.
 - CustomerCatalog가 실제 CSV 파싱 이후 외형·상품 두 FK를 모두 검사한 뒤 공개한다.
 - GameUIController 초기화는 ResourceManager의 기존 cancellation·캐시 경로로 고유 FK별 이미지를 로드한다. 준비 전 게임 진행을 시작하지 않으며 로드 실패는 화면 오류 경로로 전달한다. 핸들 소유·해제는 ResourceManager에 유지한다.

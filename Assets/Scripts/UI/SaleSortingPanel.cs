@@ -103,6 +103,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>쏟기 연출이 끝나 실제 물품 분류를 시작할 때 발생합니다.</summary>
     public event Action SortingStarted;
 
+    /// <summary>월드 정면 표시가 기존 슬라이드 전환과 같은 가시성·좌표를 관찰하는 영역.</summary>
+    public RectTransform FrontView => this.frontView != null ? this.frontView.transform as RectTransform : null;
+
     /// <summary>현재 모든 상품이 판매 또는 제외 상태로 분류됐는지 나타냅니다.</summary>
     public bool CanConfirm => this.state == ViewState.Sorting && this.getWorkingCount() == 0;
 
@@ -1176,12 +1179,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.frontView != null)
         {
             this.frontView.SetActive(true);
-            var timeOfDay = this.frontView.GetComponent<TimeOfDayUIController>();
-            if (timeOfDay == null)
-            {
-                timeOfDay = this.frontView.AddComponent<TimeOfDayUIController>();
-            }
-            timeOfDay.RefreshTime();
+            // 기존 UI-only 씬은 직렬화된 컨트롤러만 갱신한다. world 씬에 배경 Image를 재생성하지 않는다.
+            this.frontView.GetComponent<TimeOfDayUIController>()?.RefreshTime();
         }
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
