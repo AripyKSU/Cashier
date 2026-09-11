@@ -119,6 +119,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
     public Image LeftBeam => this.leftBeam;
     public Image RightBeam => this.rightBeam;
     public float CurrentAppliedHour => this.currentAppliedHour;
+    public string CurrentPhaseName => this.getPhaseName(this.currentAppliedHour);
 
     private void Awake()
     {
@@ -224,60 +225,42 @@ public sealed class TimeOfDayUIController : MonoBehaviour
 
         Transform root = this.transform;
 
-        // 0. 스카이라인(아파트 및 서울타워)을 가리는 잘못된 안개 레이어 비활성화
-        string[] fogNames = { "FogBack", "FogMid", "FogFront" };
-        foreach (string fogName in fogNames)
-        {
-            Transform fogChild = root.Find(fogName);
-            if (fogChild != null)
-            {
-                fogChild.gameObject.SetActive(false);
-            }
-        }
-
-        // FarBackground를 최하단(sibling 0)에 배치
+        // 0. FarBackground를 기본 배경 최하단에 보존
         Transform farBg = root.Find("FarBackground");
-        if (farBg != null)
+        if (farBg != null && farBg.GetSiblingIndex() != 0)
         {
             farBg.SetSiblingIndex(0);
         }
 
 #if UNITY_EDITOR
         // 에디터 실행 시 TimeOfDay 폴더의 원본 스프라이트 및 머티리얼 자동 탐색 및 로드
-        if (this.dawnSprite == null) this.dawnSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png");
-        if (this.sunsetSprite == null) this.sunsetSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png");
-        if (this.eveningSprite == null) this.eveningSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png");
-        if (this.cityLightsSprite == null) this.cityLightsSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png");
-        if (this.counterLightSprite == null) this.counterLightSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png");
-        if (this.searchlightSprite == null) this.searchlightSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png");
-        if (this.cityLightsMaterial == null) this.cityLightsMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat");
+        if (this.dawnSprite == null) this.dawnSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Environment/Dystopia/TimeOfDay/Dawn.png") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png");
+        if (this.sunsetSprite == null) this.sunsetSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Environment/Dystopia/TimeOfDay/Sunset.png") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png");
+        if (this.eveningSprite == null) this.eveningSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Environment/Dystopia/TimeOfDay/Evening.png") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png");
+        if (this.cityLightsSprite == null) this.cityLightsSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Environment/Dystopia/TimeOfDay/CityLights.png") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png");
+        if (this.counterLightSprite == null) this.counterLightSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Environment/Dystopia/TimeOfDay/CounterLight.png") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png");
+        if (this.searchlightSprite == null) this.searchlightSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Environment/Dystopia/TimeOfDay/Searchlight.png") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png");
+        if (this.cityLightsMaterial == null) this.cityLightsMaterial = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Dystopia/CityLights.mat") ?? UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat");
 #endif
 
-        // 1. 하늘 및 배경 레이어 자동 연결 및 FarBackground 바로 위 순서 정렬
+        // 1. 하늘 및 배경 레이어 자동 연결 (기존 계층 순서는 보존)
         if (this.dawn == null) this.dawn = this.ensureLayerImage(root, "DawnBackground", this.dawnSprite, Vector2.zero, new Vector2(1280f, 720f), 1);
-        else { this.dawn.transform.SetSiblingIndex(1); this.dawn.color = Color.white; }
+        else { this.dawn.color = Color.white; }
 
         if (this.sunset == null) this.sunset = this.ensureLayerImage(root, "SunsetBackground", this.sunsetSprite, Vector2.zero, new Vector2(1280f, 720f), 2);
-        else { this.sunset.transform.SetSiblingIndex(2); this.sunset.color = Color.white; }
+        else { this.sunset.color = Color.white; }
 
         if (this.evening == null) this.evening = this.ensureLayerImage(root, "EveningBackground", this.eveningSprite, Vector2.zero, new Vector2(1280f, 720f), 3);
-        else { this.evening.transform.SetSiblingIndex(3); this.evening.color = Color.white; }
+        else { this.evening.color = Color.white; }
 
-        if (this.cityLights == null) this.cityLights = this.ensureLayerImage(root, "CityLights", this.cityLightsSprite, Vector2.zero, new Vector2(1280f, 720f), 4, this.cityLightsMaterial);
+        if (this.cityLights == null) this.cityLights = this.ensureLayerImage(root, "CityLights", this.cityLightsSprite, Vector2.zero, new Vector2(1280f, 720f), -1, this.cityLightsMaterial);
         else
         {
-            this.cityLights.transform.SetSiblingIndex(4);
             this.cityLights.color = Color.white;
             if (this.cityLightsMaterial != null && (this.cityLights.material == null || this.cityLights.material == this.cityLights.defaultMaterial))
             {
                 this.cityLights.material = this.cityLightsMaterial;
             }
-        }
-
-        Transform midBg = root.Find("MidBackground");
-        if (midBg != null)
-        {
-            midBg.SetSiblingIndex(5);
         }
 
         // 2. 탐조등 빔 레이어 자동 연결 또는 생성
@@ -300,14 +283,22 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         }
         else { this.counterLight.color = Color.white; }
 
-        // 4. 환경 틴트 대상 그래픽 수집
+        // 4. PixelStage 컴포넌트 자동 연결
+        if (this.pixelStage == null)
+        {
+            this.pixelStage = this.GetComponent<TimeOfDayPixelStage>() ?? this.GetComponentInChildren<TimeOfDayPixelStage>(true);
+        }
+
+        // 5. 환경 틴트 대상 그래픽 수집
         if (this.environment == null || this.environment.Length == 0)
         {
             var list = new List<Graphic>();
             string[] names =
             {
                 "FarBackground", "MidBackground", "CrowdBack", "CrowdMiddle", "CrowdFront",
-                "LeftWatchTower", "RightWatchTower", "Barricade", "Canopy", "Counter"
+                "LeftWatchTower", "RightWatchTower", "LeftWatchRail", "RightWatchRail",
+                "Barricade", "Canopy", "Counter", "LeftChimneySmoke", "RightChimneySmoke",
+                "LeftWatchGuard", "RightWatchGuard", "Inspector"
             };
             foreach (string name in names)
             {
@@ -401,11 +392,22 @@ public sealed class TimeOfDayUIController : MonoBehaviour
     {
         foreach (string n in names)
         {
-            Transform child = parent.Find(n);
+            Transform child = parent.Find(n) ?? findChildRecursive(parent, n);
             if (child != null && child.TryGetComponent<Image>(out var img))
             {
                 return img;
             }
+        }
+        return null;
+    }
+
+    private static Transform findChildRecursive(Transform root, string name)
+    {
+        foreach (Transform child in root)
+        {
+            if (child.name == name) return child;
+            Transform found = findChildRecursive(child, name);
+            if (found != null) return found;
         }
         return null;
     }
@@ -512,7 +514,7 @@ public sealed class TimeOfDayUIController : MonoBehaviour
         if (graphics == null) return;
         for (int i = 0; i < graphics.Length; i++)
         {
-            if (graphics[i] != null)
+            if (graphics[i] != null && graphics[i].enabled)
             {
                 graphics[i].canvasRenderer.SetColor(color);
             }

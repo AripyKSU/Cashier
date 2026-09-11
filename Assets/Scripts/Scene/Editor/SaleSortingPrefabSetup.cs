@@ -22,10 +22,16 @@ public static class SaleSortingPrefabSetup
     private const string TiltedContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png";
     private const string EmptyContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png";
     private const string FrontContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png";
-    private const string FarBackgroundPath = "Assets/DystopiaPrototype/Art/FARBACKGROUND.png";
-    private const string FogBackPath = "Assets/DystopiaPrototype/Art/FogBack.png";
-    private const string FogMidPath = "Assets/DystopiaPrototype/Art/FogMid.png";
-    private const string FogFrontPath = "Assets/DystopiaPrototype/Art/FogFront.png";
+    private const string FarBackgroundPath = "Assets/Textures/Environment/Dystopia/FARBACKGROUND.png";
+    private const string SeoulPath = "Assets/Textures/Environment/Dystopia/Seoul.png";
+    private const string FogBackPath = "Assets/Textures/Environment/Dystopia/FogBack.png";
+    private const string FogMidPath = "Assets/Textures/Environment/Dystopia/FogMid.png";
+    private const string FogFrontPath = "Assets/Textures/Environment/Dystopia/FogFront.png";
+    private const string FogBackMatPath = "Assets/Materials/Dystopia/FogBack.mat";
+    private const string FogMidMatPath = "Assets/Materials/Dystopia/FogMid.mat";
+    private const string FogFrontMatPath = "Assets/Materials/Dystopia/FogFront.mat";
+    private const string ChimneySmoke0Path = "Assets/Textures/Environment/Dystopia/ChimneySmoke0.png";
+    private const string WatchGuardPath = "Assets/Textures/Environment/Dystopia/WatchGuard.png";
     private const string MidBackgroundPath = "Assets/DystopiaPrototype/Art/MidBackground.png";
     private const string CrowdBackPath = "Assets/DystopiaPrototype/Art/CrowdBack.png";
     private const string CrowdMiddlePath = "Assets/DystopiaPrototype/Art/CrowdMiddle.png";
@@ -40,6 +46,15 @@ public static class SaleSortingPrefabSetup
     private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
     private const string DialogueFramePath = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
     private const string MabinogiFontPath = "Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset";
+    private const string DawnPath = "Assets/Textures/Environment/Dystopia/TimeOfDay/Dawn.png";
+    private const string SunsetPath = "Assets/Textures/Environment/Dystopia/TimeOfDay/Sunset.png";
+    private const string EveningPath = "Assets/Textures/Environment/Dystopia/TimeOfDay/Evening.png";
+    private const string CityLightsPath = "Assets/Textures/Environment/Dystopia/TimeOfDay/CityLights.png";
+    private const string CityLightsMatPath = "Assets/Materials/Dystopia/CityLights.mat";
+    private const string SearchlightPath = "Assets/Textures/Environment/Dystopia/TimeOfDay/Searchlight.png";
+    private const string CounterLightPath = "Assets/Textures/Environment/Dystopia/TimeOfDay/CounterLight.png";
+    private const string GuardNeutralMatPath = "Assets/Materials/Dystopia/GuardNeutral.mat";
+    private const string PixelStageLightingShaderPath = "Assets/Shaders/Dystopia/PixelStageLighting.shader";
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]
@@ -223,6 +238,7 @@ public static class SaleSortingPrefabSetup
             if (operatingBackground != null)
             {
                 operatingBackground.raycastTarget = false;
+                operatingBackground.color = new Color(0.08f, 0.12f, 0.14f, 0f);
             }
 
             RectTransform calculator = findChild(root.transform, "PriceInput") as RectTransform;
@@ -339,39 +355,144 @@ public static class SaleSortingPrefabSetup
         }
     }
 
+    private static void setInitialHidden(RectTransform rect)
+    {
+        var cr = rect.GetComponent<CanvasRenderer>();
+        if (cr != null) cr.SetColor(new Color(1f, 1f, 1f, 0f));
+    }
+
     /// <summary>Astra 전면 화면의 배경, 손님 위치, 매대와 클릭 가능한 박스를 구성합니다.</summary>
     /// <param name="operating">OperatingPanel Prefab 루트입니다.</param>
     private static void setupFrontView(Transform operating)
     {
         stretch((RectTransform)operating);
         Transform customer = findChild(operating, "Customer");
+        RectTransform frontView;
         Transform existing = operating.Find("AstraFrontView");
         if (existing != null)
         {
-            if (customer != null && customer.IsChildOf(existing))
+            frontView = (RectTransform)existing;
+            if (customer != null && customer.IsChildOf(frontView))
             {
                 customer.SetParent(operating, false);
             }
-
-            UnityEngine.Object.DestroyImmediate(existing.gameObject);
+            for (int i = frontView.childCount - 1; i >= 0; i--)
+            {
+                Transform child = frontView.GetChild(i);
+                if (child.name == "FrontContainer") continue;
+                UnityEngine.Object.DestroyImmediate(child.gameObject);
+            }
         }
-
-        RectTransform frontView = createRect("AstraFrontView", operating, Vector2.zero, Vector2.zero);
+        else
+        {
+            frontView = createRect("AstraFrontView", operating, Vector2.zero, Vector2.zero);
+        }
         stretch(frontView);
         frontView.SetAsFirstSibling();
 
-        createFrontImage(frontView, "FarBackground", FarBackgroundPath, 0f, 0f, 1280f, 720f);
-        createFrontImage(frontView, "FogBack", FogBackPath, 0f, -390f, 1280f, 720f);
-        createFrontImage(frontView, "FogMid", FogMidPath, 0f, -390f, 1280f, 720f);
-        createFrontImage(frontView, "FogFront", FogFrontPath, 0f, -390f, 1280f, 720f);
-        createFrontImage(frontView, "MidBackground", MidBackgroundPath, 0f, -46f, 1280f, 576f);
-        createFrontImage(frontView, "CrowdBack", CrowdBackPath, -4f, -119f, 1288f, 979f);
-        createFrontImage(frontView, "CrowdMiddle", CrowdMiddlePath, -4f, -119f, 1288f, 979f);
-        createFrontImage(frontView, "CrowdFront", CrowdFrontPath, -4f, -119f, 1288f, 979f);
+        // 1. 최원경 하늘 (내장 SkyBirds 셰이더 연출 포함)
+        createFrontImage(frontView, "FarBackground", FarBackgroundPath, 0f, 0f, 1280f, 720f, "Assets/DystopiaPrototype/Art/FARBACKGROUND.png");
+
+        // 2. 시간대별 하늘 페이드 레이어 (09~12시 새벽/아침, 15~18시 석양, 18~21시 야간)
+        RectTransform dawnRt = createFrontImage(frontView, "DawnBackground", DawnPath, 0f, 0f, 1280f, 720f, "Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png");
+        setInitialHidden(dawnRt);
+
+        RectTransform sunsetRt = createFrontImage(frontView, "SunsetBackground", SunsetPath, 0f, 0f, 1280f, 720f, "Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png");
+        setInitialHidden(sunsetRt);
+
+        RectTransform eveningRt = createFrontImage(frontView, "EveningBackground", EveningPath, 0f, 0f, 1280f, 720f, "Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png");
+        setInitialHidden(eveningRt);
+
+        // 3. 야간 원경 도심 창문 불빛
+        RectTransform cityRect = createFrontImage(frontView, "CityLights", CityLightsPath, 0f, 0f, 1280f, 720f, "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png");
+        Image cityImg = cityRect.GetComponent<Image>();
+        Material cityMat = loadMaterial(CityLightsMatPath, "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat");
+        if (cityMat != null) cityImg.material = cityMat;
+        setInitialHidden(cityRect);
+
+        // 4. 좌/우 공장 굴뚝 연기 (4프레임 교체 및 미세 부유)
+        createChimneySmoke(frontView, "LeftChimneySmoke", ChimneySmoke0Path, new Vector2(182f, -12f), new Vector2(62f, 137f), "Assets/DystopiaPrototype/Art/ChimneySmoke0.png");
+        createChimneySmoke(frontView, "RightChimneySmoke", ChimneySmoke0Path, new Vector2(1152f, -23f), new Vector2(47f, 106f), "Assets/DystopiaPrototype/Art/ChimneySmoke0.png");
+
+        // 5. 3단계 픽셀 안개 (프로토타입 사양: MidBackground 이전, Y=390 상단 330px 영역에만 렌더링, 군중·손님·가판 앞 중첩 방지)
+        createFogLayer(frontView, "FogBack", FogBackPath, FogBackMatPath, "Assets/DystopiaPrototype/Art/FogBack.mat", "Assets/DystopiaPrototype/Art/FogBack.png");
+        createFogLayer(frontView, "FogMid", FogMidPath, FogMidMatPath, "Assets/DystopiaPrototype/Art/FogMid.mat", "Assets/DystopiaPrototype/Art/FogMid.png");
+        createFogLayer(frontView, "FogFront", FogFrontPath, FogFrontMatPath, "Assets/DystopiaPrototype/Art/FogFront.mat", "Assets/DystopiaPrototype/Art/FogFront.png");
+
+        // 6. 중경 언덕 및 실루엣
+        createFrontImage(frontView, "MidBackground", MidBackgroundPath, 0f, 46f, 1280f, 576f);
+
+        // 7. 좌/우 감시탑 구조물
         createFrontImage(frontView, "LeftWatchTower", LeftWatchTowerPath, 0f, 0f, 1280f, 720f);
         createFrontImage(frontView, "RightWatchTower", RightWatchTowerPath, 0f, 0f, 1280f, 720f);
+
+        // 8. 감시탑 난간 마스크 (경비병의 하체가 탑 난간 뒤에 가려지도록 클리핑)
+        createWatchRailMask(frontView, "LeftWatchRailMask", "LeftWatchRail", LeftWatchTowerPath, new Vector2(62f, -171f), new Vector2(132f, 57f), new Vector2(-62f, 171f));
+        createWatchRailMask(frontView, "RightWatchRailMask", "RightWatchRail", RightWatchTowerPath, new Vector2(1132f, -228f), new Vector2(80f, 35f), new Vector2(-1132f, 228f));
+
+        // 9. 좌/우 감시탑 경비병 (선회, 체중 이동, 외곽 조준)
+        createWatchGuard(frontView, "LeftWatchGuard", WatchGuardPath, new Vector2(163f, -174f), new Vector2(44f, 34f), "Assets/DystopiaPrototype/Art/WatchGuard.png");
+        createWatchGuard(frontView, "RightWatchGuard", WatchGuardPath, new Vector2(1170f, -232f), new Vector2(32f, 24f), "Assets/DystopiaPrototype/Art/WatchGuard.png");
+
+        // 10. 주기적 외곽 사격 총구 불꽃
+        createWatchMuzzleFlash(frontView, "WatchMuzzleFlash0");
+        createWatchMuzzleFlash(frontView, "WatchMuzzleFlash1");
+
+        // 11. 3행 군중 정점 변위 메시 이미지 (후열, 중열, 전열)
+        createCrowdRow(frontView, "CrowdBack", CrowdBackPath, 0, -4f, -119f, 1288f, 979f);
+        createCrowdRow(frontView, "CrowdMiddle", CrowdMiddlePath, 1, -4f, -119f, 1288f, 979f);
+        createCrowdRow(frontView, "CrowdFront", CrowdFrontPath, 2, -4f, -119f, 1288f, 979f);
+
+        // 14. 가판 뒤 바리케이드
         createFrontImage(frontView, "Barricade", BarricadePath, -14f, 305f, 1308f, 270f);
 
+        // 15. 가판 천막
+        createFrontImage(frontView, "Canopy", CanopyPath, 0f, 0f, 1280f, 720f);
+
+        // 16. 야간 감시탑 서치라이트 탐조등 (좌/우)
+        RectTransform leftBeamRt = createRect("LeftBeam", frontView, Vector2.zero, Vector2.zero);
+        leftBeamRt.anchorMin = new Vector2(0f, 1f);
+        leftBeamRt.anchorMax = new Vector2(0f, 1f);
+        leftBeamRt.pivot = new Vector2(0f, 0.5f);
+        leftBeamRt.anchoredPosition = new Vector2(110f, -164f);
+        leftBeamRt.sizeDelta = new Vector2(1800f, 360f);
+        leftBeamRt.localRotation = Quaternion.Euler(0f, 0f, -7.67f);
+        Image leftBeamImg = leftBeamRt.gameObject.AddComponent<Image>();
+        leftBeamImg.sprite = loadSprite(SearchlightPath, "Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png");
+        leftBeamImg.color = Color.white;
+        leftBeamImg.raycastTarget = false;
+        setInitialHidden(leftBeamRt);
+
+        RectTransform rightBeamRt = createRect("RightBeam", frontView, Vector2.zero, Vector2.zero);
+        rightBeamRt.anchorMin = new Vector2(0f, 1f);
+        rightBeamRt.anchorMax = new Vector2(0f, 1f);
+        rightBeamRt.pivot = new Vector2(0f, 0.5f);
+        rightBeamRt.anchoredPosition = new Vector2(1140f, -156f);
+        rightBeamRt.sizeDelta = new Vector2(1800f, 366.67f);
+        rightBeamRt.localRotation = Quaternion.Euler(0f, 0f, 186.29f);
+        Image rightBeamImg = rightBeamRt.gameObject.AddComponent<Image>();
+        rightBeamImg.sprite = loadSprite(SearchlightPath, "Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png");
+        rightBeamImg.color = Color.white;
+        rightBeamImg.raycastTarget = false;
+        setInitialHidden(rightBeamRt);
+
+        // 17. 가판대 매대 전면
+        createFrontImage(frontView, "Counter", CounterPath, 0f, 0f, 1280f, 720f);
+
+        // 18. 야간 가판대 조명
+        RectTransform counterLightRt = createRect("CounterLight", frontView, Vector2.zero, Vector2.zero);
+        counterLightRt.anchorMin = new Vector2(0f, 1f);
+        counterLightRt.anchorMax = new Vector2(0f, 1f);
+        counterLightRt.pivot = new Vector2(0f, 1f);
+        counterLightRt.anchoredPosition = new Vector2(355f, -455f);
+        counterLightRt.sizeDelta = new Vector2(600f, 180f);
+        Image counterLightImg = counterLightRt.gameObject.AddComponent<Image>();
+        counterLightImg.sprite = loadSprite(CounterLightPath, "Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png");
+        counterLightImg.color = Color.white;
+        counterLightImg.raycastTarget = false;
+        setInitialHidden(counterLightRt);
+
+        // 19. 손님
         if (customer != null)
         {
             customer.SetParent(frontView, false);
@@ -380,10 +501,7 @@ public static class SaleSortingPrefabSetup
             setDirectChildrenInactive(customer, "Dialogue", "Basket");
         }
 
-        createFrontImage(frontView, "Canopy", CanopyPath, 0f, 0f, 1280f, 720f);
-        createFrontImage(frontView, "Counter", CounterPath, 0f, 0f, 1280f, 720f);
-
-        // 상자와 시계를 화면 및 매대 정중앙(X=640)에 맞춰 가운데 정렬 배치합니다.
+        // 20. 상자와 시계를 화면 및 매대 정중앙(X=640)에 맞춰 가운데 정렬 배치합니다.
         RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 550f, 605f, 180f, 90f);
         Image clockImage = clockRect.GetComponent<Image>();
         clockImage.preserveAspect = true;
@@ -407,23 +525,110 @@ public static class SaleSortingPrefabSetup
         setObject(clockObj, "clockText", clockText);
         clockObj.ApplyModifiedPropertiesWithoutUndo();
 
-        // FrontContainer(360x240, CenterX=640, Desk Contact Y=-578)
-        RectTransform container = createFrontImage(
-            frontView,
-            "FrontContainer",
-            FrontContainerPath,
-            460f,
-            350f,
-            360f,
-            240f);
+        // 21. FrontContainer(360x240, CenterX=640, Desk Contact Y=-578) - 기존 파일ID 보존
+        Transform existingContainer = frontView.Find("FrontContainer");
+        RectTransform container;
+        if (existingContainer != null)
+        {
+            container = (RectTransform)existingContainer;
+            container.anchorMin = new Vector2(0f, 1f);
+            container.anchorMax = new Vector2(0f, 1f);
+            container.pivot = new Vector2(0f, 1f);
+            container.anchoredPosition = new Vector2(460f, -350f);
+            container.sizeDelta = new Vector2(360f, 240f);
+        }
+        else
+        {
+            container = createFrontImage(
+                frontView,
+                "FrontContainer",
+                FrontContainerPath,
+                460f,
+                350f,
+                360f,
+                240f);
+        }
         Image containerImage = container.GetComponent<Image>();
+        if (containerImage == null) containerImage = container.gameObject.AddComponent<Image>();
+        containerImage.sprite = loadSprite(FrontContainerPath);
         containerImage.preserveAspect = true;
         containerImage.raycastTarget = true;
-        Button button = container.gameObject.AddComponent<Button>();
+        Button button = container.GetComponent<Button>();
+        if (button == null) button = container.gameObject.AddComponent<Button>();
         button.targetGraphic = containerImage;
         button.transition = Selectable.Transition.None;
 
+        // 22. 대화창 (항상 최상단 렌더링)
         setupDialoguePanel(frontView, operating);
+
+        // 23. TimeOfDayPixelStage (480x270 저해상도 픽셀 스테이지 가동 및 Point 확대)
+        TimeOfDayPixelStage pixelStage = frontView.gameObject.GetComponent<TimeOfDayPixelStage>();
+        if (pixelStage == null) pixelStage = frontView.gameObject.AddComponent<TimeOfDayPixelStage>();
+        pixelStage.frontCanvas = frontView;
+        pixelStage.lightingShader = AssetDatabase.LoadAssetAtPath<Shader>(PixelStageLightingShaderPath) ?? Shader.Find("Cashier/PixelStageLighting");
+        pixelStage.width = 480;
+        pixelStage.previewInEditor = true;
+
+        var stageLayers = new System.Collections.Generic.List<TimeOfDayPixelStage.Layer>();
+        void addStageLayer(string childPath, TimeOfDayPixelStage.Surface surface, float roomResponse = 0f, float lampResponse = 0.15f)
+        {
+            Transform t = frontView.Find(childPath);
+            if (t == null) return;
+            Graphic g = t.GetComponent<Graphic>();
+            if (g == null) return;
+            stageLayers.Add(new TimeOfDayPixelStage.Layer
+            {
+                source = g,
+                surface = surface,
+                roomResponse = roomResponse,
+                lampResponse = lampResponse
+            });
+        }
+
+        addStageLayer("FarBackground", TimeOfDayPixelStage.Surface.Sky);
+        addStageLayer("DawnBackground", TimeOfDayPixelStage.Surface.Sky);
+        addStageLayer("SunsetBackground", TimeOfDayPixelStage.Surface.Sky);
+        addStageLayer("EveningBackground", TimeOfDayPixelStage.Surface.Sky);
+        addStageLayer("CityLights", TimeOfDayPixelStage.Surface.CityLights);
+        addStageLayer("LeftChimneySmoke", TimeOfDayPixelStage.Surface.OriginalEffect);
+        addStageLayer("RightChimneySmoke", TimeOfDayPixelStage.Surface.OriginalEffect);
+        addStageLayer("FogBack", TimeOfDayPixelStage.Surface.OriginalEffect);
+        addStageLayer("FogMid", TimeOfDayPixelStage.Surface.OriginalEffect);
+        addStageLayer("FogFront", TimeOfDayPixelStage.Surface.OriginalEffect);
+        addStageLayer("MidBackground", TimeOfDayPixelStage.Surface.Environment);
+        addStageLayer("LeftWatchTower", TimeOfDayPixelStage.Surface.Metal);
+        addStageLayer("RightWatchTower", TimeOfDayPixelStage.Surface.Metal);
+        addStageLayer("LeftWatchRailMask/LeftWatchRail", TimeOfDayPixelStage.Surface.Metal);
+        addStageLayer("RightWatchRailMask/RightWatchRail", TimeOfDayPixelStage.Surface.Metal);
+        addStageLayer("LeftWatchGuard", TimeOfDayPixelStage.Surface.Person);
+        addStageLayer("RightWatchGuard", TimeOfDayPixelStage.Surface.Person);
+        addStageLayer("CrowdBack", TimeOfDayPixelStage.Surface.Environment);
+        addStageLayer("CrowdMiddle", TimeOfDayPixelStage.Surface.Environment);
+        addStageLayer("CrowdFront", TimeOfDayPixelStage.Surface.Environment);
+        addStageLayer("Barricade", TimeOfDayPixelStage.Surface.Environment);
+        addStageLayer("Canopy", TimeOfDayPixelStage.Surface.Environment, roomResponse: 0.2f);
+        addStageLayer("LeftBeam", TimeOfDayPixelStage.Surface.Unlit, lampResponse: 0f);
+        addStageLayer("RightBeam", TimeOfDayPixelStage.Surface.Unlit, lampResponse: 0f);
+        addStageLayer("Counter", TimeOfDayPixelStage.Surface.Environment, roomResponse: 0.3f);
+        addStageLayer("CounterLight", TimeOfDayPixelStage.Surface.Unlit, lampResponse: 0f);
+        addStageLayer("Customer", TimeOfDayPixelStage.Surface.Person, lampResponse: 1f);
+        addStageLayer("CounterClock", TimeOfDayPixelStage.Surface.Environment, lampResponse: 0.6f);
+        addStageLayer("FrontContainer", TimeOfDayPixelStage.Surface.Metal, roomResponse: 0.5f, lampResponse: 1f);
+
+        pixelStage.layers = stageLayers.ToArray();
+
+        // 24. TimeOfDayUIController (시간대별 빛 및 틴트 제어)
+        TimeOfDayUIController timeController = frontView.gameObject.GetComponent<TimeOfDayUIController>();
+        if (timeController == null) timeController = frontView.gameObject.AddComponent<TimeOfDayUIController>();
+        timeController.AutoResolveReferences();
+
+        // 25. 배경 애니메이션 총괄 제어 컴포넌트 부착 및 초기화
+        FrontBackgroundAnimationController animController = frontView.gameObject.GetComponent<FrontBackgroundAnimationController>();
+        if (animController == null)
+        {
+            animController = frontView.gameObject.AddComponent<FrontBackgroundAnimationController>();
+        }
+        animController.Initialize();
     }
 
     /// <summary>Astra 지침서 배경 안에 현재 동적 가격 목록과 영업 시작 버튼을 배치합니다.</summary>
@@ -493,15 +698,195 @@ public static class SaleSortingPrefabSetup
         float x,
         float y,
         float width,
-        float height)
+        float height,
+        string fallbackPath = null)
     {
         RectTransform rect = createRect(name, parent, Vector2.zero, Vector2.zero);
         setFrontRect(rect, x, y, width, height);
         Image image = rect.gameObject.AddComponent<Image>();
-        image.sprite = loadSprite(spritePath);
+        image.sprite = loadSprite(spritePath, fallbackPath);
         image.color = Color.white;
         image.raycastTarget = false;
         return rect;
+    }
+
+    /// <summary>안개 레이어(PixelFog 셰이더 적용, Y=390 상단 오프셋)를 생성합니다.</summary>
+    private static RectTransform createFogLayer(
+        Transform parent,
+        string name,
+        string spritePath,
+        string matPath,
+        string fallbackMatPath = null,
+        string fallbackSpritePath = null)
+    {
+        RectTransform rect = createRect(name, parent, Vector2.zero, Vector2.zero);
+        setFrontRect(rect, 0f, -390f, 1280f, 720f);
+        Image image = rect.gameObject.AddComponent<Image>();
+        image.sprite = loadSprite(spritePath, fallbackSpritePath);
+        Material mat = loadMaterial(matPath, fallbackMatPath);
+        if (mat != null) image.material = mat;
+        image.color = Color.white;
+        image.raycastTarget = false;
+        return rect;
+    }
+
+    /// <summary>굴뚝 연기 이미지를 생성합니다.</summary>
+    private static RectTransform createChimneySmoke(
+        Transform parent,
+        string name,
+        string spritePath,
+        Vector2 pos,
+        Vector2 size,
+        string fallbackPath = null)
+    {
+        RectTransform rect = createRect(name, parent, Vector2.zero, Vector2.zero);
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = pos;
+        rect.sizeDelta = size;
+
+        Image img = rect.gameObject.AddComponent<Image>();
+        img.sprite = loadSprite(spritePath, fallbackPath);
+        img.color = new Color(0.67f, 0.70f, 0.73f, 0.48f);
+        img.raycastTarget = false;
+        return rect;
+    }
+
+    /// <summary>감시탑 경비병 이미지를 생성합니다.</summary>
+    private static RectTransform createWatchGuard(
+        Transform parent,
+        string name,
+        string spritePath,
+        Vector2 pos,
+        Vector2 size,
+        string fallbackPath = null)
+    {
+        RectTransform rect = createRect(name, parent, Vector2.zero, Vector2.zero);
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.anchoredPosition = pos;
+        rect.sizeDelta = size;
+
+        Image img = rect.gameObject.AddComponent<Image>();
+        img.sprite = loadSprite(spritePath, fallbackPath);
+        img.color = Color.white;
+        img.preserveAspect = true;
+        Material guardMat = loadMaterial(GuardNeutralMatPath, "Assets/DystopiaPrototype/Art/GuardNeutral.mat");
+        if (guardMat != null) img.material = guardMat;
+        img.raycastTarget = false;
+        return rect;
+    }
+
+    /// <summary>감시탑 난간 뒤로 경비병 하체가 가려지도록 RectMask2D와 탑 이미지를 생성합니다.</summary>
+    private static RectTransform createWatchRailMask(
+        Transform parent,
+        string maskName,
+        string railName,
+        string towerSpritePath,
+        Vector2 maskPos,
+        Vector2 maskSize,
+        Vector2 railPos)
+    {
+        var maskGo = new GameObject(maskName, typeof(RectTransform), typeof(RectMask2D));
+        RectTransform maskRt = maskGo.GetComponent<RectTransform>();
+        maskRt.SetParent(parent, false);
+        maskRt.anchorMin = new Vector2(0f, 1f);
+        maskRt.anchorMax = new Vector2(0f, 1f);
+        maskRt.pivot = new Vector2(0f, 1f);
+        maskRt.anchoredPosition = maskPos;
+        maskRt.sizeDelta = maskSize;
+
+        var railGo = new GameObject(railName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform railRt = railGo.GetComponent<RectTransform>();
+        railRt.SetParent(maskRt, false);
+        railRt.anchorMin = new Vector2(0f, 1f);
+        railRt.anchorMax = new Vector2(0f, 1f);
+        railRt.pivot = new Vector2(0f, 1f);
+        railRt.anchoredPosition = railPos;
+        railRt.sizeDelta = new Vector2(1280f, 720f);
+
+        Image img = railGo.GetComponent<Image>();
+        img.sprite = loadSprite(towerSpritePath);
+        img.color = Color.white;
+        img.raycastTarget = false;
+
+        return maskRt;
+    }
+
+    /// <summary>원경 하늘의 절차적 새 무리 비행 연출 객체를 구성합니다.</summary>
+    private static FrontSkyBirds createSkyBirds(Transform parent, string name)
+    {
+        var birdsGo = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(FrontSkyBirds));
+        RectTransform rt = birdsGo.GetComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        stretch(rt);
+        FrontSkyBirds birds = birdsGo.GetComponent<FrontSkyBirds>();
+        birds.raycastTarget = false;
+        return birds;
+    }
+
+    /// <summary>주기적 외곽 사격 총구 불꽃 객체를 구성합니다.</summary>
+    private static RectTransform createWatchMuzzleFlash(Transform parent, string name)
+    {
+        var go = new GameObject(name, typeof(RectTransform));
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(0f, 1f);
+        rt.pivot = new Vector2(0f, 1f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = Vector2.zero;
+
+        createColorRect(rt, "Flame", new Vector2(-3f, 1f), new Vector2(10f, 2f), new Color(1f, 0.48f, 0.12f, 1f));
+        createColorRect(rt, "Spark", new Vector2(0f, 3f), new Vector2(3f, 6f), new Color(1f, 0.7f, 0.2f, 1f));
+        createColorRect(rt, "Core", new Vector2(-2f, 1f), new Vector2(5f, 2f), new Color(1f, 1f, 0.78f, 1f));
+
+        go.SetActive(false);
+        return rt;
+    }
+
+    /// <summary>단색 UI Image 사각형을 생성합니다.</summary>
+    private static void createColorRect(Transform parent, string name, Vector2 pos, Vector2 size, Color color)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+        RectTransform rt = go.GetComponent<RectTransform>();
+        rt.SetParent(parent, false);
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(0f, 1f);
+        rt.pivot = new Vector2(0f, 1f);
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = size;
+
+        Image img = go.GetComponent<Image>();
+        img.color = color;
+        img.raycastTarget = false;
+    }
+
+    /// <summary>군중 정점 변위 메시 이미지 컴포넌트를 생성합니다.</summary>
+    private static FrontCrowdImage createCrowdRow(
+        Transform parent,
+        string name,
+        string spritePath,
+        int rowIndex,
+        float x,
+        float y,
+        float width,
+        float height)
+    {
+        var go = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(FrontCrowdImage));
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.SetParent(parent, false);
+        setFrontRect(rect, x, y, width, height);
+
+        FrontCrowdImage crowd = go.GetComponent<FrontCrowdImage>();
+        crowd.sprite = loadSprite(spritePath);
+        crowd.color = Color.white;
+        crowd.raycastTarget = false;
+        crowd.Configure(rowIndex);
+
+        return crowd;
     }
 
     /// <summary>1280×720 전면 화면 원본의 좌상단 좌표를 RectTransform에 적용합니다.</summary>
@@ -683,12 +1068,31 @@ public static class SaleSortingPrefabSetup
 
     /// <summary>지정 경로의 Sprite를 필수 에셋으로 로드합니다.</summary>
     /// <param name="path">프로젝트 상대 에셋 경로입니다.</param>
+    /// <param name="fallbackPath">선택적 대체 에셋 경로입니다.</param>
     /// <returns>로드한 Sprite입니다.</returns>
-    private static Sprite loadSprite(string path)
+    private static Sprite loadSprite(string path, string fallbackPath = null)
     {
         Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-        if (sprite == null) throw new InvalidOperationException($"Sprite를 로드하지 못했습니다: {path}");
+        if (sprite == null && !string.IsNullOrEmpty(fallbackPath))
+        {
+            sprite = AssetDatabase.LoadAssetAtPath<Sprite>(fallbackPath);
+        }
+        if (sprite == null) throw new InvalidOperationException($"Sprite를 로드하지 못했습니다: {path} (fallback: {fallbackPath})");
         return sprite;
+    }
+
+    /// <summary>지정 경로의 Material을 로드합니다.</summary>
+    /// <param name="path">프로젝트 상대 머티리얼 경로입니다.</param>
+    /// <param name="fallbackPath">선택적 대체 머티리얼 경로입니다.</param>
+    /// <returns>로드한 Material입니다.</returns>
+    private static Material loadMaterial(string path, string fallbackPath = null)
+    {
+        Material mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (mat == null && !string.IsNullOrEmpty(fallbackPath))
+        {
+            mat = AssetDatabase.LoadAssetAtPath<Material>(fallbackPath);
+        }
+        return mat;
     }
 
     /// <summary>RectTransform 전체를 채우는 TMP 안내 텍스트를 생성합니다.</summary>
@@ -927,11 +1331,11 @@ public static class SaleSortingPrefabSetup
     }
 }
 
-/// <summary>에디터 리로드 시 프리팹 갱신을 자동으로 1회 실행하여 디스크의 프리팹 파일에 대화창, 시계, 밀대, 대형 상자를 즉시 반영합니다.</summary>
+/// <summary>에디터 리로드 시 프리팹 갱신을 자동으로 1회 실행하여 정면 배경 및 판매 분류 UI를 프리팹에 즉시 반영합니다.</summary>
 [InitializeOnLoad]
 public static class AutoSaleSortingPrefabUpdater
 {
-    private const string SessionKey = "SaleSortingUI_AutoSetup_Applied_v5";
+    private const string SessionKey = "SaleSortingUI_AutoSetup_Applied_v9";
 
     static AutoSaleSortingPrefabUpdater()
     {
@@ -945,8 +1349,8 @@ public static class AutoSaleSortingPrefabUpdater
 
         try
         {
-            SaleSortingPrefabSetup.SetupDialoguePrefab();
-            Debug.Log("[AutoSaleSortingPrefabUpdater] 대화창(마비노기 폰트) 프리팹 갱신을 성공적으로 완료했습니다.");
+            SaleSortingPrefabSetup.Setup();
+            Debug.Log("[AutoSaleSortingPrefabUpdater] 정면 배경(군중, 연기, 경비병, 안개) 및 판매 분류 프리팹 갱신을 완료했습니다.");
         }
         catch (Exception ex)
         {

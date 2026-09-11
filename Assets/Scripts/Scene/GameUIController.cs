@@ -132,7 +132,7 @@ public sealed class GameUIController : MonoBehaviour
 
             this.validateUiReferences();
             if (this.businessClock != null) this.businessClock.StopClock();
-            if (this.useCustomerQueue) this.saleSortingPanel.SetPauseQuery(() => this.IsPresentationPaused);
+            this.saleSortingPanel.SetPauseQuery(() => this.IsPresentationPaused);
             this.subscribeUi();
             this.gameProgress = new GameProgress(
                 GameSessionManager.Instance,
@@ -265,7 +265,7 @@ public sealed class GameUIController : MonoBehaviour
         this.isSettlementPresentationPending = false;
         this.queueExitRemaining = 0;
         this.subscribedDay?.StopQueue();
-        if (this.useCustomerQueue && this.saleSortingPanel != null) this.saleSortingPanel.SetPauseQuery(null);
+        if (this.saleSortingPanel != null) this.saleSortingPanel.SetPauseQuery(null);
         if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
         this.unsubscribeUi();
@@ -329,6 +329,8 @@ public sealed class GameUIController : MonoBehaviour
         this.keypadController.OnPriceChanged += this.handlePriceChanged;
         this.gameInputRouter.OnConfirmRequested += this.handleKeyboardConfirmRequested;
         this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
+        this.gameInputRouter.OnPauseRequested += this.handlePauseRequested;
+        this.gameInputRouter.OnResumeRequested += this.handleResumeRequested;
         this.saleSortingPanel.CalculatorVisibilityChanged += this.handleCalculatorVisibilityChanged;
         this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
@@ -369,6 +371,8 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.gameInputRouter.OnConfirmRequested -= this.handleKeyboardConfirmRequested;
             this.gameInputRouter.OnContinueRequested -= this.handleTransactionContinueClicked;
+            this.gameInputRouter.OnPauseRequested -= this.handlePauseRequested;
+            this.gameInputRouter.OnResumeRequested -= this.handleResumeRequested;
         }
         if (this.saleSortingPanel != null)
         {
@@ -448,6 +452,10 @@ public sealed class GameUIController : MonoBehaviour
             this.setPanelVisibility(this.operatingPanel, false);
             this.setPanelVisibility(this.settlementPanel, false);
             this.setPanelVisibility(this.failurePanel, true);
+            if (this.gameInputRouter != null)
+            {
+                this.gameInputRouter.SetState(false, false, false, false);
+            }
         }
         else if (state == GameProgressState.DayInProgress)
         {
@@ -876,7 +884,9 @@ public sealed class GameUIController : MonoBehaviour
                 && this.saleSortingPanel.IsCalculatorOpen
                 && this.saleSortingPanel.CanConfirm
                 && currentPrice > 0,
-            canContinue);
+            canContinue,
+            this.canPause(),
+            this.canResume());
     }
 
     /// <summary>거래 결과 화면에서 다음 손님으로 이동할 수 있는지 확인합니다.</summary>
@@ -1033,6 +1043,10 @@ public sealed class GameUIController : MonoBehaviour
 
         Debug.LogException(exception, this);
         this.setKeypadInteractable(false);
+        if (this.gameInputRouter != null)
+        {
+            this.gameInputRouter.SetState(false, false, false, false);
+        }
         if (this.openBusinessButton != null) this.openBusinessButton.interactable = false;
         if (this.transactionContinueButton != null) this.transactionContinueButton.interactable = false;
     }

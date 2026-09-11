@@ -60,8 +60,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField, Min(24f)] private float itemSizePixels = 72f;
 
     [Header("Flow")]
-    [SerializeField, Min(0f)] private float transitionSeconds = 0.25f;
+    [SerializeField, Min(0f)] private float transitionSeconds = 0.85f;
     [SerializeField, Min(0f)] private float customerArrivalSeconds = 0.8f;
+    [SerializeField, Min(0f)] private float tossSlideSeconds = 0.85f;
     [SerializeField, Min(0f)] private float pourSeconds = 0.65f;
     [SerializeField, Min(0f)] private float autoAdvanceDelaySeconds = 0.5f;
     [SerializeField] private TextMeshProUGUI sortingStatusText;
@@ -84,7 +85,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private bool layoutContractViolationLogged;
     private SaleSortingItemView draggedItem;
     private Vector2 dragOffset;
+    private Vector2 frontContainerDefaultPos;
+    private bool hasFrontContainerDefaultPos;
     private Coroutine transitionRoutine;
+    private Coroutine tossRoutine;
     private Coroutine autoSortingRoutine;
     private IReadOnlyList<CustomerBasketItemViewData> pendingBasket = Array.Empty<CustomerBasketItemViewData>();
     // 로컬 큐 표현에서만 제공하며 Controller 제거 시 해제합니다.
@@ -108,6 +112,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     /// <summary>현재 분류 화면이 조작 가능한 상태인지 나타냅니다.</summary>
     public bool IsSorting => this.state == ViewState.Sorting;
+
+    /// <summary>현재 분류 화면(작업대)이 열려 있는지 나타냅니다.</summary>
+    public bool IsSortingViewOpen => this.sortingView != null && this.sortingView.activeInHierarchy;
 
     /// <summary>계산기 패널이 현재 열려 있는지 나타냅니다.</summary>
     public bool IsCalculatorOpen => this.isCalculatorOpen;
@@ -210,6 +217,15 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.frontContainerButton != null)
         {
             this.frontContainerButton.onClick.AddListener(this.handleFrontContainerClicked);
+            if (this.frontContainerButton.transform is RectTransform frontContainerRect)
+            {
+                this.frontContainerDefaultPos = frontContainerRect.anchoredPosition;
+            }
+            else
+            {
+                this.frontContainerDefaultPos = this.frontContainerButton.transform.localPosition;
+            }
+            this.hasFrontContainerDefaultPos = true;
         }
 
         this.CalculatorVisibilityChanged?.Invoke(this.isCalculatorOpen);
@@ -360,6 +376,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.transitionRoutine != null)
         {
             StopCoroutine(this.transitionRoutine);
+            this.transitionRoutine = null;
+        }
+        if (this.tossRoutine != null)
+        {
+            StopCoroutine(this.tossRoutine);
+            this.tossRoutine = null;
         }
 
         this.transitionRoutine = StartCoroutine(this.playContainerArrival());
@@ -383,6 +405,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             StopCoroutine(this.transitionRoutine);
             this.transitionRoutine = null;
+        }
+        if (this.tossRoutine != null)
+        {
+            StopCoroutine(this.tossRoutine);
+            this.tossRoutine = null;
         }
 
         this.clearItems();
@@ -466,7 +493,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
     }
 
-    /// <summary>정면, 전환, 쏟기, 분류 순서로 새 손님 작업 화면을 엽니다.</summary>
+    /// <summary>정면, 빠른 창 열기 슬라이드, 바구니 투척 쏟기 순서로 새 손님 작업 화면을 엽니다.</summary>
     /// <returns>Unity 프레임에 걸쳐 진행되는 전환 열거자입니다.</returns>
     private IEnumerator playEntryFlow()
     {
@@ -474,101 +501,70 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.frontView != null) this.frontView.SetActive(true);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
 
+        // Workbench(sortingView)가 AstraFrontView보다 상위 레이어에 렌더링되도록 Sibling 순서 보장
+        if (this.frontView != null && this.sortingView != null)
+        {
+            int frontSibling = this.frontView.transform.GetSiblingIndex();
+            int sortingSibling = this.sortingView.transform.GetSiblingIndex();
+            if (sortingSibling <= frontSibling)
+            {
+                this.sortingView.transform.SetSiblingIndex(frontSibling + 1);
+            }
+        }
+
         RectTransform sortingRect = this.sortingView == null
             ? null
             : this.sortingView.transform as RectTransform;
+
+        float slideSeconds = this.transitionSeconds > 0.01f ? this.transitionSeconds : 0.85f;
+        Vector2 defaultContainerPos = this.containerImage != null
+            ? this.containerImage.rectTransform.anchoredPosition
+            : new Vector2(-460f, 60f);
+
+        bool tossStarted = false;
+
         if (sortingRect != null)
         {
             this.sortingView.SetActive(true);
-            float screenWidth = Mathf.Max(1f, sortingRect.rect.width);
+            float screenWidth = Mathf.Max(1280f, sortingRect.rect.width > 10f ? sortingRect.rect.width : 1280f);
             sortingRect.anchoredPosition = new Vector2(-screenWidth, 0f);
             float slideElapsed = 0f;
-            float slideSeconds = Mathf.Max(0.01f, this.transitionSeconds);
+
+            // 왼쪽에서 오른쪽으로 빠르게 창이 열림 (0.6초, EaseOutCubic)
             while (slideElapsed < slideSeconds)
             {
                 slideElapsed += this.PresentationDeltaSeconds;
-                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(slideElapsed / slideSeconds));
-                sortingRect.anchoredPosition = new Vector2(Mathf.Lerp(-screenWidth, 0f, progress), 0f);
+                float progress = Mathf.Clamp01(slideElapsed / slideSeconds);
+                float eased = 1f - Mathf.Pow(1f - progress, 3f);
+                sortingRect.anchoredPosition = new Vector2(Mathf.Lerp(-screenWidth, 0f, eased), 0f);
+
+                // 슬라이드가 25% 진행된 시점에 바구니 던지기 및 물품 쏟기 연출 개시
+                if (!tossStarted && progress >= 0.25f)
+                {
+                    tossStarted = true;
+                    this.tossRoutine = this.StartCoroutine(this.playTossAndPourFlow(defaultContainerPos));
+                }
+
                 yield return null;
             }
 
             sortingRect.anchoredPosition = Vector2.zero;
         }
 
+        // 창이 완전히 열린 후 뒷배경 정면 뷰 비활성화
         if (this.frontView != null) this.frontView.SetActive(false);
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(this.isCalculatorOpen);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(true);
-        if (this.containerImage != null)
+
+        if (!tossStarted)
         {
-            this.containerImage.sprite = this.tiltedContainerSprite != null ? this.tiltedContainerSprite : this.containerImage.sprite;
-            this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f);
-            this.containerImage.gameObject.SetActive(true);
+            tossStarted = true;
+            this.tossRoutine = this.StartCoroutine(this.playTossAndPourFlow(defaultContainerPos));
         }
 
-        this.state = ViewState.Pouring;
-        if (this.sortingStatusText != null)
+        if (this.tossRoutine != null)
         {
-            this.sortingStatusText.text = "물품을 쏟는 중…";
-        }
-
-        this.createPendingItems();
-        float elapsed = 0f;
-        while (elapsed < this.pourSeconds)
-        {
-            elapsed += this.PresentationDeltaSeconds;
-            float t = this.pourSeconds <= 0f ? 1f : Mathf.Clamp01(elapsed / this.pourSeconds);
-
-            // 상자를 물품이 쏟아지는 방향으로 조금 더 기울입니다 (-90도 -> -100도)
-            if (this.containerImage != null)
-            {
-                this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-90f, -100f, t));
-            }
-
-            for (int i = 0; i < this.items.Count; i++)
-            {
-                SaleSortingItemView item = this.items[i];
-                if (item == null)
-                {
-                    continue;
-                }
-
-                Vector2 target = this.getInitialSpreadPosition(i, this.items.Count);
-                item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, t);
-            }
-
-            yield return null;
-        }
-
-        // 빈 상자로 이미지 변경 후 페이드아웃 및 퇴장
-        if (this.containerImage != null)
-        {
-            if (this.emptyContainerSprite != null)
-            {
-                this.containerImage.sprite = this.emptyContainerSprite;
-                this.containerImage.preserveAspect = true;
-            }
-
-            Vector2 exitStartPos = this.containerImage.rectTransform.anchoredPosition;
-            Vector2 exitTargetPos = exitStartPos + new Vector2(-150f, 80f);
-            float exitDuration = 0.35f;
-            float exitElapsed = 0f;
-            Color initialColor = this.containerImage.color;
-
-            while (exitElapsed < exitDuration)
-            {
-                exitElapsed += this.PresentationDeltaSeconds;
-                float exitT = Mathf.Clamp01(exitElapsed / exitDuration);
-
-                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(exitStartPos, exitTargetPos, exitT);
-                this.containerImage.color = new Color(initialColor.r, initialColor.g, initialColor.b, Mathf.Lerp(1f, 0f, exitT));
-
-                yield return null;
-            }
-
-            this.containerImage.gameObject.SetActive(false);
-            this.containerImage.rectTransform.localRotation = Quaternion.identity;
-            this.containerImage.rectTransform.anchoredPosition = exitStartPos;
-            this.containerImage.color = initialColor;
+            yield return this.tossRoutine;
         }
 
         if (this.dividerBar != null)
@@ -590,6 +586,113 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.transitionRoutine = null;
     }
 
+    /// <summary>슬라이드 진행 중 25% 시점에 호출되어 바구니 슬라이드 던지기, 물품 쏟기 및 직진 후진 퇴장 연출을 병렬 진행합니다.</summary>
+    private IEnumerator playTossAndPourFlow(Vector2 defaultContainerPos)
+    {
+        // 1. 슬라이드 던지기 진입 (화면 좌측 바깥에서 카운터 목표 위치로 0.5초 동안 수평 슬라이드 던지기)
+        // 쏟기 자세: 50도에서 80도 사이 무작위 각도 적용 (-80° ~ -50°)
+        float pourAngle = UnityEngine.Random.Range(-80f, -50f);
+
+        if (this.containerImage != null)
+        {
+            this.containerImage.sprite = this.tiltedContainerSprite != null ? this.tiltedContainerSprite : this.containerImage.sprite;
+            this.containerImage.preserveAspect = true;
+            Vector2 tossStartPos = new Vector2(-1100f, defaultContainerPos.y);
+            this.containerImage.rectTransform.anchoredPosition = tossStartPos;
+            this.containerImage.rectTransform.localRotation = Quaternion.identity; // 처음 진입 시에는 똑바로 선 상태(0도)
+            this.containerImage.gameObject.SetActive(true);
+
+            float tossDuration = this.tossSlideSeconds > 0.01f ? this.tossSlideSeconds : 0.85f;
+            float tossElapsed = 0f;
+            float tiltStart = tossDuration * 0.60f;
+            float tiltDuration = Mathf.Max(0.1f, tossDuration - tiltStart);
+
+            while (tossElapsed < tossDuration)
+            {
+                tossElapsed += this.PresentationDeltaSeconds;
+                float posT = Mathf.Clamp01(tossElapsed / tossDuration);
+
+                // 위치 이동: SmoothStep으로 부드럽고 뚜렷하게 가판대를 가로질러 감속 안착
+                float posEased = Mathf.SmoothStep(0f, 1f, posT);
+                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(tossStartPos, defaultContainerPos, posEased);
+
+                // 각도 기울이기 연출: 바구니가 멈출 때 쯤(후반 40% 감속 구간)에 똑바로 선 상태(0도)에서 목표 각도(pourAngle)로 기울임
+                float tiltElapsed = Mathf.Max(0f, tossElapsed - tiltStart);
+                float tiltT = Mathf.Clamp01(tiltElapsed / tiltDuration);
+                float tiltEased = 1f - Mathf.Pow(1f - tiltT, 2f); // EaseOutQuad: 부드럽게 기울어지며 안착
+                float currentAngle = Mathf.Lerp(0f, pourAngle, tiltEased);
+                this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, currentAngle);
+
+                yield return null;
+            }
+
+            this.containerImage.rectTransform.anchoredPosition = defaultContainerPos;
+            this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, pourAngle);
+        }
+
+        // 2. 관성 물품 쏟기 (바구니 정지 관성에 의해 물품들이 작업대로 촤르륵 펼쳐짐)
+        this.state = ViewState.Pouring;
+        if (this.sortingStatusText != null)
+        {
+            this.sortingStatusText.text = "물품을 쏟는 중…";
+        }
+
+        this.createPendingItems();
+        float elapsed = 0f;
+        float pourDuration = Mathf.Clamp(this.pourSeconds > 0.01f ? this.pourSeconds : 0.35f, 0.25f, 0.40f);
+        while (elapsed < pourDuration)
+        {
+            elapsed += this.PresentationDeltaSeconds;
+            float t = Mathf.Clamp01(elapsed / pourDuration);
+            float burstT = 1f - Mathf.Pow(1f - t, 3f); // EaseOutCubic: 탄력 있게 가판대에 전개
+
+            for (int i = 0; i < this.items.Count; i++)
+            {
+                SaleSortingItemView item = this.items[i];
+                if (item == null)
+                {
+                    continue;
+                }
+
+                Vector2 target = this.getInitialSpreadPosition(i, this.items.Count);
+                item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, burstT);
+            }
+
+            yield return null;
+        }
+
+        // 3. 바구니 그대로 뒤로 빼기 (빈 상자로 전환 후 들어왔던 좌측 화면 밖으로 직선 후진 슬라이드 퇴장)
+        if (this.containerImage != null)
+        {
+            if (this.emptyContainerSprite != null)
+            {
+                this.containerImage.sprite = this.emptyContainerSprite;
+                this.containerImage.preserveAspect = true;
+            }
+
+            Vector2 retractStartPos = this.containerImage.rectTransform.anchoredPosition;
+            Vector2 retractEndPos = new Vector2(-1100f, defaultContainerPos.y);
+            float retractDuration = 0.20f;
+            float retractElapsed = 0f;
+
+            while (retractElapsed < retractDuration)
+            {
+                retractElapsed += this.PresentationDeltaSeconds;
+                float retractT = Mathf.Clamp01(retractElapsed / retractDuration);
+                float retractEased = retractT * retractT; // EaseInQuad: 뒤로 빠르게 가속되며 퇴장
+
+                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(retractStartPos, retractEndPos, retractEased);
+                yield return null;
+            }
+
+            this.containerImage.gameObject.SetActive(false);
+            this.containerImage.rectTransform.localRotation = Quaternion.identity;
+            this.containerImage.rectTransform.anchoredPosition = defaultContainerPos;
+        }
+
+        this.tossRoutine = null;
+    }
+
     /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭 또는 자동 시간 경과로 작업대로 전환합니다.</summary>
     /// <returns>박스 도착 연출을 프레임별로 진행하는 열거자입니다.</returns>
     private IEnumerator playContainerArrival()
@@ -605,35 +708,48 @@ public sealed class SaleSortingPanel : MonoBehaviour
         yield return this.waitUnscaled(this.customerArrivalSeconds);
         if (this.frontContainerButton != null)
         {
-            RectTransform box = (RectTransform)this.frontContainerButton.transform;
+            RectTransform box = this.frontContainerButton.transform as RectTransform;
             this.frontContainerButton.gameObject.SetActive(true);
             this.frontContainerButton.interactable = false;
-            Vector2 destination = box.anchoredPosition;
+            Vector2 destination = this.hasFrontContainerDefaultPos
+                ? this.frontContainerDefaultPos
+                : (box != null ? box.anchoredPosition : (Vector2)this.frontContainerButton.transform.localPosition);
             Vector2 start = destination + new Vector2(0f, 180f);
             float elapsed = 0f;
-            const float ArrivalSeconds = 0.85f;
-            bool dustPlayed = false;
-            while (elapsed < ArrivalSeconds)
+            const float DropDuration = 0.5f;
+            while (elapsed < DropDuration)
             {
                 elapsed += this.PresentationDeltaSeconds;
-                float t = Mathf.Clamp01(elapsed / ArrivalSeconds);
-                float eased = 1f - Mathf.Pow(1f - t, 3f);
-                box.anchoredPosition = Vector2.LerpUnclamped(start, destination, eased);
-
-                // DEV-2D-11-01: 착지 순간 10개의 픽셀 먼지 조각이 양옆으로 포물선 비산하는 연출
-                if (!dustPlayed && elapsed >= 0.3f)
+                float t = Mathf.Clamp01(elapsed / DropDuration);
+                float dropEased = t * t;
+                Vector2 current = Vector2.Lerp(start, destination, dropEased);
+                if (box != null)
                 {
-                    dustPlayed = true;
-                    if (dust != null)
-                    {
-                        dust.Play(box);
-                    }
+                    box.anchoredPosition = current;
                 }
-
+                else
+                {
+                    this.frontContainerButton.transform.localPosition = current;
+                }
                 yield return null;
             }
 
-            box.anchoredPosition = destination;
+            // 상자가 카운터 목표 지점(destination)에 완전히 도달하여 멈춘 정확한 착지 순간에 먼지 연출 발생
+            if (box != null)
+            {
+                box.anchoredPosition = destination;
+            }
+            else
+            {
+                this.frontContainerButton.transform.localPosition = destination;
+            }
+            if (dust != null)
+            {
+                dust.Play(box);
+            }
+
+            // 착지 후 흙먼지가 양옆으로 흩뿌려지고 가라앉는 시간(0.40초) 동안 대기 후 버튼 활성화
+            yield return this.waitUnscaled(0.40f);
             this.frontContainerButton.interactable = true;
         }
 
@@ -806,7 +922,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving ||
                 item.Manipulation == SaleSortingItemView.ManipulationState.VacuumAttached ||
                 item.State == SaleSortingItemView.SortingState.Excluded) continue;
-            if (RectTransformUtility.RectangleContainsScreenPoint((RectTransform)item.transform, pointerScreenPosition, null))
+            RectTransform itemRect = item.transform as RectTransform;
+            if (itemRect != null && RectTransformUtility.RectangleContainsScreenPoint(itemRect, pointerScreenPosition, null))
                 return item;
         }
 
@@ -1183,9 +1300,33 @@ public sealed class SaleSortingPanel : MonoBehaviour
             }
             timeOfDay.RefreshTime();
         }
-        if (this.sortingView != null) this.sortingView.SetActive(false);
+        if (this.sortingView != null)
+        {
+            this.sortingView.SetActive(false);
+            RectTransform sortingRect = this.sortingView.transform as RectTransform;
+            if (sortingRect != null) sortingRect.anchoredPosition = Vector2.zero;
+        }
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
-        if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
+        if (this.containerImage != null)
+        {
+            this.containerImage.gameObject.SetActive(false);
+            this.containerImage.rectTransform.localRotation = Quaternion.identity;
+        }
+        if (this.frontContainerButton != null)
+        {
+            if (this.hasFrontContainerDefaultPos)
+            {
+                if (this.frontContainerButton.transform is RectTransform rect)
+                {
+                    rect.anchoredPosition = this.frontContainerDefaultPos;
+                }
+                else
+                {
+                    this.frontContainerButton.transform.localPosition = this.frontContainerDefaultPos;
+                }
+            }
+            this.frontContainerButton.gameObject.SetActive(false);
+        }
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(false);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);

@@ -222,4 +222,83 @@ public sealed class BusinessClockAndSortingTests
         Object.DestroyImmediate(dustGo);
         Object.DestroyImmediate(root);
     }
+
+    [Test]
+    public void TimeOfDayUIController_PhaseCalculations_MatchOperatingHours()
+    {
+        var go = new GameObject("TimeOfDayTestGo");
+        var controller = go.AddComponent<TimeOfDayUIController>();
+
+        // 9 AM (Dawn / Morning)
+        controller.ApplyHour(9f);
+        Assert.That(controller.CurrentPhaseName, Does.Contain("아침"));
+
+        // 13 PM (Day / Clear daylight)
+        controller.ApplyHour(13f);
+        Assert.That(controller.CurrentPhaseName, Does.Contain("주간"));
+
+        // 16.5 PM (Sunset)
+        controller.ApplyHour(16.5f);
+        Assert.That(controller.CurrentPhaseName, Does.Contain("석양"));
+
+        // 20 PM (Night)
+        controller.ApplyHour(20f);
+        Assert.That(controller.CurrentPhaseName, Does.Contain("야간"));
+
+        Object.DestroyImmediate(go);
+    }
+
+    [Test]
+    public void TimeOfDayPixelStage_AcceptsTimeWeights_AndConfiguresParameters()
+    {
+        var go = new GameObject("PixelStageTestGo", typeof(RectTransform));
+        var stage = go.AddComponent<TimeOfDayPixelStage>();
+
+        stage.SetTimeWeights(0.8f, 0.2f, 0f, 0.4f, 10.5f);
+        Assert.Pass();
+
+        Object.DestroyImmediate(go);
+    }
+
+    [Test]
+    public void SaleSortingPanel_Awake_WithButtonOnTransform_DoesNotThrowInvalidCast()
+    {
+        var panelGo = new GameObject("PanelGo", typeof(RectTransform));
+        var panel = panelGo.AddComponent<SaleSortingPanel>();
+
+        // 1. Button with standard Transform (not RectTransform)
+        var btnGo = new GameObject("FrontContainerBtn");
+        var btn = btnGo.AddComponent<UnityEngine.UI.Button>();
+
+        var serialized = new UnityEditor.SerializedObject(panel);
+        serialized.FindProperty("frontContainerButton").objectReferenceValue = btn;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+
+        // Invoking Awake via reflection
+        var awakeMethod = typeof(SaleSortingPanel).GetMethod("Awake", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        Assert.DoesNotThrow(() => awakeMethod.Invoke(panel, null));
+
+        Object.DestroyImmediate(btnGo);
+        Object.DestroyImmediate(panelGo);
+    }
+
+    [Test]
+    public void GameInputRouter_SetState_AppliesPauseAndResumeFlags()
+    {
+        var go = new GameObject("TestInputRouter");
+        var router = go.AddComponent<GameInputRouter>();
+
+        router.SetState(canConfirm: false, canContinue: false, canPause: true, canResume: false);
+
+        bool pauseFired = false;
+        bool resumeFired = false;
+        router.OnPauseRequested += () => pauseFired = true;
+        router.OnResumeRequested += () => resumeFired = true;
+
+        Assert.That(router, Is.Not.Null);
+        Assert.That(pauseFired, Is.False);
+        Assert.That(resumeFired, Is.False);
+
+        Object.DestroyImmediate(go);
+    }
 }

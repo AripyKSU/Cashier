@@ -621,20 +621,20 @@ MonoBehaviour:
   transactionContinueButton: {fileID: 2881001513580242237}
   keypadButtons:
   - {fileID: 2881001513580242237}
-  - {fileID: 1988610402063833844}
-  - {fileID: 3354343608702429402}
-  - {fileID: 903452540851754999}
-  - {fileID: 3369516312078669927}
-  - {fileID: 7951028157236739626}
-  - {fileID: 4936652998244931763}
-  - {fileID: 1303561427681144212}
-  - {fileID: 8057261458187850627}
-  - {fileID: 584041662556385201}
-  - {fileID: 4925980548588188901}
-  - {fileID: 5445252363000350269}
-  - {fileID: 4076750715478731825}
-  - {fileID: 6115232373010694436}
-  - {fileID: 4849995865461158552}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   facilityShopPresenter: {fileID: 1966326323449041830}
   facilityOpenButton: {fileID: 2320717233624003140}
   settlementInputGroup: {fileID: 7065056993184851426}
@@ -1429,11 +1429,11 @@ RectTransform:
   - {fileID: 8512998729784270703}
   m_Father: {fileID: 121258647960814467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 375, y: 200}
-  m_SizeDelta: {x: 115, y: 32}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1149, y: -605}
+  m_SizeDelta: {x: 88, y: 33}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &6795106915542723316
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1923,11 +1923,11 @@ RectTransform:
   - {fileID: 1812189887538534002}
   m_Father: {fileID: 121258647960814467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 245, y: 200}
-  m_SizeDelta: {x: 115, y: 32}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1149, y: -605}
+  m_SizeDelta: {x: 88, y: 33}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &1687889369764695335
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2465,11 +2465,11 @@ RectTransform:
   - {fileID: 7501132426325116835}
   m_Father: {fileID: 121258647960814467}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 515, y: 200}
-  m_SizeDelta: {x: 120, y: 32}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 1040, y: -605}
+  m_SizeDelta: {x: 100, y: 33}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &4958292831349109116
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2943,6 +2943,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 121258647960814467}
     m_Modifications:
+    - target: {fileID: 7936594199967781, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 121
+      objectReference: {fileID: 0}
+    - target: {fileID: 7936594199967781, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -139
+      objectReference: {fileID: 0}
     - target: {fileID: 216627676072959720, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: autoStartOnStart
       value: 0
@@ -2963,6 +2971,22 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: 8083455743747494227, guid: c0f9f8080e30dd3499d44ece2a336e14, type: 2}
+    - target: {fileID: 405462191345195272, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 1175.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 405462191345195272, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -212.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1195649997213887041, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -15.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1195649997213887041, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -10.3
+      objectReference: {fileID: 0}
     - target: {fileID: 1482801718557807772, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -3055,6 +3079,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: OperatingPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 1719377694210372552, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1954348620564394244, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2958375713723056046, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 248.6621
+      objectReference: {fileID: 0}
+    - target: {fileID: 2958375713723056046, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 248.6384
+      objectReference: {fileID: 0}
+    - target: {fileID: 2958375713723056046, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -346.16074
+      objectReference: {fileID: 0}
     - target: {fileID: 3146677503501739801, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: -24
@@ -3062,6 +3106,10 @@ PrefabInstance:
     - target: {fileID: 3146677503501739801, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -9
+      objectReference: {fileID: 0}
+    - target: {fileID: 3421886702833186749, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4633904390774319703, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_fontAsset
@@ -3115,10 +3163,34 @@ PrefabInstance:
       propertyPath: m_sharedMaterial
       value: 
       objectReference: {fileID: 8083455743747494227, guid: c0f9f8080e30dd3499d44ece2a336e14, type: 2}
+    - target: {fileID: 6843160438924843135, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4285437030
+      objectReference: {fileID: 0}
+    - target: {fileID: 6843160438924843135, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 6905925139397958794, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4285437030
+      objectReference: {fileID: 0}
+    - target: {fileID: 6905925139397958794, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
     - target: {fileID: 8099590994143925570, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
+    - target: {fileID: 8319023581108526410, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 1085
+      objectReference: {fileID: 0}
+    - target: {fileID: 8319023581108526410, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -491
+      objectReference: {fileID: 0}
     - target: {fileID: 8821407658711480159, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 1049
@@ -3139,7 +3211,7 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 1659132799136591793, guid: cb56396611f15064f9ce66b932c05550, type: 3}
-      insertIndex: 0
+      insertIndex: 1
       addedObject: {fileID: 2552806121375561692}
     - targetCorrespondingSourceObject: {fileID: 1659132799136591793, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       insertIndex: -1
@@ -3148,50 +3220,172 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1719377694210372552, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5068136063635020256}
+    - targetCorrespondingSourceObject: {fileID: 5097852243042449477, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 276151526434350538}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000001, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4068336098618311047}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000011, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6541397237005073350}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000021, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 223349883627061588}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000031, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5595314126927931508}
+    - targetCorrespondingSourceObject: {fileID: 7029189278664333481, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6228030795345543034}
+    - targetCorrespondingSourceObject: {fileID: 6919493441719220656, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4609576930654260808}
+    - targetCorrespondingSourceObject: {fileID: 828800838471083756, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1835435360027116166}
+    - targetCorrespondingSourceObject: {fileID: 5196271827961336450, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4149686384442963315}
+    - targetCorrespondingSourceObject: {fileID: 7812259106101192483, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 499061550808311871}
+    - targetCorrespondingSourceObject: {fileID: 5127981425600423482, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1461433997140604269}
+    - targetCorrespondingSourceObject: {fileID: 2608887929182960397, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6346633767533654820}
+    - targetCorrespondingSourceObject: {fileID: 1079228295766545436, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8446591994291950781}
+    - targetCorrespondingSourceObject: {fileID: 2900106019451258480, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8076557444983550337}
+    - targetCorrespondingSourceObject: {fileID: 7727089963811101911, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6583510181732188043}
+    - targetCorrespondingSourceObject: {fileID: 2564910945148259737, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4650505406342353006}
+    - targetCorrespondingSourceObject: {fileID: 1970003525873302966, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2513089916151449094}
+    - targetCorrespondingSourceObject: {fileID: 4941354879192040977, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3676303203681173223}
+    - targetCorrespondingSourceObject: {fileID: 5974759835922601742, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1046151405671069705}
+    - targetCorrespondingSourceObject: {fileID: 8518301145167676384, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3535317305464640603}
+    - targetCorrespondingSourceObject: {fileID: 6754718007994044907, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7729518947435390230}
+    - targetCorrespondingSourceObject: {fileID: 2764431098621209555, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7244705465852788218}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000041, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9210415179644750903}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000051, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3369398016879405611}
+    - targetCorrespondingSourceObject: {fileID: 613732737285212008, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1125721245552959154}
+    - targetCorrespondingSourceObject: {fileID: 9200000000000000061, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1674834516232209440}
+    - targetCorrespondingSourceObject: {fileID: 9029890784079443521, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1734931895551710243}
+    - targetCorrespondingSourceObject: {fileID: 5493907369590132646, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 660509634253011842}
+    - targetCorrespondingSourceObject: {fileID: 1954348620564394244, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5616908526010104538}
   m_SourcePrefab: {fileID: 100100000, guid: cb56396611f15064f9ce66b932c05550, type: 3}
---- !u!1 &330575324600548151 stripped
+--- !u!1 &73490919677898595 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 5638334816923447982, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_CorrespondingSourceObject: {fileID: 3421886702833186749, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &584041662556385201 stripped
+--- !u!1 &452281112442592942 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2900106019451258480, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8076557444983550337
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2766057369060030319, guid: cb56396611f15064f9ce66b932c05550, type: 3}
-  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 452281112442592942}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &586830494210142989 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2764431098621209555, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7244705465852788218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 586830494210142989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!224 &596079421786810970 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2755181915821240964, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &903452540851754999 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2517610070539996969, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+--- !u!1 &742335234361402323 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2608887929182960397, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &6346633767533654820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742335234361402323}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &1303561427681144212 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4354631742951978314, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &1000230829933057351 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2564910945148259737, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &4650505406342353006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000230829933057351}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!114 &1310243048577477276 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4347952031172768322, guid: cb56396611f15064f9ce66b932c05550, type: 3}
@@ -3203,17 +3397,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c920d9c1f364560b948854643692d85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CustomerPresenter
---- !u!114 &1988610402063833844 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3882413861440471594, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+--- !u!1 &2342958275808988354 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1079228295766545436, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &8446591994291950781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2342958275808988354}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!114 &2433663210383778635 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1134897769312664469, guid: cb56396611f15064f9ce66b932c05550, type: 3}
@@ -3225,6 +3425,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7046ae664aab03f4e87f4f1f0a61d6d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeypadController
+--- !u!1 &2736378438117129778 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 828800838471083756, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1835435360027116166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2736378438117129778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &2809550064571572150 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 613732737285212008, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1125721245552959154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2809550064571572150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!114 &2881001513580242237 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 685307822598995427, guid: cb56396611f15064f9ce66b932c05550, type: 3}
@@ -3263,39 +3497,51 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 10125539974600632, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3354343608702429402 stripped
+--- !u!114 &3583298790932689073 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 68937132169785348, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_CorrespondingSourceObject: {fileID: 2288817115886397551, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 3847993824405940698}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &3369516312078669927 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 52637410181923001, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+--- !u!1 &3832342887793616232 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1970003525873302966, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &2513089916151449094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3832342887793616232}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &4076750715478731825 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1651250293585933551, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &3847993824405940698 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1954348620564394244, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &5616908526010104538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3847993824405940698}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!224 &4143171143804876655 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1659132799136591793, guid: cb56396611f15064f9ce66b932c05550, type: 3}
@@ -3318,7 +3564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ac0f40ea1facfd45aefd97928e177a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaleSortingPanel
-  frontView: {fileID: 330575324600548151}
+  frontView: {fileID: 73490919677898595}
   sortingView: {fileID: 8529170635169603345}
   workArea: {fileID: 1110603567946897577}
   itemRoot: {fileID: 4522695403643967017}
@@ -3338,16 +3584,18 @@ MonoBehaviour:
   containerImage: {fileID: 2750369601870479065}
   tiltedContainerSprite: {fileID: 21300000, guid: 6866e4272ad30b44c92d59358a3a12f6, type: 3}
   emptyContainerSprite: {fileID: 21300000, guid: 5058e7ded0fcdd049997cb7d4bef30f6, type: 3}
-  frontContainerButton: {fileID: 6674297334384465157}
+  frontContainerButton: {fileID: 3583298790932689073}
   frontBasketRoot: {fileID: 3340005534182362982}
+  landingDustEffect: {fileID: 0}
   calculatorPanel: {fileID: 596079421786810970}
   calculatorToggleButton: {fileID: 8172636211805950170}
   calculatorOpenSprite: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}
   calculatorClosedSprite: {fileID: 21300000, guid: 8b11ce334813452e934fcdfb82c8c277, type: 3}
   itemPrefab: {fileID: 5382513797417203345}
   itemSizePixels: 72
-  transitionSeconds: 1
+  transitionSeconds: 0.85
   customerArrivalSeconds: 0.8
+  tossSlideSeconds: 0.85
   pourSeconds: 0.65
   autoAdvanceDelaySeconds: 0.5
   sortingStatusText: {fileID: 0}
@@ -3364,72 +3612,227 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &4849995865461158552 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7869839974570650182, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+--- !u!1 &4761241648991043581 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7812259106101192483, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &499061550808311871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4761241648991043581}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &4925980548588188901 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7648648719348935739, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &4991623534627079177 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7727089963811101911, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &6583510181732188043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4991623534627079177}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &4936652998244931763 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7708878292654129261, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5656264767037153646 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6919493441719220656, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &4609576930654260808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5656264767037153646}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &5445252363000350269 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7343260364267658979, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5761614797143179383 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7029189278664333481, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &6228030795345543034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5761614797143179383}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &6115232373010694436 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8837266675353688570, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101185 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000031, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &5595314126927931508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101185}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &6674297334384465157 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2288817115886397551, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101195 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000021, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &223349883627061588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101195}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101205 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000011, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6541397237005073350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101215 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000001, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4068336098618311047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101219 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000061, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1674834516232209440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101219}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101229 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000051, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3369398016879405611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5896649009158101239 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9200000000000000041, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &9210415179644750903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5896649009158101239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &5992445688791690911 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9029890784079443521, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1734931895551710243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5992445688791690911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &6363297702643161918 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8518301145167676384, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3535317305464640603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6363297702643161918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!114 &6901855908721667292 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8192537176858571778, guid: cb56396611f15064f9ce66b932c05550, type: 3}
@@ -3441,28 +3844,125 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ebf2243a7674705860f96ff41caaa03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PriceInputPresenter
---- !u!114 &7951028157236739626 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4624728090997057268, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+--- !u!1 &7081817971861821304 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5493907369590132646, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &660509634253011842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081817971861821304}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
---- !u!114 &8057261458187850627 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4731252216246340445, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &7378358522508888668 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5196271827961336450, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+--- !u!114 &4149686384442963315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7378358522508888668}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &7549961327044075675 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5097852243042449477, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &276151526434350538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7549961327044075675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &7589642508547260132 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5127981425600423482, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1461433997140604269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7589642508547260132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &7704203606907264719 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4941354879192040977, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3676303203681173223
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7704203606907264719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &8341924850112416053 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6754718007994044907, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7729518947435390230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8341924850112416053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
+--- !u!1 &8976641781931118544 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5974759835922601742, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_PrefabInstance: {fileID: 3348967599049218270}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1046151405671069705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8976641781931118544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4419a890e7d39dc4cbdad767370fa1a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TimeOfDayPixelSource
 --- !u!1001 &3874023069923804974
 PrefabInstance:
   m_ObjectHideFlags: 0

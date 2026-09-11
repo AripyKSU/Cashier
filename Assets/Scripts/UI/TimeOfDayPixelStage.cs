@@ -141,6 +141,7 @@ public sealed class TimeOfDayPixelStage : MonoBehaviour
     /// <summary>임시 월드 렌더와 출력을 생성하고 원본 배치에 맞춥니다.</summary>
     private void LateUpdate()
     {
+        if (frontCanvas == null) frontCanvas = transform as RectTransform;
         if (!IsRendering || frontCanvas == null) { Release(); return; }
         if (texture != null && texture.width != width) Release();
         if (renderRoot == null) Build();
@@ -153,9 +154,15 @@ public sealed class TimeOfDayPixelStage : MonoBehaviour
         if (dayNight != null && dayNight.isActiveAndEnabled) dayNight.RefreshTime();
         UpdateLights();
         for (int i = 0; i < layers.Length; i++) Sync(layers[i], i);
+        if (visible && renderCamera != null)
+        {
+            renderCamera.Render();
+        }
 #if UNITY_EDITOR
-        // 시간은 기존 미리보기 값으로 고정하며 편집된 Transform만 즉시 반영합니다.
-        if (!Application.isPlaying) { if (visible) renderCamera.Render(); UnityEditor.EditorApplication.QueuePlayerLoopUpdate(); }
+        if (!Application.isPlaying)
+        {
+            UnityEditor.EditorApplication.QueuePlayerLoopUpdate();
+        }
 #endif
     }
 
@@ -163,6 +170,8 @@ public sealed class TimeOfDayPixelStage : MonoBehaviour
     private void Build()
     {
         dayNight = GetComponent<TimeOfDayUIController>();
+        if (dayNight == null) dayNight = GetComponentInParent<TimeOfDayUIController>();
+        if (dayNight == null) dayNight = GetComponentInChildren<TimeOfDayUIController>();
         renderRoot = new GameObject("PixelStage Runtime Meshes") { hideFlags = HideFlags.HideAndDontSave };
         renderRoot.transform.position = new Vector3(10000, 10000, 0);
         material = new Material(lightingShader) { hideFlags = HideFlags.HideAndDontSave };
@@ -176,7 +185,7 @@ public sealed class TimeOfDayPixelStage : MonoBehaviour
         texture = new RenderTexture(width, Mathf.RoundToInt(width * 9f / 16f), 24) { name = "Pixel stage output", filterMode = FilterMode.Point, antiAliasing = 1, hideFlags = HideFlags.HideAndDontSave };
         texture.Create(); renderCamera.targetTexture = texture;
         outputRoot = new GameObject("PixelStage Output", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler)) { hideFlags = HideFlags.HideAndDontSave };
-        var canvas = outputRoot.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = -100;
+        var canvas = outputRoot.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = 0;
         var scaler = outputRoot.GetComponent<CanvasScaler>(); scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize; scaler.referenceResolution = new Vector2(1280, 720); scaler.matchWidthOrHeight = .5f;
         var imageObject = new GameObject("Point Upscale", typeof(RectTransform), typeof(RawImage)) { hideFlags = HideFlags.HideAndDontSave };
         imageObject.transform.SetParent(outputRoot.transform, false); output = imageObject.GetComponent<RawImage>(); output.texture = texture; output.raycastTarget = false;
@@ -369,6 +378,11 @@ public sealed class TimeOfDayPixelStage : MonoBehaviour
         ambient *= Mathf.Max(0, hourlyAmbient.Evaluate(lightingHour));
         sun *= Mathf.Max(0, hourlySunlight.Evaluate(lightingHour));
         evaluatedNormalStrength = Mathf.Clamp01(normalStrength * hourlyNormal.Evaluate(lightingHour));
+        material.SetFloat("_AmbientSeconds", Time.realtimeSinceStartup);
+        material.SetFloat("_RimWidthPixels", 3f);
+        material.SetFloat("_SpotSoftness", 0.05f);
+        material.SetFloat("_HighlightResponse", 1f);
+        material.SetFloat("_SpecularResponse", 1f);
         material.SetColor("_Ambient", ambient); material.SetColor("_Sun", sun); material.SetColor("_LampColor", lampColor);
         // 낮의 얼굴·옷은 검게 뭉개지지 않도록 원본 무늬가 읽히는 보조광을 유지합니다.
         material.SetFloat("_DaylightDetail", relightingTrial ? (1-Mathf.Clamp01(hourlyHardness.Evaluate(lightingHour))) * (1-night) : 0);

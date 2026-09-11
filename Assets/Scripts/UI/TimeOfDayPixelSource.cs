@@ -17,7 +17,10 @@ public sealed class TimeOfDayPixelSource : BaseMeshEffect
         if (!IsActive() || !capture) return;
         if (CapturedMesh == null) { CapturedMesh = new Mesh { name = "Pixel source mesh", hideFlags = HideFlags.HideAndDontSave }; CapturedMesh.MarkDynamic(); }
         vertices.FillMesh(CapturedMesh);
-        vertices.Clear();
+        if (CapturedMesh.vertexCount > 0)
+        {
+            vertices.Clear();
+        }
     }
 
     /// <summary>렌더 경로를 바꿀 때만 그래픽 메시를 재구축합니다.</summary>

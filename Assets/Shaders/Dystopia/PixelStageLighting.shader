@@ -11,22 +11,42 @@ Shader "Dystopia/Imported/Cashier/PixelStageLighting"
  #pragma vertex vert
  #pragma fragment frag
  #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+ #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
  TEXTURE2D(_MainTex); TEXTURE2D(_NormalMap); TEXTURE2D(_CustomerSilhouette);
  float4 _ShadowBody;
  float _ReceiveCustomerShadow, _CustomerShadowOpacity;
  float4 _SunShadowOrigin;
  float _SunShadowOpacity;
  float4 _MainTex_TexelSize, _Tint, _Ambient, _Sun, _LampColor, _LampPosition, _SunDirection, _ClipRect, _SkyOrigin, _SkyGlow;
- float _Surface, _LampStrength, _RimStrength, _Steps, _NormalStrength, _RoomBounce;
+ float _Surface, _LampStrength, _RimStrength, _RimWidthPixels, _Steps, _NormalStrength, _RoomBounce;
  float4 _SpotOrigin, _SpotDirection;
- float _SpotPower, _SpotHaze, _SpotResponse, _KeyContrast;
+ float _SpotPower, _SpotHaze, _SpotResponse, _KeyContrast, _SpotSoftness;
  float _DaylightDetail, _DaylightFill;
  float _BottomShade, _ContactShadow, _PropFill;
+ float _HighlightResponse, _SpecularResponse, _Emission;
  float4 _ContactAnchor;
  float4 _TowerOrigins;
  float _TowerPower;
  float4 _NeutralRegion;
  float _UseNeutralRegion, _NeutralBrightness;
+ float _AmbientSeconds;
+ // Small opaque silhouettes live in the sky layer, behind the separately drawn skyline and shop.
+ float SkyBirds(float2 world){
+  float mask=0;
+  [unroll] for(int bird=0;bird<5;bird++){
+   float seconds=_AmbientSeconds;
+   float x=frac(seconds*(.009+bird*.0005)+bird*.17)*1480-100;
+   float y=-155-bird*13+sin(seconds*.7+bird)*5;
+   float2 p=(world-float2(x,y))/1.25;
+   float wing=abs(p.x);
+   float flap=sin(seconds*(6+bird*.3)+bird*2);
+   float wingY=wing*(.25+.5*flap);
+   float wings=step(wing,7)*step(abs(p.y-wingY),1.3);
+   float body=step(wing,1.5)*step(abs(p.y+1),2);
+   mask=max(mask,max(wings,body));
+  }
+  return mask;
+ }
  // A narrow transition keeps contrast without cutting a whole sprite at one threshold.
  float CharacterLight(float facing){
   return .08+.47*smoothstep(.32,.44,facing)+.45*smoothstep(.66,.78,facing);
@@ -45,7 +65,8 @@ Shader "Dystopia/Imported/Cashier/PixelStageLighting"
   float2 delta=world-_SpotOrigin.xy;
   float distanceToLight=length(delta);
   float angular=dot(delta/max(.001,distanceToLight),_SpotDirection.xy);
-  return smoothstep(_SpotDirection.z,min(.9999,_SpotDirection.z+.05),angular)
+  float innerCone=lerp(_SpotDirection.z,.9999,saturate(_SpotSoftness));
+  return smoothstep(_SpotDirection.z,innerCone,angular)
    *(1-smoothstep(_SpotDirection.w*.75,_SpotDirection.w,distanceToLight));
  }
  struct A {float4 vertex:POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;};
@@ -81,10 +102,19 @@ Shader "Dystopia/Imported/Cashier/PixelStageLighting"
    float2 d=(i.uv-_SkyOrigin.xy)*float2(3,5);
    float opening=exp(-dot(d,d))*(.8+.2*sin(i.uv.x*24+i.uv.y*12+_SkyOrigin.z));
    c.rgb+=_SkyGlow.rgb*sky*cloud*opening;
+   // Keep silhouettes at 75% display gray, independent of the sky tint.
+   float3 birdColor=float3(.75,.75,.75);
+   #ifndef UNITY_COLORSPACE_GAMMA
+   birdColor=SRGBToLinear(birdColor);
+   #endif
+   c.rgb=lerp(c.rgb,birdColor,SkyBirds(i.world));
    return c;
   }
   if(_Surface>3.5){float chroma=max(c.r,max(c.g,c.b))-min(c.r,min(c.g,c.b));c.a*=step(.18,chroma);return c;}
-  if(_Surface<.5)return c;
+  if(_Surface<.5)return half4(c.rgb*(1+_Emission),c.a);
+  // Compress baked bright flecks before lighting; retain dark seams and rust color.
+  float albedoLuma=dot(c.rgb,float3(.2126,.7152,.0722));
+  c.rgb*=lerp(1,_HighlightResponse,smoothstep(.08,.4,albedoLuma));
   // Broad surface normals describe torso/face volume, not noisy rust or cloth pixels.
   float2 xy=(i.uv-float2(.5,.48))*float2(1.65,.8);
   float3 n=normalize(float3(xy,sqrt(saturate(1-dot(xy,xy)))));
@@ -123,7 +153,7 @@ Shader "Dystopia/Imported/Cashier/PixelStageLighting"
   // A user-adjustable prop fill keeps clock housing readable outside the spotlight.
   light=max(light,_PropFill.xxx);
 
-  float2 offset=normalize(_SunDirection.xy)*_MainTex_TexelSize.xy*3;
+  float2 offset=normalize(_SunDirection.xy)*_MainTex_TexelSize.xy*_RimWidthPixels;
   float neighbor=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,i.uv+offset).a;
   float rim=saturate(c.a-neighbor)*_RimStrength;
   float3 result=c.rgb*light+_Sun.rgb*rim*.35*(1-person);
@@ -132,7 +162,7 @@ Shader "Dystopia/Imported/Cashier/PixelStageLighting"
   if(_Surface>2.5){
    float spec=pow(saturate(dot(n,normalize(l+float3(0,0,1)))),24);
    float metalMask=smoothstep(.12,.5,dot(c.rgb,float3(.3,.59,.11)));
-   result+=_LampColor.rgb*spec*attenuation*metalMask*_LampStrength*.3*lerp(1,.18,contrast);
+   result+=_LampColor.rgb*spec*attenuation*metalMask*_LampStrength*.3*lerp(1,.18,contrast)*_SpecularResponse;
   }
   if(_ReceiveCustomerShadow>.5){
    float shadow=max(CustomerShadow(i.world,_TowerOrigins.xy),CustomerShadow(i.world,_TowerOrigins.zw)*.7);
