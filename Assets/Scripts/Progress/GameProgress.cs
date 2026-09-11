@@ -295,8 +295,9 @@ public sealed class GameProgress
     /// <summary>계산이 끝난 일일 명성 정산 과정을 로그 서비스에 기록합니다.</summary>
     /// <param name="aggregationResult">하루 동안 접수된 거래 snapshot입니다.</param>
     /// <exception cref="InvalidOperationException">일일 명성 계산 결과가 없는 경우 발생합니다.</exception>
-    private void handleSettlementStarted(DailyAggregationResult aggregationResult)
+    private void handleSettlementStarted(DailySettlementResult settlementResult)
     {
+        DailyAggregationResult aggregationResult = settlementResult.Aggregation;
         if (this.currentDayProgress == null || !this.currentDayProgress.DailyReputationResult.HasValue)
         {
             throw new InvalidOperationException("명성 정산 로그에는 일일 계산 결과가 필요합니다.");

@@ -451,12 +451,12 @@ public sealed class GameUIController : MonoBehaviour
     }
 
     /// <summary>일일 집계 결과를 정산 Presenter에 전달합니다.</summary>
-    /// <param name="result">확정된 하루 재정 집계입니다.</param>
-    private void handleSettlementStarted(DailyAggregationResult result)
+    /// <param name="result">미납과 유예 조건까지 포함한 최종 하루 정산 결과입니다.</param>
+    private void handleSettlementStarted(DailySettlementResult result)
     {
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
-        this.renderSettlement(result);
+        this.renderSettlement(result.Aggregation);
         this.refreshAllViews();
     }
 

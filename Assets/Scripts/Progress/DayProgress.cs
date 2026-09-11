@@ -55,6 +55,9 @@ public sealed class DayProgress
     // 정산 완료 후 확정된 일일 경제 집계입니다.
     private DailyAggregationResult? aggregationResult;
 
+    // 미납과 유예 조건까지 포함해 정산 완료 후 확정된 최종 결과입니다.
+    private DailySettlementResult? settlementResult;
+
     // 정산 완료 후 다음 날에 적용할 명성 계산 결과입니다.
     private DailyReputationCalculationResult? dailyReputationResult;
 
@@ -110,6 +113,9 @@ public sealed class DayProgress
     /// <summary>정산 완료 후 확정된 일일 집계입니다. 정산 전에는 null입니다.</summary>
     public DailyAggregationResult? AggregationResult => this.aggregationResult;
 
+    /// <summary>미납·유예·게임오버 조건까지 포함한 최종 정산 결과입니다.</summary>
+    public DailySettlementResult? SettlementResult => this.settlementResult;
+
     /// <summary>이 날의 명성 정산에 사용하며 향후 손님 구성 요청에도 전달할 시작 명성입니다.</summary>
     public int DayStartReputation => this.dayStartReputation;
 
@@ -126,7 +132,7 @@ public sealed class DayProgress
     public event Action<CustomerVisit> TransactionCompleted;
 
     /// <summary>일일 집계가 확정된 뒤 발생합니다.</summary>
-    public event Action<DailyAggregationResult> SettlementStarted;
+    public event Action<DailySettlementResult> SettlementStarted;
 
     /// <summary>정산 확인이 끝나 하루가 완료된 뒤 발생합니다.</summary>
     public event Action<DayProgress> Completed;
@@ -520,6 +526,8 @@ public sealed class DayProgress
 
         this.session.EndTradingDay(out DailyAggregationResult result);
         this.aggregationResult = result;
+        this.settlementResult = this.session.LastSettlementResult ??
+            throw new InvalidOperationException("세션에서 최종 정산 결과를 생성하지 않았습니다.");
         DailyReputationCalculator calculator = new DailyReputationCalculator(
             this.reputationBalanceTable,
             this.customerCatalog.Dispositions);
@@ -527,7 +535,7 @@ public sealed class DayProgress
             this.dayStartReputation,
             this.aggregationResult.Value.Transactions);
         this.changeState(DayProgressState.Settlement);
-        this.SettlementStarted?.Invoke(this.aggregationResult.Value);
+        this.SettlementStarted?.Invoke(this.settlementResult.Value);
     }
 
     /// <summary>재정 접수 오류 이후 진행을 재개하거나 정산 성공으로 우회하지 못하게 한다.</summary>
