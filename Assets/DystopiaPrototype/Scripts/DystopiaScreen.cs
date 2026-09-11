@@ -967,7 +967,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         ledgerConfirmButton.GetComponentInChildren<Text>().fontStyle = FontStyle.Bold;
     }
 
-    /// <summary>딸의 기존 자세에 미세한 호흡과 고개 기울임을 더하고 대사를 왼쪽부터 표시합니다.</summary>
+    /// <summary>딸이 짧게 두 번 끄덕이는 상대 자세 연출과 왼쪽부터 나타나는 대사를 표시합니다.</summary>
     /// <param name="speechText">크기와 정렬을 유지할 딸의 말풍선 텍스트입니다.</param>
     /// <returns>정산 화면이 보이는 동안 실행되는 상대 자세 연출입니다.</returns>
     private System.Collections.IEnumerator AnimateLedgerPresentation(Text speechText)
@@ -985,16 +985,17 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 speechText.text = visible == sentence.Length ? sentence : sentence.Substring(0,visible) + "<color=#00000000>" + sentence.Substring(visible) + "</color>";
                 lastVisible = visible;
             }
-            float breath = Mathf.Sin(elapsed * Mathf.PI * 2 / 3.6f);
-            float phase = Mathf.Repeat(elapsed, 8.5f);
-            float tilt = phase > 2 && phase < 6 ? Mathf.Sin((phase - 2) / 4 * Mathf.PI) * 2.2f : 0;
+            // 열리자마자 두 번 반응하고 쉬어, 느린 흔들림 대신 짧은 몸짓이 읽히게 합니다.
+            float phase = Mathf.Repeat(elapsed, 2.4f);
+            float nod = phase < .38f ? Mathf.Sin(phase / .38f * Mathf.PI) :
+                phase >= .48f && phase < .80f ? Mathf.Sin((phase - .48f) / .32f * Mathf.PI) * .65f : 0;
+            float tilt = nod * 6f;
             Quaternion turn = Quaternion.Euler(0,0,tilt);
             // 목 부근을 중심으로 기울여 좌상단 피벗 때문에 얼굴이 크게 옆으로 움직이지 않게 합니다.
             Vector3 neck = Vector3.Scale(new Vector3(ledgerAnimatedDaughter.rect.center.x,ledgerAnimatedDaughter.rect.yMin + ledgerAnimatedDaughter.rect.height * .3f,0),ledgerDaughterRestScale);
             Vector3 pivotOffset = ledgerDaughterRestRotation * (neck - turn * neck);
-            ledgerAnimatedDaughter.anchoredPosition = ledgerDaughterRestPosition + (Vector2)pivotOffset + Vector2.up * breath * 1.2f;
+            ledgerAnimatedDaughter.anchoredPosition = ledgerDaughterRestPosition + (Vector2)pivotOffset + Vector2.down * nod * 5f;
             ledgerAnimatedDaughter.localRotation = ledgerDaughterRestRotation * turn;
-            ledgerAnimatedDaughter.localScale = Vector3.Scale(ledgerDaughterRestScale,new Vector3(1 + breath * .003f,1 + breath * .008f,1));
             yield return null;
             if (!Session.IsPaused) elapsed += Time.unscaledDeltaTime;
         }

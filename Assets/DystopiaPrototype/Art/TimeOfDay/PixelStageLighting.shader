@@ -11,6 +11,7 @@ Shader "Cashier/PixelStageLighting"
  #pragma vertex vert
  #pragma fragment frag
  #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+ #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
  TEXTURE2D(_MainTex); TEXTURE2D(_NormalMap); TEXTURE2D(_CustomerSilhouette);
  float4 _ShadowBody;
  float _ReceiveCustomerShadow, _CustomerShadowOpacity;
@@ -36,7 +37,7 @@ Shader "Cashier/PixelStageLighting"
    float seconds=_AmbientSeconds;
    float x=frac(seconds*(.009+bird*.0005)+bird*.17)*1480-100;
    float y=-155-bird*13+sin(seconds*.7+bird)*5;
-   float2 p=world-float2(x,y);
+   float2 p=(world-float2(x,y))/1.25;
    float wing=abs(p.x);
    float flap=sin(seconds*(6+bird*.3)+bird*2);
    float wingY=wing*(.25+.5*flap);
@@ -101,8 +102,12 @@ Shader "Cashier/PixelStageLighting"
    float2 d=(i.uv-_SkyOrigin.xy)*float2(3,5);
    float opening=exp(-dot(d,d))*(.8+.2*sin(i.uv.x*24+i.uv.y*12+_SkyOrigin.z));
    c.rgb+=_SkyGlow.rgb*sky*cloud*opening;
-   // Distant birds inherit the sky tint and haze instead of pure black.
-   c.rgb=lerp(c.rgb,c.rgb*.55,SkyBirds(i.world));
+   // Keep silhouettes at 75% display gray, independent of the sky tint.
+   float3 birdColor=float3(.75,.75,.75);
+   #ifndef UNITY_COLORSPACE_GAMMA
+   birdColor=SRGBToLinear(birdColor);
+   #endif
+   c.rgb=lerp(c.rgb,birdColor,SkyBirds(i.world));
    return c;
   }
   if(_Surface>3.5){float chroma=max(c.r,max(c.g,c.b))-min(c.r,min(c.g,c.b));c.a*=step(.18,chroma);return c;}
