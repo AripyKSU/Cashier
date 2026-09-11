@@ -3151,7 +3151,7 @@ PrefabInstance:
   m_SourcePrefab: {fileID: 100100000, guid: cb56396611f15064f9ce66b932c05550, type: 3}
 --- !u!1 &330575324600548151 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 3093863852703228905, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5638334816923447982, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &584041662556385201 stripped
@@ -3421,7 +3421,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &6674297334384465157 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8279360326639390171, guid: cb56396611f15064f9ce66b932c05550, type: 3}
+  m_CorrespondingSourceObject: {fileID: 2288817115886397551, guid: cb56396611f15064f9ce66b932c05550, type: 3}
   m_PrefabInstance: {fileID: 3348967599049218270}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
