@@ -102,8 +102,8 @@ Shader "Cashier/PixelStageLighting"
    float2 d=(i.uv-_SkyOrigin.xy)*float2(3,5);
    float opening=exp(-dot(d,d))*(.8+.2*sin(i.uv.x*24+i.uv.y*12+_SkyOrigin.z));
    c.rgb+=_SkyGlow.rgb*sky*cloud*opening;
-   // Keep silhouettes at 75% display gray, independent of the sky tint.
-   float3 birdColor=float3(.75,.75,.75);
+   // Match the darkest pillar in the user's reference (#211915 in display RGB).
+   float3 birdColor=float3(33,25,21)/255.0;
    #ifndef UNITY_COLORSPACE_GAMMA
    birdColor=SRGBToLinear(birdColor);
    #endif

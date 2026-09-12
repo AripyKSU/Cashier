@@ -12,6 +12,70 @@ using UnityEngine.SceneManagement;
 [InitializeOnLoad]
 public static class DystopiaTopDownTestTools
 {
+    /// <summary>현재 편집 상태를 별도 사본으로 보존한 뒤 탑다운 가판 조명과 청소기를 연결합니다.</summary>
+    [MenuItem("Dystopia/Top Down Test/Connect Vacuum And Lighting")]
+    public static void ConnectVacuumAndLighting()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Stop Play before editing the saved vacuum placement.");
+        var checkout=UnityEngine.Object.FindFirstObjectByType<DystopiaTopDownTest>(FindObjectsInactive.Include);
+        if(checkout==null) throw new InvalidOperationException("Open the checkout scene first.");
+        var bench=checkout.transform.Find("TopDownWorkbench").GetComponent<SpriteRenderer>();
+        var camera=checkout.transform.Find("TopDownCamera").GetComponent<Camera>();
+        string backup="output/vacuum-work/Live-before-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".unity";
+        Directory.CreateDirectory("output/vacuum-work");
+        if(!EditorSceneManager.SaveScene(checkout.gameObject.scene,backup,true)) throw new IOException("Could not preserve the current scene.");
+        const string art="Assets/DystopiaPrototype/TopDownTest/Art/";
+        AssetDatabase.ImportAsset(art+"Vacuum.png");
+        var importer=(TextureImporter)AssetImporter.GetAtPath(art+"Vacuum.png");
+        importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
+        importer.spritePixelsPerUnit=40; importer.filterMode=FilterMode.Point; importer.mipmapEnabled=false;
+        importer.textureCompression=TextureImporterCompression.Uncompressed; importer.SaveAndReimport();
+        AssetDatabase.ImportAsset(art+"TopDownWorkbenchNormal.png");
+        var normal=(TextureImporter)AssetImporter.GetAtPath(art+"TopDownWorkbenchNormal.png");
+        normal.textureType=TextureImporterType.NormalMap; normal.convertToNormalmap=true; normal.heightmapScale=.035f;
+        normal.normalmapFilter=TextureImporterNormalFilter.Standard; normal.filterMode=FilterMode.Point;
+        normal.mipmapEnabled=false; normal.textureCompression=TextureImporterCompression.Uncompressed;
+        normal.SaveAndReimport();
+        var shader=Shader.Find("Cashier/WorkbenchLighting");
+        if(shader==null || ShaderUtil.ShaderHasError(shader)) throw new InvalidOperationException("Workbench lighting shader must compile first.");
+        var mat=AssetDatabase.LoadAssetAtPath<Material>(art+"WorkbenchLighting.mat");
+        if(mat==null) { mat=new Material(shader); AssetDatabase.CreateAsset(mat,art+"WorkbenchLighting.mat"); }
+        mat.SetTexture("_NormalMap",AssetDatabase.LoadAssetAtPath<Texture2D>(art+"TopDownWorkbenchNormal.png"));
+        Undo.RecordObject(bench,"Connect workbench normal lighting"); bench.sharedMaterial=mat;
+        var lighting=bench.GetComponent<DystopiaWorkbenchLighting>()??Undo.AddComponent<DystopiaWorkbenchLighting>(bench.gameObject);
+        Undo.RecordObject(lighting,"Connect shared business time"); lighting.dayNight=checkout.GetComponent<DystopiaDayNight>();
+        var vacuumTransform=checkout.transform.Find("Vacuum");
+        bool created=vacuumTransform==null;
+        var go=created?new GameObject("Vacuum"):vacuumTransform.gameObject;
+        if(created) { Undo.RegisterCreatedObjectUndo(go,"Place vacuum"); go.transform.SetParent(checkout.transform,false); }
+        var visual=go.GetComponent<SpriteRenderer>()??Undo.AddComponent<SpriteRenderer>(go);
+        var vacuum=go.GetComponent<DystopiaVacuumController>()??Undo.AddComponent<DystopiaVacuumController>(go);
+        Undo.RecordObject(visual,"Connect vacuum artwork");
+        visual.sprite=AssetDatabase.LoadAssetAtPath<Sprite>(art+"Vacuum.png"); visual.sortingOrder=110;
+        var wind=AssetDatabase.LoadAssetAtPath<Material>(art+"VacuumWind.mat");
+        if(wind==null) { wind=new Material(Shader.Find("Sprites/Default")); AssetDatabase.CreateAsset(wind,art+"VacuumWind.mat"); }
+        Undo.RecordObject(vacuum,"Connect vacuum input"); vacuum.checkout=checkout; vacuum.windMaterial=wind;
+        if(created)
+        {
+            float height=visual.sprite.bounds.size.y;
+            var grip=new GameObject("Grip").transform; Undo.RegisterCreatedObjectUndo(grip.gameObject,"Place vacuum grip");
+            grip.SetParent(go.transform,false); grip.localPosition=new Vector3(0,height*.38f,0);
+            var nozzle=new GameObject("Nozzle").transform; Undo.RegisterCreatedObjectUndo(nozzle.gameObject,"Place vacuum nozzle");
+            nozzle.SetParent(go.transform,false); nozzle.localPosition=new Vector3(0,-height*.46f,0);
+            vacuum.grip=grip; vacuum.nozzle=nozzle;
+            // 신규 요소만 하단에 배치합니다. 기존 청소기를 다시 연결해도 사용자 배치는 보존합니다.
+            Vector3 bottom=camera.ViewportToWorldPoint(new Vector3(.5f,0,-camera.transform.position.z));
+            go.transform.position=new Vector3(bottom.x,bottom.y+.22f-height*.38f,bench.transform.position.z);
+        }
+        var fields=new SerializedObject(checkout); fields.FindProperty("vacuum").objectReferenceValue=vacuum; fields.ApplyModifiedProperties();
+        foreach(var target in new UnityEngine.Object[]{bench,lighting,visual,vacuum,checkout})
+        { EditorUtility.SetDirty(target); PrefabUtility.RecordPrefabInstancePropertyModifications(target); }
+        EditorUtility.SetDirty(mat);
+        AssetDatabase.SaveAssetIfDirty(mat);
+        EditorSceneManager.MarkSceneDirty(checkout.gameObject.scene);
+        Debug.Log("Vacuum and workbench lighting connected. Original live scene preserved at "+backup+". Scene not automatically saved.");
+    }
+
     /// <summary>현재 가판 Scene에 사용자 구분봉을 임포트·배치하고 입력 참조를 연결합니다.</summary>
     [MenuItem("Dystopia/Connect Divider Bar")]
     public static void ConnectDividerBar()

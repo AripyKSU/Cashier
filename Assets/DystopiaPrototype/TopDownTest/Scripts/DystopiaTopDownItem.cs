@@ -9,6 +9,8 @@ public sealed class DystopiaTopDownItem : MonoBehaviour
     public TopDownItemState State { get; set; }
     public bool WasStirred { get; set; }
     public Rigidbody2D Body { get; private set; }
+    /// <summary>흡입 연출이 물리와 표시를 소유하는 동안 분류·잡기·경계 보정을 중지합니다.</summary>
+    public bool IsBeingVacuumed { get; internal set; }
     /// <summary>쏟기 연출 뒤 복원할 Prefab의 평상시 선형 감쇠값입니다.</summary>
     public float RestingLinearDamping { get; private set; }
 

@@ -4,6 +4,17 @@
 
 ## 기준과 사용 위치
 
+### 2026-09-13 PR #1 잔여 변경 선택 이관
+
+- 기준은 PR #3이 병합된 `master 2d65909`이며, 원본 `astra-prototype ff67838b24523203840f38d2ae436c32b467db18`과 이전 선택 이관 기준 `87844af` 사이의 프로토타입 코드·리소스 26파일을 추가 반영한다. 원본 브랜치 전체 병합은 아니다.
+- 범위: 청소기 이미지·흡입/취소/상품 제외 동작, 작업대 노멀 이미지·시간대 조명 shader/component, 손님 거래 반응의 크기·흔들림·색 변화, 스탬프1~5 이미지, 일일 지침 배치 및 편집 도구, 배경 새의 짙은 색상이다. 경로는 모두 `Assets/DystopiaPrototype/` 아래다.
+- 신규 이미지와 meta/GUID는 원본 값을 유지한다. 스탬프 이름 변경·삭제는 기존 `DystopiaScreen`의 파일명 fallback을 끊으므로 기존 LedgerStamp 5종과 meta도 보존한다. 새 스탬프의 명성 단계별 의미를 임의로 지정하거나 기존 게임의 정산 이미지 연결을 바꾸지 않는다.
+- 원본의 공용 manager·CSV·Addressables·패키지·ProjectSettings·운영 규칙·output은 이관하지 않는다. 원본 씬의 편집용 `previewHour 17.87`과 직렬화 필드 순서 변경도 제외한다. 기존 Main/Hub/Loading 씬과 OperatingPanel, 사용자 로컬 변경은 보존한다.
+- **사용 범위:** 프로토타입 코드와 리소스를 저장소에 통합하는 작업이다. 청소기·작업대 조명을 MainScene에 연결하는 작업은 포함하지 않는다. 프로토타입의 기존 `Dystopia/Top Down Test/Connect Vacuum And Lighting` 도구로 저작 씬에 연결할 수 있으나, 이번 검증은 씬 저장 없이 실행 중 객체로 수행했다. 지침 교체 도구는 원본 작업 입력 `output/instruction-update/DailyInstruction-source.png`를 요구하며, 작업용 output 자료는 자동 배포하지 않는다.
+- 원본 결함 2건을 함께 수정했다. 다음 손님으로 전환할 때 이전 거래 반응을 새 외형 적용 전에 정리하고, 흡입 취소 시 위치·분류·물리 활성 상태와 함께 선형/각속도를 복원한다. 읽기 전용 기술 리뷰에서 두 수정의 해소와 추가 지적 없음을 확인했다.
+- 실제 Play: 거절 반응 도중 다음 손님으로 넘어가면 기존 원본에서는 붉은 색이 남는 것을 재현했고 수정 후 흰색 복원을 확인했다. 실제 상품으로 흡입·부분 삼키기 취소 시 위치/크기/분류/물리/선형·각속도 복원, 완료 시 장바구니 1개 제외와 중복 거부, 스탬프5개 로딩, 작업대 조명 속성 갱신을 확인했다. 실행 중 검증 객체는 제거했다. 증거는 `Temp/astra-remainder-runtime.log`, `Temp/astra-focus-check.txt`이며 제품 API·reflection 기반 검증으로 사람의 마우스 드래그 UX를 대체하지 않는다.
+- Unity import·컴파일 및 신규 shader 오류 없음, 검증 중 제품 Console Error0. 최종 EditMode **249/249**, PlayMode **53/53** 통과, 실패·skip·미완료0이다. 증거: `Temp/TestResults/astra-remainder-edit-02/EditMode.xml`, `Temp/TestResults/astra-remainder-play-01/PlayMode.xml`. 신규 자산/meta·전체 Assets GUID 중복 검사, 보호 파일 해시와 `git diff --check`도 통과했다. Player 빌드와 청소기·조명의 최종 화면 품질은 미검증이다.
+
 ### 2026-09-11 최신 선택 이관
 
 - 입력 SHA `87844af6a25a2a2c8f66affa31d1adff36de09f4`, 작업 기준 `60a729f`. `Temp/Astra-87844af-source.zip`의 `Assets/DystopiaPrototype/`·폴더meta와 `FogMotionController.cs`·`PixelFog.shader` pair만 선택 이관했다. 총386파일, 기존363파일은 `UserSettings/LocalBackups/AstraEffects-87844af-20260911`에 해시 확인 백업했다. 전체 branch merge 이력은 만들지 않는다.
