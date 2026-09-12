@@ -1,0 +1,53 @@
+if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("Idle compiled Editor required.");
+var dispositions = Util.ParseFromCSV<CustomerDispositionData>(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv")).ToDictionary(x => x.Idx);
+var products = Util.ParseFromCSV<ProductData>(File.ReadAllText("Assets/Datas/Customer/ProductData.csv")).ToDictionary(x => x.Idx);
+var prices = CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x => x.Idx, x => x.BasePrice);
+var rows = new List<object>();
+foreach (int count in new[] { 8, 10, 12 })
+{
+    var abandoned = new List<int>();
+    int completedRuns = 0, missingCustomer = 0, refused = 0;
+    for (int seed = 0; seed < 100; seed++)
+    {
+        var generator = new CustomerGenerator(new System.Random(seed));
+        var queue = new CustomerQueue(() => generator.Generate(new uint[] { 5001 }, dispositions.Values.OrderBy(x => x.Idx).ToArray(), products, getCurrentPrices: () => prices), dispositions);
+        queue.Start();
+        if (!queue.TryAdd()) throw new InvalidOperationException("Initial customer missing.");
+        double clock = 0, cycle = 180d / count;
+        int sold = 0;
+        Action<double> advanceTo = target => {
+            while (clock < target - 1e-9) {
+                double step = Math.Min(.05, target - clock);
+                queue.Advance(step, false);
+                clock += step;
+            }
+        };
+        for (int n = 0; n < count; n++)
+        {
+            var visit = queue.TakeNext();
+            if (visit == null) { missingCustomer++; break; }
+            visit.BeginOffer();
+            // Current prefab's automatic entry flow consumes 4.15 seconds before sorting.
+            // This reserves its time; it does not execute or measure the UI animation.
+            advanceTo(n * cycle + 4.15);
+            advanceTo((n + 1) * cycle - .05);
+            var items = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+            long offered = visit.Items.Sum(x => (long)x.Quantity * prices[x.ProductIdx]);
+            if (visit.SubmitOffer(offered, items)) sold++; else refused++;
+            advanceTo((n + 1) * cycle);
+            visit.Depart();
+        }
+        if (sold == count && Math.Abs(clock - 180) < 1e-6) completedRuns++;
+        abandoned.Add(queue.AbandonedCount);
+        queue.Stop();
+    }
+    rows.Add(new { targetTrades=count, cycleSeconds=180d/count, reservedEntrySeconds=4.15, remainingActionSeconds=180d/count-4.15, runs=100, completedRuns, missingCustomer, refused, abandonedMin=abandoned.Min(), abandonedMean=abandoned.Average(), abandonedMax=abandoned.Max() });
+}
+return Newtonsoft.Json.JsonConvert.SerializeObject(new {
+    mode="Unity Editor: actual CustomerQueue, CustomerGenerator and CustomerVisit APIs; simulated clock; no UI input/animation measurement or economic simulation",
+    arrivalSeconds=CustomerQueue.ArrivalSeconds, waitingCapacity=CustomerQueue.Capacity,
+    patienceSeconds=dispositions.Values.Select(x=>x.QueuePatienceSeconds).Distinct().OrderBy(x=>x).ToArray(),
+    assumptions="Day 1 base products/current CSV; all disposition rows supplied to the legacy generator, not the reputation-weighted main-game selector; exact base price; 0.05 second ticks; full requested quantities; no scene or singleton changes",
+    scenarios=rows
+});
