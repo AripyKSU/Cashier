@@ -1,0 +1,61 @@
+{
+  "generatedAtUtc": "2026-09-12T16:05:48.0167921Z",
+  "humanPlaytest": false,
+  "sources": [
+    {
+      "sha256": "44E84C4FEF4E8295A0B6FA38569245D2B8B3BD88C864DD564ED1AB1A90282C2D",
+      "path": "Assets/Scripts/Customer/CustomerQueue.cs"
+    },
+    {
+      "sha256": "EBA4781E2F4C2882C6C3769A342D6D9FC92EB9ACD61ED4CC42461C3B3977A119",
+      "path": "Assets/Scripts/Customer/CustomerCompositionSelector.cs"
+    },
+    {
+      "sha256": "F6D3D6610240B433D4AD09EDAB585285494D85C0E6CAA12239FEC4C3485C2225",
+      "path": "Assets/Scripts/Customer/CustomerProductAvailability.cs"
+    },
+    {
+      "sha256": "9A9B0F771A5DC73E27A933AF1365367195BE1439F86CDE89C8FA84F922EE9200",
+      "path": "Assets/Scripts/Customer/CustomerGenerator.cs"
+    },
+    {
+      "sha256": "D86676F6A935CB3666AEC4A6526773D217C9235E1DB3786ED5775A80FAA43999",
+      "path": "Assets/Scripts/Customer/CustomerVisit.cs"
+    },
+    {
+      "sha256": "A0460E7B081E34D751D39C0F0DA744107C55DDEFEE2F275584C4627FDE596247",
+      "path": "Assets/Scripts/Finance/DailyReputationCalculator.cs"
+    },
+    {
+      "sha256": "42992BEE98AAA9CEB38B5C9171A7F5119D498FB9EE03460B4861C3A91E00151A",
+      "path": "Assets/Scripts/Finance/ReputationTransactionClassifier.cs"
+    },
+    {
+      "sha256": "421691CB532A325A1424C9C5CE6176A0D59B6521BCEA97D6942B45817F4EF3AB",
+      "path": "Assets/Scripts/Progress/DayProgress.cs"
+    },
+    {
+      "sha256": "FD879FE01D8E2FCC3261AFB15B5C994F76FF32546433E506F228C2825E2B61E7",
+      "path": "Assets/Datas/Customer/CustomerDispositionData.csv"
+    },
+    {
+      "sha256": "0033E5F8AE7AF2535C276D8E6CA37CEF1D9AD794BF6DF2D79E7308718ACCF38D",
+      "path": "Assets/Datas/Customer/CustomerAppearanceData.csv"
+    },
+    {
+      "sha256": "28FEF546680FD2AC764C53970DF44809CC190D4D5E45513A598D565D30974010",
+      "path": "Assets/Datas/Customer/ProductData.csv"
+    },
+    {
+      "sha256": "39E0444B91695514FEDE14BF2717F8DA836E79372A2F6A8E1D76AF420682B8A9",
+      "path": "Assets/Datas/ReputationBalanceData.csv"
+    },
+    {
+      "sha256": "D9CFF3674E35EC235FAA5BF21A9679F0166DAF13E66F2EF85183A72247417416",
+      "path": "Assets/Datas/FacilityData.csv"
+    }
+  ],
+  "gitHead": "9d603f13ec3bd7dcae9059886c618c47e0578a4f",
+  "productChanges": false,
+  "unityVersion": "6000.3.18f1"
+}

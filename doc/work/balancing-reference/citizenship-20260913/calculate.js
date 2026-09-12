@@ -4,11 +4,11 @@ const R=require('../reputation-20260912/calculate.js'),M=require('../draft-20260
 const root=path.resolve(__dirname,'../../../..'),GOAL=1000000,RUNS=10000;
 const hash=file=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex');
 const csv=file=>{const [h,...lines]=fs.readFileSync(path.join(root,file),'utf8').trim().replace(/^\uFEFF/,'').split(/\r?\n/);return lines.map(l=>Object.fromEntries(l.split(',').map((v,i)=>[h.split(',')[i],v])));};
-for(const s of R.I.sources)assert.equal(hash(s.file),s.sha256,`Prior input changed: ${s.file}`);
+if(require.main===module)for(const s of R.I.sources)assert.equal(hash(s.file),s.sha256,`Prior input changed: ${s.file}`);
 const files={events:'Assets/Datas/PriceEventData.csv',schedule:'Assets/Datas/PriceEventScheduleData.csv',guidelines:'Assets/Datas/DailyGuidelineData.csv'};
 const tables=Object.fromEntries(Object.entries(files).map(([k,f])=>[k,csv(f)]));
 const sources=[...R.I.sources,...[...Object.values(files),'Assets/Scripts/Events/PriceEventScheduler.cs','Assets/Scripts/Commons/Data/PriceEventScheduleData.cs','Assets/Scripts/Commons/SaleRestriction.cs','Assets/Scripts/Finance/DailyAggregationService.cs','doc/work/balancing-reference/reputation-20260912/calculate.js','doc/work/balancing-reference/draft-20260912/model.js','doc/work/balancing-reference/citizenship-20260913/calculate.js'].map(file=>({file,sha256:hash(file)}))];
-fs.writeFileSync(path.join(__dirname,'inputs.json'),JSON.stringify({goal:GOAL,priorInputs:'../reputation-20260912/inputs.json',tables,sources},null,2)+'\n');
+if(require.main===module)fs.writeFileSync(path.join(__dirname,'inputs.json'),JSON.stringify({goal:GOAL,priorInputs:'../reputation-20260912/inputs.json',tables,sources},null,2)+'\n');
 const events=Object.fromEntries(tables.events.map(e=>[+e.idx,{...e,ids:e.product_idxs.split('_').filter(Boolean).map(Number),types:e.product_types.split('_').filter(Boolean).map(Number)}]));
 const due=(s,day)=>day-1>=+s.start_day&&(!s.end_day||day-1<=+s.end_day)&&(+s.channel===2||(+s.repeat_days===0?day-1===+s.start_day:(day-1-(+s.start_day))%+s.repeat_days===0));
 function news(day,random){const choose=channel=>{const a=tables.schedule.filter(s=>+s.channel===channel&&due(s,day));return a.length?+R.pick(a,a.map(s=>+s.selection_weight),random()).event_idx:null;};return {paper:choose(1),radio:choose(2),delay:random()*60};}
@@ -107,6 +107,8 @@ function checks(){
   assert.deepEqual(R.summary(values.map(r=>r.daily[30].cash)),old.finalCash);
   assert.deepEqual(R.summary(values.map(r=>r.daily[30].repEnd)),old.finalRep);
 }
+module.exports={news,priceAt,guidelines,penalty,settleCash,probability,simulate};
+if(require.main===module) {
 checks();console.log('Boundary checks and historical 2,000-run regression passed.');
 const configs=[
   {key:'current-fair-8',label:'현재 데이터 · 정가 8회',cost:'current',policy:fair,events:true,fines:true},
@@ -127,3 +129,4 @@ for(const config of configs){
   scenarios.push(result);console.log(JSON.stringify({key:config.key,cash:finalCash.p50,p10:finalCash.p10,p90:finalCash.p90,success:result.success.rate,meanFines:result.totalFines.mean,failed:result.failures,debt:result.debtRuns}));
 }
 fs.writeFileSync(path.join(__dirname,'results.json'),JSON.stringify({date:'2026-09-13',goal:GOAL,days:31,runs:RUNS,initial,maintenanceTotal:maintenance.reduce((a,b)=>a+b,0),costSets:{current:currentCosts,proposed:R.I.proposedCosts},allSequence,primarySequence,scenarios,checks:['source hashes unchanged','historical 2000-run cash and reputation identical','200 daily-path/purchase regressions','event dates, radio window, duplicate IDs, prices and rounding','guideline day boundaries, distinct products, attributes, quantity boundary and rejected trades','settlement full payment, debt grace deadline, recovery, all-path cash conservation']},null,2)+'\n');
+}
