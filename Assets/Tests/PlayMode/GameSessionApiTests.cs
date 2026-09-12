@@ -784,7 +784,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void FacilityPurchaseUnlocksOnlyNextDayAcrossProgressInstances()
     {
-        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale); // 확장2종과 핵보호 설비 구매를 검증할 자금.
+        session.Economy.FinanceService.AddIncome(250000, FinanceChangeReason.Sale); // 확장2종과 핵보호 설비 구매를 검증할 자금.
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12005, out _));
         progress.Start();
@@ -1080,7 +1080,7 @@ public sealed class GameSessionApiTests
     public void InspectorEarlyStagePurchaseDoesNotAdvanceDayTwentyOneEvent()
     {
         // 날짜·구매 조건 검사에 필요한 자금만 준비한다. 무매출 21일의 경제 생존 검사가 아니다.
-        session.Economy.FinanceService.AddIncome(100_000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(250_000, FinanceChangeReason.Sale);
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); completeInspectors(progress);
         for(int i=0; i<2; i++) { completeInspectors(progress); closeProgressDay(progress); progress.CompleteSettlement(); }

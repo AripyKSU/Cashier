@@ -1,0 +1,203 @@
+{
+  "goal": 1000000,
+  "priorInputs": "../reputation-20260912/inputs.json",
+  "tables": {
+    "events": [
+      {
+        "idx": "9001",
+        "nameidx": "8042",
+        "descriptionidx": "8043",
+        "product_idxs": "",
+        "product_types": "2",
+        "change_type": "1",
+        "change_value": "-100"
+      },
+      {
+        "idx": "9002",
+        "nameidx": "8044",
+        "descriptionidx": "8045",
+        "product_idxs": "1001",
+        "product_types": "",
+        "change_type": "2",
+        "change_value": "15"
+      },
+      {
+        "idx": "9003",
+        "nameidx": "8046",
+        "descriptionidx": "8047",
+        "product_idxs": "",
+        "product_types": "",
+        "change_type": "0",
+        "change_value": "0"
+      },
+      {
+        "idx": "9004",
+        "nameidx": "8048",
+        "descriptionidx": "8049",
+        "product_idxs": "",
+        "product_types": "3",
+        "change_type": "1",
+        "change_value": "150"
+      }
+    ],
+    "schedule": [
+      {
+        "idx": "10001",
+        "event_idx": "9001",
+        "channel": "1",
+        "start_day": "2",
+        "end_day": "30",
+        "repeat_days": "7",
+        "selection_weight": "1"
+      },
+      {
+        "idx": "10002",
+        "event_idx": "9003",
+        "channel": "1",
+        "start_day": "5",
+        "end_day": "26",
+        "repeat_days": "7",
+        "selection_weight": "1"
+      },
+      {
+        "idx": "10003",
+        "event_idx": "9002",
+        "channel": "2",
+        "start_day": "0",
+        "end_day": "30",
+        "repeat_days": "0",
+        "selection_weight": "1"
+      },
+      {
+        "idx": "10004",
+        "event_idx": "9004",
+        "channel": "2",
+        "start_day": "0",
+        "end_day": "30",
+        "repeat_days": "0",
+        "selection_weight": "1"
+      },
+      {
+        "idx": "10005",
+        "event_idx": "9003",
+        "channel": "2",
+        "start_day": "0",
+        "end_day": "30",
+        "repeat_days": "0",
+        "selection_weight": "4"
+      }
+    ],
+    "guidelines": [
+      {
+        "idx": "13001",
+        "rule_type": "1",
+        "allowed_quantity": "0",
+        "penalty_amount": "500"
+      },
+      {
+        "idx": "13002",
+        "rule_type": "2",
+        "allowed_quantity": "1",
+        "penalty_amount": "500"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "file": "Assets/Datas/Customer/ProductData.csv",
+      "sha256": "28fef546680fd2ac764c53970df44809cc190d4d5e45513a598d565d30974010"
+    },
+    {
+      "file": "Assets/Datas/Customer/CustomerDispositionData.csv",
+      "sha256": "fd879fe01d8e2fcc3261afb15b5c994f76ff32546433e506f228c2825e2b61e7"
+    },
+    {
+      "file": "Assets/Datas/ReputationBalanceData.csv",
+      "sha256": "39e0444b91695514fede14bf2717f8da836e79372a2f6a8e1d76af420682b8a9"
+    },
+    {
+      "file": "Assets/Datas/FacilityData.csv",
+      "sha256": "6bbcd0f0e9cb627f251d59a9a647eaed936c7e8c473c935cc0ab7ec769dc99a0"
+    },
+    {
+      "file": "Assets/Datas/MaintenanceBalanceData.csv",
+      "sha256": "2cad9a32682df05498944452c3ac5911b731a5dda03aaa6b6e0280b7e54bd84c"
+    },
+    {
+      "file": "Assets/Datas/EconomyBalanceData.csv",
+      "sha256": "6340b55d1d7729aa4d9fa1c737bbacfa4a349bfe5ef18f6a981924ccba717414"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerCompositionSelector.cs",
+      "sha256": "eba4781e2f4c2882c6c3769a342d6d9fc92eb9acd61ed4cc42461c3b3977a119"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerProductAvailability.cs",
+      "sha256": "f6d3d6610240b433d4ad09edab585285494d85c0e6caa12239fec4c3485c2225"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerVisit.cs",
+      "sha256": "d86676f6a935cb3666aec4a6526773d217c9235e1db3786ed5775a80faa43999"
+    },
+    {
+      "file": "Assets/Scripts/Finance/DailyReputationCalculator.cs",
+      "sha256": "a0460e7b081e34d751d39c0f0da744107c55ddefee2f275584c4627fde596247"
+    },
+    {
+      "file": "Assets/Scripts/Finance/ReputationTransactionClassifier.cs",
+      "sha256": "42992bee98aaa9ceb38b5c9171a7f5119d498fb9ee03460b4861c3a91e00151a"
+    },
+    {
+      "file": "Assets/Scripts/Manager/GameSessionManager.cs",
+      "sha256": "44f0f84b76e3b8c2b4f7f736402aecfb663a7c2dc62e9e475c7c41d2c47f9c9b"
+    },
+    {
+      "file": "Assets/Scripts/Facility/FacilityService.cs",
+      "sha256": "93df5283a9e6809cb84ff90de344e5b4194be09e0d75fcefa0ffff4f05fd4965"
+    },
+    {
+      "file": "doc/work/balancing-reference/store-stages-20260912/results.json",
+      "sha256": "04be514a72acf78b64c07bb5f0d3c2e16167c083c16430d5a785e1f32ab62eda"
+    },
+    {
+      "file": "Assets/Datas/PriceEventData.csv",
+      "sha256": "4829c8a5c24bb704cd72a51aa53a9c090dfd0d0493e81c4700158f50b8a9f18c"
+    },
+    {
+      "file": "Assets/Datas/PriceEventScheduleData.csv",
+      "sha256": "3cb9039c40aacb6d39a116d3874351179b40a5257bc0a4738c9e6c953cc95bf9"
+    },
+    {
+      "file": "Assets/Datas/DailyGuidelineData.csv",
+      "sha256": "af05778bd3c306380c97a99937097f8776e627065698d50b33e2ddf3ce74369a"
+    },
+    {
+      "file": "Assets/Scripts/Events/PriceEventScheduler.cs",
+      "sha256": "63dc9fae4c19ac6e3e63c6e9641e6b63b17b32534358fe7aef48eaa71bb9183f"
+    },
+    {
+      "file": "Assets/Scripts/Commons/Data/PriceEventScheduleData.cs",
+      "sha256": "31cf4dde2e562c4df615a34fc7a6c26142972e7560ad304f52aba6b18061d75c"
+    },
+    {
+      "file": "Assets/Scripts/Commons/SaleRestriction.cs",
+      "sha256": "a7a49b311a2eab970aa8b96196445907f8f4925ca50598325309fbfa0efe5acc"
+    },
+    {
+      "file": "Assets/Scripts/Finance/DailyAggregationService.cs",
+      "sha256": "b9ea81f91ed5863113d52b0ac0ea770ce061f41cf685f41e77ff7d9981e762cd"
+    },
+    {
+      "file": "doc/work/balancing-reference/reputation-20260912/calculate.js",
+      "sha256": "edcf8596806d52cd12cb4dcba53ef16daa740eac7d89cc5bd9cd693744bf8b3d"
+    },
+    {
+      "file": "doc/work/balancing-reference/draft-20260912/model.js",
+      "sha256": "31981ba5b422515f0e40203d192791ba4aa6b2e8fd4243b6ec3c7d38cb85067c"
+    },
+    {
+      "file": "doc/work/balancing-reference/citizenship-20260913/calculate.js",
+      "sha256": "375d02c83ca435456240ba6a61ffb9268298e6dd88081ca0e632f0da1017ef2d"
+    }
+  ]
+}

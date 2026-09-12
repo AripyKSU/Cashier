@@ -87,7 +87,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12011 |
 | 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060,8076~8081 |
-| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 800~2500 |
+| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 800~198000 |
 | 4. `upgrade_kind` | UpgradeKind · FacilityUpgradeKind | 업그레이드 기능 분류 | 필수; ProductUnlock·Convenience·StoreStage만 허용 | 코드 분기 키 | 1,2,3 |
 | 5. `required_store_stage` | RequiredStoreStage · uint | 구매 요구 가게 단계 | 필수; 1~3 | 단계 구매 조건 | 1,2,3 |
 | 6. `effect_type` | EffectType · ConvenienceEffectType | 편의성 효과 키 | 일반/단계 상승은 None(0); 편의성은 DividerBar·AutoSorting·Vacuum | 코드 효과 분기 | 0,1,2,3 |
@@ -1015,20 +1015,20 @@ idx,nameidx,product_type,is_available,base_price,available_day,image_resource_id
 
 ### Assets/Datas/FacilityData.csv
 
-데이터 11행, 7컬럼. SHA-256: `2BB24B7148FA69779F08547F2C7943456E6D9EFECBE87AADAF413222A1041932`.
+데이터 11행, 7컬럼. 2026-09-13 가게 단계 비용 초안 반영. SHA-256: `D9CFF3674E35EC235FAA5BF21A9679F0166DAF13E66F2EF85183A72247417416`.
 
 ```csv
 idx,nameidx,purchase_price,upgrade_kind,required_store_stage,effect_type,target_store_stage
-12001,8056,1000,1,1,0,0
-12002,8057,1200,1,1,0,0
-12003,8058,1500,1,2,0,0
-12004,8059,1800,1,2,0,0
-12005,8060,2000,1,3,0,0
-12006,8076,2200,1,3,0,0
+12001,8056,18000,1,1,0,0
+12002,8057,39000,1,1,0,0
+12003,8058,23000,1,2,0,0
+12004,8059,42000,1,2,0,0
+12005,8060,35000,1,3,0,0
+12006,8076,198000,1,3,0,0
 12007,8077,800,2,1,1,0
-12008,8078,1500,3,1,0,2
+12008,8078,23000,3,1,0,2
 12009,8079,1200,2,2,2,0
-12010,8080,2500,3,2,0,3
+12010,8080,143000,3,2,0,3
 12011,8081,1500,2,3,3,0
 ```
 

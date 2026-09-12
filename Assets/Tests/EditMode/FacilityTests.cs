@@ -331,8 +331,8 @@ public sealed class FacilityTests
             case "effect enum": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,99,0"); break;
             case "product target": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,1,1,0,2"); break;
             case "convenience target": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,1,2"); break;
-            case "stage effect": csv = csv.Replace("12008,8078,1500,3,1,0,2", "12008,8078,1500,3,1,1,2"); break;
-            case "stage requirement": csv = csv.Replace("12008,8078,1500,3,1,0,2", "12008,8078,1500,3,2,0,2"); break;
+            case "stage effect": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,1,1,2"); break;
+            case "stage requirement": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,2,0,2"); break;
             case "duplicate effect": csv += "12012,8077,800,2,1,1,0\n"; break;
             case "duplicate target": csv += "12012,8078,1500,3,1,0,2\n"; break;
             case "missing effect": csv = csv.Replace("12011,8081,1500,2,3,3,0\r\n", string.Empty).Replace("12011,8081,1500,2,3,3,0\n", string.Empty); break;
