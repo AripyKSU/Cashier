@@ -4,11 +4,13 @@ using System.Threading;
 
 /// <summary>
 /// InitScene – 게임 실행 시 가장 먼저 로드되는 Boot 씬.
-/// ResourceManager, DataTableManager 등의 부트 프로세스를 완료한 후 MainScene으로 전환합니다.
+/// 부트를 마치면 Hub 메뉴로 이동하며 메뉴의 새 게임 요청일 때만 게임 씬에 진입합니다.
 /// </summary>
 public class InitScene : MonoBehaviour
 {
     [SerializeField] private GameSceneManager.SceneName nextScene = GameSceneManager.SceneName.Hub;
+    [Tooltip("최종일 정산 진입 전에 시민권을 보유했다면 그날 미납 게임오버만 면제합니다. 새 게임부터 적용됩니다.")]
+    [SerializeField] private bool exemptFinalDayPreownedCitizenship = true;
 
     private async void Start()
     {
@@ -41,13 +43,15 @@ public class InitScene : MonoBehaviour
             return;
         }
 
-        GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance);
+        // 부트 씬 로드와 데이터 준비가 성공한 뒤에만 이전 종료 결과를 버린다.
+        GameSessionManager.Instance.ResetSession();
+        GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance, this.exemptFinalDayPreownedCitizenship);
         Debug.Log("[InitScene] GameSessionManager 새 게임 세션 초기화 완료.");
 
         Debug.Log($"<color=green><b>[InitScene] 부팅 프로세스 완료! {nextScene} 씬으로 전환합니다.</b></color>");
 
-        // 4. 다음 씬(MainScene)으로 전환
-        await GameSceneManager.Instance.TransitionTo(nextScene);
+        // 4. 최초 실행은 Hub 메뉴, 메뉴에서 요청한 새 게임은 선택된 게임 씬으로 전환한다.
+        await GameSceneManager.Instance.TransitionAfterBootAsync(nextScene);
     }
 
     private void ensureManagerExists<T>(string gameObjectName) where T : MonoBehaviour

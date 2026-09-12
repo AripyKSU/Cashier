@@ -1,5 +1,43 @@
 # MainScene 진행·세션 API 통합
 
+> 2026-09-13 현재 진입 경로: Init 부트 후 Hub 메뉴에서 새 게임을 선택해야 게임 씬으로 이동한다. 엔딩·실패 화면의 새 게임 버튼은 Hub 복귀이며 즉시 재시작하지 않는다. [현재 메뉴·이어하기 사양](CITIZENSHIP_ENDING.md#hub-메뉴와-카메라-2026-09-13)을 따른다. 아래 날짜별 검증의 자동 Hub→Main 경로는 당시 기록이다.
+
+## 시민권·최종 정산 연결 (2026-09-13)
+
+31일 정산은 다음 날 대신 최종 결과를 확정하고 Good/Bad 씬으로 전환한다. 미납 유예 만료도 실제 실패 상태와 연결했으며, 최종 정산 진입 전 시민권 보유 예외는 세션 시작 정책으로 선택한다. 종료일 명성·보유 기록·구매 마감·UI·새 게임 계약과 검증은 [시민권·엔딩 명세](CITIZENSHIP_ENDING.md)를 따른다. 아래 무조건 다음 날로 진행하던 과거 통합 기록은 이 경계를 포함하지 않는다.
+
+## 밸런싱 초안 영업180초 연결 (2026-09-12)
+
+`DayProgress.DefaultBusinessDurationSeconds`를180초로 변경했다. GameUIController→GameProgress→DayProgress의 기존 생성자 기본값 경로에 적용되며 명시적으로 지정한 다른 영업시간은 유지한다. 아래 날짜별 통합 기록의 기본30초는 당시 상태다. 게임 속 시각09~21시는 그대로이며 실제90초 경과가15시에 대응한다. 감독관·영업 전·일시정지·마감 후에는 영업 시간이 흐르지 않고,180초 만료 시 진행 중인 마지막 거래를 마친 뒤 정산하는 기존 계약을 유지한다. 평균8건은 플레이테스트 목표이며 거래 건수를 제한하지 않는다.
+
+## 딸 정산 대화 통합 (2026-09-11)
+
+`total_merge c756bec`에 `codex/daughter-dialogue e19bd0f`를 병합했다. 기존 GameUI 인스턴스가 DaughterDialoguePanel과 필수 presenter를 상속하므로 MainScene 파일은 유지했다. 정산 보드 아래 누적 도덕성 기준 대사와 날짜별 이미지를 표시하며 설비 상점 재표시에서 같은 대사를 유지한다. 임시 데이터·구간·병합 계약은 [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md), 통합 API/실제 Main 실행 증거는 [TESTING.md](TESTING.md)를 따른다.
+
+## 월드 표시 분리 (2026-09-11)
+
+DailyInstruction `99fc83e`와 Sprite world `b80dfda` 통합에서 MainScene에 Canvas 밖 CustomerWorld를 연결했다. 기존 Image 기반 CustomerQueueView와 배경 중복을 제거하고 개인 씬 파일은 변경하지 않았다. 실제 검증·Git 상태는 [통합 작업 기록](work/total-merge-daily-world.md)을 따른다.
+
+WorldSceneView·CustomerWorldQueueView는 기존 GameUIController·orthographic Camera를 사용한다. GameUI prefab을 복제하거나 unpack하지 않고 OperatingPanel의 배경/Appearance Image와 TimeOfDayUIController만 제거했으며 패널 배경 alpha는 0이다. CustomerPresenter.appearanceImage는 null이며 기존 생성 경로로 직렬화한 성별 TMP·거래 대사·Counter·CounterLight·감독관·가격 입력·작업대는 유지한다. DailyInstruction의 PreOpen/Settlement child prefab과 연결을 유지하고 GameUI nested 형제 순서는 Front→Sorting→PriceInput→CalculatorToggle, Dialogue Canvas overrideSorting=false다.
+
+- GameUIController의 로드·ready/startupCover와 DayProgress 권위는 유지한다. WorldSceneView는 FrontView의 화면 사각형·가시성과 표시 시계만 관찰한다.
+- 기존 전환은 작업대가 좌측에서 들어오는 slide다. slide 중에는 전면 월드를 유지하고 FrontView 비활성 시 숨긴다. 별도 fade나 전환 시계를 만들지 않는다. Inspector/startup UI 덮개는 월드보다 앞에서 가린다.
+- WorldSceneView의 `PreviewHour`/`FollowClock`, Inspector debug override·자동 45초 주기·선택적 단축키는 표현만 변경한다. 영업·시계·라디오 시간을 바꾸지 않으며 기본 비활성이다.
+- Prefab 조립/대기 수명은 [대기열 명세](CUSTOMER_QUEUE_INTEGRATION.md#월드-표시-조립-2026-09-11), 시간대·보존 경계는 [UI 보존 가이드](UI병합_보존_가이드.md)를 따른다.
+
+## 감독관·공용 영업 시각 통합 (2026-09-11)
+
+통합 기준: `total_merge ba368c8` + `codex/inspector-events 29c1ea5`. 아래는 사용자가 승인한 병합 계약이며 실제 검증 상태는 [작업 기록](work/inspector-events.md)을 따른다. 아래 과거 통합 절의 09~20시 표기는 당시 기록이다.
+
+- 최신 total_merge의 화면 배치·시간대 배경·말풍선·착지/쏟기·진공관·설비 상점을 유지하고 감독관 독립 패널과 초기 준비 가림을 연결한다. 첫날·2일차 임시 대사·3단계 구매 다음날 조건과 세션 완료 이력은 [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)를 따른다.
+- 게임 속 영업 시각은 `BusinessHours.OpenHour=9`, `CloseHour=21`, `OpenMinutes=540`, `CloseMinutes=1260`, `DurationMinutes=720`을 공통으로 사용한다. 분 값은 시각에서 계산하며 별도 조정값으로 저장하지 않는다.
+- 실제 영업 제한시간은 기존 DayProgress 기본30초와 생성자 입력을 유지한다. 게임 속12시간을 실제12시간 또는72초로 바꾸는 작업이 아니다.
+- DayProgress의 남은 시간 비율이 표시 시각의 기준이다. `OpenMinutes + floor(DurationMinutes × 경과비율)`로 환산해 시작09:00·절반15:00·끝21:00을 표시한다. MainScene의 BusinessClock은 별도 카운트나 마감 상태를 진행 시스템에 되먹이지 않는다.
+- 감독관·영업 전에는 영업 시간이 시작하지 않는다. 이때 아직0인 remainingSeconds를 마감으로 환산하지 않고 시작09:00으로 표시한다. 일시정지·Closing·정산에서는 모델 시간이 더 진행하지 않으며 시계와 시간대 배경도 이 상태를 따른다.
+- 배경의 시작·끝은 공용 영업 시각, 낮·석양·야간 중간 전환값은 기존 연출 조정값이다. 테스트용 미리보기는 표현값만 바꾸고 실제 영업 시간이나 통합 플레이의 표시 시계를 덮어쓰지 않는다.
+- 기존 prefab의 시작·마감 값과 자동 시작, 누락된 clock 참조는 같은 변경에서 정리한다. field 기본값 교체만으로 이전 직렬화 값이 이관되었다고 판단하지 않는다.
+- 편집기 리로드마다 자동 실행되던 `AutoSaleSortingPrefabUpdater`는 제거한다. 브랜치 전환 후 구형 import 상태로 최신 prefab을 저장하며 참조가 유실되는 경로를 차단한다. `SaleSortingPrefabSetup`의 명시적 수동 메뉴는 유지한다.
+
 ## Upgrade 통합 (2026-09-10)
 
 - `Upgrade 935cf93`의 상품16종·설비11종·일일 유지비·지침 표시·막대/소팅/청소기를 `total_merge fcf1518`의 이미지·도덕성·대기열과 통합했다. 기존 MainScene 인스턴스 및 Local 원본은 보존하고 공유 GameUI의 새 참조를 연결했다.

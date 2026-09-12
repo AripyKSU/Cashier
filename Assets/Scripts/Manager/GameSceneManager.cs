@@ -13,6 +13,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
 
     // 이전 씬이 파괴돼도 manager가 목적지 활성화까지 재진입을 차단한다.
     private bool isTransitioning;
+    // Hub에서 새 게임을 선택했을 때만 다음 Init 부트 후 게임으로 바로 진입한다.
+    private bool startGameplayAfterBoot;
 
 #if UNITY_EDITOR
     /// <summary>개인 씬과 metadata를 Git에서 제외하는 개발 전용 경로.</summary>
@@ -26,7 +28,9 @@ public class GameSceneManager : Singleton<GameSceneManager>
     {
         Init,
         Hub,
-        Main
+        Main,
+        GoodEnding,
+        BadEnding
     }
 
     /// <summary>
@@ -43,10 +47,82 @@ public class GameSceneManager : Singleton<GameSceneManager>
             SceneName.Init => "InitScene",
             SceneName.Hub => "HubScene",
             SceneName.Main => "MainScene",
+            SceneName.GoodEnding => "GoodEndingScene",
+            SceneName.BadEnding => "BadEndingScene",
             _ => throw new ArgumentOutOfRangeException(nameof(target), target, "Unknown scene.")
         };
 
         return TransitionAsync(targetSceneKey, null, default);
+    }
+
+    /// <summary>동결된 결과로 엔딩을 로드한다. 실패 시 정산을 반복하지 않고 로딩 화면에서 재시도한다.</summary>
+    /// <returns>엔딩 전환 또는 실패 안내 완료.</returns>
+    /// <exception cref="InvalidOperationException">정상 엔딩 결과가 없음.</exception>
+    public async UniTask TransitionToFinalEndingAsync()
+    {
+        var result = GameSessionManager.Instance.EndingResult;
+        if (!result.HasValue || (result.Value.Kind != EndingKind.Good && result.Value.Kind != EndingKind.Bad))
+            throw new InvalidOperationException("확정된 굿·배드 엔딩 결과가 필요합니다.");
+        try
+        {
+            await TransitionTo(result.Value.Kind == EndingKind.Good ? SceneName.GoodEnding : SceneName.BadEnding);
+        }
+        catch (Exception exception)
+        {
+            var loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            if (loading == null)
+            {
+                // 목적지 주소 사전 검사 실패도 결과를 유지한 채 재시도 화면으로 보낸다.
+                await LoadAddressableSceneAsync(LoadingScene);
+                loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            }
+            if (loading == null) throw;
+            Debug.LogError($"엔딩 씬 전환 실패: {exception}");
+            loading.ShowEndingRetry();
+        }
+    }
+
+    /// <summary>기존 부트 씬으로 새 게임을 시작하고 로딩 중 실패하면 재시도를 제공한다.</summary>
+    /// <returns>부트 전환 또는 재시도 안내 완료.</returns>
+    public async UniTask RestartGameAsync()
+    {
+        if (isTransitioning) throw new InvalidOperationException("A scene transition is already running.");
+        startGameplayAfterBoot = true;
+        try { await TransitionTo(SceneName.Init); }
+        catch (Exception exception)
+        {
+            var loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            if (loading == null) throw;
+            Debug.LogError($"새 게임 씬 전환 실패: {exception}");
+            loading.ShowNewGameRetry();
+        }
+    }
+
+    /// <summary>종료 결과를 보존한 채 Hub 메뉴로 돌아가며 로딩 실패는 같은 목적지로 재시도한다.</summary>
+    /// <returns>메뉴 전환 또는 재시도 안내 완료.</returns>
+    public async UniTask ReturnToHubAsync()
+    {
+        try { await TransitionTo(SceneName.Hub); }
+        catch (Exception exception)
+        {
+            var loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            if (loading == null) throw;
+            Debug.LogError($"메뉴 씬 전환 실패: {exception}");
+            loading.ShowHubRetry();
+        }
+    }
+
+    /// <summary>최초 부트는 메뉴로, 메뉴에서 요청한 새 게임 부트는 선택된 게임 씬으로 보낸다.</summary>
+    /// <param name="defaultDestination">Init Inspector에 지정된 최초 부트 목적지.</param>
+    /// <returns>부트 이후 씬 전환 완료.</returns>
+    public async UniTask TransitionAfterBootAsync(SceneName defaultDestination)
+    {
+        // Init의 Start가 이전 Single 전환의 완료보다 먼저 실행되는 경우를 분리한다.
+        await UniTask.NextFrame(this.GetCancellationTokenOnDestroy());
+        bool enterGameplay = startGameplayAfterBoot;
+        startGameplayAfterBoot = false;
+        if (enterGameplay) await TransitionToGameplayAsync();
+        else await TransitionTo(defaultDestination);
     }
 
     /// <summary>Hub에서 개인 설정을 읽어 개발 씬 또는 MainScene으로 이동한다. 빌드는 Main만 사용한다.</summary>
@@ -94,7 +170,11 @@ public class GameSceneManager : Singleton<GameSceneManager>
         isTransitioning = true;
         try
         {
-            if (localPath == null)
+            // 부트 씬은 Build Settings의 시작 씬이며 Addressables 카탈로그에 등록하지 않는다.
+            bool isBoot = localPath == null && address is string key && key == "InitScene";
+            if (isBoot && !Application.CanStreamedLevelBeLoaded("InitScene"))
+                throw new InvalidOperationException("Build Settings에 InitScene이 필요합니다.");
+            if (localPath == null && !isBoot)
             {
                 var locations = Addressables.LoadResourceLocationsAsync(address, typeof(SceneInstance));
                 try
@@ -112,6 +192,11 @@ public class GameSceneManager : Singleton<GameSceneManager>
             await LoadAddressableSceneAsync(LoadingScene);
             await UniTask.Delay(TimeSpan.FromSeconds(0.3), ignoreTimeScale: true,
                 cancellationToken: this.GetCancellationTokenOnDestroy());
+            if (isBoot)
+            {
+                await SceneManager.LoadSceneAsync("InitScene", LoadSceneMode.Single);
+                return;
+            }
 #if UNITY_EDITOR
             if (localPath != null)
             {

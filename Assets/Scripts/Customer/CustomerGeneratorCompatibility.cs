@@ -62,6 +62,11 @@ public static class CustomerGeneratorCompatibility
         };
         return composition == null
             ? null
-            : generator.Generate(composition, products, visitPriceProvider, getSaleRestrictions, moralityCalculator);
+            : generator.Generate(
+                composition,
+                products,
+                visitPriceProvider,
+                getSaleRestrictions: getSaleRestrictions,
+                moralityCalculator: moralityCalculator);
     }
 }

@@ -57,6 +57,7 @@ public sealed class EconomyDebugLogger : IDisposable
         {
             FinanceChangeReason.Sale => "Sale",
             FinanceChangeReason.Maintenance => "Maintenance",
+            FinanceChangeReason.DailySettlement => "Daily settlement",
             _ => result.Reason.ToString()
         };
 

@@ -1,5 +1,87 @@
 # 기능 API 검증
 
+> 2026-09-13 현재 진입 경로: Init 부트 후 Hub 메뉴에서 새 게임을 선택해야 게임 씬으로 이동한다. 엔딩·실패 화면의 새 게임 버튼은 Hub 복귀이며 즉시 재시작하지 않는다. [현재 메뉴·이어하기 사양](CITIZENSHIP_ENDING.md#hub-메뉴와-카메라-2026-09-13)을 따른다. 아래 날짜별 검증의 자동 Hub→Main 경로는 당시 기록이다.
+
+## total_merge 딸 대화 통합 (2026-09-11)
+
+- fetch 후 입력: `total_merge c756bec` + `codex/daughter-dialogue e19bd0f`. 충돌 없이 병합했으며 제품·데이터·프리팹 내용은 딸 대화 브랜치와 동일하다. MainScene은 기존 GameUI prefab의 nested DaughterDialoguePanel/presenter 연결을 상속한다. Scene 파일 수정은 없다.
+- 통합 checkout에서 EditMode **230/230**, 실패·skip·미완료0: `Temp/TestResults/20260911-182145-292ce84f05d74e03a07299bbbfc5c5f9/EditMode.xml` 및 `.log`. PlayMode **45/45**, 실패·skip·미완료0: `Temp/TestResults/20260911-182707-b35c83103157424dbe2629239754798d/PlayMode.xml` 및 `.log`.
+- 최초 Play 실행은 playModeStartScene=InitScene이 개인 게임으로 라우팅해240초 timeout이었다. `43b6b911-1136-44c1-b38a-86b42587e930` job 취소와 active=false/playing=false 확인 후, 완료 callback 없이 남은 해당 runner pending 상태를 정리했다. 첫 run 폴더의 `PlayMode-Aborted.txt`에 기록했으며 성공으로 집계하지 않는다. 시작 씬 override를 null로 해제한 새 run이 위45/45 결과다. 코드/테스트 변경은 없다.
+- 실제 Init→Hub→MainScene→감독관→PreOpen→영업 버튼→현재가 수락 거래→정산: 누적 도덕성0, TextIdx8194(오늘 하루는 어땠어?), Resource4201을 표시했다. 설비 창 열기·닫기 후8194 유지. `Temp/DaughterMerge-Main-Smoke.txt`, `Temp/DaughterMerge-Main-Settlement.png`. Inspector 진행과 거래/마감은 API를 호출한 확인이며 전체 마우스 UX 검증을 의미하지 않는다.
+- 최종 compileFailed=false, 제품 Console error0, Main missing script0. 신규 GUID11개 중복 없음, 자산/meta 짝 유효. MainScene/Local씬·meta/기존 폰트2개는 준비 백업5개 hash와 동일하다. 기존 stash2개는 보존했다.
+- 최종 MainScene clean open, Play 종료, InitScene 시작 및 Use MainScene, runInBackground=false. 개인 씬 파일을 삭제하거나 변경하지 않았다. 원격 push와 최종 UI/UX·다른 화면비·Player build·저장 복원은 이번 완료 범위 밖이다.
+
+## 딸 대화 시스템 (2026-09-11)
+
+- 기준: total_merge c756bec에서 분기한 `codex/daughter-dialogue`의 미커밋 구현. 최종 EditMode **230/230**, PlayMode **45/45**, 각각 실패·skip·미완료 0. 기존 `Tools/Run-Tests.ps1 -Mode Both -TimeoutSeconds 240`으로 실행했다. 증거: `Temp/TestResults/20260911-175315-d81c54e6473249f8b170c72af1a39e98/EditMode.xml`, `PlayMode.xml` 및 각 `.log`.
+- 실제 CSV/FK·6개 도덕성 구간 경계와 소수/무한 범위·후보 선택·날짜별 이미지 전환·모든 후보 대사의 폰트 글리프를 검사했다. PlayMode는 정산 시 누적 도덕성 선택/당일 결과 고정/다음날 수명과 선택 실패 시 경제 정산 중복 방지까지 확인했다.
+- 초기 개별 Edit 필터 5/5 이후 Play 필터는 개인 playModeStartScene 설정 때문에 지연·중단되어 통과로 집계하지 않았다. 활성 job 취소 후 기존 runner로 전환했다. `20260911-174531-0f5ca0038442476eb24ed3cf58dc4c9a/EditMode.xml` 229/230은 기존 TextData 행 수 기대182→200 보정 전이다. `20260911-174736-b224acf79ae8411f9f21457cddf2eb71/`은 Edit230/230·Play44/45이며 Mulmaru의 한글 글리프 누락을 발견했다. 기존 Mabinogi 폰트 참조로 교체하고 글리프 검사를 추가했다. test assembly의 Unity.TextMeshPro 참조 누락 컴파일 오류도 최종 실행 전에 해결했다.
+- 실제 Init→SpriteWorldSandbox→감독관→영업→수락 거래→정산에서 Morality0/TextIdx8192/Resource4201 표시, 설비 상점 열기·닫기 후 대사 고정을 확인했다. `Temp/Daughter-Smoke.txt`, `Temp/Daughter-Settlement-Final.png`. 최종 suite 후 수정은 딸 패널을 정산 보드 아래로 옮기는 직렬화 배치뿐이며, 실제 화면으로 검증했다.
+- 최종 컴파일 실패 없음·제품 Console error0·missing script0. Play 종료, 개인 씬 저장, InitScene 시작/개인 씬 선택, runInBackground=false. MainScene 파일과 기존 사용자 Mulmaru hash를 보존했다. 테스트 생성 TMP fallback glyph만 사전 내용으로 복구했다.
+- 기존 개인 씬의 명성·유지비/시설 버튼 겹침은 이번 범위 밖이며 전체 UI/UX·다른 화면비·Player build·저장 복원은 미검증이다. 계약과 병합 연결은 [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md)를 따른다.
+
+## DailyInstruction + Sprite world Main 통합 (2026-09-11)
+
+- 입력: total_merge e62fcaf + DailyInstruction 99fc83e + Sprite world b80dfda. 최종 EditMode **225/225**, 실패·skip·미완료 0: `Temp/TestResults/20260911-161803-6305b91b5e4c4dbc92318c87283d07c1/EditMode.xml` 및 `.log`. 최종 PlayMode **43/43**, 실패·skip·미완료 0: `Temp/TestResults/20260911-162058-b5c3dbede73d4f65a1a01dca9b02aeb8/PlayMode.xml` 및 `.log`.
+- 최초 Edit 결과는 160940(205/225), 161209(210/225), 161304(168/225)였다. 구형 전체 가격 fixture, Resource FK·기대 Log, CSV 행/문자열 치환, reflection 인자를 현 계약에 맞췄다. 161338 Edit는225/225, Play는37/43이었다. 호환 가격표의 전체 해금 순회와 구매 후 정산 현재 잔액 고정이라는 실제 통합 회귀를 수정했으며, 구형 미납 중단 기대는 유예·다음날 계약으로 교체했다. 161803 Play41/43의 남은2건은 신규 overflow 검사에서 NUnit이 reflection 예외를 unwrap하는 형식 차이였다. 실패 XML은 각 시각 폴더에 보존했다.
+- 지침 건수/벌금 누적 overflow를 사전 검증하고 총/일일 도덕성·잔고·거래 개수·판매 수입·지침 누적값 불변을 확인했다. 정산 snapshot은 불변이며 시설 구매 후 표시 현재 잔액만 별도 조회값으로 갱신한다. 제품 guard를 완화하지 않았다.
+- 실제 Init→Main: WorldSceneView1·legacy queue0·첫날 Inspector→PreOpen 상품4/지침0→영업→Sorting 버튼/slide 완료(월드 숨김)→수락 거래→다음 방문→정산200→2일차 Inspector를 확인했다. `Temp/TotalMerge-Inspector.png`, `TotalMerge-Day1.png`, `TotalMerge-WorldFront.png`(이름과 달리 **slide 중간**), `TotalMerge-Sorting.png`. pause 시 표현 시간 유지, 실제 slide 완료 가림은 확인했으며 자동 suite의 pause/재활성/퇴장 검증과 구분한다.
+- 실제 Debug 버튼으로10일차 지침1,20일차 지침2/서로 다른 대상/당일 상품 FK를 확인했다. 설비 미구매라 상품은4종이며6/8종은 상한이다. 20일차 수락 거래의 복수 위반2건·벌금1000, 테스트용 잔액0에서 유지비2100+벌금1000=미납3100/납부0/유예23일차를 확인했다. 이 잔액 조정은 runtime 검증 입력이며 저장하지 않았다.
+- 정산에서 테스트 자금10000을 넣고 실제 시설 버튼으로12001구매: 당일inactive, 정산 현재잔액 문구9000/실제9000, 다음21일차active를 확인했다. 도메인 계산과 실제 UI 호출을 검증한 것이며 전체 마우스 사용감 판정은 아니다.
+- 최소 배치 보정: 원본 GuidelineSlot1 x437→137, OpenBusiness/Border 정렬 및 부모의 구형 y=-548 override 제거. 정산의 명성/유지비 겹침과 시설 버튼의 납부·유예 가림을 해소했다. 최종 `Temp/TotalMerge-Day20-Final.png`, `Temp/TotalMerge-Debt-Final-Readable.png`에서 지침2개·납부0·미납3100·상환기한23일차 전체 표시를 확인했다. 이 마지막 변경은 직렬화 배치만이며 승인에 따라 전체 suite는 반복하지 않았다.
+- 최종 compileFailed=false·Console 제품 error0·Main missing script/reference0. Play 종료, MainScene clean open, Init 시작/Use Main, runInBackground=false로 인계한다. Local 씬/meta와 사용자 Mulmaru는 준비 백업 hash와 동일하게 보존한다. 테스트의 TMP fallback 생성 데이터만 native 정리했다. Git/index는 설계 담당 소유이며 구현 담당은 조작하지 않았다.
+- 최종 전반적 UI 사용감·다른 화면비·Player build·저장 복원은 미확인이다. 이전 절의 유지비 부족 시 중단·Main legacy 표시 설명은 과거 기준이며 이번 신규 미납/World 통합 계약으로 대체된다.
+
+## Sprite world 환경 연출 선택 이관 (2026-09-11)
+
+- EditMode 230/230: `Temp/TestResults/20260911-153412-53aa915127894169826a0797c2364f8e/EditMode.xml` 및 `.log`. PlayMode 41/41: `Temp/TestResults/20260911-152810-cbb07e99ba0d49d9b2f3f629026ab6a2/PlayMode.xml` 및 `.log`. 실패·skip·미완료 0. Play 이후 WorldWhite texture를 Sprite rect와 같은 4×4로 보정했고 Edit를 재실행했다. 이후 제품 코드 변경이나 전체 suite 재실행은 없다.
+- 기존 fixture에서 연기 4프레임·총구 수명·pause 재활성·날짜 전환 시 표현 시간 유지·게임 시간 비간섭을 검사했다. 초기 MPB 생성자 오류, shader Color include 누락, 흰 Sprite UV 크기 불일치를 수정했다. 초기 magenta 스크린샷은 성공 증거가 아니다.
+- 실제 Local 렌더 증거: `Temp/WorldBirds-On.png`, `WorldBirds-Off.png`, `WorldBirds-Moved-On.png`, `WorldBirds-Moved-Off.png`. pause 상태의 새 renderer On/Off 차이 186픽셀, 0.2초 후 177픽셀, 두 차이 mask의 대칭차 219픽셀로 이동/날개 모양 변화가 렌더됨을 확인했다. 실제 UV는 (0,1),(1,1),(0,0),(1,0), shader error 0. 원본 5마리 수식이며 구조물에 가려 모든 새가 항상 노출되지는 않는다.
+- Local runtime API 확인: 표현 시간 10.05004에서 pause 5초·전면 숨김 5초 주입에도 유지, 재표시/resume 0.2초 후 10.25004 및 RenderRoot active=true. UI 활성 상태를 직접 전환한 검사이며 마우스 slide 사용감 검증은 아니다.
+- Init→Main 진입·영업 시작: `Temp/WorldEffects-Main-PreOpen.png`, `WorldEffects-Main-Open.png`. 시계와 FrontContainerMale Sprite 참조 유효, missing script 0, compileFailed=false, 제품 Console error 0. 실제 PreOpenPanel은 `Assets/Textures/UI/Dystopia/DailyInstruction.png` 사본을 사용한다. Open 이미지는 손님 fade 도중 표본이다.
+- 보호 검사: Main/meta·OperatingPanel·사용자 Mulmaru font·Local/meta 6개 SHA256이 `UserSettings/LocalBackups/AstraEffects-87844af-20260911`과 동일. TMP fallback 생성 데이터 정리 후 Git 내용 diff 0. ProjectSettings·Addressables 변경 없음, stash 2개 보존.
+- 최종 상태: Play 종료, SpriteWorldSandbox clean open, missing script/reference 0, compile error 0. 개인 GUID `e051e8369858a0949b19013e7a502dcb`, playModeStartScene=InitScene, runInBackground=false. 최종 배치·가독성·사용감과 Player build는 미확인. 사용자 후속 요청으로 선택 이관·환경 연출의 작업 브랜치 커밋·푸시를 진행하며 실제 결과는 Git 이력과 완료 보고를 따른다.
+
+## Sprite world 표시 분리 (2026-09-11)
+
+### 개인 씬 분리 후 최종 검증
+
+- EditMode **229/229**, 실패·skip·미완료0: `Temp/TestResults/20260911-133815-2a247445b89f47f3978bbb79849981a9/EditMode.xml` 및 `.log`.
+- PlayMode **40/40**, 실패·skip·미완료0: `Temp/TestResults/20260911-133839-6abdc9359cbb476795f5b4a18120d03b/PlayMode.xml` 및 `.log`. 공유 legacy prefab의 테스트 인스턴스만 월드 UI로 구성하며 Local 자산에 의존하지 않는다.
+- 실제 Init→Main 진입: GameUI 존재, legacy CustomerQueueView 1개·WorldSceneView 0개. Init→Local/SpriteWorldSandbox 진입: GameUI 존재, legacy 0개·CustomerWorldQueueView 1개. 각 경로 Console error0, 컴파일 실패 없음. 이번 후속 실행은 진입 확인이며 전체 거래/다음날 경로 재실행은 아니다.
+- Play 종료 후 SpriteWorldSandbox clean으로 열고 개인 GUID를 선택했다. Play 시작 씬은 InitScene, runInBackground=false다. 실제 UI/UX와 Player build는 미검증이다.
+
+### 이전 월드 Main 조립 시점의 검증 (현재 Main 상태 아님)
+
+- 기준 `codex/sprite-world-presentation e62fcaf` + 표시 전환 diff. Unity6000.3.18f1, 기존 Editor PID14048.
+- EditMode **228/228**: `Temp/TestResults/20260911-130534-3a729387a96f4fc490763a3fb7026422/EditMode.xml`.
+- PlayMode **40/40**: `Temp/TestResults/20260911-130731-f17b9d818dbe493788c0521aa80b7e90/PlayMode.xml`. 각각 log 포함, 실패·skip·미완료0.
+- 신규 화면비2종 viewport/색상 합성/실제 prefab 경계4건, 실제 큐 identity·별도 대사 수명·pause·전면숨김·재활성1건과 기존 시계 미리보기 회귀를 포함한다. 초기 viewport fixture의 clamp/float 비교2건과 자동 preview 시작시각1건을 수정 후 재실행했다. 기대값을 낮추거나 제품 가드를 우회하지 않았다.
+- 실제 Init→Hub→Main·감독관·PreOpen·전면/대기열·기존 slide/topview·거래·마감/정산·NEXT→2일차 재개를 확인했다. 16:9/16:10의 월드와 UI 정렬, City shader 실제 alpha0/.5/1 및 야간 표시를 확인했다. 상세 `Temp/WorldSmoke-Result.md`, 스크린샷 `Temp/WorldSmoke-*.png`.
+- 지연 검사 closure의 파괴된 renderer 접근 오류는 검사 코드 오류로 분리했다. 해당 중간 퇴장 표본을 성공 증거로 쓰지 않는다. 최종 제품 Console error0, compileFailedFalse, MainScene/3prefab missing script/reference0, shader message0.
+- 개인 선택/화면비/백그라운드 설정·InitScene을 복원했다. 테스트 생성 TMP fallback atlas는 원상 복원했고 사용자 Mulmaru 변경은 보존했다. 실제 조작감·문구 가독성·Player build는 별도 사용자 확인/미실행이다.
+
+## total_merge 감독관·공용 시계 통합 (2026-09-11)
+
+- 기준: `ba368c8` + `29c1ea5`, 병합 커밋 `cb60967` 이후 공용 영업 시각·시계/배경 참조·리로드 자동 저장 제거를 포함한다. 실제 작업 폴더는 `C:/Users/PC/Projects/Cashier`, 브랜치는 `total_merge`다.
+- EditMode **224/224**, 실패·skip·미완료0. `Temp/TestResults/20260911-114517-d7cf83ef8d7f403cb6a8015fa0ee1958/EditMode.xml` 및 `.log`.
+- 최초 EditMode는224중222통과·2실패(`20260911-114341-4c25c538ff1948ef9d1e8840f6fb1a6c`). 기존 테스트의 DividerBar.barRect와 CustomerPresenter.dialogueText fixture 참조 누락을 보완했고 기대 동작 검사는 유지했다. 기존 배경 테스트는 EditMode의 명시적 preview 설정과 시계 비간섭을 검사한다.
+- 초기 PlayMode 두 실행은 각각39중38통과·1실패였다. `114517-d7cf83ef8d7f403cb6a8015fa0ee1958`는 신규 테스트에 감독관 선행 완료 fixture가 적용된 문제여서 기존 Inspector 테스트 분류에 맞췄다. `114729-a3a01256c8944b1cb7eb2b93dcf093e6`는 영업 전 remainingSeconds=0을 마감시각으로 표시하는 실제 결함이었다. 모델 초기화는 유지하고 InspectorEvent/PreOpen의 표시 비율만 시작값으로 수정했다.
+- 최종 PlayMode **39/39**, 실패·skip·미완료0. `Temp/TestResults/20260911-115006-ccc6f23dfc2941c9b49b59774d225b60/PlayMode.xml` 및 `.log`. 실제 GameUI prefab에서 감독관 중 시각 유지, 영업 시작09시·절반15시·끝21시, 일시정지와 배경 미리보기의 영업 비간섭을 검증했다.
+- 실제 Init→Hub→Main→첫날 감독관 Next→PreOpen→영업 시작→15시→마감21시→거절 거래 정산→다음날 버튼→2일차 감독관15003을 확인했다. 제품 Console Error0, 컴파일 실패 없음. 시각 중간값은 진행 API와 Pause로 고정했고 버튼 listener를 사용한 최소 실행 검증이다. 화면 증거와 사용자 확인 경계는 [작업 기록](work/inspector-events.md)을 따른다.
+- 종료 시 InitScene dirty=false, Play/compile=false, background=false, playModeStartScene=null로 복원했다. 자동 TMP fallback atlas 변화만 제거했으며 기존 사용자 폰트는 보존했다. 최종 UI/UX와 Player build는 미검증이다.
+
+## 2일차 감독관 임시 데이터 (2026-09-11)
+
+- `codex/inspector-events ad72b17` + 데이터·테스트 미커밋 변경: EditMode215/215, PlayMode38/38, 실패·skip·미완료0. 증거·보존 범위는 [작업 상태](work/inspector-events.md#2일차-등장-확인-데이터-추가-2026-09-11)를 따른다.
+- 실제 CSV15003/Text8180·8181 로드, 설비 없는 2일차 선정, 첫날·3일차 미등장, 대사·퇴장 후 PreOpen, 중복 완료·재생성 시 재등장 없음, 잔액·명성·도덕성 보존을 확인한다. 이전 2일차 직행 테스트는 감독관 완료 단계를 거쳐 기존 기능을 검증한다. 최종 2일차 화면 사용감은 사용자 확인 대상이다.
+
+## 감독관 시스템 (2026-09-10)
+
+- `codex/inspector-events`에서 EditMode215/215, 최종 PlayMode37/37, 실패·skip·미완료0. XML/log 및 초기 실패·수정 이력은 [감독관 명세 9절](INSPECTOR_SYSTEM_DRAFT.md#9-검증-결과-2026-09-10)에 기록한다.
+- 첫날/전날 구매 조건·빈 선정 캐시·중복/전날 콜백·퇴장 완료 이력, 실제 CSV·초기 덮개·오류 안내·UI 재생성/동일 root 재활성, 금액·명성·도덕성 미변경 및 기존 회귀를 검증했다.
+- 실제 Init→Main→감독관→PreOpen→영업 시작과 색·알파 중간값을 확인했고 제품 Console Error0. 전용 이미지·최종 UI/UX는 사용자 확인 대상이다. Git 통합은 수행하지 않았다.
+
 ## Upgrade 통합 (2026-09-10)
 
 - 기준 `total_merge fcf1518` + `origin/Upgrade 935cf93`. EditMode **209/209**, PlayMode **34/34**, 실패·skip·미완료0.
@@ -57,6 +139,8 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 
 컴파일이 끝난 EditMode에서 Window → General → Test Runner의 Cashier.EditMode.Tests/Cashier.PlayMode.Tests를 실행한다. Save Results로 XML을 저장할 수 있다.
 
+PlayMode 실행 전 `EditorSceneManager.playModeStartScene`에 InitScene 또는 개인 씬이 지정되어 있으면 원래 값을 기록하고 테스트 동안 null로 해제한다. 지정된 시작 씬은 Test Runner의 임시 씬 대신 게임을 실행하여 테스트가 진행되지 않을 수 있다. 실행 종료와 활성 job 정리를 확인한 뒤 원래 값을 복원한다. 기존 runner는 이 개인 설정을 자동 변경하지 않는다.
+
 반복 로컬 검증에서 두 모드의 XML·로그 자동 보관과 0건/실패/skip 종료 판정이 필요하면 유일한 셸 진입점을 사용한다.
 
 ```powershell
@@ -103,7 +187,7 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - 경제 문서의 FinanceService.CanAfford/TrySpend/BalanceChanged, MaintenanceService의 성공/부족/순차 회차/MaintenancePaid, LogService의 순서·전후 금액/Dispose 구독해제는 코드에 있지만 등록된 세션 fixture가 전체 계약을 독립 검증하지 않는다. 현재 매출 AddIncome·Query 잔고·종료 거부·session teardown 증거를 경제 전체 PASS로 확장하지 않는다. 추가 경제 suite는 별도 범위다.
 - TryApplyTransaction은 거래 ID 중복 제거 API가 아니다. 현 DayProgress가 방문 상태로 중복 전달을 거부하고 접수 실패 latch를 소유한다. UI 버튼의 실제 조작/오류표시는 수동 검증 대상이다.
 - 상품 원가는 SoldItems/CostTotal에 기록만 한다. 일일 원가 차감·명성 계산·지침 벌칙은 미연결이다. 명성0~100 등의 구형 예시를 기대값으로 복원하지 않았다.
-- 과거 손님 문서의 공통 행복도·무작위 이탈과 최신 보류/제거 기획이 충돌한다. 현 대기열은 성향별 시간 만료 계약만 검사한다. 현 Normal/Hasty/PriceSensitive 유지+Wealthy 타입 추가 합의가 오래된 성향 목록보다 우선한다. Wealthy 데이터 행은 없다.
+- 과거 손님 문서의 공통 행복도·무작위 이탈과 최신 보류/제거 기획이 충돌한다. 현 대기열은 성향별 시간 만료 계약만 검사한다. 현재 유효 성향은 Normal/PriceSensitive/Hasty(표시명 성급함)/Wealthy/Poor이며 다섯 타입의 데이터 행을 검사한다.
 - 회의록의 라디오 추후 피처 표기와 이미 승인·구현된 기능을 구분한다. 현재 API 회귀 통과는 최종 기획 활성화 승인이나 UI 완성을 뜻하지 않는다.
 - MainScene bootstrap/직렬화·레이아웃·폰트·이미지 실자산·버튼/연출·Player build·저장 복원은 이번 자동 API 범위 밖이다.
 
@@ -118,7 +202,7 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 
 ## 손님 속성 세 축 검증 (2026-09-09)
 
-- `CustomerAttributes`는 기존 비트 유지+Adult16/Normal32만 추가했다. 성별2×연령3×특수1=6조합, 특수 속성 Wealthy/Poor는 없고 성향 enum은 변경하지 않았다.
+- `CustomerAttributes`는 기존 비트 유지+Adult16/Normal32만 추가했다. 성별2×연령3×특수1=6조합이며 Wealthy/Poor는 성향 enum으로만 사용한다.
 - Unity 6000.3.18f1, Cashier PID29172, `Tools/Run-Tests.ps1`: EditMode139/139, PlayMode20/20, 실패0·skip/미완료0.
 - 증거: `Temp/TestResults/20260909-124924-72e789a824f34e5d80227f188ac3806b/`의 EditMode.xml/PlayMode.xml 및 각각 .log. Git 제외 임시 증거다.
 - CustomerContractTests에서6조합 도달·균등성·외형/성향 독립·seed 재현, 부분조건/완전프로필 분리, 미정의bits·동축중복·축누락 및 실제 방문 생성자 거부, Adult/Normal/Child 단독·세 축 AND 지침을 검사했다. 기존 성향 Wealthy도 Normal 속성과 별개이며 금액 효과가 없음을 확인했다.
@@ -174,3 +258,6 @@ Unity Test Framework 1.6.0의 NUnit/Test Runner를 사용한다. UI/UX 배치·�
 - `unity-cli editor refresh --compile --ignore-version-mismatch`로 최신 runtime/test assembly 컴파일 완료를 확인했다.
 - EditMode 175/175, PlayMode 25/25, 실패·skip 0. 새 selector 명성 가중치·설비 선호·성별 교대, 타입 전용 명성 매핑과 기존 손님·CSV·시설·진행 회귀를 포함한다. 증거: `Temp/TestResults/20260909-customer-spawn-edit/EditMode.xml`, `Temp/TestResults/20260909-customer-spawn/PlayMode.xml`.
 - 실제 성별별 이미지 asset 연결과 UI/UX 표현은 범위 밖이며 수동 확인 대기다. 선호 타입 상품의 명성 정산은 `ReputationDispositionRules`가 선호 필드를 참조하지 않는 것으로 고정한다.
+## 시민권·엔딩 검증 참조 (2026-09-13)
+
+현재 브랜치 `codex/citizenship-ending`의 데이터·정산 경계 자동 검사, 실제 씬 전환·버튼·화면 검증, 남은 사람 플레이 테스트는 [CITIZENSHIP_ENDING.md 검증 기록](CITIZENSHIP_ENDING.md#검증-기록)에 기록한다. 위의 과거 실행 결과와 구분한다.

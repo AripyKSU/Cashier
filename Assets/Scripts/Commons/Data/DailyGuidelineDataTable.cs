@@ -7,12 +7,14 @@ using CsvHelper;
 using UnityEngine;
 
 /// <summary>
-/// 당일 지침 CSV 데이터의 로딩, 파싱, 유효성 검증 및 일자별 조회를 담당하는 데이터 테이블.
+/// 무작위 일일지침 규칙 설정의 로딩, 검증 및 유형별 조회를 담당하는 데이터 테이블.
 /// </summary>
 public sealed class DailyGuidelineDataTable : IDataLoad
 {
-    private Dictionary<uint, DailyGuidelineData> dataDict = new Dictionary<uint, DailyGuidelineData>();
-    private Dictionary<uint, DailyGuidelineData> dayDict = new Dictionary<uint, DailyGuidelineData>();
+    private IReadOnlyDictionary<uint, DailyGuidelineData> dataDict =
+        new ReadOnlyDictionary<uint, DailyGuidelineData>(new Dictionary<uint, DailyGuidelineData>());
+    private IReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData> ruleTypeDict =
+        new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>());
 
     /// <summary>전체 FK 검증을 기다리는 파싱 결과.</summary>
     internal Dictionary<uint, DailyGuidelineData> PendingRows { get; private set; }
@@ -36,14 +38,14 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     }
 
     /// <summary>
-    /// 일차(day)로 지침 데이터를 조회합니다.
+    /// 지침 유형으로 무작위 생성 설정을 조회합니다.
     /// </summary>
-    /// <param name="day">게임 일차 (1부터 시작).</param>
-    /// <param name="data">해당 일차의 지침 데이터.</param>
+    /// <param name="ruleType">조회할 지침 유형.</param>
+    /// <param name="data">해당 유형의 설정.</param>
     /// <returns>존재 여부.</returns>
-    public bool TryGetByDay(uint day, out DailyGuidelineData data)
+    public bool TryGetByRuleType(DailyGuidelineRuleType ruleType, out DailyGuidelineData data)
     {
-        return this.dayDict.TryGetValue(day, out data);
+        return this.ruleTypeDict.TryGetValue(ruleType, out data);
     }
 
     /// <summary>
@@ -64,7 +66,7 @@ public sealed class DailyGuidelineDataTable : IDataLoad
                 csv.ValidateHeader<DailyGuidelineData>();
 
                 var parsed = new Dictionary<uint, DailyGuidelineData>();
-                var parsedByDay = new Dictionary<uint, DailyGuidelineData>();
+                var parsedByRuleType = new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>();
 
                 while (csv.Read())
                 {
@@ -77,9 +79,9 @@ public sealed class DailyGuidelineDataTable : IDataLoad
                     item.Validate();
                     parsed.Add(item.Idx, item);
 
-                    if (parsedByDay.ContainsKey(item.Day))
-                        throw new InvalidDataException($"DailyGuideline PK={item.Idx}: day={item.Day} 중복");
-                    parsedByDay.Add(item.Day, item);
+                    if (parsedByRuleType.ContainsKey(item.RuleType))
+                        throw new InvalidDataException($"DailyGuideline rule_type={item.RuleType}: 중복 설정");
+                    parsedByRuleType.Add(item.RuleType, item);
                 }
 
                 if (parsed.Count == 0)
@@ -87,6 +89,16 @@ public sealed class DailyGuidelineDataTable : IDataLoad
                     throw new InvalidDataException("DailyGuidelineData: 데이터 행 누락");
                 }
 
+                foreach (DailyGuidelineRuleType ruleType in new[]
+                {
+                    DailyGuidelineRuleType.SaleProhibited,
+                    DailyGuidelineRuleType.QuantityLimited
+                })
+                    if (!parsedByRuleType.ContainsKey(ruleType))
+                        throw new InvalidDataException($"DailyGuidelineData: rule_type={ruleType} 설정 누락");
+
+                this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(parsed);
+                this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(parsedByRuleType);
                 this.PendingRows = parsed;
             }
             catch (Exception exception)
@@ -98,30 +110,25 @@ public sealed class DailyGuidelineDataTable : IDataLoad
 
     }
 
-    /// <summary>공개 전 지침의 Text·상품 FK를 검증한다.</summary>
-    /// <param name="texts">공개 전 텍스트 행.</param>
-    /// <param name="products">공개 전 상품 행.</param>
-    /// <exception cref="InvalidDataException">필수 테이블 또는 FK 누락.</exception>
+    /// <summary>공개 전 새 규칙 스키마의 파싱 완료 여부를 검증한다.</summary>
+    /// <param name="texts">통합 로더 호출 순서를 유지하기 위한 인수. 새 스키마에는 Text FK가 없다.</param>
+    /// <param name="products">통합 로더 호출 순서를 유지하기 위한 인수. 대상 상품은 매일 런타임에 선택한다.</param>
+    /// <exception cref="InvalidDataException">파싱 결과가 준비되지 않은 경우.</exception>
     public void Validate(IReadOnlyDictionary<uint, TextData> texts, IReadOnlyDictionary<uint, ProductData> products)
     {
-        if (PendingRows == null || texts == null || products == null)
-            throw new InvalidDataException("DailyGuidelineData: 지침·Text·Product CSV가 필요합니다.");
-        foreach (var row in PendingRows.Values)
-        {
-            if (!texts.ContainsKey(row.NameIdx) || !texts.ContainsKey(row.DescriptionIdx))
-                throw new InvalidDataException($"DailyGuidelineData PK={row.Idx}: nameidx/descriptionidx Text FK 실패");
-            if (row.TargetProductIdx != 0 && !products.ContainsKey(row.TargetProductIdx))
-                throw new InvalidDataException($"DailyGuidelineData PK={row.Idx}: target_product_idx={row.TargetProductIdx} Product FK 실패");
-        }
+        if (PendingRows == null)
+            throw new InvalidDataException("DailyGuidelineData: 파싱 결과가 필요합니다.");
     }
 
-    /// <summary>전체 검증 성공 후 일차 조회와 PK 조회를 함께 공개한다.</summary>
+    /// <summary>전체 검증 성공 후 PK와 규칙 유형 조회를 함께 공개한다.</summary>
     internal void Commit()
     {
-        var days = new Dictionary<uint, DailyGuidelineData>();
-        foreach (var row in PendingRows.Values) days.Add(row.Day, row);
-        this.dataDict = PendingRows;
-        this.dayDict = days;
+        var committedRows = new Dictionary<uint, DailyGuidelineData>(PendingRows);
+        var committedRuleTypes = new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>();
+        foreach (DailyGuidelineData row in committedRows.Values)
+            committedRuleTypes.Add(row.RuleType, row);
+        this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(committedRows);
+        this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(committedRuleTypes);
         PendingRows = null;
     }
 
@@ -130,8 +137,8 @@ public sealed class DailyGuidelineDataTable : IDataLoad
     /// </summary>
     public void Release()
     {
+        this.dataDict = new ReadOnlyDictionary<uint, DailyGuidelineData>(new Dictionary<uint, DailyGuidelineData>());
+        this.ruleTypeDict = new ReadOnlyDictionary<DailyGuidelineRuleType, DailyGuidelineData>(new Dictionary<DailyGuidelineRuleType, DailyGuidelineData>());
         PendingRows = null;
-        this.dataDict.Clear();
-        this.dayDict.Clear();
     }
 }

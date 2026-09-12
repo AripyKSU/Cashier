@@ -48,4 +48,4 @@
 - 실제 Addressables API에 임시 provider로 결과를 공급한 검사다. 원격 다운로드 장애나 플랫폼별 빌드 검증을 대신하지 않는다.
 - 독립 컴파일에서는 기존 Dev3SandboxTester.alertUntil 미사용 경고 CS0414만 확인. 신규 컴파일 경고 없음.
 
-공용 API와 풀 수명 계약 변경이므로 기본 branch 통합 전 AGENTS.md의 교차 검토·명시적 동의 절차를 적용한다.
+공용 API와 풀 수명 계약 변경이므로 기본 branch 통합 전 [WORK_RULES.md 12절](WORK_RULES.md#12-팀-분업과-소유권-경계)의 교차 검토·명시적 동의 절차를 적용한다.

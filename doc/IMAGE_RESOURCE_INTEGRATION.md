@@ -1,8 +1,20 @@
 # 상품·손님 이미지 연결
 
+## 외형 성별·연령 분류 (2026-09-13)
+
+외형45종의 성별·연령은 이미지 분류와 표시 이름 정리를 위한 참고 기준이다. 사용자 지시에 따라 추가했던 `gender,age` 컬럼과 관련 검증을 제거했으며, 현재 header는 기존 `idx,nameidx,image_resource_idx` 3열이다. 성별·연령을 외형의 고정 데이터나 생성 조건으로 사용하지 않는다.
+
+외형 PK·nameidx·Sprite FK·원본 파일명·GUID는 유지하고 TextData의 외형 이름45개를 정리했다. 파일 번호를 유지한 `성인 여성 01`, `노년 여성 02`, `여자아이 17` 방식이다. 성향·재산·절박함은 분류하지 않았다. [이름 정리 참고표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)는 런타임 검증 규칙이 아니다. 기존 생성기의 속성과 외형 독립 추첨은 유지한다.
+
+아래 날짜별 스냅샷의 예전 표시 이름은 당시 기록이다.
+
 2026-09-10, 기준 `886233b`. 상품 가격·PK·판매 가능·설비 조건, 손님 성향·속성 조합과 판정은 보존한다. 후속 사용자 승인으로 공유 변경을 commit/push하며 개인 씬·스크립트는 Git 제외를 유지한다.
 
-## Upgrade 통합 현재값 (2026-09-10)
+## 21종 밸런싱 데이터 후속 (2026-09-12)
+
+복원한 해열제1009의 기본·탑뷰 FK를 모두4250으로 복구했다. 기존 커밋 `d7fa49d`의 동일 상품 매핑과 보존된 Painkiller asset·GUID·Addressables 등록을 확인했다. ResourceData와 이미지 자산·등록 설정은 변경하지 않았다. 현재 상품21종 중7종에 이미지가 연결되고14종은 양쪽 빈값이다. 아래16종·6종 연결 기록은 Upgrade 통합 당시 상태다. 검증 상세는 [밸런싱 작업 기록](work/balancing-preparation.md)을 따른다.
+
+## Upgrade 통합 당시값 (2026-09-10)
 
 - 상품은 Upgrade16종으로 변경했다. 기존 이미지 FK는1001/1004/1006/1007/1010/1019의6종에 유지하고 나머지10종은 기본·탑뷰 둘 다 빈값이다. 삭제1009의 Resource4250은 다른 상품에 재사용하지 않고 보존한다. Resource54행 중 실제 상품·외형 참조는 고유53개다.
 - Upgrade 신규 상품·설비·지침 Text ID를 보존하고 충돌한 외형 이름만8075~8081→8116~8122,8101~8106→8123~8128로 이관했다. 외형 PK·Sprite FK와 문구는 유지하며 현재 Text128행이다. 아래 최초 통합의115행 기록은 과거 기준이다.
@@ -14,7 +26,7 @@
 ### total_merge 통합 (2026-09-10)
 
 - target의 성향 이름8071~8074는 보존한다. 충돌한 외형 이름만 8071→8112(외형5005), 8072→8113(5006), 8073→8114(5007), 8074→8115(5008)로 이관했다. 다른 외형 이름8075~8111과 상품·성향 PK는 유지한다. 현재 Text115행이다.
-- target의 상품 분류5·6·7과 CustomerCompositionSelector/명성 기반 선택을 유지하고, Generator 및 기존 호환 API에 도덕성 평가기를 전달한다. 사용자 확정에 따라 모든 Normal 행6001·6004~6006의 price_tolerance는1300이다.
+- target의 상품 분류5·6·7과 CustomerCompositionSelector/명성 기반 선택을 유지하고, Generator 및 기존 호환 API에 도덕성 평가기를 전달한다. DailyInstruction 병합 결정에 따라 모든 Normal 행6001·6004~6006의 price_tolerance는1100이며 Hasty 6002는1300이다.
 - MainScene은 공유 CustomerQueueView로 렌더링한다. 기존 GameUI prefab 인스턴스의 참조23개를 승인된 사용용 자산으로 연결했으며 prefab 원본과 Local 씬·스크립트는 보존했다.
 
 - ProductData: 기존 `image_resource_idx:uint?`는 기본 UI·계산대 이미지다. 마지막 열에 `top_view_image_resource_idx:uint?`를 추가했다. 기존 컬럼 순서는 유지한다.
@@ -38,6 +50,8 @@
 기본 이미지가 없는10종은 두 셀을 비웠다:1005,1013,1014,1015,1016,1018,1020,1021,1022,1023. Mask를 방독면으로 임의 대체하지 않았다.
 
 ## 로드·소비자
+
+2026-09-11 월드 표시는 개인 SpriteWorldSandbox에서 개발하며 CustomerWorld prefab의 CustomerWorldQueueView가 SpriteRenderer를 사용한다. 개인 CustomerPresenter는 appearanceImage=null로 두고 기존 성별/대사/장바구니 UI를 유지한다. 공유 MainScene은 total_merge의 CustomerQueueView·Image 경로로 복원했다. preload·준비 가림·ResourceManager handle 수명과 CSV/FK는 변경하지 않는다. 아래 Local 설명은 과거 기록이며 현재 조립은 [대기열 명세](CUSTOMER_QUEUE_INTEGRATION.md#월드-표시-조립-2026-09-11)를 따른다.
 
 - 승인된54이미지만 기존 Default Local Group에 확장자 없는 파일명 address로 등록했다. 새 label·group은 없다. Datas 라벨은 기존 CSV에만 유지한다.
 - CustomerCatalog가 실제 CSV 파싱 이후 외형·상품 두 FK를 모두 검사한 뒤 공개한다.

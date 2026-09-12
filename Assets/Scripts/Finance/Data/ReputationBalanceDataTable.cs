@@ -105,8 +105,9 @@ public sealed class ReputationBalanceDataTable : IDataLoad
             throw new InvalidDataException($"column=idx, PK={item.Idx}: 대역 위반 또는 중복");
         if (item.MinReputation < -100 || item.MaxReputation > 100 || item.MinReputation > item.MaxReputation)
             throw new InvalidDataException($"PK={item.Idx}: 명성 구간 오류");
-        if (item.NormalWeight < 0 || item.WealthyWeight < 0 || item.HastyWeight < 0 || item.SpecialWeight < 0 ||
-            item.NormalWeight + item.WealthyWeight + item.HastyWeight + item.SpecialWeight != 1000)
+        if (item.NormalWeight < 0 || item.PriceSensitiveWeight < 0 || item.WealthyWeight < 0 ||
+            item.HastyWeight < 0 || item.PoorWeight < 0 ||
+            item.NormalWeight + item.PriceSensitiveWeight + item.WealthyWeight + item.HastyWeight + item.PoorWeight != 1000)
             throw new InvalidDataException($"PK={item.Idx}: 손님 구성 확률 합은 1000이어야 합니다.");
         if (item.RecoveryRate < 1000)
             throw new InvalidDataException($"PK={item.Idx}: recovery_rate는 1000 이상이어야 합니다.");

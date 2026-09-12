@@ -1,10 +1,16 @@
 # 가격 변동 이벤트 시스템 구현·병합 명세
 
+## 데이터 밸런싱 초안 (2026-09-12)
+
+사용자가 승인한 순차 데이터 작업으로 기존 이벤트4개·일정5개의 ID와 스키마를 유지하면서 검증용 값을 교체했다. 식료품9001은−10%, 물9002는+15, 의약품9004는+15%다. 신문은 표시 영업일3·10·17·24·31일에9001,6·13·20·27일에 무효과9003을 보도한다. 라디오는 표시1~31일에9002/9004/9003을 가중치1/1/4로 예약한다. 경과일31(표시32일)부터는 후보가 없다. 가격 효과는 당일만 유효하며0~60초 방송 계약은 유지한다.
+
+뉴스 설명8043·8045·8049를 수치와 방송 적용 시점에 맞춰 수정했다. 기존 테스트값을 최종 기획으로 확정한 것은 아니다. [비교표·매출/회수 그래프](work/balancing-reference/price-events-20260912/draft.md)와 [검증 기록](work/balancing-preparation.md)을 따른다. 아래 '초기 신문' 등 테스트용 수치는 당시 기록이다.
+
 상태: 2026-09-08 구현 및 개인 씬 최소 실행 검증 완료. 영업 시작 60초 이내 방송·방송 시 가격 반영 기준을 포함한다. Google Docs ID 목록 등록은 아래 사유로 보류.
 
 ## 현재 진행 연결 (2026-09-09)
 
-현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 기본 30초 영업은 그대로라 30초 이후 예약 방송은 취소될 수 있다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.
+현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 2026-09-12 밸런싱 초안으로 기본 영업시간을180초로 변경해 기존0~60초 예약 방송 범위를 포함한다. 명시적으로 짧은 영업시간을 지정하면 마감 뒤 방송은 여전히 취소된다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.
 
 EndTradingDay(out DailyAggregationResult result) overload는 기존 long EndTradingDay()와 종료 구현을 공유한다. 일반일 정산/상납 성공 후 GameProgress가 CompleteDay를 한 번 호출하고 다음날 가격을 준비한다. [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)에 실패·Closing 정책과 미연결 경계를 기록했다.
 

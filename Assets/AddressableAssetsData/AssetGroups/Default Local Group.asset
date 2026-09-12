@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 8b33f272d3e835b4b830c65a3bf5d1cb
   m_SerializeEntries:
+  - m_GUID: 08f0c731a7dae194bbcd7d944e8f879b
+    m_Address: InspectorEventData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 11b7352f9c6ef8f4b8903595b6df0453
     m_Address: MaleCustomer_29
     m_ReadOnly: 0
@@ -60,6 +66,17 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2cb5e83fd9a169f44af705c37fbf36df
+    m_Address: GoodEndingScene
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2d17e690ad924e9ea042b1e208dc7282
+    m_Address: DaughterDialogueData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2f0f21ec8365a1545b3c90a7ffed9123
     m_Address: FemaleCustomer_14
     m_ReadOnly: 0
@@ -75,6 +92,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 35e159c73b078f6488db168c27ece572
+    m_Address: EndingPageData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 38f7e3e9aea21c94a81f49ea9eee42f0
     m_Address: MaleCustomer_15
     m_ReadOnly: 0
@@ -85,6 +108,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45b01cb8246d5894db02d4d6d7cd229b
+    m_Address: BadEndingScene
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4739399e9878f984f976fe1ed0c6156d
     m_Address: FemaleCustomer_17
@@ -114,6 +142,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4e149cc37bfff9644a44babe05b7b88c
     m_Address: FemaleCustomer_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 54190ba0ffe6b654f8c65cfde92d2c39
+    m_Address: Inspector
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -269,6 +302,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1a1ad617a9b29e4486647b709b47e27
+    m_Address: MidBackground
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b726e68873bc756458effb1b3ba2bc0f
     m_Address: MaleCustomer_26
     m_ReadOnly: 0
@@ -378,6 +416,12 @@ MonoBehaviour:
     m_Address: MaleCustomer_13
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5c532c1dc724e488affb0dcff598900
+    m_Address: DaughterAppearanceData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fdc08423a1c800041aaa79d87cc96653
     m_Address: FemaleCustomer_10

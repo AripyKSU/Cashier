@@ -1,0 +1,96 @@
+{
+  "mode": "Unity Editor: actual CustomerQueue, CustomerGenerator and CustomerVisit APIs; simulated clock; no UI input/animation measurement or economic simulation",
+  "arrivalSeconds": 5.0,
+  "waitingCapacity": 10,
+  "patienceSeconds": [
+    9,
+    12,
+    15,
+    18
+  ],
+  "assumptions": "Day 1 base products/current CSV; all disposition rows supplied to the legacy generator, not the reputation-weighted main-game selector; exact base price; 0.05 second ticks; full requested quantities; no scene or singleton changes",
+  "scenarios": [
+    {
+      "targetTrades": 8,
+      "cycleSeconds": 22.5,
+      "reservedEntrySeconds": 4.15,
+      "remainingActionSeconds": 18.35,
+      "runs": 100,
+      "completedRuns": 100,
+      "missingCustomer": 0,
+      "refused": 0,
+      "abandonedMin": 25,
+      "abandonedMean": 26.0,
+      "abandonedMax": 27
+    },
+    {
+      "targetTrades": 10,
+      "cycleSeconds": 18.0,
+      "reservedEntrySeconds": 4.15,
+      "remainingActionSeconds": 13.85,
+      "runs": 100,
+      "completedRuns": 100,
+      "missingCustomer": 0,
+      "refused": 0,
+      "abandonedMin": 23,
+      "abandonedMean": 24.0,
+      "abandonedMax": 25
+    },
+    {
+      "targetTrades": 12,
+      "cycleSeconds": 15.0,
+      "reservedEntrySeconds": 4.15,
+      "remainingActionSeconds": 10.85,
+      "runs": 100,
+      "completedRuns": 100,
+      "missingCustomer": 0,
+      "refused": 0,
+      "abandonedMin": 21,
+      "abandonedMean": 22.0,
+      "abandonedMax": 23
+    }
+  ],
+  "sources": [
+    {
+      "sha256": "44E84C4FEF4E8295A0B6FA38569245D2B8B3BD88C864DD564ED1AB1A90282C2D",
+      "path": "Assets/Scripts/Customer/CustomerQueue.cs"
+    },
+    {
+      "sha256": "9A9B0F771A5DC73E27A933AF1365367195BE1439F86CDE89C8FA84F922EE9200",
+      "path": "Assets/Scripts/Customer/CustomerGenerator.cs"
+    },
+    {
+      "sha256": "D86676F6A935CB3666AEC4A6526773D217C9235E1DB3786ED5775A80FAA43999",
+      "path": "Assets/Scripts/Customer/CustomerVisit.cs"
+    },
+    {
+      "sha256": "421691CB532A325A1424C9C5CE6176A0D59B6521BCEA97D6942B45817F4EF3AB",
+      "path": "Assets/Scripts/Progress/DayProgress.cs"
+    },
+    {
+      "sha256": "FECA14A16A4DE859DD237475EE7FE49F3EB1355506141405636C66103DB5D1EA",
+      "path": "Assets/Scripts/Scene/GameUIController.cs"
+    },
+    {
+      "sha256": "083ADC3EF9C9BD327A405AE04AC59E4E982C3477FBBA73D5D6FBB5816AD93407",
+      "path": "Assets/Scripts/UI/SaleSortingPanel.cs"
+    },
+    {
+      "sha256": "5EC0676A3E94B5656E7BDCF55C1FB07558DFA1D21CB219F1D96CFE8F03ABD2D8",
+      "path": "Assets/Prefabs/GameUI/GameUI.prefab"
+    },
+    {
+      "sha256": "0D25B8A5BECABED0B040245B8F126FC0C77624F72D18E08FB425603787EBEAC2",
+      "path": "Assets/Scenes/MainScene.unity"
+    },
+    {
+      "sha256": "FD879FE01D8E2FCC3261AFB15B5C994F76FF32546433E506F228C2825E2B61E7",
+      "path": "Assets/Datas/Customer/CustomerDispositionData.csv"
+    },
+    {
+      "sha256": "28FEF546680FD2AC764C53970DF44809CC190D4D5E45513A598D565D30974010",
+      "path": "Assets/Datas/Customer/ProductData.csv"
+    }
+  ],
+  "gitHead": "91e3fb5cbb332307a61cd9c17e3113a595c7ac4c"
+}

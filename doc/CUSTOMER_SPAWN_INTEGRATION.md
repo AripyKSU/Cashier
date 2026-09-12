@@ -5,7 +5,7 @@
 ## 책임 경계
 
 - `CustomerCompositionSelector`는 손님 구성 snapshot을 선택한다.
-  - 하루 시작 명성의 `ReputationBalanceData`로 일반군(Normal·PriceSensitive), Wealthy, Hasty를 가중치 선택한다.
+  - 하루 시작 명성의 `ReputationBalanceData`로 Normal, PriceSensitive, Wealthy, Hasty(표시명 성급함), Poor를 각각 가중치 선택한다.
   - 구성군 안에서는 타입을 균등 선택하고, 같은 타입의 성향 행을 PK 순서로 균등 선택한다.
   - 선호 타입과 `preferred_product_idxs`를 OR로 합치되, 상품의 날짜·활성·설비 조건을 먼저 적용한다.
   - 영업일마다 새 인스턴스를 만들며 첫 성별은 무작위, 이후 손님은 직전 성별의 반대다.
@@ -30,7 +30,7 @@
 
 ## 데이터 행
 
-6004~6006은 기존 Normal 타입의 Tools/ElectricalEquipment/ProtectiveEquipment 선호 행이다. 6007은 Wealthy 타입의 실제 행이다. 같은 타입의 여러 행이 명성 일반군의 타입 출현율을 바꾸지 않도록 selector가 타입을 먼저 선택한다.
+6004~6006은 Normal 타입의 Tools/ElectricalEquipment/ProtectiveEquipment 선호 행이며, 6008~6009는 PriceSensitive, 6010~6011은 Wealthy, 6012~6015는 Poor의 추가 선호 행이다. Hasty는 의약품 선호만 유지한다. 같은 타입의 여러 행이 타입 출현율을 바꾸지 않도록 selector가 타입을 먼저 선택한다.
 
 ## 검증
 

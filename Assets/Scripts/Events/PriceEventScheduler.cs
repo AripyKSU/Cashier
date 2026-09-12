@@ -27,6 +27,24 @@ public sealed class PriceEventScheduler
     public DailyPriceState CreateDay(uint day, IReadOnlyDictionary<uint, PriceEventData> events,
         IReadOnlyDictionary<uint, PriceEventScheduleData> schedules, IReadOnlyDictionary<uint, ProductData> products)
     {
+        return CreateDay(day, events, schedules, products, products.Keys);
+    }
+
+    /// <summary>당일 등장 상품에 대해서만 현재가를 만들고 두 뉴스 채널을 확정한다.</summary>
+    /// <param name="day">경과일.</param>
+    /// <param name="events">검증된 이벤트.</param>
+    /// <param name="schedules">검증된 스케줄.</param>
+    /// <param name="products">이벤트 FK 검증에 사용할 전체 상품 원본.</param>
+    /// <param name="dailyProductIds">가격을 생성할 당일 등장 상품 PK.</param>
+    /// <returns>당일 상품만 포함하는 완전히 계산된 일간 상태.</returns>
+    /// <exception cref="ArgumentNullException">당일 상품 목록 누락.</exception>
+    /// <exception cref="InvalidDataException">스케줄 이벤트 FK 또는 상품 참조 오류.</exception>
+    /// <exception cref="OverflowException">가중치·현재가 범위 초과.</exception>
+    public DailyPriceState CreateDay(uint day, IReadOnlyDictionary<uint, PriceEventData> events,
+        IReadOnlyDictionary<uint, PriceEventScheduleData> schedules, IReadOnlyDictionary<uint, ProductData> products,
+        IEnumerable<uint> dailyProductIds)
+    {
+        if (dailyProductIds == null) throw new ArgumentNullException(nameof(dailyProductIds));
         foreach (var row in events.Values) row.Validate();
         foreach (var row in schedules.Values)
         {
@@ -36,9 +54,17 @@ public sealed class PriceEventScheduler
         foreach (var row in events.Values)
             foreach (uint idx in row.ProductIdxs)
                 if (!products.ContainsKey(idx)) throw new InvalidDataException($"Event PK={row.Idx}: product FK={idx}");
+        var dailyProducts = new Dictionary<uint, ProductData>();
+        foreach (uint productIdx in dailyProductIds)
+        {
+            if (!products.TryGetValue(productIdx, out ProductData product))
+                throw new InvalidDataException($"Daily product FK={productIdx}");
+            if (!dailyProducts.TryAdd(productIdx, product))
+                throw new InvalidDataException($"Duplicate daily product FK={productIdx}");
+        }
         uint? newspaper = select(day, PriceEventChannel.Newspaper, schedules);
         uint? radio = select(day, PriceEventChannel.Radio, schedules);
-        return new DailyPriceState(day, newspaper, radio, calculatePrices(newspaper, null, events, products));
+        return new DailyPriceState(day, newspaper, radio, calculatePrices(newspaper, null, events, dailyProducts));
     }
 
     /// <summary>재추첨 없이 예약한 방송을 적용한다. 이미 방송했거나 후보가 없으면 기존 상태를 반환한다.</summary>
@@ -51,8 +77,15 @@ public sealed class PriceEventScheduler
         IReadOnlyDictionary<uint, ProductData> products)
     {
         if (state.IsRadioBroadcast || !state.RadioEventIdx.HasValue) return state;
+        var dailyProducts = new Dictionary<uint, ProductData>();
+        foreach (uint productIdx in state.Prices.Keys)
+        {
+            if (!products.TryGetValue(productIdx, out ProductData product))
+                throw new InvalidDataException($"Daily product FK={productIdx}");
+            dailyProducts.Add(productIdx, product);
+        }
         return new DailyPriceState(state.ElapsedDays, state.NewspaperEventIdx, state.RadioEventIdx,
-            calculatePrices(state.NewspaperEventIdx, state.RadioEventIdx, events, products), true);
+            calculatePrices(state.NewspaperEventIdx, state.RadioEventIdx, events, dailyProducts), true);
     }
 
     /// <summary>영업 시작 기준 0~60초 미만의 무작위 방송 대기 시간을 생성한다.</summary>

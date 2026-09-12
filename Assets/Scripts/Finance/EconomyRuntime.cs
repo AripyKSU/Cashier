@@ -29,6 +29,9 @@ public sealed class EconomyRuntime : IDisposable
     /// </summary>
     public MaintenanceService MaintenanceService { get; }
 
+    /// <summary>현재 실행에서 누적되는 통합 정산 미납액과 유예 기한입니다.</summary>
+    public SettlementDebtState SettlementDebt { get; }
+
     /// <summary>
     /// 세션 중 발생한 잔고 변경 기록을 수집하는 로그 서비스입니다.
     /// </summary>
@@ -55,6 +58,7 @@ public sealed class EconomyRuntime : IDisposable
         this.Settings = new EconomySettings(balanceData, maintenanceAmounts);
         this.FinanceService = new FinanceService(this.Settings.InitialBalance);
         this.DailyAggregationService = new DailyAggregationService(this.FinanceService);
+        this.SettlementDebt = new SettlementDebtState();
         this.MaintenanceService = new MaintenanceService(
             this.FinanceService,
             this.Settings.MaintenanceAmounts);

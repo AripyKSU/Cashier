@@ -3,8 +3,7 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// 09:00부터 20:00까지 실시간 영업 시간을 카운트하고 화면에 표시하는 컨트롤러입니다.
-/// 일간 영업 마감 시 이벤트를 발행하여 정산 루프와 연동됩니다.
+/// 공통 영업 시각을 표시합니다. 통합 게임은 DisplayTime으로 DayProgress를 따르고, 독립 미리보기만 자체 시계를 사용합니다.
 /// </summary>
 public sealed class BusinessClockController : MonoBehaviour
 {
@@ -12,23 +11,12 @@ public sealed class BusinessClockController : MonoBehaviour
     // 1. CONSTANTS & SETTINGS
     // =========================================================================
 
-    private const int DefaultStartHour = 9;
-    private const int DefaultStartMinute = 0;
-    private const int DefaultCloseHour = 20;
-    private const int DefaultCloseMinute = 0;
-
     [Header("UI References")]
     [Tooltip("시각을 표시할 TextMeshPro 텍스트 (예: 09:00)")]
     [SerializeField] private TextMeshProUGUI clockText;
 
     [Header("Clock Settings")]
-    [Tooltip("영업 시작 시 (기본 9시)")]
-    [SerializeField, Range(0, 23)] private int startHour = DefaultStartHour;
-
-    [Tooltip("영업 마감 시 (기본 20시)")]
-    [SerializeField, Range(0, 23)] private int closeHour = DefaultCloseHour;
-
-    [Tooltip("현실 1초당 흐르는 게임 시간(분). 기본 10분/초 -> 660분(11시간) 영업에 66초 소요")]
+    [Tooltip("현실 1초당 흐르는 게임 시간(분). 기본 10분/초 -> 720분(12시간) 영업에 72초 소요")]
     [SerializeField, Min(0.1f)] private float gameMinutesPerRealSecond = 10f;
 
     [Tooltip("Start 시 자동으로 시계를 시작할지 여부")]
@@ -42,7 +30,7 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <summary>매 게임 분이 바뀔 때 호출되는 이벤트 (hour, minute)</summary>
     public event Action<int, int> OnTimeChanged;
 
-    /// <summary>20:00 마감 시각에 도달했을 때 호출되는 이벤트</summary>
+    /// <summary>21:00 마감 시각에 도달했을 때 호출되는 이벤트</summary>
     public event Action OnBusinessClosed;
 
     /// <summary>현재 시각(분 단위 누적, 예: 9시 30분 = 570)</summary>
@@ -58,16 +46,37 @@ public sealed class BusinessClockController : MonoBehaviour
     public bool IsRunning => this.isRunning;
 
     /// <summary>영업 마감 시각에 도달했는지 여부</summary>
-    public bool IsClosed => this.currentMinutes >= this.closeMinutes;
+    public bool IsClosed => this.currentMinutes >= BusinessHours.CloseMinutes;
+
+
+    /// <summary>공통 영업 시작 시각. 기존 setter는 같은 공통값만 허용한다.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">공통 영업 시작 시각과 다른 값.</exception>
+    public int StartHour
+    {
+        get => BusinessHours.OpenHour;
+        set
+        {
+            if (value != BusinessHours.OpenHour) throw new ArgumentOutOfRangeException(nameof(value));
+        }
+    }
+
+    /// <summary>공통 영업 마감 시각. 기존 setter는 같은 공통값만 허용한다.</summary>
+    /// <exception cref="ArgumentOutOfRangeException">공통 영업 마감 시각과 다른 값.</exception>
+    public int CloseHour
+    {
+        get => BusinessHours.CloseHour;
+        set
+        {
+            if (value != BusinessHours.CloseHour) throw new ArgumentOutOfRangeException(nameof(value));
+        }
+    }
 
 
     // =========================================================================
     // 3. PRIVATE FIELDS
     // =========================================================================
 
-    private float currentMinutes;
-    private float startMinutes;
-    private float closeMinutes;
+    private float currentMinutes = BusinessHours.OpenMinutes;
     private int lastBroadcastMinute = -1;
     private bool isRunning;
     private bool isPaused;
@@ -77,11 +86,10 @@ public sealed class BusinessClockController : MonoBehaviour
     // 4. UNITY LIFECYCLE
     // =========================================================================
 
+    /// <summary>공통 시작 시각으로 최초 표시를 준비한다.</summary>
     private void Awake()
     {
-        this.startMinutes = this.startHour * 60f;
-        this.closeMinutes = this.closeHour * 60f;
-        this.currentMinutes = this.startMinutes;
+        this.currentMinutes = BusinessHours.OpenMinutes;
         this.updateDisplay();
     }
 
@@ -108,13 +116,13 @@ public sealed class BusinessClockController : MonoBehaviour
 
         this.currentMinutes += deltaSeconds * this.gameMinutesPerRealSecond;
 
-        if (this.currentMinutes >= this.closeMinutes)
+        if (this.currentMinutes >= BusinessHours.CloseMinutes)
         {
-            this.currentMinutes = this.closeMinutes;
+            this.currentMinutes = BusinessHours.CloseMinutes;
             this.isRunning = false;
             this.updateDisplay();
             this.notifyTimeChangeIfMinuteChanged();
-            Debug.Log("<color=yellow><b>[BusinessClock] 20:00 영업 종료 시각에 도달했습니다.</b></color>");
+            Debug.Log("<color=yellow><b>[BusinessClock] 21:00 영업 종료 시각에 도달했습니다.</b></color>");
             this.OnBusinessClosed?.Invoke();
             return;
         }
@@ -131,9 +139,7 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <summary>시계를 09:00으로 초기화하고 카운트를 시작합니다.</summary>
     public void StartClock()
     {
-        this.startMinutes = this.startHour * 60f;
-        this.closeMinutes = this.closeHour * 60f;
-        this.currentMinutes = this.startMinutes;
+        this.currentMinutes = BusinessHours.OpenMinutes;
         this.isRunning = true;
         this.isPaused = false;
         this.lastBroadcastMinute = -1;
@@ -157,7 +163,7 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <summary>시계를 영업 시작 시각(기본 09:00)으로 되돌립니다.</summary>
     public void ResetToStart()
     {
-        this.currentMinutes = this.startMinutes;
+        this.currentMinutes = BusinessHours.OpenMinutes;
         this.updateDisplay();
         this.notifyTimeChangeIfMinuteChanged();
     }
@@ -167,7 +173,24 @@ public sealed class BusinessClockController : MonoBehaviour
     /// <param name="minute">설정할 분 (0~59)</param>
     public void SetTime(int hour, int minute)
     {
-        this.currentMinutes = Mathf.Clamp(hour * 60f + minute, this.startMinutes, this.closeMinutes);
+        bool wasClosed = this.IsClosed;
+        this.currentMinutes = Mathf.Clamp(hour * 60f + minute, BusinessHours.OpenMinutes, BusinessHours.CloseMinutes);
+        this.updateDisplay();
+        this.notifyTimeChangeIfMinuteChanged();
+        if (!wasClosed && this.IsClosed)
+        {
+            this.isRunning = false;
+            this.OnBusinessClosed?.Invoke();
+        }
+    }
+
+    /// <summary>진행 모델의 시각만 표시한다. 자체 진행과 자동 시작을 끄고 마감 이벤트를 발행하지 않는다.</summary>
+    /// <param name="minutes">DayProgress 경과 비율로 계산한 누적 게임 분. 공통 영업 범위로 제한한다.</param>
+    public void DisplayTime(int minutes)
+    {
+        this.autoStartOnStart = false;
+        this.isRunning = false;
+        this.currentMinutes = Mathf.Clamp(minutes, BusinessHours.OpenMinutes, BusinessHours.CloseMinutes);
         this.updateDisplay();
         this.notifyTimeChangeIfMinuteChanged();
     }

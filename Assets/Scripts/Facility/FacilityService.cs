@@ -16,6 +16,7 @@ public sealed class FacilityService
     private readonly Dictionary<uint, uint> targetStoreStages = new Dictionary<uint, uint>();
     // 보유 여부와 활성일의 단일 권위. 별도 pending/active 목록을 만들지 않는다.
     private readonly Dictionary<uint, uint> activationDays = new Dictionary<uint, uint>();
+    private uint? citizenshipFacilityIdx;
     private bool isPurchasing;
 
     /// <summary>보유 설비 PK별 활성 경과일. 외부에서는 변경할 수 없다.</summary>
@@ -42,6 +43,12 @@ public sealed class FacilityService
             if (pair.Value == null || pair.Key != pair.Value.Idx)
                 throw new ArgumentException("설비 사전 키와 PK가 다릅니다.", nameof(facilities));
             pair.Value.Validate();
+            if (pair.Value.UpgradeKind == FacilityUpgradeKind.Citizenship)
+            {
+                if (citizenshipFacilityIdx.HasValue)
+                    throw new ArgumentException("시민권 설비 행은 하나만 등록할 수 있습니다.", nameof(facilities));
+                citizenshipFacilityIdx = pair.Key;
+            }
             purchasePrices.Add(pair.Key, pair.Value.PurchasePrice);
             upgradeKinds.Add(pair.Key, pair.Value.UpgradeKind);
             requiredStoreStages.Add(pair.Key, pair.Value.RequiredStoreStage);
@@ -60,6 +67,20 @@ public sealed class FacilityService
     /// <param name="facilityIdx">설비 PK.</param>
     /// <returns>현재 세션이 해당 업그레이드를 구매했는지 여부.</returns>
     public bool IsOwned(uint facilityIdx) => activationDays.ContainsKey(facilityIdx);
+
+    /// <summary>현재 세션이 시민권을 보유했는지 조회합니다.</summary>
+    public bool HasCitizenship => citizenshipFacilityIdx.HasValue && IsOwned(citizenshipFacilityIdx.Value);
+
+    /// <summary>등록 설비가 시민권인지 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>시민권 행이면 true.</returns>
+    /// <exception cref="ArgumentException">미등록 설비.</exception>
+    public bool IsCitizenship(uint facilityIdx)
+    {
+        if (!upgradeKinds.ContainsKey(facilityIdx))
+            throw new ArgumentException($"등록되지 않은 설비 PK={facilityIdx}", nameof(facilityIdx));
+        return upgradeKinds[facilityIdx] == FacilityUpgradeKind.Citizenship;
+    }
 
     /// <summary>업그레이드가 현재 날짜에 실제 활성인지 조회합니다.</summary>
     /// <param name="facilityIdx">설비 PK.</param>
@@ -125,7 +146,7 @@ public sealed class FacilityService
             return false;
         }
 
-        uint activationDay = upgradeKind == FacilityUpgradeKind.StoreStage
+        uint activationDay = upgradeKind == FacilityUpgradeKind.StoreStage || upgradeKind == FacilityUpgradeKind.Citizenship
             ? purchaseElapsedDay
             : checked(purchaseElapsedDay + 1);
         if (!finance.CanAfford(price))

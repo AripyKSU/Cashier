@@ -13,5 +13,8 @@ public enum FinanceChangeReason
     Maintenance = 2,
 
     /// <summary>다음 영업일 상품 해금을 위한 독립 설비 구매.</summary>
-    FacilityPurchase = 3
+    FacilityPurchase = 3,
+
+    /// <summary>유지비와 당일 패널티를 합친 일일 통합 정산 납부.</summary>
+    DailySettlement = 4
 }

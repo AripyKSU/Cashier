@@ -19,7 +19,7 @@ public sealed class CustomerQueueTests
         var dispositions = Util.ParseFromCSV<CustomerDispositionData>(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv")).ToDictionary(x => x.Idx);
         var products = Util.ParseFromCSV<ProductData>(File.ReadAllText("Assets/Datas/Customer/ProductData.csv")).ToDictionary(x => x.Idx);
         config = dispositions[6002]; var generator = new CustomerGenerator(new Random(1)); price = 100; created = 0;
-        queue = new CustomerQueue(() => { created++; return generator.Generate(new uint[] { 5001 }, new[] { config }, products, getCurrentPrices: () => products.ToDictionary(x => x.Key, x => price)); }, dispositions);
+        queue = new CustomerQueue(() => { created++; return generator.Generate(new uint[] { 5001 }, new[] { config }, products, getCurrentPrices: () => CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x => x.Idx, x => price)); }, dispositions);
         queue.Start(); queue.TryAdd();
     }
 

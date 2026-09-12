@@ -19,6 +19,18 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         /// <summary>실내 표면의 넓은 반사광 반응입니다. 기존 직접광 값은 보존합니다.</summary>
         [Range(0, 2)] public float roomResponse;
         [Range(0, 1.5f)] public float lampResponse = 1;
+        /// <summary>원본 텍스처 픽셀 단위의 외곽광 폭입니다. 기본값 3은 기존 표현을 유지합니다.</summary>
+        [Range(0, 3)] public float rimWidthPixels = 3;
+        /// <summary>소품별 외곽광 강도 배율입니다. 1은 기존 표면 반응을 유지합니다.</summary>
+        [Range(0, 1)] public float rimResponse = 1;
+        /// <summary>노멀맵 세부 명암의 배율입니다. 밝은 테두리가 과장되는 소품에 사용합니다.</summary>
+        [Range(0, 1)] public float normalResponse = 1;
+        /// <summary>원본에 그려진 밝은 반사 무늬의 유지 비율입니다. 1은 원본 색을 보존합니다.</summary>
+        [Range(0, 1)] public float highlightResponse = 1;
+        /// <summary>금속 표면의 추가 정반사 비율입니다. 무광 계산대는 낮게 설정합니다.</summary>
+        [Range(0, 1)] public float specularResponse = 1;
+        /// <summary>조명 기구의 자체 발광 강도입니다. 저녁과 밤에 밝아집니다.</summary>
+        [Range(0, 3)] public float emission;
         /// <summary>바닥에 놓인 소품의 하단만 어둡게 하는 접촉 명암 강도입니다.</summary>
         [Range(0, 1)] public float bottomShade;
         /// <summary>원본 Sprite의 정규화된 접점 X/Y와 그림자 폭/높이입니다. 높이 0은 미사용입니다.</summary>
@@ -29,6 +41,10 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         [NonSerialized] internal MeshFilter filter;
         [NonSerialized] internal MaterialPropertyBlock properties;
         [NonSerialized] internal RectMask2D[] masks;
+        /// <summary>소품 이미지 교체 시 다시 측정하는 실제 밑면입니다. 씬에 직렬화하지 않습니다.</summary>
+        [NonSerialized] internal Sprite footprintSprite;
+        [NonSerialized] internal uint footprintTextureVersion;
+        [NonSerialized] internal float footprintY;
     }
 
     /// <summary>정면 장면이 숨겨지면 렌더도 정지합니다.</summary>
@@ -43,6 +59,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     public bool previewInEditor = true;
     /// <summary>1280×720 가판 화면 좌상단 기준 전등 위치, 높이와 영향 반경입니다.</summary>
     public Vector2 lampPosition = new Vector2(700, 290);
+    /// <summary>연결된 천장등의 화면 중심을 광원 위치로 사용합니다. Inspector의 이동·크기 변경을 즉시 따릅니다.</summary>
+    public UnityEngine.UI.Image ceilingLamp;
     public float lampHeight = 240, lampRadius = 520;
     /// <summary>밤 가판 전등의 강도와 색입니다.</summary>
     [Range(0, 6)] public float lampIntensity = 3.2f;
@@ -96,6 +114,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     /// <summary>집중광 세기와 원뿔의 반각(도)입니다.</summary>
     [Range(0, 8)] public float spotIntensity = 4.5f;
     [Range(5, 45)] public float spotHalfAngle = 21;
+    /// <summary>집중광 외곽에서 중심까지 밝기가 퍼지는 비율입니다. 높을수록 경계가 부드러워집니다.</summary>
+    [Range(.05f, 1)] public float spotSoftness = .65f;
     /// <summary>공기 중에 보이는 빛줄기의 불투명도입니다.</summary>
     [Range(0, .3f)] public float spotHaze = .025f;
 
@@ -254,7 +274,15 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         layer.filter.sharedMesh = layer.capture.CapturedMesh;
         Vector2 p = ScreenPoint(source, Vector3.zero), x = ScreenPoint(source, Vector3.right) - p, y = ScreenPoint(source, Vector3.up) - p;
         var t = layer.renderer.transform; t.localPosition = p;
-        t.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(x.y, x.x) * Mathf.Rad2Deg);
+        float sweep = 0;
+        // 원본의 편집 각도와 크기를 보존하고 감시탑 피벗을 중심으로 렌더 메시만 왕복합니다.
+        if (dayNight != null && dayNight.isActiveAndEnabled)
+        {
+            float seconds = Time.realtimeSinceStartup;
+            if (source == dayNight.leftBeam) sweep = Mathf.Sin(seconds * .35f) * 14;
+            else if (source == dayNight.rightBeam) sweep = Mathf.Sin(seconds * .29f + 2) * 14;
+        }
+        t.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(x.y, x.x) * Mathf.Rad2Deg + sweep);
         t.localScale = new Vector3(x.magnitude, y.magnitude * Mathf.Sign(x.x * y.y - x.y * y.x), 1);
         layer.renderer.sortingOrder = order * 2;
         var block = layer.properties; block.Clear();
@@ -277,17 +305,21 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         }
         block.SetColor("_Tint", tint); block.SetColor("_Color", tint); block.SetFloat("_Surface", (float)layer.surface);
         block.SetFloat("_LampStrength", lampIntensity * NightWeight() * layer.lampResponse);
-        block.SetFloat("_RimStrength", rimIntensity * (layer.surface == Surface.Person ? .7f : layer.surface == Surface.Metal ? .22f : .06f));
+        block.SetFloat("_RimStrength", rimIntensity * layer.rimResponse * (layer.surface == Surface.Person ? .7f : layer.surface == Surface.Metal ? .22f : .06f));
+        block.SetFloat("_RimWidthPixels", layer.rimWidthPixels);
+        block.SetFloat("_HighlightResponse", layer.highlightResponse);
+        block.SetFloat("_SpecularResponse", layer.specularResponse);
+        block.SetFloat("_Emission", layer.emission * Mathf.Lerp(.2f,1,nightWeight));
         var image = source as Image;
         bool mapped = relightingTrial && useCustomerNormalMap && layer.normalMap != null && image != null && image.sprite == layer.normalSprite;
         if (mapped) block.SetTexture("_NormalMap", layer.normalMap);
         // 소품과 인물은 각자 Inspector에 저장된 노멀 강도를 사용합니다.
-        block.SetFloat("_NormalStrength", mapped ? (layer.surface == Surface.Metal ? propNormalStrength : evaluatedNormalStrength) : 0);
+        block.SetFloat("_NormalStrength", mapped ? (layer.surface == Surface.Metal ? propNormalStrength : evaluatedNormalStrength) * layer.normalResponse : 0);
         block.SetFloat("_PropFill", mapped && layer.surface == Surface.Metal ? propNightFill * Mathf.Max(nightWeight, sunsetWeight * .35f) : 0);
         block.SetFloat("_BottomShade", layer.bottomShade);
         block.SetFloat("_RoomBounce", relightingTrial ? roomLightStrength * layer.roomResponse * Mathf.Lerp(.2f, 1, nightWeight) : 0);
         block.SetFloat("_SpotResponse", layer.surface == Surface.Person || mapped || layer.roomResponse > 0 ? 1 : 0);
-        block.SetFloat("_ReceiveCustomerShadow", dayNight != null && dayNight.clock != null && source.name == "Counter" ? 1 : 0);
+        block.SetFloat("_ReceiveCustomerShadow", dayNight != null && dayNight.clock != null && (source.name == "Counter" || source.name == "Stage3Counter") ? 1 : 0);
         if (layer.surface == Surface.Person && layer.normalSprite != null && image != null)
         {
             // 앞 손님 슬롯의 현재 알파를 사용하므로 손님 교체와 크기 변화도 따라갑니다.
@@ -326,7 +358,9 @@ public sealed class DystopiaPixelStage : MonoBehaviour
                     drawing.width = width;
                 }
             }
-            Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * layer.contactShadow.x, drawing.y + drawing.height * layer.contactShadow.y, 0));
+            float footY = image != null && image.sprite != null && layer.surface == Surface.Metal
+                ? MeasureFootprintY(layer,image.sprite) : layer.contactShadow.y;
+            Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * layer.contactShadow.x, drawing.y + drawing.height * footY, 0));
             // 밑면에 겹친 상태로 광원 반대쪽 상판으로 퍼지며 원본 Transform은 변경하지 않습니다.
             float spread = drawing.height * y.magnitude * layer.contactShadow.w;
             Vector4 lightOrigin = material.GetVector(nightWeight > .5f ? "_SpotOrigin" : "_SunShadowOrigin");
@@ -347,13 +381,60 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         }
     }
 
+    /// <summary>소품의 투명 여백과 거의 검은 배경 그림자를 제외한 최하단을 이미지 변경 때만 측정합니다.</summary>
+    /// <param name="layer">비직렬화 측정 결과를 보관할 소품 레이어입니다.</param>
+    /// <param name="sprite">현재 표시하는 소품입니다.</param>
+    /// <returns>Sprite 영역 안에서 아래쪽 기준으로 정규화한 접촉 높이입니다.</returns>
+    private static float MeasureFootprintY(Layer layer, Sprite sprite)
+    {
+        Texture2D texture = sprite.texture;
+        if (layer.footprintSprite == sprite && layer.footprintTextureVersion == texture.updateCount) return layer.footprintY;
+        layer.footprintY = layer.contactShadow.y;
+        var previous = RenderTexture.active;
+        var readable = new Texture2D(texture.width,texture.height,TextureFormat.RGBA32,false);
+        var temporary = RenderTexture.GetTemporary(texture.width,texture.height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.sRGB);
+        try
+        {
+            // Read/Write import 설정을 바꾸지 않고 한 번만 읽습니다. 원본 Texture와 Transform은 그대로 둡니다.
+            Graphics.Blit(texture,temporary);
+            RenderTexture.active = temporary;
+            readable.ReadPixels(new Rect(0,0,texture.width,texture.height),0,0);
+            var pixels = readable.GetPixels32();
+            Rect region = sprite.textureRect;
+            int left = Mathf.RoundToInt(region.x), bottom = Mathf.RoundToInt(region.y);
+            int width = Mathf.RoundToInt(region.width), height = Mathf.RoundToInt(region.height);
+            int minimumPixels = Mathf.Max(2,Mathf.CeilToInt(width*.05f));
+            for (int y = 0; y < height; y++)
+            {
+                int count = 0;
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 pixel = pixels[(bottom+y)*texture.width+left+x];
+                    if (pixel.a > 127 && Mathf.Max(pixel.r,Mathf.Max(pixel.g,pixel.b)) > 24) count++;
+                }
+                if (count < minimumPixels) continue;
+                layer.footprintY = (sprite.textureRectOffset.y+y+.5f)/sprite.rect.height;
+                break;
+            }
+            layer.footprintSprite = sprite;
+            layer.footprintTextureVersion = texture.updateCount;
+        }
+        finally
+        {
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(temporary);
+            if (Application.isPlaying) Destroy(readable); else DestroyImmediate(readable);
+        }
+        return layer.footprintY;
+    }
+
     /// <summary>저녁의 가판 전등은 낮보다 강하게 켜집니다.</summary>
     private float NightWeight() { return Mathf.Lerp(.12f, 1, nightWeight); }
 
     /// <summary>네 시간대의 주변광·역광·전등을 같은 시각으로 혼합합니다.</summary>
     private void UpdateLights()
     {
-
+        material.SetFloat("_AmbientSeconds", Time.realtimeSinceStartup);
         float dawn = dawnWeight;
         float sunset = sunsetWeight;
         float night = nightWeight;
@@ -375,11 +456,15 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         material.SetFloat("_DaylightFill", relightingTrial ? Mathf.Clamp01(hourlyFill.Evaluate(lightingHour)) * (1-night) : 0);
         // 방향광이 강한 시간에는 정면 보조광을 낮춰 반대쪽 면의 명암을 보존합니다.
         material.SetFloat("_KeyContrast", relightingTrial ? Mathf.Max(daytimeContrast, Mathf.Max(dawn, Mathf.Max(sunset, night))) : 0);
-        material.SetVector("_LampPosition", new Vector4(lampPosition.x,-lampPosition.y,lampHeight,lampRadius));
-        Vector2 direction = new Vector2(spotTarget.x - spotOrigin.x, spotOrigin.y - spotTarget.y).normalized;
-        material.SetVector("_SpotOrigin", new Vector4(spotOrigin.x, -spotOrigin.y, lampHeight, 0));
-        material.SetVector("_SpotDirection", new Vector4(direction.x, direction.y, Mathf.Cos(spotHalfAngle * Mathf.Deg2Rad), Vector2.Distance(spotOrigin, spotTarget) + 180));
+        Vector2 lamp = ceilingLamp != null ? ScreenPoint(ceilingLamp,ceilingLamp.rectTransform.rect.center) : new Vector2(lampPosition.x,-lampPosition.y);
+        Vector2 spot = ceilingLamp != null ? lamp : new Vector2(spotOrigin.x,-spotOrigin.y);
+        Vector2 target = new Vector2(spotTarget.x,-spotTarget.y);
+        material.SetVector("_LampPosition", new Vector4(lamp.x,lamp.y,lampHeight,lampRadius));
+        Vector2 direction = (target-spot).normalized;
+        material.SetVector("_SpotOrigin", new Vector4(spot.x,spot.y,lampHeight,0));
+        material.SetVector("_SpotDirection", new Vector4(direction.x,direction.y,Mathf.Cos(spotHalfAngle*Mathf.Deg2Rad),Vector2.Distance(spot,target)+180));
         material.SetFloat("_SpotPower", eveningSpotlight ? spotIntensity * nightWeight : 0);
+        material.SetFloat("_SpotSoftness", spotSoftness);
         material.SetFloat("_SpotHaze", eveningSpotlight ? spotHaze * nightWeight : 0);
         // 실제 감시탑 탐조등의 시작점과 인물 외곽광의 방향을 공유합니다.
         Vector2 leftTower = dayNight != null && dayNight.leftBeam != null ? ScreenPoint(dayNight.leftBeam, Vector3.zero) : new Vector2(110, -164);

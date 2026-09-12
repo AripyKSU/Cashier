@@ -1,0 +1,51 @@
+// Emits real Unity queue traces for exact offline event-order and reputation checks.
+if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("Idle compiled Editor required.");
+var table = new CustomerDispositionDataTable();
+table.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
+typeof(CustomerDispositionDataTable).GetMethod("Commit", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(table, null);
+var rows = table.Rows;
+var products = Util.ParseFromCSV<ProductData>(File.ReadAllText("Assets/Datas/Customer/ProductData.csv")).ToDictionary(x=>x.Idx);
+var repTable = new ReputationBalanceDataTable();
+repTable.LoadData(File.ReadAllText("Assets/Datas/ReputationBalanceData.csv"));
+var calc = new DailyReputationCalculator(repTable, table);
+var prices = CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x=>x.Idx,x=>x.BasePrice);
+var fixtures = new List<object>();
+foreach (int count in new[] {8,10,12})
+foreach (bool jitter in new[] {false,true})
+for (int seed=0; seed<10; seed++) {
+    int reputation = seed % 2 == 0 ? 0 : 50;
+    repTable.TryGetByReputation(reputation, out ReputationBalanceData band);
+    var selector = new CustomerCompositionSelector(new System.Random(54000+seed));
+    var generator = new CustomerGenerator();
+    var visits = new List<CustomerVisit>();
+    var patience = new List<double>();
+    var servedIds = new List<int>();
+    var transactions = new List<TransactionResult>();
+    var queue = new CustomerQueue(()=> {
+        var c = selector.SelectComposition(new uint[]{5001}, rows.Values.OrderBy(x=>x.Idx).ToArray(), products, band, prices);
+        var v = generator.Generate(c, products, ()=>prices);
+        visits.Add(v); patience.Add(rows[v.DispositionIdx].QueuePatienceSeconds); return v;
+    }, rows);
+    var tr = new System.Random(78000+seed);
+    var weights = Enumerable.Range(0,count).Select(i=>jitter?.8+.4*tr.NextDouble():1d).ToArray();
+    double sum=weights.Sum(), end=0, now=0;
+    var ends = weights.Select(w=>end+=w/sum*180).ToArray();
+    ends[count-1] = 180;
+    // Reach the requested boundary exactly: an epsilon early-stop can leave a visit
+    // alive a fraction before its deadline and would test a different service time.
+    Action<double> advance = t=> { while(now<t){double step=Math.Min(.05,t-now);queue.Advance(step,false);now+=step;} };
+    queue.Start(); queue.TryAdd();
+    for(int i=0;i<count;i++) {
+        var v=queue.TakeNext(); if(v==null)throw new InvalidOperationException("Empty queue");
+        servedIds.Add(visits.IndexOf(v)); v.BeginOffer(); advance(ends[i]-.05);
+        long amount=v.Items.Sum(x=>(long)x.Quantity*prices[x.ProductIdx]);
+        if(!v.SubmitOffer(amount,v.Items.Select(x=>new SaleItem(x.ProductIdx,x.Quantity)).ToArray()))throw new InvalidOperationException("Refusal");
+        transactions.Add(v.Result.Value); v.Depart(); advance(ends[i]);
+    }
+    var result=calc.Calculate(reputation,transactions);
+    fixtures.Add(new {count,jitter,seed,reputation,ends,patience,servedIds,abandoned=queue.AbandonedCount,generated=visits.Count,
+        dispositionIds=servedIds.Select(i=>visits[i].DispositionIdx).ToArray(),score=result.SettlementScore,delta=result.FinalDelta});
+    queue.Stop();
+}
+return Newtonsoft.Json.JsonConvert.SerializeObject(new {unityVersion=Application.unityVersion,fixtures});

@@ -1,0 +1,4 @@
+idx,nameidx,day,required_facility_idx,min_store_stage,priority,repeat_mode,dialogue_text_idxs,portrait_resource_idx
+15001,8129,1,,,0,1,8131_8132_8133_8134,4256
+15002,8130,21,,,0,1,8151_8152_8153,4256
+15003,8180,10,,,0,1,8181_8135,4256

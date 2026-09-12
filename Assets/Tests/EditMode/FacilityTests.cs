@@ -31,7 +31,9 @@ public sealed class FacilityTests
             [12010] = new FacilityData { Idx = 12010, NameIdx = 8080, PurchasePrice = 5,
                 UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 2, TargetStoreStage = 3 },
             [12005] = new FacilityData { Idx = 12005, NameIdx = 8060, PurchasePrice = 80,
-                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 }
+                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 },
+            [12900] = new FacilityData { Idx = 12900, NameIdx = 8999, PurchasePrice = 40,
+                UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 1 }
         };
         service = new FacilityService(finance, facilities, () => day);
     }
@@ -48,6 +50,25 @@ public sealed class FacilityTests
         Assert.That(service.TryPurchase(12001, out result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned)); Assert.That(result.PaidAmount, Is.Zero);
         day = 1; Assert.That(service.IsActive(12001)); Assert.That(finance.CurrentBalance, Is.EqualTo(70));
+    }
+
+    /// <summary>시민권은 구매 당일 즉시 활성·보유되고 중복 결제되지 않는다.</summary>
+    [Test]
+    public void CitizenshipActivatesImmediatelyAndIsUnique()
+    {
+        Assert.That(service.HasCitizenship, Is.False);
+        Assert.That(service.IsCitizenship(12900));
+        Assert.That(service.TryPurchase(12900, out var result));
+        Assert.That(result.ActivationDay, Is.EqualTo(0));
+        Assert.That(service.IsActive(12900));
+        Assert.That(service.HasCitizenship);
+        Assert.That(service.TryPurchase(12900, out result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(60));
+
+        facilities[12901] = new FacilityData { Idx = 12901, NameIdx = 8998, PurchasePrice = 1,
+            UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 1 };
+        Assert.Throws<ArgumentException>(() => new FacilityService(finance, facilities, () => day));
     }
 
     /// <summary>잔액 부족은 정상 실패이며 보유와 금액을 변경하지 않는다.</summary>
@@ -182,7 +203,7 @@ public sealed class FacilityTests
             DiscountSaleTextIdxs = new uint[] { 1 }, ExploitativeSaleTextIdxs = new uint[] { 1 }, RejectTextIdxs = new uint[] { 1 } };
         var generator = new CustomerGenerator(new System.Random(1));
         Func<CustomerVisit> generate = () => generator.Generate(new uint[] { 5001 }, new[] { config }, products, day,
-            () => products.ToDictionary(x => x.Key, x => x.Value.BasePrice), isFacilityActive: service.IsActive);
+            () => CustomerProductAvailability.GetAvailableProducts(products, day, service.IsActive).ToDictionary(x => x.Idx, x => x.BasePrice), isFacilityActive: service.IsActive);
         service.TryPurchase(12001, out _);
         var before = generate(); Assert.That(before.Items.Select(x => x.ProductIdx), Is.EqualTo(new uint[] { 1001 }));
         before.BeginOffer(); Assert.Throws<ArgumentException>(() => before.SubmitOffer(1, new[] { new SaleItem(1005, 1) }));
@@ -228,7 +249,7 @@ public sealed class FacilityTests
             new[] { config },
             products,
             day,
-            () => products.ToDictionary(x => x.Key, x => x.Value.BasePrice),
+            () => CustomerProductAvailability.GetAvailableProducts(products, day, service.IsActive).ToDictionary(x => x.Idx, x => x.BasePrice),
             isFacilityActive: service.IsActive);
 
         CustomerVisit beforePurchase = generate();
@@ -249,15 +270,16 @@ public sealed class FacilityTests
     {
         var (factory, table) = loadShopData();
         var owned = new Dictionary<uint, uint>();
-        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 1000);
-        Assert.That(before.Items.Count, Is.EqualTo(11));
+        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 18000);
+        Assert.That(before.Items.Count, Is.EqualTo(12));
         Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
         Assert.That(before.Items[0].DisplayName, Is.EqualTo("식량 보관 선반"));
         Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
         Assert.That(before.Items[0].ActivationDisplayDay, Is.EqualTo(2UL));
         Assert.That(before.Items[5].FacilityIdx, Is.EqualTo(12006));
-        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("방사능 측정기, 열화상 카메라"));
+        Assert.That(before.Items[4].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
+        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
         owned[12001] = 1; owned[12005] = 0;
         var current = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 0);
         Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.ActivationPending));
@@ -287,7 +309,7 @@ public sealed class FacilityTests
         Assert.Throws<InvalidOperationException>(() => factory.CreateFacilityShopViewData(bad, owned, 0, 1));
         var rows = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 100000).Items.ToList();
         var copy = new FacilityShopViewData(100000, rows); rows.Clear();
-        Assert.That(copy.Items.Count, Is.EqualTo(11));
+        Assert.That(copy.Items.Count, Is.EqualTo(12));
     }
 
     /// <summary>실제 설비 CSV가 6개 상품 해금·3개 편의성·2개 단계 상승으로 구성되는지 확인한다.</summary>
@@ -295,7 +317,7 @@ public sealed class FacilityTests
     public void CsvExposesUpgradeKindsAndStageContracts()
     {
         var (_, table) = loadShopData();
-        Assert.That(table.Rows.Count, Is.EqualTo(11));
+        Assert.That(table.Rows.Count, Is.EqualTo(12));
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.ProductUnlock), Is.EqualTo(6));
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.Convenience), Is.EqualTo(3));
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.StoreStage), Is.EqualTo(2));
@@ -326,12 +348,12 @@ public sealed class FacilityTests
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         switch (kind)
         {
-            case "upgrade enum": csv = csv.Replace("12001,8056,1000,1,1,0,0", "12001,8056,1000,99,1,0,0"); break;
+            case "upgrade enum": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,99,1,0,0"); break;
             case "effect enum": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,99,0"); break;
-            case "product target": csv = csv.Replace("12001,8056,1000,1,1,0,0", "12001,8056,1000,1,1,0,2"); break;
+            case "product target": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,1,1,0,2"); break;
             case "convenience target": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,1,2"); break;
-            case "stage effect": csv = csv.Replace("12008,8078,1500,3,1,0,2", "12008,8078,1500,3,1,1,2"); break;
-            case "stage requirement": csv = csv.Replace("12008,8078,1500,3,1,0,2", "12008,8078,1500,3,2,0,2"); break;
+            case "stage effect": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,1,1,2"); break;
+            case "stage requirement": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,2,0,2"); break;
             case "duplicate effect": csv += "12012,8077,800,2,1,1,0\n"; break;
             case "duplicate target": csv += "12012,8078,1500,3,1,0,2\n"; break;
             case "missing effect": csv = csv.Replace("12011,8081,1500,2,3,3,0\r\n", string.Empty).Replace("12011,8081,1500,2,3,3,0\n", string.Empty); break;
@@ -368,8 +390,8 @@ public sealed class FacilityTests
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         string product = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
         if (kind == "id") csv = csv.Replace("12001,", "11001,");
-        if (kind == "duplicate") csv += "12001,8056,1000,1,1,0,0\n";
-        if (kind == "price") csv = csv.Replace("8056,1000", "8056,0");
+        if (kind == "duplicate") csv += "12001,8056,18000,1,1,0,0\n";
+        if (kind == "price") csv = csv.Replace("8056,18000", "8056,0");
         if (kind == "name") csv = csv.Replace("8056,", "8999,");
         if (kind == "product") product = product.Replace(",12001", ",12999");
         if (kind == "zero-product") product = product.Replace(",12001", ",0");

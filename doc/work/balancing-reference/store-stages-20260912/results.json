@@ -1,0 +1,6103 @@
+{
+  "initial": 1000,
+  "maintenance": [
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900,
+    1000,
+    1100,
+    1200,
+    1300,
+    1400,
+    1500,
+    1600,
+    1700,
+    1800,
+    1900,
+    2000,
+    2100,
+    2200,
+    2300,
+    2400,
+    2500,
+    2600,
+    2700,
+    2800,
+    2900,
+    3000,
+    3100,
+    3200
+  ],
+  "reference": [
+    12001,
+    12002,
+    12008,
+    12003,
+    12004,
+    12010,
+    12005,
+    12006
+  ],
+  "targets": [
+    {
+      "id": 12001,
+      "day": 3
+    },
+    {
+      "id": 12008,
+      "day": 10
+    },
+    {
+      "id": 12003,
+      "day": 12
+    },
+    {
+      "id": 12010,
+      "day": 20
+    },
+    {
+      "id": 12005,
+      "day": 22
+    }
+  ],
+  "current": {
+    "12001": 18000,
+    "12002": 39000,
+    "12003": 46000,
+    "12004": 42000,
+    "12005": 176000,
+    "12006": 198000,
+    "12007": 800,
+    "12008": 1500,
+    "12009": 1200,
+    "12010": 2500,
+    "12011": 1500
+  },
+  "proposed": {
+    "12001": 18000,
+    "12002": 39000,
+    "12003": 23000,
+    "12004": 42000,
+    "12005": 35000,
+    "12006": 198000,
+    "12007": 800,
+    "12008": 23000,
+    "12009": 1200,
+    "12010": 143000,
+    "12011": 1500
+  },
+  "calibration": [
+    {
+      "id": 12001,
+      "day": 3,
+      "low": 13000,
+      "high": 18000,
+      "incrementalSeven": 17759.85416666667,
+      "expansionCost": 0,
+      "desired": 18000,
+      "price": 18000,
+      "clamped": false
+    },
+    {
+      "id": 12008,
+      "day": 10,
+      "low": 17000,
+      "high": 29000,
+      "incrementalSeven": null,
+      "expansionCost": 0,
+      "desired": 23000,
+      "price": 23000,
+      "clamped": false
+    },
+    {
+      "id": 12003,
+      "day": 12,
+      "low": 20000,
+      "high": 32000,
+      "incrementalSeven": 46007.995833333334,
+      "expansionCost": 23000,
+      "desired": 23000,
+      "price": 23000,
+      "clamped": false
+    },
+    {
+      "id": 12010,
+      "day": 20,
+      "low": 131000,
+      "high": 154000,
+      "incrementalSeven": null,
+      "expansionCost": 0,
+      "desired": 143000,
+      "price": 143000,
+      "clamped": false
+    },
+    {
+      "id": 12005,
+      "day": 22,
+      "low": 35000,
+      "high": 58000,
+      "incrementalSeven": 178331.3875,
+      "expansionCost": 143000,
+      "desired": 35000,
+      "price": 35000,
+      "clamped": false
+    }
+  ],
+  "base": {
+    "daily": [
+      {
+        "day": 1,
+        "opening": 1000,
+        "revenue": 6427.383333333333,
+        "maintenance": 200,
+        "spent": 0,
+        "cash": 7227.383333333333,
+        "activeMask": 0,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 2,
+        "opening": 7227.383333333333,
+        "revenue": 6427.383333333333,
+        "maintenance": 300,
+        "spent": 0,
+        "cash": 13354.766666666666,
+        "activeMask": 0,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 3,
+        "opening": 13354.766666666666,
+        "revenue": 6427.383333333333,
+        "maintenance": 400,
+        "spent": 18000,
+        "cash": 1382.1500000000015,
+        "activeMask": 0,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": [
+          12001
+        ]
+      },
+      {
+        "day": 4,
+        "opening": 1382.1500000000015,
+        "revenue": 9045.6,
+        "maintenance": 500,
+        "spent": 0,
+        "cash": 9927.750000000002,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 5,
+        "opening": 9927.750000000002,
+        "revenue": 9045.6,
+        "maintenance": 600,
+        "spent": 0,
+        "cash": 18373.350000000002,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 6,
+        "opening": 18373.350000000002,
+        "revenue": 9045.6,
+        "maintenance": 700,
+        "spent": 0,
+        "cash": 26718.950000000004,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 7,
+        "opening": 26718.950000000004,
+        "revenue": 9045.6,
+        "maintenance": 800,
+        "spent": 0,
+        "cash": 34964.55,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 8,
+        "opening": 34964.55,
+        "revenue": 9045.6,
+        "maintenance": 900,
+        "spent": 40500,
+        "cash": 2610.1500000000015,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 2,
+        "bought": [
+          12002,
+          12008
+        ]
+      },
+      {
+        "day": 9,
+        "opening": 2610.1500000000015,
+        "revenue": 14462,
+        "maintenance": 1000,
+        "spent": 0,
+        "cash": 16072.150000000001,
+        "activeMask": 3,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 10,
+        "opening": 16072.150000000001,
+        "revenue": 14271.704166666666,
+        "maintenance": 1100,
+        "spent": 0,
+        "cash": 29243.854166666668,
+        "activeMask": 3,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 11,
+        "opening": 29243.854166666668,
+        "revenue": 14271.704166666666,
+        "maintenance": 1200,
+        "spent": 0,
+        "cash": 42315.558333333334,
+        "activeMask": 3,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 12,
+        "opening": 42315.558333333334,
+        "revenue": 14271.704166666666,
+        "maintenance": 1300,
+        "spent": 46000,
+        "cash": 9287.262499999997,
+        "activeMask": 3,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": [
+          12003
+        ]
+      },
+      {
+        "day": 13,
+        "opening": 9287.262499999997,
+        "revenue": 20844.275,
+        "maintenance": 1400,
+        "spent": 0,
+        "cash": 28731.5375,
+        "activeMask": 7,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 14,
+        "opening": 28731.5375,
+        "revenue": 20844.275,
+        "maintenance": 1500,
+        "spent": 44500,
+        "cash": 3575.8125,
+        "activeMask": 7,
+        "stageAtOpen": 2,
+        "stage": 3,
+        "bought": [
+          12004,
+          12010
+        ]
+      },
+      {
+        "day": 15,
+        "opening": 3575.8125,
+        "revenue": 26762.179166666665,
+        "maintenance": 1600,
+        "spent": 0,
+        "cash": 28737.991666666665,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 16,
+        "opening": 28737.991666666665,
+        "revenue": 26762.179166666665,
+        "maintenance": 1700,
+        "spent": 0,
+        "cash": 53800.17083333333,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 17,
+        "opening": 53800.17083333333,
+        "revenue": 26762.179166666665,
+        "maintenance": 1800,
+        "spent": 0,
+        "cash": 78762.34999999999,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 18,
+        "opening": 78762.34999999999,
+        "revenue": 26762.179166666665,
+        "maintenance": 1900,
+        "spent": 0,
+        "cash": 103624.52916666666,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 19,
+        "opening": 103624.52916666666,
+        "revenue": 26762.179166666665,
+        "maintenance": 2000,
+        "spent": 0,
+        "cash": 128386.70833333333,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 20,
+        "opening": 128386.70833333333,
+        "revenue": 25994.05,
+        "maintenance": 2100,
+        "spent": 0,
+        "cash": 152280.75833333333,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 21,
+        "opening": 152280.75833333333,
+        "revenue": 25994.05,
+        "maintenance": 2200,
+        "spent": 0,
+        "cash": 176074.80833333332,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 22,
+        "opening": 176074.80833333332,
+        "revenue": 25994.05,
+        "maintenance": 2300,
+        "spent": 176000,
+        "cash": 23768.858333333308,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": [
+          12005
+        ]
+      },
+      {
+        "day": 23,
+        "opening": 23768.858333333308,
+        "revenue": 51469.9625,
+        "maintenance": 2400,
+        "spent": 0,
+        "cash": 72838.8208333333,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 24,
+        "opening": 72838.8208333333,
+        "revenue": 51469.9625,
+        "maintenance": 2500,
+        "spent": 0,
+        "cash": 121808.7833333333,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 25,
+        "opening": 121808.7833333333,
+        "revenue": 51469.9625,
+        "maintenance": 2600,
+        "spent": 0,
+        "cash": 170678.7458333333,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 26,
+        "opening": 170678.7458333333,
+        "revenue": 51469.9625,
+        "maintenance": 2700,
+        "spent": 198000,
+        "cash": 21448.708333333285,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": [
+          12006
+        ]
+      },
+      {
+        "day": 27,
+        "opening": 21448.708333333285,
+        "revenue": 79965.3125,
+        "maintenance": 2800,
+        "spent": 0,
+        "cash": 98614.02083333328,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 28,
+        "opening": 98614.02083333328,
+        "revenue": 79965.3125,
+        "maintenance": 2900,
+        "spent": 0,
+        "cash": 175679.33333333328,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 29,
+        "opening": 175679.33333333328,
+        "revenue": 79965.3125,
+        "maintenance": 3000,
+        "spent": 0,
+        "cash": 252644.64583333328,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 30,
+        "opening": 252644.64583333328,
+        "revenue": 79965.3125,
+        "maintenance": 3100,
+        "spent": 0,
+        "cash": 329509.95833333326,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 31,
+        "opening": 329509.95833333326,
+        "revenue": 79965.3125,
+        "maintenance": 3200,
+        "spent": 0,
+        "cash": 406275.27083333326,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      }
+    ],
+    "purchases": [
+      {
+        "id": 12001,
+        "day": 3,
+        "activeDay": 4,
+        "before": 0,
+        "after": 1,
+        "price": 18000
+      },
+      {
+        "id": 12002,
+        "day": 8,
+        "activeDay": 9,
+        "before": 1,
+        "after": 3,
+        "price": 39000
+      },
+      {
+        "id": 12008,
+        "day": 8,
+        "activeDay": 8,
+        "before": 3,
+        "after": 3,
+        "price": 1500
+      },
+      {
+        "id": 12003,
+        "day": 12,
+        "activeDay": 13,
+        "before": 3,
+        "after": 7,
+        "price": 46000
+      },
+      {
+        "id": 12004,
+        "day": 14,
+        "activeDay": 15,
+        "before": 7,
+        "after": 15,
+        "price": 42000
+      },
+      {
+        "id": 12010,
+        "day": 14,
+        "activeDay": 14,
+        "before": 15,
+        "after": 15,
+        "price": 2500
+      },
+      {
+        "id": 12005,
+        "day": 22,
+        "activeDay": 23,
+        "before": 15,
+        "after": 31,
+        "price": 176000
+      },
+      {
+        "id": 12006,
+        "day": 26,
+        "activeDay": 27,
+        "before": 31,
+        "after": 63,
+        "price": 198000
+      }
+    ]
+  },
+  "adjusted": {
+    "daily": [
+      {
+        "day": 1,
+        "opening": 1000,
+        "revenue": 6427.383333333333,
+        "maintenance": 200,
+        "spent": 0,
+        "cash": 7227.383333333333,
+        "activeMask": 0,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 2,
+        "opening": 7227.383333333333,
+        "revenue": 6427.383333333333,
+        "maintenance": 300,
+        "spent": 0,
+        "cash": 13354.766666666666,
+        "activeMask": 0,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 3,
+        "opening": 13354.766666666666,
+        "revenue": 6427.383333333333,
+        "maintenance": 400,
+        "spent": 18000,
+        "cash": 1382.1500000000015,
+        "activeMask": 0,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": [
+          12001
+        ]
+      },
+      {
+        "day": 4,
+        "opening": 1382.1500000000015,
+        "revenue": 9045.6,
+        "maintenance": 500,
+        "spent": 0,
+        "cash": 9927.750000000002,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 5,
+        "opening": 9927.750000000002,
+        "revenue": 9045.6,
+        "maintenance": 600,
+        "spent": 0,
+        "cash": 18373.350000000002,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 6,
+        "opening": 18373.350000000002,
+        "revenue": 9045.6,
+        "maintenance": 700,
+        "spent": 0,
+        "cash": 26718.950000000004,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 7,
+        "opening": 26718.950000000004,
+        "revenue": 9045.6,
+        "maintenance": 800,
+        "spent": 0,
+        "cash": 34964.55,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 8,
+        "opening": 34964.55,
+        "revenue": 9045.6,
+        "maintenance": 900,
+        "spent": 39000,
+        "cash": 4110.1500000000015,
+        "activeMask": 1,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": [
+          12002
+        ]
+      },
+      {
+        "day": 9,
+        "opening": 4110.1500000000015,
+        "revenue": 14462,
+        "maintenance": 1000,
+        "spent": 0,
+        "cash": 17572.15,
+        "activeMask": 3,
+        "stageAtOpen": 1,
+        "stage": 1,
+        "bought": []
+      },
+      {
+        "day": 10,
+        "opening": 17572.15,
+        "revenue": 14271.704166666666,
+        "maintenance": 1100,
+        "spent": 23000,
+        "cash": 7743.854166666668,
+        "activeMask": 3,
+        "stageAtOpen": 1,
+        "stage": 2,
+        "bought": [
+          12008
+        ]
+      },
+      {
+        "day": 11,
+        "opening": 7743.854166666668,
+        "revenue": 14271.704166666666,
+        "maintenance": 1200,
+        "spent": 0,
+        "cash": 20815.558333333334,
+        "activeMask": 3,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 12,
+        "opening": 20815.558333333334,
+        "revenue": 14271.704166666666,
+        "maintenance": 1300,
+        "spent": 23000,
+        "cash": 10787.262499999997,
+        "activeMask": 3,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": [
+          12003
+        ]
+      },
+      {
+        "day": 13,
+        "opening": 10787.262499999997,
+        "revenue": 20844.275,
+        "maintenance": 1400,
+        "spent": 0,
+        "cash": 30231.5375,
+        "activeMask": 7,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 14,
+        "opening": 30231.5375,
+        "revenue": 20844.275,
+        "maintenance": 1500,
+        "spent": 42000,
+        "cash": 7575.8125,
+        "activeMask": 7,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": [
+          12004
+        ]
+      },
+      {
+        "day": 15,
+        "opening": 7575.8125,
+        "revenue": 26762.179166666665,
+        "maintenance": 1600,
+        "spent": 0,
+        "cash": 32737.99166666667,
+        "activeMask": 15,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 16,
+        "opening": 32737.99166666667,
+        "revenue": 26762.179166666665,
+        "maintenance": 1700,
+        "spent": 0,
+        "cash": 57800.17083333334,
+        "activeMask": 15,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 17,
+        "opening": 57800.17083333334,
+        "revenue": 26762.179166666665,
+        "maintenance": 1800,
+        "spent": 0,
+        "cash": 82762.35,
+        "activeMask": 15,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 18,
+        "opening": 82762.35,
+        "revenue": 26762.179166666665,
+        "maintenance": 1900,
+        "spent": 0,
+        "cash": 107624.52916666667,
+        "activeMask": 15,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 19,
+        "opening": 107624.52916666667,
+        "revenue": 26762.179166666665,
+        "maintenance": 2000,
+        "spent": 0,
+        "cash": 132386.70833333334,
+        "activeMask": 15,
+        "stageAtOpen": 2,
+        "stage": 2,
+        "bought": []
+      },
+      {
+        "day": 20,
+        "opening": 132386.70833333334,
+        "revenue": 25994.05,
+        "maintenance": 2100,
+        "spent": 143000,
+        "cash": 13280.758333333331,
+        "activeMask": 15,
+        "stageAtOpen": 2,
+        "stage": 3,
+        "bought": [
+          12010
+        ]
+      },
+      {
+        "day": 21,
+        "opening": 13280.758333333331,
+        "revenue": 25994.05,
+        "maintenance": 2200,
+        "spent": 0,
+        "cash": 37074.808333333334,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 22,
+        "opening": 37074.808333333334,
+        "revenue": 25994.05,
+        "maintenance": 2300,
+        "spent": 35000,
+        "cash": 25768.858333333337,
+        "activeMask": 15,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": [
+          12005
+        ]
+      },
+      {
+        "day": 23,
+        "opening": 25768.858333333337,
+        "revenue": 51469.9625,
+        "maintenance": 2400,
+        "spent": 0,
+        "cash": 74838.82083333333,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 24,
+        "opening": 74838.82083333333,
+        "revenue": 51469.9625,
+        "maintenance": 2500,
+        "spent": 0,
+        "cash": 123808.78333333333,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 25,
+        "opening": 123808.78333333333,
+        "revenue": 51469.9625,
+        "maintenance": 2600,
+        "spent": 0,
+        "cash": 172678.74583333332,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 26,
+        "opening": 172678.74583333332,
+        "revenue": 51469.9625,
+        "maintenance": 2700,
+        "spent": 198000,
+        "cash": 23448.708333333314,
+        "activeMask": 31,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": [
+          12006
+        ]
+      },
+      {
+        "day": 27,
+        "opening": 23448.708333333314,
+        "revenue": 79965.3125,
+        "maintenance": 2800,
+        "spent": 0,
+        "cash": 100614.02083333331,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 28,
+        "opening": 100614.02083333331,
+        "revenue": 79965.3125,
+        "maintenance": 2900,
+        "spent": 0,
+        "cash": 177679.3333333333,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 29,
+        "opening": 177679.3333333333,
+        "revenue": 79965.3125,
+        "maintenance": 3000,
+        "spent": 0,
+        "cash": 254644.6458333333,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 30,
+        "opening": 254644.6458333333,
+        "revenue": 79965.3125,
+        "maintenance": 3100,
+        "spent": 0,
+        "cash": 331509.9583333333,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      },
+      {
+        "day": 31,
+        "opening": 331509.9583333333,
+        "revenue": 79965.3125,
+        "maintenance": 3200,
+        "spent": 0,
+        "cash": 408275.2708333333,
+        "activeMask": 63,
+        "stageAtOpen": 3,
+        "stage": 3,
+        "bought": []
+      }
+    ],
+    "purchases": [
+      {
+        "id": 12001,
+        "day": 3,
+        "activeDay": 4,
+        "before": 0,
+        "after": 1,
+        "price": 18000
+      },
+      {
+        "id": 12002,
+        "day": 8,
+        "activeDay": 9,
+        "before": 1,
+        "after": 3,
+        "price": 39000
+      },
+      {
+        "id": 12008,
+        "day": 10,
+        "activeDay": 10,
+        "before": 3,
+        "after": 3,
+        "price": 23000
+      },
+      {
+        "id": 12003,
+        "day": 12,
+        "activeDay": 13,
+        "before": 3,
+        "after": 7,
+        "price": 23000
+      },
+      {
+        "id": 12004,
+        "day": 14,
+        "activeDay": 15,
+        "before": 7,
+        "after": 15,
+        "price": 42000
+      },
+      {
+        "id": 12010,
+        "day": 20,
+        "activeDay": 20,
+        "before": 15,
+        "after": 15,
+        "price": 143000
+      },
+      {
+        "id": 12005,
+        "day": 22,
+        "activeDay": 23,
+        "before": 15,
+        "after": 31,
+        "price": 35000
+      },
+      {
+        "id": 12006,
+        "day": 26,
+        "activeDay": 27,
+        "before": 31,
+        "after": 63,
+        "price": 198000
+      }
+    ]
+  },
+  "runs": 2000,
+  "stochastic": [
+    {
+      "name": "current",
+      "bands": [
+        {
+          "day": 1,
+          "n": 2000,
+          "mean": 7228.75,
+          "p10": 5495,
+          "p50": 7200,
+          "p90": 9000
+        },
+        {
+          "day": 2,
+          "n": 2000,
+          "mean": 13279.925,
+          "p10": 10850,
+          "p50": 13300,
+          "p90": 15850
+        },
+        {
+          "day": 3,
+          "n": 2000,
+          "mean": 7886.4,
+          "p10": 1100,
+          "p50": 4050,
+          "p90": 17750
+        },
+        {
+          "day": 4,
+          "n": 2000,
+          "mean": 9163.575,
+          "p10": 3600,
+          "p50": 9400,
+          "p90": 14500
+        },
+        {
+          "day": 5,
+          "n": 2000,
+          "mean": 17436.325,
+          "p10": 10850,
+          "p50": 17500,
+          "p90": 23800
+        },
+        {
+          "day": 6,
+          "n": 2000,
+          "mean": 25668.875,
+          "p10": 18600,
+          "p50": 25750,
+          "p90": 32750
+        },
+        {
+          "day": 7,
+          "n": 2000,
+          "mean": 27128.35,
+          "p10": 2350,
+          "p50": 31125,
+          "p90": 37850
+        },
+        {
+          "day": 8,
+          "n": 2000,
+          "mean": 18219.325,
+          "p10": 1950,
+          "p50": 14150,
+          "p90": 38005.00000000001
+        },
+        {
+          "day": 9,
+          "n": 2000,
+          "mean": 17426.3,
+          "p10": 2800,
+          "p50": 16350,
+          "p90": 35760.000000000015
+        },
+        {
+          "day": 10,
+          "n": 2000,
+          "mean": 24005.025,
+          "p10": 5995,
+          "p50": 24550,
+          "p90": 40005.00000000001
+        },
+        {
+          "day": 11,
+          "n": 2000,
+          "mean": 26244.325,
+          "p10": 5600,
+          "p50": 28500,
+          "p90": 42900
+        },
+        {
+          "day": 12,
+          "n": 2000,
+          "mean": 24480.55,
+          "p10": 4400,
+          "p50": 25500,
+          "p90": 43350
+        },
+        {
+          "day": 13,
+          "n": 2000,
+          "mean": 22374.175,
+          "p10": 4200,
+          "p50": 22000,
+          "p90": 41510.000000000015
+        },
+        {
+          "day": 14,
+          "n": 2000,
+          "mean": 24989.75,
+          "p10": 4695,
+          "p50": 24625,
+          "p90": 43005.00000000001
+        },
+        {
+          "day": 15,
+          "n": 2000,
+          "mean": 33992.25,
+          "p10": 5850,
+          "p50": 31225,
+          "p90": 65915.00000000001
+        },
+        {
+          "day": 16,
+          "n": 2000,
+          "mean": 51066.175,
+          "p10": 11940,
+          "p50": 46350,
+          "p90": 91960.00000000001
+        },
+        {
+          "day": 17,
+          "n": 2000,
+          "mean": 72546.575,
+          "p10": 26995,
+          "p50": 71375,
+          "p90": 118410.00000000001
+        },
+        {
+          "day": 18,
+          "n": 2000,
+          "mean": 92735.275,
+          "p10": 42340,
+          "p50": 93600,
+          "p90": 140750
+        },
+        {
+          "day": 19,
+          "n": 2000,
+          "mean": 108579.025,
+          "p10": 54195,
+          "p50": 113100,
+          "p90": 157550
+        },
+        {
+          "day": 20,
+          "n": 2000,
+          "mean": 110565.075,
+          "p10": 18290,
+          "p50": 121750,
+          "p90": 166115.00000000003
+        },
+        {
+          "day": 21,
+          "n": 2000,
+          "mean": 103229.975,
+          "p10": 14100,
+          "p50": 120425,
+          "p90": 169055
+        },
+        {
+          "day": 22,
+          "n": 2000,
+          "mean": 96603.6,
+          "p10": 12840,
+          "p50": 104300,
+          "p90": 168365.00000000003
+        },
+        {
+          "day": 23,
+          "n": 2000,
+          "mean": 97500.525,
+          "p10": 15100,
+          "p50": 101525,
+          "p90": 172150
+        },
+        {
+          "day": 24,
+          "n": 2000,
+          "mean": 99864.15,
+          "p10": 16550,
+          "p50": 100525,
+          "p90": 175350
+        },
+        {
+          "day": 25,
+          "n": 2000,
+          "mean": 108606.775,
+          "p10": 20550,
+          "p50": 109075,
+          "p90": 187380.00000000003
+        },
+        {
+          "day": 26,
+          "n": 2000,
+          "mean": 128833.75,
+          "p10": 26345,
+          "p50": 127500,
+          "p90": 218550
+        },
+        {
+          "day": 27,
+          "n": 2000,
+          "mean": 159418.2,
+          "p10": 28805.000000000007,
+          "p50": 150725,
+          "p90": 305155.00000000006
+        },
+        {
+          "day": 28,
+          "n": 2000,
+          "mean": 201985.45,
+          "p10": 42595,
+          "p50": 178700,
+          "p90": 388510.00000000006
+        },
+        {
+          "day": 29,
+          "n": 2000,
+          "mean": 256972.625,
+          "p10": 66660,
+          "p50": 234125,
+          "p90": 473850
+        },
+        {
+          "day": 30,
+          "n": 2000,
+          "mean": 321567.125,
+          "p10": 101645,
+          "p50": 308850,
+          "p90": 554430.0000000001
+        },
+        {
+          "day": 31,
+          "n": 2000,
+          "mean": 392411.6,
+          "p10": 154085,
+          "p50": 384650,
+          "p90": 635825.0000000001
+        }
+      ],
+      "milestones": [
+        {
+          "id": 12001,
+          "day": 3,
+          "n": 2000,
+          "mean": 3.362,
+          "p10": 3,
+          "p50": 3,
+          "p90": 4,
+          "reached": 1,
+          "onOrBeforeTarget": 0.6405
+        },
+        {
+          "id": 12008,
+          "day": 10,
+          "n": 2000,
+          "mean": 8.483,
+          "p10": 7,
+          "p50": 8,
+          "p90": 10,
+          "reached": 1,
+          "onOrBeforeTarget": 0.9865
+        },
+        {
+          "id": 12003,
+          "day": 12,
+          "n": 2000,
+          "mean": 12.1585,
+          "p10": 11,
+          "p50": 12,
+          "p90": 14,
+          "reached": 1,
+          "onOrBeforeTarget": 0.6185
+        },
+        {
+          "id": 12010,
+          "day": 20,
+          "n": 2000,
+          "mean": 14.636,
+          "p10": 13,
+          "p50": 15,
+          "p90": 16,
+          "reached": 1,
+          "onOrBeforeTarget": 1
+        },
+        {
+          "id": 12005,
+          "day": 22,
+          "n": 2000,
+          "mean": 21.9775,
+          "p10": 20,
+          "p50": 22,
+          "p90": 24,
+          "reached": 1,
+          "onOrBeforeTarget": 0.628
+        }
+      ]
+    },
+    {
+      "name": "proposed",
+      "bands": [
+        {
+          "day": 1,
+          "n": 2000,
+          "mean": 7228.75,
+          "p10": 5495,
+          "p50": 7200,
+          "p90": 9000
+        },
+        {
+          "day": 2,
+          "n": 2000,
+          "mean": 13279.925,
+          "p10": 10850,
+          "p50": 13300,
+          "p90": 15850
+        },
+        {
+          "day": 3,
+          "n": 2000,
+          "mean": 7886.4,
+          "p10": 1100,
+          "p50": 4050,
+          "p90": 17750
+        },
+        {
+          "day": 4,
+          "n": 2000,
+          "mean": 9163.575,
+          "p10": 3600,
+          "p50": 9400,
+          "p90": 14500
+        },
+        {
+          "day": 5,
+          "n": 2000,
+          "mean": 17436.325,
+          "p10": 10850,
+          "p50": 17500,
+          "p90": 23800
+        },
+        {
+          "day": 6,
+          "n": 2000,
+          "mean": 25671.125,
+          "p10": 18600,
+          "p50": 25750,
+          "p90": 32750
+        },
+        {
+          "day": 7,
+          "n": 2000,
+          "mean": 27301.6,
+          "p10": 3800,
+          "p50": 31125,
+          "p90": 37850
+        },
+        {
+          "day": 8,
+          "n": 2000,
+          "mean": 18439.075,
+          "p10": 2645.0000000000005,
+          "p50": 13475,
+          "p90": 38000
+        },
+        {
+          "day": 9,
+          "n": 2000,
+          "mean": 13497.05,
+          "p10": 3000,
+          "p50": 11700,
+          "p90": 23450
+        },
+        {
+          "day": 10,
+          "n": 2000,
+          "mean": 12725.075,
+          "p10": 3400,
+          "p50": 12950,
+          "p90": 21800
+        },
+        {
+          "day": 11,
+          "n": 2000,
+          "mean": 13613.125,
+          "p10": 3800,
+          "p50": 13150,
+          "p90": 23000
+        },
+        {
+          "day": 12,
+          "n": 2000,
+          "mean": 16607.75,
+          "p10": 4100,
+          "p50": 15800,
+          "p90": 31000
+        },
+        {
+          "day": 13,
+          "n": 2000,
+          "mean": 20771.2,
+          "p10": 5400,
+          "p50": 19775,
+          "p90": 38400
+        },
+        {
+          "day": 14,
+          "n": 2000,
+          "mean": 26424.4,
+          "p10": 6295,
+          "p50": 25450,
+          "p90": 43650
+        },
+        {
+          "day": 15,
+          "n": 2000,
+          "mean": 37443.7,
+          "p10": 8950,
+          "p50": 33750,
+          "p90": 71980.00000000004
+        },
+        {
+          "day": 16,
+          "n": 2000,
+          "mean": 54610.55,
+          "p10": 15240,
+          "p50": 51425,
+          "p90": 96805
+        },
+        {
+          "day": 17,
+          "n": 2000,
+          "mean": 72044.975,
+          "p10": 25685,
+          "p50": 72975,
+          "p90": 116410.00000000001
+        },
+        {
+          "day": 18,
+          "n": 2000,
+          "mean": 82308.45,
+          "p10": 19800,
+          "p50": 88350,
+          "p90": 129205
+        },
+        {
+          "day": 19,
+          "n": 2000,
+          "mean": 79156.925,
+          "p10": 11800,
+          "p50": 90150,
+          "p90": 135210
+        },
+        {
+          "day": 20,
+          "n": 2000,
+          "mean": 67121.55,
+          "p10": 8400,
+          "p50": 63425,
+          "p90": 134705
+        },
+        {
+          "day": 21,
+          "n": 2000,
+          "mean": 61048.95,
+          "p10": 8100,
+          "p50": 36275,
+          "p90": 135950
+        },
+        {
+          "day": 22,
+          "n": 2000,
+          "mean": 64023.525,
+          "p10": 9700,
+          "p50": 46900,
+          "p90": 138860
+        },
+        {
+          "day": 23,
+          "n": 2000,
+          "mean": 77212.425,
+          "p10": 11800,
+          "p50": 67525,
+          "p90": 158560
+        },
+        {
+          "day": 24,
+          "n": 2000,
+          "mean": 90762.05,
+          "p10": 15050,
+          "p50": 85950,
+          "p90": 174960
+        },
+        {
+          "day": 25,
+          "n": 2000,
+          "mean": 106778.8,
+          "p10": 21095,
+          "p50": 104650,
+          "p90": 188775.00000000003
+        },
+        {
+          "day": 26,
+          "n": 2000,
+          "mean": 131382.95,
+          "p10": 26645,
+          "p50": 129575,
+          "p90": 227750
+        },
+        {
+          "day": 27,
+          "n": 2000,
+          "mean": 164446.225,
+          "p10": 29500,
+          "p50": 154875,
+          "p90": 316915.0000000001
+        },
+        {
+          "day": 28,
+          "n": 2000,
+          "mean": 208088.85,
+          "p10": 42290,
+          "p50": 184400,
+          "p90": 401395.0000000001
+        },
+        {
+          "day": 29,
+          "n": 2000,
+          "mean": 266188.9,
+          "p10": 76140,
+          "p50": 245875,
+          "p90": 483800.0000000001
+        },
+        {
+          "day": 30,
+          "n": 2000,
+          "mean": 331654.75,
+          "p10": 110600,
+          "p50": 318650,
+          "p90": 560475
+        },
+        {
+          "day": 31,
+          "n": 2000,
+          "mean": 403007,
+          "p10": 161875,
+          "p50": 395200,
+          "p90": 644215
+        }
+      ],
+      "milestones": [
+        {
+          "id": 12001,
+          "day": 3,
+          "n": 2000,
+          "mean": 3.362,
+          "p10": 3,
+          "p50": 3,
+          "p90": 4,
+          "reached": 1,
+          "onOrBeforeTarget": 0.6405
+        },
+        {
+          "id": 12008,
+          "day": 10,
+          "n": 2000,
+          "mean": 10.263,
+          "p10": 9,
+          "p50": 10,
+          "p90": 12,
+          "reached": 1,
+          "onOrBeforeTarget": 0.6085
+        },
+        {
+          "id": 12003,
+          "day": 12,
+          "n": 2000,
+          "mean": 12.0455,
+          "p10": 11,
+          "p50": 12,
+          "p90": 14,
+          "reached": 1,
+          "onOrBeforeTarget": 0.6545
+        },
+        {
+          "id": 12010,
+          "day": 20,
+          "n": 2000,
+          "mean": 20.3725,
+          "p10": 18,
+          "p50": 20,
+          "p90": 23,
+          "reached": 1,
+          "onOrBeforeTarget": 0.5485
+        },
+        {
+          "id": 12005,
+          "day": 22,
+          "n": 2000,
+          "mean": 21.8415,
+          "p10": 20,
+          "p50": 22,
+          "p90": 24,
+          "reached": 1,
+          "onOrBeforeTarget": 0.6505
+        }
+      ]
+    }
+  ],
+  "recovery": [
+    {
+      "name": "current",
+      "id": 12001,
+      "purchaseDay": 3,
+      "expansionDay": null,
+      "activeDay": 4,
+      "before": 0,
+      "after": 1,
+      "cost": 18000,
+      "seven": 17759.85416666667,
+      "sevenDayRoi": -0.013341435185184936,
+      "crossing": 11,
+      "businessDays": 8,
+      "elapsedFromFirstInvestment": 8,
+      "curve": [
+        {
+          "day": 3,
+          "incremental": 0,
+          "invested": 18000,
+          "net": -18000
+        },
+        {
+          "day": 4,
+          "incremental": 2618.216666666667,
+          "invested": 18000,
+          "net": -15381.783333333333
+        },
+        {
+          "day": 5,
+          "incremental": 5236.433333333334,
+          "invested": 18000,
+          "net": -12763.566666666666
+        },
+        {
+          "day": 6,
+          "incremental": 7854.6500000000015,
+          "invested": 18000,
+          "net": -10145.349999999999
+        },
+        {
+          "day": 7,
+          "incremental": 10472.866666666669,
+          "invested": 18000,
+          "net": -7527.133333333331
+        },
+        {
+          "day": 8,
+          "incremental": 13091.083333333336,
+          "invested": 18000,
+          "net": -4908.916666666664
+        },
+        {
+          "day": 9,
+          "incremental": 15709.300000000003,
+          "invested": 18000,
+          "net": -2290.699999999997
+        },
+        {
+          "day": 10,
+          "incremental": 17759.85416666667,
+          "invested": 18000,
+          "net": -240.14583333332848
+        },
+        {
+          "day": 11,
+          "incremental": 19810.40833333334,
+          "invested": 18000,
+          "net": 1810.4083333333401
+        },
+        {
+          "day": 12,
+          "incremental": 21860.96250000001,
+          "invested": 18000,
+          "net": 3860.9625000000087
+        },
+        {
+          "day": 13,
+          "incremental": 23911.516666666677,
+          "invested": 18000,
+          "net": 5911.516666666677
+        },
+        {
+          "day": 14,
+          "incremental": 25962.070833333346,
+          "invested": 18000,
+          "net": 7962.070833333346
+        },
+        {
+          "day": 15,
+          "incremental": 28012.625000000015,
+          "invested": 18000,
+          "net": 10012.625000000015
+        },
+        {
+          "day": 16,
+          "incremental": 30063.179166666683,
+          "invested": 18000,
+          "net": 12063.179166666683
+        },
+        {
+          "day": 17,
+          "incremental": 32113.73333333335,
+          "invested": 18000,
+          "net": 14113.733333333352
+        },
+        {
+          "day": 18,
+          "incremental": 34164.28750000002,
+          "invested": 18000,
+          "net": 16164.28750000002
+        },
+        {
+          "day": 19,
+          "incremental": 36214.84166666669,
+          "invested": 18000,
+          "net": 18214.84166666669
+        },
+        {
+          "day": 20,
+          "incremental": 38044.34166666669,
+          "invested": 18000,
+          "net": 20044.34166666669
+        },
+        {
+          "day": 21,
+          "incremental": 39873.84166666669,
+          "invested": 18000,
+          "net": 21873.84166666669
+        },
+        {
+          "day": 22,
+          "incremental": 41703.34166666669,
+          "invested": 18000,
+          "net": 23703.34166666669
+        },
+        {
+          "day": 23,
+          "incremental": 43532.84166666669,
+          "invested": 18000,
+          "net": 25532.84166666669
+        },
+        {
+          "day": 24,
+          "incremental": 45362.34166666669,
+          "invested": 18000,
+          "net": 27362.34166666669
+        },
+        {
+          "day": 25,
+          "incremental": 47191.84166666669,
+          "invested": 18000,
+          "net": 29191.84166666669
+        },
+        {
+          "day": 26,
+          "incremental": 49021.34166666669,
+          "invested": 18000,
+          "net": 31021.34166666669
+        },
+        {
+          "day": 27,
+          "incremental": 50850.84166666669,
+          "invested": 18000,
+          "net": 32850.84166666669
+        },
+        {
+          "day": 28,
+          "incremental": 52680.34166666669,
+          "invested": 18000,
+          "net": 34680.34166666669
+        },
+        {
+          "day": 29,
+          "incremental": 54509.84166666669,
+          "invested": 18000,
+          "net": 36509.84166666669
+        },
+        {
+          "day": 30,
+          "incremental": 56339.34166666669,
+          "invested": 18000,
+          "net": 38339.34166666669
+        },
+        {
+          "day": 31,
+          "incremental": 58168.84166666669,
+          "invested": 18000,
+          "net": 40168.84166666669
+        }
+      ],
+      "observedBusinessDays": 7,
+      "stochasticNet": {
+        "n": 2000,
+        "mean": -364.8,
+        "p10": -4905,
+        "p50": -525,
+        "p90": 4200
+      },
+      "crossedRate": 0.444
+    },
+    {
+      "name": "current",
+      "id": 12003,
+      "purchaseDay": 12,
+      "expansionDay": 8,
+      "activeDay": 13,
+      "before": 3,
+      "after": 7,
+      "cost": 47500,
+      "seven": 46007.995833333334,
+      "sevenDayRoi": -0.031410614035087714,
+      "crossing": 20,
+      "businessDays": 8,
+      "elapsedFromFirstInvestment": 12,
+      "curve": [
+        {
+          "day": 8,
+          "incremental": 0,
+          "invested": 1500,
+          "net": -1500
+        },
+        {
+          "day": 9,
+          "incremental": 0,
+          "invested": 1500,
+          "net": -1500
+        },
+        {
+          "day": 10,
+          "incremental": 0,
+          "invested": 1500,
+          "net": -1500
+        },
+        {
+          "day": 11,
+          "incremental": 0,
+          "invested": 1500,
+          "net": -1500
+        },
+        {
+          "day": 12,
+          "incremental": 0,
+          "invested": 47500,
+          "net": -47500
+        },
+        {
+          "day": 13,
+          "incremental": 6572.570833333335,
+          "invested": 47500,
+          "net": -40927.42916666667
+        },
+        {
+          "day": 14,
+          "incremental": 13145.14166666667,
+          "invested": 47500,
+          "net": -34354.85833333333
+        },
+        {
+          "day": 15,
+          "incremental": 19717.712500000005,
+          "invested": 47500,
+          "net": -27782.287499999995
+        },
+        {
+          "day": 16,
+          "incremental": 26290.28333333334,
+          "invested": 47500,
+          "net": -21209.71666666666
+        },
+        {
+          "day": 17,
+          "incremental": 32862.85416666667,
+          "invested": 47500,
+          "net": -14637.145833333328
+        },
+        {
+          "day": 18,
+          "incremental": 39435.425,
+          "invested": 47500,
+          "net": -8064.574999999997
+        },
+        {
+          "day": 19,
+          "incremental": 46007.995833333334,
+          "invested": 47500,
+          "net": -1492.0041666666657
+        },
+        {
+          "day": 20,
+          "incremental": 52359.99166666667,
+          "invested": 47500,
+          "net": 4859.991666666669
+        },
+        {
+          "day": 21,
+          "incremental": 58711.9875,
+          "invested": 47500,
+          "net": 11211.987500000003
+        },
+        {
+          "day": 22,
+          "incremental": 65063.98333333334,
+          "invested": 47500,
+          "net": 17563.983333333337
+        },
+        {
+          "day": 23,
+          "incremental": 71415.97916666667,
+          "invested": 47500,
+          "net": 23915.97916666667
+        },
+        {
+          "day": 24,
+          "incremental": 77767.975,
+          "invested": 47500,
+          "net": 30267.975000000006
+        },
+        {
+          "day": 25,
+          "incremental": 84119.97083333334,
+          "invested": 47500,
+          "net": 36619.97083333334
+        },
+        {
+          "day": 26,
+          "incremental": 90471.96666666667,
+          "invested": 47500,
+          "net": 42971.966666666674
+        },
+        {
+          "day": 27,
+          "incremental": 96823.96250000001,
+          "invested": 47500,
+          "net": 49323.96250000001
+        },
+        {
+          "day": 28,
+          "incremental": 103175.95833333334,
+          "invested": 47500,
+          "net": 55675.95833333334
+        },
+        {
+          "day": 29,
+          "incremental": 109527.95416666668,
+          "invested": 47500,
+          "net": 62027.95416666668
+        },
+        {
+          "day": 30,
+          "incremental": 115879.95000000001,
+          "invested": 47500,
+          "net": 68379.95000000001
+        },
+        {
+          "day": 31,
+          "incremental": 122231.94583333335,
+          "invested": 47500,
+          "net": 74731.94583333335
+        }
+      ],
+      "observedBusinessDays": 7,
+      "stochasticNet": {
+        "n": 2000,
+        "mean": -1968.05,
+        "p10": -14605,
+        "p50": -2500,
+        "p90": 11755.000000000007
+      },
+      "crossedRate": 0.4105
+    },
+    {
+      "name": "current",
+      "id": 12005,
+      "purchaseDay": 22,
+      "expansionDay": 14,
+      "activeDay": 23,
+      "before": 15,
+      "after": 31,
+      "cost": 178500,
+      "seven": 178331.3875,
+      "sevenDayRoi": -0.0009446078431372129,
+      "crossing": 30,
+      "businessDays": 8,
+      "elapsedFromFirstInvestment": 16,
+      "curve": [
+        {
+          "day": 14,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 15,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 16,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 17,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 18,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 19,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 20,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 21,
+          "incremental": 0,
+          "invested": 2500,
+          "net": -2500
+        },
+        {
+          "day": 22,
+          "incremental": 0,
+          "invested": 178500,
+          "net": -178500
+        },
+        {
+          "day": 23,
+          "incremental": 25475.912500000002,
+          "invested": 178500,
+          "net": -153024.0875
+        },
+        {
+          "day": 24,
+          "incremental": 50951.825000000004,
+          "invested": 178500,
+          "net": -127548.17499999999
+        },
+        {
+          "day": 25,
+          "incremental": 76427.7375,
+          "invested": 178500,
+          "net": -102072.2625
+        },
+        {
+          "day": 26,
+          "incremental": 101903.65000000001,
+          "invested": 178500,
+          "net": -76596.34999999999
+        },
+        {
+          "day": 27,
+          "incremental": 127379.56250000001,
+          "invested": 178500,
+          "net": -51120.437499999985
+        },
+        {
+          "day": 28,
+          "incremental": 152855.475,
+          "invested": 178500,
+          "net": -25644.524999999994
+        },
+        {
+          "day": 29,
+          "incremental": 178331.3875,
+          "invested": 178500,
+          "net": -168.61249999998836
+        },
+        {
+          "day": 30,
+          "incremental": 203807.30000000002,
+          "invested": 178500,
+          "net": 25307.300000000017
+        },
+        {
+          "day": 31,
+          "incremental": 229283.21250000002,
+          "invested": 178500,
+          "net": 50783.21250000002
+        }
+      ],
+      "observedBusinessDays": 7,
+      "stochasticNet": {
+        "n": 2000,
+        "mean": -1622.2,
+        "p10": -57265,
+        "p50": -2825,
+        "p90": 54155.00000000001
+      },
+      "crossedRate": 0.4765
+    },
+    {
+      "name": "proposed",
+      "id": 12001,
+      "purchaseDay": 3,
+      "expansionDay": null,
+      "activeDay": 4,
+      "before": 0,
+      "after": 1,
+      "cost": 18000,
+      "seven": 17759.85416666667,
+      "sevenDayRoi": -0.013341435185184936,
+      "crossing": 11,
+      "businessDays": 8,
+      "elapsedFromFirstInvestment": 8,
+      "curve": [
+        {
+          "day": 3,
+          "incremental": 0,
+          "invested": 18000,
+          "net": -18000
+        },
+        {
+          "day": 4,
+          "incremental": 2618.216666666667,
+          "invested": 18000,
+          "net": -15381.783333333333
+        },
+        {
+          "day": 5,
+          "incremental": 5236.433333333334,
+          "invested": 18000,
+          "net": -12763.566666666666
+        },
+        {
+          "day": 6,
+          "incremental": 7854.6500000000015,
+          "invested": 18000,
+          "net": -10145.349999999999
+        },
+        {
+          "day": 7,
+          "incremental": 10472.866666666669,
+          "invested": 18000,
+          "net": -7527.133333333331
+        },
+        {
+          "day": 8,
+          "incremental": 13091.083333333336,
+          "invested": 18000,
+          "net": -4908.916666666664
+        },
+        {
+          "day": 9,
+          "incremental": 15709.300000000003,
+          "invested": 18000,
+          "net": -2290.699999999997
+        },
+        {
+          "day": 10,
+          "incremental": 17759.85416666667,
+          "invested": 18000,
+          "net": -240.14583333332848
+        },
+        {
+          "day": 11,
+          "incremental": 19810.40833333334,
+          "invested": 18000,
+          "net": 1810.4083333333401
+        },
+        {
+          "day": 12,
+          "incremental": 21860.96250000001,
+          "invested": 18000,
+          "net": 3860.9625000000087
+        },
+        {
+          "day": 13,
+          "incremental": 23911.516666666677,
+          "invested": 18000,
+          "net": 5911.516666666677
+        },
+        {
+          "day": 14,
+          "incremental": 25962.070833333346,
+          "invested": 18000,
+          "net": 7962.070833333346
+        },
+        {
+          "day": 15,
+          "incremental": 28012.625000000015,
+          "invested": 18000,
+          "net": 10012.625000000015
+        },
+        {
+          "day": 16,
+          "incremental": 30063.179166666683,
+          "invested": 18000,
+          "net": 12063.179166666683
+        },
+        {
+          "day": 17,
+          "incremental": 32113.73333333335,
+          "invested": 18000,
+          "net": 14113.733333333352
+        },
+        {
+          "day": 18,
+          "incremental": 34164.28750000002,
+          "invested": 18000,
+          "net": 16164.28750000002
+        },
+        {
+          "day": 19,
+          "incremental": 36214.84166666669,
+          "invested": 18000,
+          "net": 18214.84166666669
+        },
+        {
+          "day": 20,
+          "incremental": 38044.34166666669,
+          "invested": 18000,
+          "net": 20044.34166666669
+        },
+        {
+          "day": 21,
+          "incremental": 39873.84166666669,
+          "invested": 18000,
+          "net": 21873.84166666669
+        },
+        {
+          "day": 22,
+          "incremental": 41703.34166666669,
+          "invested": 18000,
+          "net": 23703.34166666669
+        },
+        {
+          "day": 23,
+          "incremental": 43532.84166666669,
+          "invested": 18000,
+          "net": 25532.84166666669
+        },
+        {
+          "day": 24,
+          "incremental": 45362.34166666669,
+          "invested": 18000,
+          "net": 27362.34166666669
+        },
+        {
+          "day": 25,
+          "incremental": 47191.84166666669,
+          "invested": 18000,
+          "net": 29191.84166666669
+        },
+        {
+          "day": 26,
+          "incremental": 49021.34166666669,
+          "invested": 18000,
+          "net": 31021.34166666669
+        },
+        {
+          "day": 27,
+          "incremental": 50850.84166666669,
+          "invested": 18000,
+          "net": 32850.84166666669
+        },
+        {
+          "day": 28,
+          "incremental": 52680.34166666669,
+          "invested": 18000,
+          "net": 34680.34166666669
+        },
+        {
+          "day": 29,
+          "incremental": 54509.84166666669,
+          "invested": 18000,
+          "net": 36509.84166666669
+        },
+        {
+          "day": 30,
+          "incremental": 56339.34166666669,
+          "invested": 18000,
+          "net": 38339.34166666669
+        },
+        {
+          "day": 31,
+          "incremental": 58168.84166666669,
+          "invested": 18000,
+          "net": 40168.84166666669
+        }
+      ],
+      "observedBusinessDays": 7,
+      "stochasticNet": {
+        "n": 2000,
+        "mean": -364.8,
+        "p10": -4905,
+        "p50": -525,
+        "p90": 4200
+      },
+      "crossedRate": 0.444
+    },
+    {
+      "name": "proposed",
+      "id": 12003,
+      "purchaseDay": 12,
+      "expansionDay": 10,
+      "activeDay": 13,
+      "before": 3,
+      "after": 7,
+      "cost": 46000,
+      "seven": 46007.995833333334,
+      "sevenDayRoi": 0.00017382246376818067,
+      "crossing": 19,
+      "businessDays": 7,
+      "elapsedFromFirstInvestment": 9,
+      "curve": [
+        {
+          "day": 10,
+          "incremental": 0,
+          "invested": 23000,
+          "net": -23000
+        },
+        {
+          "day": 11,
+          "incremental": 0,
+          "invested": 23000,
+          "net": -23000
+        },
+        {
+          "day": 12,
+          "incremental": 0,
+          "invested": 46000,
+          "net": -46000
+        },
+        {
+          "day": 13,
+          "incremental": 6572.570833333335,
+          "invested": 46000,
+          "net": -39427.42916666667
+        },
+        {
+          "day": 14,
+          "incremental": 13145.14166666667,
+          "invested": 46000,
+          "net": -32854.85833333333
+        },
+        {
+          "day": 15,
+          "incremental": 19717.712500000005,
+          "invested": 46000,
+          "net": -26282.287499999995
+        },
+        {
+          "day": 16,
+          "incremental": 26290.28333333334,
+          "invested": 46000,
+          "net": -19709.71666666666
+        },
+        {
+          "day": 17,
+          "incremental": 32862.85416666667,
+          "invested": 46000,
+          "net": -13137.145833333328
+        },
+        {
+          "day": 18,
+          "incremental": 39435.425,
+          "invested": 46000,
+          "net": -6564.574999999997
+        },
+        {
+          "day": 19,
+          "incremental": 46007.995833333334,
+          "invested": 46000,
+          "net": 7.9958333333343035
+        },
+        {
+          "day": 20,
+          "incremental": 52359.99166666667,
+          "invested": 46000,
+          "net": 6359.991666666669
+        },
+        {
+          "day": 21,
+          "incremental": 58711.9875,
+          "invested": 46000,
+          "net": 12711.987500000003
+        },
+        {
+          "day": 22,
+          "incremental": 65063.98333333334,
+          "invested": 46000,
+          "net": 19063.983333333337
+        },
+        {
+          "day": 23,
+          "incremental": 71415.97916666667,
+          "invested": 46000,
+          "net": 25415.97916666667
+        },
+        {
+          "day": 24,
+          "incremental": 77767.975,
+          "invested": 46000,
+          "net": 31767.975000000006
+        },
+        {
+          "day": 25,
+          "incremental": 84119.97083333334,
+          "invested": 46000,
+          "net": 38119.97083333334
+        },
+        {
+          "day": 26,
+          "incremental": 90471.96666666667,
+          "invested": 46000,
+          "net": 44471.966666666674
+        },
+        {
+          "day": 27,
+          "incremental": 96823.96250000001,
+          "invested": 46000,
+          "net": 50823.96250000001
+        },
+        {
+          "day": 28,
+          "incremental": 103175.95833333334,
+          "invested": 46000,
+          "net": 57175.95833333334
+        },
+        {
+          "day": 29,
+          "incremental": 109527.95416666668,
+          "invested": 46000,
+          "net": 63527.95416666668
+        },
+        {
+          "day": 30,
+          "incremental": 115879.95000000001,
+          "invested": 46000,
+          "net": 69879.95000000001
+        },
+        {
+          "day": 31,
+          "incremental": 122231.94583333335,
+          "invested": 46000,
+          "net": 76231.94583333335
+        }
+      ],
+      "observedBusinessDays": 7,
+      "stochasticNet": {
+        "n": 2000,
+        "mean": -468.05,
+        "p10": -13105,
+        "p50": -1000,
+        "p90": 13255.000000000007
+      },
+      "crossedRate": 0.4645
+    },
+    {
+      "name": "proposed",
+      "id": 12005,
+      "purchaseDay": 22,
+      "expansionDay": 20,
+      "activeDay": 23,
+      "before": 15,
+      "after": 31,
+      "cost": 178000,
+      "seven": 178331.3875,
+      "sevenDayRoi": 0.0018617275280898848,
+      "crossing": 29,
+      "businessDays": 7,
+      "elapsedFromFirstInvestment": 9,
+      "curve": [
+        {
+          "day": 20,
+          "incremental": 0,
+          "invested": 143000,
+          "net": -143000
+        },
+        {
+          "day": 21,
+          "incremental": 0,
+          "invested": 143000,
+          "net": -143000
+        },
+        {
+          "day": 22,
+          "incremental": 0,
+          "invested": 178000,
+          "net": -178000
+        },
+        {
+          "day": 23,
+          "incremental": 25475.912500000002,
+          "invested": 178000,
+          "net": -152524.0875
+        },
+        {
+          "day": 24,
+          "incremental": 50951.825000000004,
+          "invested": 178000,
+          "net": -127048.17499999999
+        },
+        {
+          "day": 25,
+          "incremental": 76427.7375,
+          "invested": 178000,
+          "net": -101572.2625
+        },
+        {
+          "day": 26,
+          "incremental": 101903.65000000001,
+          "invested": 178000,
+          "net": -76096.34999999999
+        },
+        {
+          "day": 27,
+          "incremental": 127379.56250000001,
+          "invested": 178000,
+          "net": -50620.437499999985
+        },
+        {
+          "day": 28,
+          "incremental": 152855.475,
+          "invested": 178000,
+          "net": -25144.524999999994
+        },
+        {
+          "day": 29,
+          "incremental": 178331.3875,
+          "invested": 178000,
+          "net": 331.38750000001164
+        },
+        {
+          "day": 30,
+          "incremental": 203807.30000000002,
+          "invested": 178000,
+          "net": 25807.300000000017
+        },
+        {
+          "day": 31,
+          "incremental": 229283.21250000002,
+          "invested": 178000,
+          "net": 51283.21250000002
+        }
+      ],
+      "observedBusinessDays": 7,
+      "stochasticNet": {
+        "n": 2000,
+        "mean": -1122.2,
+        "p10": -56765,
+        "p50": -2325,
+        "p90": 54655.00000000001
+      },
+      "crossedRate": 0.482
+    }
+  ],
+  "sensitivity": [
+    {
+      "trades": 6,
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 4820.5375,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 5620.5375,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 5620.5375,
+          "revenue": 4820.5375,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 10141.075,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 10141.075,
+          "revenue": 4820.5375,
+          "maintenance": 400,
+          "spent": 0,
+          "cash": 14561.612500000001,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 4,
+          "opening": 14561.612500000001,
+          "revenue": 4820.5375,
+          "maintenance": 500,
+          "spent": 18000,
+          "cash": 882.1500000000015,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12001
+          ]
+        },
+        {
+          "day": 5,
+          "opening": 882.1500000000015,
+          "revenue": 6784.200000000001,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 7066.350000000002,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 7066.350000000002,
+          "revenue": 6784.200000000001,
+          "maintenance": 700,
+          "spent": 0,
+          "cash": 13150.550000000003,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 7,
+          "opening": 13150.550000000003,
+          "revenue": 6784.200000000001,
+          "maintenance": 800,
+          "spent": 0,
+          "cash": 19134.750000000004,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 8,
+          "opening": 19134.750000000004,
+          "revenue": 6784.200000000001,
+          "maintenance": 900,
+          "spent": 0,
+          "cash": 25018.950000000004,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 9,
+          "opening": 25018.950000000004,
+          "revenue": 6784.200000000001,
+          "maintenance": 1000,
+          "spent": 0,
+          "cash": 30803.150000000005,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 10,
+          "opening": 30803.150000000005,
+          "revenue": 6409.75625,
+          "maintenance": 1100,
+          "spent": 0,
+          "cash": 36112.90625000001,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 11,
+          "opening": 36112.90625000001,
+          "revenue": 6409.75625,
+          "maintenance": 1200,
+          "spent": 39000,
+          "cash": 2322.662500000006,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12002
+          ]
+        },
+        {
+          "day": 12,
+          "opening": 2322.662500000006,
+          "revenue": 10703.778125,
+          "maintenance": 1300,
+          "spent": 0,
+          "cash": 11726.440625000007,
+          "activeMask": 3,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 13,
+          "opening": 11726.440625000007,
+          "revenue": 10703.778125,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 21030.218750000007,
+          "activeMask": 3,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 21030.218750000007,
+          "revenue": 10703.778125,
+          "maintenance": 1500,
+          "spent": 23000,
+          "cash": 7233.996875000008,
+          "activeMask": 3,
+          "stageAtOpen": 1,
+          "stage": 2,
+          "bought": [
+            12008
+          ]
+        },
+        {
+          "day": 15,
+          "opening": 7233.996875000008,
+          "revenue": 10703.778125,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 16337.775000000009,
+          "activeMask": 3,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 16337.775000000009,
+          "revenue": 10703.778125,
+          "maintenance": 1700,
+          "spent": 23000,
+          "cash": 2341.5531250000095,
+          "activeMask": 3,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12003
+          ]
+        },
+        {
+          "day": 17,
+          "opening": 2341.5531250000095,
+          "revenue": 15633.206250000001,
+          "maintenance": 1800,
+          "spent": 0,
+          "cash": 16174.759375000009,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 18,
+          "opening": 16174.759375000009,
+          "revenue": 15633.206250000001,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 29907.96562500001,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 29907.96562500001,
+          "revenue": 15633.206250000001,
+          "maintenance": 2000,
+          "spent": 0,
+          "cash": 43541.171875000015,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 20,
+          "opening": 43541.171875000015,
+          "revenue": 15044.371874999999,
+          "maintenance": 2100,
+          "spent": 42000,
+          "cash": 14485.543750000012,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12004
+          ]
+        },
+        {
+          "day": 21,
+          "opening": 14485.543750000012,
+          "revenue": 19495.5375,
+          "maintenance": 2200,
+          "spent": 0,
+          "cash": 31781.08125000001,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 22,
+          "opening": 31781.08125000001,
+          "revenue": 19495.5375,
+          "maintenance": 2300,
+          "spent": 0,
+          "cash": 48976.61875000001,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 23,
+          "opening": 48976.61875000001,
+          "revenue": 19495.5375,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 66072.15625,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 66072.15625,
+          "revenue": 19495.5375,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 83067.69375,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 83067.69375,
+          "revenue": 19495.5375,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 99963.23125000001,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 99963.23125000001,
+          "revenue": 19495.5375,
+          "maintenance": 2700,
+          "spent": 0,
+          "cash": 116758.76875000002,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 27,
+          "opening": 116758.76875000002,
+          "revenue": 19495.5375,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 133454.30625000002,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 133454.30625000002,
+          "revenue": 19495.5375,
+          "maintenance": 2900,
+          "spent": 143000,
+          "cash": 7049.843750000029,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 3,
+          "bought": [
+            12010
+          ]
+        },
+        {
+          "day": 29,
+          "opening": 7049.843750000029,
+          "revenue": 19495.5375,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 23545.381250000028,
+          "activeMask": 15,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 23545.381250000028,
+          "revenue": 19495.5375,
+          "maintenance": 3100,
+          "spent": 35000,
+          "cash": 4940.918750000026,
+          "activeMask": 15,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": [
+            12005
+          ]
+        },
+        {
+          "day": 31,
+          "opening": 4940.918750000026,
+          "revenue": 38602.471875,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 40343.39062500003,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        }
+      ],
+      "purchases": [
+        {
+          "id": 12001,
+          "day": 4,
+          "activeDay": 5,
+          "before": 0,
+          "after": 1,
+          "price": 18000
+        },
+        {
+          "id": 12002,
+          "day": 11,
+          "activeDay": 12,
+          "before": 1,
+          "after": 3,
+          "price": 39000
+        },
+        {
+          "id": 12008,
+          "day": 14,
+          "activeDay": 14,
+          "before": 3,
+          "after": 3,
+          "price": 23000
+        },
+        {
+          "id": 12003,
+          "day": 16,
+          "activeDay": 17,
+          "before": 3,
+          "after": 7,
+          "price": 23000
+        },
+        {
+          "id": 12004,
+          "day": 20,
+          "activeDay": 21,
+          "before": 7,
+          "after": 15,
+          "price": 42000
+        },
+        {
+          "id": 12010,
+          "day": 28,
+          "activeDay": 28,
+          "before": 15,
+          "after": 15,
+          "price": 143000
+        },
+        {
+          "id": 12005,
+          "day": 30,
+          "activeDay": 31,
+          "before": 15,
+          "after": 31,
+          "price": 35000
+        }
+      ]
+    },
+    {
+      "trades": 8,
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 6427.383333333333,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 7227.383333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 7227.383333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 13354.766666666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 13354.766666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 400,
+          "spent": 18000,
+          "cash": 1382.1500000000015,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12001
+          ]
+        },
+        {
+          "day": 4,
+          "opening": 1382.1500000000015,
+          "revenue": 9045.6,
+          "maintenance": 500,
+          "spent": 0,
+          "cash": 9927.750000000002,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 5,
+          "opening": 9927.750000000002,
+          "revenue": 9045.6,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 18373.350000000002,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 18373.350000000002,
+          "revenue": 9045.6,
+          "maintenance": 700,
+          "spent": 0,
+          "cash": 26718.950000000004,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 7,
+          "opening": 26718.950000000004,
+          "revenue": 9045.6,
+          "maintenance": 800,
+          "spent": 0,
+          "cash": 34964.55,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 8,
+          "opening": 34964.55,
+          "revenue": 9045.6,
+          "maintenance": 900,
+          "spent": 39000,
+          "cash": 4110.1500000000015,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12002
+          ]
+        },
+        {
+          "day": 9,
+          "opening": 4110.1500000000015,
+          "revenue": 14462,
+          "maintenance": 1000,
+          "spent": 0,
+          "cash": 17572.15,
+          "activeMask": 3,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 10,
+          "opening": 17572.15,
+          "revenue": 14271.704166666666,
+          "maintenance": 1100,
+          "spent": 23000,
+          "cash": 7743.854166666668,
+          "activeMask": 3,
+          "stageAtOpen": 1,
+          "stage": 2,
+          "bought": [
+            12008
+          ]
+        },
+        {
+          "day": 11,
+          "opening": 7743.854166666668,
+          "revenue": 14271.704166666666,
+          "maintenance": 1200,
+          "spent": 0,
+          "cash": 20815.558333333334,
+          "activeMask": 3,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 12,
+          "opening": 20815.558333333334,
+          "revenue": 14271.704166666666,
+          "maintenance": 1300,
+          "spent": 23000,
+          "cash": 10787.262499999997,
+          "activeMask": 3,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12003
+          ]
+        },
+        {
+          "day": 13,
+          "opening": 10787.262499999997,
+          "revenue": 20844.275,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 30231.5375,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 30231.5375,
+          "revenue": 20844.275,
+          "maintenance": 1500,
+          "spent": 42000,
+          "cash": 7575.8125,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12004
+          ]
+        },
+        {
+          "day": 15,
+          "opening": 7575.8125,
+          "revenue": 26762.179166666665,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 32737.99166666667,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 32737.99166666667,
+          "revenue": 26762.179166666665,
+          "maintenance": 1700,
+          "spent": 0,
+          "cash": 57800.17083333334,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 17,
+          "opening": 57800.17083333334,
+          "revenue": 26762.179166666665,
+          "maintenance": 1800,
+          "spent": 0,
+          "cash": 82762.35,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 18,
+          "opening": 82762.35,
+          "revenue": 26762.179166666665,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 107624.52916666667,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 107624.52916666667,
+          "revenue": 26762.179166666665,
+          "maintenance": 2000,
+          "spent": 0,
+          "cash": 132386.70833333334,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 20,
+          "opening": 132386.70833333334,
+          "revenue": 25994.05,
+          "maintenance": 2100,
+          "spent": 143000,
+          "cash": 13280.758333333331,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 3,
+          "bought": [
+            12010
+          ]
+        },
+        {
+          "day": 21,
+          "opening": 13280.758333333331,
+          "revenue": 25994.05,
+          "maintenance": 2200,
+          "spent": 0,
+          "cash": 37074.808333333334,
+          "activeMask": 15,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 22,
+          "opening": 37074.808333333334,
+          "revenue": 25994.05,
+          "maintenance": 2300,
+          "spent": 35000,
+          "cash": 25768.858333333337,
+          "activeMask": 15,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": [
+            12005
+          ]
+        },
+        {
+          "day": 23,
+          "opening": 25768.858333333337,
+          "revenue": 51469.9625,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 74838.82083333333,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 74838.82083333333,
+          "revenue": 51469.9625,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 123808.78333333333,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 123808.78333333333,
+          "revenue": 51469.9625,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 172678.74583333332,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 172678.74583333332,
+          "revenue": 51469.9625,
+          "maintenance": 2700,
+          "spent": 198000,
+          "cash": 23448.708333333314,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": [
+            12006
+          ]
+        },
+        {
+          "day": 27,
+          "opening": 23448.708333333314,
+          "revenue": 79965.3125,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 100614.02083333331,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 100614.02083333331,
+          "revenue": 79965.3125,
+          "maintenance": 2900,
+          "spent": 0,
+          "cash": 177679.3333333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 29,
+          "opening": 177679.3333333333,
+          "revenue": 79965.3125,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 254644.6458333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 254644.6458333333,
+          "revenue": 79965.3125,
+          "maintenance": 3100,
+          "spent": 0,
+          "cash": 331509.9583333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 31,
+          "opening": 331509.9583333333,
+          "revenue": 79965.3125,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 408275.2708333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        }
+      ],
+      "purchases": [
+        {
+          "id": 12001,
+          "day": 3,
+          "activeDay": 4,
+          "before": 0,
+          "after": 1,
+          "price": 18000
+        },
+        {
+          "id": 12002,
+          "day": 8,
+          "activeDay": 9,
+          "before": 1,
+          "after": 3,
+          "price": 39000
+        },
+        {
+          "id": 12008,
+          "day": 10,
+          "activeDay": 10,
+          "before": 3,
+          "after": 3,
+          "price": 23000
+        },
+        {
+          "id": 12003,
+          "day": 12,
+          "activeDay": 13,
+          "before": 3,
+          "after": 7,
+          "price": 23000
+        },
+        {
+          "id": 12004,
+          "day": 14,
+          "activeDay": 15,
+          "before": 7,
+          "after": 15,
+          "price": 42000
+        },
+        {
+          "id": 12010,
+          "day": 20,
+          "activeDay": 20,
+          "before": 15,
+          "after": 15,
+          "price": 143000
+        },
+        {
+          "id": 12005,
+          "day": 22,
+          "activeDay": 23,
+          "before": 15,
+          "after": 31,
+          "price": 35000
+        },
+        {
+          "id": 12006,
+          "day": 26,
+          "activeDay": 27,
+          "before": 31,
+          "after": 63,
+          "price": 198000
+        }
+      ]
+    },
+    {
+      "trades": 10,
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 8034.229166666666,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 8834.229166666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 8834.229166666666,
+          "revenue": 8034.229166666666,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 16568.458333333332,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 16568.458333333332,
+          "revenue": 8034.229166666666,
+          "maintenance": 400,
+          "spent": 18000,
+          "cash": 6202.6875,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12001
+          ]
+        },
+        {
+          "day": 4,
+          "opening": 6202.6875,
+          "revenue": 11307,
+          "maintenance": 500,
+          "spent": 0,
+          "cash": 17009.6875,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 5,
+          "opening": 17009.6875,
+          "revenue": 11307,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 27716.6875,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 27716.6875,
+          "revenue": 11307,
+          "maintenance": 700,
+          "spent": 0,
+          "cash": 38323.6875,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 7,
+          "opening": 38323.6875,
+          "revenue": 11307,
+          "maintenance": 800,
+          "spent": 39000,
+          "cash": 9830.6875,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12002
+          ]
+        },
+        {
+          "day": 8,
+          "opening": 9830.6875,
+          "revenue": 18077.5,
+          "maintenance": 900,
+          "spent": 23000,
+          "cash": 4008.1875,
+          "activeMask": 3,
+          "stageAtOpen": 1,
+          "stage": 2,
+          "bought": [
+            12008
+          ]
+        },
+        {
+          "day": 9,
+          "opening": 4008.1875,
+          "revenue": 18077.5,
+          "maintenance": 1000,
+          "spent": 0,
+          "cash": 21085.6875,
+          "activeMask": 3,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 10,
+          "opening": 21085.6875,
+          "revenue": 17839.630208333332,
+          "maintenance": 1100,
+          "spent": 23000,
+          "cash": 14825.317708333328,
+          "activeMask": 3,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12003
+          ]
+        },
+        {
+          "day": 11,
+          "opening": 14825.317708333328,
+          "revenue": 26055.34375,
+          "maintenance": 1200,
+          "spent": 0,
+          "cash": 39680.66145833333,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 12,
+          "opening": 39680.66145833333,
+          "revenue": 26055.34375,
+          "maintenance": 1300,
+          "spent": 42000,
+          "cash": 22436.00520833333,
+          "activeMask": 7,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12004
+          ]
+        },
+        {
+          "day": 13,
+          "opening": 22436.00520833333,
+          "revenue": 33452.72395833333,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 54488.72916666666,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 54488.72916666666,
+          "revenue": 33452.72395833333,
+          "maintenance": 1500,
+          "spent": 0,
+          "cash": 86441.45312499999,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 15,
+          "opening": 86441.45312499999,
+          "revenue": 33452.72395833333,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 118294.17708333331,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 118294.17708333331,
+          "revenue": 33452.72395833333,
+          "maintenance": 1700,
+          "spent": 143000,
+          "cash": 7046.901041666628,
+          "activeMask": 15,
+          "stageAtOpen": 2,
+          "stage": 3,
+          "bought": [
+            12010
+          ]
+        },
+        {
+          "day": 17,
+          "opening": 7046.901041666628,
+          "revenue": 33452.72395833333,
+          "maintenance": 1800,
+          "spent": 35000,
+          "cash": 3699.6249999999563,
+          "activeMask": 15,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": [
+            12005
+          ]
+        },
+        {
+          "day": 18,
+          "opening": 3699.6249999999563,
+          "revenue": 60169.60416666667,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 61969.22916666663,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 61969.22916666663,
+          "revenue": 60169.60416666667,
+          "maintenance": 2000,
+          "spent": 0,
+          "cash": 120138.8333333333,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 20,
+          "opening": 120138.8333333333,
+          "revenue": 64337.453125,
+          "maintenance": 2100,
+          "spent": 0,
+          "cash": 182376.2864583333,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 21,
+          "opening": 182376.2864583333,
+          "revenue": 64337.453125,
+          "maintenance": 2200,
+          "spent": 198000,
+          "cash": 46513.739583333314,
+          "activeMask": 31,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": [
+            12006
+          ]
+        },
+        {
+          "day": 22,
+          "opening": 46513.739583333314,
+          "revenue": 99956.640625,
+          "maintenance": 2300,
+          "spent": 0,
+          "cash": 144170.3802083333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 23,
+          "opening": 144170.3802083333,
+          "revenue": 99956.640625,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 241727.0208333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 241727.0208333333,
+          "revenue": 99956.640625,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 339183.6614583333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 339183.6614583333,
+          "revenue": 99956.640625,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 436540.3020833333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 436540.3020833333,
+          "revenue": 99956.640625,
+          "maintenance": 2700,
+          "spent": 0,
+          "cash": 533796.9427083333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 27,
+          "opening": 533796.9427083333,
+          "revenue": 99956.640625,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 630953.5833333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 630953.5833333333,
+          "revenue": 99956.640625,
+          "maintenance": 2900,
+          "spent": 0,
+          "cash": 728010.2239583333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 29,
+          "opening": 728010.2239583333,
+          "revenue": 99956.640625,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 824966.8645833333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 824966.8645833333,
+          "revenue": 99956.640625,
+          "maintenance": 3100,
+          "spent": 0,
+          "cash": 921823.5052083333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 31,
+          "opening": 921823.5052083333,
+          "revenue": 99956.640625,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 1018580.1458333333,
+          "activeMask": 63,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        }
+      ],
+      "purchases": [
+        {
+          "id": 12001,
+          "day": 3,
+          "activeDay": 4,
+          "before": 0,
+          "after": 1,
+          "price": 18000
+        },
+        {
+          "id": 12002,
+          "day": 7,
+          "activeDay": 8,
+          "before": 1,
+          "after": 3,
+          "price": 39000
+        },
+        {
+          "id": 12008,
+          "day": 8,
+          "activeDay": 8,
+          "before": 3,
+          "after": 3,
+          "price": 23000
+        },
+        {
+          "id": 12003,
+          "day": 10,
+          "activeDay": 11,
+          "before": 3,
+          "after": 7,
+          "price": 23000
+        },
+        {
+          "id": 12004,
+          "day": 12,
+          "activeDay": 13,
+          "before": 7,
+          "after": 15,
+          "price": 42000
+        },
+        {
+          "id": 12010,
+          "day": 16,
+          "activeDay": 16,
+          "before": 15,
+          "after": 15,
+          "price": 143000
+        },
+        {
+          "id": 12005,
+          "day": 17,
+          "activeDay": 18,
+          "before": 15,
+          "after": 31,
+          "price": 35000
+        },
+        {
+          "id": 12006,
+          "day": 21,
+          "activeDay": 22,
+          "before": 31,
+          "after": 63,
+          "price": 198000
+        }
+      ]
+    }
+  ],
+  "alternatives": [
+    {
+      "name": "단계별 대표 설비만",
+      "sequence": [
+        12001,
+        12008,
+        12003,
+        12010,
+        12005
+      ],
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 6427.383333333333,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 7227.383333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 7227.383333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 13354.766666666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 13354.766666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 400,
+          "spent": 18000,
+          "cash": 1382.1500000000015,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": [
+            12001
+          ]
+        },
+        {
+          "day": 4,
+          "opening": 1382.1500000000015,
+          "revenue": 9045.6,
+          "maintenance": 500,
+          "spent": 0,
+          "cash": 9927.750000000002,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 5,
+          "opening": 9927.750000000002,
+          "revenue": 9045.6,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 18373.350000000002,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 18373.350000000002,
+          "revenue": 9045.6,
+          "maintenance": 700,
+          "spent": 23000,
+          "cash": 3718.9500000000044,
+          "activeMask": 1,
+          "stageAtOpen": 1,
+          "stage": 2,
+          "bought": [
+            12008
+          ]
+        },
+        {
+          "day": 7,
+          "opening": 3718.9500000000044,
+          "revenue": 9045.6,
+          "maintenance": 800,
+          "spent": 0,
+          "cash": 11964.550000000005,
+          "activeMask": 1,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 8,
+          "opening": 11964.550000000005,
+          "revenue": 9045.6,
+          "maintenance": 900,
+          "spent": 0,
+          "cash": 20110.150000000005,
+          "activeMask": 1,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 9,
+          "opening": 20110.150000000005,
+          "revenue": 9045.6,
+          "maintenance": 1000,
+          "spent": 23000,
+          "cash": 5155.750000000007,
+          "activeMask": 1,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": [
+            12003
+          ]
+        },
+        {
+          "day": 10,
+          "opening": 5155.750000000007,
+          "revenue": 19371.225,
+          "maintenance": 1100,
+          "spent": 0,
+          "cash": 23426.975000000006,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 11,
+          "opening": 23426.975000000006,
+          "revenue": 19371.225,
+          "maintenance": 1200,
+          "spent": 0,
+          "cash": 41598.200000000004,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 12,
+          "opening": 41598.200000000004,
+          "revenue": 19371.225,
+          "maintenance": 1300,
+          "spent": 0,
+          "cash": 59669.425,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 13,
+          "opening": 59669.425,
+          "revenue": 19371.225,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 77640.65,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 77640.65,
+          "revenue": 19371.225,
+          "maintenance": 1500,
+          "spent": 0,
+          "cash": 95511.875,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 15,
+          "opening": 95511.875,
+          "revenue": 19371.225,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 113283.1,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 113283.1,
+          "revenue": 19371.225,
+          "maintenance": 1700,
+          "spent": 0,
+          "cash": 130954.32500000001,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 17,
+          "opening": 130954.32500000001,
+          "revenue": 19371.225,
+          "maintenance": 1800,
+          "spent": 143000,
+          "cash": 5525.5500000000175,
+          "activeMask": 5,
+          "stageAtOpen": 2,
+          "stage": 3,
+          "bought": [
+            12010
+          ]
+        },
+        {
+          "day": 18,
+          "opening": 5525.5500000000175,
+          "revenue": 19371.225,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 22996.775000000016,
+          "activeMask": 5,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 22996.775000000016,
+          "revenue": 19371.225,
+          "maintenance": 2000,
+          "spent": 35000,
+          "cash": 5368.000000000015,
+          "activeMask": 5,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": [
+            12005
+          ]
+        },
+        {
+          "day": 20,
+          "opening": 5368.000000000015,
+          "revenue": 55041.041666666664,
+          "maintenance": 2100,
+          "spent": 0,
+          "cash": 58309.04166666668,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 21,
+          "opening": 58309.04166666668,
+          "revenue": 55041.041666666664,
+          "maintenance": 2200,
+          "spent": 0,
+          "cash": 111150.08333333334,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 22,
+          "opening": 111150.08333333334,
+          "revenue": 55041.041666666664,
+          "maintenance": 2300,
+          "spent": 0,
+          "cash": 163891.125,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 23,
+          "opening": 163891.125,
+          "revenue": 55041.041666666664,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 216532.16666666666,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 216532.16666666666,
+          "revenue": 55041.041666666664,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 269073.2083333333,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 269073.2083333333,
+          "revenue": 55041.041666666664,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 321514.25,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 321514.25,
+          "revenue": 55041.041666666664,
+          "maintenance": 2700,
+          "spent": 0,
+          "cash": 373855.2916666667,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 27,
+          "opening": 373855.2916666667,
+          "revenue": 55041.041666666664,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 426096.3333333334,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 426096.3333333334,
+          "revenue": 55041.041666666664,
+          "maintenance": 2900,
+          "spent": 0,
+          "cash": 478237.37500000006,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 29,
+          "opening": 478237.37500000006,
+          "revenue": 55041.041666666664,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 530278.4166666667,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 530278.4166666667,
+          "revenue": 55041.041666666664,
+          "maintenance": 3100,
+          "spent": 0,
+          "cash": 582219.4583333334,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        },
+        {
+          "day": 31,
+          "opening": 582219.4583333334,
+          "revenue": 55041.041666666664,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 634060.5,
+          "activeMask": 21,
+          "stageAtOpen": 3,
+          "stage": 3,
+          "bought": []
+        }
+      ],
+      "purchases": [
+        {
+          "id": 12001,
+          "day": 3,
+          "activeDay": 4,
+          "before": 0,
+          "after": 1,
+          "price": 18000
+        },
+        {
+          "id": 12008,
+          "day": 6,
+          "activeDay": 6,
+          "before": 1,
+          "after": 1,
+          "price": 23000
+        },
+        {
+          "id": 12003,
+          "day": 9,
+          "activeDay": 10,
+          "before": 1,
+          "after": 5,
+          "price": 23000
+        },
+        {
+          "id": 12010,
+          "day": 17,
+          "activeDay": 17,
+          "before": 5,
+          "after": 5,
+          "price": 143000
+        },
+        {
+          "id": 12005,
+          "day": 19,
+          "activeDay": 20,
+          "before": 5,
+          "after": 21,
+          "price": 35000
+        }
+      ]
+    },
+    {
+      "name": "핵보호 우선 저축",
+      "sequence": [
+        12008,
+        12010,
+        12005
+      ],
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 6427.383333333333,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 7227.383333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 7227.383333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 13354.766666666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 13354.766666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 400,
+          "spent": 0,
+          "cash": 19382.15,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 4,
+          "opening": 19382.15,
+          "revenue": 6427.383333333333,
+          "maintenance": 500,
+          "spent": 23000,
+          "cash": 2309.533333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 2,
+          "bought": [
+            12008
+          ]
+        },
+        {
+          "day": 5,
+          "opening": 2309.533333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 8136.916666666666,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 8136.916666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 700,
+          "spent": 0,
+          "cash": 13864.3,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 7,
+          "opening": 13864.3,
+          "revenue": 6427.383333333333,
+          "maintenance": 800,
+          "spent": 0,
+          "cash": 19491.683333333334,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 8,
+          "opening": 19491.683333333334,
+          "revenue": 6427.383333333333,
+          "maintenance": 900,
+          "spent": 0,
+          "cash": 25019.066666666666,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 9,
+          "opening": 25019.066666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 1000,
+          "spent": 0,
+          "cash": 30446.449999999997,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 10,
+          "opening": 30446.449999999997,
+          "revenue": 6495.7875,
+          "maintenance": 1100,
+          "spent": 0,
+          "cash": 35842.237499999996,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 11,
+          "opening": 35842.237499999996,
+          "revenue": 6495.7875,
+          "maintenance": 1200,
+          "spent": 0,
+          "cash": 41138.024999999994,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 12,
+          "opening": 41138.024999999994,
+          "revenue": 6495.7875,
+          "maintenance": 1300,
+          "spent": 0,
+          "cash": 46333.81249999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 13,
+          "opening": 46333.81249999999,
+          "revenue": 6495.7875,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 51429.59999999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 51429.59999999999,
+          "revenue": 6495.7875,
+          "maintenance": 1500,
+          "spent": 0,
+          "cash": 56425.38749999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 15,
+          "opening": 56425.38749999999,
+          "revenue": 6495.7875,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 61321.17499999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 61321.17499999999,
+          "revenue": 6495.7875,
+          "maintenance": 1700,
+          "spent": 0,
+          "cash": 66116.9625,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 17,
+          "opening": 66116.9625,
+          "revenue": 6495.7875,
+          "maintenance": 1800,
+          "spent": 0,
+          "cash": 70812.75,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 18,
+          "opening": 70812.75,
+          "revenue": 6495.7875,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 75408.5375,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 75408.5375,
+          "revenue": 6495.7875,
+          "maintenance": 2000,
+          "spent": 0,
+          "cash": 79904.32500000001,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 20,
+          "opening": 79904.32500000001,
+          "revenue": 6509.370833333333,
+          "maintenance": 2100,
+          "spent": 0,
+          "cash": 84313.69583333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 21,
+          "opening": 84313.69583333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 2200,
+          "spent": 0,
+          "cash": 88623.06666666668,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 22,
+          "opening": 88623.06666666668,
+          "revenue": 6509.370833333333,
+          "maintenance": 2300,
+          "spent": 0,
+          "cash": 92832.43750000001,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 23,
+          "opening": 92832.43750000001,
+          "revenue": 6509.370833333333,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 96941.80833333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 96941.80833333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 100951.17916666668,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 100951.17916666668,
+          "revenue": 6509.370833333333,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 104860.55000000002,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 104860.55000000002,
+          "revenue": 6509.370833333333,
+          "maintenance": 2700,
+          "spent": 0,
+          "cash": 108669.92083333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 27,
+          "opening": 108669.92083333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 112379.29166666669,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 112379.29166666669,
+          "revenue": 6509.370833333333,
+          "maintenance": 2900,
+          "spent": 0,
+          "cash": 115988.66250000002,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 29,
+          "opening": 115988.66250000002,
+          "revenue": 6509.370833333333,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 119498.03333333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 119498.03333333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 3100,
+          "spent": 0,
+          "cash": 122907.40416666669,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 31,
+          "opening": 122907.40416666669,
+          "revenue": 6509.370833333333,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 126216.77500000002,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        }
+      ],
+      "purchases": [
+        {
+          "id": 12008,
+          "day": 4,
+          "activeDay": 4,
+          "before": 0,
+          "after": 0,
+          "price": 23000
+        }
+      ]
+    },
+    {
+      "name": "정밀장비 우선 저축",
+      "sequence": [
+        12008,
+        12010,
+        12006
+      ],
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 6427.383333333333,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 7227.383333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 7227.383333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 13354.766666666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 13354.766666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 400,
+          "spent": 0,
+          "cash": 19382.15,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 4,
+          "opening": 19382.15,
+          "revenue": 6427.383333333333,
+          "maintenance": 500,
+          "spent": 23000,
+          "cash": 2309.533333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 2,
+          "bought": [
+            12008
+          ]
+        },
+        {
+          "day": 5,
+          "opening": 2309.533333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 8136.916666666666,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 8136.916666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 700,
+          "spent": 0,
+          "cash": 13864.3,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 7,
+          "opening": 13864.3,
+          "revenue": 6427.383333333333,
+          "maintenance": 800,
+          "spent": 0,
+          "cash": 19491.683333333334,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 8,
+          "opening": 19491.683333333334,
+          "revenue": 6427.383333333333,
+          "maintenance": 900,
+          "spent": 0,
+          "cash": 25019.066666666666,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 9,
+          "opening": 25019.066666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 1000,
+          "spent": 0,
+          "cash": 30446.449999999997,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 10,
+          "opening": 30446.449999999997,
+          "revenue": 6495.7875,
+          "maintenance": 1100,
+          "spent": 0,
+          "cash": 35842.237499999996,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 11,
+          "opening": 35842.237499999996,
+          "revenue": 6495.7875,
+          "maintenance": 1200,
+          "spent": 0,
+          "cash": 41138.024999999994,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 12,
+          "opening": 41138.024999999994,
+          "revenue": 6495.7875,
+          "maintenance": 1300,
+          "spent": 0,
+          "cash": 46333.81249999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 13,
+          "opening": 46333.81249999999,
+          "revenue": 6495.7875,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 51429.59999999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 51429.59999999999,
+          "revenue": 6495.7875,
+          "maintenance": 1500,
+          "spent": 0,
+          "cash": 56425.38749999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 15,
+          "opening": 56425.38749999999,
+          "revenue": 6495.7875,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 61321.17499999999,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 61321.17499999999,
+          "revenue": 6495.7875,
+          "maintenance": 1700,
+          "spent": 0,
+          "cash": 66116.9625,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 17,
+          "opening": 66116.9625,
+          "revenue": 6495.7875,
+          "maintenance": 1800,
+          "spent": 0,
+          "cash": 70812.75,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 18,
+          "opening": 70812.75,
+          "revenue": 6495.7875,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 75408.5375,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 75408.5375,
+          "revenue": 6495.7875,
+          "maintenance": 2000,
+          "spent": 0,
+          "cash": 79904.32500000001,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 20,
+          "opening": 79904.32500000001,
+          "revenue": 6509.370833333333,
+          "maintenance": 2100,
+          "spent": 0,
+          "cash": 84313.69583333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 21,
+          "opening": 84313.69583333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 2200,
+          "spent": 0,
+          "cash": 88623.06666666668,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 22,
+          "opening": 88623.06666666668,
+          "revenue": 6509.370833333333,
+          "maintenance": 2300,
+          "spent": 0,
+          "cash": 92832.43750000001,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 23,
+          "opening": 92832.43750000001,
+          "revenue": 6509.370833333333,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 96941.80833333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 96941.80833333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 100951.17916666668,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 100951.17916666668,
+          "revenue": 6509.370833333333,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 104860.55000000002,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 104860.55000000002,
+          "revenue": 6509.370833333333,
+          "maintenance": 2700,
+          "spent": 0,
+          "cash": 108669.92083333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 27,
+          "opening": 108669.92083333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 112379.29166666669,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 112379.29166666669,
+          "revenue": 6509.370833333333,
+          "maintenance": 2900,
+          "spent": 0,
+          "cash": 115988.66250000002,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 29,
+          "opening": 115988.66250000002,
+          "revenue": 6509.370833333333,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 119498.03333333335,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 119498.03333333335,
+          "revenue": 6509.370833333333,
+          "maintenance": 3100,
+          "spent": 0,
+          "cash": 122907.40416666669,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        },
+        {
+          "day": 31,
+          "opening": 122907.40416666669,
+          "revenue": 6509.370833333333,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 126216.77500000002,
+          "activeMask": 0,
+          "stageAtOpen": 2,
+          "stage": 2,
+          "bought": []
+        }
+      ],
+      "purchases": [
+        {
+          "id": 12008,
+          "day": 4,
+          "activeDay": 4,
+          "before": 0,
+          "after": 0,
+          "price": 23000
+        }
+      ]
+    },
+    {
+      "name": "설비 미구매",
+      "sequence": [],
+      "daily": [
+        {
+          "day": 1,
+          "opening": 1000,
+          "revenue": 6427.383333333333,
+          "maintenance": 200,
+          "spent": 0,
+          "cash": 7227.383333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 2,
+          "opening": 7227.383333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 300,
+          "spent": 0,
+          "cash": 13354.766666666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 3,
+          "opening": 13354.766666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 400,
+          "spent": 0,
+          "cash": 19382.15,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 4,
+          "opening": 19382.15,
+          "revenue": 6427.383333333333,
+          "maintenance": 500,
+          "spent": 0,
+          "cash": 25309.533333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 5,
+          "opening": 25309.533333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 600,
+          "spent": 0,
+          "cash": 31136.916666666664,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 6,
+          "opening": 31136.916666666664,
+          "revenue": 6427.383333333333,
+          "maintenance": 700,
+          "spent": 0,
+          "cash": 36864.299999999996,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 7,
+          "opening": 36864.299999999996,
+          "revenue": 6427.383333333333,
+          "maintenance": 800,
+          "spent": 0,
+          "cash": 42491.68333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 8,
+          "opening": 42491.68333333333,
+          "revenue": 6427.383333333333,
+          "maintenance": 900,
+          "spent": 0,
+          "cash": 48019.06666666666,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 9,
+          "opening": 48019.06666666666,
+          "revenue": 6427.383333333333,
+          "maintenance": 1000,
+          "spent": 0,
+          "cash": 53446.44999999999,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 10,
+          "opening": 53446.44999999999,
+          "revenue": 6495.7875,
+          "maintenance": 1100,
+          "spent": 0,
+          "cash": 58842.23749999999,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 11,
+          "opening": 58842.23749999999,
+          "revenue": 6495.7875,
+          "maintenance": 1200,
+          "spent": 0,
+          "cash": 64138.02499999999,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 12,
+          "opening": 64138.02499999999,
+          "revenue": 6495.7875,
+          "maintenance": 1300,
+          "spent": 0,
+          "cash": 69333.81249999999,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 13,
+          "opening": 69333.81249999999,
+          "revenue": 6495.7875,
+          "maintenance": 1400,
+          "spent": 0,
+          "cash": 74429.59999999999,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 14,
+          "opening": 74429.59999999999,
+          "revenue": 6495.7875,
+          "maintenance": 1500,
+          "spent": 0,
+          "cash": 79425.3875,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 15,
+          "opening": 79425.3875,
+          "revenue": 6495.7875,
+          "maintenance": 1600,
+          "spent": 0,
+          "cash": 84321.175,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 16,
+          "opening": 84321.175,
+          "revenue": 6495.7875,
+          "maintenance": 1700,
+          "spent": 0,
+          "cash": 89116.96250000001,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 17,
+          "opening": 89116.96250000001,
+          "revenue": 6495.7875,
+          "maintenance": 1800,
+          "spent": 0,
+          "cash": 93812.75000000001,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 18,
+          "opening": 93812.75000000001,
+          "revenue": 6495.7875,
+          "maintenance": 1900,
+          "spent": 0,
+          "cash": 98408.53750000002,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 19,
+          "opening": 98408.53750000002,
+          "revenue": 6495.7875,
+          "maintenance": 2000,
+          "spent": 0,
+          "cash": 102904.32500000003,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 20,
+          "opening": 102904.32500000003,
+          "revenue": 6509.370833333333,
+          "maintenance": 2100,
+          "spent": 0,
+          "cash": 107313.69583333336,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 21,
+          "opening": 107313.69583333336,
+          "revenue": 6509.370833333333,
+          "maintenance": 2200,
+          "spent": 0,
+          "cash": 111623.0666666667,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 22,
+          "opening": 111623.0666666667,
+          "revenue": 6509.370833333333,
+          "maintenance": 2300,
+          "spent": 0,
+          "cash": 115832.43750000003,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 23,
+          "opening": 115832.43750000003,
+          "revenue": 6509.370833333333,
+          "maintenance": 2400,
+          "spent": 0,
+          "cash": 119941.80833333336,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 24,
+          "opening": 119941.80833333336,
+          "revenue": 6509.370833333333,
+          "maintenance": 2500,
+          "spent": 0,
+          "cash": 123951.1791666667,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 25,
+          "opening": 123951.1791666667,
+          "revenue": 6509.370833333333,
+          "maintenance": 2600,
+          "spent": 0,
+          "cash": 127860.55000000003,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 26,
+          "opening": 127860.55000000003,
+          "revenue": 6509.370833333333,
+          "maintenance": 2700,
+          "spent": 0,
+          "cash": 131669.92083333337,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 27,
+          "opening": 131669.92083333337,
+          "revenue": 6509.370833333333,
+          "maintenance": 2800,
+          "spent": 0,
+          "cash": 135379.2916666667,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 28,
+          "opening": 135379.2916666667,
+          "revenue": 6509.370833333333,
+          "maintenance": 2900,
+          "spent": 0,
+          "cash": 138988.6625,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 29,
+          "opening": 138988.6625,
+          "revenue": 6509.370833333333,
+          "maintenance": 3000,
+          "spent": 0,
+          "cash": 142498.03333333333,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 30,
+          "opening": 142498.03333333333,
+          "revenue": 6509.370833333333,
+          "maintenance": 3100,
+          "spent": 0,
+          "cash": 145907.40416666665,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        },
+        {
+          "day": 31,
+          "opening": 145907.40416666665,
+          "revenue": 6509.370833333333,
+          "maintenance": 3200,
+          "spent": 0,
+          "cash": 149216.77499999997,
+          "activeMask": 0,
+          "stageAtOpen": 1,
+          "stage": 1,
+          "bought": []
+        }
+      ],
+      "purchases": []
+    }
+  ],
+  "sources": [
+    {
+      "file": "Assets/Datas/FacilityData.csv",
+      "sha256": "6bbcd0f0e9cb627f251d59a9a647eaed936c7e8c473c935cc0ab7ec769dc99a0"
+    },
+    {
+      "file": "Assets/Datas/EconomyBalanceData.csv",
+      "sha256": "6340b55d1d7729aa4d9fa1c737bbacfa4a349bfe5ef18f6a981924ccba717414"
+    },
+    {
+      "file": "Assets/Datas/MaintenanceBalanceData.csv",
+      "sha256": "2cad9a32682df05498944452c3ac5911b731a5dda03aaa6b6e0280b7e54bd84c"
+    },
+    {
+      "file": "doc/work/balancing-reference/daily-income-20260912/estimates.json",
+      "sha256": "b80b185e43382443d6769c005753898e539eae9bb7b5338831aaaefbc4035d46"
+    },
+    {
+      "file": "Assets/Scripts/Facility/FacilityService.cs",
+      "sha256": "93df5283a9e6809cb84ff90de344e5b4194be09e0d75fcefa0ffff4f05fd4965"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerProductAvailability.cs",
+      "sha256": "f6d3d6610240b433d4ad09edab585285494d85c0e6caa12239fec4c3485c2225"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerCompositionSelector.cs",
+      "sha256": "eba4781e2f4c2882c6c3769a342d6d9fc92eb9acd61ed4cc42461c3b3977a119"
+    },
+    {
+      "file": "Assets/Scripts/Finance/DailyReputationCalculator.cs",
+      "sha256": "a0460e7b081e34d751d39c0f0da744107c55ddefee2f275584c4627fde596247"
+    },
+    {
+      "file": "Assets/Scripts/Manager/GameSessionManager.cs",
+      "sha256": "44f0f84b76e3b8c2b4f7f736402aecfb663a7c2dc62e9e475c7c41d2c47f9c9b"
+    }
+  ],
+  "assumptions": [
+    "conditional base-price sales; eight successful transactions per day; neutral reputation fixed",
+    "actual store gates, immediate store expansion, next-day product activation, no product prerequisite chain",
+    "reference player chooses food, medicine, stage2, tools, electrical, stage3, nuclear, precision in order",
+    "next-day maintenance reserve is player policy; no one-purchase/day limit or day24 cutoff",
+    "cost prices not deducted; no price events, reputation evolution, queue departures, fines or convenience effects",
+    "mean-income path is not the median acquisition day or an enforced unlock schedule",
+    "6/10 transaction sensitivity scales conditional mean income; stochastic sampling is eight trades only"
+  ],
+  "checks": [
+    "demand source hashes match reviewed estimates",
+    "six product gate values and two sequential store gates",
+    "actual start and all31 maintenance values",
+    "cash conservation, no duplicates, immediate expansion and next-day revenue activation",
+    "five target dates achieved without date locks",
+    "2000 paired runs per price set; all daily maintenance payable in this scoped scenario"
+  ],
+  "stageBundles": [
+    {
+      "stage": 1,
+      "ids": [
+        12001,
+        12002
+      ],
+      "before": 0,
+      "cost": 57000,
+      "start": 3,
+      "lastPurchase": 8,
+      "crossing": 14,
+      "curve": [
+        {
+          "day": 3,
+          "incremental": 0,
+          "invested": 18000,
+          "net": -18000
+        },
+        {
+          "day": 4,
+          "incremental": 2618.216666666667,
+          "invested": 18000,
+          "net": -15381.783333333333
+        },
+        {
+          "day": 5,
+          "incremental": 5236.433333333334,
+          "invested": 18000,
+          "net": -12763.566666666666
+        },
+        {
+          "day": 6,
+          "incremental": 7854.6500000000015,
+          "invested": 18000,
+          "net": -10145.349999999999
+        },
+        {
+          "day": 7,
+          "incremental": 10472.866666666669,
+          "invested": 18000,
+          "net": -7527.133333333331
+        },
+        {
+          "day": 8,
+          "incremental": 13091.083333333336,
+          "invested": 57000,
+          "net": -43908.916666666664
+        },
+        {
+          "day": 9,
+          "incremental": 21125.700000000004,
+          "invested": 57000,
+          "net": -35874.299999999996
+        },
+        {
+          "day": 10,
+          "incremental": 28901.61666666667,
+          "invested": 57000,
+          "net": -28098.38333333333
+        },
+        {
+          "day": 11,
+          "incremental": 36677.53333333333,
+          "invested": 57000,
+          "net": -20322.466666666667
+        },
+        {
+          "day": 12,
+          "incremental": 44453.45,
+          "invested": 57000,
+          "net": -12546.550000000003
+        },
+        {
+          "day": 13,
+          "incremental": 52229.36666666666,
+          "invested": 57000,
+          "net": -4770.633333333339
+        },
+        {
+          "day": 14,
+          "incremental": 60005.283333333326,
+          "invested": 57000,
+          "net": 3005.2833333333256
+        },
+        {
+          "day": 15,
+          "incremental": 67781.2,
+          "invested": 57000,
+          "net": 10781.199999999997
+        },
+        {
+          "day": 16,
+          "incremental": 75557.11666666667,
+          "invested": 57000,
+          "net": 18557.11666666667
+        },
+        {
+          "day": 17,
+          "incremental": 83333.03333333334,
+          "invested": 57000,
+          "net": 26333.03333333334
+        },
+        {
+          "day": 18,
+          "incremental": 91108.95000000001,
+          "invested": 57000,
+          "net": 34108.95000000001
+        },
+        {
+          "day": 19,
+          "incremental": 98884.86666666668,
+          "invested": 57000,
+          "net": 41884.86666666668
+        },
+        {
+          "day": 20,
+          "incremental": 106082.66250000002,
+          "invested": 57000,
+          "net": 49082.66250000002
+        },
+        {
+          "day": 21,
+          "incremental": 113280.45833333336,
+          "invested": 57000,
+          "net": 56280.45833333336
+        },
+        {
+          "day": 22,
+          "incremental": 120478.2541666667,
+          "invested": 57000,
+          "net": 63478.254166666695
+        },
+        {
+          "day": 23,
+          "incremental": 127676.05000000003,
+          "invested": 57000,
+          "net": 70676.05000000003
+        },
+        {
+          "day": 24,
+          "incremental": 134873.84583333335,
+          "invested": 57000,
+          "net": 77873.84583333335
+        },
+        {
+          "day": 25,
+          "incremental": 142071.6416666667,
+          "invested": 57000,
+          "net": 85071.64166666669
+        },
+        {
+          "day": 26,
+          "incremental": 149269.43750000003,
+          "invested": 57000,
+          "net": 92269.43750000003
+        },
+        {
+          "day": 27,
+          "incremental": 156467.23333333337,
+          "invested": 57000,
+          "net": 99467.23333333337
+        },
+        {
+          "day": 28,
+          "incremental": 163665.0291666667,
+          "invested": 57000,
+          "net": 106665.0291666667
+        },
+        {
+          "day": 29,
+          "incremental": 170862.82500000004,
+          "invested": 57000,
+          "net": 113862.82500000004
+        },
+        {
+          "day": 30,
+          "incremental": 178060.62083333338,
+          "invested": 57000,
+          "net": 121060.62083333338
+        },
+        {
+          "day": 31,
+          "incremental": 185258.41666666672,
+          "invested": 57000,
+          "net": 128258.41666666672
+        }
+      ]
+    },
+    {
+      "stage": 2,
+      "ids": [
+        12008,
+        12003,
+        12004
+      ],
+      "before": 3,
+      "cost": 88000,
+      "start": 10,
+      "lastPurchase": 14,
+      "crossing": 21,
+      "curve": [
+        {
+          "day": 10,
+          "incremental": 0,
+          "invested": 23000,
+          "net": -23000
+        },
+        {
+          "day": 11,
+          "incremental": 0,
+          "invested": 23000,
+          "net": -23000
+        },
+        {
+          "day": 12,
+          "incremental": 0,
+          "invested": 46000,
+          "net": -46000
+        },
+        {
+          "day": 13,
+          "incremental": 6572.570833333335,
+          "invested": 46000,
+          "net": -39427.42916666667
+        },
+        {
+          "day": 14,
+          "incremental": 13145.14166666667,
+          "invested": 88000,
+          "net": -74854.85833333334
+        },
+        {
+          "day": 15,
+          "incremental": 25635.61666666667,
+          "invested": 88000,
+          "net": -62364.38333333333
+        },
+        {
+          "day": 16,
+          "incremental": 38126.09166666667,
+          "invested": 88000,
+          "net": -49873.90833333333
+        },
+        {
+          "day": 17,
+          "incremental": 50616.566666666666,
+          "invested": 88000,
+          "net": -37383.433333333334
+        },
+        {
+          "day": 18,
+          "incremental": 63107.041666666664,
+          "invested": 88000,
+          "net": -24892.958333333336
+        },
+        {
+          "day": 19,
+          "incremental": 75597.51666666666,
+          "invested": 88000,
+          "net": -12402.483333333337
+        },
+        {
+          "day": 20,
+          "incremental": 87884.4,
+          "invested": 88000,
+          "net": -115.60000000000582
+        },
+        {
+          "day": 21,
+          "incremental": 100171.28333333333,
+          "invested": 88000,
+          "net": 12171.283333333326
+        },
+        {
+          "day": 22,
+          "incremental": 112458.16666666666,
+          "invested": 88000,
+          "net": 24458.166666666657
+        },
+        {
+          "day": 23,
+          "incremental": 124745.04999999999,
+          "invested": 88000,
+          "net": 36745.04999999999
+        },
+        {
+          "day": 24,
+          "incremental": 137031.93333333332,
+          "invested": 88000,
+          "net": 49031.93333333332
+        },
+        {
+          "day": 25,
+          "incremental": 149318.81666666665,
+          "invested": 88000,
+          "net": 61318.81666666665
+        },
+        {
+          "day": 26,
+          "incremental": 161605.69999999998,
+          "invested": 88000,
+          "net": 73605.69999999998
+        },
+        {
+          "day": 27,
+          "incremental": 173892.5833333333,
+          "invested": 88000,
+          "net": 85892.58333333331
+        },
+        {
+          "day": 28,
+          "incremental": 186179.46666666665,
+          "invested": 88000,
+          "net": 98179.46666666665
+        },
+        {
+          "day": 29,
+          "incremental": 198466.34999999998,
+          "invested": 88000,
+          "net": 110466.34999999998
+        },
+        {
+          "day": 30,
+          "incremental": 210753.2333333333,
+          "invested": 88000,
+          "net": 122753.23333333331
+        },
+        {
+          "day": 31,
+          "incremental": 223040.11666666664,
+          "invested": 88000,
+          "net": 135040.11666666664
+        }
+      ]
+    },
+    {
+      "stage": 3,
+      "ids": [
+        12010,
+        12005,
+        12006
+      ],
+      "before": 15,
+      "cost": 376000,
+      "start": 20,
+      "lastPurchase": 26,
+      "crossing": null,
+      "curve": [
+        {
+          "day": 20,
+          "incremental": 0,
+          "invested": 143000,
+          "net": -143000
+        },
+        {
+          "day": 21,
+          "incremental": 0,
+          "invested": 143000,
+          "net": -143000
+        },
+        {
+          "day": 22,
+          "incremental": 0,
+          "invested": 178000,
+          "net": -178000
+        },
+        {
+          "day": 23,
+          "incremental": 25475.912500000002,
+          "invested": 178000,
+          "net": -152524.0875
+        },
+        {
+          "day": 24,
+          "incremental": 50951.825000000004,
+          "invested": 178000,
+          "net": -127048.17499999999
+        },
+        {
+          "day": 25,
+          "incremental": 76427.7375,
+          "invested": 178000,
+          "net": -101572.2625
+        },
+        {
+          "day": 26,
+          "incremental": 101903.65000000001,
+          "invested": 376000,
+          "net": -274096.35
+        },
+        {
+          "day": 27,
+          "incremental": 155874.9125,
+          "invested": 376000,
+          "net": -220125.0875
+        },
+        {
+          "day": 28,
+          "incremental": 209846.175,
+          "invested": 376000,
+          "net": -166153.825
+        },
+        {
+          "day": 29,
+          "incremental": 263817.4375,
+          "invested": 376000,
+          "net": -112182.5625
+        },
+        {
+          "day": 30,
+          "incremental": 317788.7,
+          "invested": 376000,
+          "net": -58211.29999999999
+        },
+        {
+          "day": 31,
+          "incremental": 371759.9625,
+          "invested": 376000,
+          "net": -4240.037499999977
+        }
+      ]
+    }
+  ]
+}

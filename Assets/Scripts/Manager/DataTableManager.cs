@@ -87,6 +87,10 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.ReputationBalance] = new ReputationBalanceDataTable();
         this.dataList[DataTableType.Morality] = new MoralityDataTable();
         this.dataList[DataTableType.DailyGuideline] = new DailyGuidelineDataTable();
+        this.dataList[DataTableType.InspectorEvent] = new InspectorEventDataTable();
+        this.dataList[DataTableType.DaughterDialogue] = new DaughterDialogueDataTable();
+        this.dataList[DataTableType.DaughterAppearance] = new DaughterAppearanceDataTable();
+        this.dataList[DataTableType.EndingPage] = new EndingPageDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -141,12 +145,29 @@ public class DataTableManager : Singleton<DataTableManager>
                 GetDB<ProductDataTable>(DataTableType.Product).PendingRows);
             MoralityDataTable morality = GetDB<MoralityDataTable>(DataTableType.Morality);
             morality.Validate(GetDB<CustomerDispositionDataTable>(DataTableType.CustomerDisposition).PendingRows);
+            InspectorEventDataTable inspectors = GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent);
+            inspectors.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows,
+                GetDB<ResourceDataTable>(DataTableType.Resource), GetDB<FacilityDataTable>(DataTableType.Facility).PendingRows);
+            DaughterDialogueDataTable daughterDialogues = GetDB<DaughterDialogueDataTable>(DataTableType.DaughterDialogue);
+            DaughterAppearanceDataTable daughterAppearances = GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance);
+            daughterDialogues.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows);
+            daughterAppearances.Validate(GetDB<ResourceDataTable>(DataTableType.Resource));
+            EndingPageDataTable endingPages = GetDB<EndingPageDataTable>(DataTableType.EndingPage);
+            if (GetDB<FacilityDataTable>(DataTableType.Facility).PendingRows.Values.Count(
+                row => row.UpgradeKind == FacilityUpgradeKind.Citizenship) != 1)
+                throw new InvalidDataException("시민권 설비 행이 정확히 하나 필요합니다.");
+            endingPages.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows,
+                GetDB<ResourceDataTable>(DataTableType.Resource));
             Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource),
                 GetDB<FacilityDataTable>(DataTableType.Facility));
             GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
             GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Commit();
             morality.Commit();
             guidelines.Commit();
+            inspectors.Commit();
+            daughterDialogues.Commit();
+            daughterAppearances.Commit();
+            endingPages.Commit();
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }

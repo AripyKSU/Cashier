@@ -1,0 +1,101 @@
+// Analysis only: actual pure APIs, fixed service cycles, no scene/session changes.
+if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("Idle compiled Editor required.");
+var dispositionTable = new CustomerDispositionDataTable();
+dispositionTable.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
+// Publish only this locally owned table after its row validation; no global catalog is touched.
+typeof(CustomerDispositionDataTable).GetMethod("Commit", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(dispositionTable, null);
+var dispositions = dispositionTable.Rows;
+var products = Util.ParseFromCSV<ProductData>(File.ReadAllText("Assets/Datas/Customer/ProductData.csv")).ToDictionary(x => x.Idx);
+var facilities = Util.ParseFromCSV<FacilityData>(File.ReadAllText("Assets/Datas/FacilityData.csv")).ToDictionary(x => x.Idx);
+var appearances = Util.ParseFromCSV<CustomerAppearanceData>(File.ReadAllText("Assets/Datas/Customer/CustomerAppearanceData.csv")).Select(x => x.Idx).ToArray();
+var reputationTable = new ReputationBalanceDataTable();
+reputationTable.LoadData(File.ReadAllText("Assets/Datas/ReputationBalanceData.csv"));
+var calculator = new DailyReputationCalculator(reputationTable, dispositionTable);
+var generator = new CustomerGenerator();
+var output = new List<object>();
+int runs = 500;
+foreach (int day in new[] { 1, 13, 23 })
+foreach (int reputation in new[] { 0, 50 })
+foreach (int target in new[] { 8, 10, 12 })
+foreach (string timing in new[] { "fixed", "jitter" })
+{
+    // Stage examples, not an affordability prediction: all product equipment through that stage.
+    int stage = day == 1 ? 0 : day == 13 ? 2 : 3;
+    Func<uint, bool> active = id => facilities[id].UpgradeKind == FacilityUpgradeKind.ProductUnlock && facilities[id].RequiredStoreStage <= stage;
+    reputationTable.TryGetByReputation(reputation, out ReputationBalanceData balance);
+    var measures = new List<double[]>();
+    var baseTypes = new Dictionary<string, int>();
+    var queueTypes = new Dictionary<string, int>();
+    for (int run = 0; run < runs; run++)
+    {
+        var prices = new DailyProductSelector(new System.Random(410000 + run)).Select(products, facilities, (uint)(day - 1), active).ToDictionary(x => x.Idx, x => x.BasePrice);
+        var selector = new CustomerCompositionSelector(new System.Random(730000 + run));
+        var arrivals = new List<CustomerComposition>();
+        Func<CustomerVisit> create = () => {
+            var composition = selector.SelectComposition(appearances, dispositions.Values.OrderBy(x => x.Idx).ToArray(), products, balance, prices, (uint)(day - 1), active);
+            arrivals.Add(composition);
+            return generator.Generate(composition, products, () => prices);
+        };
+        var queue = new CustomerQueue(create, dispositions);
+        queue.Start();
+        if (!queue.TryAdd()) throw new InvalidOperationException("Initial arrival missing.");
+        double now = 0, cycle = 180d / target;
+        var timingRandom = new System.Random(910000 + run);
+        var durations = Enumerable.Range(0, target).Select(i => timing == "fixed" ? 1d : .8 + .4 * timingRandom.NextDouble()).ToArray();
+        double durationSum = durations.Sum(), cycleEnd = 0;
+        Action<double> advance = end => {
+            while (now < end - 1e-9) {
+                double step = Math.Min(.05, end - now);
+                queue.Advance(step, false);
+                now += step;
+            }
+        };
+        Func<CustomerVisit, TransactionResult> sell = visit => {
+            if (visit == null) throw new InvalidOperationException("No customer at required service time.");
+            visit.BeginOffer();
+            long amount = visit.Items.Sum(x => (long)x.Quantity * prices[x.ProductIdx]);
+            if (!visit.SubmitOffer(amount, visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()))
+                throw new InvalidOperationException("Exact-price refusal.");
+            var result = visit.Result.Value;
+            visit.Depart();
+            return result;
+        };
+        var queued = new List<TransactionResult>();
+        for (int n = 0; n < target; n++) {
+            var visit = queue.TakeNext();
+            cycleEnd += durations[n] / durationSum * 180d;
+            advance(cycleEnd - .05);
+            queued.Add(sell(visit));
+            advance(cycleEnd);
+        }
+        int abandoned = queue.AbandonedCount, waiting = queue.Waiting.Count;
+        if (arrivals.Count != target + abandoned + waiting || Math.Abs(now - 180) > 1e-6)
+            throw new InvalidOperationException("Queue conservation or clock mismatch.");
+        queue.Stop();
+        // Counterfactual: first N of the identical generated stream, with no waiting/expiry.
+        var baseline = arrivals.Take(target).Select(x => sell(generator.Generate(x, products, () => prices))).ToList();
+        var qRep = calculator.Calculate(reputation, queued);
+        var bRep = calculator.Calculate(reputation, baseline);
+        foreach (var t in queued) { string key = t.DispositionType.ToString(); queueTypes[key] = queueTypes.ContainsKey(key) ? queueTypes[key] + 1 : 1; }
+        foreach (var t in baseline) { string key = t.DispositionType.ToString(); baseTypes[key] = baseTypes.ContainsKey(key) ? baseTypes[key] + 1 : 1; }
+        measures.Add(new double[] {
+            baseline.Sum(x => (double)x.OfferedTotal.Value), queued.Sum(x => (double)x.OfferedTotal.Value),
+            bRep.SettlementScore, qRep.SettlementScore, bRep.FinalDelta, qRep.FinalDelta, abandoned, arrivals.Count
+        });
+    }
+    var difference = measures.Select(x => x[1] - x[0]).ToArray();
+    double diffMean = difference.Average();
+    double diffSe = Math.Sqrt(difference.Sum(x => (x - diffMean) * (x - diffMean)) / (runs - 1) / runs);
+    output.Add(new {
+        day, stageExample=stage, reputation, targetTrades=target, timing, runs, cycleSeconds=180d / target,
+        activeFacilities=facilities.Keys.Where(active).OrderBy(x => x).ToArray(),
+        baselineRevenue=measures.Average(x=>x[0]), queueRevenue=measures.Average(x=>x[1]),
+        pairedRevenueDifference=diffMean, pairedDifference95Low=diffMean-1.96*diffSe, pairedDifference95High=diffMean+1.96*diffSe,
+        baselineScore=measures.Average(x=>x[2]), queueScore=measures.Average(x=>x[3]),
+        baselineReputationDelta=measures.Average(x=>x[4]), queueReputationDelta=measures.Average(x=>x[5]),
+        abandonedMean=measures.Average(x=>x[6]), arrivalsMean=measures.Average(x=>x[7]),
+        baselineTypes=baseTypes, queueTypes
+    });
+}
+return Newtonsoft.Json.JsonConvert.SerializeObject(new { runsPerScenario=runs, scenarios=output, checks="Exact-price accepted; no empty counter; queue conservation; 180s clock; identical catalog and generated stream for paired comparison" });

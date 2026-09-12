@@ -15,6 +15,15 @@ public sealed class DailyAggregationService
     // 현재 영업일에 완료된 거래의 명성 변화 누적값입니다.
     private int dailyReputationDelta;
 
+    // 현재 영업일에 성립한 거래에서 발생한 정식 일일지침 위반 건수입니다.
+    private int dailyGuidelineViolationCount;
+
+    // 실제 차감 전인 현재 영업일의 지침 벌금 예정액입니다.
+    private long dailyGuidelinePenaltyAmount;
+
+    // 정산 표시와 지침별 집계를 위해 보존하는 현재 영업일의 위반 snapshot입니다.
+    private readonly List<DailyGuidelineViolation> dailyGuidelineViolations = new List<DailyGuidelineViolation>();
+
     // 현재 영업일의 성공·거절 거래에서 누적한 도덕성 변화량입니다.
     private decimal dailyMoralityDelta;
 
@@ -38,6 +47,12 @@ public sealed class DailyAggregationService
     /// 현재 영업일에 누적된 명성 변화량입니다.
     /// </summary>
     public int DailyReputationDelta => this.dailyReputationDelta;
+
+    /// <summary>현재 영업일에 누적된 정식 일일지침 위반 건수입니다.</summary>
+    public int DailyGuidelineViolationCount => this.dailyGuidelineViolationCount;
+
+    /// <summary>현재 영업일에 누적된 지침 벌금 예정액입니다. 실제 지출 반영 전 값입니다.</summary>
+    public long DailyGuidelinePenaltyAmount => this.dailyGuidelinePenaltyAmount;
 
     /// <summary>현재 영업일에 누적된 도덕성 변화량입니다.</summary>
     public decimal DailyMoralityDelta => this.dailyMoralityDelta;
@@ -84,13 +99,22 @@ public sealed class DailyAggregationService
             return false;
         }
 
+        // 재정 변경 전에 모든 일일 누적값의 범위를 확인해 부분 갱신을 방지합니다.
         ValidateTransaction(transactionResult);
-        long nextDailySaleIncome = this.dailySaleIncome + transactionResult.SaleIncome;
-        int nextDailyReputationDelta = this.dailyReputationDelta + transactionResult.ReputationDelta;
+        long nextDailySaleIncome = checked(this.dailySaleIncome + transactionResult.SaleIncome);
+        int nextDailyReputationDelta = checked(this.dailyReputationDelta + transactionResult.ReputationDelta);
+        int nextDailyGuidelineViolationCount = checked(
+            this.dailyGuidelineViolationCount + transactionResult.DailyGuidelineViolationCount);
+        long nextDailyGuidelinePenaltyAmount = checked(
+            this.dailyGuidelinePenaltyAmount + transactionResult.DailyGuidelinePenaltyAmount);
 
         // 알림 예외가 발생해도 확정 거래·재정·도덕성 중 일부만 빠지지 않도록 기록을 먼저 확정한다.
         this.dailySaleIncome = nextDailySaleIncome;
         this.dailyReputationDelta = nextDailyReputationDelta;
+        this.dailyGuidelineViolationCount = nextDailyGuidelineViolationCount;
+        this.dailyGuidelinePenaltyAmount = nextDailyGuidelinePenaltyAmount;
+        foreach (DailyGuidelineViolation violation in transactionResult.DailyGuidelineViolations)
+            this.dailyGuidelineViolations.Add(violation);
         this.dailyMoralityDelta += transactionResult.MoralityDelta ?? 0m;
         this.dailyTransactions.Add(transactionResult);
 
@@ -112,6 +136,8 @@ public sealed class DailyAggregationService
         _ = checked(this.dailySaleIncome + transactionResult.SaleIncome);
         _ = checked(this.dailyReputationDelta + transactionResult.ReputationDelta);
         _ = checked(this.dailyMoralityDelta + (transactionResult.MoralityDelta ?? 0m));
+        _ = checked(this.dailyGuidelineViolationCount + transactionResult.DailyGuidelineViolationCount);
+        _ = checked(this.dailyGuidelinePenaltyAmount + transactionResult.DailyGuidelinePenaltyAmount);
         _ = checked(this.financeService.CurrentBalance + transactionResult.SaleIncome);
     }
 
@@ -135,6 +161,9 @@ public sealed class DailyAggregationService
             0,
             this.dailyReputationDelta,
             this.dailyTransactions,
+            this.dailyGuidelineViolationCount,
+            this.dailyGuidelinePenaltyAmount,
+            this.dailyGuidelineViolations,
             this.dailyMoralityDelta);
 
         // 반환 결과와 현재 집계 상태를 분리한 뒤 다음 영업일을 위해 누적값을 초기화합니다.
@@ -149,6 +178,9 @@ public sealed class DailyAggregationService
     {
         this.dailySaleIncome = 0;
         this.dailyReputationDelta = 0;
+        this.dailyGuidelineViolationCount = 0;
+        this.dailyGuidelinePenaltyAmount = 0;
+        this.dailyGuidelineViolations.Clear();
         this.dailyMoralityDelta = 0m;
         this.dailyTransactions.Clear();
     }

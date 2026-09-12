@@ -23,6 +23,8 @@ Shader "Cashier/2D/PixelFog"
         _Opacity ("Opacity", Range(0,1)) = 0.65
         _BottomFadePixels ("Bottom Edge Fade (source pixels)", Float) = 0
         _Seed ("Pattern Seed", Float) = 1
+        [Toggle] _UsePresentationTime ("Use Pausable Presentation Time", Float) = 0
+        _PresentationSeconds ("Presentation Seconds", Float) = 0
         [Toggle] _UseUI ("uGUI Image Mode", Float) = 0
         [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("Depth Test", Float) = 4
         [HideInInspector] _RendererColor ("Renderer Color", Color) = (1,1,1,1)
@@ -60,6 +62,7 @@ Shader "Cashier/2D/PixelFog"
                 float _PixelSize, _DistortionStrength, _Opacity, _Seed;
                 float _UseUI;
                 float _BottomFadePixels;
+                float _UsePresentationTime, _PresentationSeconds;
             CBUFFER_END
 
             struct Attributes
@@ -123,7 +126,7 @@ Shader "Cashier/2D/PixelFog"
             half4 FogFragment(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
-                float time = _Time.y;
+                float time = _UsePresentationTime > 0.5 ? _PresentationSeconds : _Time.y;
                 float seed = fmod(abs(_Seed), 4096);
                 float2 seedOffset = float2(seed * 0.37, seed * 0.73);
                 float2 size = max(_MainTex_TexelSize.zw, 1);

@@ -12,7 +12,7 @@ public sealed class DailyPriceState
     public uint? RadioEventIdx { get; }
     /// <summary>선정된 라디오가 방송되어 가격에 반영됐는지 나타낸다.</summary>
     public bool IsRadioBroadcast { get; }
-    /// <summary>전 상품 PK별 현재가. 기본가격 원본과 별개다.</summary>
+    /// <summary>당일 등장 상품 PK별 현재가. 키 집합은 당일 판매 가능 상품의 권위값이다.</summary>
     public IReadOnlyDictionary<uint, uint> Prices { get; }
 
     /// <summary>계산이 모두 성공한 결과만 읽기 전용으로 공개한다.</summary>

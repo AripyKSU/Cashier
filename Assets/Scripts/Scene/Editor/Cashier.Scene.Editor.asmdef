@@ -1,5 +1,5 @@
 {
   "name": "Cashier.Scene.Editor",
-  "references": ["Cashier.Runtime"],
+  "references": ["Cashier.Runtime", "Unity.TextMeshPro", "Unity.ugui", "Unity.InputSystem", "Unity.Addressables.Editor"],
   "includePlatforms": ["Editor"]
 }

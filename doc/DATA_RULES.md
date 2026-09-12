@@ -1,6 +1,6 @@
 # CSV와 DataTable 작업 규격
 
-이 문서는 CSV 데이터의 생성·수정, 검증과 runtime 연결 기준을 정의한다. 공통 권한과 승인 절차는 [`AGENTS.md`](../AGENTS.md), 역할 명부는 [`TEAM_ROLES.md`](TEAM_ROLES.md)를 따른다.
+이 문서는 CSV 데이터의 생성·수정, 검증과 runtime 연결 기준을 정의한다. 공통 권한과 승인 절차는 [`WORK_RULES.md`](WORK_RULES.md), 역할 명부는 [`TEAM_ROLES.md`](TEAM_ROLES.md)를 따른다.
 
 ## 기존 구현 우선
 
