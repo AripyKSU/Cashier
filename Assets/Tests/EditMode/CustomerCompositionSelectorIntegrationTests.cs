@@ -6,6 +6,60 @@ using NUnit.Framework;
 /// <summary>명성 구성군·설비 해금·성별 교대가 구성 선택 단계에서 함께 적용되는지 검사합니다.</summary>
 public sealed class CustomerCompositionSelectorIntegrationTests
 {
+    /// <summary>표시일9/10일과19/20일 경계에서 같은 성향의 선호 행 가중치가 바뀝니다.</summary>
+    [TestCase(8u, 0.4d, 6001u)]
+    [TestCase(9u, 0.4d, 6002u)]
+    [TestCase(18u, 0.7d, 6002u)]
+    [TestCase(19u, 0.7d, 6003u)]
+    public void PreferenceRowsFollowElapsedDayBands(uint elapsedDays, double sample, uint expectedDispositionId)
+    {
+        Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData>
+        {
+            [1] = product(1, ProductType.Water),
+            [2] = product(2, ProductType.Tools),
+            [3] = product(3, ProductType.ProtectiveEquipment)
+        };
+        CustomerDispositionData[] dispositions =
+        {
+            disposition(6001, CustomerDispositionType.Normal, ProductType.Water),
+            disposition(6002, CustomerDispositionType.Normal, ProductType.Tools),
+            disposition(6003, CustomerDispositionType.Normal, ProductType.ProtectiveEquipment)
+        };
+        ReputationBalanceData balance = normalOnlyBalance();
+        Dictionary<uint, uint> prices = products.ToDictionary(pair => pair.Key, pair => pair.Value.BasePrice);
+        CustomerCompositionSelector selector = new CustomerCompositionSelector(new FixedRandom(sample));
+
+        CustomerComposition composition = selector.SelectComposition(
+            new uint[] { 5001 }, dispositions, products, balance, prices, elapsedDays);
+
+        Assert.That(composition.DispositionIdx, Is.EqualTo(expectedDispositionId));
+    }
+
+    /// <summary>복수 선호 타입 행은 타입 수에 따라 유리해지지 않고 각 타입 가중치의 평균을 사용합니다.</summary>
+    [Test]
+    public void MultiplePreferredTypesUseArithmeticMeanWeight()
+    {
+        Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData>
+        {
+            [1] = product(1, ProductType.Water),
+            [2] = product(2, ProductType.Tools),
+            [3] = product(3, ProductType.ProtectiveEquipment)
+        };
+        CustomerDispositionData[] dispositions =
+        {
+            disposition(6001, CustomerDispositionType.Normal, ProductType.Water),
+            disposition(6002, CustomerDispositionType.Normal,
+                ProductType.Tools, ProductType.ProtectiveEquipment)
+        };
+        Dictionary<uint, uint> prices = products.ToDictionary(pair => pair.Key, pair => pair.Value.BasePrice);
+        CustomerCompositionSelector selector = new CustomerCompositionSelector(new FixedRandom(0.65d));
+
+        CustomerComposition composition = selector.SelectComposition(
+            new uint[] { 5001 }, dispositions, products, normalOnlyBalance(), prices, elapsedDays: 0);
+
+        Assert.That(composition.DispositionIdx, Is.EqualTo(6001u));
+    }
+
     /// <summary>명성별 Normal·Wealthy·Hasty·Poor 타입이 가중치대로 도달하는지 확인합니다.</summary>
     [Test]
     public void ReputationWeightsSelectTypeGroupsAndKeepPreferenceIndependent()
@@ -101,13 +155,16 @@ public sealed class CustomerCompositionSelectorIntegrationTests
     }
 
     /// <summary>테스트용 구매 설정을 만듭니다.</summary>
-    private static CustomerDispositionData disposition(uint id, CustomerDispositionType type, ProductType preferredType)
+    private static CustomerDispositionData disposition(
+        uint id,
+        CustomerDispositionType type,
+        params ProductType[] preferredTypes)
     {
         return new CustomerDispositionData
         {
             Idx = id,
             DispositionType = type,
-            PreferredProductTypes = new[] { preferredType },
+            PreferredProductTypes = preferredTypes,
             PreferredSelectionChance = 1000,
             MinProductKinds = 1,
             MaxProductKinds = 1,
@@ -120,5 +177,34 @@ public sealed class CustomerCompositionSelectorIntegrationTests
             ExploitativeSaleTextIdxs = new uint[] { 4 },
             RejectTextIdxs = new uint[] { 5 }
         };
+    }
+
+    /// <summary>Normal 구성군만 선택하는 명성 데이터를 만듭니다.</summary>
+    private static ReputationBalanceData normalOnlyBalance()
+    {
+        return new ReputationBalanceData
+        {
+            NormalWeight = 1000,
+            PriceSensitiveWeight = 0,
+            WealthyWeight = 0,
+            HastyWeight = 0,
+            PoorWeight = 0
+        };
+    }
+
+    /// <summary>모든 난수 호출에 지정한0~1 표본을 반환합니다.</summary>
+    private sealed class FixedRandom : Random
+    {
+        private readonly double sample;
+
+        public FixedRandom(double sample)
+        {
+            this.sample = sample;
+        }
+
+        protected override double Sample()
+        {
+            return this.sample;
+        }
     }
 }

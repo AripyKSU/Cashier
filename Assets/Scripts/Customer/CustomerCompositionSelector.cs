@@ -117,8 +117,8 @@ public sealed class CustomerCompositionSelector
             return null;
 
         CustomerDispositionData disposition = reputationBalance == null
-            ? selectUniformDisposition(sortedDispositions)
-            : selectWeightedDisposition(sortedDispositions, reputationBalance);
+            ? selectUniformDisposition(sortedDispositions, elapsedDays)
+            : selectWeightedDisposition(sortedDispositions, reputationBalance, elapsedDays);
         CustomerAttributes selectedGender;
         CustomerAttributes attributes = this.selectAttributes(out selectedGender);
         uint appearanceIdx = sortedAppearanceIds[this.random.Next(sortedAppearanceIds.Count)];
@@ -216,21 +216,24 @@ public sealed class CustomerCompositionSelector
         return availableProducts;
     }
 
-    /// <summary>명성 연결 전 호환 경로의 타입·행 균등 선택입니다.</summary>
-    private CustomerDispositionData selectUniformDisposition(IReadOnlyList<CustomerDispositionData> dispositions)
+    /// <summary>명성 연결 전 호환 경로에서 타입을 균등 선택하고 날짜별 선호로 행을 선택합니다.</summary>
+    private CustomerDispositionData selectUniformDisposition(
+        IReadOnlyList<CustomerDispositionData> dispositions,
+        uint elapsedDays)
     {
         List<CustomerDispositionType> types = dispositions.Select(data => data.DispositionType)
             .Distinct().OrderBy(type => type).ToList();
         CustomerDispositionType selectedType = types[this.random.Next(types.Count)];
         CustomerDispositionData[] rows = dispositions.Where(data => data.DispositionType == selectedType)
             .OrderBy(data => data.Idx).ToArray();
-        return rows[this.random.Next(rows.Length)];
+        return selectPreferenceRow(rows, elapsedDays);
     }
 
-    /// <summary>명성 구성군을 가중치로 고른 뒤 군 내부 타입·행을 균등 선택합니다.</summary>
+    /// <summary>명성 구성군을 가중치로 고른 뒤 군 내부 타입과 날짜별 선호 행을 선택합니다.</summary>
     private CustomerDispositionData selectWeightedDisposition(
         IReadOnlyList<CustomerDispositionData> dispositions,
-        ReputationBalanceData balance)
+        ReputationBalanceData balance,
+        uint elapsedDays)
     {
         if (balance.NormalWeight < 0 || balance.PriceSensitiveWeight < 0 || balance.WealthyWeight < 0 ||
             balance.HastyWeight < 0 || balance.PoorWeight < 0 ||
@@ -260,32 +263,77 @@ public sealed class CustomerCompositionSelector
 
         int roll = this.random.Next(1000);
         if (roll < balance.NormalWeight)
-            return selectTypeThenRow(normal);
+            return selectTypeThenRow(normal, elapsedDays);
         roll -= balance.NormalWeight;
         if (roll < balance.PriceSensitiveWeight)
-            return selectTypeThenRow(priceSensitive);
+            return selectTypeThenRow(priceSensitive, elapsedDays);
         roll -= balance.PriceSensitiveWeight;
         if (roll < balance.WealthyWeight)
-            return selectTypeThenRow(wealthy);
+            return selectTypeThenRow(wealthy, elapsedDays);
         roll -= balance.WealthyWeight;
         if (roll < balance.HastyWeight)
-            return selectTypeThenRow(hasty);
+            return selectTypeThenRow(hasty, elapsedDays);
         roll -= balance.HastyWeight;
         if (roll < balance.PoorWeight)
-            return selectTypeThenRow(poor);
+            return selectTypeThenRow(poor, elapsedDays);
 
         throw new InvalidDataException("명성 손님 구성군 추첨 결과가 매핑되지 않았습니다.");
     }
 
-    /// <summary>한 구성군 안에서 타입을 먼저 균등 선택하고 해당 타입의 행을 선택합니다.</summary>
-    private CustomerDispositionData selectTypeThenRow(IReadOnlyList<CustomerDispositionData> candidates)
+    /// <summary>한 구성군 안에서 타입을 먼저 균등 선택하고 해당 타입의 날짜별 선호 행을 선택합니다.</summary>
+    private CustomerDispositionData selectTypeThenRow(
+        IReadOnlyList<CustomerDispositionData> candidates,
+        uint elapsedDays)
     {
         List<CustomerDispositionType> types = candidates.Select(data => data.DispositionType)
             .Distinct().OrderBy(type => type).ToList();
         CustomerDispositionType selectedType = types[this.random.Next(types.Count)];
         CustomerDispositionData[] rows = candidates.Where(data => data.DispositionType == selectedType)
             .OrderBy(data => data.Idx).ToArray();
-        return rows[this.random.Next(rows.Length)];
+        return selectPreferenceRow(rows, elapsedDays);
+    }
+
+    /// <summary>선호 상품군의 날짜 가중치 평균으로 같은 성향 타입의 행을 선택합니다.</summary>
+    private CustomerDispositionData selectPreferenceRow(
+        IReadOnlyList<CustomerDispositionData> rows,
+        uint elapsedDays)
+    {
+        double totalWeight = rows.Sum(row => preferenceRowWeight(row, elapsedDays));
+        double roll = this.random.NextDouble() * totalWeight;
+        foreach (CustomerDispositionData row in rows)
+        {
+            double weight = preferenceRowWeight(row, elapsedDays);
+            if (roll < weight)
+                return row;
+            roll -= weight;
+        }
+
+        return rows[rows.Count - 1];
+    }
+
+    /// <summary>복수 선호 타입은 각 상품군 가중치의 산술평균을 사용합니다.</summary>
+    private static double preferenceRowWeight(CustomerDispositionData row, uint elapsedDays)
+    {
+        if (row.PreferredProductTypes.Count == 0)
+            return 100d;
+
+        double total = 0d;
+        foreach (ProductType type in row.PreferredProductTypes)
+            total += preferenceTypeWeight(type, elapsedDays);
+        return total / row.PreferredProductTypes.Count;
+    }
+
+    /// <summary>표시일1~9, 10~19, 20일 이후의 저가·중가·고가 상품군 가중치입니다.</summary>
+    private static int preferenceTypeWeight(ProductType type, uint elapsedDays)
+    {
+        int band = type <= ProductType.DailyNecessities ? 0
+            : type <= ProductType.ElectricalEquipment ? 1
+            : 2;
+        if (elapsedDays < 9)
+            return band == 0 ? 160 : band == 1 ? 100 : 45;
+        if (elapsedDays < 19)
+            return band == 0 ? 100 : band == 1 ? 160 : 100;
+        return band == 0 ? 100 : band == 1 ? 120 : 180;
     }
 
     /// <summary>선호 타입·개별 선호를 합친 후보에서 구매 항목을 확정합니다.</summary>
