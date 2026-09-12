@@ -30,6 +30,7 @@ public enum DataTableType : uint
     InspectorEvent = 15,
     DaughterDialogue = 16,
     DaughterAppearance = 17,
+    EndingPage = 18,
     DataTableType_End
 }
 

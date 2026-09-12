@@ -62,7 +62,7 @@ public sealed class FacilityShopPresenter : MonoBehaviour
         if (data == null) throw new ArgumentNullException(nameof(data));
         if (balanceText != null) balanceText.text = $"가게 단계 {data.CurrentStoreStage}  ·  보유금 {data.CurrentBalance:N0} G";
         if (activationGuideText != null)
-            activationGuideText.text = "구매 효과는 다음 영업일부터 적용됩니다. 단계 확장은 구매 즉시 해금됩니다.";
+            activationGuideText.text = "일반 설비는 다음 영업일부터 적용 · 가게 확장과 시민권은 구매 즉시 적용";
         if (feedbackText != null) feedbackText.text = feedback ?? string.Empty;
         if (content is RectTransform contentRect)
         {

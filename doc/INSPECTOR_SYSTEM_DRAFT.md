@@ -115,8 +115,9 @@ GameProgress.startCurrentDay가 날짜별 가격 준비와 DayProgress 생성·S
 - 입장 완료 전에는 대사 넘김을 막고, 마지막 대사 확인 후 퇴장 중에도 추가 입력을 막는다. 완료 후 색·알파·텍스트·버튼 상태를 초기화해 다음 이벤트에서 검은색이 남지 않게 한다.
 - 입퇴장 시간은 Presenter의 Inspector 조정값 `fadeSeconds`이며 초기값은 각 0.4초다. UniTask 표현 루프를 사용하고 화면 비활성·파괴 시 취소한다. 같은 부모 화면의 재활성 순서가 달라도 Presenter.OnEnable에서 준비된 연출을 재개한다. 일시정지 정책은 기존 표현 정지 규칙과 맞춘다.
 - ResourceData → ResourceManager로 Sprite를 가져온다. 이미지 파일이 있다는 이유만으로 Addressables 주소를 추측하지 않는다.
-- 사용자 승인에 따라 감독관은 기존 손님 이미지를 임시 재사용한다. 첫 데이터의 portrait_resource_idx는 기존 ResourceData 4201(FemaleCustomer_01)을 사용한다. 손님 생성·외형·성향·속성과 연결하지 않고 고정 Sprite 참조로만 사용한다.
-- 임시 이미지 때문에 새 ResourceData 행이나 Addressables 이미지 등록을 만들지 않는다. 전용 이미지가 준비되면 해당 리소스 등록을 검증한 뒤 이벤트의 portrait_resource_idx만 교체한다. 그 시점이 임시 이미지 제거 조건이다.
+- 2026-09-13 사용자 요청으로 감독관 이벤트 3개의 `portrait_resource_idx`를 전용 Resource4256으로 교체했다. `4256 → Inspector → Assets/Textures/Customer/Dystopia/Inspector.png` 경로로 표시하며 기존 GUID와 Sprite import 설정을 유지한다.
+- 이전 Resource4201(FemaleCustomer_01) 임시 재사용을 종료했다. 손님과 딸이 사용하는 4201은 그대로 유지하며, 아래 날짜별 과거 검증의 임시 이미지 표현과 구분한다.
+- 전용 이미지 연결 검증: EditMode249/249(`Temp/TestResults/inspector-image-edit-01/EditMode.xml`). 실제 Init→Main의 감독관 패널에서 Sprite `Inspector`, Resource4256 및 원본 경로 일치, Console Error0을 확인했다. 화면 증거는 `Temp/inspector-image.png`다.
 - 사용자 승인으로 기존 Default Local Group의 `InspectorEventData` address에 기존 `Datas` 라벨을 등록한다. 새 group·label·이미지 등록은 없다.
 
 ### 대사 원본

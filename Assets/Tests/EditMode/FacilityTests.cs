@@ -31,7 +31,9 @@ public sealed class FacilityTests
             [12010] = new FacilityData { Idx = 12010, NameIdx = 8080, PurchasePrice = 5,
                 UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 2, TargetStoreStage = 3 },
             [12005] = new FacilityData { Idx = 12005, NameIdx = 8060, PurchasePrice = 80,
-                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 }
+                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 },
+            [12900] = new FacilityData { Idx = 12900, NameIdx = 8999, PurchasePrice = 40,
+                UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 1 }
         };
         service = new FacilityService(finance, facilities, () => day);
     }
@@ -48,6 +50,25 @@ public sealed class FacilityTests
         Assert.That(service.TryPurchase(12001, out result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned)); Assert.That(result.PaidAmount, Is.Zero);
         day = 1; Assert.That(service.IsActive(12001)); Assert.That(finance.CurrentBalance, Is.EqualTo(70));
+    }
+
+    /// <summary>시민권은 구매 당일 즉시 활성·보유되고 중복 결제되지 않는다.</summary>
+    [Test]
+    public void CitizenshipActivatesImmediatelyAndIsUnique()
+    {
+        Assert.That(service.HasCitizenship, Is.False);
+        Assert.That(service.IsCitizenship(12900));
+        Assert.That(service.TryPurchase(12900, out var result));
+        Assert.That(result.ActivationDay, Is.EqualTo(0));
+        Assert.That(service.IsActive(12900));
+        Assert.That(service.HasCitizenship);
+        Assert.That(service.TryPurchase(12900, out result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(60));
+
+        facilities[12901] = new FacilityData { Idx = 12901, NameIdx = 8998, PurchasePrice = 1,
+            UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 1 };
+        Assert.Throws<ArgumentException>(() => new FacilityService(finance, facilities, () => day));
     }
 
     /// <summary>잔액 부족은 정상 실패이며 보유와 금액을 변경하지 않는다.</summary>
@@ -250,7 +271,7 @@ public sealed class FacilityTests
         var (factory, table) = loadShopData();
         var owned = new Dictionary<uint, uint>();
         var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 18000);
-        Assert.That(before.Items.Count, Is.EqualTo(11));
+        Assert.That(before.Items.Count, Is.EqualTo(12));
         Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
         Assert.That(before.Items[0].DisplayName, Is.EqualTo("식량 보관 선반"));
@@ -288,7 +309,7 @@ public sealed class FacilityTests
         Assert.Throws<InvalidOperationException>(() => factory.CreateFacilityShopViewData(bad, owned, 0, 1));
         var rows = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 100000).Items.ToList();
         var copy = new FacilityShopViewData(100000, rows); rows.Clear();
-        Assert.That(copy.Items.Count, Is.EqualTo(11));
+        Assert.That(copy.Items.Count, Is.EqualTo(12));
     }
 
     /// <summary>실제 설비 CSV가 6개 상품 해금·3개 편의성·2개 단계 상승으로 구성되는지 확인한다.</summary>
@@ -296,7 +317,7 @@ public sealed class FacilityTests
     public void CsvExposesUpgradeKindsAndStageContracts()
     {
         var (_, table) = loadShopData();
-        Assert.That(table.Rows.Count, Is.EqualTo(11));
+        Assert.That(table.Rows.Count, Is.EqualTo(12));
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.ProductUnlock), Is.EqualTo(6));
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.Convenience), Is.EqualTo(3));
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.StoreStage), Is.EqualTo(2));

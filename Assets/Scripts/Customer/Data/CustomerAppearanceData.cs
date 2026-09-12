@@ -1,6 +1,6 @@
 using CsvHelper.Configuration.Attributes;
 
-/// <summary>손님 외형 하나의 표시 이름과 필수 Sprite 리소스 참조. 성향·속성 판정과 독립적이다.</summary>
+/// <summary>손님 외형의 표시 이름과 Sprite 참조.</summary>
 public sealed class CustomerAppearanceData
 {
     /// <summary>외형 PK, 5001~5999.</summary>

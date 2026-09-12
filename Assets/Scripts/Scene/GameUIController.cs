@@ -390,6 +390,8 @@ public sealed class GameUIController : MonoBehaviour
             this.preOpenPanelPresenter.DebugDay10Button.onClick.AddListener(this.handleDebugDay10Clicked);
         if (this.preOpenPanelPresenter.DebugDay20Button != null)
             this.preOpenPanelPresenter.DebugDay20Button.onClick.AddListener(this.handleDebugDay20Clicked);
+        if (this.preOpenPanelPresenter.DebugDay30Button != null)
+            this.preOpenPanelPresenter.DebugDay30Button.onClick.AddListener(this.handleDebugDay30Clicked);
 #endif
         this.transactionContinueButton.onClick.AddListener(this.handleTransactionContinueClicked);
     }
@@ -452,6 +454,8 @@ public sealed class GameUIController : MonoBehaviour
                 this.preOpenPanelPresenter.DebugDay10Button.onClick.RemoveListener(this.handleDebugDay10Clicked);
             if (this.preOpenPanelPresenter.DebugDay20Button != null)
                 this.preOpenPanelPresenter.DebugDay20Button.onClick.RemoveListener(this.handleDebugDay20Clicked);
+            if (this.preOpenPanelPresenter.DebugDay30Button != null)
+                this.preOpenPanelPresenter.DebugDay30Button.onClick.RemoveListener(this.handleDebugDay30Clicked);
         }
 #endif
 
@@ -519,10 +523,18 @@ public sealed class GameUIController : MonoBehaviour
         if (state != GameProgressState.DayInProgress && this.IsFacilityShopOpen) this.closeFacilityShop();
         if (state == GameProgressState.Failed)
         {
+            this.gameInputRouter.enabled = false;
+            this.failureText.text = "영업권을 잃었습니다.\n유지비·벌금의 미납 유예기간이 끝났습니다.\n새 게임에서 다시 시작할 수 있습니다.";
             this.setPanelVisibility(this.preOpenPanel, false);
             this.setPanelVisibility(this.operatingPanel, false);
             this.setPanelVisibility(this.settlementPanel, false);
             this.setPanelVisibility(this.failurePanel, true);
+        }
+        else if (state == GameProgressState.Completed)
+        {
+            this.gameInputRouter.enabled = false;
+            this.setPanelVisibility(this.settlementPanel, false);
+            this.openEndingAsync().Forget();
         }
         else if (state == GameProgressState.DayInProgress)
         {
@@ -578,6 +590,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <param name="result">미납과 유예 조건까지 포함한 최종 하루 정산 결과입니다.</param>
     private void handleSettlementStarted(DailySettlementResult result)
     {
+        if (this.gameProgress.State == GameProgressState.Failed) return;
         if (this.useCustomerQueue && this.queueExitRemaining > 0)
         {
             this.isSettlementPresentationPending = true;
@@ -605,6 +618,8 @@ public sealed class GameUIController : MonoBehaviour
             this.subscribedDay.RefusedCustomers,
             this.subscribedDay.DepartedCustomers,
             this.economy.QueryService.CurrentBalance));
+        this.dailySettlementPresenter.ConfigureEnding(this.subscribedDay.Day == 31,
+            this.gameProgress.HasCitizenship, this.gameProgress.WasLastSettlementUnpaidGameOverExempted);
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
         this.daughterDialoguePresenter.UpdateView(this.viewDataFactory.CreateDaughterDialogueViewData(
@@ -614,7 +629,8 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>
     /// <returns>상납 화면을 포함한 다른 진행 단계는false.</returns>
     private bool canOpenFacilityShop() => this.isReady && !this.hasError &&
-        !this.isSettlementPresentationPending && this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
+        !this.isSettlementPresentationPending && !this.dailySettlementPresenter.IsFinalConfirmationOpen &&
+        this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
 
     /// <summary>현재 설비 상태를 읽고 뒤 정산·키보드 입력을 차단한다.</summary>
     private void handleFacilityOpenClicked()
@@ -622,7 +638,12 @@ public sealed class GameUIController : MonoBehaviour
         if (!this.canOpenFacilityShop() || this.IsFacilityShopOpen) return;
         try
         {
-            this.facilityFeedback = "구매한 설비는 다음 영업일부터 사용할 수 있습니다.";
+            var citizenship = System.Linq.Enumerable.Single(
+                DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values,
+                row => row.UpgradeKind == FacilityUpgradeKind.Citizenship);
+            long shortfall = Math.Max(0, citizenship.PurchasePrice - this.economy.QueryService.CurrentBalance);
+            this.facilityFeedback = this.gameProgress.HasCitizenship ? "시민권 보유 · 마지막 날 최종 확인 시 엔딩을 판정합니다."
+                : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 31일차 정산까지 구매 가능";
             this.wasInputRouterEnabled = this.gameInputRouter.enabled;
             this.gameInputRouter.enabled = false;
             this.settlementInputGroup.interactable = false;
@@ -671,7 +692,7 @@ public sealed class GameUIController : MonoBehaviour
                 FacilityPurchaseStatus.Purchased => result.ActivationDay.HasValue &&
                     result.ActivationDay.Value > GameSessionManager.Instance.ElapsedDays
                     ? $"구매 완료 · {result.PaidAmount:N0} G · 다음 영업일부터 적용"
-                    : $"구매 완료 · {result.PaidAmount:N0} G · 단계가 즉시 확장되었습니다.",
+                    : $"구매 완료 · {result.PaidAmount:N0} G · 즉시 적용되었습니다.",
                 FacilityPurchaseStatus.AlreadyOwned => "이미 구매한 설비입니다. 추가 결제하지 않았습니다.",
                 FacilityPurchaseStatus.InsufficientFunds => "보유금이 부족합니다. 결제하지 않았습니다.",
                 FacilityPurchaseStatus.StageLocked => "현재 가게 단계에서 잠긴 업그레이드입니다.",
@@ -752,11 +773,40 @@ public sealed class GameUIController : MonoBehaviour
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>엔딩 수동 검증용 자금 버튼의 사용 가능 상태. 종료 결과 확정 후에는 지급하지 않는다.</summary>
+    private bool CanGrantTestFunds => this.isReady && this.presentationReady && !this.hasError &&
+        !this.isPurchasingFacility && this.economy != null &&
+        this.gameProgress?.State == GameProgressState.DayInProgress &&
+        GameSessionManager.Instance != null && !GameSessionManager.Instance.EndingResult.HasValue &&
+        this.economy.FinanceService.CurrentBalance <= long.MaxValue - 100_000;
+
+    /// <summary>임시 플레이 테스트 버튼. 검증 종료 시 이 개발 전용 블록을 제거한다.</summary>
+    private void OnGUI()
+    {
+        if (!this.CanGrantTestFunds) return;
+        if (GUI.Button(new Rect(12, 6, 220, 32), "TEST +100,000 G"))
+            this.grantTestFunds();
+    }
+
+    /// <summary>기존 잔액 API로 10만G를 지급한다. 거래 집계를 호출하지 않아 매출·명성·도덕성은 유지한다.</summary>
+    private void grantTestFunds()
+    {
+        if (!this.CanGrantTestFunds) return;
+        if (this.IsFacilityShopOpen) this.facilityFeedback = "테스트 자금 100,000 G 지급";
+        this.economy.FinanceService.AddIncome(100_000, FinanceChangeReason.None);
+        if (!this.IsFacilityShopOpen && this.subscribedDay?.SettlementResult.HasValue == true)
+            this.renderSettlement(this.subscribedDay.SettlementResult.Value);
+        this.refreshAllViews();
+    }
+
     /// <summary>영업 전 수동 검증을 위해 10일차를 새로 준비합니다.</summary>
     private void handleDebugDay10Clicked() => debugJumpToDay(10);
 
     /// <summary>영업 전 수동 검증을 위해 20일차를 새로 준비합니다.</summary>
     private void handleDebugDay20Clicked() => debugJumpToDay(20);
+
+    /// <summary>영업 전 수동 검증을 위해 엔딩 전날인 30일차를 새로 준비합니다.</summary>
+    private void handleDebugDay30Clicked() => debugJumpToDay(30);
 
     /// <summary>테스트 날짜 점프를 진행 경계에 전달하고 화면을 갱신합니다.</summary>
     /// <param name="displayDay">이동할 표시 일차입니다.</param>
@@ -848,6 +898,18 @@ public sealed class GameUIController : MonoBehaviour
     private void handleTransactionContinueClicked()
     {
         this.runProgressAction(this.gameProgress.CompleteTransactionResult);
+    }
+
+    /// <summary>세션의 확정 결과를 사용해 엔딩 씬으로 전환한다.</summary>
+    /// <returns>전환 완료 또는 화면 오류 표시 완료.</returns>
+    private async UniTask openEndingAsync()
+    {
+        try { await GameSceneManager.Instance.TransitionToFinalEndingAsync(); }
+        catch (Exception exception)
+        {
+            if (this != null) this.showError(exception);
+            else Debug.LogException(exception);
+        }
     }
 
     /// <summary>정산 결과 확인 요청을 하루 진행에 전달합니다.</summary>
@@ -1042,6 +1104,15 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>진행 상태에 따라 패널과 기본 버튼을 표시합니다.</summary>
     private void refreshPanelVisibility()
     {
+        if (this.gameProgress.State != GameProgressState.DayInProgress)
+        {
+            this.setPanelVisibility(this.preOpenPanel, false);
+            this.setPanelVisibility(this.operatingPanel, false);
+            this.setPanelVisibility(this.settlementPanel, false);
+            this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
+            this.gameInputRouter.enabled = false;
+            return;
+        }
         if (this.IsFacilityShopOpen && !this.canOpenFacilityShop()) this.closeFacilityShop();
         this.facilityOpenButton.gameObject.SetActive(this.canOpenFacilityShop());
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;

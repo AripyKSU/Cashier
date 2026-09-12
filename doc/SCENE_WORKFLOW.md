@@ -1,10 +1,16 @@
 # 개발 씬과 통합 씬
 
+## 엔딩과 새 게임 (2026-09-13)
+
+정상 최종 정산 뒤에는 카메라가 포함된 `GoodEndingScene` 또는 `BadEndingScene`으로 전환한다. 종료 화면의 새 게임 버튼은 Hub 메뉴로 돌아간다. 메뉴의 새 게임을 선택하면 Build Settings의 `InitScene`을 일반 SceneManager로 로드하고, 부트·데이터 준비 성공 후 이전 세션을 초기화한 뒤 게임 씬으로 이동한다. Init을 Addressables에 중복 등록하지 않는다. 이어하기는 유효한 저장 데이터가 있을 때만 표시할 후속 사양이며 현재는 숨긴다. [시민권·엔딩 계약과 검증](CITIZENSHIP_ENDING.md)을 함께 확인한다.
+
 ## 실행 경로
 
-`InitScene (manager·데이터 부트스트랩) → LoadingScene → HubScene → LoadingScene → 게임 씬`
+`InitScene (manager·데이터 부트스트랩) → LoadingScene → HubScene 메뉴`
 
-Hub는 진입 후 자동으로 게임 씬을 로드한다. 모든 전환은 `GameSceneManager`가 소유한다.
+`Hub 새 게임 → LoadingScene → InitScene (새 세션) → LoadingScene → 게임 씬`
+
+Hub는 새 게임·끝내기 입력을 기다린다. 자동 게임 진입은 하지 않는다. 모든 전환은 `GameSceneManager`가 소유한다.
 Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있으면 선택한 개인 씬을 사용한다.
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
 MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인스턴스, Camera와 InputSystem EventSystem을 포함한다. 설비·명성 통합 경로와 사용법은 MAINSCENE_INTEGRATION.md를 따른다.
@@ -14,11 +20,11 @@ MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인
 
 1. Unity에서 `Assets/Scenes/Local/` 폴더를 만들고 개인 씬을 저장한다. 예: `Assets/Scenes/Local/MyGameplay.unity`.
 2. `Cashier > Gameplay Scene Settings`를 열고 `Personal Scene`에 해당 SceneAsset을 지정한다.
-3. `InitScene`을 열고 Play한다. 개인 씬도 동일한 manager·CSV 부트스트랩을 거친다.
+3. `InitScene`을 열고 Play한 뒤 Hub의 새 게임을 누른다. 개인 씬도 동일한 manager·CSV 부트스트랩을 거친다.
 4. 통합 검증 시 `Use MainScene`을 누르고 InitScene에서 다시 Play한다.
 
 선택한 GUID는 프로젝트 경로별 `EditorPrefs`에 저장된다. 공유 HubScene에는 개인 설정을 직렬화하지 않는다.
-씬이 삭제되거나 Local 밖으로 이동하면 Hub에서 오류를 보고한다. 씬을 다시 선택하거나 Main으로 설정해야 한다.
+씬이 삭제되거나 Local 밖으로 이동하면 새 게임 전환에서 오류를 보고한다. 씬을 다시 선택하거나 Main으로 설정해야 한다.
 개인 씬은 Editor 전용 API로 로드하므로 Build Settings·Addressables에 등록하지 않는다.
 
 `Assets/Scenes/Local/` 내부 전체와 `Local.meta`는 Git에서 제외한다. 개인 씬은 Git으로 백업되지 않으므로 필요한 백업은 별도로 관리한다.
@@ -43,9 +49,9 @@ MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인
 
 ## 재현 가능한 확인 절차
 
-1. 개인 설정을 해제하고 Init에서 Play: MainScene에 도착하며 ResourceManager·DataTableManager·GameSceneManager가 유지되어야 한다.
-2. Local에 MainScene 복사본을 저장하고 선택한 뒤 Init에서 Play: 개인 씬에 도착해야 한다.
-3. 선택한 개인 씬을 Local 밖으로 이동한 뒤 Init에서 Play: Hub에서 명시적 오류를 보고하고 멈춰야 한다. 이후 씬을 원위치하고 재선택한다.
+1. 개인 설정을 해제하고 Init에서 Play 후 Hub의 새 게임 선택: MainScene에 도착하며 ResourceManager·DataTableManager·GameSceneManager가 유지되어야 한다.
+2. Local에 MainScene 복사본을 저장하고 선택한 뒤 Init에서 Play하고 Hub의 새 게임 선택: 개인 씬에 도착해야 한다.
+3. 선택한 개인 씬을 Local 밖으로 이동한 뒤 Init에서 Play 후 Hub의 새 게임 선택: 잘못된 개인 씬 전환을 명시적으로 거부해야 한다. 이후 씬을 원위치하고 재선택한다.
 4. `git check-ignore Assets/Scenes/Local/MyGameplay.unity Assets/Scenes/Local/MyGameplay.unity.meta Assets/Scenes/Local.meta`로 제외를 확인한다.
 5. `git check-ignore Assets/Scripts/Local/CustomerSandbox.cs Assets/Scripts/Local/CustomerSandbox.cs.meta Assets/Scripts/Local/Editor/CustomerSandboxSetup.cs Assets/Scripts/Local.meta`로 개인 코드와 metadata 제외를 확인한다. 개인 코드가 없는 새 checkout에서도 공유 코드·테스트가 컴파일되어야 한다.
 

@@ -1,5 +1,7 @@
 # 기능 API 검증
 
+> 2026-09-13 현재 진입 경로: Init 부트 후 Hub 메뉴에서 새 게임을 선택해야 게임 씬으로 이동한다. 엔딩·실패 화면의 새 게임 버튼은 Hub 복귀이며 즉시 재시작하지 않는다. [현재 메뉴·이어하기 사양](CITIZENSHIP_ENDING.md#hub-메뉴와-카메라-2026-09-13)을 따른다. 아래 날짜별 검증의 자동 Hub→Main 경로는 당시 기록이다.
+
 ## total_merge 딸 대화 통합 (2026-09-11)
 
 - fetch 후 입력: `total_merge c756bec` + `codex/daughter-dialogue e19bd0f`. 충돌 없이 병합했으며 제품·데이터·프리팹 내용은 딸 대화 브랜치와 동일하다. MainScene은 기존 GameUI prefab의 nested DaughterDialoguePanel/presenter 연결을 상속한다. Scene 파일 수정은 없다.
@@ -256,3 +258,6 @@ PlayMode 실행 전 `EditorSceneManager.playModeStartScene`에 InitScene 또는 
 - `unity-cli editor refresh --compile --ignore-version-mismatch`로 최신 runtime/test assembly 컴파일 완료를 확인했다.
 - EditMode 175/175, PlayMode 25/25, 실패·skip 0. 새 selector 명성 가중치·설비 선호·성별 교대, 타입 전용 명성 매핑과 기존 손님·CSV·시설·진행 회귀를 포함한다. 증거: `Temp/TestResults/20260909-customer-spawn-edit/EditMode.xml`, `Temp/TestResults/20260909-customer-spawn/PlayMode.xml`.
 - 실제 성별별 이미지 asset 연결과 UI/UX 표현은 범위 밖이며 수동 확인 대기다. 선호 타입 상품의 명성 정산은 `ReputationDispositionRules`가 선호 필드를 참조하지 않는 것으로 고정한다.
+## 시민권·엔딩 검증 참조 (2026-09-13)
+
+현재 브랜치 `codex/citizenship-ending`의 데이터·정산 경계 자동 검사, 실제 씬 전환·버튼·화면 검증, 남은 사람 플레이 테스트는 [CITIZENSHIP_ENDING.md 검증 기록](CITIZENSHIP_ENDING.md#검증-기록)에 기록한다. 위의 과거 실행 결과와 구분한다.

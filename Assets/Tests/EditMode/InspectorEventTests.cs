@@ -32,14 +32,14 @@ public sealed class InspectorEventTests
         Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8181, 8135 }));
         Assert.That(rows.All(x => !x.RequiredFacilityIdx.HasValue && !x.MinStoreStage.HasValue &&
             x.Priority == 0 && x.RepeatMode == InspectorRepeatMode.OncePerSession), Is.True);
-        Assert.That(rows.All(x => x.PortraitResourceIdx == 4201));
-        Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(18));
+        Assert.That(rows.All(x => x.PortraitResourceIdx == 4256));
+        Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(19));
 
         var texts = new TextDataTable();
         texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
         var textRows = (System.Collections.Generic.Dictionary<uint, TextData>)typeof(TextDataTable)
             .GetProperty("PendingRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(texts);
-        Assert.That(textRows.Count, Is.EqualTo(230), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
+        Assert.That(textRows.Count, Is.EqualTo(242), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
         uint[] pageIds = rows.SelectMany(x => x.DialogueTextIdxs).ToArray();
         Assert.That(pageIds.Length, Is.EqualTo(9));
         Assert.That(rows.All(x => textRows.ContainsKey(x.NameIdx)) && pageIds.All(textRows.ContainsKey), Is.True);

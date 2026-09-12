@@ -52,6 +52,8 @@ public class PreOpenPanelPresenter : MonoBehaviour
     [Header("Temporary Test Controls")]
     [SerializeField] private Button debugDay10Button;
     [SerializeField] private Button debugDay20Button;
+    /// <summary>엔딩 전날부터 진행할 임시 테스트 버튼.</summary>
+    [SerializeField] private Button debugDay30Button;
 
     /// <summary>영업 시작 버튼의 공개 참조입니다.</summary>
     public Button OpenBusinessButton => this.openBusinessButton;
@@ -61,6 +63,8 @@ public class PreOpenPanelPresenter : MonoBehaviour
     public Button DebugDay10Button => this.debugDay10Button;
     /// <summary>20일차 이동용 임시 테스트 버튼입니다.</summary>
     public Button DebugDay20Button => this.debugDay20Button;
+    /// <summary>30일차 이동용 임시 테스트 버튼입니다.</summary>
+    public Button DebugDay30Button => this.debugDay30Button;
 #endif
 
     private void Awake()
@@ -68,9 +72,11 @@ public class PreOpenPanelPresenter : MonoBehaviour
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (this.debugDay10Button != null) this.debugDay10Button.gameObject.SetActive(true);
         if (this.debugDay20Button != null) this.debugDay20Button.gameObject.SetActive(true);
+        if (this.debugDay30Button != null) this.debugDay30Button.gameObject.SetActive(true);
 #else
         if (this.debugDay10Button != null) this.debugDay10Button.gameObject.SetActive(false);
         if (this.debugDay20Button != null) this.debugDay20Button.gameObject.SetActive(false);
+        if (this.debugDay30Button != null) this.debugDay30Button.gameObject.SetActive(false);
 #endif
     }
 

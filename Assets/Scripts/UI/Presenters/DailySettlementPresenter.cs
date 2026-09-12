@@ -68,12 +68,22 @@ public class DailySettlementPresenter : MonoBehaviour
     [Header("Buttons")]
     [Tooltip("다음 단계 요청 버튼")]
     [SerializeField] private Button nextStepButton;
+    /// <summary>최종일 미구매 상태에서 구매 기회 종료를 확인하는 모달.</summary>
+    [SerializeField] private GameObject finalConfirmationPanel;
+    [SerializeField] private Button finalConfirmButton;
+    [SerializeField] private Button finalCancelButton;
+    private bool requiresFinalConfirmation;
+
+    /// <summary>미구매 최종 확인 창이 열려 있는지 여부.</summary>
+    public bool IsFinalConfirmationOpen => finalConfirmationPanel != null && finalConfirmationPanel.activeSelf;
 
     /// <summary>사용자가 일일 정산 확인을 완료하고 다음 단계 진행을 요청할 때 발생하는 이벤트</summary>
     public event Action OnNextStepRequested;
 
     private void Awake()
     {
+        if (finalConfirmButton != null) finalConfirmButton.onClick.AddListener(confirmFinalEnding);
+        if (finalCancelButton != null) finalCancelButton.onClick.AddListener(cancelFinalEnding);
         if (this.nextStepButton != null)
         {
             this.nextStepButton.onClick.AddListener(this.handleNextStepClicked);
@@ -182,8 +192,48 @@ public class DailySettlementPresenter : MonoBehaviour
 
     private void handleNextStepClicked()
     {
-        this.Close();
+        if (requiresFinalConfirmation)
+        {
+            if (finalConfirmationPanel == null) throw new InvalidOperationException("최종 확인 창 연결이 필요합니다.");
+            finalConfirmationPanel.SetActive(true);
+            nextStepButton.interactable = false;
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+            return;
+        }
         this.OnNextStepRequested?.Invoke();
+    }
+
+    /// <summary>세션이 확정한 마지막 날과 면제 상태를 표시한다.</summary>
+    /// <param name="isFinalDay">최종 영업일 정산 여부.</param>
+    /// <param name="hasCitizenship">현재 보유 여부.</param>
+    /// <param name="isUnpaidExempted">최종일 미납 종료 면제 여부.</param>
+    public void ConfigureEnding(bool isFinalDay, bool hasCitizenship, bool isUnpaidExempted)
+    {
+        requiresFinalConfirmation = isFinalDay && !hasCitizenship;
+        if (nextStepButton != null)
+        {
+            var label = nextStepButton.GetComponentInChildren<TMP_Text>();
+            if (label != null) label.text = isFinalDay ? "최종 확인" : "다음 날";
+            nextStepButton.interactable = !IsFinalConfirmationOpen;
+        }
+        if (isUnpaidExempted && gracePeriodText != null)
+            gracePeriodText.text = "시민권 사전 보유 · 최종일 미납 게임오버 면제";
+    }
+
+    /// <summary>사용자가 구매 기회 종료를 확인한 경우에만 진행 요청을 전달한다.</summary>
+    private void confirmFinalEnding()
+    {
+        if (!IsFinalConfirmationOpen) return;
+        finalConfirmationPanel.SetActive(false);
+        OnNextStepRequested?.Invoke();
+    }
+
+    /// <summary>최종 확인을 취소하고 정산과 설비 상점으로 돌아간다.</summary>
+    private void cancelFinalEnding()
+    {
+        finalConfirmationPanel.SetActive(false);
+        nextStepButton.interactable = true;
+        UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
     }
 
     /// <summary>미납과 유예 상태를 한 줄의 확정 표시 문구로 변환합니다.</summary>

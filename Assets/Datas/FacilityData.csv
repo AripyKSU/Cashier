@@ -10,3 +10,4 @@ idx,nameidx,purchase_price,upgrade_kind,required_store_stage,effect_type,target_
 12009,8079,1200,2,2,2,0
 12010,8080,143000,3,2,0,3
 12011,8081,1500,2,3,3,0
+12012,8231,1000000,4,1,0,0

@@ -38,7 +38,8 @@ public sealed class FacilityItemView : MonoBehaviour
     {
         facilityIdx = data.FacilityIdx;
         canPurchase = data.State == FacilityDisplayState.Purchasable;
-        if (nameText != null) nameText.text = $"[{data.RequiredStoreStage}단계] {data.DisplayName}";
+        if (nameText != null) nameText.text = data.UpgradeKind == FacilityUpgradeKind.Citizenship
+            ? data.DisplayName : $"[{data.RequiredStoreStage}단계] {data.DisplayName}";
         if (priceText != null) priceText.text = $"{data.PurchasePrice:N0} G";
         if (categoryText != null) categoryText.text = formatCategory(data);
         else if (unlockProductsText != null) unlockProductsText.text = formatCategory(data);
@@ -71,6 +72,7 @@ public sealed class FacilityItemView : MonoBehaviour
             FacilityUpgradeKind.ProductUnlock => $"해금 상품: {data.UnlockProducts}",
             FacilityUpgradeKind.Convenience => $"편의성 효과: {formatEffect(data.EffectType)}",
             FacilityUpgradeKind.StoreStage => $"가게 단계 → {data.TargetStoreStage}",
+            FacilityUpgradeKind.Citizenship => "나와 딸의 안전구역 입국 자격 · 1회 구매",
             _ => throw new ArgumentOutOfRangeException(nameof(data), "유효한 업그레이드 종류가 필요합니다.")
         };
     }
@@ -80,6 +82,8 @@ public sealed class FacilityItemView : MonoBehaviour
     /// <returns>행의 적용 안내.</returns>
     private string formatActivation(FacilityItemViewData data)
     {
+        if (data.UpgradeKind == FacilityUpgradeKind.Citizenship)
+            return "구매 즉시 보유 · 31일차 최종 확인 전까지 구매 가능";
         if (data.UpgradeKind == FacilityUpgradeKind.StoreStage)
             return $"요구 단계 {data.RequiredStoreStage} · 구매 즉시 해금";
         return data.State == FacilityDisplayState.StageLocked
