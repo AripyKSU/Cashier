@@ -10,6 +10,92 @@ using UnityEngine.SceneManagement;
 /// <summary>승인된 전용 경로에서만 Scene을 제작하고 검사하는 Editor 진입점입니다.</summary>
 public static class DystopiaTools
 {
+    /// <summary>사용자 제공 일일지침의 바깥 체크무늬를 제거하고 기존 문서의 본문 배치만 맞춥니다.</summary>
+    [MenuItem("Dystopia/Apply New Daily Instruction")]
+    public static void ApplyNewDailyInstruction()
+    {
+        if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play before changing document layout.");
+        var screen=UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>(FindObjectsInactive.Include);
+        if(screen==null) throw new InvalidOperationException("Open the Dystopia scene first.");
+        var sheet=screen.transform.Find("DystopiaCanvas/DailyInstruction/Sheet").GetComponent<UnityEngine.UI.Image>();
+        var content=(RectTransform)sheet.transform.Find("PrintedContent");
+        const string source="output/instruction-update/DailyInstruction-source.png";
+        const string target="Assets/DystopiaPrototype/Art/DailyInstruction.png";
+        if(!File.Exists(source)) throw new FileNotFoundException("Daily instruction source is missing.",source);
+        string backup="output/instruction-update/Live-before-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".unity";
+        if(!EditorSceneManager.SaveScene(screen.gameObject.scene,backup,true)) throw new IOException("Could not back up live scene.");
+        var texture=new Texture2D(2,2,TextureFormat.RGBA32,false);
+        try
+        {
+            if(!texture.LoadImage(File.ReadAllBytes(source))) throw new IOException("Could not read daily instruction image.");
+            Color32[] pixels=texture.GetPixels32();
+            var queue=new System.Collections.Generic.Queue<int>();
+            var visited=new bool[pixels.Length];
+            int width=texture.width, height=texture.height;
+            for(int x=0;x<width;x++) { queue.Enqueue(x); queue.Enqueue((height-1)*width+x); }
+            for(int y=0;y<height;y++) { queue.Enqueue(y*width); queue.Enqueue(y*width+width-1); }
+            // 화면 가장자리와 연결된 무채색 체크무늬만 투명화합니다. 종이 안의 흰 글자는 보존합니다.
+            while(queue.Count>0)
+            {
+                int index=queue.Dequeue(); if(visited[index]) continue; visited[index]=true;
+                Color32 p=pixels[index]; int max=Mathf.Max(p.r,Mathf.Max(p.g,p.b)),min=Mathf.Min(p.r,Mathf.Min(p.g,p.b));
+                if(min<95 || max-min>22) continue;
+                p.a=0; pixels[index]=p;
+                int x=index%width,y=index/width;
+                if(x>0) queue.Enqueue(index-1); if(x<width-1) queue.Enqueue(index+1);
+                if(y>0) queue.Enqueue(index-width); if(y<height-1) queue.Enqueue(index+width);
+            }
+            texture.SetPixels32(pixels); texture.Apply(); File.WriteAllBytes(target,texture.EncodeToPNG());
+        }
+        finally { UnityEngine.Object.DestroyImmediate(texture); }
+        AssetDatabase.ImportAsset(target,ImportAssetOptions.ForceSynchronousImport);
+        var importer=(TextureImporter)AssetImporter.GetAtPath(target);
+        importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
+        importer.alphaIsTransparency=true; importer.filterMode=FilterMode.Point; importer.mipmapEnabled=false;
+        importer.npotScale=TextureImporterNPOTScale.None; importer.textureCompression=TextureImporterCompression.Uncompressed;
+        importer.maxTextureSize=2048; importer.SaveAndReimport();
+        var sprite=AssetDatabase.LoadAssetAtPath<Sprite>(target);
+        Undo.RecordObject(sheet,"Replace daily instruction paper"); sheet.sprite=sprite;
+        var data=new SerializedObject(screen); data.FindProperty("dailyInstruction").objectReferenceValue=sprite; data.ApplyModifiedProperties();
+        SetInstructionRect(content,"DayPaper",140,51,51,9,0);
+        var paper=content.Find("DayPaper").GetComponent<UnityEngine.UI.Image>();
+        Undo.RecordObject(paper,"Match date paper"); paper.color=new Color(.85f,.83f,.79f);
+        SetInstructionRect(content,"InstructionDay",140,50,51,12,8);
+        SetInstructionRect(content,"MemoryHeading",32,76,160,16,9);
+        SetInstructionRect(content,"RuleTitle",32,99,160,12,8);
+        SetInstructionRect(content,"Rule",32,114,160,30,8);
+        int count=content.Cast<Transform>().Count(x=>x.name.StartsWith("InstructionProduct",StringComparison.Ordinal));
+        for(int i=0;i<count;i++)
+        {
+            float x=32+(i%2)*83, y=154+(i/2)*Mathf.Min(26,58f/Mathf.Max(1,(count+1)/2));
+            SetInstructionRect(content,"InstructionProduct"+i,x,y,18,21,0);
+            SetInstructionRect(content,"InstructionName"+i,x+22,y,57,10,7);
+            SetInstructionRect(content,"InstructionPrice"+i,x+22,y+10,57,11,8);
+        }
+        foreach(var obj in new UnityEngine.Object[]{screen,sheet,paper})
+        { EditorUtility.SetDirty(obj); PrefabUtility.RecordPrefabInstancePropertyModifications(obj); }
+        EditorSceneManager.MarkSceneDirty(screen.gameObject.scene);
+        Debug.Log("New daily instruction connected; original scene preserved at "+backup+". Scene not automatically saved.");
+    }
+
+    /// <summary>교체 요청된 문서 안의 기존 텍스트·그림 위치만 갱신합니다.</summary>
+    /// <param name="content">문서의 224×280 기준 내용 영역입니다.</param>
+    /// <param name="name">기존 문서 요소입니다.</param>
+    /// <param name="x">왼쪽 좌표입니다.</param>
+    /// <param name="y">위쪽 좌표입니다.</param>
+    /// <param name="width">표시 너비입니다.</param>
+    /// <param name="height">표시 높이입니다.</param>
+    /// <param name="fontSize">텍스트 크기이며 0이면 변경하지 않습니다.</param>
+    private static void SetInstructionRect(RectTransform content,string name,float x,float y,float width,float height,int fontSize)
+    {
+        var rect=content.Find(name) as RectTransform; if(rect==null) return;
+        Undo.RecordObject(rect,"Fit new instruction text"); rect.anchoredPosition=new Vector2(x,-y); rect.sizeDelta=new Vector2(width,height);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(rect);
+        var label=rect.GetComponent<UnityEngine.UI.Text>();
+        if(label!=null && fontSize>0)
+        { Undo.RecordObject(label,"Fit instruction font"); label.fontSize=fontSize; PrefabUtility.RecordPrefabInstancePropertyModifications(label); }
+    }
+
     /// <summary>손 시트와 교체 이미지만 import합니다. 씬 검색·수정·저장 또는 배치 적용은 수행하지 않습니다.</summary>
     [MenuItem("Dystopia/Assets/Import Pending Artwork Only")]
     public static void ImportPendingArtworkOnly()

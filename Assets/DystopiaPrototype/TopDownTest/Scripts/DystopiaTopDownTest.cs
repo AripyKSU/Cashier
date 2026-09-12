@@ -24,6 +24,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
 
     /// <summary>연결하면 기존 커서 밀기 대신 구분봉으로 상품을 조작합니다.</summary>
     [SerializeField] private DividerBarController2D dividerBar;
+    /// <summary>편집 가능한 청소기 배치와 클릭 홀드 흡입을 담당합니다.</summary>
+    [SerializeField] private DystopiaVacuumController vacuum;
     /// <summary>원본 손 시트입니다. 4번은 사용하지 않으며 씬 배치와 무관한 커서로 그립니다.</summary>
     [SerializeField] private Texture2D handArtwork;
     /// <summary>손 커서의 화면 픽셀 크기입니다.</summary>
@@ -205,6 +207,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>체크아웃 비활성화 시 연결된 구분봉의 충돌과 입력을 중지합니다.</summary>
     private void OnDisable()
     {
+        if (vacuum != null) vacuum.Release();
         ReleaseHeldItem();
         SetHandVisible(false);
         if (dividerBar != null) dividerBar.SampleInput(worldCamera, false);
@@ -729,7 +732,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     {
         foreach (DystopiaTopDownItem item in items)
         {
-            if (item.State == TopDownItemState.Excluded) continue;
+            if (item.State == TopDownItemState.Excluded || item.IsBeingVacuumed) continue;
             item.Body.linearVelocity = Vector2.ClampMagnitude(item.Body.linearVelocity, maximumItemSpeed);
             item.Body.angularVelocity = Mathf.Clamp(item.Body.angularVelocity, -720, 720);
             if (placedMovementZone != null) ClampPlacedItem(item);
@@ -746,7 +749,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     {
         foreach (DystopiaTopDownItem item in items)
         {
-            if (item == heldItem || item.State == TopDownItemState.Excluded) continue;
+            if (item == heldItem || item.State == TopDownItemState.Excluded || item.IsBeingVacuumed) continue;
             Vector2 center = item.transform.localPosition;
             if (item.WasStirred && ZoneContains(placedExcludedZone, ExcludedZone, center)) TryClassify(item, TopDownItemState.Excluded);
             else if (ZoneContains(placedSaleZone, SaleZone, center)) item.State = TopDownItemState.ForSale;
@@ -830,7 +833,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         ClassifySettledItems();
         foreach (DystopiaTopDownItem item in items)
         {
-            if (item.State == TopDownItemState.Working)
+            if (item.State == TopDownItemState.Working || item.IsBeingVacuumed)
             {
                 noticeText.text = "중앙의 물품을 모두 분류하세요.";
                 return false;
@@ -904,8 +907,9 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         if (isPaused == paused) return;
         isPaused = paused;
         if (Session != null && Session.IsPaused != paused) Session.TogglePause();
-        SetBodiesSimulated(!paused && state != ViewState.Locked && state != ViewState.Closed);
         ResetGrabInput();
+        // 흡입 취소가 원래 물리를 복원한 뒤 전체 일시정지 상태를 적용합니다.
+        SetBodiesSimulated(!paused && state != ViewState.Locked && state != ViewState.Closed);
         noticeText.text = paused ? "일시정지" : "";
     }
 
@@ -918,6 +922,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>뷰 전환·일시정지·포커스 복귀 때 이전 포인터 위치를 폐기합니다.</summary>
     private void ResetGrabInput()
     {
+        if (vacuum != null) vacuum.Release();
         ReleaseHeldItem();
         hasHandPointer = false;
         handVelocity = Vector2.zero;
@@ -927,6 +932,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>다음 손님 전에 이전 물품 객체와 입력 상태를 제거합니다.</summary>
     private void ClearItems()
     {
+        if (vacuum != null) vacuum.Release();
         ReleaseHeldItem();
         foreach (DystopiaTopDownItem item in items) if (item != null) Destroy(item.gameObject);
         items.Clear();
@@ -934,7 +940,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         noticeText.text = "";
     }
 
-    /// <summary>봉을 먼저 판정하고 봉을 잡지 않았을 때 클릭한 상품 하나만 잡습니다.</summary>
+    /// <summary>청소기 손잡이·봉·상품 순서로 입력 소유자를 한 개만 결정합니다.</summary>
     private void ProcessGrabInput()
     {
         var mouse = Mouse.current;
@@ -942,6 +948,14 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             Application.isFocused && worldCamera != null && worldCamera.isActiveAndEnabled && mouse != null;
         Vector2 pointer = mouse != null ? mouse.position.ReadValue() : Vector2.zero;
         bool overUi = allowed && PointerOverUi(pointer);
+        if (vacuum != null) vacuum.SampleInput(worldCamera,allowed,heldItem == null && !overUi && (dividerBar == null || !dividerBar.IsHeld));
+        if (vacuum != null && vacuum.IsHeld)
+        {
+            ReleaseHeldItem();
+            if (dividerBar != null) dividerBar.SampleInput(worldCamera,false);
+            SetHandVisible(allowed && handArtwork != null);
+            return;
+        }
         if (!allowed || !mouse.leftButton.isPressed || overUi) ReleaseHeldItem();
         if (dividerBar != null) dividerBar.SampleInput(worldCamera, allowed && heldItem == null && (dividerBar.IsHeld || !overUi));
         SetHandVisible(allowed && !overUi && worldCamera.pixelRect.Contains(pointer) && handArtwork != null);
@@ -955,7 +969,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         for (int i = items.Count-1; i >= 0; i--)
         {
             var item = items[i];
-            if (item == null || !item.gameObject.activeInHierarchy || item.State == TopDownItemState.Excluded || !item.Body.simulated) continue;
+            if (item == null || !item.gameObject.activeInHierarchy || item.IsBeingVacuumed || item.State == TopDownItemState.Excluded || !item.Body.simulated) continue;
             var collider = item.GetComponent<Collider2D>();
             if (collider == null || !collider.OverlapPoint(heldTarget)) continue;
             heldItem = item;
@@ -1004,7 +1018,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private void OnGUI()
     {
         if (!showHand || Mouse.current == null || handArtwork == null) return;
-        bool holding = heldItem != null || dividerBar != null && dividerBar.IsHeld;
+        bool holding = heldItem != null || dividerBar != null && dividerBar.IsHeld || vacuum != null && vacuum.IsHeld;
         bool horizontal = holding && Mathf.Abs(handVelocity.x) > 30 && Mathf.Abs(handVelocity.x) > Mathf.Abs(handVelocity.y)*1.2f;
         // 시트 순서: 1번을 90도 돌린 정지 자세, 2번 펼친 손, 3번 가로 잡기. 4번은 사용하지 않습니다.
         Rect uv = !holding ? new Rect(.5f,.5f,.5f,.5f) : horizontal ? new Rect(.5f,0,-.5f,.5f) : new Rect(0,.5f,.5f,.5f);
@@ -1012,6 +1026,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         // 커서와 물리 프레임 간 차이, 경계 제한, 막대 회전에도 손이 물체에서 떨어지지 않습니다.
         if (heldItem != null) pointer = worldCamera.WorldToScreenPoint(heldItem.transform.TransformPoint(heldLocalPoint));
         else if (dividerBar != null && dividerBar.IsHeld) pointer = worldCamera.WorldToScreenPoint(dividerBar.GripWorldPoint);
+        else if (vacuum != null && vacuum.IsHeld) pointer = worldCamera.WorldToScreenPoint(vacuum.GripWorldPoint);
         Vector2 center = new Vector2(pointer.x,Screen.height-pointer.y);
         // 64px 타일의 투명 여백 중심이 아니라 실제 손바닥 접점을 사용합니다.
         Vector2 hotspot = !holding ? new Vector2(32,32) : horizontal ? new Vector2(30,23) : new Vector2(33,25);
