@@ -2,7 +2,7 @@
 
 ## 영업 시각 공통 기준 (2026-09-11 통합)
 
-- CSV 밸런스와 별도로 `BusinessHours`가 게임 속 시작09시·마감21시(540~1260분, 총720분)를 정의한다. 실제 영업 길이는 기존 `DayProgress` 기본30초/생성자 입력이다.
+- CSV 밸런스와 별도로 `BusinessHours`가 게임 속 시작09시·마감21시(540~1260분, 총720분)를 정의한다. 실제 영업 길이는 `DayProgress` 기본180초/생성자 입력이다(2026-09-12 밸런싱 초안 적용).
 - 진행 비율로 시계·배경을 연결하며 감독관·영업 전·일시정지에서는 영업 시간을 소비하지 않는다. 배경의 중간 전환값은 연출 설정으로 유지한다. [MainScene 계약](MAINSCENE_INTEGRATION.md#감독관공용-영업-시각-통합-2026-09-11)과 [검증 기록](work/inspector-events.md)을 참고한다.
 
 > 2026-09-11 감독관 브랜치 `ad72b17` 이후: 2일차 임시 이벤트15003·Text8180/8181을 추가해 감독관3행·Text181행이다. 이전 `50155f1` 기준에서 관련 enum, 대기열·설비 연결 설명을 대조했다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md), [전체 감사](FEATURE_CONTRACT_AUDIT.md).
@@ -309,7 +309,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 - 현재 라디오 후보3개의 가중치가 모두1이므로 각1/3 선택이다. 별도50%/100% 발생 상수는 없다. 무효과 사건9003 선택도 방송 예약이며, 후보 부재와 다르다.
 - 신문 효과는 당일 준비 시 적용하고, 라디오는 영업 시작 후 무작위 대기 시간이 지나면 새 현재가로 교체한다. 현재 지연은 `(float)(Random.NextDouble() * 60)`초다. 의도는0~60초 미만이며 float 변환 경계에서는60이 될 수 있다.
 - 현 GameUIController는 현재가 가격표를 사용하지만 신문 사건의 NameIdx/DescriptionIdx를 읽어 화면에 전달하는 호출은 없다. 신문 가격 효과 연결과 신문 기사 UI 연결을 구분한다. 라디오 제목·설명은 GameSessionManager의 방송 로그에서 사용한다.
-- 현재 영업 기본값30초이므로 방송 후보가 있어도 방송 시각 전에 영업시간이 끝날 수 있다. pause와 Closing에서는 방송 시계를 늘리지 않는다. 방송 로그와 신문 화면 연결의 상세 상태는 [PRICE_EVENT_INTEGRATION](PRICE_EVENT_INTEGRATION.md)을 함께 확인한다.
+- 영업 기본값180초는 기존 라디오 예약 범위0~60초보다 길다. pause와 Closing에서는 방송 시계를 늘리지 않으며, 명시적으로 짧게 지정한 영업은 방송 시각 전에 끝날 수 있다. 방송 로그와 신문 화면 연결의 상세 상태는 [PRICE_EVENT_INTEGRATION](PRICE_EVENT_INTEGRATION.md)을 함께 확인한다.
 - 효과는 해당 날짜 기본가격에서 다시 계산한다. 대상 상품 목록과 분류 목록은 합집합이며 같은 사건·상품에 두 번 적용하지 않는다.
 
 계산식(현재 코드의 해석):
@@ -457,7 +457,7 @@ PriceListPanel.autoPopulateSampleData는 SerializeField bool, 코드 기본true�
 
 | 위치·원래 이름 | 타입 | 코드 기본 / 공유 prefab 값 | 의미·범위 |
 |---|---|---|---|
-| DayProgress.DefaultBusinessDurationSeconds | const float | 30초 / 현재 생성자 기본 사용 | 영업 제한시간. 생성자는 유한 양수 요구. 결과확인 중도 시간 진행, pause/Closing은 정지 |
+| DayProgress.DefaultBusinessDurationSeconds | const float | 180초 / 현재 생성자 기본 사용 | 영업 제한시간. 생성자는 유한 양수 요구. 결과확인 중도 시간 진행, pause/Closing은 정지 |
 | CustomerQueue.Capacity | const int | 10 / prefab 아님 | 대기 정원, 계산중 제외. 현재 UI 미연결 |
 | CustomerQueue.ArrivalSeconds | const double | 5초 | 자동 입장 간격, 첫 자동 입장5초후 |
 | CustomerQueue.SpeechSeconds | const double | 3초 | 재촉·이탈 대사 표시시간, 거래결과 확인시간 아님 |
@@ -479,7 +479,7 @@ PriceListPanel.autoPopulateSampleData는 SerializeField bool, 코드 기본true�
 | CustomerPresenter.basketItemSpacingPixels | float | 8 / OperatingPanel 8 | 장바구니 상품 간 간격, 화면 배치 |
 | CustomerPresenter.RandomPlacementAttempts | const int | 32 | 겹침 없는 무작위 배치 시도 상한 |
 | KeypadController.maxDigits | int | 6 / OperatingPanel 6 | 현재 입력 최대6자리(양수 최대999999). long 거래API 상한과 다름 |
-| DayTimerController.defaultBusinessTimeSeconds | float | 60 | 독립 구형 Timer component 기본. 현 진행은 DayProgress30초이며 이 값으로 덮지 않음 |
+| DayTimerController.defaultBusinessTimeSeconds | float | 60 | 독립 구형 Timer component 기본. 현 진행은 DayProgress180초이며 이 값으로 덮지 않음 |
 | DayTimerController.autoStartOnAwake | bool | false | 이름과 달리 Start에서 자동 시작 여부 확인. 현재 진행 타이머가 아님 |
 | CommonConstants.ParryWindowDuration | const float | 0.15초 | 자체 코드 소비 미발견. 남은 공용 상수, Cashier 타이밍 근거 아님 |
 

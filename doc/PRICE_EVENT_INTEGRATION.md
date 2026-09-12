@@ -10,7 +10,7 @@
 
 ## 현재 진행 연결 (2026-09-09)
 
-현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 기본 30초 영업은 그대로라 30초 이후 예약 방송은 취소될 수 있다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.
+현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 2026-09-12 밸런싱 초안으로 기본 영업시간을180초로 변경해 기존0~60초 예약 방송 범위를 포함한다. 명시적으로 짧은 영업시간을 지정하면 마감 뒤 방송은 여전히 취소된다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.
 
 EndTradingDay(out DailyAggregationResult result) overload는 기존 long EndTradingDay()와 종료 구현을 공유한다. 일반일 정산/상납 성공 후 GameProgress가 CompleteDay를 한 번 호출하고 다음날 가격을 준비한다. [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)에 실패·Closing 정책과 미연결 경계를 기록했다.
 

@@ -1,5 +1,9 @@
 # MainScene 진행·세션 API 통합
 
+## 밸런싱 초안 영업180초 연결 (2026-09-12)
+
+`DayProgress.DefaultBusinessDurationSeconds`를180초로 변경했다. GameUIController→GameProgress→DayProgress의 기존 생성자 기본값 경로에 적용되며 명시적으로 지정한 다른 영업시간은 유지한다. 아래 날짜별 통합 기록의 기본30초는 당시 상태다. 게임 속 시각09~21시는 그대로이며 실제90초 경과가15시에 대응한다. 감독관·영업 전·일시정지·마감 후에는 영업 시간이 흐르지 않고,180초 만료 시 진행 중인 마지막 거래를 마친 뒤 정산하는 기존 계약을 유지한다. 평균8건은 플레이테스트 목표이며 거래 건수를 제한하지 않는다.
+
 ## 딸 정산 대화 통합 (2026-09-11)
 
 `total_merge c756bec`에 `codex/daughter-dialogue e19bd0f`를 병합했다. 기존 GameUI 인스턴스가 DaughterDialoguePanel과 필수 presenter를 상속하므로 MainScene 파일은 유지했다. 정산 보드 아래 누적 도덕성 기준 대사와 날짜별 이미지를 표시하며 설비 상점 재표시에서 같은 대사를 유지한다. 임시 데이터·구간·병합 계약은 [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md), 통합 API/실제 Main 실행 증거는 [TESTING.md](TESTING.md)를 따른다.
