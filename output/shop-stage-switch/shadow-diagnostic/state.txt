@@ -1,0 +1,6 @@
+FrontContainer shadow=True enabled=True alpha=1
+position=(698.38, -641.67, 0.00) scale=(352.74, 158.23, 1.00) order=95 mesh=Contact shadow quad (UnityEngine.Mesh) contact=1 tint=RGBA(0.035, 0.025, 0.018, 0.950) clip=(-10000.00, -10000.00, 10000.00, 10000.00)
+CounterClock shadow=True enabled=True alpha=1
+position=(1143.51, -568.43, 0.00) scale=(233.30, 97.39, 1.00) order=97 mesh=Contact shadow quad (UnityEngine.Mesh) contact=1 tint=RGBA(0.035, 0.025, 0.018, 0.950) clip=(-10000.00, -10000.00, 10000.00, 10000.00)
+layer=31 cameraMask=-2147483648
+layer=31 cameraMask=-2147483648

@@ -1,0 +1,5 @@
+Built-in imagegen used to regenerate Stage2ShopNormal.png from the updated user source N:/개인/정총무/2단계 상점.png.
+Stage2Shop.png is an exact copy of the 334x188 transparent source. Normal output is 1671x941 and sampled in normalized UV coordinates. Existing GUIDs and sprite IDs retained. Four crop rectangles adjusted to source resolution; no scene placement changes.
+Unity reimport confirmed for both textures. C# build: 0 errors, 0 warnings. Runtime visual verification pending.
+Prompt:
+Generate a tangent-space RGB normal map for this exact 334x188 pixel-art metal shop sprite. Output exactly 334x188 pixels, preserve every silhouette and pixel location, full canvas no cropping no redesign. +X red right, +Y green up, +Z blue toward viewer. Flat front metal panels neutral (128,128,255), subtle bevels on bolts/frame and mild grooves in canopy corrugations. Tabletop coherent upward-facing plane. All transparent empty areas including central window neutral (128,128,255). Opaque RGB normal data only, no diffuse colors, no lighting or shadows painted in. Mild normal strength, no inflated rims. This is a technical normal map aligned to the input texture, not an illustration.

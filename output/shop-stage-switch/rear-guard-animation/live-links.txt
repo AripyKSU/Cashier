@@ -1,0 +1,4 @@
+playing=False
+screenEnabled=True
+LeftWatchGuard sprite=RearWatchGuard0 source=True capture=True vertices=4 surface=Environment renderer=True animationLinked=False position=(125.50, -171.97) scale=(1.00, 1.00, 1.00)
+RightWatchGuard sprite=RearWatchGuard1 source=True capture=True vertices=4 surface=Environment renderer=True animationLinked=False position=(1160.48, -234.19) scale=(1.00, 1.00, 1.00)

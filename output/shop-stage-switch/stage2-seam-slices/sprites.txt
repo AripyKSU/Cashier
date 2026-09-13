@@ -1,0 +1,5 @@
+Stage2_Cabinet rect=(x:0.00, y:0.00, width:1672.00, height:171.00) vertices=4 triangles=2
+Stage2_Ceiling rect=(x:0.00, y:760.00, width:1672.00, height:181.00) vertices=12 triangles=10
+Stage2_LeftPost rect=(x:28.00, y:295.00, width:72.00, height:558.00) vertices=4 triangles=2
+Stage2_RightPost rect=(x:1572.00, y:295.00, width:72.00, height:558.00) vertices=4 triangles=2
+Stage2_TopPlate rect=(x:0.00, y:171.00, width:1672.00, height:171.00) vertices=6 triangles=4

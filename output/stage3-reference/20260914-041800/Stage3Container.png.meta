@@ -1,0 +1,264 @@
+fileFormatVersion: 2
+guid: ba80f4bbc4fb47b4caa16e46e22ab9cb
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5187440768154225832
+    second: Stage3Container_0
+  - first:
+      213: 5038782912914290193
+    second: Stage3Container_1
+  - first:
+      213: 7575037463047053399
+    second: Stage3Container_2
+  - first:
+      213: 2447825776634334853
+    second: Stage3Container_3
+  - first:
+      213: -3073572046898344808
+    second: Stage3Container_4
+  - first:
+      213: 7210976119453934264
+    second: Stage3Container_5
+  - first:
+      213: -247864338472706619
+    second: Stage3Container_6
+  - first:
+      213: -457615780287440015
+    second: Stage3Container_7
+  - first:
+      213: 2593065549826334615
+    second: Stage3Container_8
+  - first:
+      213: -6699340041811577596
+    second: Stage3Container_9
+  - first:
+      213: -8168292595684955803
+    second: Stage3Container_10
+  - first:
+      213: -8238073381396678509
+    second: Stage3Container_11
+  - first:
+      213: 9022431476562739955
+    second: Stage3Container_12
+  - first:
+      213: 1343398371964710710
+    second: Stage3Container_13
+  - first:
+      213: 3726486767762525532
+    second: Stage3Container_14
+  - first:
+      213: -1247480014576597232
+    second: Stage3Container_15
+  - first:
+      213: 3810074534039700096
+    second: Stage3Container_16
+  - first:
+      213: 2903761926290466901
+    second: Stage3Container_17
+  - first:
+      213: 4283858558838307797
+    second: Stage3Container_18
+  - first:
+      213: -8564845757961410923
+    second: Stage3Container_19
+  - first:
+      213: -4476711798486640350
+    second: Stage3Container_20
+  - first:
+      213: -5884658984335452487
+    second: Stage3Container_21
+  - first:
+      213: 5339710368199495366
+    second: Stage3Container_22
+  - first:
+      213: 2125121107884474372
+    second: Stage3Container_23
+  - first:
+      213: -4123023411183823636
+    second: Stage3Container_24
+  - first:
+      213: -6167992812742096158
+    second: Stage3Container_25
+  - first:
+      213: 1442971547373954549
+    second: Stage3Container_26
+  - first:
+      213: 475577125341713079
+    second: Stage3Container_27
+  - first:
+      213: -1181094143123421966
+    second: Stage3Container_28
+  - first:
+      213: -2977939078013886513
+    second: Stage3Container_29
+  - first:
+      213: 4165846579950300641
+    second: Stage3Container_30
+  - first:
+      213: 8050364854954727827
+    second: Stage3Container_31
+  - first:
+      213: -1987719748193068385
+    second: Stage3Container_32
+  - first:
+      213: 1954352644636597124
+    second: Stage3Container_33
+  - first:
+      213: 118776724470132463
+    second: Stage3Container_34
+  - first:
+      213: 6765082289371562172
+    second: Stage3Container_35
+  - first:
+      213: 4207161139369632188
+    second: Stage3Container_36
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 1
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 512
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Stage3Container
+      rect:
+        serializedVersion: 2
+        x: 179
+        y: 121
+        width: 1178
+        height: 777
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ac4637f4ed7df740800000000000000
+      internalID: 5187440768154225832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 7038f4a03f212db41bb9147087309ac4
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Stage3Container: 5187440768154225832
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

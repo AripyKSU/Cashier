@@ -1,0 +1,12 @@
+Stage 2 shop: Stage2Shop.png and Stage2ShopNormal.png, 1672x941.
+Menu: Dystopia/Apply Stage 2 Shop.
+Snapshot: stage2-20260913-173657/before.unity and after.unity. Original scene unsaved.
+Four product PNGs replaced in place, exact source hashes match. GUIDs and sprite IDs preserved.
+Scene serialized object counts 249 -> 249; no transform differences. Box and clock preserved.
+Build: 0 errors, 0 warnings. Game View/Play Mode visual verification pending.
+
+Cutout prompt:
+Output a TRANSPARENT PNG cutout with actual RGBA alpha channel, not an RGB image. Only the metal shop structure should be opaque. The white central window and empty white areas outside the posts must be actual zero-alpha pixels. Do not paint checkerboard, gray noise, or any background. Exact original image edit: retain original metal, proportions, full 1672x941 canvas composition. No redesign. Actual alpha transparency is required for use in a game.
+
+Normal prompt:
+Create one tangent-space RGB normal map for this exact 1672x941 game shop sprite. Match pixel positions and silhouette precisely, same canvas and framing: top metal canopy, side posts, bottom counter and cabinets. Normal convention +X red right, +Y green up, +Z blue toward viewer; flat frontal surfaces RGB(128,128,255). Subtle beveled bolts and metal edges; broad coherent planes on tabletop and roof corrugations, shallow scratches only. No diffuse colors, no painted lighting, no text, no new geometry. Empty window and outside the frame neutral flat RGB(128,128,255). Pixel-art detailed normal map, mild strength, avoid inflated edge rims.

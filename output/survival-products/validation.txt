@@ -1,0 +1,1 @@
+16 unique sprite bindings; 256 stage/facility combinations; generated customer orders exclude locked and unpriced products. No scene mutation.
