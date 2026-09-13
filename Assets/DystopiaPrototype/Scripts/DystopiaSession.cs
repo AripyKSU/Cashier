@@ -6,14 +6,29 @@ using UnityEngine;
 [Serializable]
 public sealed class DystopiaSettings
 {
-    /// <summary>상품 순서는 도입일 안내와 장바구니 참조에 사용됩니다. 공용 CSV ID가 아닙니다.</summary>
+    /// <summary>프로토타입 상품 카탈로그입니다. 가격 0은 미설정이며 주문에서 제외됩니다.</summary>
     public DystopiaProduct[] products = {
-        new DystopiaProduct("생수", 1000, 1), new DystopiaProduct("건빵", 1500, 1),
-        new DystopiaProduct("통조림", 2500, 1), new DystopiaProduct("즉석밥", 2000, 1),
-        new DystopiaProduct("붕대", 3000, 3), new DystopiaProduct("진통제", 4000, 3),
-        new DystopiaProduct("건전지", 3500, 3), new DystopiaProduct("비누", 1000, 5),
-        new DystopiaProduct("방진 마스크", 2000, 5), new DystopiaProduct("연료캔", 5000, 5)
+        new DystopiaProduct("생수",1000,1) { id=DystopiaProductId.Water },
+        new DystopiaProduct("통조림",2500,1) { id=DystopiaProductId.CannedFood },
+        new DystopiaProduct("붕대",3000,1) { id=DystopiaProductId.Bandage },
+        new DystopiaProduct("건전지",3500,1) { id=DystopiaProductId.DryBattery },
+        new DystopiaProduct("군용식량",0,1) { id=DystopiaProductId.MilitaryRation,requiredFacility=DystopiaFacility.FoodShelf },
+        new DystopiaProduct("영양바",0,1) { id=DystopiaProductId.NutritionBar,requiredFacility=DystopiaFacility.FoodShelf },
+        new DystopiaProduct("약통",0,1) { id=DystopiaProductId.Medicine,requiredFacility=DystopiaFacility.MedicineCabinet },
+        new DystopiaProduct("응급 주사",0,1) { id=DystopiaProductId.Injection,requiredFacility=DystopiaFacility.MedicineCabinet },
+        new DystopiaProduct("손전등",0,1) { id=DystopiaProductId.Flashlight,requiredFacility=DystopiaFacility.ToolBench },
+        new DystopiaProduct("접이식 삽",0,1) { id=DystopiaProductId.Shovel,requiredFacility=DystopiaFacility.ToolBench },
+        new DystopiaProduct("무전기",0,1) { id=DystopiaProductId.Radio,requiredFacility=DystopiaFacility.PowerCommunications },
+        new DystopiaProduct("배터리",0,1) { id=DystopiaProductId.PowerBattery,requiredFacility=DystopiaFacility.PowerCommunications },
+        new DystopiaProduct("방독면",0,1) { id=DystopiaProductId.GasMask,requiredFacility=DystopiaFacility.NuclearProtection },
+        new DystopiaProduct("방호복",0,1) { id=DystopiaProductId.ProtectiveSuit,requiredFacility=DystopiaFacility.NuclearProtection },
+        new DystopiaProduct("방사능 측정기",0,1) { id=DystopiaProductId.RadiationDetector,requiredFacility=DystopiaFacility.PrecisionElectronics },
+        new DystopiaProduct("열화상 카메라",0,1) { id=DystopiaProductId.ThermalCamera,requiredFacility=DystopiaFacility.PrecisionElectronics }
     };
+    /// <summary>현재 가게 단계입니다. 설비 해금은 다음 영업일 주문부터 반영합니다.</summary>
+    [Range(0,3)] public int shopStage;
+    /// <summary>구입 또는 설치 완료된 설비입니다. 단계 조건도 함께 만족해야 합니다.</summary>
+    public DystopiaFacility ownedFacilities;
     /// <summary>시민권 및 주간 상납금, 단위 원. 테스트용 초기값입니다.</summary>
     public int citizenshipPrice = 300000, firstTribute = 50000, secondTribute = 80000, laterTribute = 110000;
     /// <summary>초기 대기열은 명성 50일 때 8명이며, 명성 10점당 1명 변화합니다. 하루 총 손님 제한은 아닙니다.</summary>
@@ -55,15 +70,44 @@ public sealed class DystopiaSettings
 /// <summary>누적 명성으로 결정되는 악명·악평·보통·호평·신뢰의 표시 등급입니다.</summary>
 public enum DystopiaReputationTier { Notorious, Unpopular, Neutral, Popular, Trusted }
 
+/// <summary>상품 이름이나 배열 순서와 독립적인 16종 식별자입니다.</summary>
+public enum DystopiaProductId { None, Water, CannedFood, Bandage, DryBattery, MilitaryRation, NutritionBar, Medicine, Injection, Flashlight, Shovel, Radio, PowerBattery, GasMask, ProtectiveSuit, RadiationDetector, ThermalCamera }
+
+/// <summary>보유 여부를 개별적으로 설정하는 여섯 해금 설비입니다.</summary>
+[Flags]
+public enum DystopiaFacility
+{
+    None=0,
+    [InspectorName("식량 보관 선반")] FoodShelf=1,
+    [InspectorName("약품 보관장")] MedicineCabinet=2,
+    [InspectorName("공구대")] ToolBench=4,
+    [InspectorName("전력·통신 장비")] PowerCommunications=8,
+    [InspectorName("핵보호 물품 설비")] NuclearProtection=16,
+    [InspectorName("정밀 전자장비 보관장")] PrecisionElectronics=32
+}
+
 /// <summary>Scene에 직렬화하는 상품 한 종류입니다.</summary>
 [Serializable]
 public sealed class DystopiaProduct
 {
+    /// <summary>장바구니·지침·이미지 연결에 쓰는 고정 식별자입니다.</summary>
+    public DystopiaProductId id;
+    /// <summary>이 상품을 판매하는 데 필요한 설비입니다. None은 기본 상품입니다.</summary>
+    public DystopiaFacility requiredFacility;
     /// <summary>표시 이름, 정상 판매가(원), 최초 도입일입니다.</summary>
     public string name;
     public int price, firstDay;
     /// <summary>실제 프로젝트 내부 Sprite 참조입니다.</summary>
     public Sprite sprite;
+    /// <summary>필요 설비의 최소 가게 단계입니다.</summary>
+    public int RequiredShopStage => requiredFacility == DystopiaFacility.None ? 0 :
+        (requiredFacility & (DystopiaFacility.FoodShelf | DystopiaFacility.MedicineCabinet)) != 0 ? 1 :
+        (requiredFacility & (DystopiaFacility.ToolBench | DystopiaFacility.PowerCommunications)) != 0 ? 2 : 3;
+    /// <summary>단계와 설비 보유 조건을 모두 검사합니다.</summary>
+    /// <param name="settings">현재 가게 설정입니다.</param>
+    /// <returns>해금 조건을 만족하면 true입니다. 가격 설정 여부와는 별개입니다.</returns>
+    public bool IsUnlocked(DystopiaSettings settings) => settings.shopStage >= RequiredShopStage &&
+        (settings.ownedFacilities & requiredFacility) == requiredFacility;
     /// <summary>프로토타입 상품의 초기 authoring 값을 구성합니다.</summary>
     public DystopiaProduct(string name, int price, int firstDay) { this.name = name; this.price = price; this.firstDay = firstDay; }
 }
@@ -156,14 +200,13 @@ public sealed class DystopiaSession
     internal const int MaleAppearanceCount = 29;
     /// <summary>여성 외형 순서: 성인 16종, 여자아이 2종, 할머니 2종입니다.</summary>
     internal const int FemaleAppearanceCount = 20;
-    private static readonly string[] ProductNames = { "생수", "건빵", "통조림", "즉석밥" };
     private readonly DystopiaSettings settings;
     private readonly System.Random random;
     // 당일 방문 순서를 보존해 화면의 대기 손님과 실제 거래 손님을 일치시킵니다.
     private readonly List<DystopiaCustomer> waitingCustomers = new List<DystopiaCustomer>();
     /// <summary>현재 손님 뒤의 실제 대기 순서입니다.</summary>
     public IReadOnlyList<DystopiaCustomer> WaitingCustomers => waitingCustomers;
-    private readonly DystopiaProduct[] activeProducts;
+    private DystopiaProduct[] activeProducts;
     private readonly List<string> ruleViolationHistory = new List<string>();
     private float resultRemaining;
     // 매일 영업 시작 때 열고, 마감 시각에 닫는 추가 손님 접수 상태입니다.
@@ -212,7 +255,7 @@ public sealed class DystopiaSession
     internal string LastRuleViolation { get; private set; } = "";
     /// <summary>현재 일자에 적발된 거래별 위반 내용을 발생 순서대로 보존합니다.</summary>
     internal IReadOnlyList<string> RuleViolationHistory => ruleViolationHistory;
-    /// <summary>이 시스템에서 사용하는 네 품목을 기존 설정의 가격과 Sprite 그대로 제공합니다.</summary>
+    /// <summary>영업 시작 때 확정한 해금·가격 설정 완료 상품입니다.</summary>
     internal IReadOnlyList<DystopiaProduct> ActiveProducts => activeProducts;
     /// <summary>현재 날짜에만 적용할 지침 문구입니다.</summary>
     internal string DailyRuleText => GetDailyRuleText(Day);
@@ -231,7 +274,6 @@ public sealed class DystopiaSession
     public DystopiaSession(DystopiaSettings settings, int seed)
     {
         this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
-        activeProducts = FindActiveProducts(settings.products);
         random = new System.Random(seed);
         BeginDay();
     }
@@ -383,6 +425,7 @@ public sealed class DystopiaSession
     /// <summary>当日のみの集計と待機状態を初期化します。</summary>
     private void BeginDay()
     {
+        activeProducts = FindActiveProducts(settings);
         dayStartReputation = Reputation;
         dayStartMorality = Morality;
         Visitors = Mathf.Clamp(settings.baseVisitors + (Reputation - 50) / 10, settings.minVisitors, settings.maxVisitors);
@@ -460,7 +503,7 @@ public sealed class DystopiaSession
         }
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
-        int count = random.Next(1, Day < 3 ? 3 : 4);
+        int count = random.Next(1, Math.Min(available.Count, Day < 3 ? 2 : 3) + 1);
         for (int i = 0; i < count; i++)
         {
             int index = random.Next(available.Count);
@@ -485,26 +528,24 @@ public sealed class DystopiaSession
         return isMale ? DystopiaCustomerType.AdultMale : DystopiaCustomerType.AdultFemale;
     }
 
-    /// <summary>설정에서 요청된 네 품목을 명시된 순서대로 찾아 기존 가격과 Sprite 참조를 재사용합니다.</summary>
-    /// <param name="products">Scene이 소유한 기존 상품 설정입니다.</param>
-    /// <returns>생수, 건빵, 통조림, 즉석밥 순서의 상품 배열입니다.</returns>
-    private static DystopiaProduct[] FindActiveProducts(DystopiaProduct[] products)
+    /// <summary>단계·설비 조건을 만족하고 가격·이미지가 설정된 상품만 주문에 포함합니다.</summary>
+    /// <param name="settings">Scene이 소유한 상품·해금 설정입니다.</param>
+    /// <returns>현재 영업일에 사용할 상품 배열입니다.</returns>
+    /// <exception cref="InvalidOperationException">등록 정보가 잘못됐거나 판매할 상품이 없으면 발생합니다.</exception>
+    private static DystopiaProduct[] FindActiveProducts(DystopiaSettings settings)
     {
+        var products = settings.products;
         if (products == null) throw new InvalidOperationException("일일지침에 사용할 상품 설정이 없습니다.");
-        var result = new DystopiaProduct[ProductNames.Length];
-        for (int i = 0; i < ProductNames.Length; i++)
+        var result = new List<DystopiaProduct>();
+        var ids = new HashSet<DystopiaProductId>();
+        foreach (var product in products)
         {
-            foreach (DystopiaProduct product in products)
-            {
-                if (product != null && product.name == ProductNames[i])
-                {
-                    result[i] = product;
-                    break;
-                }
-            }
-            if (result[i] == null) throw new InvalidOperationException($"일일지침 품목 '{ProductNames[i]}'이 기존 설정에 없습니다.");
+            if (product == null || product.id == DystopiaProductId.None || !ids.Add(product.id))
+                throw new InvalidOperationException("상품 16종 등록 메뉴를 실행하고 상품 ID 중복을 확인하세요.");
+            if (product.IsUnlocked(settings) && product.price > 0 && product.sprite != null) result.Add(product);
         }
-        return result;
+        if (result.Count == 0) throw new InvalidOperationException("해금된 상품의 가격과 이미지를 설정하세요.");
+        return result.ToArray();
     }
 
     /// <summary>판매 대상으로 남은 개별 물품만 합산해 기존 거래 기준 금액을 갱신합니다.</summary>
@@ -534,40 +575,40 @@ public sealed class DystopiaSession
     /// <returns>위반이 없으면 빈 문자열, 있으면 위반 문구 전체입니다.</returns>
     private string EvaluateRuleViolations()
     {
-        int water = IncludedQuantity("생수");
-        int crackers = IncludedQuantity("건빵");
-        int cannedFood = IncludedQuantity("통조림");
-        int instantRice = IncludedQuantity("즉석밥");
+        int water = IncludedQuantity(DystopiaProductId.Water);
+        int crackers = IncludedQuantity(DystopiaProductId.NutritionBar);
+        int cannedFood = IncludedQuantity(DystopiaProductId.CannedFood);
+        int instantRice = IncludedQuantity(DystopiaProductId.MilitaryRation);
         var violations = new List<string>(2);
         if ((Day == 2 || Day == 6) && Customer.IsMale && cannedFood > 0) violations.Add("남성에게 통조림 판매 금지");
-        if (Day == 3 && !Customer.IsMale && instantRice > 0) violations.Add("여성에게 즉석밥 판매 금지");
+        if (Day == 3 && !Customer.IsMale && instantRice > 0) violations.Add("여성에게 군용식량 판매 금지");
         if ((Day == 4 || Day == 6) && water > 1) violations.Add("생수는 손님 1명당 1개까지");
-        if (Day == 5 && crackers > 0 && instantRice > 0) violations.Add("건빵과 즉석밥 함께 판매 금지");
+        if (Day == 5 && crackers > 0 && instantRice > 0) violations.Add("영양바와 군용식량 함께 판매 금지");
         return string.Join(" / ", violations);
     }
 
     /// <summary>최종 판매 대상으로 남은 특정 품목의 수량을 반환합니다.</summary>
-    /// <param name="productName">기존 상품 표시 이름입니다.</param>
+    /// <param name="productId">고정 상품 식별자입니다.</param>
     /// <returns>판매 대상 수량입니다.</returns>
-    private int IncludedQuantity(string productName)
+    private int IncludedQuantity(DystopiaProductId productId)
     {
         foreach (DystopiaBasketLine line in Customer.basket)
-            if (line.product.name == productName) return line.IncludedQuantity;
+            if (line.product.id == productId) return line.IncludedQuantity;
         return 0;
     }
 
     /// <summary>이전 날짜 지침을 누적하지 않고 지정 날짜 하나의 문구만 반환합니다.</summary>
     /// <param name="day">영업 일차입니다.</param>
     /// <returns>당일 표시 문구입니다.</returns>
-    private static string GetDailyRuleText(int day)
+    private string GetDailyRuleText(int day)
     {
         switch (day)
         {
             case 1: return "제한 없음.";
             case 2: return "남성에게 통조림 판매 금지.";
-            case 3: return "여성에게 즉석밥 판매 금지.";
+            case 3: return Array.Exists(activeProducts,p => p.id == DystopiaProductId.MilitaryRation) ? "여성에게 군용식량 판매 금지." : "제한 없음.";
             case 4: return "생수는 손님 1명당 1개까지 판매 가능.";
-            case 5: return "건빵과 즉석밥은 함께 판매 금지.";
+            case 5: return Array.Exists(activeProducts,p => p.id == DystopiaProductId.MilitaryRation) && Array.Exists(activeProducts,p => p.id == DystopiaProductId.NutritionBar) ? "영양바와 군용식량은 함께 판매 금지." : "제한 없음.";
             case 6: return "남성에게 통조림 판매 금지.\n생수는 손님 1명당 1개까지 판매 가능.";
             default: return "등록된 지침 없음.";
         }

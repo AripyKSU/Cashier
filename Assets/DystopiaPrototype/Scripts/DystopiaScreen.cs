@@ -91,7 +91,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     private Sprite ledgerForeground;
     /// <summary>영업 전 가격과 당일 규칙을 표시하는 사용자 제공 일일지침 Sprite입니다.</summary>
     [SerializeField] private Sprite dailyInstruction;
-    /// <summary>영업 시작 버튼의 낡은 인장 테두리입니다.</summary>
+    /// <summary>영업 시작 글자가 포함된 사용자 제공 버튼 이미지입니다.</summary>
     [SerializeField] private Sprite instructionStartStamp;
     /// <summary>화면에서 생성하는 모든 한글 UI에 사용하는 사용자 제공 물마루 폰트입니다.</summary>
     [SerializeField] private Font uiFont;
@@ -504,11 +504,11 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         reactionAnimation = StartCoroutine(AnimateTradeReaction());
     }
 
-    /// <summary>거래 결과 네 종류를 손님의 짧은 크기·흔들림·색 변화와 기존 표정으로 전달합니다.</summary>
+    /// <summary>거래 반응 뒤 오른쪽으로 걸으며 어두워지고 작아지는 퇴장을 결과 시간 안에 표시합니다.</summary>
     /// <returns>일시정지 시 함께 멈추는 프레임 연출입니다.</returns>
     private System.Collections.IEnumerator AnimateTradeReaction()
     {
-        float duration = Mathf.Max(.01f, Mathf.Min(.75f, settings.resultSeconds));
+        float duration = Mathf.Max(.01f, settings.resultSeconds * .95f);
         float elapsed = 0;
         var rect = tradeReactionImage.rectTransform;
         reactionPortraitPosition = portrait.rectTransform.anchoredPosition;
@@ -524,8 +524,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             var color = reactionColor;
             color.a *= 1 - Mathf.Clamp01((t - .55f) / .45f);
             tradeReactionImage.color = color;
-            // 처음 0.45초에만 반응하고, 이미지 하단이 고정되도록 확대 오프셋을 보정합니다.
-            float response = Mathf.Clamp01(elapsed / Mathf.Min(.45f,duration));
+            // 앞부분에 반응을 마친 뒤 남은 결과 시간에 퇴장합니다. 거래 판정 시간은 바꾸지 않습니다.
+            float response = Mathf.Clamp01(t / .28f);
             float pulse = Mathf.Sin(response * Mathf.PI);
             float scale = 1;
             float shake = 0;
@@ -549,15 +549,23 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                     break;
             }
             var person = portrait.rectTransform;
+            float departure = Mathf.SmoothStep(0, 1, Mathf.Clamp01((t - .28f) / .72f));
+            float steps = Mathf.Sin(departure * Mathf.PI * 8) * Mathf.Sin(departure * Mathf.PI);
+            scale *= Mathf.Lerp(1, .55f, departure);
             Vector3 foot = new Vector3(person.rect.center.x,person.rect.yMin,0);
             Vector3 correction = person.localRotation * Vector3.Scale(foot,reactionPortraitScale) * (1-scale);
-            person.anchoredPosition = reactionPortraitPosition + (Vector2)correction + Vector2.right * shake;
+            person.anchoredPosition = reactionPortraitPosition + (Vector2)correction +
+                new Vector2(shake + person.rect.width * .9f * departure, Mathf.Abs(steps) * 10);
             person.localScale = reactionPortraitScale * scale;
-            portrait.color = reactionPortraitColor * tint;
+            Color departureTint = Color.Lerp(tint, Color.black, Mathf.Clamp01(departure * 1.6f));
+            departureTint.a = 1 - Mathf.SmoothStep(0, 1, departure);
+            portrait.color = reactionPortraitColor * departureTint;
             yield return null;
             if (!Session.IsPaused) elapsed += Time.unscaledDeltaTime;
         }
-        ResetTradeReaction();
+        // 다음 손님 갱신에서 복원합니다. 여기서 복원하면 사라진 손님이 한 프레임 다시 나타납니다.
+        portrait.color = new Color(0, 0, 0, 0);
+        tradeReactionImage.gameObject.SetActive(false);
     }
 
     /// <summary>연출에서 바꾼 값만 원래대로 돌려놓아 사용자의 배치를 보존합니다.</summary>
@@ -588,6 +596,12 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         dailyInstructionButton.interactable = Session.Phase == DystopiaPhase.Trading && !Session.IsPaused && !isDailyInstructionOpen;
         confirmButtonText.text = Session.Phase == DystopiaPhase.Trading && Session.Customer.total == 0 ? "거래 취소  ↵" : "판매 확정  ↵";
         ShowAmount();
+        // 퇴장한 손님의 값을 먼저 복원한 다음 새 손님의 크기와 색을 적용합니다.
+        if (Session.Phase != DystopiaPhase.Result && reactionAnimation != null)
+        {
+            StopCoroutine(reactionAnimation);
+            ResetTradeReaction();
+        }
         portrait.sprite = CustomerPoolSprite(Session.Customer.IsMale,Session.Customer.appearance);
         // 첫 표시와 결과 갱신에서도 성인 크기의 얼굴이 한 프레임 노출되지 않게 합니다.
         if (Session.Customer.Type == DystopiaCustomerType.Child && queueMovement == null)
@@ -649,7 +663,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 float angle = layoutRandom.Next(6,19) * (layoutRandom.Next(2) == 0 ? -1 : 1);
                 Vector2 size = line.product.sprite.rect.size;
                 size *= Mathf.Min(192 / size.x, 216 / size.y);
-                if (ReferenceEquals(line.product, settings.products[3])) size *= 1.35f;
+                if (line.product.id == DystopiaProductId.MilitaryRation) size *= 1.35f;
                 // 회전한 아래쪽 모서리도 상판 앞 테두리를 넘지 않게 합니다.
                 y = Mathf.Min(y, 130 - size.x * .5f * Mathf.Abs(Mathf.Sin(angle * Mathf.Deg2Rad)));
                 var item = Picture(basketRoot,"Product"+i+"Unit"+unit,line.product.sprite,0,0,size.x,size.y,true);
@@ -728,7 +742,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>대기 2번은 카운터로, 3번은 앞 대기 위치로 이동하며 크기가 커집니다.</summary>
+    /// <summary>대기 손님이 개별 발걸음으로 흔들리며 앞으로 이동하고 지정된 배치에 도착합니다.</summary>
+    /// <returns>일시정지와 함께 멈추는 대기열 이동입니다.</returns>
     private System.Collections.IEnumerator AdvanceQueueVisual()
     {
         float elapsed = 0;
@@ -749,8 +764,14 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                     continue;
                 }
                 float size = i == 2 ? 340f / 550 : i == 0 ? 240f / 340 : .8f;
-                idlePeople[i].anchoredPosition = Vector2.Lerp(start, idleOrigins[i], t);
-                idlePeople[i].localScale = placedPeopleScales[i] * Mathf.Lerp(size, 1, t);
+                // 양 끝에서 보행 오프셋을 0으로 만들어 기존 배치에 정확히 합류합니다.
+                float envelope = Mathf.Sin(t * Mathf.PI);
+                float step = elapsed * Mathf.PI * 10 + i * 1.7f;
+                Vector2 walk = new Vector2(Mathf.Sin(step) * 9, Mathf.Abs(Mathf.Cos(step)) * 15) * envelope;
+                idlePeople[i].anchoredPosition = Vector2.Lerp(start, idleOrigins[i], t) + walk;
+                float stride = Mathf.Sin(step * 2) * .025f * envelope;
+                idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i] * Mathf.Lerp(size, 1, t),
+                    new Vector3(1 - stride, 1 + stride, 1));
             }
             yield return null;
         }
@@ -824,18 +845,18 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         content.gameObject.SetActive(true);
 
         // 날짜 칸에 인쇄된 슬래시를 종이색으로 덮고 바깥 테두리는 보존합니다.
-        Panel(content,"DayPaper",140,51,51,9,new Color(.85f,.83f,.79f));
-        var day = Label(content,"InstructionDay",$"{Session.Day}일차",140,50,51,12,8,ink);
+        Panel(content,"DayPaper",140,51,50,9,new Color(.85f,.83f,.79f));
+        var day = Label(content,"InstructionDay",$"{Session.Day}일차",140,51,50,9,7,ink);
         day.alignment = TextAnchor.MiddleCenter;
         day.fontStyle = FontStyle.Bold;
 
-        var heading = Label(content,"MemoryHeading","영업 전, 가격을 기억하세요",32,76,160,16,9,ink);
+        var heading = Label(content,"MemoryHeading","영업 전, 가격을 기억하세요",32,71,160,16,9,ink);
         heading.alignment = TextAnchor.MiddleCenter;
         heading.fontStyle = FontStyle.Bold;
-        var ruleTitle = Label(content,"RuleTitle","오늘의 지침",32,99,160,12,8,muted);
+        var ruleTitle = Label(content,"RuleTitle","오늘의 지침",32,92,160,12,8,muted);
         ruleTitle.alignment = TextAnchor.MiddleCenter;
         ruleTitle.fontStyle = FontStyle.Bold;
-        var rule = Label(content,"Rule",Session.DailyRuleText,32,114,160,30,8,ink);
+        var rule = Label(content,"Rule",Session.DailyRuleText,32,107,160,30,8,ink);
         rule.alignment = TextAnchor.UpperCenter;
 
         if (beforeOpening)
@@ -846,7 +867,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 int column = i % 2;
                 int row = i / 2;
                 float x = 32 + column * 83;
-                float y = 154 + row * Mathf.Min(26f, 58f / Mathf.Max(1, (Session.ActiveProducts.Count + 1) / 2));
+                float y = 142 + row * Mathf.Min(26f, 58f / Mathf.Max(1, (Session.ActiveProducts.Count + 1) / 2));
                 Picture(content,"InstructionProduct"+i,product.sprite,x,y,18,21,true);
                 var productName = Label(content,"InstructionName"+i,product.name,x+22,y,57,10,7,ink);
                 productName.alignment = TextAnchor.MiddleLeft;
@@ -854,15 +875,17 @@ public sealed partial class DystopiaScreen : MonoBehaviour
                 price.alignment = TextAnchor.MiddleLeft;
                 price.fontStyle = FontStyle.Bold;
             }
-            var restriction = Label(content,"PriceRestriction","영업이 시작되면 가격표를 다시 볼 수 없습니다.",30,214,168,12,5,muted);
+            var restriction = Label(content,"PriceRestriction","영업이 시작되면 가격표를 다시 볼 수 없습니다.",30,202,168,12,5,muted);
             restriction.alignment = TextAnchor.MiddleCenter;
-            var recheck = Label(content,"RecheckGuide","당일 지침은 영업 중에도 다시 확인할 수 있습니다.",30,226,168,12,5,muted);
+            var recheck = Label(content,"RecheckGuide","당일 지침은 영업 중에도 다시 확인할 수 있습니다.",30,214,168,12,5,muted);
             recheck.alignment = TextAnchor.MiddleCenter;
-            // 종이가 비치는 인장 테두리로 기존 단색 박스를 대체합니다.
+            // 제공 이미지에 글자가 포함되어 있으므로 별도 글자를 겹치지 않습니다.
             var oldBorder = content.Find("OpenShopBorder");
             if (oldBorder != null) oldBorder.gameObject.SetActive(false);
-            var openShop = MakeButton(content,"OpenShop","영업 시작",74,243,80,16,()=>{Session.OpenShop();Refresh();},8);
+            // 단일 Sprite 원본의 상하 투명 여백을 포함해 실제 인쇄 영역이 하단 중앙에 오도록 배치합니다.
+            var openShop = MakeButton(content,"OpenShop","",68.5f,226.25f,87,49.5f,()=>{Session.OpenShop();Refresh();},8);
             openShop.image.sprite = instructionStartStamp;
+            openShop.image.preserveAspect = true;
             openShop.image.color = Color.white;
             var paperColors = openShop.colors;
             paperColors.normalColor = Color.white;
@@ -921,8 +944,8 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             var drawing = drawingRect.GetComponent<RawImage>();
             if (drawing == null) drawing = drawingRect.gameObject.AddComponent<RawImage>();
             drawing.texture = ledgerDrawing;
-            // 벽의 그림만 숨기고 자식 명성 도장은 유지합니다.
-            drawing.enabled = false;
+            // 원래 벽 그림과 자식 명성 도장을 함께 표시합니다.
+            drawing.enabled = ledgerDrawing != null;
             drawing.raycastTarget = false;
             drawing.color = new Color(.65f,.55f,.43f,1);
             var stampRect = Rect(drawingRect,"Stamp",ledgerStampLayout.x,ledgerStampLayout.y,ledgerStampLayout.width,ledgerStampLayout.height);

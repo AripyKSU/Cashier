@@ -26,17 +26,12 @@ public sealed class DystopiaTopDownItem : MonoBehaviour
         State = TopDownItemState.Working;
     }
 
-    /// <summary>회전하는 물품의 충돌을 받아 바깥으로 튕기며 회전도 전달받습니다.</summary>
+    /// <summary>충돌한 물품의 조작 여부만 전달하고 충돌 힘과 회전은 물리 엔진에 맡깁니다.</summary>
     /// <param name="collision">물품 사이의 물리 접촉입니다.</param>
     private void OnCollisionEnter2D(Collision2D collision)
     {
         var other = collision.gameObject.GetComponent<DystopiaTopDownItem>();
         if (State == TopDownItemState.Excluded || other == null || other.State == TopDownItemState.Excluded) return;
-        float spin = other.Body.angularVelocity;
-        if (Mathf.Abs(spin) < 90) return;
-        Vector2 away = (Body.position - other.Body.position).normalized;
-        Body.AddForce(away * Mathf.Min(Mathf.Abs(spin) / 360f, 1.5f), ForceMode2D.Impulse);
-        Body.angularVelocity = Mathf.Clamp(Body.angularVelocity - spin * .65f, -720, 720);
         WasStirred |= other.WasStirred;
     }
 }
