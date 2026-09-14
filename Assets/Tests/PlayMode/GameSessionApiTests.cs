@@ -44,7 +44,7 @@ public sealed class GameSessionApiTests
         LogAssert.NoUnexpectedReceived();
     }
 
-    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 54개를 실제 ResourceManager로 로드한다.</summary>
+    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 61개를 실제 ResourceManager로 로드한다.</summary>
     /// <returns>Addressables 로드 완료 대기.</returns>
     [UnityTest]
     public IEnumerator ActualProductAndCustomerSpritesLoad()
@@ -53,7 +53,7 @@ public sealed class GameSessionApiTests
         var ids = tables.Customers.Appearances.Rows.Values.Select(x => x.ImageResourceIdx)
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
-        Assert.That(ids.Length, Is.EqualTo(54));
+        Assert.That(ids.Length, Is.EqualTo(61));
         foreach (var id in ids)
         {
             var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(id)).AsTask();
@@ -803,8 +803,8 @@ public sealed class GameSessionApiTests
         Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12005));
         Assert.That(factory.CreatePriceListText(2, session.EnsureDailyPrices()).Contains(name + "  ·"),
             Is.EqualTo(session.DailyPrices.Prices.ContainsKey(1020)));
-        var expected = new uint[] { 1001, 1004, 1005, 1006, 1007, 1009, 1010, 1011,
-            1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022 };
+        var expected = new uint[] { 1001, 1004, 1005, 1006, 1007, 1010, 1013,
+            1014, 1015, 1016, 1018, 1019, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
@@ -897,6 +897,48 @@ public sealed class GameSessionApiTests
         Assert.That(day.CurrentVisit, Is.SameAs(current));
         Assert.That(queue.VisualCount, Is.GreaterThan(0));
         Assert.That(world.GetComponentsInChildren<SpriteRenderer>(true).Count(x => x.sortingOrder == 200), Is.EqualTo(1));
+
+        // 실제 거래 입력처럼 입장·쏟기 완료를 기다려 남은 연출이 결과 화면을 다시 숨기지 않게 한다.
+        var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
+        float sortingDeadline = Time.realtimeSinceStartup + 15f;
+        while (!sorting.IsSorting && Time.realtimeSinceStartup < sortingDeadline) yield return null;
+        Assert.That(sorting.IsSorting);
+        Assert.That(day.State, Is.EqualTo(DayProgressState.Sorting));
+        var saleItems = current.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
+        Assert.That(progress.SubmitOffer(acceptedOffer(current, saleItems), saleItems));
+        yield return null;
+        visual = states[current];
+        type = visual.GetType();
+        var reaction = (SpriteRenderer)type.GetField("Reaction").GetValue(visual);
+        var reactionSprites = (Sprite[])typeof(CustomerWorldQueueView).GetField("tradeReactionSprites",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(queue);
+        Assert.That(reaction.gameObject.activeSelf);
+        Assert.That(reaction.sprite, Is.SameAs(reactionSprites[CustomerWorldQueueView.GetReactionIndex(current.Outcome)]));
+        float reactionElapsed = (float)type.GetField("ReactionElapsed").GetValue(visual);
+        progress.Pause();
+        yield return new WaitForSeconds(.2f);
+        Assert.That((float)type.GetField("ReactionElapsed").GetValue(visual), Is.EqualTo(reactionElapsed));
+        progress.Resume();
+        ui.FrontView.gameObject.SetActive(false);
+        yield return new WaitForSeconds(.2f);
+        Assert.That((float)type.GetField("ReactionElapsed").GetValue(visual), Is.EqualTo(reactionElapsed));
+        ui.FrontView.gameObject.SetActive(true);
+        yield return null;
+        Assert.That(world.RenderRoot.gameObject.activeInHierarchy);
+        Assert.That(world.Opacity, Is.GreaterThan(0));
+        Assert.That(ui.IsPresentationPaused, Is.False);
+        float reactionDeadline = Time.realtimeSinceStartup + 3f;
+        while (reaction.gameObject.activeSelf && Time.realtimeSinceStartup < reactionDeadline) yield return null;
+        reactionElapsed = (float)type.GetField("ReactionElapsed").GetValue(visual);
+        Assert.That(reaction.gameObject.activeSelf, Is.False,
+            $"elapsed={reactionElapsed}, opacity={world.Opacity}, paused={ui.IsPresentationPaused}");
+        yield return null;
+        Assert.That(reaction.gameObject.activeSelf, Is.False);
+        // 표시가 남은 상태에서도 실제 거래 완료 이벤트가 즉시 정리하는지 확인한다.
+        reaction.gameObject.SetActive(true);
+        progress.CompleteTransactionResult();
+        yield return null;
+        Assert.That(reaction.gameObject.activeSelf, Is.False);
     }
 
     /// <summary>환경 연출 시간은 게임 진행과 독립이며 pause·숨김·재활성 중 프레임과 shader 시간을 보존한다.</summary>
@@ -1211,6 +1253,148 @@ public sealed class GameSessionApiTests
         Assert.That(ui.IsSettlementPresentationPending, Is.False);
         Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf);
         Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
+    }
+
+    /// <summary>계산기는 실제 상품 분류 완료에만 열리고 입력·잠금·빈 판매 경계를 함께 따른다.</summary>
+    [UnityTest]
+    public IEnumerator CalculatorFollowsSaleSortingLifecycle()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
+        var keypad = uiReference<KeypadController>(ui, "keypadController");
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        typeof(SaleSortingPanel).GetField("customerArrivalSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("transitionSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("pourSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("autoAdvanceDelaySeconds", flags).SetValue(sorting, 0.01f);
+        Assert.That(typeof(SaleSortingPanel).GetField("calculatorSlideSeconds", flags).GetValue(sorting), Is.EqualTo(1f));
+        RectTransform calculator = uiReference<RectTransform>(sorting, "calculatorPanel");
+        RectTransform calculatorBoundary = (RectTransform)calculator.parent;
+        Vector2 calculatorOpenPosition = (Vector2)typeof(SaleSortingPanel).GetField("calculatorOpenPosition", flags).GetValue(sorting);
+
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(calculator.gameObject.activeSelf, Is.False);
+        var progress = uiProgress(ui);
+        progress.OpenBusiness();
+        float deadline = Time.realtimeSinceStartup + 5f;
+        while (!sorting.IsSorting && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsSorting);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        keypad.OnNumberButtonClick(1);
+        Assert.That(keypad.CurrentPrice, Is.Zero);
+
+        var items = (System.Collections.Generic.List<SaleSortingItemView>)typeof(SaleSortingPanel)
+            .GetField("items", flags).GetValue(sorting);
+        RectTransform itemRoot = uiReference<RectTransform>(sorting, "itemRoot");
+        RectTransform saleZone = uiReference<RectTransform>(sorting, "saleZone");
+        RectTransform excludedZone = uiReference<RectTransform>(sorting, "excludedZone");
+        var pointer = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
+        Vector2 salePosition = itemRoot.InverseTransformPoint(saleZone.TransformPoint(saleZone.rect.center));
+        foreach (SaleSortingItemView item in items)
+        {
+            item.OnBeginDrag(pointer);
+            ((RectTransform)item.transform).anchoredPosition = salePosition;
+            item.OnEndDrag(pointer);
+        }
+
+        Assert.That(sorting.CanConfirm);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(calculator.gameObject.activeSelf);
+        keypad.OnNumberButtonClick(1);
+        Assert.That(keypad.CurrentPrice, Is.Zero);
+        yield return new WaitForSecondsRealtime(0.15f);
+        Assert.That(calculator.anchoredPosition.y, Is.GreaterThan(
+            ((Vector2)typeof(SaleSortingPanel).GetField("calculatorClosedPosition", flags).GetValue(sorting)).y));
+        Assert.That(calculator.anchoredPosition.y, Is.LessThan(calculatorOpenPosition.y));
+        deadline = Time.realtimeSinceStartup + 3f;
+        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsCalculatorOpen);
+        keypad.OnNumberButtonClick(1);
+        Assert.That(keypad.CurrentPrice, Is.EqualTo(1));
+
+        SaleSortingItemView returned = items[0];
+        returned.OnBeginDrag(pointer);
+        ((RectTransform)returned.transform).anchoredPosition = Vector2.zero;
+        returned.OnEndDrag(pointer);
+        Assert.That(sorting.CanConfirm, Is.False);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(calculator.gameObject.activeSelf);
+        Assert.That(keypad.CurrentPrice, Is.Zero);
+
+        bool paused = true;
+        sorting.SetPauseQuery(() => paused);
+        returned.OnBeginDrag(pointer);
+        ((RectTransform)returned.transform).anchoredPosition = salePosition;
+        returned.OnEndDrag(pointer);
+        Vector2 pausedPosition = calculator.anchoredPosition;
+        yield return new WaitForSecondsRealtime(0.05f);
+        Assert.That(calculator.anchoredPosition, Is.EqualTo(pausedPosition));
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        paused = false;
+        deadline = Time.realtimeSinceStartup + 3f;
+        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsCalculatorOpen);
+
+        returned.OnBeginDrag(pointer);
+        ((RectTransform)returned.transform).anchoredPosition = Vector2.zero;
+        returned.OnEndDrag(pointer);
+        yield return null;
+        returned.OnBeginDrag(pointer);
+        ((RectTransform)returned.transform).anchoredPosition = salePosition;
+        returned.OnEndDrag(pointer);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(calculator.gameObject.activeSelf);
+        deadline = Time.realtimeSinceStartup + 3f;
+        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsCalculatorOpen);
+
+        Vector2 excludedPosition = itemRoot.InverseTransformPoint(excludedZone.TransformPoint(excludedZone.rect.center));
+        foreach (SaleSortingItemView item in items.Where(item => item.gameObject.activeSelf))
+        {
+            item.OnBeginDrag(pointer);
+            ((RectTransform)item.transform).anchoredPosition = excludedPosition;
+            item.OnEndDrag(pointer);
+        }
+
+        Assert.That(sorting.CanConfirm);
+        deadline = Time.realtimeSinceStartup + 3f;
+        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsCalculatorOpen);
+        Assert.That(sorting.TryGetSaleItems(out var saleItems));
+        Assert.That(saleItems, Is.Empty);
+        keypad.OnNumberButtonClick(1);
+        LogAssert.Expect(LogType.Warning, "[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.");
+        keypad.OnConfirmButtonClick();
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.Sorting));
+
+        sorting.LockSelection();
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(calculator.gameObject.activeSelf);
+        deadline = Time.realtimeSinceStartup + 3f;
+        while (calculator.gameObject.activeSelf && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(calculator.gameObject.activeSelf, Is.False);
+        var calculatorCorners = new Vector3[4];
+        calculator.GetWorldCorners(calculatorCorners);
+        Assert.That(calculatorCorners.Max(corner => calculatorBoundary.InverseTransformPoint(corner).y),
+            Is.LessThanOrEqualTo(calculatorBoundary.rect.yMin));
+        sorting.gameObject.SetActive(false);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        sorting.gameObject.SetActive(true);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(calculator.gameObject.activeSelf, Is.False);
+        sorting.ClearCustomer();
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+
+        typeof(SaleSortingPanel).GetMethod("setCalculatorVisible", flags).Invoke(sorting, new object[] { true });
+        deadline = Time.realtimeSinceStartup + 3f;
+        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsCalculatorOpen);
+        UnityEngine.Object.Destroy(session);
+        yield return null;
+        Assert.That(GameSessionManager.Instance, Is.Null);
+        sorting.gameObject.SetActive(false);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
     }
 
     /// <summary>독립 프리팹의 반복 열기·표시 갱신은 요청을 만들지 않고 클릭만 PK를 한 번 전달한다.</summary>

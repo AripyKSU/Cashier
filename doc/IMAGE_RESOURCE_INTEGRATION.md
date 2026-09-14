@@ -1,5 +1,40 @@
 # 상품·손님 이미지 연결
 
+## 디스토피아 상품 이미지 연결 (2026-09-14)
+
+`total_merge ff05c1f`의 사운드 ID와 충돌하여 소스 `2779de4`의 상품 Resource `4257~4272`를 `4276~4291`로 이관했다. 아래 표와 등록 CSV는 통합 후 ID다. 주소·GUID·상품 PK는 변경하지 않았다. 과거 72행 검증 기록은 소스 브랜치 증거이며 [통합 검증](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 별도로 따른다.
+
+- 통합 대상 `ResourceData`의 기존 75행과 PK·path는 보존하고 4276~4291에 디스토피아 상품 Sprite 16개를 추가했다. 주소와 ID 순서는 `DrinkingWater` 4276부터 `ThermalCamera` 4291까지이며 주소와 GUID는 승인된 등록을 유지한다.
+- 최종 ProductData는 16종이다. 기존 1009 해열제, 1011 성냥, 1017 쇠지렛대, 1024 야간 투시경, 1025 휴대용 탐지기는 제외했으며 삭제 PK를 재사용하지 않는다. 제외 상품의 Text와 원본 자산은 보존한다.
+- 16종 모두 기본·탑뷰에 같은 신규 FK를 명시했다. `MilitaryRation` 4280은 군용식량 1005, `Medicine` 4282은 이름을 약통으로 확정한 1013에 연결한다. 1022 방사능 측정기는 정밀 전자장비 보관장 12006에서 해금된다.
+- 현재 데이터 기준 ResourceData는 91행이며 상품·외형이 참조하는 고유 Sprite FK는 61개(외형 45 + 신규 상품 16)다. 사용자 승인으로 기존 Default Local Group에 파일명 주소 16개를 등록했다. 새 그룹·라벨은 없다.
+- 본 절 아래의 54행·기존 6~7종 연결 수치는 과거 migration 기록이며 현재값으로 해석하지 않는다.
+
+상품 구성은 [물품 기획서](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.mxsfe4eewdaq), 이미지 대응은 [프로토타입 인계](2026-09-14-prototype-handoff.md)를 따른다. 기획서의 검토안 표기는 사용자의 최종 16종 확정으로 대체한다. 가격·원가와 남은 상품 ID는 유지했다.
+
+| 상품 ID·이름 | 기본·탑뷰 FK | 이미지 주소 | 해금 설비 |
+|---|---:|---|---:|
+| 1001 물 | 4276 | DrinkingWater | 기본 |
+| 1004 통조림 | 4277 | CannedFood | 기본 |
+| 1007 붕대 | 4278 | MedicalBandage | 기본 |
+| 1010 건전지 | 4279 | DryBattery | 기본 |
+| 1005 군용식량 | 4280 | MilitaryRation | 12001 |
+| 1006 영양바 | 4281 | NutritionBar | 12001 |
+| 1013 약통 | 4282 | Medicine | 12002 |
+| 1014 응급 주사 | 4283 | EmergencyInjection | 12002 |
+| 1015 손전등 | 4284 | Flashlight | 12003 |
+| 1016 접이식 삽 | 4285 | FoldingShovel | 12003 |
+| 1018 무전기 | 4286 | Radio | 12004 |
+| 1019 배터리 | 4287 | PowerBattery | 12004 |
+| 1020 방독면 | 4288 | GasMask | 12005 |
+| 1021 방호복 | 4289 | ProtectiveSuit | 12005 |
+| 1022 방사능 측정기 | 4290 | RadiationDetector | 12006 |
+| 1023 열화상 카메라 | 4291 | ThermalCamera | 12006 |
+
+검증: EditMode **259/259**, PlayMode **54/54**, 실패·skip·미완료 0. 실제 ResourceManager로 상품·외형 Sprite 61개를 로드했고, 최종 16종 ID·기본 4종·설비별 2종 및 다음 날 해금 경계를 확인했다. XML과 로그는 `Temp/TestResults/20260914-164501-d4761cbe708a4605a3a18136b9488e6d/`의 `EditMode.xml/.log`, `PlayMode.xml/.log`에 있다.
+
+사본 16개는 원본과 PNG 해시가 같고 GUID 중복이 없으며 각각 Sprite 1개로 로드된다. 주소·GUID·기존 그룹·라벨 없음도 16/16 확인했다. 기존 Resource 56행을 보존했다. 최종 Unity는 컴파일 오류 없음·Play 종료·InitScene dirty=False·runInBackground=False다. 확인 기록: `Temp/ProductImageFinalValidation.txt`. Console Error 5건은 테스트의 구매 알림 실패·감독관 참조 누락·ResourcePool 실패 주입이며 신규 상품 로딩 오류는 확인되지 않았다. MainScene·공용 prefab·원본 Dystopia 자산·ProjectSettings의 내용 변경은 없다. 화면 배치·이미지 가독성은 사용자 수동 확인 대상이다. 사용자 승인으로 상품 데이터·이미지·테스트·UI 수정과 관련 문서를 함께 커밋·푸시한다. 병합 시 Resource 4276~4291와 이미지 16개·metadata·주소 등록을 함께 반영한다.
+
 ## 외형 성별·연령 분류 (2026-09-13)
 
 외형45종의 성별·연령은 이미지 분류와 표시 이름 정리를 위한 참고 기준이다. 사용자 지시에 따라 추가했던 `gender,age` 컬럼과 관련 검증을 제거했으며, 현재 header는 기존 `idx,nameidx,image_resource_idx` 3열이다. 성별·연령을 외형의 고정 데이터나 생성 조건으로 사용하지 않는다.

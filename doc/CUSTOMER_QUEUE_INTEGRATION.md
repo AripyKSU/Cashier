@@ -1,29 +1,48 @@
 # 손님 대기열 구현·병합 명세
 
-## 현재 통합 상태 (2026-09-11)
+## 현재 통합 상태 (2026-09-14)
 
-GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연결한다. GameUI prefab 기본값은 false지만 공유 MainScene은 override로 true를 지정하고 공유 CustomerQueueView를 연결한다. 개인 씬이나 Local 코드 없이 공유 씬에서 대기열을 표시한다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다. 아래 과거 Dev3 설치·검증 기록은 보존하되 현재 공유 씬 사용법으로 해석하지 않는다.
+GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연결한다. GameUI prefab 기본값은 false지만 공유 MainScene은 override로 true를 지정하고 공유 CustomerWorld.prefab의 CustomerWorldQueueView를 연결한다. 개인 씬이나 Local 코드 없이 공유 씬에서 대기열을 표시한다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다. 아래 과거 Dev3 설치·검증 기록은 보존하되 현재 공유 씬 사용법으로 해석하지 않는다.
 
 ### 현재 GameUI 연결 계약
 
 - DayProgress가 시계를 소유한다. `UsesCustomerQueue`, `WaitingCustomers`, `LeavingCustomers`, `DepartedCustomers`, `GetQueueSpeech`로 조회하며 가변 큐를 외부에 공개하지 않는다.
 - 최초 손님은 즉시 생성한다. 이후 5초 입장과 FIFO를 사용하고 빈 계산대는 다음 입장을 기다린다. 긴 프레임은 프레임 종료까지 만료를 먼저 처리하고 생존한 방문만 인계한다.
 - `CustomerDeparted`는 거래 완료 방문을 알린다. 대기 이탈은 거래·명성 페널티를 추가하지 않고 이탈 수에만 반영한다. Closing은 대기열을 정리하고 마지막 거래는 유지한다.
-- MainScene의 CustomerQueueView는 기존 Image 경로를 유지한다. 개인 SpriteWorldSandbox의 CustomerWorldQueueView는 Canvas 밖 방문 객체별 SpriteRenderer를 입구→대기 위치→계산대→무작위 좌/우 출구로 이동한다. 개인 씬만 Appearance Image를 제거하고 성별 라벨·거래 대사는 UI에 유지한다. 이동은 모델을 변경하지 않는다.
+- 공유 MainScene은 `CustomerWorld.prefab`의 `CustomerWorldQueueView`를 사용한다. Canvas 밖 방문 객체별 SpriteRenderer를 입구→대기 위치→계산대→무작위 좌/우 출구로 이동하며, 성별 라벨·거래 대사는 기존 UI에 유지한다. 이동은 모델을 변경하지 않는다.
 - 마지막 거래의 정산 모델은 즉시 확정하지만 `queueExitSeconds`(기본 0.45초) 동안 정산 화면을 지연한다. 공유 렌더러 퇴장도 같은 값을 사용한다. 일시정지는 큐와 UI 연출을 함께 정지한다.
 - 아래 Dev3 버튼·3초 자동 결과 인계 설명은 이전 화면의 계약이다. 현재 GameUI의 거래 결과 완료 경로와 혼동하지 않는다. UI/UX는 사용자 확인 대상이다.
 
 - 모든 손님은 같은 크기를 사용하며 원근 배율은 적용하지 않는다. 계산대 하단 가림선에 호흡 최대 상승량을 보정한다. 퇴장 이미지는 검정 틴트와 alpha 페이드를 적용한다.
-- CustomerWorldQueueView의 월드 TMP는 불만의 모델 수명 3초를 보존하도록 외형과 별도 객체다. 이탈 당시 위치에 남고 외형의 0.45초 퇴장 alpha를 적용하지 않는다. pause·전면 숨김·날짜 교체·비활성 정리 계약을 유지한다. 이 Q-01 보완은 개인 월드 경로에만 적용되며 기존 MainScene의 Image 경로는 아직 미보완이다. 최종 가독성은 사용자 확인 대상이다.
+- 월드 손님의 이동은 0.65초 동안 개별 위상의 좌우 흔들림·상하 발걸음·미세 squash를 적용하되 양 끝 오프셋은 0이다. 퇴장도 같은 보행을 사용하며 기존 무작위 좌우 출구·검정 fade 시간은 유지한다.
+- 현재 방문의 확정 `CustomerTradeOutcome`은 방문당 한 번 4개 직렬화 Sprite(Satisfied, Delighted, Reluctant, Refused)로 표시한다. 1초 pop·상승·fade는 pause와 전면 숨김에서 멈추고 퇴장·날짜 교체·비활성화 때 정리한다.
+- CustomerWorldQueueView의 월드 TMP는 불만의 모델 수명 3초를 보존하도록 외형과 별도 객체다. 이탈 당시 위치에 남고 외형의 0.45초 퇴장 alpha를 적용하지 않는다. pause·전면 숨김·날짜 교체·비활성 정리 계약을 유지한다. 최종 가독성은 사용자 확인 대상이다.
 
 ### 월드 표시 조립 (2026-09-11)
 
-- 개인 SpriteWorldSandbox의 독립 `Assets/Prefabs/World/CustomerWorld.prefab` 인스턴스에 WorldSceneView와 CustomerWorldQueueView를 함께 연결한다. Canvas 부모 아래에 두지 않는다. 공유 MainScene에는 아직 적용하지 않는다.
+- 공유 MainScene과 개인 SpriteWorldSandbox의 독립 `Assets/Prefabs/World/CustomerWorld.prefab` 인스턴스에 WorldSceneView와 CustomerWorldQueueView를 함께 연결한다. Canvas 부모 아래에 두지 않는다.
 - RenderRoot는 전면 UI의 화면 사각형만 카메라 viewport에 대응시킨다. 자식은 좌상단 기준 일반 Transform 좌표이며 UI Image를 실시간 복제하지 않는다. CounterAnchor·Entrance·LeftExit·RightExit·Slot01~10을 Scene/Prefab에서 편집한다.
 - 동일 Visit 객체를 표시 키로 쓰므로 같은 외형 PK의 손님도 별개이며 대기→현재 전환에는 같은 SpriteRenderer를 재사용한다. 현재·대기 높이430px, 이동0.65초, 하단12px+최대 bob 보정을 유지한다.
-- 정렬은 배경0~11→대기100~91→현재200→캐노피250→탐조등273~274→대사300이다. 매대/매대 조명은 Canvas UI가 월드를 가린다.
+- 정렬은 배경0~11→대기100~91→현재200→거래 이모지220→캐노피250→탐조등273~274→대사300이다. 매대/매대 조명은 Canvas UI가 월드를 가린다.
 - GameUIController의 기존 외형 preload와 `GetCustomerAppearanceSprite`를 사용한다. queue는 Sprite handle을 로드·해제하지 않는다. 시간대 인물 tint와 퇴장 검정/alpha는 `ComposeColor` 한 곳에서 합성한다.
 - 개인 씬은 GameUI·OperatingPanel 루트만 native unpack하여 UI 이관 상태를 보존했다. 향후 공유 통합은 [MainScene 조립 지침](MAINSCENE_INTEGRATION.md)을 따른다. 구형 Sale Sorting 설치기는 원본이며 월드 prefab 존재만으로 차단하지 않는다. 월드 개인 씬에 구형 UI 전체 재설치를 실행하지 않는다.
+
+## 2026-09-14 프로토타입 보행·이모지 반영
+
+- `DystopiaScreen.AdvanceQueueVisual`의 보행 위상·좌우/상하 흔들림·미세 squash를 현재 월드 이동에 이식했다. 원본의 원근 축소·자동 거래 완료는 현재 계약에 적용하지 않는다.
+- 이모지는 새 가격/도덕성 판정 없이 기존 확정 `CustomerTradeOutcome`을 사용한다. `GetReactionIndex`는 `None`/그 외 값=-1, `RegularSale`=0(Satisfied), `DiscountSale`=1(Delighted), `ExploitativeSale`=2(Reluctant), `PaymentRefused`=3(Refused)를 반환한다.
+- `tradeReactionSprites`는 위 순서의 필수 참조 4개다. 새 시트 사본과 GUID·영역·연결은 [리소스 이관 기록](DYSTOPIA_RESOURCE_INTEGRATION.md#2026-09-14-손님-보행거래-표정-이관)을 따른다. 외형 객체를 소유하는 기존 Visual이 64px 이모지의 생성·정리를 함께 맡는다.
+- MainScene 파일을 저장하거나 교체하지 않고 이미 참조 중인 `CustomerWorld.prefab`을 갱신했다. 프로토타입 원본·CSV·Addressables·가격 판정·퇴장 입력은 변경하지 않았다.
+- 실제 Init→Hub 새 게임→Main의 할인 거래에서 `Delighted`가 머리 옆에 표시됨을 확인했다. pause 중 경과값 유지 후 resume하면 비활성화됐다(관찰 종료 경과 1.306035초: 낮은 프레임 속도로 1초 경계를 넘은 프레임에서 종료). `Temp/Queue-Reaction-Main.png`, `Temp/Queue-Reaction-Main.txt`. API로 진행한 화면 확인이며 최종 사용감·다른 화면비·Player build 검증은 아니다.
+
+
+### 검증 결과
+
+- EditMode **259/259**, 실패·skip·미완료 0: `Temp/TestResults/20260914-155015-709493e032ca4255b8af796b08d514d6/EditMode.xml` 및 `.log`.
+- 최종 PlayMode **54/54**, 실패·skip·미완료 0: `Temp/TestResults/20260914-160818-09c6891cafaa450e9f94a0c3762cf3db/PlayMode.xml` 및 `.log`. 네 결과/None 매핑, 방문 identity, 불만 수명, 실제 Sprite 참조, pause·숨김 중 타이머 유지, 재표시 후 종료·중복 방지, 거래 완료 시 제거를 포함한다. 이전 계산기 이동·비활성화 회귀도 함께 통과했다.
+- 중간 Play 실행 `155015-709493e032ca4255b8af796b08d514d6`, `160119-346ace35730647ea9383cb59aeac5a77`은 각각53/54였다. 이모지 종료 검사에서 입장/쏟기 완료 전에 직접 거래를 제출한 fixture의 남은 코루틴이 전면을 숨겼다(`elapsed=.732869, opacity=0, paused=false`). 실제 Sorting 완료 대기와 종료 deadline으로 검사를 보정했다. 제품의 숨김 정지·1초 연출 규칙을 완화하지 않았다.
+- Unity 컴파일 오류 없음, `CustomerWorld.prefab` missing script0·표정4개 참조 유효, MainScene의 prefab dependency 확인. 원본과 사본 PNG 해시 일치·신규 GUID 중복 없음·`git diff --check` 통과. Console의 실패 주입 로그는 기존 테스트의 예상 로그이며 새 제품 오류로 집계하지 않는다.
+- 종료 상태: InitScene clean, Play 종료, compileFailed=false, runInBackground=false, pending test 없음. MainScene·프로토타입 원본·Addressables·CSV·ProjectSettings 내용 변경 없음. 기존 계산기 변경을 보존하며 이번 작업에서 commit/push는 하지 않았다.
 
 ## 범위와 규칙
 

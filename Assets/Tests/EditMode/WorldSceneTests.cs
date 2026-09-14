@@ -52,6 +52,17 @@ public sealed class WorldSceneTests
         Assert.That(CustomerWorldQueueView.ComposeColor(tint, 0, 1, 0).a, Is.Zero);
     }
 
+    /// <summary>거래 결과는 새 판정 없이 직렬화된 네 반응 순서에만 대응한다.</summary>
+    [Test]
+    public void TradeOutcomeMapsToReactionSpriteOrder()
+    {
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.None), Is.EqualTo(-1));
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.RegularSale), Is.EqualTo(0));
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.DiscountSale), Is.EqualTo(1));
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.ExploitativeSale), Is.EqualTo(2));
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.PaymentRefused), Is.EqualTo(3));
+    }
+
     /// <summary>실제 prefab에는 Canvas/Image가 없고 10개 슬롯·Sprite material이 연결된다.</summary>
     [Test]
     public void WorldPrefabHasNoCanvasOrUiImages()

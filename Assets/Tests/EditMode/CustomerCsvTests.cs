@@ -53,18 +53,15 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 21 || textTables[valid].GetDataCount() != 242) throw new Exception("Unexpected sample counts");
-var expectedProductIds = new uint[] { 1001, 1004, 1005, 1006, 1007, 1009, 1010, 1011, 1013, 1014, 1015, 1016, 1017, 1018, 1019, 1020, 1021, 1022, 1023, 1024, 1025 };
+if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 242) throw new Exception("Unexpected sample counts");
+var expectedProductIds = new uint[] { 1001, 1004, 1005, 1006, 1007, 1010, 1013, 1014, 1015, 1016, 1018, 1019, 1020, 1021, 1022, 1023 };
 if (!valid.Products.Rows.Keys.OrderBy(x => x).SequenceEqual(expectedProductIds)) throw new Exception("Unexpected final product IDs");
-if (valid.Products.Rows.Values.Count(x => !x.RequiredFacilityIdx.HasValue) != 5) throw new Exception("Unexpected default product count");
-var expectedFacilityProductCounts = new Dictionary<uint, int> { [12001] = 2, [12002] = 3, [12003] = 3, [12004] = 2, [12005] = 3, [12006] = 3 };
+if (valid.Products.Rows.Values.Count(x => !x.RequiredFacilityIdx.HasValue) != 4) throw new Exception("Unexpected default product count");
+var expectedFacilityProductCounts = new Dictionary<uint, int> { [12001] = 2, [12002] = 2, [12003] = 2, [12004] = 2, [12005] = 2, [12006] = 2 };
 if (expectedFacilityProductCounts.Any(expected => valid.Products.Rows.Values.Count(x => x.RequiredFacilityIdx == expected.Key) != expected.Value)) throw new Exception("Unexpected facility product grouping");
-if (textTables[valid].Rows[valid.Products.Rows[1009].NameIdx].Text != "해열제" ||
-    textTables[valid].Rows[valid.Products.Rows[1011].NameIdx].Text != "성냥" ||
-    textTables[valid].Rows[valid.Products.Rows[1017].NameIdx].Text != "쇠지렛대" ||
-    textTables[valid].Rows[valid.Products.Rows[1024].NameIdx].Text != "야간 투시경" ||
-    textTables[valid].Rows[valid.Products.Rows[1025].NameIdx].Text != "휴대용 탐지기" ||
-    valid.Products.Rows[1022].RequiredFacilityIdx != 12005) throw new Exception("Balanced product routing failed");
+if (textTables[valid].Rows[valid.Products.Rows[1005].NameIdx].Text != "군용식량" ||
+    textTables[valid].Rows[valid.Products.Rows[1013].NameIdx].Text != "약통" ||
+    valid.Products.Rows[1022].RequiredFacilityIdx != 12006) throw new Exception("Final product routing failed");
 if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
 if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.EndingPage + 1) throw new Exception("End marker must follow the last table");
@@ -191,8 +188,8 @@ case "duplicate category type": mutate=()=>c.Categories.LoadData(category.Replac
 case "missing category display": mutate=()=>c.Categories.LoadData(category.Replace("7004,8011,4", "")); break;
 case "base price": mutate=()=>c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,0,0,")); break;
 case "negative day": mutate=()=>c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,100,-1,")); break;
-case "zero image": mutate=()=>c.Products.LoadData(product.Replace("100,0,4254,50", "100,0,0,50")); break;
-case "image FK": mutate=()=>c.Products.LoadData(product.Replace("100,0,4254,50", "100,0,4999,50")); break;
+case "zero image": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,0,50")); break;
+case "image FK": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,4999,50")); break;
 case "entry dialog FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8999")); break;
 case "empty entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "")); break;
 case "duplicate entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8024_8024")); break;
@@ -207,7 +204,7 @@ case "queue warning FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace(
 case "queue leave FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8050,8999")); break;
 case "queue header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("queue_patience_seconds", "missing_queue_patience")); break;
 case "cost header": mutate=()=>c.Products.LoadData(product.Replace("cost_price", "missing_cost")); break;
-case "zero cost": mutate=()=>c.Products.LoadData(product.Replace("100,0,4254,50", "100,0,4254,0")); break;
+case "zero cost": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,4276,0")); break;
 case "type header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("disposition_type", "missing_type")); break;
 case "product preference header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("preferred_product_idxs", "missing_products")); break;
 case "regular min header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("regular_price_min_rate","missing_min")); break;
@@ -277,7 +274,7 @@ Assert.That(resources.GetDataCount(),Is.EqualTo(count));
     private static ResourceDataTable loadResources()
     {
         var table = new ResourceDataTable();
-        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\] 총 75개의 리소스 경로 데이터 로드 완료\."));
+        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\] 총 91개의 리소스 경로 데이터 로드 완료\."));
         table.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
         return table;
     }

@@ -307,6 +307,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
     private void OnDestroy()
     {
+        this.isReady = false;
         this.isSettlementPresentationPending = false;
         this.queueExitRemaining = 0;
         this.subscribedDay?.StopQueue();
@@ -936,8 +937,12 @@ public sealed class GameUIController : MonoBehaviour
     private void handleCalculatorVisibilityChanged(bool isOpen)
     {
         if (!this.isReady || this.subscribedDay == null) return;
-        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorOpen);
-        this.refreshRuntimeViews();
+        if (isOpen) SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorOpen);
+        this.setKeypadInteractable(isOpen
+            && this.subscribedDay.CanSubmitOffer
+            && this.saleSortingPanel.IsSorting);
+        long currentPrice = this.keypadController == null ? 0 : this.keypadController.CurrentPrice;
+        this.refreshInputRouting(currentPrice);
     }
 
     /// <summary>상품 쏟기 연출 완료를 진행 상태에 반영하고 현재 거래 입력 상태를 갱신합니다.</summary>

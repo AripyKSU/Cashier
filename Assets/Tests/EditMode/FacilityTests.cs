@@ -347,7 +347,7 @@ public sealed class FacilityTests
         Assert.That(before.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(before.RegularItems[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
         Assert.That(before.RegularItems[0].DisplayName, Is.EqualTo("식량 보관 선반"));
-        Assert.That(before.RegularItems[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
+        Assert.That(before.RegularItems[0].UnlockProducts, Is.EqualTo("군용식량, 영양바"));
         Assert.That(before.RegularItems[0].ActivationDisplayDay, Is.EqualTo(2UL));
         Assert.That(before.RegularItems[2].FacilityIdx, Is.EqualTo(12007));
         Assert.That(before.CompletedRegularCount, Is.Zero);
@@ -355,8 +355,8 @@ public sealed class FacilityTests
         Assert.That(before.ProgressionItem.Value.State, Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
         var stage3 = factory.CreateFacilityShopViewData(table.Rows, new Dictionary<uint, uint> { [12005] = 0 }, 3, 0, 18000);
         Assert.That(stage3.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Active));
-        Assert.That(stage3.RegularItems[0].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
-        Assert.That(stage3.RegularItems[1].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
+        Assert.That(stage3.RegularItems[0].UnlockProducts, Is.EqualTo("방독면, 방호복"));
+        Assert.That(stage3.RegularItems[1].UnlockProducts, Is.EqualTo("방사능 측정기, 열화상 카메라"));
         Assert.That(stage3.ProgressionItem.Value.CompletedRegularCount, Is.EqualTo(1));
         Assert.That(stage3.ProgressionItem.Value.RequiredRegularCount, Is.EqualTo(11));
         Assert.That(stage3.ProgressionItem.Value.State, Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));

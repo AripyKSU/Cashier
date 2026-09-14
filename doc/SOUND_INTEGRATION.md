@@ -1,5 +1,7 @@
 # Cashier 사운드 통합 명세
 
+2026-09-14 거래 화면 병합: 사운드 ID `4257~4275`와 19개 주소는 유지한다. 충돌한 상품 Sprite만 `4276~4291`로 이관하여 ResourceData는 총 91행이다. [통합 계약](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 따른다.
+
 기준: `SoundKeys`, `ResourceData.csv`, Addressables `Default Local Group`, `SoundManager`와 `Assets/Sounds` 에셋.
 영문 파일명·address 변경 내역은 [SOUND_ASSET_NAME_MIGRATION.md](SOUND_ASSET_NAME_MIGRATION.md)에 기록한다.
 

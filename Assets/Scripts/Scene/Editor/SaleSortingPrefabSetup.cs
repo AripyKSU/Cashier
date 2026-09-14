@@ -18,7 +18,6 @@ public static class SaleSortingPrefabSetup
     private const string ProgressScenePath = "Assets/Scenes/Local/ProgressScene.unity";
     private const string WorkbenchPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png";
     private const string CalculatorPath = "Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png";
-    private const string CalculatorTogglePath = "Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png";
     private const string TiltedContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png";
     private const string EmptyContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png";
     private const string FrontContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png";
@@ -134,15 +133,7 @@ public static class SaleSortingPrefabSetup
                 calculatorImage.sprite = loadSprite(CalculatorPath);
             }
 
-            RectTransform toggleRect = createRect("CalculatorToggle", operating, new Vector2(553f, -278f), new Vector2(78f, 78f));
-            Image toggleImage = toggleRect.gameObject.AddComponent<Image>();
-            toggleImage.sprite = loadSprite(CalculatorTogglePath);
-            toggleImage.preserveAspect = true;
-            Button toggleButton = toggleRect.gameObject.AddComponent<Button>();
-            toggleButton.targetGraphic = toggleImage;
-            toggleRect.SetAsLastSibling();
-
-            removeDirectChildrenByName(operating, "CalculatorToggle", toggleRect);
+            removeDirectChildrenByName(operating, "CalculatorToggle", null);
 
             Transform frontView = findChild(operating, "AstraFrontView");
             if (frontView == null)
@@ -175,9 +166,6 @@ public static class SaleSortingPrefabSetup
             Transform basket = customer == null ? null : findChild(customer, "Basket");
             setObject(panelObject, "frontBasketRoot", basket == null ? null : basket.gameObject);
             setObject(panelObject, "calculatorPanel", calculator);
-            setObject(panelObject, "calculatorToggleButton", toggleButton);
-            setObject(panelObject, "calculatorOpenSprite", loadSprite(CalculatorTogglePath));
-            setObject(panelObject, "calculatorClosedSprite", loadSprite(CalculatorTogglePath));
             setObject(panelObject, "itemPrefab", itemView);
             setObject(panelObject, "sortingStatusText", null);
             setObject(panelObject, "dividerBar", dividerController);
@@ -308,7 +296,7 @@ public static class SaleSortingPrefabSetup
             }
 
             calculator.sizeDelta = new Vector2(360f, 362f);
-            calculator.anchoredPosition = new Vector2(435f, -95f);
+            calculator.anchoredPosition = new Vector2(30f, -160f);
             Image artwork = calculator.GetComponent<Image>();
             artwork.sprite = loadSprite(CalculatorPath);
             artwork.color = Color.white;
@@ -444,23 +432,24 @@ public static class SaleSortingPrefabSetup
         createFrontImage(frontView, "Canopy", CanopyPath, 0f, 0f, 1280f, 720f);
         createFrontImage(frontView, "Counter", CounterPath, 0f, 0f, 1280f, 720f);
 
-        // 상자와 시계를 화면 및 매대 정중앙(X=640)에 맞춰 가운데 정렬 배치합니다.
-        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 550f, 605f, 180f, 90f);
+        // 시계는 승인된 왼쪽 상단 위치에서 Sprite 비율과 숫자창 정렬을 유지합니다.
+        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 550f, 605f, 120f, 90f);
         Image clockImage = clockRect.GetComponent<Image>();
         clockImage.preserveAspect = true;
         clockImage.raycastTarget = false;
         BusinessClockController clockController = clockRect.gameObject.AddComponent<BusinessClockController>();
 
-        RectTransform clockTextRect = createRect("ClockText", clockRect, Vector2.zero, new Vector2(110f, 28f));
+        RectTransform clockTextRect = createRect("ClockText", clockRect, Vector2.zero, new Vector2(64f, 20f));
         clockTextRect.anchorMin = new Vector2(0.5f, 0.5f);
         clockTextRect.anchorMax = new Vector2(0.5f, 0.5f);
         clockTextRect.pivot = new Vector2(0.5f, 0.5f);
-        clockTextRect.anchoredPosition = new Vector2(0f, -2f);
+        clockTextRect.anchoredPosition = new Vector2(-1f, -7f);
         TextMeshProUGUI clockText = clockTextRect.gameObject.AddComponent<TextMeshProUGUI>();
         clockText.text = "09:00";
-        clockText.fontSize = 22f;
+        clockText.fontSize = 18f;
         clockText.fontStyle = FontStyles.Bold;
         clockText.alignment = TextAlignmentOptions.Center;
+        clockText.textWrappingMode = TextWrappingModes.NoWrap;
         clockText.color = new Color(0.40f, 0.58f, 0.43f, 1f);
         clockText.raycastTarget = false;
 

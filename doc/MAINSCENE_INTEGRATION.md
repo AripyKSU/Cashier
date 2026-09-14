@@ -1,5 +1,16 @@
 # MainScene 진행·세션 API 통합
 
+## 거래 화면·상품 16종 통합 (2026-09-14)
+
+- 대상 `total_merge ff05c1f`(사운드·설비 단계별 UI 포함)에 `codex/customer-trade-presentation 2779de4`를 병합한다. 소스의 계산기 자동 표시·1초 출입, 대기열 보행·거래 표정, 상품 16종과 이미지, 탑뷰 임시 이름 제거·시계 정렬을 함께 반영한다. 대상의 사운드·설비 단계 UI·시민권 판정은 유지한다.
+- Resource ID 충돌은 대상 사운드 `4257~4275`를 유지하고 상품 이미지 16개의 소스 ID `4257~4272`를 `4276~4291`로 이관한다. ProductData의 두 이미지 FK와 이미지 등록표를 함께 변경한다. 총 91행, 상품·손님 고유 Sprite 61개, 사운드 19개다. 주소·GUID·원본 이미지는 그대로이며 추가 Addressables 등록은 없다.
+- GameUIController의 계산기 알림은 입력만 갱신하는 수명 수정과 열림 효과음을 결합한다. 최신 단계별 설비 UI 계약을 기준으로 최종 상품 이름·해금 목록 테스트를 합친다. MainScene 파일 변경 없이 GameUI와 CustomerWorld의 공유 프리팹 수정을 상속한다.
+- 기존 인계는 소스 커밋 본문과 [사운드 통합](SOUND_INTEGRATION.md), [상품 이미지](IMAGE_RESOURCE_INTEGRATION.md), [판매 화면](SALE_ITEM_LAYOUT_RULES.md), [대기열](CUSTOMER_QUEUE_INTEGRATION.md)을 따른다. 원격 푸시는 이번 요청 범위에 포함하지 않는다.
+- 통합 검증: EditMode **262/262**, PlayMode **60/60**, 실패·skip·미완료 0. `Temp/TestResults/20260914-173926-716a6d15daca422ba6a3268c68ef09a1/`의 `EditMode.xml/.log`, `PlayMode.xml/.log`. Sprite 61개와 AudioClip 19개 실제 로드·사운드 수명, 단계별 설비 조건, 계산기 분류·출입·종료 및 거래 경계를 포함한다.
+- Init→Hub 새 게임→Main→감독관→영업→상품 4개 드래그 콜백 분류→계산기 자동 열림→숫자/확인 콜백으로 800G 수락→이모지→결과 확인 API로 퇴장 시작을 확인했다. 상품명 TMP 0개, ResourceManager/SoundManager 각 1개, 사운드 캐시 19개, 대기열 시각 객체 5개, 시계 120×90/숫자 (-1,-7). 증거: `Temp/TradeMergeSmoke.txt`, `TradeMergeSorting.png`, `TradeMergeCalculator.png`, `TradeMergeResult.png`. API·콜백을 사용한 최소 실행이며 실제 마우스 전체 UX나 음향 청취 품질·다른 해상도·Player build 검증은 아니다.
+- 원본 sound 75행과 상품 ID·가격·원가 보존, Resource 91개 PK/path와 Addressables 중복 없음, 신규 상품 GUID 16개 고유, Sprite/주소 등록 16/16 확인. Main missing script 0. 기존 `SettlementPanel.prefab/ReputationStamp Image.m_Sprite`의 누락 참조 1개는 target과 동일한 자산에 있으며 `ReputationStampPresenter`가 표시 시 유효한 등급별 Sprite로 교체한다. 이번 병합에서 이 기존 기본 참조는 수정하지 않았다. 참조 상세: `Temp/TradeMergeReferences.txt`.
+- 최종 제품 Console 오류 0 (`Temp/TradeMergeConsole.json`), 컴파일 실패 없음, Play 종료·InitScene dirty=False·runInBackground=False. MainScene·사운드/설비/딸 프리팹의 target 내용과 기존 stash 2개를 보존했다. 기능 API 검증은 PASS이며 전체 시각 검수와 기존 기본 도장 참조 정리는 별도 후속이다.
+
 > 2026-09-13 현재 진입 경로: Init 부트 후 Hub 메뉴에서 새 게임을 선택해야 게임 씬으로 이동한다. 엔딩·실패 화면의 새 게임 버튼은 Hub 복귀이며 즉시 재시작하지 않는다. [현재 메뉴·이어하기 사양](CITIZENSHIP_ENDING.md#hub-메뉴와-카메라-2026-09-13)을 따른다. 아래 날짜별 검증의 자동 Hub→Main 경로는 당시 기록이다.
 
 ## 시민권·최종 정산 연결 (2026-09-13)

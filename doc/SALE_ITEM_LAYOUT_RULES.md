@@ -38,3 +38,35 @@
 - 플레이어 드래그, 막대 이동, 청소기 부착 중인 상품은 자동 소팅하지 않는다.
 - 논리적인 판매 목록은 위치가 아니라 상품의 `ForSale` 상태로 집계한다.
 - 상품 간 물리 충돌은 사용하지 않는다.
+- 작업대 탑뷰 상품은 Sprite만 표시하고 테스트용 상품명·상품 ID TMP를 생성하거나 겹쳐 표시하지 않는다. 장바구니·가격표 등 다른 화면의 상품명은 유지한다.
+- 하단 `CounterClock`은 104:78 Sprite 비율에 맞춘 120×90 Rect를 사용한다. 기존 180×90 부모에서 `preserveAspect`가 왼쪽 정렬되어 본체와 숫자 중심이 어긋나던 문제를 막기 위해 `ClockText`는 64×20, 위치 (-1,-7), 18pt, NoWrap으로 둔다.
+- 2026-09-14 검증: EditMode 259/259, 실패·skip·미완료 0 (`Temp/TestResults/20260914-171004-8edf4782999f4d2f8122a7b9805440f1/EditMode.xml` 및 `.log`). 반복 Initialize 후 상품 ID·Sprite 유지/TMP 자식 0, MainScene의 GameUI 시계 배치 상속·missing script 0을 확인했다 (`Temp/TopViewClockValidation.txt`). 실제 Play에서 탑뷰 이름 제거와 정면 숫자창 정렬을 확인했다 (`Temp/ClockActualBefore.png`: 이름 제거 후 탑뷰, `Temp/ClockFrontBefore.png`, `Temp/ClockFrontAfter.png`: 시계 보정 전후). 정면 비교는 런타임 표시 API로 전환한 미리보기이며 전체 거래 UX 검증을 의미하지 않는다. MainScene·원본 이미지·시간 로직은 변경하지 않았다. PlayMode 전체 테스트는 이번 수정에서 재실행하지 않았고 최종 조작감·다른 해상도는 사용자 확인 대상이다.
+
+## 계산기 표시와 입력
+
+- 계산기는 기본적으로 닫혀 있으며 별도 토글 버튼을 두지 않는다.
+- 계산기 위치는 `OperatingPanel/PriceInput`에서 조정한다. 1280×720 기준 중앙 앵커 위치 `(30, -160)`, 크기 `360×362`로 가운데 물품 구역의 오른쪽 아래에 배치하며 오른쪽 분류 구역을 가리지 않는다. 프리팹 설정 도구도 같은 값을 사용한다.
+- 실제 상품이 하나 이상 있고 모든 상품이 판매 또는 제외 상태로 분류된 경우에만 자동으로 연다.
+- 상품을 다시 집거나 막대·청소기·자동 소팅으로 이동하는 동안에는 닫고, 모든 조작과 분류가 끝나면 다시 연다.
+- 전부 제외한 경우도 분류 완료이므로 계산기는 열지만, 기존 거래 경계가 판매 수량 0인 제출을 거부한다.
+- 새 손님, 쏟기, 결과 표시, 선택 잠금과 화면 정리 상태에서는 계산기와 키패드·Enter 입력을 닫는다.
+- 계산기는 약 1초 동안 부모 패널 아래 화면 밖에서 지정 위치로 들어오고, 닫을 때는 같은 경로로 내려간다. 열림 도착 전과 닫힘 요청 직후부터 키패드·Enter 입력을 막는다.
+- 반대 표시 요청이 연출 중 들어오면 현재 위치에서 방향만 전환한다. 일시정지 중에는 연출 시간도 멈추며, 새 손님·화면 비활성화는 진행 중 연출을 즉시 정리한다.
+
+### 계산기 변경 검증 (2026-09-14)
+
+- `codex/customer-trade-presentation`, 기준 `4642f3b` 이후 미커밋 변경. `GameUI.prefab`의 토글 객체와 `SaleSortingPanel.ToggleCalculator`·토글 직렬화 필드를 제거했다. 기존 `IsCalculatorOpen`·표시 변경 이벤트와 결제 경로를 사용하며 MainScene 파일은 변경하지 않았다.
+- Unity 컴파일 성공. EditMode **258/258**, PlayMode **54/54**, 실패·skip·미완료 0. 신규 `CalculatorFollowsSaleSortingLifecycle`은 실제 GameUI에서 초기/미분류 닫힘, 분류 완료 열림, 재분류 시 입력 금액 초기화, 전부 제외 시 제출 거부, 잠금/정리를 검증한다.
+- 증거: `Temp/TestResults/20260914-145616-5a5602ae99d44868bb998d9297f6756a/EditMode.xml`, `Temp/TestResults/20260914-145636-cb8363dd6c29487cb6a52c5ec79e622e/PlayMode.xml` 및 각 `.log`.
+- 초기 신규 테스트의 참조 누락 2건은 수정 후 위 검증을 실행했다. GameUI 프리팹의 missing script 0, 토글 객체 0을 확인했다. 최종 배치·조작감은 사용자 확인 대상이다.
+
+### 계산기 출입 연출 검증 (2026-09-14)
+
+- 기준 `7282f29` 이후 연출 변경. 기본 이동 시간 1초로 실제 입장 중 위치·입력 차단, 도착 후 입력 허용, 퇴장 요청 즉시 잠금, 중간 반전·pause, 퇴장 완료 후 화면 밖·inactive, 재활성화를 검사했다.
+- Unity 컴파일 성공, PlayMode **54/54**, 실패·skip·미완료 0: `Temp/TestResults/20260914-152220-dff1afedd73441fe9e3e9aed4c50d07a/PlayMode.xml` 및 `.log`. 이번 연출 변경에서 EditMode는 재실행하지 않았다. 최종 연출 사용감은 사용자 확인 대상이다.
+
+### 계산기 비활성화 예외 수정 (2026-09-14)
+
+- 확인된 스택은 `SaleSortingPanel.OnDisable → hideCalculatorImmediately → setCalculatorInputOpen → GameUIController.handleCalculatorVisibilityChanged → refreshRuntimeViews`다. 세션이 UI보다 먼저 제거되면 전체 화면 갱신의 `GameSessionManager.Instance` 조회에서 예외가 발생했다.
+- 계산기 알림은 키패드와 Enter 입력 상태만 갱신한다. 컨트롤러는 파괴 시작 시 `isReady=false`를 먼저 설정한다. 이전 연출 테스트에 없던 세션 선파괴 → 열린 계산기 비활성화 순서를 기존 회귀 사례에 추가했다.
+- Unity 컴파일 성공, PlayMode **54/54**, 실패·skip·미완료 0: `Temp/TestResults/20260914-153325-6ca3c33a165d4b5584b5d020b386ad0f/PlayMode.xml` 및 `.log`. 기존 출입·반전·pause·입력 잠금 검사도 유지했다.

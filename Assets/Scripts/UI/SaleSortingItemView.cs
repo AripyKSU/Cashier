@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TMPro;
 
 /// <summary>작업대 위에서 독립적으로 움직이고 분류되는 상품 한 개를 표시합니다.</summary>
 [RequireComponent(typeof(RectTransform), typeof(Image))]
@@ -41,7 +40,6 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
 
     private RectTransform rectTransform;
     private Image itemImage;
-    private TextMeshProUGUI itemNameText;
     private RectTransform workArea;
     private bool isDragging;
 
@@ -92,7 +90,6 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     {
         this.rectTransform = (RectTransform)this.transform;
         this.itemImage = this.GetComponent<Image>();
-        this.ensureItemNameText();
     }
 
     /// <summary>한 개별 상품 오브젝트를 표시 데이터와 연결합니다.</summary>
@@ -100,7 +97,7 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     /// <param name="unitIndex">같은 상품 내 개별 순번입니다.</param>
     /// <param name="sprite">표시할 상품 이미지입니다.</param>
     /// <param name="sizePixels">작업대에 표시할 정사각형 크기입니다.</param>
-    /// <param name="displayName">임시 이미지 위에 표시할 상품명입니다. 비어 있으면 상품 ID를 표시합니다.</param>
+    /// <param name="displayName">기존 호출 호환용 표시 이름이며 탑뷰에는 출력하지 않습니다.</param>
     /// <param name="workAreaRect">드래그 좌표 변환에 사용할 작업대 RectTransform입니다.</param>
     public void Initialize(uint productId, int unitIndex, Sprite sprite, float sizePixels, string displayName = null, RectTransform workAreaRect = null)
     {
@@ -109,8 +106,6 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
             this.rectTransform = (RectTransform)this.transform;
             this.itemImage = this.GetComponent<Image>();
         }
-
-        this.ensureItemNameText();
 
         this.workArea = workAreaRect;
         this.ProductId = productId;
@@ -127,14 +122,6 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         this.itemImage.sprite = sprite;
         this.itemImage.preserveAspect = true;
         this.itemImage.raycastTarget = true;
-        if (this.itemNameText != null)
-        {
-            this.itemNameText.text = string.IsNullOrWhiteSpace(displayName)
-                ? $"#{productId}"
-                : displayName;
-            this.itemNameText.gameObject.SetActive(true);
-            this.itemNameText.raycastTarget = false;
-        }
 
         this.UpdateVisualState();
         this.gameObject.SetActive(true);
@@ -223,66 +210,4 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         }
     }
 
-    /// <summary>임시 흰색 상품 이미지 위에 상품명을 표시할 TMP 자식을 확보합니다.</summary>
-    private void ensureItemNameText()
-    {
-        if (this.itemNameText != null || this.transform == null)
-        {
-            return;
-        }
-
-        Transform existing = this.transform.Find("TemporaryProductName");
-        if (existing != null)
-        {
-            this.itemNameText = existing.GetComponent<TextMeshProUGUI>();
-        }
-
-        if (this.itemNameText == null)
-        {
-            GameObject labelObject = new GameObject("TemporaryProductName", typeof(RectTransform));
-            labelObject.transform.SetParent(this.transform, false);
-            this.itemNameText = labelObject.AddComponent<TextMeshProUGUI>();
-        }
-
-        RectTransform labelRect = this.itemNameText.rectTransform;
-        labelRect.anchorMin = Vector2.zero;
-        labelRect.anchorMax = Vector2.one;
-        labelRect.offsetMin = new Vector2(2f, 2f);
-        labelRect.offsetMax = new Vector2(-2f, -2f);
-        labelRect.localScale = Vector3.one;
-        this.assignTemporaryFont();
-        this.itemNameText.alignment = TextAlignmentOptions.Center;
-        this.itemNameText.enableAutoSizing = true;
-        this.itemNameText.fontSizeMin = 7f;
-        this.itemNameText.fontSizeMax = 15f;
-        this.itemNameText.textWrappingMode = TextWrappingModes.Normal;
-        this.itemNameText.color = Color.black;
-        this.itemNameText.raycastTarget = false;
-        this.itemNameText.transform.SetAsLastSibling();
-    }
-
-    /// <summary>현재 UI에서 사용할 수 있는 TMP 글꼴을 임시 라벨에 연결합니다.</summary>
-    private void assignTemporaryFont()
-    {
-        TextMeshProUGUI[] candidates = this.transform.root.GetComponentsInChildren<TextMeshProUGUI>(true);
-        for (int index = 0; index < candidates.Length; index++)
-        {
-            TextMeshProUGUI candidate = candidates[index];
-            if (candidate == this.itemNameText || candidate.font == null)
-            {
-                continue;
-            }
-
-            this.itemNameText.font = candidate.font;
-            return;
-        }
-
-        TMP_FontAsset defaultFont = TMP_Settings.defaultFontAsset;
-        if (defaultFont == null)
-        {
-            return;
-        }
-
-        this.itemNameText.font = defaultFont;
-    }
 }
