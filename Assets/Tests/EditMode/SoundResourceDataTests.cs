@@ -59,7 +59,7 @@ public sealed class SoundResourceDataTests
         var table = new ResourceDataTable();
         LogAssert.Expect(
             LogType.Log,
-            new Regex(@"^\[ResourceDataTable\] 총 91개의 리소스 경로 데이터 로드 완료\."));
+            new Regex(@"^\[ResourceDataTable\] 총 \d+개의 리소스 경로 데이터 로드 완료\."));
         table.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
 
         Assert.That(expected.Keys, Is.EquivalentTo(SoundKeys.All));

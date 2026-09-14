@@ -38,6 +38,8 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private PreOpenPanelPresenter preOpenPresenter;
     /// <summary>진행 시각을 표시할 시계. 자체 시간은 사용하지 않는다.</summary>
     [SerializeField] private BusinessClockController businessClock;
+    /// <summary>본편에 연결한 단계별 장식. 독립 UI 테스트 프리팹은 생략 가능하다.</summary>
+    [SerializeField] private StoreStagePresentation stagePresentation;
     /// <summary>세션 감독관 대사와 연출을 표시하는 독립 패널.</summary>
     [SerializeField] private InspectorPresenter inspectorPresenter;
     /// <summary>직렬화 상태부터 활성·불투명한 전체 화면 초기화 덮개.</summary>
@@ -170,6 +172,7 @@ public sealed class GameUIController : MonoBehaviour
                 this.customerCatalog,
                 DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
                 new System.Random(), useCustomerQueue: this.useCustomerQueue);
+            if (stagePresentation != null) await stagePresentation.PrepareAsync(this.GetCancellationTokenOnDestroy());
             this.subscribeProgress();
             this.gameProgress.Start();
             this.isReady = true;
@@ -780,6 +783,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>설비와 경제 표시를 새로 읽되 정산 매출·비용은 확정 결과를 그대로 표시한다.</summary>
     private void refreshFacilityShop()
     {
+        if (stagePresentation != null) stagePresentation.Apply(gameProgress.CurrentStoreStage);
         var session = GameSessionManager.Instance;
         this.facilityShopPresenter.UpdateView(this.viewDataFactory.CreateFacilityShopViewData(
             DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
@@ -1037,6 +1041,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>현재 진행 스냅샷을 모든 Presenter에 전달합니다.</summary>
     private void refreshAllViews()
     {
+        if (stagePresentation != null && gameProgress != null) stagePresentation.Apply(gameProgress.CurrentStoreStage);
         if (!this.isReady || this.gameProgress == null || this.subscribedDay == null)
         {
             return;
