@@ -15,6 +15,26 @@
 3. 31일차까지 시민권을 사지 않으면 기존 최종 확인을 거쳐 `Bad`로 종료한다. 유지비 미납 유예가 만료되면 날짜와 무관하게 `GameOver`가 우선한다.
 4. 엔딩 화면의 새 게임은 Hub로 돌아가며, Hub의 새 게임이 Init을 거쳐 시민권·종료 결과·미납 상태를 초기화한다. Init에는 시민권 미납 면제 설정이 없다.
 
+### API 연결 변경
+
+- `GameSessionManager.InitializeNewGame(DataTableManager)`와 `DailySettlementPresenter.ConfigureEnding(bool, bool)`에서 구형 미납 면제 인자를 제거했다. 사전 보유/면제 조회 property도 제거했다.
+- 시민권 구매 성공은 `GameProgress.TryPurchaseFacility`가 반환되기 전에 종료 결과와 `Completed`를 확정한다. 호출자는 이후 정산 완료를 다시 요청하지 않는다. 상점 표시와 구매 검사는 동일한 선행 설비 대상 판정을 재사용한다.
+- 일반 설비는 구매 다음 영업일 활성화하지만 시민권의 선행 조건은 보유 여부로 검사한다. 활성화 대기를 추가하지 않는다. 시민권 가격은 기존 1,000,000G를 유지했다.
+
+### 2026-09-14 최종 검증
+
+기준 `codex/ending-revision 8c19aa5`. 검증 상태 `PASS`: 아래 자동 API 검사와 실제 씬 연결 범위. 최종 대사·UI/UX 사용자 승인은 별도다.
+
+- EditMode **252/252**, 실패·skip·미완료0: `Temp/TestResults/20260914-103945-fd9fdd08787549a7905d1107b8e9ae44/EditMode.xml` 및 `.log`.
+- 최종 PlayMode **54/54**, 실패·skip·미완료0: `Temp/TestResults/20260914-110651-bc5baa1dd95c47af8041b4faece59c65/PlayMode.xml` 및 `.log`. 아키텍처 담당이 구현 담당의 종료·idle을 확인한 뒤 단독 실행했다.
+- 단계/선행 설비 누락(상품·편의), 활성화 전 보유, 부족금액/정확금액, 음·0·양 도덕성, 조기일/31일 구매 즉시 종료, 미소지 최종일, 미납 유예/만료, 결제 알림 예외와 재진입, 새 게임 초기화, 세 종류의 실제 페이지·요약을 검사했다.
+- 초기 PlayMode `103517`은52/54였다. 테스트 준비 거래가 도덕성을 바꾼 상태와 새 엔딩의 페이지 매핑 누락을 fixture에서 수정했다. 이후 `104352`는53/54로, 기존 지침 테스트가 실제 주문 밖 상품/수량을 제출하는 불안정한 입력을 발견했다. 실제 주문을 사용하도록 수정하고 위반 수량·snapshot 보존 검사는 유지했다.
+- `104716` 및 `105916` 실행은 결과 파일을 만들지 못해 통과로 집계하지 않는다. `105916`은 PlayMode 중단에 따른 Test Framework abort 로그를 확인했다. 활성 작업이 없음을 확인하고 해당 pending marker만 정리한 뒤 최종 실행했다.
+- 실제 Init→Hub→Main 로드 후 실행 인스턴스에만 테스트 자금·도덕성을 설정했다. 정산/선행 설비 구매는 제품 API를 사용했다. Main 설비 상점의 시민권 버튼 리스너2회 호출에서 **1,476,300→476,300G**, 도덕성-1, 1일차 `CitizenshipNegative`가 한 번 확정됐고 `BadEndingScene`의 준비된 `EndingPresenter`로 전환됐다. 세션 manager1개, 제품 Console Error0. 증거: `Temp/ending-revision-smoke.txt`, `Temp/ending-revision-negative.png`.
+- 연속 입력은 버튼 리스너 호출로 확인했으며 사람의 전체 조작·31일 플레이·최종 감정선 검증은 아니다. 씬 로딩 실패 주입은 이번에 다시 실행하지 않았고 기존 동결 결과 재시도 경로를 유지했다. 임시 조회 코드의 private property 접근 컴파일 오류1회는 조회 코드를 고쳤으며 제품 C# 오류와 구분했다.
+- 최종 Unity: Play 종료, InitScene clean, compile error0, `runInBackground=false`. MainScene 및 다른 씬 자산·Addressables·패키지 변경 없음. 테스트 생성 폰트 캐시는 복원했고 ProjectSettings 원본 바이트 SHA256 `2122E89E358719357FD5C78D691FC86E1257397BC377CF9560131A2BB25C4B94`를 보존했다.
+- 구현 담당이 Git 금지 인계에도 `8c19aa5` 커밋/작업 브랜치 푸시를 수행해 사용자에게 알렸다. 최종 검증 기록과 작업 문서는 우선 로컬에 갱신했으며, 이후 사용자 `commit-push` 요청으로 문서·가격 분석 자료의 별도 커밋·푸시가 승인됐다. 기존 ProjectSettings 변경은 제외한다. 기본 브랜치 병합은 수행하지 않았다.
+
 ## 2026-09-13 변경 전 구현·검증 이력
 
 기준 `total_merge 480af457efc440839ed101fb753c624c943fce14`, 작업 브랜치 `codex/citizenship-ending`. 당시 결정 근거와 구현 전 제안은 [설계 기록](work/citizenship-ending.md)에 보존한다.

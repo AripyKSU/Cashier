@@ -258,6 +258,6 @@ PlayMode 실행 전 `EditorSceneManager.playModeStartScene`에 InitScene 또는 
 - `unity-cli editor refresh --compile --ignore-version-mismatch`로 최신 runtime/test assembly 컴파일 완료를 확인했다.
 - EditMode 175/175, PlayMode 25/25, 실패·skip 0. 새 selector 명성 가중치·설비 선호·성별 교대, 타입 전용 명성 매핑과 기존 손님·CSV·시설·진행 회귀를 포함한다. 증거: `Temp/TestResults/20260909-customer-spawn-edit/EditMode.xml`, `Temp/TestResults/20260909-customer-spawn/PlayMode.xml`.
 - 실제 성별별 이미지 asset 연결과 UI/UX 표현은 범위 밖이며 수동 확인 대기다. 선호 타입 상품의 명성 정산은 `ReputationDispositionRules`가 선호 필드를 참조하지 않는 것으로 고정한다.
-## 시민권·엔딩 검증 참조 (2026-09-13)
+## 시민권·엔딩 검증 참조 (2026-09-14)
 
-현재 브랜치 `codex/citizenship-ending`의 데이터·정산 경계 자동 검사, 실제 씬 전환·버튼·화면 검증, 남은 사람 플레이 테스트는 [CITIZENSHIP_ENDING.md 검증 기록](CITIZENSHIP_ENDING.md#검증-기록)에 기록한다. 위의 과거 실행 결과와 구분한다.
+현재 `codex/ending-revision`의 EditMode252/252·PlayMode54/54, 실제 Main 구매→시민권 부정 엔딩, 중간 실패·미완료 실행과 복원 상태는 [시민권·엔딩 최종 검증](CITIZENSHIP_ENDING.md#2026-09-14-최종-검증)에 기록한다. 위의 과거 실행 결과와 구분한다.

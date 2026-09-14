@@ -1,0 +1,126 @@
+{
+  "runs": 10000,
+  "days": 31,
+  "prices": [
+    250000,
+    500000,
+    750000,
+    1000000,
+    1500000
+  ],
+  "counts": [
+    8,
+    10,
+    12
+  ],
+  "currentCsvCitizenshipPrice": 1000000,
+  "facilityTotal": 524500,
+  "sequence": [
+    12001,
+    12002,
+    12007,
+    12008,
+    12003,
+    12004,
+    12009,
+    12010,
+    12005,
+    12006,
+    12011
+  ],
+  "costs": {
+    "12001": 18000,
+    "12002": 39000,
+    "12003": 23000,
+    "12004": 42000,
+    "12005": 35000,
+    "12006": 198000,
+    "12007": 800,
+    "12008": 23000,
+    "12009": 1200,
+    "12010": 143000,
+    "12011": 1500
+  },
+  "sources": [
+    {
+      "file": "Assets/Datas/Customer/ProductData.csv",
+      "sha256": "7fa56ec2b98cd0468c272ef4fd7d14209e514be79be71da5d65dac913dc2b29d"
+    },
+    {
+      "file": "Assets/Datas/Customer/CustomerDispositionData.csv",
+      "sha256": "aba4e0d0d5bed3584ded99dd4cc90d6d2afe5a9c736533fab23a33e0d68587b9"
+    },
+    {
+      "file": "Assets/Datas/FacilityData.csv",
+      "sha256": "6510eb7efe7336844a55ae4a7aa2f8bc84ad10ca37d79d2fb32348f48129fa9d"
+    },
+    {
+      "file": "Assets/Datas/ReputationBalanceData.csv",
+      "sha256": "39e0444b91695514fede14bf2717f8da836e79372a2f6a8e1d76af420682b8a9"
+    },
+    {
+      "file": "Assets/Datas/MaintenanceBalanceData.csv",
+      "sha256": "39073fb1b6293c4892a303bcb046506d4933f46f283e9d434d90c2f6e8c9994c"
+    },
+    {
+      "file": "Assets/Datas/EconomyBalanceData.csv",
+      "sha256": "0ff16df6776ddf1e97d5d9944b43d8a80daf1b4e37982766ebbac1364e1b6d89"
+    },
+    {
+      "file": "Assets/Datas/PriceEventData.csv",
+      "sha256": "96596a70a73184b58fcbb79db90a1dd1d47fbc6efe68ae6ff3620d1c84102a9c"
+    },
+    {
+      "file": "Assets/Datas/PriceEventScheduleData.csv",
+      "sha256": "06280b8cde56cb2ca5d62cf233b51b12f32cd278882f7a810ac93c46b8d17988"
+    },
+    {
+      "file": "Assets/Datas/DailyGuidelineData.csv",
+      "sha256": "af05778bd3c306380c97a99937097f8776e627065698d50b33e2ddf3ce74369a"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerQueue.cs",
+      "sha256": "44e84c4fef4e8295a0b6fa38569245d2b8b3bd88c864dd564ed1ab1a90282c2d"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerCompositionSelector.cs",
+      "sha256": "41f1cf6b97181ab7f0c9ec958d5c2d288797e17baf3792578a3e75008d89b735"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerProductAvailability.cs",
+      "sha256": "f6d3d6610240b433d4ad09edab585285494d85c0e6caa12239fec4c3485c2225"
+    },
+    {
+      "file": "Assets/Scripts/Customer/CustomerVisit.cs",
+      "sha256": "d86676f6a935cb3666aec4a6526773d217c9235e1db3786ed5775a80faa43999"
+    },
+    {
+      "file": "Assets/Scripts/Finance/DailyReputationCalculator.cs",
+      "sha256": "a0460e7b081e34d751d39c0f0da744107c55ddefee2f275584c4627fde596247"
+    },
+    {
+      "file": "Assets/Scripts/Progress/DayProgress.cs",
+      "sha256": "da4bc3bb51dcae4f28f2293e5fee870b2c46b0632d9c25c88b6236246e7cae6a"
+    },
+    {
+      "file": "Assets/Scripts/Events/PriceEventScheduler.cs",
+      "sha256": "63dc9fae4c19ac6e3e63c6e9641e6b63b17b32534358fe7aef48eaa71bb9183f"
+    },
+    {
+      "file": "doc/work/balancing-reference/citizenship-20260913/calculate.js",
+      "sha256": "d797e35123eb21266cb0783116b28e8d9005bae6c36e630775b079777f55529f"
+    },
+    {
+      "file": "doc/work/balancing-reference/reputation-20260912/calculate.js",
+      "sha256": "afd3be9252993b8e6b120e9af72ca13dcefcceb6948b9663f24e0db099a371ad"
+    },
+    {
+      "file": "doc/work/balancing-reference/draft-20260912/model.js",
+      "sha256": "95a3ca0e2a9fe0a451dff172c160375f0215c068767ba93935fe451a133c7d2c"
+    },
+    {
+      "file": "doc/work/balancing-reference/citizenship-queue-20260913/calculate.js",
+      "sha256": "17a6f8475fb871a9a77446f4b0c1d0b6d98c93077704a9b6b41fea3749e6b452"
+    }
+  ]
+}

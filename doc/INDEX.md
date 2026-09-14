@@ -25,6 +25,7 @@
 | [work/inspector-events.md](work/inspector-events.md) | 감독관 작업 재개·통합 | 현재 브랜치·완료·후속 작업 |
 | [CITIZENSHIP_ENDING.md](CITIZENSHIP_ENDING.md) | 시민권 구매·최종 정산·엔딩 구현과 플레이 테스트 | 현재 구현 계약·데이터·검증·정책 변경 지점 |
 | [work/citizenship-ending.md](work/citizenship-ending.md) | 시민권·엔딩 작업 재개·설계 근거 조사 | 작업 상태 및 구현 전 결정·제안 기록 |
+| [work/ending-revision.md](work/ending-revision.md) | 시민권 전체 설비 조건·즉시 엔딩 개편 | 확정 기준·가격 비교·구현 리뷰·최종 검증과 Git 상태 |
 | [work/sprite-world-presentation.md](work/sprite-world-presentation.md) | 월드 배경·손님 로컬 개발 | Main 원본 복원·개인 씬 분리·향후 통합 경계 |
 | [work/README.md](work/README.md) | 담당 전환·중단 | 도구와 무관한 작업 상태·인계 기준 |
 | [AGENT_REQUEST_GUIDE.md](AGENT_REQUEST_GUIDE.md) | 목적만 제시된 자연어 요청 구체화 | 검토 요약→승인→실행 명세 |
