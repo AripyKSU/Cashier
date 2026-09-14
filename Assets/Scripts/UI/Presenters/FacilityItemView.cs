@@ -48,6 +48,7 @@ public sealed class FacilityItemView : MonoBehaviour
         statusText.text = data.State switch
         {
             FacilityDisplayState.StageLocked => "단계 잠김",
+            FacilityDisplayState.PrerequisiteLocked => "선행 설비 미보유",
             FacilityDisplayState.Purchasable => "구매 가능",
             FacilityDisplayState.InsufficientFunds => "잔액 부족",
             FacilityDisplayState.ActivationPending => "구매 완료 · 적용 대기",
@@ -83,7 +84,7 @@ public sealed class FacilityItemView : MonoBehaviour
     private string formatActivation(FacilityItemViewData data)
     {
         if (data.UpgradeKind == FacilityUpgradeKind.Citizenship)
-            return "구매 즉시 보유 · 31일차 최종 확인 전까지 구매 가능";
+            return "3단계 이하 모든 설비 보유 필요 · 구매 즉시 엔딩";
         if (data.UpgradeKind == FacilityUpgradeKind.StoreStage)
             return $"요구 단계 {data.RequiredStoreStage} · 구매 즉시 해금";
         return data.State == FacilityDisplayState.StageLocked

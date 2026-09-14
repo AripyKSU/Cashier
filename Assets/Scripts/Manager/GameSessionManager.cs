@@ -26,10 +26,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     private readonly DailyGuidelineGenerator dailyGuidelineGenerator = new DailyGuidelineGenerator(new Random());
     private uint? dailyGuidelineElapsedDays;
     private bool hasClosedDay;
-    private bool exemptFinalDayPreownedCitizenship = true;
-    private bool wasCitizenshipOwnedBeforeLastSettlement;
     private bool isLastSettlementUnpaidGameOver;
-    private bool wasLastSettlementUnpaidGameOverExempted;
     // 영업 시간으로만 감소하며 정산·오류 시 취소한다.
     private float radioRemainingSeconds;
     private bool radioPending;
@@ -40,12 +37,10 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     public decimal CurrentMorality => this.currentMorality;
     /// <summary>현재 세션이 시민권을 보유했는지 조회합니다.</summary>
     public bool HasCitizenship => facilities?.HasCitizenship ?? false;
-    /// <summary>최근 정산 진입 직전 시민권 보유 snapshot입니다.</summary>
-    public bool WasCitizenshipOwnedBeforeLastSettlement => this.wasCitizenshipOwnedBeforeLastSettlement;
     /// <summary>최근 정산의 정책 적용 후 유효한 미납 게임오버 여부입니다.</summary>
     public bool IsLastSettlementUnpaidGameOver => this.isLastSettlementUnpaidGameOver;
-    /// <summary>최근 31일차 미납 게임오버가 사전 보유 시민권으로 면제됐는지 여부입니다.</summary>
-    public bool WasLastSettlementUnpaidGameOverExempted => this.wasLastSettlementUnpaidGameOverExempted;
+    /// <summary>현재 카탈로그의 3단계 이하 선행 설비를 모두 보유했는지 여부입니다.</summary>
+    public bool HasCitizenshipPrerequisites => facilities?.HasCitizenshipPrerequisites ?? false;
     /// <summary>한 번 확정된 세션 종료 결과입니다.</summary>
     public GameEndingResult? EndingResult { get; private set; }
     /// <summary>현재 영업일의 도덕성 변화량. 정산 후에는 0입니다.</summary>
@@ -145,6 +140,15 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     {
         if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
         return facilities.IsOwned(facilityIdx);
+    }
+
+    /// <summary>등록된 설비가 시민권인지 조회합니다.</summary>
+    /// <param name="facilityIdx">설비 PK.</param>
+    /// <returns>시민권 행이면 true.</returns>
+    internal bool IsCitizenshipFacility(uint facilityIdx)
+    {
+        if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
+        return facilities.IsCitizenship(facilityIdx);
     }
 
     /// <summary>설비 업그레이드의 현재 활성 여부를 세션 권위로 조회합니다.</summary>
@@ -248,7 +252,6 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// <exception cref="InvalidOperationException">초기화 전이거나 열린 영업일이 없는 경우 발생합니다.</exception>
     public long EndTradingDay(out DailyAggregationResult result)
     {
-        bool preownedCitizenship = HasCitizenship;
         DailyAggregationResult salesResult = Economy.DailyAggregationService.EndDay();
         radioPending = false;
 
@@ -284,9 +287,6 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
 
         bool isGameOverConditionMet = !isPaid && debt.GracePeriodEndDay.HasValue &&
             displayDay >= debt.GracePeriodEndDay.Value;
-        bool isExempted = isGameOverConditionMet && displayDay == 31 &&
-            this.exemptFinalDayPreownedCitizenship && preownedCitizenship;
-
         result = new DailyAggregationResult(
             salesResult.SaleIncome,
             paidAmount,
@@ -307,9 +307,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             debt.GetRemainingGraceDays(displayDay),
             isGameOverConditionMet);
         hasClosedDay = true;
-        this.wasCitizenshipOwnedBeforeLastSettlement = preownedCitizenship;
-        this.isLastSettlementUnpaidGameOver = isGameOverConditionMet && !isExempted;
-        this.wasLastSettlementUnpaidGameOverExempted = isExempted;
+        this.isLastSettlementUnpaidGameOver = isGameOverConditionMet;
         return result.SaleIncome;
     }
     /// <summary>세션의 날짜 권위. 게임 시작일은 0이다.</summary>
@@ -356,9 +354,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.dailyGuidelineElapsedDays = null;
         LastSettlementResult = null;
         this.hasClosedDay = false;
-        this.wasCitizenshipOwnedBeforeLastSettlement = false;
         this.isLastSettlementUnpaidGameOver = false;
-        this.wasLastSettlementUnpaidGameOverExempted = false;
         this.radioPending = false;
         this.radioRemainingSeconds = 0f;
     }
@@ -460,10 +456,9 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// 로드된 데이터 테이블로 새 게임 세션의 경제 런타임을 초기화합니다.
     /// </summary>
     /// <param name="dataTableManager">CSV 로딩을 완료한 데이터 테이블 관리자입니다.</param>
-    /// <param name="exemptFinalDayPreownedCitizenship">31일차 정산 진입 전에 시민권을 보유하면 미납 게임오버를 면제할지 여부.</param>
     /// <exception cref="ArgumentNullException">데이터 테이블 관리자가 null인 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">이미 초기화됐거나 필수 경제 데이터 테이블이 없는 경우 발생합니다.</exception>
-    public void InitializeNewGame(DataTableManager dataTableManager, bool exemptFinalDayPreownedCitizenship = true)
+    public void InitializeNewGame(DataTableManager dataTableManager)
     {
         if (dataTableManager == null)
         {
@@ -491,7 +486,6 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         // 검증된 두 데이터 테이블을 결합해 현재 세션의 경제 런타임을 한 번만 생성합니다.
         this.economy = new EconomyRuntime(balanceData, maintenanceAmounts);
         this.dataTables = dataTableManager;
-        this.exemptFinalDayPreownedCitizenship = exemptFinalDayPreownedCitizenship;
         try
         {
             var facilityTable = dataTableManager.GetDB<FacilityDataTable>(DataTableType.Facility)
@@ -519,9 +513,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             this.currentMorality = 0m;
             this.lastReputationAppliedDay = 0;
             this.EndingResult = null;
-            this.wasCitizenshipOwnedBeforeLastSettlement = false;
             this.isLastSettlementUnpaidGameOver = false;
-            this.wasLastSettlementUnpaidGameOverExempted = false;
             this.IsInitialized = true;
             EnsureDailyPrices();
         }
@@ -561,10 +553,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.currentReputation = 0;
         this.currentMorality = 0m;
         this.lastReputationAppliedDay = 0;
-        this.exemptFinalDayPreownedCitizenship = true;
-        this.wasCitizenshipOwnedBeforeLastSettlement = false;
         this.isLastSettlementUnpaidGameOver = false;
-        this.wasLastSettlementUnpaidGameOverExempted = false;
         this.hasClosedDay = false;
         this.radioRemainingSeconds = 0f;
     }

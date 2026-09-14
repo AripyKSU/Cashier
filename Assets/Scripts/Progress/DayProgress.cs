@@ -12,6 +12,7 @@ public sealed class DayProgress
 
     // 날짜·영업·현재가의 단일 소유자이며 경제 상태도 이 세션에서만 얻습니다.
     private readonly GameSessionManager session;
+    private readonly Func<bool> canCompleteSettlement;
 
     // 판정 이후 재정 접수 실패는 재시도나 다음 거래로 우회하지 않습니다.
     private bool hasTransactionError;
@@ -169,6 +170,7 @@ public sealed class DayProgress
     /// <param name="dayStartReputation">하루 시작 시점에 고정할 명성입니다.</param>
     /// <param name="businessDurationSeconds">영업 제한시간(초)입니다.</param>
     /// <param name="useCustomerQueue">true면 후속 방문을 5초 간격 FIFO에서 인계한다.</param>
+    /// <param name="canCompleteSettlement">상위 진행이 정산 완료 입력을 허용하는지 확인하는 함수.</param>
     /// <exception cref="ArgumentNullException">필수 인수가 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentOutOfRangeException">날짜 또는 영업시간이 허용 범위를 벗어난 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">세션이 초기화되지 않았거나 날짜가 다른 경우.</exception>
@@ -180,7 +182,8 @@ public sealed class DayProgress
         Random random,
         int dayStartReputation = 0,
         float businessDurationSeconds = DefaultBusinessDurationSeconds,
-        bool useCustomerQueue = false)
+        bool useCustomerQueue = false,
+        Func<bool> canCompleteSettlement = null)
     {
         if (day <= 0)
         {
@@ -227,6 +230,7 @@ public sealed class DayProgress
 
         this.day = day;
         this.session = session;
+        this.canCompleteSettlement = canCompleteSettlement;
         this.economy = session.Economy;
         this.customerCatalog = customerCatalog;
         this.reputationBalanceTable = reputationBalanceTable;
@@ -491,6 +495,8 @@ public sealed class DayProgress
     public void CompleteSettlement()
     {
         this.requireTransactionHealthy();
+        if (this.canCompleteSettlement != null && !this.canCompleteSettlement())
+            throw new InvalidOperationException("상위 진행이 정산 완료를 허용하지 않습니다.");
         if (this.State != DayProgressState.Settlement)
         {
             throw new InvalidOperationException("정산 상태에서만 하루를 완료할 수 있습니다.");

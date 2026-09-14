@@ -1,8 +1,45 @@
 # 시민권·엔딩 구현 및 플레이 테스트 안내
 
-2026-09-13. 기준 `total_merge 480af457efc440839ed101fb753c624c943fce14`, 작업 브랜치 `codex/citizenship-ending`. 사용자가 설계 초안의 구현을 승인하고 손님 외형 분류보다 시민권·엔딩을 먼저 진행하도록 선택했다. 이 문서가 현재 기능 계약이다. 결정 근거와 구현 전 제안은 [설계 기록](work/citizenship-ending.md)에 보존한다.
+## 2026-09-14 엔딩 규칙 개편
 
-## 구현 현황 (2026-09-13)
+- 시민권은 가게 3단계와 시민권 자신을 제외한 3단계 이하 상품·편의·가게 확장 설비를 모두 보유한 뒤 정산 중 구매할 수 있다. 대상은 `FacilityData` 카탈로그에서 판정하며 제품 코드에 고정 PK 목록을 두지 않는다.
+- 시민권 결제와 보유가 확정되면 구매 당일 즉시 게임을 종료한다. 누적 도덕성 `0 이상`은 `Good=2`, `0 미만`은 `CitizenshipNegative=4`다. `Bad=3`은 31일차 시민권 미소지 종료, `GameOver=1`은 유지비 미납 유예 만료다.
+- 시민권 구매 직후 잔액·명성·도덕성·종료일을 한 번 고정하며, 알림 예외와 씬 재시도는 결제·정산·종료 판정을 반복하지 않는다. 구매 후 다음 영업일이나 32일차를 생성하지 않는다.
+- `CitizenshipNegative`는 새 페이지·대사·리소스를 만들지 않고 기존 Good 페이지와 Bad 엔딩 씬을 임시 재사용한다. 화면 제목과 결과 요약은 `시민권 · 부정`으로 구분하며, 최종 서사 대사 확정 전의 임시 연결이다.
+- 구매 즉시 종료와 양립하지 않던 31일차 사전 보유 시민권의 미납 면제 정책과 Init 설정은 제거했다. 아래 2026-09-13 기록은 이전 구현의 검증 이력이며 현재 계약보다 우선하지 않는다.
+
+### 현재 플레이·검증 흐름
+
+1. 정산 화면의 설비 상점에서 가게 3단계와 대상 설비를 모두 구매한다. 하나라도 미보유면 시민권 행에 `선행 설비 미보유`를 표시하고 결제하지 않는다.
+2. 선행 조건과 1,000,000G를 모두 충족한 시민권 구매 입력은 결제·보유를 확정한 뒤 즉시 도덕성 엔딩으로 전환한다. 별도의 최종 확인이나 다음 날 입력을 요구하지 않는다.
+3. 31일차까지 시민권을 사지 않으면 기존 최종 확인을 거쳐 `Bad`로 종료한다. 유지비 미납 유예가 만료되면 날짜와 무관하게 `GameOver`가 우선한다.
+4. 엔딩 화면의 새 게임은 Hub로 돌아가며, Hub의 새 게임이 Init을 거쳐 시민권·종료 결과·미납 상태를 초기화한다. Init에는 시민권 미납 면제 설정이 없다.
+
+### API 연결 변경
+
+- `GameSessionManager.InitializeNewGame(DataTableManager)`와 `DailySettlementPresenter.ConfigureEnding(bool, bool)`에서 구형 미납 면제 인자를 제거했다. 사전 보유/면제 조회 property도 제거했다.
+- 시민권 구매 성공은 `GameProgress.TryPurchaseFacility`가 반환되기 전에 종료 결과와 `Completed`를 확정한다. 호출자는 이후 정산 완료를 다시 요청하지 않는다. 상점 표시와 구매 검사는 동일한 선행 설비 대상 판정을 재사용한다.
+- 일반 설비는 구매 다음 영업일 활성화하지만 시민권의 선행 조건은 보유 여부로 검사한다. 활성화 대기를 추가하지 않는다. 시민권 가격은 기존 1,000,000G를 유지했다.
+
+### 2026-09-14 최종 검증
+
+기준 `codex/ending-revision 8c19aa5`. 검증 상태 `PASS`: 아래 자동 API 검사와 실제 씬 연결 범위. 최종 대사·UI/UX 사용자 승인은 별도다.
+
+- EditMode **252/252**, 실패·skip·미완료0: `Temp/TestResults/20260914-103945-fd9fdd08787549a7905d1107b8e9ae44/EditMode.xml` 및 `.log`.
+- 최종 PlayMode **54/54**, 실패·skip·미완료0: `Temp/TestResults/20260914-110651-bc5baa1dd95c47af8041b4faece59c65/PlayMode.xml` 및 `.log`. 아키텍처 담당이 구현 담당의 종료·idle을 확인한 뒤 단독 실행했다.
+- 단계/선행 설비 누락(상품·편의), 활성화 전 보유, 부족금액/정확금액, 음·0·양 도덕성, 조기일/31일 구매 즉시 종료, 미소지 최종일, 미납 유예/만료, 결제 알림 예외와 재진입, 새 게임 초기화, 세 종류의 실제 페이지·요약을 검사했다.
+- 초기 PlayMode `103517`은52/54였다. 테스트 준비 거래가 도덕성을 바꾼 상태와 새 엔딩의 페이지 매핑 누락을 fixture에서 수정했다. 이후 `104352`는53/54로, 기존 지침 테스트가 실제 주문 밖 상품/수량을 제출하는 불안정한 입력을 발견했다. 실제 주문을 사용하도록 수정하고 위반 수량·snapshot 보존 검사는 유지했다.
+- `104716` 및 `105916` 실행은 결과 파일을 만들지 못해 통과로 집계하지 않는다. `105916`은 PlayMode 중단에 따른 Test Framework abort 로그를 확인했다. 활성 작업이 없음을 확인하고 해당 pending marker만 정리한 뒤 최종 실행했다.
+- 실제 Init→Hub→Main 로드 후 실행 인스턴스에만 테스트 자금·도덕성을 설정했다. 정산/선행 설비 구매는 제품 API를 사용했다. Main 설비 상점의 시민권 버튼 리스너2회 호출에서 **1,476,300→476,300G**, 도덕성-1, 1일차 `CitizenshipNegative`가 한 번 확정됐고 `BadEndingScene`의 준비된 `EndingPresenter`로 전환됐다. 세션 manager1개, 제품 Console Error0. 증거: `Temp/ending-revision-smoke.txt`, `Temp/ending-revision-negative.png`.
+- 연속 입력은 버튼 리스너 호출로 확인했으며 사람의 전체 조작·31일 플레이·최종 감정선 검증은 아니다. 씬 로딩 실패 주입은 이번에 다시 실행하지 않았고 기존 동결 결과 재시도 경로를 유지했다. 임시 조회 코드의 private property 접근 컴파일 오류1회는 조회 코드를 고쳤으며 제품 C# 오류와 구분했다.
+- 최종 Unity: Play 종료, InitScene clean, compile error0, `runInBackground=false`. MainScene 및 다른 씬 자산·Addressables·패키지 변경 없음. 테스트 생성 폰트 캐시는 복원했고 ProjectSettings 원본 바이트 SHA256 `2122E89E358719357FD5C78D691FC86E1257397BC377CF9560131A2BB25C4B94`를 보존했다.
+- 구현 담당이 Git 금지 인계에도 `8c19aa5` 커밋/작업 브랜치 푸시를 수행해 사용자에게 알렸다. 최종 검증 기록과 작업 문서는 우선 로컬에 갱신했으며, 이후 사용자 `commit-push` 요청으로 문서·가격 분석 자료의 별도 커밋·푸시가 승인됐다. 기존 ProjectSettings 변경은 제외한다. 기본 브랜치 병합은 수행하지 않았다.
+
+## 2026-09-13 변경 전 구현·검증 이력
+
+기준 `total_merge 480af457efc440839ed101fb753c624c943fce14`, 작업 브랜치 `codex/citizenship-ending`. 당시 결정 근거와 구현 전 제안은 [설계 기록](work/citizenship-ending.md)에 보존한다.
+
+### 구현 현황 (변경 전)
 
 - 기존 설비 상점에 시민권 `Facility 12012`를 추가했다. 가격은 **1,000,000G**, 요구 가게 단계1, 정산 중 1회 구매, 결제 즉시 주인공과 딸의 자격을 보유한다. 일반 설비의 익일 활성 규칙은 유지한다. 기존 상점 목록에 Viewport/RectMask2D를 연결해 스크롤한 행이 제목·가격 안내를 가리지 않게 했다.
 - **31일차 정산 중에도 구매 가능**하다. 그날은 다음날 버튼 대신 ‘최종 확인’을 제공하고 미보유자는 구매 마감 확인창에서 정산으로 돌아갈 수 있다. 실제 구매 가능 여부는 세션의 정산 상태·미납 판정·소유·잔액으로 검사한다.
@@ -27,7 +64,7 @@
 
 | 항목 | 현재 연결 |
 |---|---|
-| 시민권 | `Assets/Datas/FacilityData.csv` 12012, `FacilityUpgradeKind.Citizenship=4` |
+| 시민권 | `Assets/Datas/FacilityData.csv` 12012, `FacilityUpgradeKind.Citizenship=4`, 요구 가게 단계3 |
 | 엔딩 페이지 | `Assets/Datas/EndingPageData.csv`, 종류18, PK18001~18008, Good=2 / Bad=3 |
 | 페이지 컬럼 | `idx,ending_kind,page_order,text_idx,speaker_nameidx,background_resource_idx` |
 | 문구 | `TextData` 8231~8234 이름·화자, 8240~8247 대사; 전체242행 |
@@ -40,7 +77,7 @@
 
 종류18과 PK18001~18008은 권위 Google 기획서의 CSV 종류 탭(`t.ccpln6m1g4kv`)에 등록한 후 사용했다. 신규 CSV는 기존 Addressables `Datas` 라벨로 로딩하며 두 엔딩 씬과 임시 배경도 기존 그룹에 등록했다.
 
-### 정책 변경과 사람 검토
+### 변경 전 정책과 사람 검토
 
 정책은 `InitScene` 컴포넌트의 `Exempt Final Day Preowned Citizenship` 체크 값 하나로 새 세션 시작에 고정된다. Inspector에서 변경한 뒤 새 게임을 시작한다. 기본 `true`는 최종일 사전 보유 예외, `false`는 모든 날짜의 미납 우선이다. 양쪽 경계 사례를 자동 검사한다.
 
@@ -90,3 +127,15 @@
 - 가격의 도달 난이도, 조기 구매 후 운영 지속성, 미납 예외 정책 유지 여부, 최종 아트와 대사 감정선은 사람 플레이 테스트가 남아 있다. 배포 빌드와 로딩 장애 주입 테스트는 미실행이다. 재시도 안내는 기존 LoadingScene을 로드할 수 있어야 한다.
 - 신규 자산·meta 짝, 신규 GUID 중복과 `git diff --check`를 확인했다. 검증 중 생성된 기본 폰트 fallback 캐시 변경은 원복했다. Unity는 Play 종료, 임시 runInBackground 설정 복원 상태다.
 - 기존 설치 패키지·프로젝트 설정 변경을 보존한다. Unity가 추가한 EditorBuildSettings의 App UI config 등록도 이번 기능 변경과 별개로 남아 있다. 이 작업에서 커밋·푸시·병합은 수행하지 않았다.
+
+## 2026-09-14 total_merge 통합
+
+- 사용자 요청: `total_merge b63a8c2`에 `origin/codex/ending-revision 55aac7a` 병합. 원격 fetch 후 두 기준을 고정했다. Astra 추가분은 별도 [선택 이관 기록](DYSTOPIA_RESOURCE_INTEGRATION.md)을 따른다.
+- 자산은 total_merge의 새 SettlementPanel/GameUI/DaughterDialoguePanel을 보존한다. 정산은 가계부→딸→도장→팜플렛/다음날 순서를 유지한다.
+- 충돌2곳(GameUIController, DailySettlementPresenter)을 해결했다. `beginSettlementFlow`와 가계부 snapshot 경로를 유지하고, 폐기한 미납 면제 인자만 제거해 `ConfigureEnding(bool,bool)`를 연결했다. 시민권 구매 후 Completed이면 상점을 다시 갱신하지 않는다.
+- PlayMode fixture는 구형 버튼/금액 필드 대신 SettlementInteractionView와 LedgerView를 참조하며 실제 Flow ReadyForInteraction을 기다린다. 빠른 테스트 표시값은 인스턴스에만 적용하고 완료 이벤트를 위조하지 않는다.
+- 검증: 통합 EditMode258/258 통과 (`Temp/TestResults/20260914-141441-a13ba94fde6440dbaaee80a4dab3e553/EditMode.xml`, `.log`). PlayMode 첫 실행 `141538`은 Test Framework PlayModeRunTask null 오류로 결과 XML 없이 중단됐으며 PASS가 아니다. 비활성 job 확인 후 pending/배경 옵션을 복구하고 전체 import·컴파일을 마친 뒤 새 실행으로 검증한다.
+- 최종 PlayMode **53/53**, 실패·skip·미완료0 (`Temp/TestResults/20260914-142320-d946054907ab4f25b450f361ecb99436/PlayMode.xml`, `.log`). 앞선 `141931` 실행은52/53으로 숨긴 부모 패널 아래 자식 버튼의 activeSelf를 검사하던 fixture1건이 실패했다. 실제 노출인 activeInHierarchy로 수정했고 제품 기능·금액 단언은 유지했다. 이전 ending-revision의54건과 차이는 total_merge에서 라디오 없는 일정에 맞춰2개 테스트를1개로 교체한 기존 변경이다.
+- 실제 Init→Hub→Main→가계부→딸→명성 도장→ReadyForInteraction→팜플렛→시민권 구매를 확인했다. 버튼 listener2회에서1,476,300→476,300G 한 번 차감, 1일차 도덕성0의 Good 확정, GoodEndingScene 준비 완료, session1개·Missing Script0·제품 Console Error0. 증거 `Temp/ending-merge-smoke.txt`, `Temp/ending-merge-good.png`. 테스트 자금·도덕성은 실행 인스턴스에만 주입했으며 모든 설비 구매·종료는 제품 API를 사용했다.
+- 통합 엔딩 검증 상태 PASS(위 API·최소 실행 범위). 전체 사람 플레이·화면 사용감·Player build는 별도다. 종료 시 Play/compile=false, InitScene clean, runInBackground=false이며 공유 씬·프리팹·Addressables·패키지·ProjectSettings의 의미 변경은 없다. 최초 폰트 차이는 줄바꿈만이었으며 원본 바이트를 UserSettings/LocalBackups/EndingMerge-20260914에 보존했다.
+- 사용자가 요청한 로컬 병합 커밋에 충돌 해결·위 검증·Astra 선택 이관을 함께 기록한다. 원격 push는 수행하지 않는다.

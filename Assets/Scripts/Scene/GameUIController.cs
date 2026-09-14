@@ -614,8 +614,7 @@ public sealed class GameUIController : MonoBehaviour
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
         this.dailySettlementPresenter.ConfigureEnding(
             this.subscribedDay.Day == 31,
-            this.gameProgress.HasCitizenship,
-            this.gameProgress.WasLastSettlementUnpaidGameOverExempted);
+            this.gameProgress.HasCitizenship);
         this.dailySettlementFlowController.Begin(
             this.subscribedDay,
             this.createSettlementViewData(result),
@@ -661,8 +660,8 @@ public sealed class GameUIController : MonoBehaviour
                 DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values,
                 row => row.UpgradeKind == FacilityUpgradeKind.Citizenship);
             long shortfall = Math.Max(0, citizenship.PurchasePrice - this.economy.QueryService.CurrentBalance);
-            this.facilityFeedback = this.gameProgress.HasCitizenship ? "시민권 보유 · 마지막 날 최종 확인 시 엔딩을 판정합니다."
-                : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 31일차 정산까지 구매 가능";
+            this.facilityFeedback = this.gameProgress.HasCitizenship ? "시민권 보유 · 엔딩 판정이 완료되었습니다."
+                : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 선행 설비 전체 보유 후 구매 즉시 종료";
             this.wasInputRouterEnabled = this.gameInputRouter.enabled;
             this.gameInputRouter.enabled = false;
             this.settlementInputGroup.interactable = false;
@@ -727,7 +726,10 @@ public sealed class GameUIController : MonoBehaviour
         finally
         {
             this.isPurchasingFacility = false;
-            try { this.refreshFacilityShop(); }
+            try
+            {
+                if (this.gameProgress.State != GameProgressState.Completed) this.refreshFacilityShop();
+            }
             catch (Exception exception) { failure = failure == null ? exception : new AggregateException(failure, exception); }
             if (failure != null) this.showError(failure);
         }

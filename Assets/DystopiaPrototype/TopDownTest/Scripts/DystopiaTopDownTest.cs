@@ -32,6 +32,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     [SerializeField, Min(16)] private float handSizePixels = 64;
     /// <summary>현재 잡은 상품과 상품 로컬 좌표의 잡기 지점입니다.</summary>
     private DystopiaTopDownItem heldItem;
+    /// <summary>잡은 물품의 이동 경로에 있는 충돌체를 확인하는 재사용 버퍼입니다.</summary>
+    private readonly RaycastHit2D[] heldCastHits = new RaycastHit2D[32];
     /// <summary>홀드 중에만 바꾼 물리 모드를 놓을 때 원래대로 돌립니다.</summary>
     private RigidbodyType2D heldBodyType;
     private RigidbodyInterpolation2D heldInterpolation;
@@ -607,11 +609,22 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     {
         if (heldItem != null && state == ViewState.Sorting && !isPaused && !Session.IsPaused)
         {
-            // 홀드 중에는 스프링 추종과 속도 제한 없이 클릭 지점을 손에 고정합니다.
+            // 이동 경로를 먼저 검사해 다른 물품 안으로 순간 이동한 뒤 놓는 상황을 막습니다.
             Vector2 grip = heldItem.transform.TransformPoint(heldLocalPoint);
-            heldItem.Body.position += heldTarget - grip;
+            Vector2 movement = heldTarget - grip;
+            float distance = movement.magnitude;
             heldItem.Body.linearVelocity = Vector2.zero;
             heldItem.Body.angularVelocity = 0;
+            if (distance > .0001f)
+            {
+                var filter = ContactFilter2D.noFilter;
+                filter.useTriggers = false;
+                int count = heldItem.Body.Cast(movement / distance, filter, heldCastHits, distance);
+                float allowedDistance = distance;
+                for (int i = 0; i < count; i++)
+                    allowedDistance = Mathf.Min(allowedDistance, Mathf.Max(0, heldCastHits[i].distance - .01f));
+                heldItem.Body.MovePosition(heldItem.Body.position + movement / distance * allowedDistance);
+            }
         }
         if (state != ViewState.Pouring || isPaused) return;
         foreach (var pair in pourTargets)
@@ -642,32 +655,32 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     /// <summary>한 장바구니 단위를 고유 ID와 실제 상품 ID를 가진 독립 물리 객체로 만듭니다.</summary>
     private DystopiaTopDownItem CreateItem(int productId, int lineIndex, int unitIndex, Vector2 position)
     {
-        bool fromPrefab = placedItemPrefabs != null && productId < placedItemPrefabs.Length && placedItemPrefabs[productId] != null;
+        var product = Session.ActiveProducts[productId];
+        // 기존 네 품목 프리팹은 배열 순서가 다른 신규 카탈로그에 재사용하지 않습니다.
+        bool fromPrefab = product.id == DystopiaProductId.None && placedItemPrefabs != null && productId < placedItemPrefabs.Length && placedItemPrefabs[productId] != null;
         var itemObject = fromPrefab ? Instantiate(placedItemPrefabs[productId]) : new GameObject($"Item_{nextInstanceId}_{Session.ActiveProducts[productId].name}");
         itemObject.SetActive(true);
         itemObject.transform.SetParent(itemRoot, false);
         itemObject.transform.localPosition = position;
         var renderer = itemObject.GetComponent<SpriteRenderer>();
         if (renderer == null) renderer = itemObject.AddComponent<SpriteRenderer>();
-        if (!fromPrefab) renderer.sprite = productSprites[productId];
-        // 저해상도 import 크기와 무관하게 긴 변을 가판 기준 180픽셀로 표시합니다.
+        if (!fromPrefab) renderer.sprite = product.sprite;
+        // 기존 180픽셀의 70%인 126픽셀로 줄이며 충돌체도 같은 Transform 배율을 사용합니다.
         Vector2 spriteSize = renderer.sprite.bounds.size;
-        if (!fromPrefab) itemObject.transform.localScale = Vector3.one * (1.8f / Mathf.Max(spriteSize.x, spriteSize.y));
+        if (!fromPrefab) itemObject.transform.localScale = Vector3.one * (1.26f / Mathf.Max(spriteSize.x, spriteSize.y));
         renderer.sortingOrder = 10 + nextInstanceId;
         var body = itemObject.GetComponent<Rigidbody2D>();
         if (body == null) body = itemObject.AddComponent<Rigidbody2D>();
         if (!fromPrefab)
         {
             body.gravityScale = 0;
-            body.linearDamping = itemFriction;
-            body.angularDamping = rotationDamping * .2f;
+            body.linearDamping = itemFriction * 2f;
+            body.angularDamping = rotationDamping;
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
         }
-        var collider = itemObject.GetComponent<BoxCollider2D>();
-        if (collider == null) collider = itemObject.AddComponent<BoxCollider2D>();
-        Vector2 visibleSize = renderer.sprite != null ? renderer.sprite.bounds.size : Vector2.one;
-        if (!fromPrefab) collider.size = new Vector2(visibleSize.x * .72f, visibleSize.y * .72f);
+        // Sprite의 알파 외곽선을 사용해 투명 여백에서 물품끼리 부딪히지 않게 합니다.
+        if (!fromPrefab) itemObject.AddComponent<PolygonCollider2D>();
         var item = itemObject.GetComponent<DystopiaTopDownItem>();
         if (item == null) item = itemObject.AddComponent<DystopiaTopDownItem>();
         item.Initialize(nextInstanceId++, productId, lineIndex, unitIndex, body);
@@ -675,7 +688,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         return item;
     }
 
-    /// <summary>기존 활성 상품 참조에서 테스트용 0~3 ID를 찾습니다.</summary>
+    /// <summary>당일 활성 상품 참조에서 물리 객체와 연결할 인덱스를 찾습니다.</summary>
     private int ProductId(DystopiaProduct product)
     {
         for (int i = 0; i < Session.ActiveProducts.Count; i++) if (ReferenceEquals(Session.ActiveProducts[i], product)) return i;
@@ -715,7 +728,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             item.WasStirred = true;
             body.AddForce(away * speedToAdd * body.mass, ForceMode2D.Impulse);
             float spinDirection = Vector2.SignedAngle(Vector2.right, away) < 0 ? -1 : 1;
-            body.angularVelocity = Mathf.Clamp(body.angularVelocity + spinDirection * 540, -720, 720);
+            body.angularVelocity = Mathf.Clamp(body.angularVelocity + spinDirection * 90, -180, 180);
         }
         return affected;
     }
@@ -734,7 +747,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         {
             if (item.State == TopDownItemState.Excluded || item.IsBeingVacuumed) continue;
             item.Body.linearVelocity = Vector2.ClampMagnitude(item.Body.linearVelocity, maximumItemSpeed);
-            item.Body.angularVelocity = Mathf.Clamp(item.Body.angularVelocity, -720, 720);
+            item.Body.angularVelocity = Mathf.Clamp(item.Body.angularVelocity, -180, 180);
             if (placedMovementZone != null) ClampPlacedItem(item);
             else
             {
@@ -1014,14 +1027,13 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
     }
 
-    /// <summary>손바닥의 접점을 상품·막대의 실제 잡기 지점에 맞춰 세 가지 자세로 표시합니다.</summary>
+    /// <summary>실제 잡기 지점을 따라가되 잡은 손의 자세와 화면 각도는 고정합니다.</summary>
     private void OnGUI()
     {
         if (!showHand || Mouse.current == null || handArtwork == null) return;
         bool holding = heldItem != null || dividerBar != null && dividerBar.IsHeld || vacuum != null && vacuum.IsHeld;
-        bool horizontal = holding && Mathf.Abs(handVelocity.x) > 30 && Mathf.Abs(handVelocity.x) > Mathf.Abs(handVelocity.y)*1.2f;
-        // 시트 순서: 1번을 90도 돌린 정지 자세, 2번 펼친 손, 3번 가로 잡기. 4번은 사용하지 않습니다.
-        Rect uv = !holding ? new Rect(.5f,.5f,.5f,.5f) : horizontal ? new Rect(.5f,0,-.5f,.5f) : new Rect(0,.5f,.5f,.5f);
+        // 이동 방향이나 잡은 물체의 회전에 관계없이 같은 잡기 타일을 유지합니다.
+        Rect uv = !holding ? new Rect(.5f,.5f,.5f,.5f) : new Rect(0,.5f,.5f,.5f);
         Vector2 pointer = Mouse.current.position.ReadValue();
         // 커서와 물리 프레임 간 차이, 경계 제한, 막대 회전에도 손이 물체에서 떨어지지 않습니다.
         if (heldItem != null) pointer = worldCamera.WorldToScreenPoint(heldItem.transform.TransformPoint(heldLocalPoint));
@@ -1029,13 +1041,11 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         else if (vacuum != null && vacuum.IsHeld) pointer = worldCamera.WorldToScreenPoint(vacuum.GripWorldPoint);
         Vector2 center = new Vector2(pointer.x,Screen.height-pointer.y);
         // 64px 타일의 투명 여백 중심이 아니라 실제 손바닥 접점을 사용합니다.
-        Vector2 hotspot = !holding ? new Vector2(32,32) : horizontal ? new Vector2(30,23) : new Vector2(33,25);
+        Vector2 hotspot = !holding ? new Vector2(32,32) : new Vector2(33,25);
         var previousMatrix = GUI.matrix;
         var previousColor = GUI.color;
         GUI.color = Color.white;
-        float rotation = holding && !horizontal ? 90f : 0f;
-        if (dividerBar != null && dividerBar.IsHeld) rotation += 90f - dividerBar.transform.eulerAngles.z;
-        GUIUtility.RotateAroundPivot(rotation,center);
+        // 잡은 손도 펼친 손과 같이 손목이 아래를 향하는 원본 방향으로 표시합니다.
         GUI.DrawTextureWithTexCoords(new Rect(center.x-hotspot.x*handSizePixels/64f,center.y-hotspot.y*handSizePixels/64f,handSizePixels,handSizePixels),handArtwork,uv,true);
         GUI.matrix = previousMatrix; GUI.color = previousColor;
     }

@@ -33,7 +33,7 @@ public sealed class FacilityTests
             [12005] = new FacilityData { Idx = 12005, NameIdx = 8060, PurchasePrice = 80,
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 },
             [12900] = new FacilityData { Idx = 12900, NameIdx = 8999, PurchasePrice = 40,
-                UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 1 }
+                UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 3 }
         };
         service = new FacilityService(finance, facilities, () => day);
     }
@@ -58,6 +58,12 @@ public sealed class FacilityTests
     {
         Assert.That(service.HasCitizenship, Is.False);
         Assert.That(service.IsCitizenship(12900));
+        Assert.That(service.TryPurchase(12900, out var locked), Is.False);
+        Assert.That(locked.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        finance.AddIncome(200, FinanceChangeReason.Sale);
+        foreach (uint idx in new uint[] { 12001, 12002, 12008, 12010, 12005 })
+            Assert.That(service.TryPurchase(idx, out _));
+        Assert.That(service.HasCitizenshipPrerequisites);
         Assert.That(service.TryPurchase(12900, out var result));
         Assert.That(result.ActivationDay, Is.EqualTo(0));
         Assert.That(service.IsActive(12900));
@@ -67,8 +73,31 @@ public sealed class FacilityTests
         Assert.That(finance.CurrentBalance, Is.EqualTo(60));
 
         facilities[12901] = new FacilityData { Idx = 12901, NameIdx = 8998, PurchasePrice = 1,
-            UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 1 };
+            UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 3 };
         Assert.Throws<ArgumentException>(() => new FacilityService(finance, facilities, () => day));
+    }
+
+    /// <summary>3단계에 도달해도 상품 또는 편의 설비 하나가 빠지면 시민권 구매를 거부한다.</summary>
+    /// <param name="omittedFacilityIdx">의도적으로 미보유할 상품 또는 편의 설비 PK.</param>
+    [TestCase(12005u)]
+    [TestCase(12011u)]
+    public void CitizenshipRequiresEveryStageThreeCatalogUpgrade(uint omittedFacilityIdx)
+    {
+        var (_, table) = loadShopData();
+        var richFinance = new FinanceService(2_000_000);
+        var catalogService = new FacilityService(richFinance, table.Rows, () => 0);
+        for (uint stage = 1; stage <= 3; stage++)
+        {
+            foreach (FacilityData facility in table.Rows.Values.Where(row =>
+                row.UpgradeKind != FacilityUpgradeKind.Citizenship && row.Idx != omittedFacilityIdx &&
+                row.RequiredStoreStage == stage).OrderBy(row => row.UpgradeKind))
+                Assert.That(catalogService.TryPurchase(facility.Idx, out _), Is.True, facility.Idx.ToString());
+        }
+        Assert.That(catalogService.CurrentStoreStage, Is.EqualTo(3));
+        Assert.That(catalogService.HasCitizenshipPrerequisites, Is.False);
+        Assert.That(catalogService.TryPurchase(12012, out var result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        Assert.That(catalogService.HasCitizenship, Is.False);
     }
 
     /// <summary>잔액 부족은 정상 실패이며 보유와 금액을 변경하지 않는다.</summary>
@@ -280,6 +309,12 @@ public sealed class FacilityTests
         Assert.That(before.Items[5].FacilityIdx, Is.EqualTo(12006));
         Assert.That(before.Items[4].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
         Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
+        Assert.That(before.Items.Single(x => x.FacilityIdx == 12012).State,
+            Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
+        foreach (uint idx in table.Rows.Keys.Where(idx => idx != 12012)) owned[idx] = 0;
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 3, 0, long.MaxValue).Items
+            .Single(x => x.FacilityIdx == 12012).State, Is.EqualTo(FacilityDisplayState.Purchasable));
+        owned.Clear();
         owned[12001] = 1; owned[12005] = 0;
         var current = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 0);
         Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.ActivationPending));
@@ -325,6 +360,7 @@ public sealed class FacilityTests
         Assert.That(table.Rows[12008].TargetStoreStage, Is.EqualTo(2));
         Assert.That(table.Rows[12010].RequiredStoreStage, Is.EqualTo(2));
         Assert.That(table.Rows[12010].TargetStoreStage, Is.EqualTo(3));
+        Assert.That(table.Rows[12012].RequiredStoreStage, Is.EqualTo(3));
         Assert.That(table.Rows[12007].EffectType, Is.EqualTo(ConvenienceEffectType.DividerBar));
         Assert.That(table.Rows[12009].EffectType, Is.EqualTo(ConvenienceEffectType.AutoSorting));
         Assert.That(table.Rows[12011].EffectType, Is.EqualTo(ConvenienceEffectType.Vacuum));

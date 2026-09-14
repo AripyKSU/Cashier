@@ -9,9 +9,6 @@ using System.Threading;
 public class InitScene : MonoBehaviour
 {
     [SerializeField] private GameSceneManager.SceneName nextScene = GameSceneManager.SceneName.Hub;
-    [Tooltip("최종일 정산 진입 전에 시민권을 보유했다면 그날 미납 게임오버만 면제합니다. 새 게임부터 적용됩니다.")]
-    [SerializeField] private bool exemptFinalDayPreownedCitizenship = true;
-
     private async void Start()
     {
         Debug.Log("<color=cyan><b>[InitScene] 게임 부팅 프로세스 시작...</b></color>");
@@ -45,7 +42,7 @@ public class InitScene : MonoBehaviour
 
         // 부트 씬 로드와 데이터 준비가 성공한 뒤에만 이전 종료 결과를 버린다.
         GameSessionManager.Instance.ResetSession();
-        GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance, this.exemptFinalDayPreownedCitizenship);
+        GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance);
         Debug.Log("[InitScene] GameSessionManager 새 게임 세션 초기화 완료.");
 
         Debug.Log($"<color=green><b>[InitScene] 부팅 프로세스 완료! {nextScene} 씬으로 전환합니다.</b></color>");

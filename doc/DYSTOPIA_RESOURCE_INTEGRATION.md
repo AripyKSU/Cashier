@@ -4,6 +4,17 @@
 
 ## 기준과 사용 위치
 
+
+### 2026-09-14 total_merge 추가 선택 이관
+
+- 사용자 요청으로 `total_merge b63a8c2`에 엔딩 개편을 병합하면서 Astra 잔여 변경도 적용했다. 원격 tip은 `2bfa31dc1ffcb6a0491ceb770c44a5ddfbdc57d6`, 실질 Assets 변경은 `ff67838..21d69829982045e61980955b397f31e36fd2280c`다. `2bfa31d`의 output332파일은 제외했다.
+- 원본 변경 98경로(신규82/수정16)와 [원본 인계 기록](2026-09-14-prototype-handoff.md)을 선택 이관한다. 상품16종, 단계별 시계·상자·가게·배경·경비병 이미지, 단계 기준 씬3개와 부품 prefab, 관련 프로토타입 코드다. Astra 전체 Git 이력을 병합하지 않으며 CSV·Packages·ProjectSettings·Addressables·폰트·vendor·output는 도입하지 않는다.
+- 기존 반응 색상 복원, 청소기 입력 우선권·흡입 중 분류 제외·취소 시 속도 복원을 유지하도록 공통 원본 기준으로 코드3곳을 합쳤다. 공용 MainScene/GameUI는 total_merge의 새 정산 레이아웃을 유지한다. 원본 이미지를 직접 참조한 배경의 모습은 변경될 수 있다.
+- 프로토타입 상품 가격0은 원본 계약대로 미설정/주문 제외다. 공용 ProductData CSV 가격·설비 해금은 이번에 바꾸지 않는다. 신규 단계 적용은 원본 Editor 메뉴의 저작 기능이며 Main에 자동 연결하지 않는다.
+- 통합 검증: EditMode258/258·PlayMode53/53, Sprite16종 로딩·가게 단계/설비 보유80개 조건·가격0 제외 검사 통과, 변경 shader 오류0. `Temp/astra-merge-api.txt`, `Temp/astra-merge-references.txt`와 [엔딩 통합 검증](CITIZENSHIP_ENDING.md#2026-09-14-total_merge-통합)을 참고한다. Assets GUID 중복0이며 기존 GUID 변환8개는 보존한다. 원본 단계1→2→3→1 메뉴를 실제 저작 씬에 적용하는 왕복·최종 연출/물리감은 미검증이므로 Astra 연출 전체의 상태는 PARTIAL이다.
+- 원본 신규 Reference3씬에 삭제된 딸/손님 이미지 GUID6개가 남아 있었다. Stage 적용 메뉴는 지정된 가게·배경 레이어만 읽고 이 필드는 복사하지 않는다. 대응 이미지가 확인되지 않아 임의 리소스로 대체하지 않는다. 참고 씬은 실제 게임 실행 씬으로 사용하지 않는다. 원본 참조는 임의 수정하지 않고 보존했다. PreviewScene에서 실제 소비하는 단계별15개 레이어의 Sprite 누락0·Missing Script0을 확인했고 닫았으며, 해당6개는 독립 실행용 참고 씬의 기존 제한으로 남는다.
+
+
 ### 2026-09-13 PR #1 잔여 변경 선택 이관
 
 - 기준은 PR #3이 병합된 `master 2d65909`이며, 원본 `astra-prototype ff67838b24523203840f38d2ae436c32b467db18`과 이전 선택 이관 기준 `87844af` 사이의 프로토타입 코드·리소스 26파일을 추가 반영한다. 원본 브랜치 전체 병합은 아니다.

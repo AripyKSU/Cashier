@@ -417,17 +417,17 @@ public sealed class GameSessionApiTests
         var visit = new CustomerGenerator(new System.Random(1)).Generate(
             catalog.Appearances.Rows.Keys.ToArray(), catalog.Dispositions.Rows.Values.ToArray(),
             catalog.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, () => rules);
-        var product = catalog.Products.Rows.Values.First();
+        var product = catalog.Products.Rows[visit.Items[0].ProductIdx];
         rules = new[] { new SaleRestriction(visit.Attributes, product.ProductType) };
         visit.BeginOffer();
         // 실제 지침 공급은 미연결이므로 테스트에서만 같은 공개 생성기로 만든 방문을 주입한다.
         typeof(DayProgress).GetField("currentVisit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .SetValue(progress.CurrentDayProgress, visit);
-        Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(product.Idx, 2) }));
+        Assert.That(progress.SubmitOffer(1, new[] { new SaleItem(product.Idx, visit.Items[0].Quantity) }));
         var result = visit.Result.Value;
         Assert.That(result.WereRestrictionsEvaluated);
         Assert.That(result.RestrictionViolations.Count, Is.EqualTo(1));
-        Assert.That(result.RestrictionViolations[0].Quantity, Is.EqualTo(2));
+        Assert.That(result.RestrictionViolations[0].Quantity, Is.EqualTo(visit.Items[0].Quantity));
         progress.Tick(progress.CurrentDayProgress.BusinessDurationSeconds);
         progress.CompleteTransactionResult();
         Assert.That(visit.Result.Value.RestrictionViolations, Is.SameAs(result.RestrictionViolations));
@@ -1199,7 +1199,8 @@ public sealed class GameSessionApiTests
         Assert.That(ui.IsSettlementPresentationPending);
         Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf, Is.False);
         Assert.That(uiReference<GameObject>(ui, "operatingPanel").activeSelf);
-        Assert.That(uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").gameObject.activeSelf, Is.False);
+        var interaction = uiReference<SettlementInteractionView>(ui, "settlementInteractionView");
+        Assert.That(uiReference<UnityEngine.UI.Button>(interaction, "facilityPamphletButton").gameObject.activeInHierarchy, Is.False);
         yield return new WaitForSeconds(ui.QueueExitSeconds + 0.1f);
         Assert.That(ui.IsSettlementPresentationPending, Is.False);
         Assert.That(uiReference<GameObject>(ui, "settlementPanel").activeSelf);
@@ -1251,16 +1252,20 @@ public sealed class GameSessionApiTests
         session.Economy.FinanceService.AddIncome(20000, FinanceChangeReason.Sale);
         long openingBalance = session.Economy.QueryService.CurrentBalance;
         long purchasePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12001].PurchasePrice;
-        var ui = createGameUi(); yield return waitForGameUi(ui);
-        var progress = uiProgress(ui); var open = uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton");
+        var ui = createGameUi(); yield return waitForGameUi(ui); configureFastSettlement(ui);
+        var interaction = uiReference<SettlementInteractionView>(ui, "settlementInteractionView");
+        var progress = uiProgress(ui); var open = uiReference<UnityEngine.UI.Button>(interaction, "facilityPamphletButton");
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
         Assert.That(open.gameObject.activeInHierarchy, Is.False); open.onClick.Invoke(); Assert.That(panel.gameObject.activeSelf, Is.False);
         closeProgressDay(progress);
+        yield return waitForSettlementReady(ui);
         Assert.That(open.gameObject.activeInHierarchy); open.onClick.Invoke();
         var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "expensesText").text, Is.EqualTo("-200 G"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "netProfitText").text, Does.Contain("-200 G"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{openingBalance - 200:N0} G"));
+        var ledger = uiReference<DailySettlementLedgerView>(settlement, "ledgerView");
+        var leftPage = uiReference<TMPro.TextMeshProUGUI>(ledger, "leftPageText");
+        Assert.That(leftPage.text, Does.Contain("총지출  -200원"));
+        Assert.That(leftPage.text, Does.Contain("순이익  -200원"));
+        Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 200:N0}원"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
         Assert.That(next.IsInteractable(), Is.False);
         UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
@@ -1272,7 +1277,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - purchasePrice));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001), Is.False);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Does.Contain("적용 대기"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(settlement, "currentBalanceText").text, Is.EqualTo($"{previous - purchasePrice:N0} G"));
+        Assert.That(leftPage.text, Does.Contain($"현재 보유금  {previous - purchasePrice:N0}원"));
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Maintenance, out _);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "balanceText").text, Does.Contain("0 G"));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[1], "statusText").text, Is.EqualTo("잔액 부족"));
@@ -1283,7 +1288,7 @@ public sealed class GameSessionApiTests
         Assert.That(open.gameObject.activeInHierarchy, Is.False);
         session.Economy.FinanceService.AddIncome(1000, FinanceChangeReason.Sale);
         completeInspectors(progress);
-        closeProgressDay(progress); open.onClick.Invoke();
+        closeProgressDay(progress); yield return waitForSettlementReady(ui); open.onClick.Invoke();
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Is.EqualTo("사용 중"));
     }
 
@@ -1295,8 +1300,10 @@ public sealed class GameSessionApiTests
         session.Economy.FinanceService.AddIncome(20000, FinanceChangeReason.Sale);
         long openingBalance = session.Economy.QueryService.CurrentBalance;
         long purchasePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12001].PurchasePrice;
-        var ui = createGameUi(); yield return waitForGameUi(ui);
-        closeProgressDay(uiProgress(ui)); uiReference<UnityEngine.UI.Button>(ui, "facilityOpenButton").onClick.Invoke();
+        var ui = createGameUi(); yield return waitForGameUi(ui); configureFastSettlement(ui);
+        closeProgressDay(uiProgress(ui)); yield return waitForSettlementReady(ui);
+        var interaction = uiReference<SettlementInteractionView>(ui, "settlementInteractionView");
+        uiReference<UnityEngine.UI.Button>(interaction, "facilityPamphletButton").onClick.Invoke();
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
         var row = panel.GetComponentsInChildren<FacilityItemView>()[0];
         Action<FinanceChangeResult> fail = _ => throw new InvalidOperationException("ui purchase notification");
@@ -1321,6 +1328,31 @@ public sealed class GameSessionApiTests
         while ((uiProgress(ui) == null || uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf) && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.That(uiProgress(ui), Is.Not.Null, "GameUI image loading/initialization timed out");
         Assert.That(uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf, Is.False, "GameUI first binding/layout did not finish");
+    }
+
+    /// <summary>제품 완료 이벤트를 우회하지 않고 정산 연출 시간만 테스트용으로 줄인다.</summary>
+    private static void configureFastSettlement(GameUIController ui)
+    {
+        var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
+        var ledger = uiReference<DailySettlementLedgerView>(settlement, "ledgerView");
+        var daughter = uiReference<DaughterDialoguePresenter>(uiReference<DailySettlementFlowController>(ui,
+            "dailySettlementFlowController"), "daughterPresenter");
+        var stamp = uiReference<ReputationStampPresenter>(settlement, "reputationStampPresenter");
+        typeof(DailySettlementLedgerView).GetField("charactersPerSecond", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(ledger, 100000f);
+        typeof(DailySettlementLedgerView).GetField("pageIntervalSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(ledger, 0f);
+        typeof(DaughterDialoguePresenter).GetField("charactersPerSecond", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(daughter, 100000f);
+        typeof(DaughterDialoguePresenter).GetField("nodDurationSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(daughter, 0f);
+        typeof(ReputationStampPresenter).GetField("durationSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(stamp, .01f);
+    }
+
+    /// <summary>가계부·딸·도장 완료 이벤트를 거친 실제 상호작용 상태를 기다린다.</summary>
+    private static IEnumerator waitForSettlementReady(GameUIController ui)
+    {
+        var flow = uiReference<DailySettlementFlowController>(ui, "dailySettlementFlowController");
+        float deadline = Time.realtimeSinceStartup + 5;
+        while (flow.State != DailySettlementFlowController.FlowState.ReadyForInteraction && Time.realtimeSinceStartup < deadline)
+            yield return null;
+        Assert.That(flow.State, Is.EqualTo(DailySettlementFlowController.FlowState.ReadyForInteraction));
     }
 
     /// <summary>공유 원본을 수정하지 않고 테스트 소유 GameUI 인스턴스를 만든다.</summary>
@@ -1373,66 +1405,88 @@ public sealed class GameSessionApiTests
         .GetField("gameProgress", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(ui);
 #endif
 
-    /// <summary>최종일 정산에서 정확한 금액을 지불하고 한 번만 굿 엔딩을 확정한다.</summary>
-    [Test]
-    public void CitizenshipFinalSettlementPurchaseAndFrozenResult()
+    /// <summary>시민권은 모든 선행 설비 보유 후 도덕성 부호에 따라 구매 당일 즉시 종료한다.</summary>
+    [TestCase(1, -1, EndingKind.CitizenshipNegative)]
+    [TestCase(7, 0, EndingKind.Good)]
+    [TestCase(31, 1, EndingKind.Good)]
+    public void CitizenshipPurchaseImmediatelyFreezesMoralityEnding(int day, int morality, EndingKind expectedKind)
     {
-        var progress = endingProgress(31);
+        var progress = endingProgress(day);
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _));
-        var blockedPurchase = Assert.Throws<System.Reflection.TargetInvocationException>(() =>
-            typeof(GameSessionManager).GetMethod("TryPurchaseFacility", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                .Invoke(session, new object[] { 12012u, true, null }));
-        Assert.That(blockedPurchase.InnerException, Is.TypeOf<InvalidOperationException>());
         session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
         settleEndingDay(progress);
-        var prices = session.DailyPrices;
+        Assert.That(progress.TryPurchaseFacility(12012, out var locked), Is.False);
+        Assert.That(locked.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        Assert.That(session.EndingResult.HasValue, Is.False);
+        buyCitizenshipPrerequisites(progress);
+        typeof(GameSessionManager).GetField("currentMorality",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(session, (decimal)morality);
         var finance = session.Economy.FinanceService;
         finance.TrySpend(finance.CurrentBalance - 999_999, FinanceChangeReason.Sale, out _);
         Assert.That(progress.TryPurchaseFacility(12012, out var insufficient), Is.False);
         Assert.That(insufficient.Status, Is.EqualTo(FacilityPurchaseStatus.InsufficientFunds));
         finance.AddIncome(1, FinanceChangeReason.Sale);
         Assert.That(progress.TryPurchaseFacility(12012, out _));
-        Assert.That(session.HasCitizenship && session.IsFacilityActive(12012));
-        Assert.That(finance.CurrentBalance, Is.Zero);
-        Assert.That(session.WasCitizenshipOwnedBeforeLastSettlement, Is.False);
-        Assert.That(progress.TryPurchaseFacility(12012, out _), Is.False);
-        progress.CompleteSettlement();
         var result = session.EndingResult.Value;
-        Assert.That(result.Kind, Is.EqualTo(EndingKind.Good));
-        Assert.That(result.DisplayDay, Is.EqualTo(31));
-        Assert.That(progress.CurrentDay, Is.EqualTo(31));
+        Assert.That(result.Kind, Is.EqualTo(expectedKind));
+        Assert.That(result.DisplayDay, Is.EqualTo(day));
+        Assert.That(result.Morality, Is.EqualTo(morality));
+        Assert.That(result.Balance, Is.Zero);
+        Assert.That(result.HasCitizenship);
         Assert.That(progress.State, Is.EqualTo(GameProgressState.Completed));
-        Assert.That(session.DailyPrices, Is.SameAs(prices));
-        Assert.That(session.ElapsedDays, Is.EqualTo(30));
         Assert.Throws<InvalidOperationException>(() => progress.CompleteSettlement());
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _));
-        Assert.Throws<InvalidOperationException>(() => session.CompleteDay(30));
+        Assert.Throws<InvalidOperationException>(() => session.CompleteDay((uint)(day - 1)));
         Assert.Throws<InvalidOperationException>(() => session.EndTradingDay());
         Assert.That(session.EndingResult.Value, Is.EqualTo(result));
-        session.ResetSession(); session.InitializeNewGame(tables);
+        session.ResetSession();
+        session.InitializeNewGame(tables);
         Assert.That(session.HasCitizenship, Is.False);
         Assert.That(session.EndingResult.HasValue, Is.False);
         Assert.That(session.ElapsedDays, Is.Zero);
-        Assert.That(session.Economy.SettlementDebt.UnpaidAmount, Is.Zero);
     }
 
-    /// <summary>최종일 예외 켜기·끄기, 사전 보유와 30일 실패를 실제 정산으로 비교한다.</summary>
-    [TestCase(31, true, true, false)]
-    [TestCase(31, true, false, true)]
-    [TestCase(31, false, true, true)]
-    [TestCase(30, true, true, true)]
-    public void CitizenshipDebtPriority(int day, bool preowned, bool exemption, bool expectFailure)
+    /// <summary>결제 알림 실패·재진입에도 시민권 결제와 종료는 한 번만 확정한다.</summary>
+    [Test]
+    public void CitizenshipNotificationFailureStillFinalizesOnce()
     {
-        session.ResetSession(); session.InitializeNewGame(tables, exemption);
-        var progress = endingProgress(preowned ? day - 1 : day);
-        if (preowned)
+        var progress = endingProgress(5);
+        session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
+        settleEndingDay(progress);
+        buyCitizenshipPrerequisites(progress);
+        typeof(GameSessionManager).GetField("currentMorality",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(session, 0m);
+        var expected = new InvalidOperationException("citizenship notification failure");
+        int endingCount = 0;
+        progress.StateChanged += state =>
         {
-            session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
-            settleEndingDay(progress);
-            Assert.That(progress.TryPurchaseFacility(12012, out _));
-            progress.CompleteSettlement();
-            completeInspectors(progress);
-        }
+            if (state == GameProgressState.Completed) endingCount++;
+        };
+        Action<FinanceChangeResult> failure = null;
+        failure = payment =>
+        {
+            session.Economy.FinanceService.BalanceChanged -= failure;
+            Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
+            Assert.Throws<InvalidOperationException>(() => progress.CompleteSettlement());
+            Assert.Throws<InvalidOperationException>(() => progress.CurrentDayProgress.CompleteSettlement());
+            throw expected;
+        };
+        session.Economy.FinanceService.BalanceChanged += failure;
+        long before = session.Economy.QueryService.CurrentBalance;
+        Assert.That(Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _)), Is.SameAs(expected));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(before - 1_000_000));
+        Assert.That(session.HasCitizenship);
+        Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.Good));
+        Assert.That(progress.State, Is.EqualTo(GameProgressState.Completed));
+        Assert.That(endingCount, Is.EqualTo(1));
+    }
+
+    /// <summary>미납 유예 만료는 날짜와 무관하게 시민권 구매보다 먼저 게임오버를 확정한다.</summary>
+    [TestCase(30)]
+    [TestCase(31)]
+    public void CitizenshipDebtDeadlineAlwaysFails(int day)
+    {
+        var progress = endingProgress(day);
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _);
         seedEndingDebt(day - 3, day);
         LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY " + day));
@@ -1440,24 +1494,13 @@ public sealed class GameSessionApiTests
         long unpaid = session.Economy.SettlementDebt.UnpaidAmount;
         Assert.That(unpaid, Is.GreaterThan(100));
         Assert.That(session.LastSettlementResult.Value.IsGameOverConditionMet);
-        Assert.That(session.IsLastSettlementUnpaidGameOver, Is.EqualTo(expectFailure));
-        Assert.That(session.WasLastSettlementUnpaidGameOverExempted, Is.EqualTo(!expectFailure));
+        Assert.That(session.IsLastSettlementUnpaidGameOver);
         Assert.Throws<InvalidOperationException>(() => session.EndTradingDay());
         Assert.That(session.Economy.SettlementDebt.UnpaidAmount, Is.EqualTo(unpaid));
-        Assert.That(session.WasCitizenshipOwnedBeforeLastSettlement, Is.EqualTo(preowned));
-        if (expectFailure)
-        {
-            Assert.That(progress.State, Is.EqualTo(GameProgressState.Failed));
-            Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.GameOver));
-            Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _));
-            Assert.Throws<InvalidOperationException>(() => progress.CompleteSettlement());
-        }
-        else
-        {
-            progress.CompleteSettlement();
-            Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.Good));
-            Assert.That(session.Economy.SettlementDebt.UnpaidAmount, Is.EqualTo(unpaid));
-        }
+        Assert.That(progress.State, Is.EqualTo(GameProgressState.Failed));
+        Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.GameOver));
+        Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _));
+        Assert.Throws<InvalidOperationException>(() => progress.CompleteSettlement());
     }
 
     /// <summary>유예가 남은 미납은 게임오버가 아니며 미구매 최종일은 배드 엔딩이다.</summary>
@@ -1474,18 +1517,26 @@ public sealed class GameSessionApiTests
         Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.Bad));
     }
 
-    /// <summary>두 엔딩의 실제 프리팹이 네 페이지를 표시하고 중복 클릭을 막는지 검사한다.</summary>
+    /// <summary>세 결과가 기존 페이지를 안정적으로 재사용하고 마지막 요약을 구분하는지 검사한다.</summary>
     [UnityTest]
     public IEnumerator CitizenshipEndingPagesDisplayAndFinish()
     {
-        foreach (bool purchase in new[] { false, true })
+        foreach (EndingKind expectedKind in new[] { EndingKind.Bad, EndingKind.Good, EndingKind.CitizenshipNegative })
         {
             session.ResetSession(); session.InitializeNewGame(tables);
             var progress = endingProgress(31);
             session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
             settleEndingDay(progress);
-            if (purchase) Assert.That(progress.TryPurchaseFacility(12012, out _));
-            progress.CompleteSettlement();
+            if (expectedKind != EndingKind.Bad)
+            {
+                buyCitizenshipPrerequisites(progress);
+                typeof(GameSessionManager).GetField("currentMorality",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(
+                        session, expectedKind == EndingKind.Good ? 0m : -1m);
+                Assert.That(progress.TryPurchaseFacility(12012, out _));
+            }
+            else progress.CompleteSettlement();
+            Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(expectedKind));
             var obj = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/Prefabs/Ending/EndingPanel.prefab"), root.transform);
             var presenter = obj.GetComponent<EndingPresenter>();
@@ -1493,8 +1544,10 @@ public sealed class GameSessionApiTests
             var next = uiReference<UnityEngine.UI.Button>(presenter, "nextButton");
             float deadline = Time.realtimeSinceStartup + 20;
             while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+            EndingKind pageKind = session.EndingResult.Value.Kind == EndingKind.CitizenshipNegative
+                ? EndingKind.Good : session.EndingResult.Value.Kind;
             var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
-                .Where(p => p.Kind == session.EndingResult.Value.Kind).OrderBy(p => p.PageOrder).ToArray();
+                .Where(p => p.Kind == pageKind).OrderBy(p => p.PageOrder).ToArray();
             for (int page = 0; page < 4; page++)
             {
                 var text = uiReference<TMPro.TextMeshProUGUI>(presenter, "dialogue");
@@ -1506,6 +1559,13 @@ public sealed class GameSessionApiTests
                 next.onClick.Invoke(); next.onClick.Invoke();
             }
             Assert.That(next.gameObject.activeSelf, Is.False);
+            string expectedSummary = expectedKind switch
+            {
+                EndingKind.Good => "시민권 · 긍정",
+                EndingKind.CitizenshipNegative => "시민권 · 부정",
+                _ => "시민권 미소지"
+            };
+            Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "speaker").text, Is.EqualTo(expectedSummary));
             Assert.That(uiReference<UnityEngine.UI.Button>(presenter, "newGameButton").gameObject.activeSelf);
             UnityEngine.Object.Destroy(obj); yield return null;
         }
@@ -1521,7 +1581,7 @@ public sealed class GameSessionApiTests
         var presenter = obj.GetComponentInChildren<DailySettlementPresenter>(true);
         int completed = 0;
         presenter.OnNextStepRequested += () => completed++;
-        presenter.ConfigureEnding(true, false, false);
+        presenter.ConfigureEnding(true, false);
         var next = uiReference<UnityEngine.UI.Button>(presenter, "nextStepButton");
         next.onClick.Invoke();
         Assert.That(presenter.IsFinalConfirmationOpen);
@@ -1539,6 +1599,25 @@ public sealed class GameSessionApiTests
     {
         typeof(SettlementDebtState).GetMethod("Begin", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Invoke(session.Economy.SettlementDebt, new object[] { firstDay, 100L, deadline });
+    }
+
+    /// <summary>실제 카탈로그에서 시민권을 제외한 3단계 이하 선행 설비를 단계 순서대로 구매한다.</summary>
+    /// <param name="progress">정산 중인 진행.</param>
+    private void buyCitizenshipPrerequisites(GameProgress progress)
+    {
+        var facilities = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values;
+        for (uint stage = 1; stage <= 3; stage++)
+        {
+            foreach (FacilityData facility in facilities.Where(row =>
+                row.UpgradeKind != FacilityUpgradeKind.Citizenship && row.RequiredStoreStage == stage &&
+                (row.UpgradeKind != FacilityUpgradeKind.StoreStage || row.TargetStoreStage <= 3))
+                .OrderBy(row => row.UpgradeKind))
+            {
+                Assert.That(progress.TryPurchaseFacility(facility.Idx, out var purchase), Is.True, facility.Idx.ToString());
+                Assert.That(purchase.Status, Is.EqualTo(FacilityPurchaseStatus.Purchased));
+            }
+        }
+        Assert.That(progress.HasCitizenshipPrerequisites);
     }
 
     /// <summary>검증할 일차의 영업 전 상태를 실제 진행 API로 준비한다.</summary>

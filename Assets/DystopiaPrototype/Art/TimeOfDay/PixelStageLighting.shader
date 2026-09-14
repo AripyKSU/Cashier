@@ -24,10 +24,12 @@ Shader "Cashier/PixelStageLighting"
  float _DaylightDetail, _DaylightFill;
  float _BottomShade, _ContactShadow, _PropFill;
  float _HighlightResponse, _SpecularResponse, _Emission;
- float4 _ContactAnchor;
+ float4 _ContactAnchor, _ContactSpriteUV;
+ float _ContainerFinish;
  float4 _TowerOrigins;
  float _TowerPower;
  float4 _NeutralRegion;
+ float2 _TextureEdgeTrim;
  float _UseNeutralRegion, _NeutralBrightness;
  float _AmbientSeconds;
  // Small opaque silhouettes live in the sky layer, behind the separately drawn skyline and shop.
@@ -76,19 +78,45 @@ Shader "Cashier/PixelStageLighting"
   if(_Surface>7.5)return half4(_LampColor.rgb,SpotCone(i.world)*_SpotHaze);
   clip(min(min(i.world.x-_ClipRect.x,_ClipRect.z-i.world.x),min(i.world.y-_ClipRect.y,_ClipRect.w-i.world.y)));
   if(_ContactShadow>.5){
+   if(_ContainerFinish>.5){
+    // A solid short strip overlaps the foot slightly, with no blur or alpha sampling.
+    float depth=(_ContactAnchor.y-i.uv.y)*2;
+    float across=abs(i.uv.x-_ContactAnchor.x);
+    clip(_ContactAnchor.z*.5-across);
+    clip(depth+.025);
+    clip(.12-depth);
+    return half4(0,0,0,_Tint.a);
+   }
+   if(_ContactShadow>1.5){
+    // Point-sampled silhouette with a short, hard-edged projection from the base.
+    float depth=(_ContactAnchor.y-i.uv.y)*2;
+    float2 projected=float2((i.uv.x-_ContactAnchor.x-depth*_ContactAnchor.w)/max(.01,_ContactAnchor.z)+.5,depth/.19);
+    clip(min(min(projected.x,1-projected.x),min(projected.y,1-projected.y)));
+    float2 spriteUV=lerp(_ContactSpriteUV.xy,_ContactSpriteUV.zw,projected);
+    half alpha=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,spriteUV).a;
+    clip(alpha-.5);
+    return half4(_Tint.rgb,_Tint.a*.75);
+   }
    // Both terms start at the actual footprint; only the softer cast extends away.
    float2 contact=(i.uv-_ContactAnchor.xy)*2;
    float depth=max(0,-contact.y);
    float footprint=max(.1,_ContactAnchor.z);
-   float core=.98*exp(-2*pow(abs(contact.x)/footprint,8)-220*contact.y*contact.y);
+   // Keep a dark strip below the feet instead of hiding the narrow peak behind the sprite.
+   float core=.98*exp(-2*pow(abs(contact.x)/footprint,8)-45*pow(contact.y+.06,2));
    float castX=contact.x-depth*_ContactAnchor.w*2;
-   float soft=.72*exp(-2*pow(abs(castX)/(footprint*1.22),6)-3.8*depth);
+   float soft=.9*exp(-2*pow(abs(castX)/(footprint*1.5),6)-1.3*depth);
    soft*=1-smoothstep(0,.12,contact.y);
    float edge=smoothstep(0,.08,i.uv.x)*smoothstep(0,.08,1-i.uv.x)*smoothstep(0,.1,i.uv.y);
    float opacity=(1-(1-core)*(1-soft))*edge;
    return half4(_Tint.rgb,_Tint.a*opacity);
   }
+  clip(min(i.uv.x-_TextureEdgeTrim.x,1-_TextureEdgeTrim.y-i.uv.x));
   half4 c=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,i.uv);
+  if(_ContainerFinish>.5){
+   // Compress bright metal highlights without tinting dark outlines.
+   float peak=max(c.r,max(c.g,c.b));
+   c.rgb*=1-.3*smoothstep(.35,.75,peak);
+  }
   if(_UseNeutralRegion>.5){
    float inside=step(_NeutralRegion.x,i.uv.x)*step(_NeutralRegion.y,i.uv.y)*step(i.uv.x,_NeutralRegion.z)*step(i.uv.y,_NeutralRegion.w);
    float gray=dot(c.rgb,float3(.2126,.7152,.0722))*_NeutralBrightness;

@@ -16,6 +16,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         /// <summary>이 Sprite가 표시될 때만 사용하는 RGB tangent-space 노멀맵입니다.</summary>
         public Sprite normalSprite;
         public Texture2D normalMap;
+        /// <summary>원본 텍스처 좌우 끝에서 숨길 UV 폭입니다. 0이면 원본 전체를 표시합니다.</summary>
+        public Vector2 textureEdgeTrim;
         /// <summary>실내 표면의 넓은 반사광 반응입니다. 기존 직접광 값은 보존합니다.</summary>
         [Range(0, 2)] public float roomResponse;
         [Range(0, 1.5f)] public float lampResponse = 1;
@@ -286,7 +288,11 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         t.localScale = new Vector3(x.magnitude, y.magnitude * Mathf.Sign(x.x * y.y - x.y * y.x), 1);
         layer.renderer.sortingOrder = order * 2;
         var block = layer.properties; block.Clear();
+        block.SetVector("_TextureEdgeTrim",layer.textureEdgeTrim);
         block.SetFloat("_ContactShadow", 0);
+        // 새 Stage 3 상자에만 거친 철판 표현을 적용합니다.
+        var containerImage=source as Image;
+        block.SetFloat("_ContainerFinish",source.name=="FrontContainer" && containerImage!=null && containerImage.sprite!=null && containerImage.sprite.name=="Stage3Container" ? 1 : 0);
         // 기존 감시탑 다리의 녹 색 제거를 새 조명에서도 먼저 적용합니다.
         bool neutral = source.material.HasProperty("_GrayRegion") && source.material.HasProperty("_Brightness");
         block.SetFloat("_UseNeutralRegion", neutral ? 1 : 0);
@@ -371,7 +377,11 @@ public sealed class DystopiaPixelStage : MonoBehaviour
             shadowTransform.localRotation = Quaternion.identity;
             shadowTransform.localScale = new Vector3(drawing.width * x.magnitude * layer.contactShadow.z, drawing.height * y.magnitude * layer.contactShadow.w, 1);
             layer.contactRenderer.sortingOrder = order * 2 - 1;
-            block.SetFloat("_ContactShadow", 1);
+            bool hardPropShadow = image != null && image.sprite != null && (source.name == "FrontContainer" || source.name == "CounterClock");
+            block.SetFloat("_ContactShadow", hardPropShadow ? 2 : 1);
+            // 두 금속 소품은 흐린 타원 대신 원본 알파 윤곽을 상판에 투영합니다.
+            if (hardPropShadow)
+                block.SetVector("_ContactSpriteUV", UnityEngine.Sprites.DataUtility.GetOuterUV(image.sprite));
             // 그림자 메시가 이동해도 가장 진한 접촉부는 원본 밑면 좌표에 고정합니다.
             float shadowWidth = drawing.width * x.magnitude * layer.contactShadow.z;
             float shear = drift * spread * .35f / Mathf.Max(1, shadowWidth);

@@ -121,8 +121,7 @@ public class DailySettlementPresenter : MonoBehaviour
     /// <summary>최종 영업일과 시민권 보유 상태를 다음 단계 입력에 반영합니다.</summary>
     /// <param name="isFinalDay">최종 영업일 정산인지 여부입니다.</param>
     /// <param name="hasCitizenship">시민권 보유 여부입니다.</param>
-    /// <param name="isUnpaidExempted">최종일 미납 게임오버 면제 여부입니다.</param>
-    public void ConfigureEnding(bool isFinalDay, bool hasCitizenship, bool isUnpaidExempted)
+    public void ConfigureEnding(bool isFinalDay, bool hasCitizenship)
     {
         this.requiresFinalConfirmation = isFinalDay && !hasCitizenship;
         if (this.nextStepButton != null)
@@ -132,7 +131,6 @@ public class DailySettlementPresenter : MonoBehaviour
             this.nextStepButton.interactable = !this.IsFinalConfirmationOpen;
         }
 
-        _ = isUnpaidExempted;
     }
 
     /// <summary>가계부 View의 완료를 이후 딸 대사 흐름이 구독할 수 있도록 전달합니다.</summary>
