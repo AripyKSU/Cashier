@@ -1,0 +1,109 @@
+    /// <summary>격리된 기준 씬의 import 참조와 픽셀 렌더를 확인합니다.</summary>
+    [MenuItem("Dystopia/Inspect Matched Shop References")]
+    public static void InspectMatchedShopReferences()
+    {
+        string directory=File.ReadAllText("output/shop-lighting/latest.txt");
+        foreach(int number in new[] { 2,3 })
+        {
+            string path=Root+"Editor/References/Stage"+number+"Reference.unity";
+            AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
+            var preview=EditorSceneManager.OpenPreviewScene(path);
+            try
+            {
+                var stage=preview.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<DystopiaPixelStage>(true)).Single();
+                var details=new List<string>();
+                foreach(var layer in stage.layers)
+                {
+                    var image=layer.source as UnityEngine.UI.Image;
+                    if(image==null || image.sprite==null) continue;
+                    if(!AssetDatabase.GetAssetPath(image.sprite).Contains("/Stage")) continue;
+                    if(layer.normalMap!=null && layer.normalSprite!=image.sprite) throw new InvalidOperationException("Mismatched normal sprite: "+image.name);
+                    details.Add(image.name+" sprite="+image.sprite.name+" normal="+(layer.normalMap==null ? "none" : layer.normalMap.name+" "+layer.normalMap.width+"x"+layer.normalMap.height)+" strength="+layer.normalResponse);
+                }
+                File.WriteAllLines(directory+"/stage"+number+"-references.txt",details);
+                CaptureShopLighting(stage,directory+"/stage"+number+"-preview.png");
+            }
+            finally { EditorSceneManager.ClosePreviewScene(preview); }
+        }
+        Debug.Log("Matched shop references inspected: "+directory);
+    }
+
+    /// <summary>현재 편집 상태와 기준 씬을 백업한 뒤 Shop 2·3 표면 반응만 맞춥니다.</summary>
+    [MenuItem("Dystopia/Match Shop 2 And 3 Lighting")]
+    public static void MatchShopLighting()
+    {
+        var scene=SceneManager.GetActiveScene();
+        if(EditorApplication.isPlaying || scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice in edit mode.");
+        var stage=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<DystopiaPixelStage>(true)).Single();
+        string directory="output/shop-lighting/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        File.Copy(scene.path,directory+"/disk-before.unity");
+        if(!EditorSceneManager.SaveScene(scene,directory+"/editing-before.unity",true)) throw new IOException("Editing backup failed.");
+        CaptureShopLighting(stage,directory+"/before.png");
+        const string normalPath=Root+"Art/Stage3ContainerNormal.png";
+        AssetDatabase.ImportAsset(normalPath,ImportAssetOptions.ForceSynchronousImport);
+        var importer=(TextureImporter)AssetImporter.GetAtPath(normalPath);
+        importer.textureType=TextureImporterType.Default; importer.sRGBTexture=false;
+        importer.filterMode=FilterMode.Point; importer.mipmapEnabled=false;
+        importer.npotScale=TextureImporterNPOTScale.None; importer.textureCompression=TextureImporterCompression.Uncompressed;
+        importer.maxTextureSize=512; importer.wrapMode=TextureWrapMode.Clamp; importer.SaveAndReimport();
+        Undo.RecordObject(stage,"Match shop lighting");
+        TuneShopSurfaces(stage);
+        EditorSceneManager.MarkSceneDirty(scene);
+        if(!EditorSceneManager.SaveScene(scene,directory+"/editing-after.unity",true)) throw new IOException("Verification snapshot failed.");
+        CaptureShopLighting(stage,directory+"/after.png");
+        File.WriteAllText("output/shop-lighting/latest.txt",directory);
+        Debug.Log("Shop lighting matched; editing state retained without scene reload. "+directory);
+    }
+
+    /// <summary>Sprite에 대응하는 노멀과 무광 반응만 설정하고 배치를 보존합니다.</summary>
+    /// <param name="stage">현재 씬의 렌더 설정입니다.</param>
+    private static void TuneShopSurfaces(DystopiaPixelStage stage)
+    {
+        foreach(var layer in stage.layers)
+        {
+            var image=layer.source as UnityEngine.UI.Image;
+            if(image==null || image.sprite==null) continue;
+            string path=AssetDatabase.GetAssetPath(image.sprite);
+            if(path==Root+"Art/Stage2Shop.png" && layer.surface!=DystopiaPixelStage.Surface.Hidden)
+            {
+                layer.normalSprite=image.sprite;
+                layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"Art/Stage2ShopNormal.png");
+                layer.normalResponse=image.sprite.name=="Stage2Counter" ? .4f : .25f;
+                layer.rimResponse=.05f; layer.specularResponse=.08f;
+            }
+            else if(path==Root+"Art/Stage2Container.png")
+            {
+                layer.normalSprite=image.sprite;
+                layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"Art/Stage2ContainerNormal.png");
+                layer.normalResponse=.65f; layer.highlightResponse=.78f;
+                layer.rimResponse=.03f; layer.specularResponse=.08f;
+                layer.bottomShade=.55f;
+            }
+            else if(path==Root+"Art/Stage3Container.png")
+            {
+                layer.normalSprite=image.sprite;
+                layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"Art/Stage3ContainerNormal.png");
+                if(layer.normalMap==null) throw new InvalidOperationException("Stage 3 container normal is missing.");
+                layer.normalResponse=.45f; layer.highlightResponse=.8f;
+                layer.rimResponse=0; layer.specularResponse=.08f; layer.bottomShade=.45f;
+            }
+        }
+        EditorUtility.SetDirty(stage);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
+    }
+
+    /// <summary>Play 상태를 변경하지 않고 현재 픽셀 렌더를 비교용 PNG로 기록합니다.</summary>
+    /// <param name="stage">현재 열린 씬의 픽셀 렌더입니다.</param>
+    /// <param name="path">프로젝트 내부의 검증 이미지 경로입니다.</param>
+    private static void CaptureShopLighting(DystopiaPixelStage stage,string path)
+    {
+        var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+        typeof(DystopiaPixelStage).GetMethod("LateUpdate",flags).Invoke(stage,null);
+        var target=(RenderTexture)typeof(DystopiaPixelStage).GetField("texture",flags).GetValue(stage);
+        var previous=RenderTexture.active;
+        var pixels=new Texture2D(target.width,target.height,TextureFormat.RGBA32,false);
+        try { RenderTexture.active=target; pixels.ReadPixels(new Rect(0,0,target.width,target.height),0,0); pixels.Apply(); File.WriteAllBytes(path,pixels.EncodeToPNG()); }
+        finally { RenderTexture.active=previous; UnityEngine.Object.DestroyImmediate(pixels); }
+    }
+

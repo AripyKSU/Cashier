@@ -1,0 +1,17 @@
+[
+  {
+    "Algorithm": "SHA256",
+    "Hash": "78735FD1E0136C90287E7EC82D481586EBD123D1C85D40786A91E9D6BC0F8EF3",
+    "Path": "C:\\UnityProject\\CashierGit\\Cashier\\Assets\\DystopiaPrototype\\Editor\\References\\Stage2Reference.unity"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "CCDF393B4177DE787B1A76927D62483FB50D95F9E833EE728CA1A0D10B4FDDD0",
+    "Path": "C:\\UnityProject\\CashierGit\\Cashier\\Assets\\DystopiaPrototype\\Editor\\References\\Stage3Reference.unity"
+  },
+  {
+    "Algorithm": "SHA256",
+    "Hash": "E05BA9BDCE3DBE1CC503A4DBECE1699AA25CF6166F242E6E2F7AD564041560B5",
+    "Path": "C:\\UnityProject\\CashierGit\\Cashier\\Assets\\DystopiaPrototype\\Scenes\\DystopiaVerticalSlice.unity"
+  }
+]

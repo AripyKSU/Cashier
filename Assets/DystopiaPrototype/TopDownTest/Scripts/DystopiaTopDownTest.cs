@@ -790,7 +790,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         return true;
     }
 
-    /// <summary>계산기가 열린 동안 넘버패드 숫자를 버튼과 같은 금액 입력 경로로 전달합니다.</summary>
+    /// <summary>계산기가 열린 동안 넘버패드 숫자·지우기·확인을 화면 버튼과 같은 입력 경로로 전달합니다.</summary>
     private void ProcessNumberPad()
     {
         Keyboard keyboard = Keyboard.current;
@@ -806,12 +806,16 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         if (keyboard.numpad7Key.wasPressedThisFrame) Digit("7");
         if (keyboard.numpad8Key.wasPressedThisFrame) Digit("8");
         if (keyboard.numpad9Key.wasPressedThisFrame) Digit("9");
+        if (keyboard.backspaceKey.wasPressedThisFrame) Backspace();
+        if (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame) ConfirmSale();
     }
 
     /// <summary>키패드의 한 자리 또는 00·000 입력 전체를 최대 7자리 안에서 추가합니다.</summary>
     private void Digit(string digit)
     {
-        if (!CanEditAmount || amount.Length + digit.Length > 7) return;
+        if (!CanEditAmount) return;
+        if (amount == "0") amount = "";
+        if (amount.Length + digit.Length > 7) return;
         amount += digit;
         noticeText.text = "";
         RefreshUi();
@@ -821,7 +825,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private void Backspace()
     {
         if (!CanEditAmount || amount.Length == 0) return;
-        amount = amount.Substring(0, amount.Length - 1);
+        amount = amount.Length == 1 ? "0" : amount.Substring(0, amount.Length - 1);
         RefreshUi();
     }
 

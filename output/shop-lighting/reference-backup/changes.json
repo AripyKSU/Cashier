@@ -1,0 +1,59 @@
+{
+  "2": [
+    {
+      "source": "829171938",
+      "fields": {
+        "normalResponse": "0.4",
+        "rimResponse": "0.05",
+        "specularResponse": "0.08"
+      }
+    },
+    {
+      "source": "1494773492",
+      "fields": {
+        "normalResponse": "0.25",
+        "rimResponse": "0.05",
+        "specularResponse": "0.08"
+      }
+    },
+    {
+      "source": "2105069905",
+      "fields": {
+        "normalResponse": "0.25",
+        "rimResponse": "0.05",
+        "specularResponse": "0.08"
+      }
+    },
+    {
+      "source": "650016387",
+      "fields": {
+        "normalResponse": "0.25",
+        "rimResponse": "0.05",
+        "specularResponse": "0.08"
+      }
+    },
+    {
+      "source": "2356696958130715508",
+      "fields": {
+        "normalResponse": "0.65",
+        "highlightResponse": "0.78",
+        "rimResponse": "0.03",
+        "specularResponse": "0.08",
+        "bottomShade": "0.55"
+      }
+    }
+  ],
+  "3": [
+    {
+      "source": "2356696958130715508",
+      "fields": {
+        "normalSprite": "{fileID: 5187440768154225832, guid: ba80f4bbc4fb47b4caa16e46e22ab9cb, type: 3}",
+        "normalMap": "{fileID: 2800000, guid: aadbeaa232d6eca4080131483bbe4824, type: 3}",
+        "normalResponse": "0.45",
+        "highlightResponse": "0.8",
+        "specularResponse": "0.08",
+        "bottomShade": "0.45"
+      }
+    }
+  ]
+}

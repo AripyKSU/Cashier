@@ -817,8 +817,9 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (dailyInstruction == null)
         {
             Modal("일일지침 이미지 연결 필요","Daily Instruction Sprite를 Inspector에 연결하세요.",false);
-            MakeButton(modal,beforeOpening ? "OpenShop" : "CloseInstruction",beforeOpening ? "영업 시작" : "닫기",190,380,360,44,
+            var fallbackButton=MakeButton(modal,beforeOpening ? "OpenShop" : "CloseInstruction",beforeOpening ? "영업 시작" : "닫기",190,380,360,44,
                 beforeOpening ? (UnityEngine.Events.UnityAction)(() => { Session.OpenShop(); Refresh(); }) : CloseDailyInstruction,18);
+            if(beforeOpening) ConfigureOpenShopFeedback(fallbackButton);
             return;
         }
 
@@ -894,6 +895,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             paperColors.selectedColor = paperColors.normalColor;
             openShop.colors = paperColors;
             openShop.GetComponentInChildren<Text>().color = new Color(.32f,.16f,.13f);
+            ConfigureOpenShopFeedback(openShop);
         }
         else
         {
@@ -1277,6 +1279,21 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (created) text.color=color??new Color(.91f,.93f,.91f);
         text.raycastTarget=false; text.verticalOverflow=VerticalWrapMode.Overflow;
         return text;
+    }
+
+    /// <summary>영업 시작 버튼이 중앙을 기준으로 확대·눌림 반응을 보이게 연결합니다.</summary>
+    /// <param name="button">당일 지침에 표시된 영업 시작 버튼입니다.</param>
+    private static void ConfigureOpenShopFeedback(Button button)
+    {
+        var visual=button.image.rectTransform;
+        Vector2 centeredPivot=new Vector2(.5f,.5f);
+        visual.anchoredPosition+=Vector2.Scale(centeredPivot-visual.pivot,visual.sizeDelta);
+        visual.pivot=centeredPivot;
+        var feedback=button.GetComponent<DystopiaKeyFeedback>() ?? button.gameObject.AddComponent<DystopiaKeyFeedback>();
+        feedback.Visual=visual;
+        feedback.HoverScale=1.08f;
+        feedback.PressedScale=.93f;
+        feedback.Response=22;
     }
 
     /// <summary>실제 uGUI 버튼 이벤트를 연결합니다.</summary>
