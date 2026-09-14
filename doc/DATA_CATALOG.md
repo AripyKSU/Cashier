@@ -6,6 +6,8 @@
 
 > 2026-09-13 시민권·엔딩 구현: 설비12012(100만G), EndingPage 종류18의 8행, Text8231~8234/8240~8247, Resource4255를 추가했다. 현재 Text242행·Resource55행·설비12행이다. 신규 스키마·소비 계약은 [시민권·엔딩 명세](CITIZENSHIP_ENDING.md#데이터구현-위치)를 우선하며, 아래 표와 부록의 과거 스냅샷에는 이 추가분이 포함되지 않는다.
 
+> 2026-09-14 시설 업그레이드 진행 UI: 현재 단계 일반 설비와 진행 항목을 분리한 `FacilityShopViewData` 및 선행 조건 상태를 반영했다. 시민권12012는 3단계 일반 설비 완료 후 구매한다.
+
 ## 영업 시각 공통 기준 (2026-09-11 통합)
 
 - CSV 밸런스와 별도로 `BusinessHours`가 게임 속 시작09시·마감21시(540~1260분, 총720분)를 정의한다. 실제 영업 길이는 `DayProgress` 기본180초/생성자 입력이다(2026-09-12 밸런싱 초안 적용).
@@ -63,7 +65,7 @@
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 22 | 구매·MainScene 대기열·명성별 성향 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
-| [FacilityData](../Assets/Datas/FacilityData.csv) | 11 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
+| [FacilityData](../Assets/Datas/FacilityData.csv) | 12 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백·손님 생성 가중치 연결 |
 | [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 2 | 4 | 일일 지침 생성·거래 위반·정산 벌금 연결 |
 | [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
@@ -81,17 +83,17 @@
 
 ### FacilityData
 
-`idx:uint`는 종류12의 12001~12011, `nameidx:uint`는 TextData FK, `purchase_price:long`은 양수 통화다. `upgrade_kind`는 상품 해금·편의성·가게 단계 상승을 구분하는 숫자 enum이고, `required_store_stage`는 실제 구매 요구 단계인 1~3이다. `target_store_stage=0`은 실제 가게 단계 0이 아니라 단계 상승 대상이 없다는 sentinel이며, 단계 상승 행만 2 또는 3을 사용한다. `effect_type`은 편의성 효과의 숫자 enum이고 일반 업그레이드는 None(0)이다.
+`idx:uint`는 종류12의 12001~12012, `nameidx:uint`는 TextData FK, `purchase_price:long`은 양수 통화다. `upgrade_kind`는 상품 해금·편의성·가게 단계 상승·시민권을 구분하는 숫자 enum이고, `required_store_stage`는 실제 구매 요구 단계인 1~3이다. 시민권12012는 3단계 일반 설비 완료가 추가 선행 조건이다. `target_store_stage=0`은 실제 가게 단계 0이 아니라 단계 상승 대상이 없다는 sentinel이며, 단계 상승 행만 2 또는 3을 사용한다. `effect_type`은 편의성 효과의 숫자 enum이고 일반 업그레이드·시민권은 None(0)이다.
 
 header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 공개한다. 편의성 효과별 설비와 단계 상승 목표별 설비는 하나씩만 존재해야 한다. `CustomerCatalog`는 상품 해금 설비가 활성 상품의 `required_facility_idx`로 참조되는지, 편의성·단계 상승 설비가 상품 FK로 사용되지 않는지 추가 검사한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
 
-구매 단계 제한·즉시 단계 상승·다음날 일반 효과 활성화는 FacilityService가 소유한다. 현재 데이터 행은 1단계 상품 해금 2개, 2단계 상품 해금 2개, 3단계 상품 해금 2개, 편의성 3개, 단계 상승 2개로 구성된다. 상세 API와 임시 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
+구매 단계 제한·현재 단계 일반 설비 선행 조건·즉시 단계 상승·다음날 일반 효과 활성화는 FacilityService가 소유한다. 현재 데이터 행은 1단계 상품 해금 2개, 2단계 상품 해금 2개, 3단계 상품 해금 2개, 편의성 3개, 단계 상승 2개, 시민권 1개로 구성된다. 상세 API와 수치는 [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md)를 따른다.
 
 근거: [CSV](../Assets/Datas/FacilityData.csv), [DTO](../Assets/Scripts/Commons/Data/FacilityData.cs), [DataTable](../Assets/Scripts/Commons/Data/FacilityDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12011 |
+| 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12012 |
 | 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060,8076~8081 |
 | 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 800~198000 |
 | 4. `upgrade_kind` | UpgradeKind · FacilityUpgradeKind | 업그레이드 기능 분류 | 필수; ProductUnlock·Convenience·StoreStage만 허용 | 코드 분기 키 | 1,2,3 |
@@ -356,8 +358,8 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | [FinanceChangeReason : int](../Assets/Scripts/Finance/FinanceChangeReason.cs) | None=0, Sale=1, Maintenance=2, FacilityPurchase=3 | 재정 변경 사유. 현재 거래/상납이 각각1/2 |
 | [FacilityUpgradeKind : uint](../Assets/Scripts/Commons/Data/FacilityData.cs) | None=0, ProductUnlock=1, Convenience=2, StoreStage=3, FacilityUpgradeKind_End=4(자동) | 설비 업그레이드 분류. None/End는 CSV 금지 |
 | [ConvenienceEffectType : uint](../Assets/Scripts/Commons/Data/FacilityData.cs) | None=0, DividerBar=1, AutoSorting=2, Vacuum=3, ConvenienceEffectType_End=4(자동) | 편의성 효과 키. None은 상품 해금·단계 상승의 무효과 값 |
-| [FacilityPurchaseStatus](../Assets/Scripts/Facility/FacilityPurchaseResult.cs) | None=0, Purchased=1, AlreadyOwned=2, InsufficientFunds=3, StageLocked=4, FacilityPurchaseStatus_End=5(자동) | 정상 구매 결과; 입력·재진입·알림 오류는 예외 |
-| [FacilityDisplayState](../Assets/Scripts/UI/Contracts/FacilityUIContracts.cs) | StageLocked=0, Purchasable=1, InsufficientFunds=2, ActivationPending=3, Active=4, OwnedStageUpgrade=5, FacilityDisplayState_End=6(자동) | UI 표시 상태, 구매 요청 결과와 별개 |
+| [FacilityPurchaseStatus](../Assets/Scripts/Facility/FacilityPurchaseResult.cs) | None=0, Purchased=1, AlreadyOwned=2, InsufficientFunds=3, StageLocked=4, PrerequisiteLocked=5, FacilityPurchaseStatus_End=6(자동) | 정상 구매 결과; 입력·재진입·알림 오류는 예외 |
+| [FacilityDisplayState](../Assets/Scripts/UI/Contracts/FacilityUIContracts.cs) | StageLocked=0, Purchasable=1, InsufficientFunds=2, ActivationPending=3, Active=4, OwnedStageUpgrade=5, PrerequisiteLocked=6, OwnedProgression=7, FacilityDisplayState_End=8(자동) | UI 표시 상태, 구매 요청 결과와 별개 |
 | [GameProgressState : int](../Assets/Scripts/Progress/GameProgressState.cs) | Initializing=0, DayInProgress=1, Failed=3, Completed=4 | 전체 진행. 제거한 Maintenance=2 숫자는 재사용하지 않음 |
 | [DayProgressState : int](../Assets/Scripts/Progress/DayProgressState.cs) | Initializing=0, PreOpen=1, Operating=2, Sorting=3, TransactionResult=4, Closing=5, Settlement=6, Completed=7, InspectorEvent=8 | 하루 진행. Closing은 마지막 거래 마감 |
 | [GameDayPhase : int](../Assets/Scripts/UI/Contracts/UIContracts.cs) | PreOpen=0, PriceGuide=1, Operating=2, TradingResult=3, Closing=4, DailySettlement=5 | UI 표시용. PriceGuide는 레거시 호환 |
@@ -418,7 +420,7 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 
 ## 7. UI용 데이터와 표시 한계
 
-설비 상점은 `FacilityShopViewData(CurrentBalance:long, Items:IReadOnlyList<FacilityItemViewData>)`를 사용한다. 행은 FacilityIdx:uint, DisplayName:string, PurchasePrice:long, UnlockProducts:string, State:FacilityDisplayState, ActivationDisplayDay:ulong을 복사한다. 실제 Facility/Text/Product FK와 세션 보유·잔액에서 생성하며 표시 DAY는 활성 경과일+1이다. 정산 중에만 열고 구매 요청에는 PK만 전달한다. [설비 UI 인계](FACILITY_INTEGRATION.md) 참조.
+설비 상점은 `FacilityShopViewData(CurrentStoreStage:uint, CurrentBalance:long, RegularItems:IReadOnlyList<FacilityItemViewData>, ProgressionItem:FacilityItemViewData?, CompletedRegularCount:uint, RequiredRegularCount:uint)`를 사용한다. `RegularItems`는 현재 단계 일반 설비만 담고 `ProgressionItem`은 단계 확장 또는 시민권 하나를 담는다. 행은 FacilityIdx:uint, DisplayName:string, PurchasePrice:long, UnlockProducts:string, UpgradeKind, RequiredStoreStage, EffectType, TargetStoreStage, State, ActivationDisplayDay:ulong과 진행 완료/필요 수를 복사한다. 실제 Facility/Text/Product FK와 세션 보유·잔액에서 생성하며 표시 DAY는 활성 경과일+1이다. 정산 중에만 열고 구매 요청에는 PK만 전달한다. [설비 UI 인계](FACILITY_INTEGRATION.md) 참조.
 
 근거: [UIContracts](../Assets/Scripts/UI/Contracts/UIContracts.cs), [ProgressViewDataFactory](../Assets/Scripts/UI/ProgressViewDataFactory.cs), [GameUIController](../Assets/Scripts/Scene/GameUIController.cs). ViewData는 표현용 snapshot이며 CSV·경제 상태를 대체하지 않는다. 문자열을 UI에 전달하는 것은 CSV 문자열 키 허용을 확대하지 않는다.
 

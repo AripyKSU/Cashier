@@ -26,6 +26,8 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     public FlowState State { get; private set; } = FlowState.Inactive;
     public int ActiveDay => activeDay;
     public event Action OnFacilityOpenRequested;
+    /// <summary>다음 날 완료 처리를 시작하기 직전에 발생합니다.</summary>
+    public event Action OnDayAdvanceRequested;
     public event Action OnDayAdvanceStarted;
     public event Action<Exception> OnFlowFailed;
 
@@ -165,6 +167,7 @@ public sealed class DailySettlementFlowController : MonoBehaviour
         interactionView.SetInteractionEnabled(false);
         try
         {
+            OnDayAdvanceRequested?.Invoke();
             completeSettlement();
             OnDayAdvanceStarted?.Invoke();
         }

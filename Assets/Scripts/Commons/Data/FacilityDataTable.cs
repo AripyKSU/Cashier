@@ -79,13 +79,25 @@ public sealed class FacilityDataTable : IDataLoad
     {
         var convenienceEffects = new HashSet<ConvenienceEffectType>();
         var stageTargets = new HashSet<uint>();
+        var regularCountsByStage = new Dictionary<uint, int>();
+        int citizenshipCount = 0;
         foreach (var row in rows.Values)
         {
             if (row.UpgradeKind == FacilityUpgradeKind.Convenience && !convenienceEffects.Add(row.EffectType))
                 throw new InvalidDataException($"FacilityData.csv: effect_type={row.EffectType} 설비가 중복됩니다.");
             if (row.UpgradeKind == FacilityUpgradeKind.StoreStage && !stageTargets.Add(row.TargetStoreStage))
                 throw new InvalidDataException($"FacilityData.csv: target_store_stage={row.TargetStoreStage} 단계 상승이 중복됩니다.");
+            if (row.UpgradeKind == FacilityUpgradeKind.ProductUnlock || row.UpgradeKind == FacilityUpgradeKind.Convenience)
+                regularCountsByStage[row.RequiredStoreStage] = regularCountsByStage.TryGetValue(row.RequiredStoreStage, out int count)
+                    ? count + 1 : 1;
+            if (row.UpgradeKind == FacilityUpgradeKind.Citizenship) citizenshipCount++;
         }
+
+        if (citizenshipCount != 1)
+            throw new InvalidDataException($"FacilityData.csv: 시민권 설비는 정확히 하나여야 합니다. count={citizenshipCount}");
+        foreach (uint stage in new[] { 1u, 2u, 3u })
+            if (!regularCountsByStage.TryGetValue(stage, out int count) || count == 0)
+                throw new InvalidDataException($"FacilityData.csv: {stage}단계 일반 업그레이드가 하나 이상 필요합니다.");
 
         foreach (ConvenienceEffectType effect in new[]
         {

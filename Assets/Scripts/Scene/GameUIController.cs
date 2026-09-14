@@ -376,6 +376,7 @@ public sealed class GameUIController : MonoBehaviour
         inspectorPresenter.ExitCompleted += handleInspectorExit;
         inspectorPresenter.Failed += showError;
         this.dailySettlementFlowController.OnFacilityOpenRequested += this.handleFacilityOpenClicked;
+        this.dailySettlementFlowController.OnDayAdvanceRequested += this.handleDayAdvanceRequested;
         this.dailySettlementFlowController.OnFlowFailed += this.showError;
         this.facilityShopPresenter.OnPurchaseRequested += this.handleFacilityPurchaseRequested;
         this.facilityShopPresenter.OnCloseRequested += this.handleFacilityCloseRequested;
@@ -412,6 +413,7 @@ public sealed class GameUIController : MonoBehaviour
         if (this.dailySettlementFlowController != null)
         {
             this.dailySettlementFlowController.OnFacilityOpenRequested -= this.handleFacilityOpenClicked;
+            this.dailySettlementFlowController.OnDayAdvanceRequested -= this.handleDayAdvanceRequested;
             this.dailySettlementFlowController.OnFlowFailed -= this.showError;
         }
         if (this.facilityShopPresenter != null)
@@ -515,6 +517,14 @@ public sealed class GameUIController : MonoBehaviour
         this.subscribedDay.CustomerDeparted += this.handleCustomerDeparted;
         this.subscribedDay.TransactionCompleted += this.handleTransactionCompleted;
         this.subscribedDay.SettlementStarted += this.handleSettlementStarted;
+        if (this.subscribedDay.State == DayProgressState.InspectorEvent)
+        {
+            SoundManager.Instance?.PlayBgm(SoundKeys.SupervisorBgm);
+        }
+        else if (this.subscribedDay.State == DayProgressState.PreOpen)
+        {
+            SoundManager.Instance?.PlaySfx(SoundKeys.DailyGuideline);
+        }
         this.renderPreOpen(day);
         this.refreshAllViews();
     }
@@ -551,6 +561,19 @@ public sealed class GameUIController : MonoBehaviour
     private void handleDayStateChanged(DayProgressState state)
     {
         if (state != DayProgressState.PreOpen) this.isOpeningBusiness = false;
+        if (state == DayProgressState.InspectorEvent)
+        {
+            SoundManager.Instance?.PlayBgm(SoundKeys.SupervisorBgm);
+        }
+        else if (state == DayProgressState.PreOpen)
+        {
+            SoundManager.Instance?.PlaySfx(SoundKeys.DailyGuideline);
+        }
+        else if (state == DayProgressState.Closing)
+        {
+            // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다.
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
+        }
         this.refreshAllViews();
     }
 
@@ -582,6 +605,8 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
+        SoundManager.Instance?.PlaySfx(
+            visit.WasAccepted == true ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = visit.WasAccepted == true
             ? "ACCEPTED · income applied"
@@ -600,10 +625,17 @@ public sealed class GameUIController : MonoBehaviour
             this.refreshAllViews();
             return;
         }
+        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm);
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.beginSettlementFlow(result);
         this.refreshAllViews();
+    }
+
+    /// <summary>다음 날 버튼 입력 직전에 현재 정산 BGM을 끝낸다.</summary>
+    private void handleDayAdvanceRequested()
+    {
+        SoundManager.Instance?.StopBgm();
     }
 
     /// <summary>확정된 정산 통계는 그대로 두고 현재 잔액을 다시 표시한다.</summary>
@@ -656,12 +688,7 @@ public sealed class GameUIController : MonoBehaviour
         }
         try
         {
-            var citizenship = System.Linq.Enumerable.Single(
-                DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values,
-                row => row.UpgradeKind == FacilityUpgradeKind.Citizenship);
-            long shortfall = Math.Max(0, citizenship.PurchasePrice - this.economy.QueryService.CurrentBalance);
-            this.facilityFeedback = this.gameProgress.HasCitizenship ? "시민권 보유 · 엔딩 판정이 완료되었습니다."
-                : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 선행 설비 전체 보유 후 구매 즉시 종료";
+            this.facilityFeedback = this.createFacilityOpenFeedback();
             this.wasInputRouterEnabled = this.gameInputRouter.enabled;
             this.gameInputRouter.enabled = false;
             this.settlementInputGroup.interactable = false;
@@ -706,6 +733,10 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.facilityShopPresenter.SetInteractionEnabled(false, false);
             this.gameProgress.TryPurchaseFacility(facilityIdx, out var result);
+            if (result.Status == FacilityPurchaseStatus.Purchased)
+            {
+                SoundManager.Instance?.PlaySfx(SoundKeys.FacilityUpgrade);
+            }
             this.facilityFeedback = result.Status switch
             {
                 FacilityPurchaseStatus.Purchased => result.ActivationDay.HasValue &&
@@ -715,6 +746,7 @@ public sealed class GameUIController : MonoBehaviour
                 FacilityPurchaseStatus.AlreadyOwned => "이미 구매한 설비입니다. 추가 결제하지 않았습니다.",
                 FacilityPurchaseStatus.InsufficientFunds => "보유금이 부족합니다. 결제하지 않았습니다.",
                 FacilityPurchaseStatus.StageLocked => "현재 가게 단계에서 잠긴 업그레이드입니다.",
+                FacilityPurchaseStatus.PrerequisiteLocked => "현재 단계의 설비를 모두 구매해야 진행할 수 있습니다.",
                 _ => throw new InvalidOperationException("설비 구매 결과가 유효하지 않습니다.")
             };
         }
@@ -760,6 +792,21 @@ public sealed class GameUIController : MonoBehaviour
             this.economy.QueryService.CurrentBalance, this.economy.QueryService.DailySaleIncome));
     }
 
+    /// <summary>현재 단계에 맞는 최초 상점 안내를 만든다. 가격은 시민권 화면에서만 강조한다.</summary>
+    /// <returns>현재 단계 진행 안내 문구.</returns>
+    private string createFacilityOpenFeedback()
+    {
+        var session = GameSessionManager.Instance;
+        if (session.CurrentStoreStage < 3)
+            return $"{session.CurrentStoreStage}단계 설비를 모두 구매하면 {session.CurrentStoreStage + 1}단계 확장이 열립니다.";
+        var citizenship = System.Linq.Enumerable.Single(
+            DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values,
+            row => row.UpgradeKind == FacilityUpgradeKind.Citizenship);
+        long shortfall = Math.Max(0, citizenship.PurchasePrice - this.economy.QueryService.CurrentBalance);
+        return this.gameProgress.HasCitizenship ? "시민권 보유 · 엔딩 판정이 완료되었습니다."
+            : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 선행 설비 전체 보유 후 구매 즉시 종료";
+    }
+
     /// <summary>영업 전 버튼 요청을 하루 진행에 전달합니다.</summary>
     private void handleOpenBusinessClicked()
     {
@@ -780,6 +827,8 @@ public sealed class GameUIController : MonoBehaviour
                 GameSessionManager.Instance.DailyGuidelines,
                 false));
             this.gameProgress.OpenBusiness();
+            SoundManager.Instance?.PlayBgm(SoundKeys.GameplayAmbience);
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayStart);
             this.refreshAllViews();
         }
         catch (Exception exception)
@@ -887,6 +936,7 @@ public sealed class GameUIController : MonoBehaviour
     private void handleCalculatorVisibilityChanged(bool isOpen)
     {
         if (!this.isReady || this.subscribedDay == null) return;
+        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorOpen);
         this.refreshRuntimeViews();
     }
 

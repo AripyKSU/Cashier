@@ -22,6 +22,7 @@ public sealed class ReputationStampPresenter : MonoBehaviour
     private int preparedDay = -1;
     private bool hasPrepared;
     private bool hasCompleted;
+    private bool impactSoundPlayed;
 
     public event Action OnPresentationCompleted;
 
@@ -67,6 +68,7 @@ public sealed class ReputationStampPresenter : MonoBehaviour
         if (!hasPrepared) throw new InvalidOperationException("정산 명성 도장이 준비되지 않았습니다.");
         if (hasCompleted) return;
         stopPresentation();
+        impactSoundPlayed = false;
         stampImage.enabled = true;
         presentationCoroutine = StartCoroutine(playPresentation());
     }
@@ -83,6 +85,11 @@ public sealed class ReputationStampPresenter : MonoBehaviour
             float scale = Mathf.Lerp(startScale, 1f, 1f - Mathf.Pow(1f - impactProgress, 3f));
             float shake = progress < 0.58f ? 0f : Mathf.Sin((progress - 0.58f) * Mathf.PI * 8f)
                 * (1f - progress) * impactRotationDegrees;
+            if (!impactSoundPlayed && progress >= 0.58f)
+            {
+                impactSoundPlayed = true;
+                SoundManager.Instance?.PlaySfx(SoundKeys.ReputationStamp);
+            }
             rect.localScale = restScale * scale;
             rect.localRotation = restRotation * Quaternion.Euler(0f, 0f, shake);
             yield return null;

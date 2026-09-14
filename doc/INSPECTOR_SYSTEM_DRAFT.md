@@ -113,6 +113,7 @@ GameProgress.startCurrentDay가 날짜별 가격 준비와 DayProgress 생성·S
 - 입장 → 대화 → 퇴장 연출은 Presenter 책임. 애니메이션 완료 callback이 늦게 도착해도 다른 이벤트를 완료하지 않도록 eventIdx와 화면 수명을 확인한다.
 - 입장: 감독관 이미지 RGB 검정·alpha 0 → 원래 색·alpha 1. 퇴장: 현재 색·alpha → RGB 검정·alpha 0. 대사와 버튼은 RGB 검정으로 물들이지 않고 별도 CanvasGroup으로 알파만 처리한다.
 - 입장 완료 전에는 대사 넘김을 막고, 마지막 대사 확인 후 퇴장 중에도 추가 입력을 막는다. 완료 후 색·알파·텍스트·버튼 상태를 초기화해 다음 이벤트에서 검은색이 남지 않게 한다.
+- 감독관 대화 음성은 명시적으로 정지 가능한 효과음 source에서 재생한다. 마지막 대사 확인으로 퇴장 대기 상태에 들어가는 즉시 음성을 정지하며, 패널 비활성·파괴 시에도 같은 정리 경로를 적용한다.
 - 입퇴장 시간은 Presenter의 Inspector 조정값 `fadeSeconds`이며 초기값은 각 0.4초다. UniTask 표현 루프를 사용하고 화면 비활성·파괴 시 취소한다. 같은 부모 화면의 재활성 순서가 달라도 Presenter.OnEnable에서 준비된 연출을 재개한다. 일시정지 정책은 기존 표현 정지 규칙과 맞춘다.
 - ResourceData → ResourceManager로 Sprite를 가져온다. 이미지 파일이 있다는 이유만으로 Addressables 주소를 추측하지 않는다.
 - 2026-09-13 사용자 요청으로 감독관 이벤트 3개의 `portrait_resource_idx`를 전용 Resource4256으로 교체했다. `4256 → Inspector → Assets/Textures/Customer/Dystopia/Inspector.png` 경로로 표시하며 기존 GUID와 Sprite import 설정을 유지한다.

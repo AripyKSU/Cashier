@@ -216,7 +216,7 @@ public sealed class ProgressViewDataFactory
         return new DaughterDialogueViewData(result.Day, text.Text, sprite);
     }
 
-    /// <summary>현재 가게 단계까지 반영한 설비 상점 표시 snapshot을 만든다.</summary>
+    /// <summary>현재 가게 단계의 일반 목록과 하단 진행 항목을 분리한 snapshot을 만든다.</summary>
     /// <param name="facilities">검증된 설비 원본.</param>
     /// <param name="activationDays">보유 설비별 활성 경과일.</param>
     /// <param name="currentStoreStage">현재 세션 가게 단계.</param>
@@ -232,50 +232,88 @@ public sealed class ProgressViewDataFactory
         if (currentStoreStage < 1 || currentStoreStage > 3)
             throw new ArgumentOutOfRangeException(nameof(currentStoreStage));
         if (balance < 0) throw new ArgumentOutOfRangeException(nameof(balance));
-        bool hasCitizenshipPrerequisites = facilities.Values.All(facility =>
-            !FacilityService.IsCitizenshipPrerequisite(facility.UpgradeKind, facility.RequiredStoreStage,
-                facility.TargetStoreStage) || activationDays.ContainsKey(facility.Idx));
-        var items = new List<FacilityItemViewData>(facilities.Count);
-        foreach (var pair in facilities.OrderBy(x => x.Key))
+        var regularFacilities = facilities.Values
+            .Where(facility => facility != null && facility.RequiredStoreStage == currentStoreStage &&
+                (facility.UpgradeKind == FacilityUpgradeKind.ProductUnlock ||
+                 facility.UpgradeKind == FacilityUpgradeKind.Convenience))
+            .OrderBy(facility => facility.Idx)
+            .ToList();
+        if (regularFacilities.Count == 0)
+            throw new InvalidOperationException($"{currentStoreStage}단계 일반 업그레이드가 없습니다.");
+
+        var regularItems = new List<FacilityItemViewData>(regularFacilities.Count);
+        uint completedRegularCount = 0;
+        foreach (FacilityData facility in regularFacilities)
         {
-            var facility = pair.Value;
-            if (facility == null || pair.Key != facility.Idx) throw new ArgumentException("설비 키와 원본이 다릅니다.", nameof(facilities));
+            if (!facilities.TryGetValue(facility.Idx, out FacilityData keyedFacility) || keyedFacility != facility)
+                throw new ArgumentException("설비 키와 원본이 다릅니다.", nameof(facilities));
             facility.Validate();
             bool owned = activationDays.TryGetValue(facility.Idx, out uint activationDay);
-            bool stageLocked = currentStoreStage < facility.RequiredStoreStage ||
-                (facility.UpgradeKind == FacilityUpgradeKind.StoreStage &&
-                 facility.TargetStoreStage != currentStoreStage + 1);
-            bool prerequisiteLocked = facility.UpgradeKind == FacilityUpgradeKind.Citizenship &&
-                !hasCitizenshipPrerequisites;
-            FacilityDisplayState state;
             if (owned)
-            {
-                state = facility.UpgradeKind == FacilityUpgradeKind.StoreStage
-                    ? FacilityDisplayState.OwnedStageUpgrade
-                    : (activationDay <= elapsedDays ? FacilityDisplayState.Active : FacilityDisplayState.ActivationPending);
-            }
-            else if (prerequisiteLocked)
-            {
-                state = FacilityDisplayState.PrerequisiteLocked;
-            }
-            else if (stageLocked)
-            {
-                state = FacilityDisplayState.StageLocked;
-            }
-            else
-            {
-                state = balance >= facility.PurchasePrice
+                completedRegularCount++;
+            FacilityDisplayState state = owned
+                ? (activationDay <= elapsedDays ? FacilityDisplayState.Active : FacilityDisplayState.ActivationPending)
+                : (balance >= facility.PurchasePrice ? FacilityDisplayState.Purchasable : FacilityDisplayState.InsufficientFunds);
+            regularItems.Add(createFacilityItemViewData(facility, state, owned ? (ulong)activationDay + 1 : (ulong)elapsedDays + 2));
+        }
+
+        var progressionFacilities = facilities.Values.Where(facility => facility != null &&
+            (currentStoreStage < 3
+                ? facility.UpgradeKind == FacilityUpgradeKind.StoreStage &&
+                    facility.RequiredStoreStage == currentStoreStage && facility.TargetStoreStage == currentStoreStage + 1
+                : facility.UpgradeKind == FacilityUpgradeKind.Citizenship && facility.RequiredStoreStage == currentStoreStage))
+            .OrderBy(facility => facility.Idx)
+            .ToList();
+        if (progressionFacilities.Count != 1)
+            throw new InvalidOperationException($"{currentStoreStage}단계 진행 항목은 정확히 하나여야 합니다.");
+
+        FacilityData progressionFacility = progressionFacilities[0];
+        if (!facilities.TryGetValue(progressionFacility.Idx, out FacilityData keyedProgression) || keyedProgression != progressionFacility)
+            throw new ArgumentException("설비 키와 원본이 다릅니다.", nameof(facilities));
+        progressionFacility.Validate();
+        bool progressionOwned = activationDays.TryGetValue(progressionFacility.Idx, out uint progressionActivationDay);
+        var prerequisiteFacilities = progressionFacility.UpgradeKind == FacilityUpgradeKind.Citizenship
+            ? facilities.Values.Where(facility => facility != null && FacilityService.IsCitizenshipPrerequisite(
+                facility.UpgradeKind, facility.RequiredStoreStage, facility.TargetStoreStage)).ToList()
+            : regularFacilities;
+        uint completedPrerequisiteCount = (uint)prerequisiteFacilities.Count(facility =>
+            activationDays.ContainsKey(facility.Idx));
+        uint requiredPrerequisiteCount = (uint)prerequisiteFacilities.Count;
+        FacilityDisplayState progressionState = progressionOwned
+            ? progressionFacility.UpgradeKind == FacilityUpgradeKind.StoreStage
+                ? FacilityDisplayState.OwnedStageUpgrade
+                : FacilityDisplayState.OwnedProgression
+            : completedPrerequisiteCount < requiredPrerequisiteCount
+                ? FacilityDisplayState.PrerequisiteLocked
+                : balance >= progressionFacility.PurchasePrice
                     ? FacilityDisplayState.Purchasable
                     : FacilityDisplayState.InsufficientFunds;
-            }
-            string products = string.Join(", ", customerCatalog.Products.Rows.Values
-                .Where(x => x.IsAvailable && x.RequiredFacilityIdx == facility.Idx).OrderBy(x => x.Idx)
-                .Select(x => getFacilityText(x.NameIdx)));
-            items.Add(new FacilityItemViewData(facility.Idx, getFacilityText(facility.NameIdx), facility.PurchasePrice,
-                products, facility.UpgradeKind, facility.RequiredStoreStage, facility.EffectType,
-                facility.TargetStoreStage, state, owned ? (ulong)activationDay + 1 : (ulong)elapsedDays + 2));
-        }
-        return new FacilityShopViewData(currentStoreStage, balance, items);
+        FacilityItemViewData progressionItem = createFacilityItemViewData(
+            progressionFacility,
+            progressionState,
+            progressionOwned ? (ulong)progressionActivationDay + 1 : (ulong)elapsedDays + 1,
+            completedPrerequisiteCount,
+            requiredPrerequisiteCount);
+        return new FacilityShopViewData(currentStoreStage, balance, regularItems, progressionItem,
+            completedRegularCount, (uint)regularFacilities.Count);
+    }
+
+    /// <summary>설비 원본과 factory가 계산한 상태를 행 snapshot으로 변환한다.</summary>
+    /// <param name="facility">표시할 설비 원본.</param>
+    /// <param name="state">현재 잔액·보유·선행 조건으로 계산된 상태.</param>
+    /// <param name="activationDisplayDay">1기반 활성 표시일.</param>
+    /// <param name="completedRegularCount">진행 항목의 완료 일반 업그레이드 수.</param>
+    /// <param name="requiredRegularCount">진행 항목의 필요 일반 업그레이드 전체 수.</param>
+    /// <returns>표시에 필요한 불변 행 snapshot.</returns>
+    private FacilityItemViewData createFacilityItemViewData(FacilityData facility, FacilityDisplayState state,
+        ulong activationDisplayDay, uint completedRegularCount = 0, uint requiredRegularCount = 0)
+    {
+        string products = string.Join(", ", customerCatalog.Products.Rows.Values
+            .Where(x => x.IsAvailable && x.RequiredFacilityIdx == facility.Idx).OrderBy(x => x.Idx)
+            .Select(x => getFacilityText(x.NameIdx)));
+        return new FacilityItemViewData(facility.Idx, getFacilityText(facility.NameIdx), facility.PurchasePrice,
+            products, facility.UpgradeKind, facility.RequiredStoreStage, facility.EffectType,
+            facility.TargetStoreStage, state, activationDisplayDay, completedRegularCount, requiredRegularCount);
     }
 
     /// <summary>손님 방문 데이터를 UI 표현용 스냅샷으로 변환합니다.</summary>

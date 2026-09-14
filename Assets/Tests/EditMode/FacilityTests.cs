@@ -26,19 +26,31 @@ public sealed class FacilityTests
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 1 },
             [12002] = new FacilityData { Idx = 12002, NameIdx = 8057, PurchasePrice = 80,
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 1 },
+            [12007] = new FacilityData { Idx = 12007, NameIdx = 8077, PurchasePrice = 1,
+                UpgradeKind = FacilityUpgradeKind.Convenience, RequiredStoreStage = 1, EffectType = ConvenienceEffectType.DividerBar },
+            [12003] = new FacilityData { Idx = 12003, NameIdx = 8058, PurchasePrice = 1,
+                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 2 },
+            [12004] = new FacilityData { Idx = 12004, NameIdx = 8059, PurchasePrice = 1,
+                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 2 },
+            [12009] = new FacilityData { Idx = 12009, NameIdx = 8079, PurchasePrice = 1,
+                UpgradeKind = FacilityUpgradeKind.Convenience, RequiredStoreStage = 2, EffectType = ConvenienceEffectType.AutoSorting },
             [12008] = new FacilityData { Idx = 12008, NameIdx = 8078, PurchasePrice = 5,
                 UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 1, TargetStoreStage = 2 },
             [12010] = new FacilityData { Idx = 12010, NameIdx = 8080, PurchasePrice = 5,
                 UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 2, TargetStoreStage = 3 },
             [12005] = new FacilityData { Idx = 12005, NameIdx = 8060, PurchasePrice = 80,
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 },
+            [12006] = new FacilityData { Idx = 12006, NameIdx = 8076, PurchasePrice = 1,
+                UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 },
+            [12011] = new FacilityData { Idx = 12011, NameIdx = 8081, PurchasePrice = 1,
+                UpgradeKind = FacilityUpgradeKind.Convenience, RequiredStoreStage = 3, EffectType = ConvenienceEffectType.Vacuum },
             [12900] = new FacilityData { Idx = 12900, NameIdx = 8999, PurchasePrice = 40,
                 UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 3 }
         };
         service = new FacilityService(finance, facilities, () => day);
     }
 
-    /// <summary>고단계부터 살 수 있고 같은 날 잠금·다음날 활성·중복 결제 방지를 보장한다.</summary>
+    /// <summary>일반 설비는 다음날 활성화되고 중복 결제되지 않는다.</summary>
     [Test]
     public void PurchaseAndNextDayActivation()
     {
@@ -52,7 +64,7 @@ public sealed class FacilityTests
         day = 1; Assert.That(service.IsActive(12001)); Assert.That(finance.CurrentBalance, Is.EqualTo(70));
     }
 
-    /// <summary>시민권은 구매 당일 즉시 활성·보유되고 중복 결제되지 않는다.</summary>
+    /// <summary>시민권은 3단계 일반 설비 완료 뒤 구매 당일 즉시 보유되고 중복 결제되지 않는다.</summary>
     [Test]
     public void CitizenshipActivatesImmediatelyAndIsUnique()
     {
@@ -60,9 +72,12 @@ public sealed class FacilityTests
         Assert.That(service.IsCitizenship(12900));
         Assert.That(service.TryPurchase(12900, out var locked), Is.False);
         Assert.That(locked.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
-        finance.AddIncome(200, FinanceChangeReason.Sale);
-        foreach (uint idx in new uint[] { 12001, 12002, 12008, 12010, 12005 })
-            Assert.That(service.TryPurchase(idx, out _));
+        finance.AddIncome(1000, FinanceChangeReason.Sale);
+        purchaseRegularUpgrades(1);
+        Assert.That(service.TryPurchase(12008, out _));
+        purchaseRegularUpgrades(2);
+        Assert.That(service.TryPurchase(12010, out _));
+        purchaseRegularUpgrades(3);
         Assert.That(service.HasCitizenshipPrerequisites);
         Assert.That(service.TryPurchase(12900, out var result));
         Assert.That(result.ActivationDay, Is.EqualTo(0));
@@ -70,7 +85,7 @@ public sealed class FacilityTests
         Assert.That(service.HasCitizenship);
         Assert.That(service.TryPurchase(12900, out result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
-        Assert.That(finance.CurrentBalance, Is.EqualTo(60));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(854));
 
         facilities[12901] = new FacilityData { Idx = 12901, NameIdx = 8998, PurchasePrice = 1,
             UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 3 };
@@ -96,8 +111,26 @@ public sealed class FacilityTests
         Assert.That(catalogService.CurrentStoreStage, Is.EqualTo(3));
         Assert.That(catalogService.HasCitizenshipPrerequisites, Is.False);
         Assert.That(catalogService.TryPurchase(12012, out var result), Is.False);
-        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.PrerequisiteLocked));
         Assert.That(catalogService.HasCitizenship, Is.False);
+    }
+
+    /// <summary>현재 단계의 일반 설비를 모두 보유하기 전에는 다음 진행 항목을 살 수 없다.</summary>
+    [Test]
+    public void ProgressionRequiresAllRegularUpgradesInCurrentStage()
+    {
+        finance.AddIncome(1000, FinanceChangeReason.Sale);
+        Assert.That(service.TryPurchase(12008, out var result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.PrerequisiteLocked));
+        Assert.That(service.TryPurchase(12001, out _));
+        Assert.That(service.TryPurchase(12002, out _));
+        Assert.That(service.TryPurchase(12008, out result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.PrerequisiteLocked));
+        Assert.That(service.TryPurchase(12007, out _));
+        Assert.That(service.TryPurchase(12008, out result));
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.Purchased));
+        Assert.That(service.TryPurchase(12010, out result), Is.False);
+        Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.PrerequisiteLocked));
     }
 
     /// <summary>잔액 부족은 정상 실패이며 보유와 금액을 변경하지 않는다.</summary>
@@ -133,15 +166,20 @@ public sealed class FacilityTests
         Assert.That(service.CurrentStoreStage, Is.EqualTo(1));
         Assert.That(service.TryPurchase(12010, out var result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
+        finance.AddIncome(1000, FinanceChangeReason.Sale);
+        purchaseRegularUpgrades(1);
         Assert.That(service.TryPurchase(12008, out result));
         Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
         Assert.That(lastEvent.PreviousStoreStage, Is.EqualTo(1));
         Assert.That(lastEvent.CurrentStoreStage, Is.EqualTo(2));
+        purchaseRegularUpgrades(2);
         Assert.That(service.TryPurchase(12010, out result));
         Assert.That(service.CurrentStoreStage, Is.EqualTo(3));
+        Assert.That(service.TryPurchase(12006, out _));
+        Assert.That(service.TryPurchase(12011, out _));
         Assert.That(service.TryPurchase(12005, out result));
         Assert.That(service.IsActive(12005), Is.False);
-        Assert.That(eventCount, Is.EqualTo(3));
+        Assert.That(eventCount, Is.EqualTo(11));
         day = 1;
         Assert.That(service.IsActive(12005));
     }
@@ -188,6 +226,9 @@ public sealed class FacilityTests
     [Test]
     public void StagePurchaseSubscriberFailureKeepsStageAndRejectsDuplicate()
     {
+        finance.AddIncome(120, FinanceChangeReason.Sale);
+        purchaseRegularUpgrades(1);
+        long balanceBeforeStage = finance.CurrentBalance;
         Action<FinanceChangeResult> handler = payment =>
         {
             Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
@@ -198,10 +239,10 @@ public sealed class FacilityTests
         finance.BalanceChanged -= handler;
         Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
         Assert.That(service.IsOwned(12008), Is.True);
-        Assert.That(finance.CurrentBalance, Is.EqualTo(95));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(balanceBeforeStage - facilities[12008].PurchasePrice));
         Assert.That(service.TryPurchase(12008, out var result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
-        Assert.That(finance.CurrentBalance, Is.EqualTo(95));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(balanceBeforeStage - facilities[12008].PurchasePrice));
     }
 
     /// <summary>외부 가격 변경과 읽기 전용 보유 목록을 통한 수정으로 상태를 바꿀 수 없다.</summary>
@@ -299,32 +340,39 @@ public sealed class FacilityTests
     {
         var (factory, table) = loadShopData();
         var owned = new Dictionary<uint, uint>();
-        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 18000);
-        Assert.That(before.Items.Count, Is.EqualTo(12));
-        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
-        Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
-        Assert.That(before.Items[0].DisplayName, Is.EqualTo("식량 보관 선반"));
-        Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
-        Assert.That(before.Items[0].ActivationDisplayDay, Is.EqualTo(2UL));
-        Assert.That(before.Items[5].FacilityIdx, Is.EqualTo(12006));
-        Assert.That(before.Items[4].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
-        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
-        Assert.That(before.Items.Single(x => x.FacilityIdx == 12012).State,
-            Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
+        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, 18000);
+        Assert.That(before.RegularItems.Count, Is.EqualTo(3));
+        Assert.That(before.ProgressionItem.Value.FacilityIdx, Is.EqualTo(12008));
+        Assert.That(before.Items.Count, Is.EqualTo(4));
+        Assert.That(before.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
+        Assert.That(before.RegularItems[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
+        Assert.That(before.RegularItems[0].DisplayName, Is.EqualTo("식량 보관 선반"));
+        Assert.That(before.RegularItems[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
+        Assert.That(before.RegularItems[0].ActivationDisplayDay, Is.EqualTo(2UL));
+        Assert.That(before.RegularItems[2].FacilityIdx, Is.EqualTo(12007));
+        Assert.That(before.CompletedRegularCount, Is.Zero);
+        Assert.That(before.RequiredRegularCount, Is.EqualTo(3));
+        Assert.That(before.ProgressionItem.Value.State, Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
+        var stage3 = factory.CreateFacilityShopViewData(table.Rows, new Dictionary<uint, uint> { [12005] = 0 }, 3, 0, 18000);
+        Assert.That(stage3.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Active));
+        Assert.That(stage3.RegularItems[0].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
+        Assert.That(stage3.RegularItems[1].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
+        Assert.That(stage3.ProgressionItem.Value.CompletedRegularCount, Is.EqualTo(1));
+        Assert.That(stage3.ProgressionItem.Value.RequiredRegularCount, Is.EqualTo(11));
+        Assert.That(stage3.ProgressionItem.Value.State, Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
         foreach (uint idx in table.Rows.Keys.Where(idx => idx != 12012)) owned[idx] = 0;
-        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 3, 0, long.MaxValue).Items
-            .Single(x => x.FacilityIdx == 12012).State, Is.EqualTo(FacilityDisplayState.Purchasable));
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 3, 0, long.MaxValue).ProgressionItem.Value.State,
+            Is.EqualTo(FacilityDisplayState.Purchasable));
         owned.Clear();
         owned[12001] = 1; owned[12005] = 0;
-        var current = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 0);
-        Assert.That(current.Items[0].State, Is.EqualTo(FacilityDisplayState.ActivationPending));
-        Assert.That(current.Items[4].State, Is.EqualTo(FacilityDisplayState.Active));
-        Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
-        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0).Items[0].State, Is.EqualTo(FacilityDisplayState.Active));
+        var current = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, 0);
+        Assert.That(current.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.ActivationPending));
+        Assert.That(before.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 1, 1, 0).RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Active));
         owned.Clear();
-        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, uint.MaxValue, long.MaxValue).Items[0].ActivationDisplayDay, Is.EqualTo(4294967297UL));
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 1, uint.MaxValue, long.MaxValue).RegularItems[0].ActivationDisplayDay, Is.EqualTo(4294967297UL));
         owned[12001] = uint.MaxValue;
-        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, uint.MaxValue, 0).Items[0].ActivationDisplayDay, Is.EqualTo(4294967296UL));
+        Assert.That(factory.CreateFacilityShopViewData(table.Rows, owned, 1, uint.MaxValue, 0).RegularItems[0].ActivationDisplayDay, Is.EqualTo(4294967296UL));
     }
 
     /// <summary>표시 조회 실패를 fallback으로 숨기지 않고 스냅샷 목록은 원본 변경으로부터 보호한다.</summary>
@@ -342,9 +390,9 @@ public sealed class FacilityTests
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 1 }
         };
         Assert.Throws<InvalidOperationException>(() => factory.CreateFacilityShopViewData(bad, owned, 0, 1));
-        var rows = factory.CreateFacilityShopViewData(table.Rows, owned, 0, 100000).Items.ToList();
+        var rows = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, 100000).Items.ToList();
         var copy = new FacilityShopViewData(100000, rows); rows.Clear();
-        Assert.That(copy.Items.Count, Is.EqualTo(12));
+        Assert.That(copy.Items.Count, Is.EqualTo(4));
     }
 
     /// <summary>실제 설비 CSV가 6개 상품 해금·3개 편의성·2개 단계 상승으로 구성되는지 확인한다.</summary>
@@ -364,6 +412,7 @@ public sealed class FacilityTests
         Assert.That(table.Rows[12007].EffectType, Is.EqualTo(ConvenienceEffectType.DividerBar));
         Assert.That(table.Rows[12009].EffectType, Is.EqualTo(ConvenienceEffectType.AutoSorting));
         Assert.That(table.Rows[12011].EffectType, Is.EqualTo(ConvenienceEffectType.Vacuum));
+        Assert.That(table.Rows[12012].RequiredStoreStage, Is.EqualTo(3));
         Assert.That(table.Rows.Values.Where(x => x.UpgradeKind != FacilityUpgradeKind.StoreStage)
             .All(x => x.TargetStoreStage == 0), Is.True);
     }
@@ -459,5 +508,20 @@ public sealed class FacilityTests
         UnityEngine.TestTools.LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex("^\\[ResourceDataTable\\]"));
         resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
         return resources;
+    }
+
+    /// <summary>지정한 단계의 모든 일반 설비를 현재 서비스에 구매한다.</summary>
+    /// <param name="storeStage">현재 서비스 단계.</param>
+    private void purchaseRegularUpgrades(uint storeStage)
+    {
+        uint[] indices = storeStage switch
+        {
+            1 => new[] { 12001u, 12002u, 12007u },
+            2 => new[] { 12003u, 12004u, 12009u },
+            3 => new[] { 12005u, 12006u, 12011u },
+            _ => throw new ArgumentOutOfRangeException(nameof(storeStage))
+        };
+        foreach (uint index in indices)
+            Assert.That(service.TryPurchase(index, out _), Is.True, $"일반 설비 {index} 구매 실패");
     }
 }

@@ -51,6 +51,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void OnDisable()
     {
         cancelPresentation();
+        stopDialogueVoice();
         hasPresentation = false;
         entered = false;
         exiting = false;
@@ -60,6 +61,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void OnDestroy()
     {
         cancelPresentation();
+        stopDialogueVoice();
         if (nextButton != null) nextButton.onClick.RemoveListener(handleNext);
     }
 
@@ -105,6 +107,7 @@ public sealed class InspectorPresenter : MonoBehaviour
         {
             if (exiting) return;
             cancelPresentation();
+            stopDialogueVoice();
             exiting = true;
             nextButton.interactable = false;
             startFade(false, snapshot);
@@ -126,6 +129,10 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <param name="snapshot">연출 시작 상태.</param>
     private void startFade(bool entering, InspectorEventSnapshot snapshot)
     {
+        if (entering)
+        {
+            SoundManager.Instance?.PlaySfxUntilStopped(SoundKeys.DialogueVoice);
+        }
         presentationCancellation = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
         fadeAsync(entering, snapshot, presentationCancellation.Token).Forget(exception => Failed?.Invoke(exception));
     }
@@ -170,5 +177,11 @@ public sealed class InspectorPresenter : MonoBehaviour
         presentationCancellation?.Cancel();
         presentationCancellation?.Dispose();
         presentationCancellation = null;
+    }
+
+    /// <summary>감독관 대화가 끝나거나 화면 수명이 종료되면 대화 음성을 즉시 정지한다.</summary>
+    private void stopDialogueVoice()
+    {
+        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
     }
 }

@@ -15,6 +15,8 @@ public sealed class FacilityService
     private readonly Dictionary<uint, uint> requiredStoreStages = new Dictionary<uint, uint>();
     private readonly Dictionary<uint, ConvenienceEffectType> effectTypes = new Dictionary<uint, ConvenienceEffectType>();
     private readonly Dictionary<uint, uint> targetStoreStages = new Dictionary<uint, uint>();
+    // 단계별 일반 업그레이드 PK를 복사해 진행 조건을 데이터에서 계산한다.
+    private readonly Dictionary<uint, List<uint>> regularFacilityIndicesByStage = new Dictionary<uint, List<uint>>();
     // 보유 여부와 활성일의 단일 권위. 별도 pending/active 목록을 만들지 않는다.
     private readonly Dictionary<uint, uint> activationDays = new Dictionary<uint, uint>();
     private uint? citizenshipFacilityIdx;
@@ -55,6 +57,16 @@ public sealed class FacilityService
             requiredStoreStages.Add(pair.Key, pair.Value.RequiredStoreStage);
             effectTypes.Add(pair.Key, pair.Value.EffectType);
             targetStoreStages.Add(pair.Key, pair.Value.TargetStoreStage);
+            if (pair.Value.UpgradeKind == FacilityUpgradeKind.ProductUnlock ||
+                pair.Value.UpgradeKind == FacilityUpgradeKind.Convenience)
+            {
+                if (!regularFacilityIndicesByStage.TryGetValue(pair.Value.RequiredStoreStage, out var regularIndices))
+                {
+                    regularIndices = new List<uint>();
+                    regularFacilityIndicesByStage.Add(pair.Value.RequiredStoreStage, regularIndices);
+                }
+                regularIndices.Add(pair.Key);
+            }
         }
         ActivationDays = new ReadOnlyDictionary<uint, uint>(activationDays);
     }
@@ -123,7 +135,7 @@ public sealed class FacilityService
         return false;
     }
 
-    /// <summary>한 번 지불하고 다음 영업일 활성일을 등록한다. 고단계도 선행 구매를 요구하지 않는다.</summary>
+    /// <summary>한 번 지불하고 다음 영업일 활성일을 등록하며 단계 진행의 선행 조건을 검증한다.</summary>
     /// <param name="facilityIdx">등록된 설비 PK.</param>
     /// <param name="result">정상 처리 결과. 알림 예외 시 성공 상태는 보존하지만 예외를 전파한다.</param>
     /// <returns>이번 요청이 구매를 완료했으면true.</returns>
@@ -148,9 +160,15 @@ public sealed class FacilityService
         uint targetStoreStage = targetStoreStages[facilityIdx];
         if (CurrentStoreStage < requiredStoreStage ||
             (upgradeKind == FacilityUpgradeKind.StoreStage && targetStoreStage != CurrentStoreStage + 1) ||
-            (upgradeKind == FacilityUpgradeKind.Citizenship && !HasCitizenshipPrerequisites))
+            (upgradeKind == FacilityUpgradeKind.Citizenship && CurrentStoreStage != requiredStoreStage))
         {
             result = new FacilityPurchaseResult(FacilityPurchaseStatus.StageLocked, facilityIdx, 0, null);
+            return false;
+        }
+        if ((upgradeKind == FacilityUpgradeKind.StoreStage || upgradeKind == FacilityUpgradeKind.Citizenship) &&
+            !canPurchaseProgression(upgradeKind, requiredStoreStage, targetStoreStage))
+        {
+            result = new FacilityPurchaseResult(FacilityPurchaseStatus.PrerequisiteLocked, facilityIdx, 0, null);
             return false;
         }
 
@@ -219,5 +237,31 @@ public sealed class FacilityService
         return (kind == FacilityUpgradeKind.ProductUnlock || kind == FacilityUpgradeKind.Convenience)
             ? requiredStoreStage <= 3
             : kind == FacilityUpgradeKind.StoreStage && targetStoreStage <= 3;
+    }
+
+    /// <summary>해당 가게 단계의 일반 업그레이드를 모두 보유했는지 데이터 기반으로 확인한다.</summary>
+    /// <param name="storeStage">검사할 현재 가게 단계.</param>
+    /// <returns>일반 업그레이드가 하나 이상이고 모두 보유했으면 true.</returns>
+    private bool areRegularUpgradesOwned(uint storeStage)
+    {
+        if (!regularFacilityIndicesByStage.TryGetValue(storeStage, out var regularIndices) || regularIndices.Count == 0)
+            return false;
+        foreach (uint regularIdx in regularIndices)
+            if (!activationDays.ContainsKey(regularIdx)) return false;
+        return true;
+    }
+
+    /// <summary>단계 확장 또는 시민권 구매에 필요한 현재 단계의 완료 조건을 검사한다.</summary>
+    /// <param name="upgradeKind">진행 항목의 종류.</param>
+    /// <param name="requiredStage">데이터가 요구하는 현재 단계.</param>
+    /// <param name="targetStage">단계 확장의 목표 단계 또는 시민권의 0.</param>
+    /// <returns>현재 단계와 모든 일반 업그레이드 조건을 만족하면 true.</returns>
+    private bool canPurchaseProgression(FacilityUpgradeKind upgradeKind, uint requiredStage, uint targetStage)
+    {
+        if (CurrentStoreStage != requiredStage)
+            return false;
+        if (upgradeKind == FacilityUpgradeKind.Citizenship)
+            return HasCitizenshipPrerequisites;
+        return areRegularUpgradesOwned(requiredStage) && targetStage == CurrentStoreStage + 1;
     }
 }

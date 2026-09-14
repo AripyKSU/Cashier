@@ -38,8 +38,7 @@ public sealed class FacilityItemView : MonoBehaviour
     {
         facilityIdx = data.FacilityIdx;
         canPurchase = data.State == FacilityDisplayState.Purchasable;
-        if (nameText != null) nameText.text = data.UpgradeKind == FacilityUpgradeKind.Citizenship
-            ? data.DisplayName : $"[{data.RequiredStoreStage}단계] {data.DisplayName}";
+        if (nameText != null) nameText.text = data.DisplayName;
         if (priceText != null) priceText.text = $"{data.PurchasePrice:N0} G";
         if (categoryText != null) categoryText.text = formatCategory(data);
         else if (unlockProductsText != null) unlockProductsText.text = formatCategory(data);
@@ -48,12 +47,13 @@ public sealed class FacilityItemView : MonoBehaviour
         statusText.text = data.State switch
         {
             FacilityDisplayState.StageLocked => "단계 잠김",
-            FacilityDisplayState.PrerequisiteLocked => "선행 설비 미보유",
             FacilityDisplayState.Purchasable => "구매 가능",
             FacilityDisplayState.InsufficientFunds => "잔액 부족",
             FacilityDisplayState.ActivationPending => "구매 완료 · 적용 대기",
             FacilityDisplayState.Active => "사용 중",
             FacilityDisplayState.OwnedStageUpgrade => "단계 확장 완료",
+            FacilityDisplayState.PrerequisiteLocked => $"선행 잠김 · {data.CompletedRegularCount}/{data.RequiredRegularCount} 구매 완료",
+            FacilityDisplayState.OwnedProgression => "구매 완료",
             _ => throw new ArgumentOutOfRangeException(nameof(data), "유효한 설비 표시 상태가 필요합니다.")
         };
         SetInteractionEnabled(interactive);
@@ -84,9 +84,11 @@ public sealed class FacilityItemView : MonoBehaviour
     private string formatActivation(FacilityItemViewData data)
     {
         if (data.UpgradeKind == FacilityUpgradeKind.Citizenship)
-            return "3단계 이하 모든 설비 보유 필요 · 구매 즉시 엔딩";
+            return $"3단계 이하 선행 설비 {data.CompletedRegularCount}/{data.RequiredRegularCount} 구매 완료 · 구매 즉시 엔딩";
         if (data.UpgradeKind == FacilityUpgradeKind.StoreStage)
-            return $"요구 단계 {data.RequiredStoreStage} · 구매 즉시 해금";
+            return $"현재 단계 설비 {data.CompletedRegularCount}/{data.RequiredRegularCount} 구매 완료 · 구매 즉시 {data.TargetStoreStage}단계 해금";
+        if (data.State == FacilityDisplayState.PrerequisiteLocked)
+            return $"현재 단계 설비 {data.CompletedRegularCount}/{data.RequiredRegularCount} 구매 완료 · 모두 구매하면 진행할 수 있습니다.";
         return data.State == FacilityDisplayState.StageLocked
             ? $"요구 단계 {data.RequiredStoreStage} · 잠금"
             : $"DAY {data.ActivationDisplayDay}부터 사용";
