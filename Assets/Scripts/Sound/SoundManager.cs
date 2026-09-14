@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -38,6 +39,8 @@ public sealed class SoundManager : Singleton<SoundManager>
     private AudioSource bgmSource;
     private readonly List<AudioSource> sfxSources = new();
     private readonly Dictionary<uint, AudioSource> loopSfxSources = new();
+    private readonly Dictionary<uint, AudioSource> timedSfxSources = new();
+    private readonly Dictionary<uint, int> timedSfxGenerations = new();
 
     private IReadOnlyDictionary<uint, AudioClip> clipCache = EmptyClipCache;
     private Task initializationTask;
@@ -121,6 +124,8 @@ public sealed class SoundManager : Singleton<SoundManager>
         initializationTask = null;
         sfxSources.Clear();
         loopSfxSources.Clear();
+        timedSfxSources.Clear();
+        timedSfxGenerations.Clear();
         warnedResourceIds.Clear();
         hasWarnedBeforeInitialization = false;
 
@@ -227,6 +232,74 @@ public sealed class SoundManager : Singleton<SoundManager>
         AudioSource source = sfxSources[nextSfxSourceIndex];
         nextSfxSourceIndex = (nextSfxSourceIndex + 1) % sfxSources.Count;
         source.PlayOneShot(clip, Mathf.Clamp01(volumeScale));
+    }
+
+    /// <summary>
+    /// ResourceData 식별자에 연결된 효과음을 지정한 시간만큼만 재생한다.
+    /// 일반 일회성 효과음과 재생 수명을 분리해, 긴 원본 클립도 짧은 UI 음성으로 사용할 수 있다.
+    /// </summary>
+    /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
+    /// <param name="durationSeconds">재생을 유지할 0보다 큰 실제 시간(초)입니다.</param>
+    /// <param name="volumeScale">해당 효과음에 적용할 0~1 볼륨 배율입니다.</param>
+    /// <exception cref="ArgumentOutOfRangeException">durationSeconds가 유한하지 않거나 0 이하인 경우 발생합니다.</exception>
+    public void PlaySfxForDuration(uint resourceIdx, float durationSeconds, float volumeScale = 1f)
+    {
+        if (float.IsNaN(durationSeconds)
+            || float.IsInfinity(durationSeconds)
+            || durationSeconds <= 0f)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(durationSeconds),
+                durationSeconds,
+                "효과음 재생 시간은 유한한 0보다 큰 값이어야 합니다.");
+        }
+
+        if (!tryGetClip(resourceIdx, out AudioClip clip))
+        {
+            return;
+        }
+
+        if (!timedSfxSources.TryGetValue(resourceIdx, out AudioSource source)
+            || source == null)
+        {
+            source = CreateAudioSource($"Timed SFX Source {resourceIdx}", sfxMixerGroup);
+            timedSfxSources[resourceIdx] = source;
+        }
+
+        int generation = timedSfxGenerations.TryGetValue(resourceIdx, out int previousGeneration)
+            ? checked(previousGeneration + 1)
+            : 1;
+        timedSfxGenerations[resourceIdx] = generation;
+
+        source.Stop();
+        source.clip = clip;
+        source.loop = false;
+        source.volume = Mathf.Clamp01(volumeScale);
+        source.Play();
+        StartCoroutine(stopTimedSfxAfterDuration(
+            resourceIdx,
+            source,
+            clip,
+            generation,
+            durationSeconds));
+    }
+
+    /// <summary>지정한 짧은 재생 효과음을 즉시 정지한다.</summary>
+    /// <param name="resourceIdx">정지할 ResourceData 식별자입니다.</param>
+    public void StopSfxForDuration(uint resourceIdx)
+    {
+        if (!timedSfxSources.TryGetValue(resourceIdx, out AudioSource source)
+            || source == null)
+        {
+            return;
+        }
+
+        int generation = timedSfxGenerations.TryGetValue(resourceIdx, out int previousGeneration)
+            ? checked(previousGeneration + 1)
+            : 1;
+        timedSfxGenerations[resourceIdx] = generation;
+        source.Stop();
+        source.clip = null;
     }
 
     /// <summary>
@@ -434,6 +507,27 @@ public sealed class SoundManager : Singleton<SoundManager>
         source.bypassReverbZones = true;
 
         return source;
+    }
+
+    private IEnumerator stopTimedSfxAfterDuration(
+        uint resourceIdx,
+        AudioSource source,
+        AudioClip clip,
+        int generation,
+        float durationSeconds)
+    {
+        yield return new WaitForSecondsRealtime(durationSeconds);
+
+        if (!timedSfxGenerations.TryGetValue(resourceIdx, out int currentGeneration)
+            || currentGeneration != generation
+            || source == null
+            || source.clip != clip)
+        {
+            yield break;
+        }
+
+        source.Stop();
+        source.clip = null;
     }
 
     private bool tryConfigureMixer()

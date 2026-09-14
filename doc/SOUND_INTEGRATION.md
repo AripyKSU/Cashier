@@ -48,9 +48,15 @@
 
 - BGM: `PlayBgm(uint resourceIdx)`, 같은 클립이 재생 중이면 위치를 유지한다.
 - 일반 SFX: `PlaySfx(uint resourceIdx, float volumeScale = 1f)`.
+- 짧은 전용 SFX: `PlaySfxForDuration(uint resourceIdx, float durationSeconds, float volumeScale = 1f)`와 `StopSfxForDuration(uint resourceIdx)`를 사용한다. 딸 대화 음성은 0.35초로 제한하고 도장 연출 시작 전에 정지한다.
 - 반복 SFX: `PlayLoopSfx(uint resourceIdx, float volumeScale = 1f)` 후 `StopLoopSfx(uint resourceIdx)`.
 - 재생 전 초기화가 끝나지 않았거나 ID가 캐시에 없으면 예외 대신 중복 억제 경고를 남긴다.
 - Master/BGM/SFX mixer routing과 볼륨 clamp는 기존 계약을 유지한다.
+
+재생 시점 규칙:
+
+- `DayEnd`는 `DayProgressState.Closing`으로 전환되는 21:00 경계에서 재생하며, 정산 화면 진입 처리에서는 재생하지 않는다.
+- `SettlementBgm`은 정산 화면에서 시작하고 다음 날 버튼 요청 직전에 정지한다.
 
 ## 후보 에셋
 

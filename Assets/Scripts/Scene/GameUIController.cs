@@ -376,6 +376,7 @@ public sealed class GameUIController : MonoBehaviour
         inspectorPresenter.ExitCompleted += handleInspectorExit;
         inspectorPresenter.Failed += showError;
         this.dailySettlementFlowController.OnFacilityOpenRequested += this.handleFacilityOpenClicked;
+        this.dailySettlementFlowController.OnDayAdvanceRequested += this.handleDayAdvanceRequested;
         this.dailySettlementFlowController.OnFlowFailed += this.showError;
         this.facilityShopPresenter.OnPurchaseRequested += this.handleFacilityPurchaseRequested;
         this.facilityShopPresenter.OnCloseRequested += this.handleFacilityCloseRequested;
@@ -412,6 +413,7 @@ public sealed class GameUIController : MonoBehaviour
         if (this.dailySettlementFlowController != null)
         {
             this.dailySettlementFlowController.OnFacilityOpenRequested -= this.handleFacilityOpenClicked;
+            this.dailySettlementFlowController.OnDayAdvanceRequested -= this.handleDayAdvanceRequested;
             this.dailySettlementFlowController.OnFlowFailed -= this.showError;
         }
         if (this.facilityShopPresenter != null)
@@ -567,6 +569,11 @@ public sealed class GameUIController : MonoBehaviour
         {
             SoundManager.Instance?.PlaySfx(SoundKeys.DailyGuideline);
         }
+        else if (state == DayProgressState.Closing)
+        {
+            // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다.
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
+        }
         this.refreshAllViews();
     }
 
@@ -618,12 +625,17 @@ public sealed class GameUIController : MonoBehaviour
             this.refreshAllViews();
             return;
         }
-        SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
         SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm);
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.beginSettlementFlow(result);
         this.refreshAllViews();
+    }
+
+    /// <summary>다음 날 버튼 입력 직전에 현재 정산 BGM을 끝낸다.</summary>
+    private void handleDayAdvanceRequested()
+    {
+        SoundManager.Instance?.StopBgm();
     }
 
     /// <summary>확정된 정산 통계는 그대로 두고 현재 잔액을 다시 표시한다.</summary>

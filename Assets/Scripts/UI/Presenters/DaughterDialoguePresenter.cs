@@ -7,6 +7,8 @@ using UnityEngine.UI;
 /// <summary>정산 화면의 딸 대사와 이미지만 표시한다.</summary>
 public sealed class DaughterDialoguePresenter : MonoBehaviour
 {
+    private const float DialogueVoiceDurationSeconds = 0.35f;
+
     [SerializeField] private Image portrait;
     [SerializeField] private Image speechBubble;
     [SerializeField] private TextMeshProUGUI dialogue;
@@ -83,13 +85,16 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         dialogue.text = preparedViewData.Text;
         dialogue.maxVisibleCharacters = 0;
         dialogue.ForceMeshUpdate(true, true);
-        SoundManager.Instance?.PlaySfx(SoundKeys.DialogueVoice);
+        SoundManager.Instance?.PlaySfxForDuration(
+            SoundKeys.DialogueVoice,
+            DialogueVoiceDurationSeconds);
         presentationCoroutine = StartCoroutine(playPresentation());
     }
 
     private void OnDisable()
     {
         stopPresentation();
+        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         restorePortrait();
     }
 
@@ -111,6 +116,7 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
             yield return null;
         }
 
+        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         restorePortrait();
         presentationCoroutine = null;
         if (hasCompleted) yield break;
