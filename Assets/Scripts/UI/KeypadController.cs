@@ -92,6 +92,7 @@ public class KeypadController : MonoBehaviour
 
         this.currentPrice = nextValue;
         this.updateDisplay();
+        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
     }
 
     /// <summary>
@@ -114,6 +115,7 @@ public class KeypadController : MonoBehaviour
 
         this.currentPrice = nextValue;
         this.updateDisplay();
+        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
     }
 
     /// <summary>Backspace(한 자리 지우기) 버튼 클릭 시 호출</summary>
@@ -124,6 +126,7 @@ public class KeypadController : MonoBehaviour
 
         this.currentPrice /= 10;
         this.updateDisplay();
+        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
     }
 
     /// <summary>전체 지우기 (Clear) 버튼 클릭 시 호출</summary>
@@ -163,6 +166,7 @@ public class KeypadController : MonoBehaviour
 
         this.currentPrice = nextValue;
         this.updateDisplay();
+        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
     }
 
     /// <summary>

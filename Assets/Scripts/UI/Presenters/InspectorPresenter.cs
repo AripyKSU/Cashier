@@ -126,6 +126,10 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <param name="snapshot">연출 시작 상태.</param>
     private void startFade(bool entering, InspectorEventSnapshot snapshot)
     {
+        if (entering)
+        {
+            SoundManager.Instance?.PlaySfx(SoundKeys.DialogueVoice);
+        }
         presentationCancellation = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
         fadeAsync(entering, snapshot, presentationCancellation.Token).Forget(exception => Failed?.Invoke(exception));
     }

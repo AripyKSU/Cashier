@@ -20,6 +20,7 @@ public class InitScene : MonoBehaviour
         this.ensureManagerExists<GameSceneManager>("GameSceneManager");
         this.ensureManagerExists<ResourceManager>("ResourceManager");
         this.ensureManagerExists<DataTableManager>("DataTableManager");
+        this.ensureSoundManagerExists();
         this.ensureGameSessionManagerExists();
 
         // 2. ResourceManager 초기화 (Addressables 및 카탈로그 수신)
@@ -35,6 +36,18 @@ public class InitScene : MonoBehaviour
             await DataTableManager.Instance.EnsureDataLoadedAsync();
             Debug.Log("[InitScene] DataTableManager 모든 CSV 데이터 로드 완료.");
         }
+
+        // ResourceData가 완전히 공개된 뒤 필수 사운드 클립 전체를 준비합니다.
+        if (SoundManager.Instance == null || DataTableManager.Instance == null)
+        {
+            Debug.LogError("[InitScene] 사운드 초기화에 필요한 Manager가 없습니다.");
+            return;
+        }
+
+        await SoundManager.Instance.InitializeAsync(
+            DataTableManager.Instance,
+            this.GetCancellationTokenOnDestroy());
+        Debug.Log("[InitScene] SoundManager 필수 클립 로드 완료.");
 
         // 검증된 CSV 데이터를 사용해 Scene 전환 전에 새 게임 세션을 구성합니다.
         if (GameSessionManager.Instance == null || DataTableManager.Instance == null)
@@ -76,5 +89,20 @@ public class InitScene : MonoBehaviour
         // 별도 Scene 또는 Prefab 수정 없이 전역 게임 세션 수명 객체를 한 번만 생성합니다.
         GameObject managerObject = new GameObject("GameSessionManager");
         managerObject.AddComponent<GameSessionManager>();
+    }
+
+    /// <summary>
+    /// 전역 사운드 재생을 소유할 SoundManager가 없으면 부트 씬에서 한 번 생성합니다.
+    /// </summary>
+    private void ensureSoundManagerExists()
+    {
+        if (SoundManager.Instance != null
+            || UnityEngine.Object.FindFirstObjectByType<SoundManager>() != null)
+        {
+            return;
+        }
+
+        GameObject managerObject = new GameObject("SoundManager");
+        managerObject.AddComponent<SoundManager>();
     }
 }

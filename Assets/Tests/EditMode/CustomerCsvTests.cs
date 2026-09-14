@@ -277,7 +277,7 @@ Assert.That(resources.GetDataCount(),Is.EqualTo(count));
     private static ResourceDataTable loadResources()
     {
         var table = new ResourceDataTable();
-        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\] 총 56개의 리소스 경로 데이터 로드 완료\."));
+        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\] 총 75개의 리소스 경로 데이터 로드 완료\."));
         table.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
         return table;
     }

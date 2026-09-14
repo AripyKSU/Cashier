@@ -33,6 +33,7 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
         hasCompleted = false;
         setPageText(leftPageText, ledgerText.LeftPage);
         setPageText(rightPageText, ledgerText.RightPage);
+        SoundManager.Instance?.PlayLoopSfx(SoundKeys.LedgerWrite);
         typingCoroutine = StartCoroutine(playTyping());
     }
 
@@ -121,6 +122,7 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
     /// <summary>현재 실행 중인 타이핑 연출만 안전하게 중단합니다.</summary>
     private void stopTyping()
     {
+        SoundManager.Instance?.StopLoopSfx(SoundKeys.LedgerWrite);
         if (typingCoroutine == null) return;
         StopCoroutine(typingCoroutine);
         typingCoroutine = null;
@@ -138,6 +140,7 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
     private void notifyCompleted()
     {
         if (hasCompleted) return;
+        SoundManager.Instance?.StopLoopSfx(SoundKeys.LedgerWrite);
         hasCompleted = true;
         this.OnPresentationCompleted?.Invoke();
     }

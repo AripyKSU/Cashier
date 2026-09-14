@@ -10,7 +10,21 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="" />
+    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/InitScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/InitScene.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Sound/SoundKeys.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Sound/SoundKeys.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Sound/SoundManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Sound/SoundManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/KeypadController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/KeypadController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DailySettlementLedgerView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DailySettlementLedgerView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DaughterDialoguePresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DaughterDialoguePresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/InspectorPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/InspectorPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/ReputationStampPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/ReputationStampPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/INDEX.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -87,6 +101,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/75/80cb5271/02000029pdb26.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/7e/07678cf2/0200002Bpdb28.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/e7/ed8c7d46/0200002Apdb27.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7d9f38289e445e3b839c359f19b8d9075200/32/083eef57/02000090pdb106.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7d9f38289e445e3b839c359f19b8d9075200/67/69ccc686/0200008Fpdb105.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7d9f38289e445e3b839c359f19b8d9075200/a3/bf425ba8/02000091pdb107.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/05/3bec2414/0200003Bpdb51.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/1c/12cec83c/02000015pdb15.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/1f/0b62562b/02000016pdb16.il" root0="FORCE_HIGHLIGHTING" />
@@ -182,7 +199,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "total__merge",
+    "git-widget-placeholder": "Sound",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

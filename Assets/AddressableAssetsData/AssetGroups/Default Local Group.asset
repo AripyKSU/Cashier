@@ -428,6 +428,101 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98660c3250ae62e4cb950ac185400271
+    m_Address: SupervisorBgm
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef481d13a0d6b9e4c8ecc941d649e5c2
+    m_Address: GameplayAmbience
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 67645d37e9482db43a161674a3347c22
+    m_Address: SettlementBgm
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9aafb16350c0a9d4baa0bfac2a0edf8d
+    m_Address: TransactionSuccess
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a0808ef24574614bbbb1fa96229b553
+    m_Address: TransactionFail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c80a010a2128a554682496f5fa7dc4e1
+    m_Address: CalculatorOpen
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e8aa084471675174186ed94eb2cada32
+    m_Address: CalculatorButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f55c9083d523ef74d895e7bbf3c94806
+    m_Address: ItemPickup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4b3d547fed813ee498a9c48c5b782173
+    m_Address: ItemPlace
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a87f1ff0ef8aa0c4c81ae840b0131cec
+    m_Address: ItemRemove
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 005e6b59baa405a4a9fa5736fb4fb2a0
+    m_Address: BoxItemDrop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 180b6635cf7b733489885b12b9f31141
+    m_Address: VacuumLoop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 447bd3f056867424383e73e02bdbfdb8
+    m_Address: FacilityUpgrade
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e4d2a25b057115d43b0afe45dbc48244
+    m_Address: DailyGuideline
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57c4ab2ad4881f84b820bb67f42852e7
+    m_Address: DayStart
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fd7bb774d0f115d46b6c0e266efa2f5d
+    m_Address: DayEnd
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5e04f4aaf51d3aa44921880522769947
+    m_Address: ReputationStamp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a8d8112b1355f744395b4545061646a0
+    m_Address: LedgerWriteLoop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2a26f4d59dcaee4e9425e380add956b
+    m_Address: DialogueVoice
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 3d7d68aee2954494ba965a3f231eb7a8, type: 2}
   m_SchemaSet:

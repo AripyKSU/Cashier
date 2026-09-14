@@ -525,6 +525,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.createPendingItems();
+        SoundManager.Instance?.PlaySfx(SoundKeys.BoxItemDrop);
         float elapsed = 0f;
         while (elapsed < this.pourSeconds)
         {
@@ -763,7 +764,18 @@ public sealed class SaleSortingPanel : MonoBehaviour
         IReadOnlyList<SaleSortingItemView> releasedItems = this.vacuum.ReleaseAttachedItems();
         for (int index = 0; index < releasedItems.Count; index++)
         {
-            this.classifyItem(releasedItems[index]);
+            SaleSortingItemView item = releasedItems[index];
+            if (item == null)
+            {
+                continue;
+            }
+
+            SaleSortingItemView.SortingState previousState = item.State;
+            this.classifyItem(item);
+            SoundManager.Instance?.PlaySfx(
+                item.State == SaleSortingItemView.SortingState.Excluded && previousState != item.State
+                    ? SoundKeys.ItemRemove
+                    : SoundKeys.ItemPlace);
         }
 
         if (releasedItems.Count > 0)
@@ -791,6 +803,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 this.draggedItem = item;
                 this.draggedItem.Manipulation = SaleSortingItemView.ManipulationState.PlayerDragging;
                 this.dragOffset = item.Position - pointerPosition;
+                SoundManager.Instance?.PlaySfx(SoundKeys.ItemPickup);
             }
         }
 
@@ -846,8 +859,13 @@ public sealed class SaleSortingPanel : MonoBehaviour
         SaleSortingItemView releasedItem = this.draggedItem;
         this.draggedItem = null;
         this.dragOffset = Vector2.zero;
+        SaleSortingItemView.SortingState previousState = releasedItem.State;
         this.classifyItem(releasedItem);
         releasedItem.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+        SoundManager.Instance?.PlaySfx(
+            releasedItem.State == SaleSortingItemView.SortingState.Excluded && previousState != releasedItem.State
+                ? SoundKeys.ItemRemove
+                : SoundKeys.ItemPlace);
         this.requestAutoSort();
     }
 

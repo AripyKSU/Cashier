@@ -83,6 +83,7 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         dialogue.text = preparedViewData.Text;
         dialogue.maxVisibleCharacters = 0;
         dialogue.ForceMeshUpdate(true, true);
+        SoundManager.Instance?.PlaySfx(SoundKeys.DialogueVoice);
         presentationCoroutine = StartCoroutine(playPresentation());
     }
 

@@ -1,9 +1,15 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
 
 /// <summary>
-/// BGM과 효과음의 재생, 동시 재생, 개별 볼륨을 전역에서 관리한다.
+/// ResourceData 식별자로 로드한 BGM과 효과음의 재생, 동시 재생, 개별 볼륨을 전역에서 관리한다.
 /// </summary>
 public sealed class SoundManager : Singleton<SoundManager>
 {
@@ -19,6 +25,9 @@ public sealed class SoundManager : Singleton<SoundManager>
     private const float MinimumMixerVolumeDecibels = -80f;
     private const float MinimumLinearVolume = 0.0001f;
 
+    private static readonly IReadOnlyDictionary<uint, AudioClip> EmptyClipCache =
+        new ReadOnlyDictionary<uint, AudioClip>(new Dictionary<uint, AudioClip>());
+
     [SerializeField]
     private SoundLibrary soundLibrary;
 
@@ -28,7 +37,10 @@ public sealed class SoundManager : Singleton<SoundManager>
 
     private AudioSource bgmSource;
     private readonly List<AudioSource> sfxSources = new();
+    private readonly Dictionary<uint, AudioSource> loopSfxSources = new();
 
+    private IReadOnlyDictionary<uint, AudioClip> clipCache = EmptyClipCache;
+    private Task initializationTask;
     private int nextSfxSourceIndex;
     private AudioClip currentBgmClip;
 
@@ -36,35 +48,54 @@ public sealed class SoundManager : Singleton<SoundManager>
     private float bgmVolume;
     private float sfxVolume;
 
+    private readonly HashSet<uint> warnedResourceIds = new();
+    private bool hasWarnedBeforeInitialization;
     private bool isInitialized;
 
+    /// <summary>현재 master 볼륨을 반환한다.</summary>
     public float MasterVolume => masterVolume;
+
+    /// <summary>현재 BGM 볼륨을 반환한다.</summary>
     public float BgmVolume => bgmVolume;
+
+    /// <summary>현재 효과음 볼륨을 반환한다.</summary>
     public float SfxVolume => sfxVolume;
 
+    /// <summary>필수 사운드 클립 전체 로드가 완료되었는지 반환한다.</summary>
+    public bool IsInitialized => isInitialized;
+
+    /// <summary>현재 공개된 사운드 클립 캐시를 읽기 전용으로 반환한다.</summary>
+    public IReadOnlyDictionary<uint, AudioClip> CachedClips => clipCache;
+
+    /// <summary>SoundLibrary에 저장된 master 기본 볼륨을 반환한다.</summary>
     public float DefaultMasterVolume =>
         soundLibrary != null
             ? Mathf.Clamp01(soundLibrary.DefaultMasterVolume)
             : 1f;
 
+    /// <summary>SoundLibrary에 저장된 BGM 기본 볼륨을 반환한다.</summary>
     public float DefaultBgmVolume =>
         soundLibrary != null
             ? Mathf.Clamp01(soundLibrary.DefaultBgmVolume)
             : 1f;
 
+    /// <summary>SoundLibrary에 저장된 효과음 기본 볼륨을 반환한다.</summary>
     public float DefaultSfxVolume =>
         soundLibrary != null
             ? Mathf.Clamp01(soundLibrary.DefaultSfxVolume)
             : 1f;
 
+    /// <summary>
+    /// 설정 asset과 mixer source만 준비한다. 오디오 클립은 InitializeAsync에서 로드한다.
+    /// </summary>
     protected override void OnSingletonAwake()
     {
-        if (!TryLoadSoundLibrary())
+        if (!tryLoadSoundLibrary())
         {
             return;
         }
 
-        if (!TryConfigureMixer())
+        if (!tryConfigureMixer())
         {
             return;
         }
@@ -78,14 +109,20 @@ public sealed class SoundManager : Singleton<SoundManager>
         SetMixerVolume(MasterVolumeParameterName, masterVolume);
         SetMixerVolume(BgmVolumeParameterName, bgmVolume);
         SetMixerVolume(SfxVolumeParameterName, sfxVolume);
-
-        isInitialized = true;
     }
 
+    /// <summary>
+    /// 사운드 초기화 작업과 참조를 정리한다. 공유 AudioClip의 소유권은 ResourceManager에 남긴다.
+    /// </summary>
     protected override void OnSingletonDestroyed()
     {
         currentBgmClip = null;
+        clipCache = EmptyClipCache;
+        initializationTask = null;
         sfxSources.Clear();
+        loopSfxSources.Clear();
+        warnedResourceIds.Clear();
+        hasWarnedBeforeInitialization = false;
 
         bgmSource = null;
         audioMixer = null;
@@ -96,17 +133,49 @@ public sealed class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary>
-    /// 문자열 키에 연결된 BGM을 반복 재생한다.
-    /// 이미 같은 곡이 재생 중이면 재생 위치를 유지한다.
+    /// ResourceData에 등록된 모든 사운드 AudioClip을 로드하고 성공한 전체 캐시를 공개한다.
     /// </summary>
-    public void PlayBgm(string key)
+    /// <param name="dataTables">ResourceDataTable을 소유한 데이터 매니저입니다.</param>
+    /// <param name="cancellationToken">호출자의 대기만 취소하는 토큰입니다.</param>
+    /// <returns>19개 필수 사운드 클립의 초기화 완료를 나타내는 작업입니다.</returns>
+    /// <exception cref="ArgumentNullException">dataTables가 null인 경우 발생합니다.</exception>
+    /// <exception cref="InvalidOperationException">필수 manager, 데이터 테이블 또는 사운드 설정이 없는 경우 발생합니다.</exception>
+    /// <exception cref="InvalidDataException">ResourceData 매핑이 누락되었거나 중복된 경우 발생합니다.</exception>
+    /// <exception cref="OperationCanceledException">호출자 또는 SoundManager 수명이 취소된 경우 발생합니다.</exception>
+    public async UniTask InitializeAsync(
+        DataTableManager dataTables,
+        CancellationToken cancellationToken = default)
     {
-        if (!isInitialized)
+        if (dataTables == null)
+        {
+            throw new ArgumentNullException(nameof(dataTables));
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (isInitialized)
         {
             return;
         }
 
-        if (!TryGetClip(key, out AudioClip clip))
+        if (initializationTask == null
+            || initializationTask.IsFaulted
+            || initializationTask.IsCanceled)
+        {
+            initializationTask = initializeAsync(dataTables).AsTask();
+        }
+
+        await initializationTask.AsUniTask().AttachExternalCancellation(cancellationToken);
+    }
+
+    /// <summary>
+    /// ResourceData 식별자에 연결된 BGM을 반복 재생한다.
+    /// 이미 같은 AudioClip이 재생 중이면 재생 위치를 유지한다.
+    /// </summary>
+    /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
+    public void PlayBgm(uint resourceIdx)
+    {
+        if (!tryGetClip(resourceIdx, out AudioClip clip) || bgmSource == null)
         {
             return;
         }
@@ -117,7 +186,6 @@ public sealed class SoundManager : Singleton<SoundManager>
         }
 
         currentBgmClip = clip;
-
         bgmSource.clip = clip;
         bgmSource.loop = true;
         bgmSource.Play();
@@ -139,30 +207,93 @@ public sealed class SoundManager : Singleton<SoundManager>
     }
 
     /// <summary>
-    /// 문자열 키에 연결된 효과음을 재생한다.
-    /// 여러 효과음이 동시에 재생될 수 있다.
+    /// ResourceData 식별자에 연결된 효과음을 일회성으로 재생한다.
     /// </summary>
-    public void PlaySfx(string key, float volumeScale = 1f)
+    /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
+    /// <param name="volumeScale">해당 효과음에 적용할 0~1 볼륨 배율입니다.</param>
+    public void PlaySfx(uint resourceIdx, float volumeScale = 1f)
     {
-        if (!isInitialized || sfxSources.Count == 0)
+        if (!tryGetClip(resourceIdx, out AudioClip clip))
         {
             return;
         }
 
-        if (!TryGetClip(key, out AudioClip clip))
+        if (sfxSources.Count == 0)
         {
+            Debug.LogWarning("SoundManager has no SFX AudioSource.", this);
             return;
         }
 
         AudioSource source = sfxSources[nextSfxSourceIndex];
         nextSfxSourceIndex = (nextSfxSourceIndex + 1) % sfxSources.Count;
-
         source.PlayOneShot(clip, Mathf.Clamp01(volumeScale));
+    }
+
+    /// <summary>
+    /// ResourceData 식별자에 연결된 효과음을 반복 재생한다.
+    /// 같은 식별자가 이미 재생 중이면 재생 위치를 유지하고 볼륨만 갱신한다.
+    /// </summary>
+    /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
+    /// <param name="volumeScale">해당 효과음에 적용할 0~1 볼륨 배율입니다.</param>
+    public void PlayLoopSfx(uint resourceIdx, float volumeScale = 1f)
+    {
+        if (!tryGetClip(resourceIdx, out AudioClip clip))
+        {
+            return;
+        }
+
+        if (!loopSfxSources.TryGetValue(resourceIdx, out AudioSource source)
+            || source == null)
+        {
+            source = CreateAudioSource($"Loop SFX Source {resourceIdx}", sfxMixerGroup);
+            source.loop = true;
+            loopSfxSources[resourceIdx] = source;
+        }
+
+        source.volume = Mathf.Clamp01(volumeScale);
+        if (source.clip == clip && source.isPlaying)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = clip;
+        source.loop = true;
+        source.Play();
+    }
+
+    /// <summary>
+    /// 지정한 ResourceData 식별자의 반복 효과음을 정지한다.
+    /// </summary>
+    /// <param name="resourceIdx">정지할 ResourceData 식별자입니다.</param>
+    public void StopLoopSfx(uint resourceIdx)
+    {
+        if (!isInitialized)
+        {
+            warnBeforeInitialization();
+            return;
+        }
+
+        if (!clipCache.ContainsKey(resourceIdx))
+        {
+            warnMissingResource(resourceIdx);
+            return;
+        }
+
+        if (!loopSfxSources.TryGetValue(resourceIdx, out AudioSource source)
+            || source == null)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = null;
     }
 
     /// <summary>
     /// Master 볼륨을 즉시 적용한다.
     /// </summary>
+    /// <param name="volume">0~1 범위의 선형 볼륨입니다.</param>
     public void SetMasterVolume(float volume)
     {
         masterVolume = Mathf.Clamp01(volume);
@@ -172,6 +303,7 @@ public sealed class SoundManager : Singleton<SoundManager>
     /// <summary>
     /// BGM 볼륨을 즉시 적용한다.
     /// </summary>
+    /// <param name="volume">0~1 범위의 선형 볼륨입니다.</param>
     public void SetBgmVolume(float volume)
     {
         bgmVolume = Mathf.Clamp01(volume);
@@ -181,10 +313,94 @@ public sealed class SoundManager : Singleton<SoundManager>
     /// <summary>
     /// 효과음 볼륨을 즉시 적용한다.
     /// </summary>
+    /// <param name="volume">0~1 범위의 선형 볼륨입니다.</param>
     public void SetSfxVolume(float volume)
     {
         sfxVolume = Mathf.Clamp01(volume);
         SetMixerVolume(SfxVolumeParameterName, sfxVolume);
+    }
+
+    private async UniTask initializeAsync(DataTableManager dataTables)
+    {
+        var managerToken = this.GetCancellationTokenOnDestroy();
+        var loadedClips = new Dictionary<uint, AudioClip>();
+        var loadedAddresses = new HashSet<string>(StringComparer.Ordinal);
+        var loadedIds = new HashSet<uint>();
+
+        try
+        {
+            if (ResourceManager.Instance == null)
+            {
+                throw new InvalidOperationException("ResourceManager is not available.");
+            }
+
+            if (soundLibrary == null || audioMixer == null || bgmSource == null)
+            {
+                throw new InvalidOperationException("SoundManager audio settings are not ready.");
+            }
+
+            ResourceDataTable resourceTable =
+                dataTables.GetDB<ResourceDataTable>(DataTableType.Resource);
+            if (resourceTable == null)
+            {
+                throw new InvalidOperationException("ResourceDataTable is not available.");
+            }
+
+            if (SoundKeys.All == null || SoundKeys.All.Count != 19)
+            {
+                throw new InvalidDataException("SoundKeys.All must contain exactly 19 resource IDs.");
+            }
+
+            foreach (uint resourceIdx in SoundKeys.All)
+            {
+                managerToken.ThrowIfCancellationRequested();
+
+                if (!loadedIds.Add(resourceIdx))
+                {
+                    throw new InvalidDataException(
+                        $"Duplicate sound ResourceData ID: {resourceIdx}");
+                }
+
+                if (!resourceTable.TryGetResource(resourceIdx, out ResourceData resource)
+                    || resource == null)
+                {
+                    throw new InvalidDataException(
+                        $"Sound ResourceData row is missing: {resourceIdx}");
+                }
+
+                if (string.IsNullOrWhiteSpace(resource.Path))
+                {
+                    throw new InvalidDataException(
+                        $"Sound ResourceData path is empty: {resourceIdx}");
+                }
+
+                if (!loadedAddresses.Add(resource.Path))
+                {
+                    throw new InvalidDataException(
+                        $"Duplicate sound Addressables address: {resource.Path}");
+                }
+
+                AudioClip clip = await ResourceManager.Instance
+                    .LoadAssetAsync<AudioClip>(resource.Path, managerToken);
+                if (clip == null)
+                {
+                    throw new InvalidDataException(
+                        $"Sound AudioClip load returned null: {resourceIdx} ({resource.Path})");
+                }
+
+                loadedClips.Add(resourceIdx, clip);
+            }
+
+            managerToken.ThrowIfCancellationRequested();
+            clipCache = new ReadOnlyDictionary<uint, AudioClip>(loadedClips);
+            isInitialized = true;
+        }
+        catch
+        {
+            clipCache = EmptyClipCache;
+            isInitialized = false;
+            throw;
+        }
     }
 
     private void CreateAudioSources()
@@ -193,7 +409,6 @@ public sealed class SoundManager : Singleton<SoundManager>
         bgmSource.loop = true;
 
         int sourceCount = soundLibrary.SfxSourceCount;
-
         for (int index = 0; index < sourceCount; index++)
         {
             sfxSources.Add(
@@ -221,7 +436,7 @@ public sealed class SoundManager : Singleton<SoundManager>
         return source;
     }
 
-    private bool TryConfigureMixer()
+    private bool tryConfigureMixer()
     {
         audioMixer = soundLibrary.AudioMixer;
 
@@ -231,11 +446,11 @@ public sealed class SoundManager : Singleton<SoundManager>
             return false;
         }
 
-        return TryFindMixerGroup(BgmMixerGroupPath, out bgmMixerGroup)
-               && TryFindMixerGroup(SfxMixerGroupPath, out sfxMixerGroup);
+        return tryFindMixerGroup(BgmMixerGroupPath, out bgmMixerGroup)
+               && tryFindMixerGroup(SfxMixerGroupPath, out sfxMixerGroup);
     }
 
-    private bool TryFindMixerGroup(string groupPath, out AudioMixerGroup mixerGroup)
+    private bool tryFindMixerGroup(string groupPath, out AudioMixerGroup mixerGroup)
     {
         AudioMixerGroup[] groups = audioMixer.FindMatchingGroups(groupPath);
 
@@ -246,12 +461,10 @@ public sealed class SoundManager : Singleton<SoundManager>
         }
 
         mixerGroup = null;
-
         Debug.LogError(
             $"AudioMixer group was not found or is ambiguous: {groupPath}",
             this
         );
-
         return false;
     }
 
@@ -263,7 +476,6 @@ public sealed class SoundManager : Singleton<SoundManager>
         }
 
         float decibels = ConvertLinearVolumeToDecibels(linearVolume);
-
         if (audioMixer.SetFloat(parameterName, decibels))
         {
             return;
@@ -283,7 +495,7 @@ public sealed class SoundManager : Singleton<SoundManager>
         );
     }
 
-    private bool TryLoadSoundLibrary()
+    private bool tryLoadSoundLibrary()
     {
         if (soundLibrary != null)
         {
@@ -291,7 +503,6 @@ public sealed class SoundManager : Singleton<SoundManager>
         }
 
         soundLibrary = Resources.Load<SoundLibrary>(SoundLibraryResourcePath);
-
         if (soundLibrary != null)
         {
             return true;
@@ -301,26 +512,50 @@ public sealed class SoundManager : Singleton<SoundManager>
             $"SoundLibrary was not found in Resources: {SoundLibraryResourcePath}",
             this
         );
-
         return false;
     }
 
-    private bool TryGetClip(string key, out AudioClip clip)
+    private bool tryGetClip(uint resourceIdx, out AudioClip clip)
     {
         clip = null;
 
-        if (soundLibrary == null)
+        if (!isInitialized)
         {
-            Debug.LogWarning("SoundManager has no SoundLibrary assigned.", this);
+            warnBeforeInitialization();
             return false;
         }
 
-        if (!soundLibrary.TryGetClip(key, out clip))
+        if (clipCache.TryGetValue(resourceIdx, out clip) && clip != null)
         {
-            Debug.LogWarning($"Sound key was not found: {key}", this);
-            return false;
+            return true;
         }
 
-        return true;
+        warnMissingResource(resourceIdx);
+        clip = null;
+        return false;
+    }
+
+    private void warnBeforeInitialization()
+    {
+        if (hasWarnedBeforeInitialization)
+        {
+            return;
+        }
+
+        hasWarnedBeforeInitialization = true;
+        Debug.LogWarning("SoundManager is not initialized.", this);
+    }
+
+    private void warnMissingResource(uint resourceIdx)
+    {
+        if (!warnedResourceIds.Add(resourceIdx))
+        {
+            return;
+        }
+
+        Debug.LogWarning(
+            $"Sound ResourceData ID is not registered: {resourceIdx}",
+            this
+        );
     }
 }

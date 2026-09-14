@@ -66,6 +66,7 @@ public sealed class VacuumController : MonoBehaviour
     public void ResetToStart()
     {
         this.isHolding = false;
+        SoundManager.Instance?.StopLoopSfx(SoundKeys.Vacuum);
         this.dragOffset = Vector2.zero;
         this.movementDelta = Vector2.zero;
         if (this.vacuumRect == null)
@@ -114,6 +115,7 @@ public sealed class VacuumController : MonoBehaviour
         if (!allowed)
         {
             this.isHolding = false;
+            SoundManager.Instance?.StopLoopSfx(SoundKeys.Vacuum);
             this.dragOffset = Vector2.zero;
             this.movementDelta = Vector2.zero;
             return;
@@ -126,6 +128,7 @@ public sealed class VacuumController : MonoBehaviour
                 out Vector2 localPointer))
         {
             this.isHolding = false;
+            SoundManager.Instance?.StopLoopSfx(SoundKeys.Vacuum);
             this.dragOffset = Vector2.zero;
             this.movementDelta = Vector2.zero;
             return;
@@ -136,12 +139,14 @@ public sealed class VacuumController : MonoBehaviour
             RectTransformUtility.RectangleContainsScreenPoint(this.vacuumRect, pointerScreenPosition, null))
         {
             this.isHolding = true;
+            SoundManager.Instance?.PlayLoopSfx(SoundKeys.Vacuum);
             this.dragOffset = this.vacuumRect.anchoredPosition - localPointer;
         }
 
         if (!isPressed)
         {
             this.isHolding = false;
+            SoundManager.Instance?.StopLoopSfx(SoundKeys.Vacuum);
             this.dragOffset = Vector2.zero;
             this.movementDelta = Vector2.zero;
             return;
@@ -189,6 +194,7 @@ public sealed class VacuumController : MonoBehaviour
 
         this.attachedItems.Clear();
         this.isHolding = false;
+        SoundManager.Instance?.StopLoopSfx(SoundKeys.Vacuum);
         this.movementDelta = Vector2.zero;
         return releasedItems.AsReadOnly();
     }
@@ -234,7 +240,14 @@ public sealed class VacuumController : MonoBehaviour
 
             this.attachedItems.Add(item);
             item.Manipulation = SaleSortingItemView.ManipulationState.VacuumAttached;
+            SoundManager.Instance?.PlaySfx(SoundKeys.ItemPickup);
         }
+    }
+
+    /// <summary>청소기 오브젝트가 비활성화될 때 반복 효과음을 정리합니다.</summary>
+    private void OnDisable()
+    {
+        SoundManager.Instance?.StopLoopSfx(SoundKeys.Vacuum);
     }
 
     /// <summary>클릭한 본체 지점을 작업대 안에 유지하면서 청소기 위치를 계산합니다.</summary>

@@ -56,6 +56,8 @@
 | [CUSTOMER_APPEARANCE_CLASSIFICATION.md](CUSTOMER_APPEARANCE_CLASSIFICATION.md) | 손님 외형의 표시 이름 검토 | 이미지45종 이름 정리 참고표; 성별·연령은 고정 데이터가 아님 |
 | [DYSTOPIA_RESOURCE_INTEGRATION.md](DYSTOPIA_RESOURCE_INTEGRATION.md) | Dystopia 원본·선택 이관 | 리소스 이관 기록과 범위 |
 | [DEV3_GUIDE.md](DEV3_GUIDE.md) | 기존 UI·입력 구현 경위 조사 | 개발자 3 UI 가이드·로드맵 |
+| [SOUND_INTEGRATION.md](SOUND_INTEGRATION.md) | 사운드 에셋·키·재생 위치 확인 | BGM/SFX 연결, 일회성·반복 재생 계약 |
+| [SOUND_ASSET_NAME_MIGRATION.md](SOUND_ASSET_NAME_MIGRATION.md) | 사운드 에셋 영문명 변경표 | 파일명·ResourceData path·Addressables address 연결 |
 
 ### 데이터 자료 목록
 

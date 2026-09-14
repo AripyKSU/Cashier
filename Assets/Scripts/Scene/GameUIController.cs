@@ -515,6 +515,14 @@ public sealed class GameUIController : MonoBehaviour
         this.subscribedDay.CustomerDeparted += this.handleCustomerDeparted;
         this.subscribedDay.TransactionCompleted += this.handleTransactionCompleted;
         this.subscribedDay.SettlementStarted += this.handleSettlementStarted;
+        if (this.subscribedDay.State == DayProgressState.InspectorEvent)
+        {
+            SoundManager.Instance?.PlayBgm(SoundKeys.SupervisorBgm);
+        }
+        else if (this.subscribedDay.State == DayProgressState.PreOpen)
+        {
+            SoundManager.Instance?.PlaySfx(SoundKeys.DailyGuideline);
+        }
         this.renderPreOpen(day);
         this.refreshAllViews();
     }
@@ -551,6 +559,14 @@ public sealed class GameUIController : MonoBehaviour
     private void handleDayStateChanged(DayProgressState state)
     {
         if (state != DayProgressState.PreOpen) this.isOpeningBusiness = false;
+        if (state == DayProgressState.InspectorEvent)
+        {
+            SoundManager.Instance?.PlayBgm(SoundKeys.SupervisorBgm);
+        }
+        else if (state == DayProgressState.PreOpen)
+        {
+            SoundManager.Instance?.PlaySfx(SoundKeys.DailyGuideline);
+        }
         this.refreshAllViews();
     }
 
@@ -582,6 +598,8 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
+        SoundManager.Instance?.PlaySfx(
+            visit.WasAccepted == true ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = visit.WasAccepted == true
             ? "ACCEPTED · income applied"
@@ -600,6 +618,8 @@ public sealed class GameUIController : MonoBehaviour
             this.refreshAllViews();
             return;
         }
+        SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
+        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm);
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.beginSettlementFlow(result);
@@ -707,6 +727,10 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.facilityShopPresenter.SetInteractionEnabled(false, false);
             this.gameProgress.TryPurchaseFacility(facilityIdx, out var result);
+            if (result.Status == FacilityPurchaseStatus.Purchased)
+            {
+                SoundManager.Instance?.PlaySfx(SoundKeys.FacilityUpgrade);
+            }
             this.facilityFeedback = result.Status switch
             {
                 FacilityPurchaseStatus.Purchased => result.ActivationDay.HasValue &&
@@ -778,6 +802,8 @@ public sealed class GameUIController : MonoBehaviour
                 GameSessionManager.Instance.DailyGuidelines,
                 false));
             this.gameProgress.OpenBusiness();
+            SoundManager.Instance?.PlayBgm(SoundKeys.GameplayAmbience);
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayStart);
             this.refreshAllViews();
         }
         catch (Exception exception)
@@ -885,6 +911,7 @@ public sealed class GameUIController : MonoBehaviour
     private void handleCalculatorVisibilityChanged(bool isOpen)
     {
         if (!this.isReady || this.subscribedDay == null) return;
+        SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorOpen);
         this.refreshRuntimeViews();
     }
 
