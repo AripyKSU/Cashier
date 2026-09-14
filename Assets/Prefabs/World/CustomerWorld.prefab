@@ -668,6 +668,11 @@ MonoBehaviour:
   - {fileID: 8277630240922037447}
   font: {fileID: 11400000, guid: c0f9f8080e30dd3499d44ece2a336e14, type: 2}
   spriteMaterial: {fileID: 2100000, guid: cc7bbc5199031f64392025ac7ded5fdd, type: 2}
+  tradeReactionSprites:
+  - {fileID: 1562827480, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
+  - {fileID: -1103762195, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
+  - {fileID: -472334716, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
+  - {fileID: 2021129492, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
   heightPixels: 430
   bottomCoverPixels: 12
   moveSeconds: 0.65

@@ -15,6 +15,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     [SerializeField] private Transform[] slots;
     [SerializeField] private TMP_FontAsset font;
     [SerializeField] private Material spriteMaterial;
+    /// <summary>거래 결과 순서: Satisfied, Delighted, Reluctant, Refused.</summary>
+    [SerializeField] private Sprite[] tradeReactionSprites;
     /// <summary>전면 로컬 픽셀 기준 높이·하단 가림 보정과 이동 초. 원근 배율은 없다.</summary>
     [SerializeField] private float heightPixels = 430, bottomCoverPixels = 12, moveSeconds = .65f;
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
@@ -31,10 +33,11 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     {
         if (world == null || visualRoot == null || counter == null || entrance == null || leftExit == null || rightExit == null ||
             font == null || spriteMaterial == null || slots == null || slots.Length != CustomerQueue.Capacity ||
-            Array.Exists(slots, x => x == null) || !isPositive(heightPixels) || !isPositive(moveSeconds) ||
+            Array.Exists(slots, x => x == null) || tradeReactionSprites == null || tradeReactionSprites.Length != 4 ||
+            Array.Exists(tradeReactionSprites, x => x == null) || !isPositive(heightPixels) || !isPositive(moveSeconds) ||
             float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0)
         {
-            Debug.LogError("[CustomerWorldQueueView] 월드·슬롯·폰트·시간 연결을 확인하세요.", this);
+            Debug.LogError("[CustomerWorldQueueView] 월드·슬롯·폰트·시간·거래 이모지 연결을 확인하세요.", this);
             enabled = false;
         }
     }
@@ -80,8 +83,11 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             retarget(visual, counter);
             visual.Body.sortingOrder = 200;
             setSpeech(visual, 0);
+            showReaction(visual, day.CurrentVisit.Outcome);
         }
         float delta = controller.IsPresentationPaused ? 0 : Time.deltaTime;
+        float reactionDelta = controller.IsPresentationPaused || world.Opacity <= 0 ||
+            !world.RenderRoot.gameObject.activeInHierarchy ? 0 : Time.deltaTime;
         remove.Clear();
         foreach (var pair in visuals)
         {
@@ -94,12 +100,20 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(visual.Elapsed / duration));
             Vector3 target = visualRoot.InverseTransformPoint(visual.Target.position);
             Vector3 position = Vector3.Lerp(visual.Start, target, t);
-            position.y = visualRoot.InverseTransformPoint(counter.position).y - bottomCoverPixels - 3 * heightPixels / 550f;
+            float envelope = Mathf.Sin(t * Mathf.PI);
+            float step = visual.Elapsed * Mathf.PI * 10 + visual.Phase;
+            Vector2 walk = new Vector2(Mathf.Sin(step) * 9,
+                Mathf.Abs(Mathf.Cos(step)) * 15 * heightPixels / 550f) * envelope;
+            position.x += walk.x;
+            position.y = visualRoot.InverseTransformPoint(counter.position).y - bottomCoverPixels -
+                3 * heightPixels / 550f + walk.y;
             visual.Root.localPosition = position;
             bool idle = !visual.Leaving && visual.Elapsed >= duration;
             float breath = idle ? (Mathf.Sin(visual.IdleSeconds * Mathf.PI * 2 / visual.BreathPeriod + visual.Phase) + 1) * .5f : 0;
             float scale = heightPixels / visual.Body.sprite.bounds.size.y;
-            visual.Body.transform.localScale = new Vector3(scale * (1 + breath * .007f), scale * (1 + breath * .018f), 1);
+            float stride = Mathf.Sin(step * 2) * .025f * envelope;
+            visual.Body.transform.localScale = new Vector3(scale * (1 + breath * .007f) * (1 - stride),
+                scale * (1 + breath * .018f) * (1 + stride), 1);
             var bounds = visual.Body.sprite.bounds;
             Vector3 bottom = Vector3.Scale(new Vector3(bounds.center.x, bounds.min.y, 0), visual.Body.transform.localScale);
             visual.Body.transform.localPosition = -bottom + new Vector3(idle ? Mathf.Sin(visual.IdleSeconds * 2.1f / visual.BreathPeriod + visual.Phase) * .3f : 0, breath * 3 * heightPixels / 550f, 0);
@@ -108,6 +122,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             visual.Speech.color = new Color(1, 1, 1, world.Opacity * (visual.Abandoned ? 1 : visual.Alpha));
             // 불만은 이탈 당시 위치에 남겨 이미지의 .45초 퇴장과 모델의 3초 대사를 분리한다.
             visual.Speech.transform.localPosition = (visual.Abandoned ? visual.SpeechPosition : position) + new Vector3(0, heightPixels + 4, 0);
+            updateReaction(visual, reactionDelta);
             if (visual.Leaving && visual.Elapsed >= duration && (!visual.Abandoned || !seen.Contains(pair.Key))) remove.Add(pair.Key);
         }
         foreach (var visit in remove) removeVisual(visit);
@@ -126,6 +141,17 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         return color;
     }
 
+    /// <summary>기존 거래 결과를 직렬화된 이모지 배열 인덱스로 변환합니다.</summary>
+    /// <param name="outcome">확정 거래 결과.</param><returns>0~3 또는 표시하지 않는 -1.</returns>
+    public static int GetReactionIndex(CustomerTradeOutcome outcome) => outcome switch
+    {
+        CustomerTradeOutcome.RegularSale => 0,
+        CustomerTradeOutcome.DiscountSale => 1,
+        CustomerTradeOutcome.ExploitativeSale => 2,
+        CustomerTradeOutcome.PaymentRefused => 3,
+        _ => -1
+    };
+
     /// <summary>거래 완료 방문의 동일 외형을 퇴장시킨다.</summary>
     /// <param name="visit">반납된 방문.</param>
     private void handleDeparture(CustomerVisit visit) => beginExit(getVisual(visit, counter), false);
@@ -136,6 +162,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     {
         if (visual.Leaving) return;
         visual.Leaving = true;
+        visual.Reaction.gameObject.SetActive(false);
         visual.Abandoned = abandoned;
         visual.SpeechPosition = visual.Root.localPosition;
         retarget(visual, exitRandom.Next(2) == 0 ? leftExit : rightExit);
@@ -155,6 +182,11 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         body.sprite = sprite;
         body.sharedMaterial = spriteMaterial;
         body.color = Color.clear;
+        var reaction = new GameObject("Trade Reaction", typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
+        reaction.transform.SetParent(root, false);
+        reaction.sharedMaterial = spriteMaterial;
+        reaction.sortingOrder = 220;
+        reaction.gameObject.SetActive(false);
         var speech = new GameObject("Queue Speech", typeof(TextMeshPro)).GetComponent<TextMeshPro>();
         speech.transform.SetParent(visualRoot, false);
         speech.font = font;
@@ -165,7 +197,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         speech.text = string.Empty;
         speech.renderer.sortingOrder = 300;
         float phase = visuals.Count * .37f + visit.AppearanceIdx * .618f;
-        visual = new Visual { Root = root, Body = body, Speech = speech, Phase = phase,
+        visual = new Visual { Root = root, Body = body, Reaction = reaction, Speech = speech, Phase = phase,
             BreathPeriod = 2.9f * Mathf.Lerp(.88f, 1.12f, Mathf.Repeat(phase, 1)) };
         visuals.Add(visit, visual);
         return visual;
@@ -188,6 +220,37 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         if (visual.SpeechIdx == idx) return;
         visual.SpeechIdx = idx;
         visual.Speech.text = idx == 0 ? string.Empty : DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text).Rows[idx].Text;
+    }
+
+    /// <summary>방문당 확정 결과를 한 번만 이모지 연출로 시작합니다.</summary>
+    /// <param name="visual">현재 방문의 표시 상태.</param><param name="outcome">확정된 기존 거래 결과.</param>
+    private void showReaction(Visual visual, CustomerTradeOutcome outcome)
+    {
+        int index = GetReactionIndex(outcome);
+        if (index < 0 || visual.ReactionShown || visual.Leaving) return;
+        visual.ReactionShown = true;
+        visual.ReactionElapsed = 0;
+        visual.Reaction.sprite = this.tradeReactionSprites[index];
+        float scale = 64f / visual.Reaction.sprite.bounds.size.y;
+        visual.Reaction.transform.localPosition = new Vector3(90, this.heightPixels * .82f, 0);
+        visual.Reaction.transform.localScale = Vector3.one * scale * .55f;
+        visual.Reaction.color = new Color(1, 1, 1, this.world.Opacity);
+        visual.Reaction.gameObject.SetActive(true);
+    }
+
+    /// <summary>1초 pop·상승·후반 fade를 기존 표시 일시정지와 함께 진행합니다.</summary>
+    /// <param name="visual">진행할 방문 표시.</param><param name="delta">pause·전면 숨김을 제외한 표현 시간.</param>
+    private void updateReaction(Visual visual, float delta)
+    {
+        if (!visual.Reaction.gameObject.activeSelf) return;
+        visual.ReactionElapsed += delta;
+        float t = Mathf.Clamp01(visual.ReactionElapsed);
+        float pop = t < .2f ? Mathf.Lerp(.55f, 1.15f, t / .2f) : Mathf.Lerp(1.15f, 1, Mathf.Clamp01((t - .2f) / .2f));
+        float scale = 64f / visual.Reaction.sprite.bounds.size.y;
+        visual.Reaction.transform.localScale = Vector3.one * scale * pop;
+        visual.Reaction.transform.localPosition = new Vector3(90, this.heightPixels * .82f + 40 * Mathf.SmoothStep(0, 1, t), 0);
+        visual.Reaction.color = new Color(1, 1, 1, this.world.Opacity * (1 - Mathf.Clamp01((t - .55f) / .45f)));
+        if (t >= 1) visual.Reaction.gameObject.SetActive(false);
     }
 
     /// <summary>지연 Destroy 전에 숨겨 중복 표시를 차단한다.</summary>
@@ -226,11 +289,11 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     private sealed class Visual
     {
         public Transform Root, Target;
-        public SpriteRenderer Body;
+        public SpriteRenderer Body, Reaction;
         public TextMeshPro Speech;
         public Vector3 Start, SpeechPosition;
-        public float Alpha, Elapsed, IdleSeconds, Phase, BreathPeriod;
-        public bool Leaving, Abandoned;
+        public float Alpha, Elapsed, IdleSeconds, Phase, BreathPeriod, ReactionElapsed;
+        public bool Leaving, Abandoned, ReactionShown;
         public uint SpeechIdx;
     }
 }

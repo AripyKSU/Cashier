@@ -47,6 +47,8 @@
 - 상품을 다시 집거나 막대·청소기·자동 소팅으로 이동하는 동안에는 닫고, 모든 조작과 분류가 끝나면 다시 연다.
 - 전부 제외한 경우도 분류 완료이므로 계산기는 열지만, 기존 거래 경계가 판매 수량 0인 제출을 거부한다.
 - 새 손님, 쏟기, 결과 표시, 선택 잠금과 화면 정리 상태에서는 계산기와 키패드·Enter 입력을 닫는다.
+- 계산기는 약 1초 동안 부모 패널 아래 화면 밖에서 지정 위치로 들어오고, 닫을 때는 같은 경로로 내려간다. 열림 도착 전과 닫힘 요청 직후부터 키패드·Enter 입력을 막는다.
+- 반대 표시 요청이 연출 중 들어오면 현재 위치에서 방향만 전환한다. 일시정지 중에는 연출 시간도 멈추며, 새 손님·화면 비활성화는 진행 중 연출을 즉시 정리한다.
 
 ### 계산기 변경 검증 (2026-09-14)
 
@@ -54,3 +56,14 @@
 - Unity 컴파일 성공. EditMode **258/258**, PlayMode **54/54**, 실패·skip·미완료 0. 신규 `CalculatorFollowsSaleSortingLifecycle`은 실제 GameUI에서 초기/미분류 닫힘, 분류 완료 열림, 재분류 시 입력 금액 초기화, 전부 제외 시 제출 거부, 잠금/정리를 검증한다.
 - 증거: `Temp/TestResults/20260914-145616-5a5602ae99d44868bb998d9297f6756a/EditMode.xml`, `Temp/TestResults/20260914-145636-cb8363dd6c29487cb6a52c5ec79e622e/PlayMode.xml` 및 각 `.log`.
 - 초기 신규 테스트의 참조 누락 2건은 수정 후 위 검증을 실행했다. GameUI 프리팹의 missing script 0, 토글 객체 0을 확인했다. 최종 배치·조작감은 사용자 확인 대상이다.
+
+### 계산기 출입 연출 검증 (2026-09-14)
+
+- 기준 `7282f29` 이후 연출 변경. 기본 이동 시간 1초로 실제 입장 중 위치·입력 차단, 도착 후 입력 허용, 퇴장 요청 즉시 잠금, 중간 반전·pause, 퇴장 완료 후 화면 밖·inactive, 재활성화를 검사했다.
+- Unity 컴파일 성공, PlayMode **54/54**, 실패·skip·미완료 0: `Temp/TestResults/20260914-152220-dff1afedd73441fe9e3e9aed4c50d07a/PlayMode.xml` 및 `.log`. 이번 연출 변경에서 EditMode는 재실행하지 않았다. 최종 연출 사용감은 사용자 확인 대상이다.
+
+### 계산기 비활성화 예외 수정 (2026-09-14)
+
+- 확인된 스택은 `SaleSortingPanel.OnDisable → hideCalculatorImmediately → setCalculatorInputOpen → GameUIController.handleCalculatorVisibilityChanged → refreshRuntimeViews`다. 세션이 UI보다 먼저 제거되면 전체 화면 갱신의 `GameSessionManager.Instance` 조회에서 예외가 발생했다.
+- 계산기 알림은 키패드와 Enter 입력 상태만 갱신한다. 컨트롤러는 파괴 시작 시 `isReady=false`를 먼저 설정한다. 이전 연출 테스트에 없던 세션 선파괴 → 열린 계산기 비활성화 순서를 기존 회귀 사례에 추가했다.
+- Unity 컴파일 성공, PlayMode **54/54**, 실패·skip·미완료 0: `Temp/TestResults/20260914-153325-6ca3c33a165d4b5584b5d020b386ad0f/PlayMode.xml` 및 `.log`. 기존 출입·반전·pause·입력 잠금 검사도 유지했다.

@@ -4,6 +4,13 @@
 
 ## 기준과 사용 위치
 
+### 2026-09-14 손님 보행·거래 표정 이관
+
+- 원본 근거: `DystopiaScreen.AdvanceQueueVisual`, `AnimateTradeReaction`, `DystopiaTools.ApplyTradeReactions`와 [원본 인계 기록](2026-09-14-prototype-handoff.md)의 손님 연출 절.
+- `Assets/DystopiaPrototype/Art/TradeReactions.png`를 `Assets/Textures/UI/Dystopia/TradeReactions.png`로 복사했다. PNG SHA256은 양쪽 모두 `8EF91EE9683F0AA657B74812EC66841131C67BEEAC764FA9BB883577E7DC3BD4`다. 원본은 사용자 제공 표정 시트이며 원본 PNG·meta는 보존한다.
+- 사본 GUID는 `e034100cefb10524e9d691aa2cf10315`다. 원본 설치 도구와 동일한 네 영역 `(150,655)`, `(643,655)`, `(150,168)`, `(643,168)`을 각각 462×462로 슬라이싱하여 `Satisfied`, `Delighted`, `Reluctant`, `Refused` Sprite를 만들었다. Point 필터·PPU100·비압축·mipmap 없음. [리소스 대응표](data/DYSTOPIA_RESOURCE_MAP.csv)에 1행을 추가했다.
+- `CustomerWorld.prefab`이 Sprite 네 개를 직접 참조하도록 연결했다. 신규 Addressables·CSV 데이터 종류·런타임 Sprite 생성은 필요하지 않다. 공용 거래 결과·대기열 계약에 맞춘 연결 및 검증은 [대기열 명세](CUSTOMER_QUEUE_INTEGRATION.md)를 따른다.
+
 
 ### 2026-09-14 total_merge 추가 선택 이관
 

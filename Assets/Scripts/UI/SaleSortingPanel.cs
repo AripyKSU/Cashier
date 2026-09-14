@@ -51,6 +51,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     [Header("Calculator")]
     [SerializeField] private RectTransform calculatorPanel;
+    /// <summary>계산기가 화면 밖과 도착 위치 사이를 완전히 이동하는 시간(초)입니다.</summary>
+    [SerializeField, Min(0.01f)] private float calculatorSlideSeconds = 1f;
 
     [Header("Items")]
     [SerializeField] private SaleSortingItemView itemPrefab;
@@ -86,6 +88,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private Vector2 dragOffset;
     private Coroutine transitionRoutine;
     private Coroutine autoSortingRoutine;
+    private Coroutine calculatorSlideRoutine;
+    private Vector2 calculatorOpenPosition;
+    private Vector2 calculatorClosedPosition;
+    private bool isCalculatorOpen;
+    private bool calculatorTargetVisible;
     private IReadOnlyList<CustomerBasketItemViewData> pendingBasket = Array.Empty<CustomerBasketItemViewData>();
     // 로컬 큐 표현에서만 제공하며 Controller 제거 시 해제합니다.
     private Func<bool> isPresentationPaused;
@@ -115,8 +122,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>현재 분류 화면이 조작 가능한 상태인지 나타냅니다.</summary>
     public bool IsSorting => this.state == ViewState.Sorting;
 
-    /// <summary>계산기 패널이 현재 열려 있는지 나타냅니다.</summary>
-    public bool IsCalculatorOpen => this.calculatorPanel != null && this.calculatorPanel.gameObject.activeSelf;
+    /// <summary>계산기가 입장을 완료하여 가격 입력을 허용하는지 나타냅니다.</summary>
+    public bool IsCalculatorOpen => this.isCalculatorOpen;
 
     /// <summary>현재 세션에서 막대 편의성 효과가 활성화되었는지 나타냅니다.</summary>
     public bool IsDividerBarAvailable => this.dividerBarAvailable;
@@ -209,6 +216,13 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트를 연결하고 초기 화면을 숨깁니다.</summary>
     private void Awake()
     {
+        if (this.calculatorPanel != null)
+        {
+            this.calculatorOpenPosition = this.calculatorPanel.anchoredPosition;
+            this.calculatorClosedPosition = this.getCalculatorClosedPosition();
+        }
+        this.hideCalculatorImmediately();
+
         if (this.frontContainerButton != null)
         {
             this.frontContainerButton.onClick.AddListener(this.handleFrontContainerClicked);
@@ -331,6 +345,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트 구독과 진행 중 연출을 정리합니다.</summary>
     private void OnDestroy()
     {
+        this.hideCalculatorImmediately();
         if (this.frontContainerButton != null)
         {
             this.frontContainerButton.onClick.RemoveListener(this.handleFrontContainerClicked);
@@ -338,13 +353,16 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.handCursor != null) this.handCursor.Hide();
     }
 
+    /// <summary>비활성화 중 계산기 연출과 입력 상태를 남기지 않습니다.</summary>
+    private void OnDisable() => this.hideCalculatorImmediately();
+
     /// <summary>새 손님의 주문을 개별 상품 오브젝트로 생성하고 Astra 순서의 화면 전환을 시작합니다.</summary>
     /// <param name="basket">상품 ID, 수량과 이미지가 포함된 장바구니 표시 데이터입니다.</param>
     public void BeginCustomer(IReadOnlyList<CustomerBasketItemViewData> basket)
     {
         this.stopAutoSorting();
         this.releaseVacuumItems();
-        this.setCalculatorVisible(false);
+        this.hideCalculatorImmediately();
         if (this.vacuum != null)
         {
             this.vacuum.ResetToStart();
@@ -382,6 +400,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         this.stopAutoSorting();
         this.releaseVacuumItems();
+        this.hideCalculatorImmediately();
         if (this.transitionRoutine != null)
         {
             StopCoroutine(this.transitionRoutine);
@@ -1043,7 +1062,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <returns>현재 포인터가 열린 계산기 영역 위에 있으면 true입니다.</returns>
     private bool isPointerOverCalculator()
     {
-        return this.IsCalculatorOpen
+        return this.calculatorPanel != null && this.calculatorPanel.gameObject.activeSelf
             && RectTransformUtility.RectangleContainsScreenPoint(this.calculatorPanel, this.getPointerScreenPosition());
     }
 
@@ -1187,12 +1206,85 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.releaseDraggedItem();
     }
 
-    /// <summary>실제 계산기 표시 상태를 적용하고 변경된 경우에만 입력 라우팅에 알립니다.</summary>
+    /// <summary>계산기를 아래 화면 밖으로 열고 닫으며 도착 완료 상태만 입력 라우팅에 알립니다.</summary>
     private void setCalculatorVisible(bool visible)
     {
-        bool wasVisible = this.IsCalculatorOpen;
-        if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(visible);
-        bool isVisible = this.IsCalculatorOpen;
-        if (wasVisible != isVisible) this.CalculatorVisibilityChanged?.Invoke(isVisible);
+        if (this.calculatorPanel == null || this.calculatorTargetVisible == visible && this.calculatorSlideRoutine != null) return;
+        if (visible && this.isCalculatorOpen || !visible && !this.calculatorPanel.gameObject.activeSelf) return;
+
+        this.calculatorTargetVisible = visible;
+        if (!visible) this.setCalculatorInputOpen(false);
+        if (this.calculatorSlideRoutine != null) StopCoroutine(this.calculatorSlideRoutine);
+        if (visible && !this.calculatorPanel.gameObject.activeSelf)
+        {
+            this.calculatorPanel.anchoredPosition = this.calculatorOpenPosition;
+            this.calculatorClosedPosition = this.getCalculatorClosedPosition();
+            this.calculatorPanel.anchoredPosition = this.calculatorClosedPosition;
+            this.calculatorPanel.gameObject.SetActive(true);
+        }
+        else if (!visible)
+        {
+            this.calculatorClosedPosition = this.getCalculatorClosedPosition();
+        }
+        this.calculatorSlideRoutine = StartCoroutine(this.slideCalculator(visible));
+    }
+
+    /// <summary>현재 위치에서 목표 방향으로 전환해 중간 반전에도 위치가 튀지 않습니다.</summary>
+    private IEnumerator slideCalculator(bool visible)
+    {
+        Vector2 start = this.calculatorPanel.anchoredPosition;
+        Vector2 target = visible ? this.calculatorOpenPosition : this.calculatorClosedPosition;
+        float fullDistance = Vector2.Distance(this.calculatorOpenPosition, this.calculatorClosedPosition);
+        float duration = this.calculatorSlideSeconds * (fullDistance <= 0f ? 0f : Vector2.Distance(start, target) / fullDistance);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += this.PresentationDeltaSeconds;
+            float progress = duration <= 0f ? 1f : Mathf.Clamp01(elapsed / duration);
+            this.calculatorPanel.anchoredPosition = Vector2.LerpUnclamped(start, target, Mathf.SmoothStep(0f, 1f, progress));
+            yield return null;
+        }
+
+        this.calculatorPanel.anchoredPosition = target;
+        this.calculatorSlideRoutine = null;
+        if (visible) this.setCalculatorInputOpen(true);
+        else this.calculatorPanel.gameObject.SetActive(false);
+    }
+
+    /// <summary>계산기 상단이 부모 하단을 완전히 벗어나는 실제 닫힘 좌표를 구합니다.</summary>
+    private Vector2 getCalculatorClosedPosition()
+    {
+        RectTransform boundary = this.calculatorPanel.parent as RectTransform;
+        if (boundary == null) return this.calculatorOpenPosition - Vector2.up * this.calculatorPanel.rect.height;
+
+        Vector3[] corners = new Vector3[4];
+        this.calculatorPanel.GetWorldCorners(corners);
+        float top = corners.Max(corner => boundary.InverseTransformPoint(corner).y);
+        return this.calculatorPanel.anchoredPosition + Vector2.up * (boundary.rect.yMin - top - 1f);
+    }
+
+    /// <summary>입력 허용 상태를 먼저 갱신한 뒤 재진입 가능한 구독자에게 알립니다.</summary>
+    private void setCalculatorInputOpen(bool open)
+    {
+        if (this.isCalculatorOpen == open) return;
+        this.isCalculatorOpen = open;
+        this.CalculatorVisibilityChanged?.Invoke(open);
+    }
+
+    /// <summary>새 방문·비활성화 경계에서는 진행 중 연출까지 즉시 정리합니다.</summary>
+    private void hideCalculatorImmediately()
+    {
+        if (this.calculatorSlideRoutine != null)
+        {
+            StopCoroutine(this.calculatorSlideRoutine);
+            this.calculatorSlideRoutine = null;
+        }
+        this.calculatorTargetVisible = false;
+        this.setCalculatorInputOpen(false);
+        if (this.calculatorPanel == null) return;
+        this.calculatorPanel.anchoredPosition = this.calculatorOpenPosition;
+        this.calculatorClosedPosition = this.getCalculatorClosedPosition();
+        this.calculatorPanel.anchoredPosition = this.calculatorClosedPosition;
+        this.calculatorPanel.gameObject.SetActive(false);
     }
 }
