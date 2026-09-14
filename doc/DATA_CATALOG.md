@@ -15,7 +15,7 @@
 
 - 조사 기준: 2026-09-09, `total_merge` 설비65888e1·명성6976218 통합. Git 배포 여부는 커밋·푸시 결과로 별도 확인한다.
 - 목적: 기획자가 현재 수치와 데이터 구조를 검토할 수 있도록 실제 저장소를 설명한다. 신규 기능 기획이나 ID 예약표가 아니다. ID 배정·예약 권위와 변경 절차는 [CSV_RULES.md](CSV_RULES.md), 데이터 작업은 [DATA_RULES.md](DATA_RULES.md)를 따른다. 아래 숫자 ID는 현재 코드·파일의 **관측 스냅샷**이며 새 번호를 배정하지 않는다.
-- 범위: `Assets/Datas/`의 CSV 15종, 컬럼 총 103개(테이블별 중복 컬럼 포함), 데이터 392행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
+- 범위: `Assets/Datas/`의 CSV 15종, 컬럼 총 103개(테이블별 중복 컬럼 포함), 데이터 383행. 관련 DTO·DataTable·enum·생성/판정/경제 소비자, 공유 UI의 입력·결과·직렬화 조작값, 남아 있는 구형 데이터와 저장 모델을 포함한다.
 - 제외: vendor/Plugins, Unity·패키지·렌더러 기술 설정 전체, 테스트 fixture 데이터, Git 제외 Local 실험 값. UI 모든 색상·폰트·좌표를 나열하는 아트 규격은 아니며 거래 조작과 시간에 영향을 주는 값은 포함한다.
 - **확인**: 실제 CSV·코드·prefab에서 확인한 내용. **해석**: 코드 계산으로부터 도출한 의미·예시. **미확인**: 실제 에셋 로드·화면 조작 등 이번 문서 조사에서 실행하지 않은 내용.
 - **현재 연결**은 GameUI.prefab → GameUIController → GameProgress/DayProgress → GameSessionManager 경로에 호출이 있다는 뜻이다. 이번 문서 작업의 런타임 PASS를 뜻하지 않는다. **독립 API**는 구현이 있지만 현재 UI 경로에서 호출하지 않는 기능, **구형/미연결**은 남은 모델을 의미한다.
@@ -52,7 +52,7 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 182 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 178 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 22 | 구매·MainScene 대기열·명성별 성향 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
@@ -124,9 +124,9 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 가격 효과 사건 PK | 필수; 종류 대역·고유 | 없음 | 9001, 9002, 9003, 9004 |
-| 2. `nameidx` | NameIdx · uint | 뉴스 제목 | 필수; 0 금지 | TextData.idx | 8042, 8044, 8046, 8048 |
-| 3. `descriptionidx` | DescriptionIdx · uint | 뉴스 설명 | 필수; 0 금지 | TextData.idx | 8043, 8045, 8047, 8049 |
+| 1. `idx` | Idx · uint | 가격 효과 사건 PK | 필수; 종류 대역·고유 | 없음 | 9001, 9003 |
+| 2. `nameidx` | NameIdx · uint | 뉴스 제목 | 필수; 0 금지 | TextData.idx | 8042, 8046 |
+| 3. `descriptionidx` | DescriptionIdx · uint | 뉴스 설명 | 필수; 0 금지 | TextData.idx | 8043, 8047 |
 | 4. `product_idxs` | ProductIdxs · uint[] | 효과 대상 개별 상품 | 빈 배열 허용; 0·중복 금지; 효과가 있으면 두 대상 목록 중 하나 이상 필요 | ProductData.idx | 빈 셀, 1001 |
 | 5. `product_types` | ProductTypes · ProductType[] | 효과 대상 분류; 개별 대상과 합집합 | 빈 배열 허용; None·중복·미정의 금지 | ProductType | 2, 빈 셀, 3 |
 | 6. `change_type` | ChangeTypeValue · uint → ChangeType | 0 무효과 / 1 비율 / 2 정액 | 필수; 0~2, End 금지 | PriceChangeType | 1, 2, 0 |
@@ -140,9 +140,9 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 선정 후보 스케줄 PK | 필수; 종류 대역·고유 | 없음 | 10001, 10002, 10003, 10004, 10005 |
-| 2. `event_idx` | EventIdx · uint | 실행할 사건 | 필수; 0 금지 | PriceEventData.idx | 9001, 9003, 9002, 9004 |
-| 3. `channel` | ChannelValue · uint → Channel | 신문1 / 라디오2 | 필수; None/End/미정의 금지 | PriceEventChannel | 1, 2 |
+| 1. `idx` | Idx · uint | 선정 후보 스케줄 PK | 필수; 종류 대역·고유 | 없음 | 10001, 10002 |
+| 2. `event_idx` | EventIdx · uint | 실행할 사건 | 필수; 0 금지 | PriceEventData.idx | 9001, 9003 |
+| 3. `channel` | ChannelValue · uint → Channel | 신문1 / 라디오2 | 필수; 현재 데이터는 신문1만 사용 | PriceEventChannel | 1 |
 | 4. `start_day` | StartDay · uint | 최초 후보 경과일, 시작일0 | 필수; 0 허용 | ElapsedDays와 비교 | 0, 3 |
 | 5. `end_day` | EndDay · uint? | 후보 종료 경과일(포함) | 빈 셀=null 무기한; 숫자0은0일 종료; StartDay 이상 | 없음 | 빈 셀 |
 | 6. `repeat_days` | RepeatDays · uint | 신문 반복 간격, 게임 일수 | 필수; 신문0=시작일1회, 양수=간격; 라디오는0만 | 없음 | 2, 4, 0 |
@@ -301,12 +301,10 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 사건 PK·제목 | 대상 | 효과 | 현재 스케줄 |
 |---|---|---|---|
 | 9001 식료품 공급 확대 | Food=2 전체 | Rate -200 = -20% | 신문10001: 경과0일부터2일 간격, 끝없음 |
-| 9002 생수 운송 지연 | 물1001만 | Amount +30G | 라디오10003: 경과0일부터 매일 후보, weight1 |
-| 9003 지역 소식 | 없음 | None=0, 변화0 | 신문10002: 경과3일부터4일 간격 / 라디오10005 매일 후보 |
-| 9004 의약품 수요 증가 | Medicine=3 전체 | Rate +300 = +30% | 라디오10004: 경과0일부터 매일 후보, weight1 |
+| 9003 지역 소식 | 없음 | None=0, 변화0 | 신문10002: 경과3일부터4일 간격 |
 
 - 신문·라디오를 독립 선정한다. 같은 이벤트를 가리키는 스케줄 여러 행이 후보에 있으면 그 사건의 상대 가중치가 커진다.
-- 현재 라디오 후보3개의 가중치가 모두1이므로 각1/3 선택이다. 별도50%/100% 발생 상수는 없다. 무효과 사건9003 선택도 방송 예약이며, 후보 부재와 다르다.
+- 현재 CSV에는 라디오 후보가 없으므로 라디오 방송과 방송 시점 가격 교체가 발생하지 않는다.
 - 신문 효과는 당일 준비 시 적용하고, 라디오는 영업 시작 후 무작위 대기 시간이 지나면 새 현재가로 교체한다. 현재 지연은 `(float)(Random.NextDouble() * 60)`초다. 의도는0~60초 미만이며 float 변환 경계에서는60이 될 수 있다.
 - 현 GameUIController는 현재가 가격표를 사용하지만 신문 사건의 NameIdx/DescriptionIdx를 읽어 화면에 전달하는 호출은 없다. 신문 가격 효과 연결과 신문 기사 UI 연결을 구분한다. 라디오 제목·설명은 GameSessionManager의 방송 로그에서 사용한다.
 - 현재 영업 기본값30초이므로 방송 후보가 있어도 방송 시각 전에 영업시간이 끝날 수 있다. pause와 Closing에서는 방송 시계를 늘리지 않는다. 방송 로그와 신문 화면 연결의 상세 상태는 [PRICE_EVENT_INTEGRATION](PRICE_EVENT_INTEGRATION.md)을 함께 확인한다.
@@ -316,7 +314,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 `현재 단가 = max(1, floor(BasePrice × (1000 + 적용 Rate 합) / 1000) + 적용 Amount 합)`
 
-동일 사건의 두 채널 중복을 제거한 뒤 계산한다. 비율을 연속 곱하지 않는다. 결과는 uint 범위를 넘으면 예외다. 물1001은 기본100, 사건9002 방송 후130. Food 통조림1004는 기본250, 사건9001 적용 시200이다.
+동일 사건의 두 채널 중복을 제거한 뒤 계산한다. 비율을 연속 곱하지 않는다. 결과는 uint 범위를 넘으면 예외다. Food 통조림1004는 기본250, 사건9001 적용 시200이다.
 
 ### 거래·정산 해석
 
@@ -622,27 +620,22 @@ idx,day,maintenanceAmount
 
 ### Assets/Datas/PriceEventData.csv
 
-데이터 4행, 7컬럼. SHA-256: `6C9F9B13B9AF40F11B08ADD41D4114AFB838380885986F193800EF64785FBA4A`.
+데이터 2행, 7컬럼. SHA-256: `C444F78B3B017627CEE0E1614521918E3496A50F1841C013BE138D88CB7BC9EA`.
 
 ```csv
 idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
 9001,8042,8043,,2,1,-200
-9002,8044,8045,1001,,2,30
 9003,8046,8047,,,0,0
-9004,8048,8049,,3,1,300
 ```
 
 ### Assets/Datas/PriceEventScheduleData.csv
 
-데이터 5행, 7컬럼. SHA-256: `65176B3D51529D0C9B9B4D56B0ECEC70FBB054C97B425821AC78B4EC6206EB78`.
+데이터 2행, 7컬럼. SHA-256: `87209FA10AE612B12A6E58F2C69210D9A489D6B856E0FA648BB449D9DF502FED`.
 
 ```csv
 idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
 10001,9001,1,0,,2,1
 10002,9003,1,3,,4,1
-10003,9002,2,0,,0,1
-10004,9004,2,0,,0,1
-10005,9003,2,0,,0,1
 ```
 
 ### Assets/Datas/ResourceData.csv
@@ -709,7 +702,7 @@ idx,path
 
 ### Assets/Datas/TextData.csv
 
-데이터 182행, 2컬럼. SHA-256: `C096A9B7810CF45EB024368E3A08FF148BE5D2F1E1D475C0602CBD3C3B650C31`.
+데이터 178행, 2컬럼. SHA-256: `DCB5E49D0859AF9A26DA471919C15D1983C5384E4111D0DCA3A9C73CCB5D22FF`.
 
 ```csv
 idx,text

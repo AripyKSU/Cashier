@@ -162,31 +162,9 @@ GameUIController
 
 별도의 Settlement Controller를 만들 경우에도 정산 데이터를 다시 조회하거나 계산하지 말고, 기존 Presenter가 받은 `DailySettlementViewData` 또는 formatter 결과를 명시적으로 전달한다. Controller와 Presenter가 동시에 패널 활성 상태나 타이핑 Coroutine을 소유하지 않도록 한 곳만 화면 수명 소유자로 정한다.
 
-## 기존 Settlement UI와 교체할 항목
+## 이전 Settlement UI 정리
 
-현재 `Assets/Prefabs/GameUI/SettlementPanel.prefab`에는 항목별 TMP가 여러 개 연결되어 있다.
-
-- `SettlementDay`
-- `SettlementIncome`
-- `SettlementExpenses`
-- `SettlementProfit`
-- `SettlementBalance`
-- `SettlementStats`
-- `SettlementMaintenance`
-- `SettlementGuidelinePenalty`
-- `SettlementGuidelineViolations`
-- `SettlementPreviousUnpaid`
-- `SettlementTotalDue`
-- `SettlementPaid`
-- `SettlementUnpaid`
-- `SettlementGrace`
-
-가계부 화면이 이 표시를 완전히 대체한다면 기존 필드의 `GameObject`와 `DailySettlementPresenter` 직렬화 참조를 함께 정리해야 한다. 바로 삭제하지 말고 다음 중 하나를 먼저 확정한다.
-
-1. 가계부 두 페이지가 기존 정산 텍스트를 완전히 대체한다.
-2. 기존 요약 UI는 유지하고 가계부를 추가 상세 화면으로 사용한다.
-
-기존 `SettlementReputation` 텍스트와 명성 피드백 Sprite, 시설 상점 진입 버튼, 다음 날 버튼은 별도 기능이므로 가계부 도입만으로 제거하지 않는다.
+가계부가 기존 항목별 정산 표시를 완전히 대체하도록 확정돼 `SettlementDay`, 수입·지출·순이익·잔액·통계·납부 관련 TMP와 `SettlementReputation`을 제거했다. `DailySettlementPresenter`에서도 이 직렬화 필드와 중복 문자열 출력 코드를 함께 제거했다. 구형 `FacilityOpenButton`은 새 `FacilityPamphletButton`으로 대체했으며 `SettlementNext`, 가계부, 딸 대사, 명성 도장과 FlowController 연결은 유지한다.
 
 ## 데이터 사용 시 주의사항
 

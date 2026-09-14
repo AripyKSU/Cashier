@@ -51,25 +51,18 @@ public sealed class PriceEventTests
         Assert.That(bounded.IsDue(5), Is.False);
     }
 
-    /// <summary>실제 후보의 채널 조합·방송 지연 범위와 후보 부재를 검사한다.</summary>
+    /// <summary>실제 CSV에 라디오 후보가 없고 신문 후보만 선택되는지 검사한다.</summary>
     [Test]
-    public void RadioCandidateAndDelaySelection()
+    public void ActualSchedulesContainNoRadioCandidates()
     {
-        var seen = new HashSet<(bool, bool)>();
-        int radioCount = 0;
-        for (int i = 0; i < 1000; i++)
+        Assert.That(schedules.Values.All(x => x.Channel == PriceEventChannel.Newspaper));
+        for (int i = 0; i < 20; i++)
         {
             var scheduler = new PriceEventScheduler(new Random(i));
             var state = scheduler.CreateDay((uint)(i % 2), events, schedules, products);
-            seen.Add((state.NewspaperEventIdx.HasValue, state.RadioEventIdx.HasValue));
-            if (state.RadioEventIdx.HasValue) radioCount++;
-            Assert.That(scheduler.GetRadioDelaySeconds(), Is.InRange(0f, 60f));
+            Assert.That(state.RadioEventIdx, Is.Null);
             Assert.That(state.IsRadioBroadcast, Is.False);
         }
-        Assert.That(seen.Count, Is.EqualTo(2));
-        Assert.That(radioCount, Is.EqualTo(1000));
-        var newspaperOnly = schedules.Where(x => x.Value.Channel == PriceEventChannel.Newspaper).ToDictionary(x => x.Key, x => x.Value);
-        Assert.That(new PriceEventScheduler(new Random(1)).CreateDay(0, events, newspaperOnly, products).RadioEventIdx, Is.Null);
     }
 
     /// <summary>데이터 후보의 유무만으로 채널 네 조합을 표현한다.</summary>
@@ -80,7 +73,21 @@ public sealed class PriceEventTests
     [TestCase(true, true)]
     public void IndependentChannelCandidates(bool newspaper, bool radio)
     {
-        var selected = schedules.Where(x => x.Value.Channel == PriceEventChannel.Newspaper ? newspaper : radio).ToDictionary(x => x.Key, x => x.Value);
+        var selected = newspaper
+            ? schedules.ToDictionary(x => x.Key, x => x.Value)
+            : new Dictionary<uint, PriceEventScheduleData>();
+        if (radio)
+        {
+            selected.Add(10999, new PriceEventScheduleData
+            {
+                Idx = 10999,
+                EventIdx = 9001,
+                ChannelValue = (uint)PriceEventChannel.Radio,
+                StartDay = 0,
+                RepeatDays = 0,
+                SelectionWeight = 1
+            });
+        }
         var engine = new PriceEventScheduler(new Random(1));
         var state = engine.CreateDay(0, events, selected, products);
         Assert.That(state.NewspaperEventIdx.HasValue, Is.EqualTo(newspaper));

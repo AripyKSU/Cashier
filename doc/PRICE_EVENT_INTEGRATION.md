@@ -2,6 +2,11 @@
 
 상태: 2026-09-08 구현 및 개인 씬 최소 실행 검증 완료. 영업 시작 60초 이내 방송·방송 시 가격 반영 기준을 포함한다. Google Docs ID 목록 등록은 아래 사유로 보류.
 
+## 현재 데이터 운용 변경 (2026-09-14)
+
+- 라디오 가격 이벤트는 더 이상 사용하지 않는다. `PriceEventScheduleData.csv`에는 신문 채널 행만 남기고, 라디오 전용 이벤트·Text 행도 제거했다.
+- 기존 라디오 API와 아래 과거 구현 기록은 호환 코드 및 이력 설명이며, 현재 런타임 CSV에서는 라디오 후보가 생성되지 않는다.
+
 ## 현재 진행 연결 (2026-09-09)
 
 현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 기본 30초 영업은 그대로라 30초 이후 예약 방송은 취소될 수 있다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.

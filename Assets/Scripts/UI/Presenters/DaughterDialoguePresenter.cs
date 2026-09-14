@@ -49,10 +49,8 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         ValidateReferences();
         if (presentedDay == viewData.Day && hasCompleted)
         {
-            portrait.sprite = viewData.Sprite;
             dialogue.text = viewData.Text;
             dialogue.maxVisibleCharacters = int.MaxValue;
-            portrait.enabled = true;
             speechBubble.enabled = true;
             dialogue.enabled = true;
             return;
@@ -64,10 +62,8 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         presentedDay = viewData.Day;
         hasPrepared = true;
         hasCompleted = false;
-        portrait.sprite = viewData.Sprite;
         dialogue.text = viewData.Text;
         dialogue.maxVisibleCharacters = 0;
-        portrait.enabled = false;
         speechBubble.enabled = false;
         dialogue.enabled = false;
         cachePortraitRestTransform();
@@ -82,7 +78,6 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
             throw new InvalidOperationException("정산 딸 대사가 준비되지 않았습니다.");
         if (hasCompleted) return;
         stopPresentation();
-        portrait.enabled = true;
         speechBubble.enabled = true;
         dialogue.enabled = true;
         dialogue.text = preparedViewData.Text;

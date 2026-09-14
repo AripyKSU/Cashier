@@ -129,10 +129,22 @@ public class PriceInputPresenter : MonoBehaviour
 
     private void handleConfirmClicked()
     {
-        if (this.keypadController != null)
+        if (this.keypadController == null)
         {
-            this.OnPriceConfirmed?.Invoke(this.keypadController.CurrentPrice);
+            return;
         }
+
+        long currentPrice = this.keypadController.CurrentPrice;
+        if (currentPrice <= 0)
+        {
+            if (this.validationMessageText != null)
+            {
+                this.validationMessageText.text = "판매 가격은 1 G 이상 입력해야 합니다.";
+            }
+            return;
+        }
+
+        this.OnPriceConfirmed?.Invoke(currentPrice);
     }
 
     private void handleCancelClicked()
