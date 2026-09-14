@@ -2,7 +2,13 @@
 
 ## 시민권 추가 (2026-09-13)
 
-기존 종류 값을 유지하고 `Citizenship=4`, 시민권12012를 추가했다. 결제 즉시 보유하며 최종31일 정산의 확인 전까지 구매할 수 있다. 기존 가게 단계 조건과 일반 설비 익일 활성 규칙은 유지한다. 시민권 가격·보유·정산 구매 조건의 단일 계약은 [시민권·엔딩 명세](CITIZENSHIP_ENDING.md)를 따른다.
+기존 종류 값을 유지하고 `Citizenship=4`, 시민권12012를 추가했다. 결제 즉시 보유하며 최종31일 정산의 확인 전까지 구매할 수 있다. 시민권은 **3단계 일반 설비를 모두 구매하고 3단계인 상태**에서만 구매할 수 있다. 기존 일반 설비의 익일 활성 규칙과 31일 정산·엔딩 날짜 정책은 유지한다. 시민권 가격·보유·정산 구매 조건의 단일 계약은 [시민권·엔딩 명세](CITIZENSHIP_ENDING.md)를 따른다.
+
+## 시설 업그레이드 진행 UI 반영 (2026-09-14)
+
+- 각 가게 단계에는 해당 단계의 일반 설비만 표시하고, 하단에 단계 확장 또는 시민권 진행 항목 하나를 표시한다. 이전 단계 일반 설비는 목록에서 숨긴다.
+- 단계 확장과 시민권은 현재 단계 일반 설비를 모두 보유해야 구매할 수 있다. 미완료 수는 snapshot의 `CompletedRegularCount/RequiredRegularCount`로 표시하고, 구매 요청 결과와 별개인 `PrerequisiteLocked` 상태를 사용한다.
+- `FacilityShopPanel`은 하나의 모달 안에서 `Stage1Panel`, `Stage2Panel`, `Stage3Panel` 중 현재 단계 하나만 활성화한다. 진행 항목을 구매하면 현재 열린 모달이 새 단계 패널로 즉시 전환된다.
 
 ## 현재 비용 초안 반영 (2026-09-13)
 
@@ -20,30 +26,31 @@
 
 - 초기화한 세션을 사용하는 기존 `GameProgress`에서 `Start()` 이후 `TryPurchaseFacility(12001, out var result)`를 호출한다. 외부 입력은 설비 PK 하나이며 가격·날짜를 받지 않는다.
 - `true/Purchased`: CSV 가격 즉시 차감, `PaidAmount`에 지출, 일반 업그레이드는 `ActivationDay`에 현재 경과일+1을 등록한다. 단계 상승은 현재 단계와 상점 잠금을 즉시 변경한다.
-- `false/AlreadyOwned`: 재결제하지 않고 기존 활성일 반환. `false/InsufficientFunds`: 무변경, 활성일 null. `false/StageLocked`: 요구 단계 또는 순차 단계 조건을 만족하지 못한 상태로 무변경이다.
+- `false/AlreadyOwned`: 재결제하지 않고 기존 활성일 반환. `false/InsufficientFunds`: 무변경, 활성일 null. `false/StageLocked`: 요구 단계 또는 순차 단계 조건을 만족하지 못한 상태로 무변경이다. `false/PrerequisiteLocked`: 현재 단계 일반 설비가 모두 보유되지 않아 진행 항목을 아직 구매할 수 없는 상태로 무변경이다.
 - 0·미등록 ID, 구매 재진입, 날짜 overflow는 예외다. 진행의 Initializing/Failed/Completed 상태는 구매를 거부한다. 감독관 이벤트 미완료 중에도 세션 API가 구매를 거부한다([감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)). 공개 API의 그 밖 상태는 유지하되 실제 구매 UI는 일일 정산(`DayInProgress` + `Settlement`)에서만 노출한다.
 - 재정 이벤트 구독자가 예외를 던지면 원래 예외를 전달한다. 이미 차감 완료했다면 보유도 유지한다. 실패를 보고 무조건 재결제하지 말고 `session.FacilityActivationDays`를 조회한다.
 - 보유·활성일·가게 단계의 단일 권위는 세션 내부 FacilityService다. `CurrentStoreStage`, `IsFacilityOwned`, `IsFacilityUpgradeActive`, `IsFacilityEffectActive`, `TryGetFacilityActivationDay`, `IsFacilityActive`와 읽기 전용 `FacilityActivationDays`를 노출한다. 같은 세션의 표현 객체 교체는 보유를 유지하고 새 세션은 초기화한다. 저장 파일 복원은 미구현이다.
 
 ## 데이터와 배포 단위
 
-| 설비 PK / 이름 | 임시 가격 | 종류·효과 | 해금 상품 PK |
+| 설비 PK / 이름 | 현재 가격 | 종류·효과 | 해금 상품 PK |
 |---|---:|---|---|
-| 12001 식량 보관 선반 | 1000 | 상품 해금 / 요구 단계1 | 1005,1006 |
-| 12002 약품 보관장 | 1200 | 상품 해금 / 요구 단계1 | 1013,1014 |
-| 12003 공구대 | 1500 | 상품 해금 / 요구 단계2 | 1015,1016 |
-| 12004 전력·통신 장비 | 1800 | 상품 해금 / 요구 단계2 | 1018,1019 |
-| 12005 핵보호 물품 설비 | 2000 | 상품 해금 / 요구 단계3 | 1020,1021 |
-| 12006 정밀 전자장비 보관장 | 2200 | 상품 해금 / 요구 단계3 | 1022,1023 |
+| 12001 식량 보관 선반 | 18000 | 상품 해금 / 요구 단계1 | 1005,1006 |
+| 12002 약품 보관장 | 39000 | 상품 해금 / 요구 단계1 | 1009,1013,1014 |
+| 12003 공구대 | 23000 | 상품 해금 / 요구 단계2 | 1015,1016,1017 |
+| 12004 전력·통신 장비 | 42000 | 상품 해금 / 요구 단계2 | 1018,1019 |
+| 12005 핵보호 물품 설비 | 35000 | 상품 해금 / 요구 단계3 | 1020,1021,1022 |
+| 12006 정밀 전자장비 보관장 | 198000 | 상품 해금 / 요구 단계3 | 1023,1024,1025 |
 | 12007 막대 | 800 | 편의성 / DividerBar / 요구 단계1 | 없음 |
-| 12008 2단계 확장 | 1500 | 단계 상승 / 요구 단계1 → 목표 단계2 | 없음 |
+| 12008 2단계 확장 | 23000 | 단계 상승 / 요구 단계1 → 목표 단계2 | 없음 |
 | 12009 소팅 | 1200 | 편의성 / AutoSorting / 요구 단계2 | 없음 |
-| 12010 3단계 확장 | 2500 | 단계 상승 / 요구 단계2 → 목표 단계3 | 없음 |
+| 12010 3단계 확장 | 143000 | 단계 상승 / 요구 단계2 → 목표 단계3 | 없음 |
 | 12011 청소기 | 1500 | 편의성 / Vacuum / 요구 단계3 | 없음 |
+| 12012 시민권 | 1000000 | 시민권 / 요구 단계3 | 없음 |
 
-각 행은 일회성 업그레이드다. 현재 단계 1~3은 구매 가능 항목을 제한하며, 개별 구매 보유 여부와 별개다. 2단계 확장은 요구 단계1, 3단계 확장은 요구 단계2이며 현재 단계+1만 구매할 수 있다. 가격과 신규 상품 분류는 승인된 임시 값이다. 신규 의약품은 Medicine, 공구·전력·핵 보호 물품은 임시 DailyNecessities다. 기본 건전지1010과 설비 배터리1019는 서로 다른 상품이다.
+각 행은 일회성 업그레이드다. 현재 단계 1~3은 해당 단계의 일반 설비와 진행 항목만 노출하며, 진행 항목은 현재 단계 일반 설비를 모두 보유해야 한다. 2단계 확장은 요구 단계1, 3단계 확장은 요구 단계2이며 현재 단계+1만 구매할 수 있다. 시민권은 요구 단계3이며 단계3 일반 설비 완료 후 구매한다. 신규 의약품은 Medicine, 공구·전력·핵 보호 물품은 임시 DailyNecessities다. 기본 건전지1010과 설비 배터리1019는 서로 다른 상품이다.
 
-- FacilityData: `idx:uint,nameidx:uint,purchase_price:long,upgrade_kind:FacilityUpgradeKind,required_store_stage:uint,effect_type:ConvenienceEffectType,target_store_stage:uint`. 종류12, PK12001~12011. `required_store_stage`는 1~3이며, 단계 상승만 `target_store_stage` 2 또는 3을 사용한다. 일반 업그레이드의 `target_store_stage=0`은 실제 가게 단계 0이 아닌 대상 없음 sentinel이다. 통합 checkout에는 ReputationBalance11도 함께 등록된다. enum 종료값은 자동 증가한다.
+- FacilityData: `idx:uint,nameidx:uint,purchase_price:long,upgrade_kind:FacilityUpgradeKind,required_store_stage:uint,effect_type:ConvenienceEffectType,target_store_stage:uint`. 종류12, PK12001~12012. `required_store_stage`는 1~3이며, 단계 상승만 `target_store_stage` 2 또는 3을 사용한다. 일반 업그레이드와 시민권의 `target_store_stage=0`은 실제 가게 단계 0이 아닌 대상 없음 sentinel이다. 통합 checkout에는 ReputationBalance11도 함께 등록된다. enum 종료값은 자동 증가한다.
 - ProductData에 `required_facility_idx:uint?` 추가. 빈 셀은 기본상품,0은 오류. 기본4개는1001/1004/1007/1010이며, 최종 상품은16행이고 비활성 행은 보존하지 않는다. 1022와1023은 설비12006을 요구한다.
 - TextData에는 상품·설비 이름 8075(열화상 카메라), 8076(정밀 전자장비 보관장), 8077(막대), 8078(2단계 확장), 8079(소팅), 8080(3단계 확장), 8081(청소기)을 추가·연결한다. 실제 가격·전체 행은 [DATA_CATALOG.md](DATA_CATALOG.md) 참조.
 - DTO·CSV·DataTableManager·CustomerCatalog를 함께 반영한다. 구형 Product header는 오류다. PK·가격·설비 FK·Text FK가 모두 검증되기 전 공개하지 않는다.
@@ -63,19 +70,19 @@
 
 ## 설비 UI 제작·병합 구현 (2026-09-10)
 
-아래 UI 코드·독립 프리팹·정산 연결은 현재 구현이다. 현재 GameUI의 `GameUIController → Presenter.UpdateView(ViewData)`와 Presenter의 요청 event 패턴을 따른다. 11행 목록은 단계·종류·잠금·적용 대기·사용 중 상태를 snapshot으로 표시하며 ScrollRect 컨테이너를 사용한다.
+아래 UI 코드·독립 프리팹·정산 연결은 현재 구현이다. 현재 GameUI의 `GameUIController → Presenter.UpdateView(ViewData)`와 Presenter의 요청 event 패턴을 따른다. 현재 단계의 일반 설비 3행과 진행 항목 1행을 단계별 패널에 표시하며 ScrollRect 컨테이너를 사용한다.
 
 ### UI 목록
 
 | 요소 / 실제 이름 | 표시·동작 | 필수 여부 |
 |---|---|---|
 | 진입 버튼 `FacilityOpenButton` | 일일 정산에서 날짜 완료 전 설비 목록 열기 | 필수 |
-| 목록 패널 `FacilityShopPanel` | 제목, 보유금, 다음 영업일 적용 안내, 설비 목록, 닫기 | 필수 |
+| 목록 패널 `FacilityShopPanel` | 제목, 보유금, 현재 단계 패널 1개, 다음 영업일 적용 안내, 설비 목록, 닫기 | 필수 |
 | 설비 행 `FacilityItem` | 요구 단계, 이름, 구매 가격, 상품/편의성/단계 효과, 보유 상태, 구매 버튼 | 필수 |
 | 보유금 `BalanceText` | 현재 세션 잔액. 패널 진입·구매 결과·잔액 변경 때 갱신 | 필수 |
 | 효과 안내 `UnlockProductsText` | 이 설비가 해금하는 상품 목록. 상품 FK로 조회 | 필수 |
 | 적용 안내 `ActivationText` | 미보유는 다음 영업일부터 적용, 구매 후에는 실제 사용 가능 날짜 | 필수 |
-| 상태 표시 `StatusText` | 구매 가능 / 잔액 부족 / 구매 완료·적용 대기 / 사용 중 | 필수 |
+| 상태 표시 `StatusText` | 구매 가능 / 선행 잠김 / 잔액 부족 / 구매 완료·적용 대기 / 사용 중 | 필수 |
 | 결과 안내 `FeedbackText` | 성공·중복 보유·잔액 부족·처리 오류. 색상 외 문구로도 구분 | 필수; 패널 내부 한 곳 재사용 |
 | 닫기 버튼 `CloseButton` | 이전 화면으로 복귀. 날짜 진행·영업 시작·추가 결제를 하지 않음 | 필수 |
 | 이미지 `Icon` | 설비 그림 | 후속. 현재 FacilityData에는 이미지 FK가 없어 필수 참조로 두지 않음 |
@@ -92,10 +99,10 @@ GameUI (기존 루트 / GameUIController)
    └─ FacilityShopPanel (별도 프리팹 인스턴스, 기본 비활성)
       ├─ Background / TitleText / BalanceText / CloseButton
       ├─ ActivationGuideText
-      ├─ Content (ScrollRect 목록)
-      │  └─ FacilityItem × 데이터 행 수
-      │     ├─ NameText / PriceText / UnlockProductsText
-      │     └─ ActivationText / StatusText / PurchaseButton
+      ├─ Viewport (ScrollRect)
+      │  ├─ Stage1Panel (현재 단계 일반 설비 3행 + ProgressionArea 1행)
+      │  ├─ Stage2Panel (현재 단계 일반 설비 3행 + ProgressionArea 1행)
+      │  └─ Stage3Panel (현재 단계 일반 설비 3행 + ProgressionArea 1행)
       └─ FeedbackText
 ```
 
@@ -115,10 +122,10 @@ GameUI (기존 루트 / GameUIController)
 
 - 행 snapshot은 `FacilityIdx:uint`, 표시 이름, `PurchasePrice:long`, 업그레이드 종류·요구 단계·효과·목표 단계, 해금 상품 표시 목록, 화면용 상태, 사용 가능 날짜를 제공한다. 금액은 입력 문자열에서 역산하지 않는다.
 - 화면용 상태는 세션 단계·보유 여부·활성일·현재 잔액으로 계산한다. `FacilityPurchaseStatus`는 구매 요청 결과이므로 적용 대기/사용 중 표시 상태로 그대로 재사용하지 않는다.
-- 화면 상태는 `StageLocked`, `Purchasable`, `InsufficientFunds`, `ActivationPending`, `Active`, `OwnedStageUpgrade`다. 잠긴 행도 해금 효과를 보여주며 버튼만 비활성화한다.
+- 화면 상태는 `StageLocked`, `Purchasable`, `InsufficientFunds`, `ActivationPending`, `Active`, `OwnedStageUpgrade`, `PrerequisiteLocked`, `OwnedProgression`이다. 선행 잠김 행도 진행 수를 보여주며 버튼만 비활성화한다.
 - 설비명은 FacilityData.NameIdx → TextData, 해금 목록은 `ProductData.RequiredFacilityIdx == FacilityIdx`이며 활성 데이터 행만 표시한다. 이름·가격·상품 ID를 프리팹에 하드코딩하지 않는다. 외형 Sprite는 현재 필수 데이터가 아니다.
 - `ActivationDay`는 0부터 센 경과일이다. 화면의 DAY는 `ActivationDay + 1`이다. 예: DAY 1에 구매하면 결과 활성 경과일1, 화면에는 DAY 2부터 사용으로 표시한다.
-- 패널 진입과 구매 완료 시 설비 행·단계·잔액을 새로 읽는다. 패널이 열린 동안 잔액이 바뀌면 같은 경로로 갱신한다. 기존 경제 표시도 갱신하되 일일 매출에 설비 비용을 더하거나 정산 지출을 UI에서 임의 재계산하지 않는다. UI는 단계·가격 규칙을 자체 판정하지 않고 factory snapshot을 표시한다.
+- 패널 진입과 구매 완료 시 설비 행·단계·잔액을 새로 읽는다. 패널이 열린 동안 잔액이 바뀌면 같은 경로로 갱신한다. 진행 항목 구매 성공 시 같은 모달에서 현재 단계 패널을 즉시 전환한다. 기존 경제 표시도 갱신하되 일일 매출에 설비 비용을 더하거나 정산 지출을 UI에서 임의 재계산하지 않는다. UI는 단계·가격·선행 조건을 자체 판정하지 않고 factory snapshot을 표시한다.
 
 구매 흐름은 `PurchaseButton → FacilityShopPresenter.OnPurchaseRequested(idx) → GameUIController → 기존 GameProgress.TryPurchaseFacility(idx, out result)`다. UI는 비용·날짜를 요청에 넣지 않는다. Presenter.UpdateView는 요청 event를 발생시키지 않는다.
 

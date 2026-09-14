@@ -284,6 +284,35 @@ public sealed class SoundManager : Singleton<SoundManager>
             durationSeconds));
     }
 
+    /// <summary>명시적으로 정지할 때까지 제어 가능한 효과음 source에서 클립을 재생한다.</summary>
+    /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
+    /// <param name="volumeScale">해당 효과음에 적용할 0~1 볼륨 배율입니다.</param>
+    public void PlaySfxUntilStopped(uint resourceIdx, float volumeScale = 1f)
+    {
+        if (!tryGetClip(resourceIdx, out AudioClip clip))
+        {
+            return;
+        }
+
+        if (!timedSfxSources.TryGetValue(resourceIdx, out AudioSource source)
+            || source == null)
+        {
+            source = CreateAudioSource($"Timed SFX Source {resourceIdx}", sfxMixerGroup);
+            timedSfxSources[resourceIdx] = source;
+        }
+
+        timedSfxGenerations[resourceIdx] = timedSfxGenerations.TryGetValue(
+            resourceIdx,
+            out int previousGeneration)
+            ? checked(previousGeneration + 1)
+            : 1;
+        source.Stop();
+        source.clip = clip;
+        source.loop = false;
+        source.volume = Mathf.Clamp01(volumeScale);
+        source.Play();
+    }
+
     /// <summary>지정한 짧은 재생 효과음을 즉시 정지한다.</summary>
     /// <param name="resourceIdx">정지할 ResourceData 식별자입니다.</param>
     public void StopSfxForDuration(uint resourceIdx)

@@ -689,12 +689,7 @@ public sealed class GameUIController : MonoBehaviour
         }
         try
         {
-            var citizenship = System.Linq.Enumerable.Single(
-                DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values,
-                row => row.UpgradeKind == FacilityUpgradeKind.Citizenship);
-            long shortfall = Math.Max(0, citizenship.PurchasePrice - this.economy.QueryService.CurrentBalance);
-            this.facilityFeedback = this.gameProgress.HasCitizenship ? "시민권 보유 · 마지막 날 최종 확인 시 엔딩을 판정합니다."
-                : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 31일차 정산까지 구매 가능";
+            this.facilityFeedback = this.createFacilityOpenFeedback();
             this.wasInputRouterEnabled = this.gameInputRouter.enabled;
             this.gameInputRouter.enabled = false;
             this.settlementInputGroup.interactable = false;
@@ -752,6 +747,7 @@ public sealed class GameUIController : MonoBehaviour
                 FacilityPurchaseStatus.AlreadyOwned => "이미 구매한 설비입니다. 추가 결제하지 않았습니다.",
                 FacilityPurchaseStatus.InsufficientFunds => "보유금이 부족합니다. 결제하지 않았습니다.",
                 FacilityPurchaseStatus.StageLocked => "현재 가게 단계에서 잠긴 업그레이드입니다.",
+                FacilityPurchaseStatus.PrerequisiteLocked => "현재 단계의 설비를 모두 구매해야 진행할 수 있습니다.",
                 _ => throw new InvalidOperationException("설비 구매 결과가 유효하지 않습니다.")
             };
         }
@@ -792,6 +788,21 @@ public sealed class GameUIController : MonoBehaviour
                 this.createSettlementViewData(this.subscribedDay.SettlementResult.Value));
         this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(
             this.economy.QueryService.CurrentBalance, this.economy.QueryService.DailySaleIncome));
+    }
+
+    /// <summary>현재 단계에 맞는 최초 상점 안내를 만든다. 가격은 시민권 화면에서만 강조한다.</summary>
+    /// <returns>현재 단계 진행 안내 문구.</returns>
+    private string createFacilityOpenFeedback()
+    {
+        var session = GameSessionManager.Instance;
+        if (session.CurrentStoreStage < 3)
+            return $"{session.CurrentStoreStage}단계 설비를 모두 구매하면 {session.CurrentStoreStage + 1}단계 확장이 열립니다.";
+        var citizenship = System.Linq.Enumerable.Single(
+            DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values,
+            row => row.UpgradeKind == FacilityUpgradeKind.Citizenship);
+        long shortfall = Math.Max(0, citizenship.PurchasePrice - this.economy.QueryService.CurrentBalance);
+        return this.gameProgress.HasCitizenship ? "시민권 보유 · 마지막 날 최종 확인 시 엔딩을 판정합니다."
+            : $"시민권 {citizenship.PurchasePrice:N0} G · 부족액 {shortfall:N0} G · 31일차 정산까지 구매 가능";
     }
 
     /// <summary>영업 전 버튼 요청을 하루 진행에 전달합니다.</summary>

@@ -77,7 +77,7 @@ header: `idx,start_day,resource_idx`
 - 대사는 `Time.unscaledDeltaTime` 기준 초당 24자로 공개한다. 모든 문자가 공개되면 `OnPresentationCompleted`를 한 번 발생시켜 후속 흐름이 명성 도장으로 진행할 수 있게 한다.
 - Astra의 목 중심 회전 보정을 이관해 등장 직후 0.8초 동안 두 번 끄덕이고 원래 위치·크기·회전으로 복원한다. 원본 `DystopiaSession`과 반복 Coroutine에는 의존하지 않는다.
 - 같은 날짜의 완성된 대사를 다시 전달하면 타이핑과 완료 이벤트를 재실행하지 않는다. 대사·이미지·말풍선 참조 누락은 계약 위반 예외다.
-- 말풍선은 `Assets/Textures/UI/Dystopia/Settlement/LedgerSpeechBubble.png`를 사용하는 Sliced Image다. 배치와 글자 크기의 최종 시각 조정은 후속 사용자 확인 대상이다.
+- 말풍선은 `Assets/Textures/UI/Dystopia/Settlement/LedgerSpeechBubble.png`를 사용하는 Sliced Image다. 대사 TMP를 말풍선 자식으로 두고 `HorizontalLayoutGroup`의 좌우 여백과 `ContentSizeFitter`의 preferred width를 조합해 텍스트 길이에 맞춰 가로 길이를 조절한다. 배치와 글자 크기의 최종 시각 조정은 후속 사용자 확인 대상이다.
 - 대사 폰트는 기존 `Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset`을 참조한다. Mulmaru에는 임시 대사 일부 한글이 없어 대체했으며 기존 폰트 자산 자체는 수정하지 않는다. 모든 후보 문자열의 글리프 존재를 EditMode에서 검사한다. 이를 위해 기존 EditMode test assembly에 설치된 Unity.TextMeshPro 참조만 추가했다.
 - 병합 시 두 CSV와 meta, DataTableType/loader, TextData 18행, 두 Addressables entry, 코드·테스트 및 GameUI의 딸 presenter/nested prefab 연결을 함께 반영한다. MainScene 파일 변경은 없다. MainScene이 GameUI를 참조하면 이 prefab 변경의 영향을 받으므로 최종 통합 시 해당 인스턴스 참조를 다시 검사한다.
 - 개인 씬 `Assets/Scenes/Local/SpriteWorldSandbox.unity`에 연결을 준비했다. 개인 설치 도구 `Assets/Scripts/Local/Editor/DaughterDialogueSetup.cs`와 씬은 Git 제외이며 제품 코드가 참조하지 않는다.
