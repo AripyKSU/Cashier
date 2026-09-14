@@ -18,6 +18,9 @@ public class DailySettlementPresenter : MonoBehaviour
     [Tooltip("정산 snapshot을 양쪽 가계부 페이지에 순차 출력하는 View")]
     [SerializeField] private DailySettlementLedgerView ledgerView;
 
+    [Header("Reputation Stamp")]
+    [SerializeField] private ReputationStampPresenter reputationStampPresenter;
+
     [Header("Text Displays")]
     [Tooltip("정산 대상 일자 텍스트")]
     [SerializeField] private TextMeshProUGUI dayText;
@@ -82,12 +85,17 @@ public class DailySettlementPresenter : MonoBehaviour
     /// <summary>가계부 양쪽 페이지의 순차 출력이 완료됐을 때 발생하는 이벤트입니다.</summary>
     public event Action OnLedgerPresentationCompleted;
 
+    /// <summary>명성 도장이 최종 위치에 고정됐을 때 발생합니다.</summary>
+    public event Action OnStampPresentationCompleted;
+
     private void Awake()
     {
         if (this.ledgerView != null)
         {
             this.ledgerView.OnPresentationCompleted += this.handleLedgerPresentationCompleted;
         }
+        if (this.reputationStampPresenter != null)
+            this.reputationStampPresenter.OnPresentationCompleted += this.handleStampPresentationCompleted;
 
         if (this.nextStepButton != null)
         {
@@ -101,6 +109,8 @@ public class DailySettlementPresenter : MonoBehaviour
         {
             this.ledgerView.OnPresentationCompleted -= this.handleLedgerPresentationCompleted;
         }
+        if (this.reputationStampPresenter != null)
+            this.reputationStampPresenter.OnPresentationCompleted -= this.handleStampPresentationCompleted;
     }
 
     /// <summary>
@@ -132,6 +142,10 @@ public class DailySettlementPresenter : MonoBehaviour
                 this.ledgerView.Present(ledgerText);
             }
         }
+
+        if (this.reputationStampPresenter == null)
+            throw new MissingReferenceException("DailySettlementPresenter: 명성 도장 Presenter가 필요합니다.");
+        this.reputationStampPresenter.UpdateView(viewData.Day, viewData.FinalReputation);
 
         if (this.saleIncomeText != null)
         {
@@ -195,6 +209,9 @@ public class DailySettlementPresenter : MonoBehaviour
         }
     }
 
+    /// <summary>딸 대사 완료 뒤 준비된 명성 도장 연출을 시작합니다.</summary>
+    public void PresentReputationStamp() => this.reputationStampPresenter.Present();
+
     /// <summary>
     /// 코드로 동적 생성된 UI 요소를 바인딩할 때 사용하는 헬퍼 메서드
     /// </summary>
@@ -231,6 +248,8 @@ public class DailySettlementPresenter : MonoBehaviour
         this.hasCompletedLedgerPresentation = true;
         this.OnLedgerPresentationCompleted?.Invoke();
     }
+
+    private void handleStampPresentationCompleted() => this.OnStampPresentationCompleted?.Invoke();
 
     /// <summary>미납과 유예 상태를 한 줄의 확정 표시 문구로 변환합니다.</summary>
     /// <param name="viewData">도메인 결과가 담긴 정산 스냅샷입니다.</param>

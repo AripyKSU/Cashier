@@ -11,10 +11,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerSandbox.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerSandbox.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/SaleItem.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/SaleItem.cs.meta" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Dev3SandboxTester.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Dev3SandboxTester.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DaughterDialoguePresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DaughterDialoguePresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNeutral.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNeutral.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNotorious.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNotorious.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampPopular.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampPopular.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampUnpopular.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampUnpopular.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/DAUGHTER_DIALOGUE_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DAUGHTER_DIALOGUE_SYSTEM.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/work/settlement implement.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/work/settlement implement.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,7 +194,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "customer__create",
+    "git-widget-placeholder": "Settlement",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

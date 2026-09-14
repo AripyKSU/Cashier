@@ -148,6 +148,7 @@ public sealed class ProgressViewDataFactory
     /// <param name="day">정산 대상 일차입니다.</param>
     /// <param name="settlement">도메인에서 확정된 통합 정산 결과입니다.</param>
     /// <param name="reputationDelta">확정된 일일 명성 변화량입니다.</param>
+    /// <param name="finalReputation">도장 등급에 사용할 정산 후 누적 명성입니다.</param>
     /// <param name="successfulSales">성공한 거래 수입니다.</param>
     /// <param name="refusedCustomers">거절된 거래 수입니다.</param>
     /// <param name="departedCustomers">이탈한 손님 수입니다.</param>
@@ -157,6 +158,7 @@ public sealed class ProgressViewDataFactory
         int day,
         DailySettlementResult settlement,
         int reputationDelta,
+        int finalReputation,
         int successfulSales,
         int refusedCustomers,
         int departedCustomers,
@@ -183,6 +185,7 @@ public sealed class ProgressViewDataFactory
             settlement.Aggregation.SaleIncome,
             currentBalance,
             reputationDelta,
+            finalReputation,
             successfulSales,
             refusedCustomers,
             departedCustomers,

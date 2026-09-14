@@ -379,6 +379,8 @@ public sealed class GameUIController : MonoBehaviour
         this.businessTimerPresenter.OnPauseRequested += this.handlePauseRequested;
         this.businessTimerPresenter.OnResumeRequested += this.handleResumeRequested;
         this.dailySettlementPresenter.OnNextStepRequested += this.handleSettlementNextRequested;
+        this.dailySettlementPresenter.OnLedgerPresentationCompleted += this.handleLedgerPresentationCompleted;
+        this.daughterDialoguePresenter.OnPresentationCompleted += this.handleDaughterDialoguePresentationCompleted;
         this.keypadController.OnPriceChanged += this.handlePriceChanged;
         this.gameInputRouter.OnConfirmRequested += this.handleKeyboardConfirmRequested;
         this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
@@ -424,7 +426,10 @@ public sealed class GameUIController : MonoBehaviour
         if (this.dailySettlementPresenter != null)
         {
             this.dailySettlementPresenter.OnNextStepRequested -= this.handleSettlementNextRequested;
+            this.dailySettlementPresenter.OnLedgerPresentationCompleted -= this.handleLedgerPresentationCompleted;
         }
+        if (this.daughterDialoguePresenter != null)
+            this.daughterDialoguePresenter.OnPresentationCompleted -= this.handleDaughterDialoguePresentationCompleted;
 
         if (this.keypadController != null)
         {
@@ -601,6 +606,7 @@ public sealed class GameUIController : MonoBehaviour
             this.subscribedDay.Day,
             result,
             finalReputationDelta,
+            Mathf.Clamp(this.subscribedDay.DayStartReputation + finalReputationDelta, -100, 100),
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
             this.subscribedDay.DepartedCustomers,
@@ -609,6 +615,34 @@ public sealed class GameUIController : MonoBehaviour
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
         this.daughterDialoguePresenter.UpdateView(this.viewDataFactory.CreateDaughterDialogueViewData(
             this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites));
+    }
+
+    /// <summary>가계부 출력이 끝나면 준비된 딸 대사를 자동으로 시작합니다.</summary>
+    private void handleLedgerPresentationCompleted()
+    {
+        if (!this.isReady || this.hasError || this.IsFacilityShopOpen || this.isPurchasingFacility) return;
+        try
+        {
+            this.daughterDialoguePresenter.Present();
+        }
+        catch (Exception exception)
+        {
+            this.showError(exception);
+        }
+    }
+
+    /// <summary>딸 대사가 끝나면 정산 후 누적 명성 도장을 찍습니다.</summary>
+    private void handleDaughterDialoguePresentationCompleted()
+    {
+        if (!this.isReady || this.hasError || this.IsFacilityShopOpen || this.isPurchasingFacility) return;
+        try
+        {
+            this.dailySettlementPresenter.PresentReputationStamp();
+        }
+        catch (Exception exception)
+        {
+            this.showError(exception);
+        }
     }
 
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>

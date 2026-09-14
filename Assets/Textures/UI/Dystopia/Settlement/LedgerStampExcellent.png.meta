@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 33458798c40b4e55a2c17883194e4c1d
+guid: 9b58df99f7eff0449a63fca780de4f08
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1268333380569568626
-    second: LedgerStampNotorious_0
-  - first:
-      213: -9145922509082134922
-    second: LedgerStampNotorious_1
-  - first:
-      213: 8946694293106341398
-    second: LedgerStampNotorious_2
+      213: -8069152283992064950
+    second: LedgerStampExcellent_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -40,7 +34,7 @@ TextureImporter:
   cubemapConvolution: 0
   seamlessCubemap: 0
   textureFormat: 1
-  maxTextureSize: 128
+  maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
     filterMode: 0
@@ -91,10 +85,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -104,10 +98,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: WebGL
-    maxTextureSize: 128
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -119,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: LedgerStampNotorious_0
+      name: LedgerStampExcellent_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1237
-        height: 1238
+        x: 1
+        y: 7
+        width: 122
+        height: 120
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -134,52 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e8a6162a289f56ee0800000000000000
-      internalID: -1268333380569568626
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LedgerStampNotorious_1
-      rect:
-        serializedVersion: 2
-        x: 96
-        y: 1215
-        width: 9
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 676f8e66fe7231180800000000000000
-      internalID: -9145922509082134922
-      vertices: []
-      indices:
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: LedgerStampNotorious_2
-      rect:
-        serializedVersion: 2
-        x: 116
-        y: 17
-        width: 14
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData:
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6163e96de0b092c70800000000000000
-      internalID: 8946694293106341398
+      spriteID: a4cfe1affbc940090800000000000000
+      internalID: -8069152283992064950
       vertices: []
       indices:
       edges: []
@@ -198,9 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      LedgerStampNotorious_0: -1268333380569568626
-      LedgerStampNotorious_1: -9145922509082134922
-      LedgerStampNotorious_2: 8946694293106341398
+      LedgerStampExcellent_0: -8069152283992064950
   mipmapLimitGroupName:
   pSDRemoveMatte: 0
   userData:

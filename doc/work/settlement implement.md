@@ -1,6 +1,6 @@
 # 작업 상태: 가계부형 Settlement UI 구현 인계
 
-- 사람 담당자 / 위임받은 역할·범위: 프로젝트 사용자 요청에 따라 Settlement 가계부 formatter, 순차 출력 View, 제품용 리소스와 Prefab 직렬화 연결을 구현한다. 딸 대사·명성 도장·전체 흐름은 후속 작업으로 보류한다.
+- 사람 담당자 / 위임받은 역할·범위: 프로젝트 사용자 요청에 따라 Settlement 가계부, 딸 대사와 명성 도장 순차 출력, 제품용 리소스와 Prefab 직렬화 연결을 구현한다. 전체 흐름 Controller는 후속 작업으로 보류한다.
 - 마지막 확인 시각: 2026-09-11 (Asia/Seoul)
 - 기준 저장소·브랜치: `C:\UnityProject\Cashier`, `Settlement`
 - 참조할 기능 명세: [`MAINSCENE_INTEGRATION.md`](../MAINSCENE_INTEGRATION.md), [`DAILY_GUIDELINE_TOTAL_MERGE_HANDOFF.md`](../DAILY_GUIDELINE_TOTAL_MERGE_HANDOFF.md), [`MORALITY_INTEGRATION.md`](../MORALITY_INTEGRATION.md)
@@ -32,6 +32,25 @@
 - 왼쪽: 일차, 판매 수입, 유지비, 지침 벌금, 총지출, 순이익, 현재 보유금
 - 오른쪽: 성공·거절·이탈 손님 수, 명성 변화, 지침 위반 벌금 합계, 총 납부 필요액·납부액·납부 상태
 - 모든 금액의 통화 단위는 `원`이다.
+
+## 명성 도장
+
+딸 대사 타이핑이 끝나면 `ReputationStampPresenter`가 정산 후 누적 명성에 해당하는 도장을 선택해 0.45초 동안 확대 상태에서 내려찍고 짧게 흔든 뒤 고정한다. 연출은 정산 중 시간이 멈춰도 진행하도록 `Time.unscaledDeltaTime`을 사용한다.
+
+| 정산 후 누적 명성 | Sprite |
+|---:|---|
+| -100~-61 | `LedgerStampNotorious` (`5.png`) |
+| -60~-21 | `LedgerStampUnpopular` (`4.png`) |
+| -20~20 | `LedgerStampNeutral` (`3.png`) |
+| 21~60 | `LedgerStampPopular` (`2.png`) |
+| 61~100 | `LedgerStampExcellent` (`1.png`, 참잘했어요) |
+
+- 기존 도장 4개는 사용자 제공 축소 이미지로 같은 파일명과 GUID를 유지한 채 교체했다.
+- `LedgerStampExcellent.png`만 최고 명성 구간용 신규 리소스다.
+- `DaughterDialoguePresenter.OnPresentationCompleted`를 `GameUIController`가 받아 `DailySettlementPresenter.PresentReputationStamp()`를 호출한다.
+- 도장 고정 뒤 `ReputationStampPresenter.OnPresentationCompleted`가 한 번 발생하고 `DailySettlementPresenter.OnStampPresentationCompleted`가 이를 전달한다.
+- 같은 날짜에 정산 화면을 다시 렌더링하면 완료된 도장은 즉시 유지하며 애니메이션과 완료 이벤트를 반복하지 않는다.
+- `SettlementPanel/DailyLedgerVisual/ReputationStamp`의 위치와 크기는 사용자가 조절할 임시값이다.
 
 ## 추가된 UI 오브젝트
 
