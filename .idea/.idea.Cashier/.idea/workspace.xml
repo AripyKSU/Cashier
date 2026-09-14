@@ -10,20 +10,7 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Contracts/UIContracts.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DaughterDialoguePresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DaughterDialoguePresenter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/ProgressViewDataFactory.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNeutral.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNeutral.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNotorious.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampNotorious.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampPopular.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampPopular.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampUnpopular.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Dystopia/Settlement/LedgerStampUnpopular.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/DAUGHTER_DIALOGUE_SYSTEM.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DAUGHTER_DIALOGUE_SYSTEM.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/work/settlement implement.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/work/settlement implement.md" afterDir="false" />
-    </list>
+    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -85,6 +72,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/6dfc39632b934e5f897b6880e20aded812600/43/337fef97/02000017pdb15.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/702fa5cc79f14012a65327e35cf2e8a83ba00/e1/e8526357/0200004Fpdb64.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/7291d10359344d138880ec8c241dcf0537800/d1/21d24146/02000029pdb26.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/74f8112917384a8085eb527b9549319d78600/43/11806483/020000DApdb155.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/89c6389f27a64ab49ba199b8067880fa31000/4a/2e2b3049/02000035pdb45.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/8e9e1b81e9c44a718f634e48445c972c30800/8e/462b691f/0200001Dpdb20.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/8e9e1b81e9c44a718f634e48445c972c30800/b4/e8946987/0200001Cpdb19.il" root0="FORCE_HIGHLIGHTING" />
@@ -100,6 +88,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/75/80cb5271/02000029pdb26.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/7e/07678cf2/0200002Bpdb28.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7503767fd6a428e9413dadf8391b79636a00/e7/ed8c7d46/0200002Apdb27.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7d9f38289e445e3b839c359f19b8d9075200/32/083eef57/02000090pdb106.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7d9f38289e445e3b839c359f19b8d9075200/67/69ccc686/0200008Fpdb105.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/b7d9f38289e445e3b839c359f19b8d9075200/a3/bf425ba8/02000091pdb107.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/05/3bec2414/0200003Bpdb51.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/1c/12cec83c/02000015pdb15.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/1f/0b62562b/02000016pdb16.il" root0="FORCE_HIGHLIGHTING" />
@@ -110,6 +101,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/e4/2b2097ed/02000036pdb46.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/f8/c7fe3a7a/02000013pdb13.il" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/d6b3c37ad58749dea9e5f93e2a1fe59335200/ff/d52ec082/02000053pdb59.il" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/ILViewer/fe7f02664cc64b88a23cf1533c81502b72e00/da/4ae55492/020000D7pdb152.il" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="McpProjectServerCommands">
     <commands />
@@ -194,7 +186,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "Settlement",
+    "git-widget-placeholder": "total__merge",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
