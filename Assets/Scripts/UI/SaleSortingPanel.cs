@@ -51,9 +51,6 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     [Header("Calculator")]
     [SerializeField] private RectTransform calculatorPanel;
-    [SerializeField] private Button calculatorToggleButton;
-    [SerializeField] private Sprite calculatorOpenSprite;
-    [SerializeField] private Sprite calculatorClosedSprite;
 
     [Header("Items")]
     [SerializeField] private SaleSortingItemView itemPrefab;
@@ -81,7 +78,6 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private readonly List<SaleSortingItemView> items = new List<SaleSortingItemView>();
     private readonly HashSet<SaleSortingItemView> dividerMovedItems = new HashSet<SaleSortingItemView>();
     private ViewState state;
-    private bool isCalculatorOpen = true;
     private bool dividerBarAvailable;
     private bool autoSortingAvailable;
     private bool vacuumAvailable;
@@ -110,14 +106,17 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>월드 정면 표시가 기존 슬라이드 전환과 같은 가시성·좌표를 관찰하는 영역.</summary>
     public RectTransform FrontView => this.frontView != null ? this.frontView.transform as RectTransform : null;
 
-    /// <summary>현재 모든 상품이 판매 또는 제외 상태로 분류됐는지 나타냅니다.</summary>
-    public bool CanConfirm => this.state == ViewState.Sorting && this.getWorkingCount() == 0;
+    /// <summary>실제 상품이 모두 분류되고 이동 조작도 끝나 판매 목록을 확정할 수 있는지 나타냅니다.</summary>
+    public bool CanConfirm => this.state == ViewState.Sorting && this.items.Any(item => item != null) &&
+        this.getWorkingCount() == 0 && this.items.All(item => item == null ||
+            item.State == SaleSortingItemView.SortingState.Excluded ||
+            item.Manipulation == SaleSortingItemView.ManipulationState.Idle);
 
     /// <summary>현재 분류 화면이 조작 가능한 상태인지 나타냅니다.</summary>
     public bool IsSorting => this.state == ViewState.Sorting;
 
     /// <summary>계산기 패널이 현재 열려 있는지 나타냅니다.</summary>
-    public bool IsCalculatorOpen => this.isCalculatorOpen;
+    public bool IsCalculatorOpen => this.calculatorPanel != null && this.calculatorPanel.gameObject.activeSelf;
 
     /// <summary>현재 세션에서 막대 편의성 효과가 활성화되었는지 나타냅니다.</summary>
     public bool IsDividerBarAvailable => this.dividerBarAvailable;
@@ -210,16 +209,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트를 연결하고 초기 화면을 숨깁니다.</summary>
     private void Awake()
     {
-        if (this.calculatorToggleButton != null)
-        {
-            this.calculatorToggleButton.onClick.AddListener(this.ToggleCalculator);
-        }
         if (this.frontContainerButton != null)
         {
             this.frontContainerButton.onClick.AddListener(this.handleFrontContainerClicked);
         }
-
-        this.CalculatorVisibilityChanged?.Invoke(this.isCalculatorOpen);
 
         if (this.dividerBar != null && this.workArea != null)
         {
@@ -338,10 +331,6 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트 구독과 진행 중 연출을 정리합니다.</summary>
     private void OnDestroy()
     {
-        if (this.calculatorToggleButton != null)
-        {
-            this.calculatorToggleButton.onClick.RemoveListener(this.ToggleCalculator);
-        }
         if (this.frontContainerButton != null)
         {
             this.frontContainerButton.onClick.RemoveListener(this.handleFrontContainerClicked);
@@ -355,6 +344,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         this.stopAutoSorting();
         this.releaseVacuumItems();
+        this.setCalculatorVisible(false);
         if (this.vacuum != null)
         {
             this.vacuum.ResetToStart();
@@ -403,29 +393,6 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.showFrontOnly();
     }
 
-    /// <summary>계산기 패널을 열거나 닫습니다.</summary>
-    public void ToggleCalculator()
-    {
-        this.isCalculatorOpen = !this.isCalculatorOpen;
-        if (this.calculatorPanel != null)
-        {
-            this.calculatorPanel.gameObject.SetActive(this.isCalculatorOpen);
-        }
-
-        if (this.calculatorToggleButton != null)
-        {
-            Image toggleImage = this.calculatorToggleButton.GetComponent<Image>();
-            if (toggleImage != null)
-            {
-                toggleImage.sprite = this.isCalculatorOpen
-                    ? this.calculatorOpenSprite
-                    : this.calculatorClosedSprite;
-            }
-        }
-
-        this.CalculatorVisibilityChanged?.Invoke(this.isCalculatorOpen);
-    }
-
     /// <summary>현재 판매 영역에 확정된 상품을 ID별 수량으로 집계해 전달합니다.</summary>
     /// <returns>모든 상품이 분류되어 전달됐으면 true입니다.</returns>
     public bool TryConfirmSaleItems()
@@ -436,6 +403,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.state = ViewState.Locked;
+        this.setCalculatorVisible(false);
         this.SaleItemsConfirmed?.Invoke(saleItems);
         return true;
     }
@@ -476,6 +444,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.state == ViewState.Sorting)
         {
             this.state = ViewState.Locked;
+            this.setCalculatorVisible(false);
         }
     }
 
@@ -509,8 +478,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         if (this.frontView != null) this.frontView.SetActive(false);
-        if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(this.isCalculatorOpen);
-        if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(true);
+        this.setCalculatorVisible(false);
         if (this.containerImage != null)
         {
             this.containerImage.sprite = this.tiltedContainerSprite != null ? this.tiltedContainerSprite : this.containerImage.sprite;
@@ -1003,6 +971,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.autoSortingRoutine = null;
+        this.refreshStatus();
     }
 
     /// <summary>진행 중 자동 소팅을 중단하고 상품 조작 상태를 대기로 되돌립니다.</summary>
@@ -1074,8 +1043,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <returns>현재 포인터가 열린 계산기 영역 위에 있으면 true입니다.</returns>
     private bool isPointerOverCalculator()
     {
-        return this.isCalculatorOpen
-            && this.calculatorPanel != null
+        return this.IsCalculatorOpen
             && RectTransformUtility.RectangleContainsScreenPoint(this.calculatorPanel, this.getPointerScreenPosition());
     }
 
@@ -1141,6 +1109,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>현재 분류 개수를 안내 텍스트에 표시합니다.</summary>
     private void refreshStatus()
     {
+        this.setCalculatorVisible(this.CanConfirm);
         if (this.sortingStatusText == null) return;
         int working = 0;
         int forSale = 0;
@@ -1170,6 +1139,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.items.Clear();
+        this.setCalculatorVisible(false);
         this.dividerMovedItems.Clear();
         this.draggedItem = null;
         this.dragOffset = Vector2.zero;
@@ -1210,11 +1180,19 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
         if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
-        if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(false);
-        if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
+        this.setCalculatorVisible(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
         if (this.vacuum != null) this.vacuum.SetVisible(false);
         if (this.landingDustEffect != null) this.landingDustEffect.Stop();
         this.releaseDraggedItem();
+    }
+
+    /// <summary>실제 계산기 표시 상태를 적용하고 변경된 경우에만 입력 라우팅에 알립니다.</summary>
+    private void setCalculatorVisible(bool visible)
+    {
+        bool wasVisible = this.IsCalculatorOpen;
+        if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(visible);
+        bool isVisible = this.IsCalculatorOpen;
+        if (wasVisible != isVisible) this.CalculatorVisibilityChanged?.Invoke(isVisible);
     }
 }

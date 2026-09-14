@@ -1207,6 +1207,80 @@ public sealed class GameSessionApiTests
         Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
     }
 
+    /// <summary>계산기는 실제 상품 분류 완료에만 열리고 입력·잠금·빈 판매 경계를 함께 따른다.</summary>
+    [UnityTest]
+    public IEnumerator CalculatorFollowsSaleSortingLifecycle()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
+        var keypad = uiReference<KeypadController>(ui, "keypadController");
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        typeof(SaleSortingPanel).GetField("customerArrivalSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("transitionSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("pourSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("autoAdvanceDelaySeconds", flags).SetValue(sorting, 0.01f);
+
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        var progress = uiProgress(ui);
+        progress.OpenBusiness();
+        float deadline = Time.realtimeSinceStartup + 5f;
+        while (!sorting.IsSorting && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(sorting.IsSorting);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        keypad.OnNumberButtonClick(1);
+        Assert.That(keypad.CurrentPrice, Is.Zero);
+
+        var items = (System.Collections.Generic.List<SaleSortingItemView>)typeof(SaleSortingPanel)
+            .GetField("items", flags).GetValue(sorting);
+        RectTransform itemRoot = uiReference<RectTransform>(sorting, "itemRoot");
+        RectTransform saleZone = uiReference<RectTransform>(sorting, "saleZone");
+        RectTransform excludedZone = uiReference<RectTransform>(sorting, "excludedZone");
+        var pointer = new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current);
+        Vector2 salePosition = itemRoot.InverseTransformPoint(saleZone.TransformPoint(saleZone.rect.center));
+        foreach (SaleSortingItemView item in items)
+        {
+            item.OnBeginDrag(pointer);
+            ((RectTransform)item.transform).anchoredPosition = salePosition;
+            item.OnEndDrag(pointer);
+        }
+
+        Assert.That(sorting.CanConfirm);
+        Assert.That(sorting.IsCalculatorOpen);
+        keypad.OnNumberButtonClick(1);
+        Assert.That(keypad.CurrentPrice, Is.EqualTo(1));
+
+        SaleSortingItemView returned = items[0];
+        returned.OnBeginDrag(pointer);
+        ((RectTransform)returned.transform).anchoredPosition = Vector2.zero;
+        returned.OnEndDrag(pointer);
+        Assert.That(sorting.CanConfirm, Is.False);
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        Assert.That(keypad.CurrentPrice, Is.Zero);
+
+        Vector2 excludedPosition = itemRoot.InverseTransformPoint(excludedZone.TransformPoint(excludedZone.rect.center));
+        foreach (SaleSortingItemView item in items.Where(item => item.gameObject.activeSelf))
+        {
+            item.OnBeginDrag(pointer);
+            ((RectTransform)item.transform).anchoredPosition = excludedPosition;
+            item.OnEndDrag(pointer);
+        }
+
+        Assert.That(sorting.CanConfirm);
+        Assert.That(sorting.IsCalculatorOpen);
+        Assert.That(sorting.TryGetSaleItems(out var saleItems));
+        Assert.That(saleItems, Is.Empty);
+        keypad.OnNumberButtonClick(1);
+        LogAssert.Expect(LogType.Warning, "[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.");
+        keypad.OnConfirmButtonClick();
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.Sorting));
+
+        sorting.LockSelection();
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+        sorting.ClearCustomer();
+        Assert.That(sorting.IsCalculatorOpen, Is.False);
+    }
+
     /// <summary>독립 프리팹의 반복 열기·표시 갱신은 요청을 만들지 않고 클릭만 PK를 한 번 전달한다.</summary>
     /// <returns>UI 수명과 TMP 배치 갱신 대기.</returns>
     [UnityTest]

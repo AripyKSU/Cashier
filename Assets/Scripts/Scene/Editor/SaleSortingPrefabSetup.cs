@@ -18,7 +18,6 @@ public static class SaleSortingPrefabSetup
     private const string ProgressScenePath = "Assets/Scenes/Local/ProgressScene.unity";
     private const string WorkbenchPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png";
     private const string CalculatorPath = "Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png";
-    private const string CalculatorTogglePath = "Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png";
     private const string TiltedContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png";
     private const string EmptyContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png";
     private const string FrontContainerPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png";
@@ -134,15 +133,7 @@ public static class SaleSortingPrefabSetup
                 calculatorImage.sprite = loadSprite(CalculatorPath);
             }
 
-            RectTransform toggleRect = createRect("CalculatorToggle", operating, new Vector2(553f, -278f), new Vector2(78f, 78f));
-            Image toggleImage = toggleRect.gameObject.AddComponent<Image>();
-            toggleImage.sprite = loadSprite(CalculatorTogglePath);
-            toggleImage.preserveAspect = true;
-            Button toggleButton = toggleRect.gameObject.AddComponent<Button>();
-            toggleButton.targetGraphic = toggleImage;
-            toggleRect.SetAsLastSibling();
-
-            removeDirectChildrenByName(operating, "CalculatorToggle", toggleRect);
+            removeDirectChildrenByName(operating, "CalculatorToggle", null);
 
             Transform frontView = findChild(operating, "AstraFrontView");
             if (frontView == null)
@@ -175,9 +166,6 @@ public static class SaleSortingPrefabSetup
             Transform basket = customer == null ? null : findChild(customer, "Basket");
             setObject(panelObject, "frontBasketRoot", basket == null ? null : basket.gameObject);
             setObject(panelObject, "calculatorPanel", calculator);
-            setObject(panelObject, "calculatorToggleButton", toggleButton);
-            setObject(panelObject, "calculatorOpenSprite", loadSprite(CalculatorTogglePath));
-            setObject(panelObject, "calculatorClosedSprite", loadSprite(CalculatorTogglePath));
             setObject(panelObject, "itemPrefab", itemView);
             setObject(panelObject, "sortingStatusText", null);
             setObject(panelObject, "dividerBar", dividerController);
@@ -308,7 +296,7 @@ public static class SaleSortingPrefabSetup
             }
 
             calculator.sizeDelta = new Vector2(360f, 362f);
-            calculator.anchoredPosition = new Vector2(435f, -95f);
+            calculator.anchoredPosition = new Vector2(30f, -160f);
             Image artwork = calculator.GetComponent<Image>();
             artwork.sprite = loadSprite(CalculatorPath);
             artwork.color = Color.white;

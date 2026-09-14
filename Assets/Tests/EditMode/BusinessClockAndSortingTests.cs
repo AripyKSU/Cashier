@@ -183,6 +183,8 @@ public sealed class BusinessClockAndSortingTests
         SaleSortingPanel panel = prefab.GetComponentInChildren<SaleSortingPanel>(true);
         SerializedObject panelObject = new SerializedObject(panel);
         Assert.That(panelObject.FindProperty("handCursor").objectReferenceValue, Is.SameAs(cursor));
+        Assert.That(panelObject.FindProperty("calculatorToggleButton"), Is.Null);
+        Assert.That(System.Array.Exists(prefab.GetComponentsInChildren<Transform>(true), child => child.name == "CalculatorToggle"), Is.False);
     }
 
     [Test]
