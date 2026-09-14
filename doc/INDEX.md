@@ -28,6 +28,7 @@
 | [CITIZENSHIP_ENDING.md](CITIZENSHIP_ENDING.md) | 시민권 구매·최종 정산·엔딩 구현과 플레이 테스트 | 현재 구현 계약·데이터·검증·정책 변경 지점 |
 | [work/citizenship-ending.md](work/citizenship-ending.md) | 시민권·엔딩 작업 재개·설계 근거 조사 | 작업 상태 및 구현 전 결정·제안 기록 |
 | [work/sprite-world-presentation.md](work/sprite-world-presentation.md) | 월드 배경·손님 로컬 개발 | Main 원본 복원·개인 씬 분리·향후 통합 경계 |
+| [work/sound-facility-ui-merge-handoff.md](work/sound-facility-ui-merge-handoff.md) | Sound_Upgrade의 사운드·설비 단계별 UI 통합 | 필수 파일 묶음·충돌 처리·제외 범위·통합 후 검증 |
 | [work/README.md](work/README.md) | 담당 전환·중단 | 도구와 무관한 작업 상태·인계 기준 |
 | [AGENT_REQUEST_GUIDE.md](AGENT_REQUEST_GUIDE.md) | 목적만 제시된 자연어 요청 구체화 | 검토 요약→승인→실행 명세 |
 | [TEAM_ROLES.md](TEAM_ROLES.md) | 담당·권한·검토자 확인 | 실제 참여자와 복수 역할 명부 |
