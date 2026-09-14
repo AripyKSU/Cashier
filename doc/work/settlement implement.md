@@ -52,6 +52,34 @@
 - 같은 날짜에 정산 화면을 다시 렌더링하면 완료된 도장은 즉시 유지하며 애니메이션과 완료 이벤트를 반복하지 않는다.
 - `SettlementPanel/DailyLedgerVisual/ReputationStamp`의 위치와 크기는 사용자가 조절할 임시값이다.
 
+## 정산 상호작용
+
+`SettlementInteractionView`는 정산 화면의 두 버튼을 소유하지만 진행 로직은 호출하지 않고 이벤트만 발행한다.
+
+- `OnFacilityRequested`: `GameUIController`가 기존 설비 업그레이드 UI 진입 경로에 연결한다.
+- `OnNextDayRequested`: 후속 `DailySettlementFlowController`가 구독할 공개 계약이며 현재는 `DayProgress` 또는 `GameProgress`에 직접 연결하지 않는다.
+- `SetInteractionEnabled(bool)`: 가계부·딸 대사·도장 연출 중과 설비 모달 표시 중 두 버튼을 함께 잠근다.
+- 도장 완료 뒤 두 버튼을 해제하고, 설비 UI를 닫으면 완료 상태에 따라 다시 해제한다.
+- `FacilityPamphletButton`은 아트 교체 전까지 흰색 `Image`를 사용하는 임시 오브젝트다. 현재 RectTransform은 위치 `(-390, -120)`, 크기 `(140, 100)`이며 Inspector에서 직접 변경한다.
+- 기존 `SettlementNext` 버튼은 `DailySettlementPresenter`에서 분리해 `SettlementInteractionView.nextDayButton`에 연결했다.
+
+## 정산 전체 흐름 Controller
+
+`DailySettlementFlowController`가 정산 컴포넌트의 표시 순서와 입력 수명을 전담한다. 금액·명성·대사를 계산하거나 선택하지 않고 `GameUIController`가 생성한 `DailySettlementViewData`와 `DaughterDialogueViewData`만 전달한다.
+
+```text
+LedgerPresenting → DaughterPresenting → StampPresenting → ReadyForInteraction
+                                                          ├─ FacilityOpen → ReadyForInteraction
+                                                          └─ AdvancingDay
+```
+
+- 각 완료 이벤트는 현재 상태가 일치할 때만 다음 단계로 넘어가므로 중복·지난 이벤트를 무시한다.
+- 같은 날짜에 `Begin`이 다시 호출되면 진행 중인 연출을 재시작하지 않는다.
+- 설비 구매 중에는 `FacilityOpen` 상태와 입력 잠금을 유지하고 최신 잔액만 `RefreshSettlement`으로 즉시 갱신한다.
+- 설비 UI가 닫히면 `NotifyFacilityClosed`로 `ReadyForInteraction`에 복귀한다.
+- 다음 날 버튼은 첫 클릭 즉시 `AdvancingDay`로 바뀌며 입력을 잠근 뒤 주입받은 기존 `GameProgress.CompleteSettlement` 경로를 한 번만 호출한다.
+- Flow 오류는 `OnFlowFailed`로 `GameUIController`의 기존 오류 표시 경로에 전달한다.
+
 ## 추가된 UI 오브젝트
 
 현재 최소 편집 계층은 다음과 같다. 위치와 글자 크기는 플레이어가 후속 조정할 임시값이며 화면 배치 검증은 하지 않았다.

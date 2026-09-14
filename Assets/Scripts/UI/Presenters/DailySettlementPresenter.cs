@@ -72,15 +72,8 @@ public class DailySettlementPresenter : MonoBehaviour
     [SerializeField] private TextMeshProUGUI unpaidAmountText;
     [SerializeField] private TextMeshProUGUI gracePeriodText;
 
-    [Header("Buttons")]
-    [Tooltip("다음 단계 요청 버튼")]
-    [SerializeField] private Button nextStepButton;
-
     private int presentedLedgerDay = -1;
     private bool hasCompletedLedgerPresentation;
-
-    /// <summary>사용자가 일일 정산 확인을 완료하고 다음 단계 진행을 요청할 때 발생하는 이벤트</summary>
-    public event Action OnNextStepRequested;
 
     /// <summary>가계부 양쪽 페이지의 순차 출력이 완료됐을 때 발생하는 이벤트입니다.</summary>
     public event Action OnLedgerPresentationCompleted;
@@ -97,10 +90,6 @@ public class DailySettlementPresenter : MonoBehaviour
         if (this.reputationStampPresenter != null)
             this.reputationStampPresenter.OnPresentationCompleted += this.handleStampPresentationCompleted;
 
-        if (this.nextStepButton != null)
-        {
-            this.nextStepButton.onClick.AddListener(this.handleNextStepClicked);
-        }
     }
 
     private void OnDestroy()
@@ -215,7 +204,7 @@ public class DailySettlementPresenter : MonoBehaviour
     /// <summary>
     /// 코드로 동적 생성된 UI 요소를 바인딩할 때 사용하는 헬퍼 메서드
     /// </summary>
-    public void Bind(GameObject root, TextMeshProUGUI incomeTxt, TextMeshProUGUI expTxt, TextMeshProUGUI profitTxt, TextMeshProUGUI balTxt, TextMeshProUGUI repTxt, TextMeshProUGUI statsTxt = null, TextMeshProUGUI dayTxt = null, Button nextBtn = null, Image repImage = null)
+    public void Bind(GameObject root, TextMeshProUGUI incomeTxt, TextMeshProUGUI expTxt, TextMeshProUGUI profitTxt, TextMeshProUGUI balTxt, TextMeshProUGUI repTxt, TextMeshProUGUI statsTxt = null, TextMeshProUGUI dayTxt = null, Image repImage = null)
     {
         this.panelRoot = root;
         this.saleIncomeText = incomeTxt;
@@ -225,20 +214,7 @@ public class DailySettlementPresenter : MonoBehaviour
         this.reputationDeltaText = repTxt;
         this.customerStatsText = statsTxt;
         this.dayText = dayTxt;
-        this.nextStepButton = nextBtn;
         this.reputationFeedbackImage = repImage;
-
-        if (this.nextStepButton != null)
-        {
-            this.nextStepButton.onClick.RemoveAllListeners();
-            this.nextStepButton.onClick.AddListener(this.handleNextStepClicked);
-        }
-    }
-
-    private void handleNextStepClicked()
-    {
-        this.Close();
-        this.OnNextStepRequested?.Invoke();
     }
 
     /// <summary>가계부 View의 완료를 이후 딸 대사 흐름이 구독할 수 있도록 전달합니다.</summary>
