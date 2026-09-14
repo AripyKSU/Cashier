@@ -21,6 +21,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0b7abd40c5a3d4b408c65dea6e77c1bd
+    m_Address: ProtectiveSuit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 11b7352f9c6ef8f4b8903595b6df0453
     m_Address: MaleCustomer_29
     m_ReadOnly: 0
@@ -33,6 +38,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 17b7e3e757ebb804ea7addc9b6706963
     m_Address: MaleCustomer_24
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1a651144da99c104bbb613cf8d4504b1
+    m_Address: Radio
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -103,6 +113,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3ef29384ab73e7345830c6f4c6a558a0
+    m_Address: MedicalBandage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3f131a5cba16a234cbe54f6323dc8618
+    m_Address: PowerBattery
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4071d61b90def654988de31d2cd72a52
     m_Address: TextData
     m_ReadOnly: 0
@@ -155,8 +175,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5605a1d3f5e1b5144882644f679a2183
+    m_Address: Medicine
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5950e40d5846fe14db1bd09e65bad894
     m_Address: MaleCustomer_23
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5ce5e2c16d103ed449913e369d3aed24
+    m_Address: RadiationDetector
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -173,6 +203,16 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 66b72b5b3f7a5db419b44c2f084e12a5
     m_Address: TopDownCrackers
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6850fd1ffdc36564e9bb28fc9cd7102a
+    m_Address: FoldingShovel
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 68f3ce697edbe024eb8684cdc63f1984
+    m_Address: EmergencyInjection
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -221,6 +261,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 8904d7773a19a5d42ab9d4e4b1ea36ca
     m_Address: FemaleCustomer_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8d9193c62e71a88478b1d80d7ad0d5e5
+    m_Address: Flashlight
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -273,6 +318,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9fecc3badd4b3834e9d8f09bc460a8ad
     m_Address: MaleCustomer_25
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a01a09e0862e406448dec3d8749b8e31
+    m_Address: DrinkingWater
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -353,8 +403,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cbfac51892a5b7a45877137ebaa2f8c6
+    m_Address: CannedFood
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cdf61d5e5c701e749a6f8f719ec18e56
     m_Address: MaleCustomer_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d0ad7ff789440a543a0f1b1ef3ebb927
+    m_Address: NutritionBar
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d75c10a1c25fc484291deec6259b0436
+    m_Address: ThermalCamera
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -363,6 +428,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d95e921727c8e6a4d908ed3085f383da
+    m_Address: MilitaryRation
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dbe1fda4c8ef9b749962ebd281cff00d
+    m_Address: GasMask
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e10861ad08b6aad4eb546bf10f237645
     m_Address: MaleCustomer_02
@@ -382,6 +457,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e8ce579ccb334dd49943b3ef6e5082ce
     m_Address: FemaleCustomer_11
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb04300ab2186e646a76c1742a3d2bf0
+    m_Address: DryBattery
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

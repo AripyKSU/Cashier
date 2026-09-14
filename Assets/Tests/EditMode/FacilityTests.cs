@@ -304,11 +304,11 @@ public sealed class FacilityTests
         Assert.That(before.Items[0].State, Is.EqualTo(FacilityDisplayState.Purchasable));
         Assert.That(before.Items[1].State, Is.EqualTo(FacilityDisplayState.InsufficientFunds));
         Assert.That(before.Items[0].DisplayName, Is.EqualTo("식량 보관 선반"));
-        Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("분말 수프, 영양바"));
+        Assert.That(before.Items[0].UnlockProducts, Is.EqualTo("군용식량, 영양바"));
         Assert.That(before.Items[0].ActivationDisplayDay, Is.EqualTo(2UL));
         Assert.That(before.Items[5].FacilityIdx, Is.EqualTo(12006));
-        Assert.That(before.Items[4].UnlockProducts, Is.EqualTo("방독면, 방호복, 방사능 측정기"));
-        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("열화상 카메라, 야간 투시경, 휴대용 탐지기"));
+        Assert.That(before.Items[4].UnlockProducts, Is.EqualTo("방독면, 방호복"));
+        Assert.That(before.Items[5].UnlockProducts, Is.EqualTo("방사능 측정기, 열화상 카메라"));
         Assert.That(before.Items.Single(x => x.FacilityIdx == 12012).State,
             Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
         foreach (uint idx in table.Rows.Keys.Where(idx => idx != 12012)) owned[idx] = 0;

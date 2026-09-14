@@ -38,6 +38,9 @@
 - 플레이어 드래그, 막대 이동, 청소기 부착 중인 상품은 자동 소팅하지 않는다.
 - 논리적인 판매 목록은 위치가 아니라 상품의 `ForSale` 상태로 집계한다.
 - 상품 간 물리 충돌은 사용하지 않는다.
+- 작업대 탑뷰 상품은 Sprite만 표시하고 테스트용 상품명·상품 ID TMP를 생성하거나 겹쳐 표시하지 않는다. 장바구니·가격표 등 다른 화면의 상품명은 유지한다.
+- 하단 `CounterClock`은 104:78 Sprite 비율에 맞춘 120×90 Rect를 사용한다. 기존 180×90 부모에서 `preserveAspect`가 왼쪽 정렬되어 본체와 숫자 중심이 어긋나던 문제를 막기 위해 `ClockText`는 64×20, 위치 (-1,-7), 18pt, NoWrap으로 둔다.
+- 2026-09-14 검증: EditMode 259/259, 실패·skip·미완료 0 (`Temp/TestResults/20260914-171004-8edf4782999f4d2f8122a7b9805440f1/EditMode.xml` 및 `.log`). 반복 Initialize 후 상품 ID·Sprite 유지/TMP 자식 0, MainScene의 GameUI 시계 배치 상속·missing script 0을 확인했다 (`Temp/TopViewClockValidation.txt`). 실제 Play에서 탑뷰 이름 제거와 정면 숫자창 정렬을 확인했다 (`Temp/ClockActualBefore.png`: 이름 제거 후 탑뷰, `Temp/ClockFrontBefore.png`, `Temp/ClockFrontAfter.png`: 시계 보정 전후). 정면 비교는 런타임 표시 API로 전환한 미리보기이며 전체 거래 UX 검증을 의미하지 않는다. MainScene·원본 이미지·시간 로직은 변경하지 않았다. PlayMode 전체 테스트는 이번 수정에서 재실행하지 않았고 최종 조작감·다른 해상도는 사용자 확인 대상이다.
 
 ## 계산기 표시와 입력
 

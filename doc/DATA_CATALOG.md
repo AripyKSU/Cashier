@@ -1,5 +1,7 @@
 # 기획용 데이터 카탈로그
 
+> 2026-09-14 최종 상품 16종 반영: 사용자 확정에 따라 [물품 기획서](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.mxsfe4eewdaq)의 16종안을 적용한다. 1009·1011·1017·1024·1025를 제외하고 1005는 군용식량, 1013은 약통으로 개명한다. 1022 방사능 측정기는 설비 12006 해금으로 이동한다. 남은 16종의 가격·원가·ID는 유지하며 모두 기본/탑뷰 이미지를 연결했다(Resource 4257~4272, 전체 72행). 아래 과거 원문 스냅샷보다 [현재 이미지 매핑](IMAGE_RESOURCE_INTEGRATION.md#디스토피아-상품-이미지-연결-2026-09-14)과 실제 CSV를 우선한다. 문서의 검토안 표기는 사용자의 최종 확정으로 대체한다.
+
 > 2026-09-13 손님 외형 이름 정리: 성별·연령은 이름을 정리하는 참고 기준이며 고정 데이터가 아니다. 추가했던 컬럼과 검증을 제거해 CustomerAppearanceData는 기존3열을 유지한다. 기존 외형 이름45개는 정리한 이름을 유지한다. [현재 스키마](IMAGE_RESOURCE_INTEGRATION.md#외형-성별연령-분류-2026-09-13)와 [이름 정리 참고표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)를 참고한다. 아래 예전 표시 이름은 과거 스냅샷이다.
 
 > 2026-09-13 감독관 전용 이미지 연결: Resource4256 → `Inspector` 추가로 Resource는56행이다. 1·10·21일 감독관 이벤트가 이 이미지를 참조한다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)를 참고한다.

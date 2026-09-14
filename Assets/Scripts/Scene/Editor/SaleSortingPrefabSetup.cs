@@ -432,23 +432,24 @@ public static class SaleSortingPrefabSetup
         createFrontImage(frontView, "Canopy", CanopyPath, 0f, 0f, 1280f, 720f);
         createFrontImage(frontView, "Counter", CounterPath, 0f, 0f, 1280f, 720f);
 
-        // 상자와 시계를 화면 및 매대 정중앙(X=640)에 맞춰 가운데 정렬 배치합니다.
-        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 550f, 605f, 180f, 90f);
+        // 시계는 승인된 왼쪽 상단 위치에서 Sprite 비율과 숫자창 정렬을 유지합니다.
+        RectTransform clockRect = createFrontImage(frontView, "CounterClock", CounterClockPath, 550f, 605f, 120f, 90f);
         Image clockImage = clockRect.GetComponent<Image>();
         clockImage.preserveAspect = true;
         clockImage.raycastTarget = false;
         BusinessClockController clockController = clockRect.gameObject.AddComponent<BusinessClockController>();
 
-        RectTransform clockTextRect = createRect("ClockText", clockRect, Vector2.zero, new Vector2(110f, 28f));
+        RectTransform clockTextRect = createRect("ClockText", clockRect, Vector2.zero, new Vector2(64f, 20f));
         clockTextRect.anchorMin = new Vector2(0.5f, 0.5f);
         clockTextRect.anchorMax = new Vector2(0.5f, 0.5f);
         clockTextRect.pivot = new Vector2(0.5f, 0.5f);
-        clockTextRect.anchoredPosition = new Vector2(0f, -2f);
+        clockTextRect.anchoredPosition = new Vector2(-1f, -7f);
         TextMeshProUGUI clockText = clockTextRect.gameObject.AddComponent<TextMeshProUGUI>();
         clockText.text = "09:00";
-        clockText.fontSize = 22f;
+        clockText.fontSize = 18f;
         clockText.fontStyle = FontStyles.Bold;
         clockText.alignment = TextAlignmentOptions.Center;
+        clockText.textWrappingMode = TextWrappingModes.NoWrap;
         clockText.color = new Color(0.40f, 0.58f, 0.43f, 1f);
         clockText.raycastTarget = false;
 
