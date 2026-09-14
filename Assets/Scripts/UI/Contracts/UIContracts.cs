@@ -268,6 +268,7 @@ public readonly struct DailySettlementViewData
     public long NetProfit { get; }
     public long CurrentBalance { get; }
     public int ReputationDelta { get; }
+    public int FinalReputation { get; }
     public int SuccessfulSales { get; }
     public int RefusedCustomers { get; }
     public int DepartedCustomers { get; }
@@ -282,12 +283,13 @@ public readonly struct DailySettlementViewData
     public int RemainingGraceDays { get; }
     public bool IsGameOverConditionMet { get; }
 
-    /// <summary>도메인에서 확정된 값을 재계산하지 않는 정산 표시 스냅샷을 생성합니다.</summary>
+    /// <summary>도메인에서 확정된 값과 정산 후 명성을 재계산하지 않는 정산 표시 스냅샷을 생성합니다.</summary>
     public DailySettlementViewData(
         int day,
         long saleIncome,
         long currentBalance,
         int reputationDelta,
+        int finalReputation,
         int successfulSales,
         int refusedCustomers,
         int departedCustomers,
@@ -310,6 +312,9 @@ public readonly struct DailySettlementViewData
         NetProfit = checked(saleIncome - Expenses);
         CurrentBalance = currentBalance;
         ReputationDelta = reputationDelta;
+        if (finalReputation < -100 || finalReputation > 100)
+            throw new ArgumentOutOfRangeException(nameof(finalReputation));
+        FinalReputation = finalReputation;
         SuccessfulSales = successfulSales;
         RefusedCustomers = refusedCustomers;
         DepartedCustomers = departedCustomers;

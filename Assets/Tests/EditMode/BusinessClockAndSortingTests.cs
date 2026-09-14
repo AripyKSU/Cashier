@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -131,6 +132,57 @@ public sealed class BusinessClockAndSortingTests
         Assert.That(image.color.g, Is.GreaterThan(0.9f));
 
         Object.DestroyImmediate(root);
+    }
+
+    [TestCase(false, 0f, 0f, SaleSortingHandCursor.HandCursorState.Released)]
+    [TestCase(true, 0f, 0f, SaleSortingHandCursor.HandCursorState.HoldingStill)]
+    [TestCase(true, -80f, 0f, SaleSortingHandCursor.HandCursorState.HoldingLeft)]
+    [TestCase(true, 80f, 0f, SaleSortingHandCursor.HandCursorState.HoldingRight)]
+    [TestCase(true, 80f, 100f, SaleSortingHandCursor.HandCursorState.HoldingStill)]
+    public void SaleSortingHandCursor_ResolvesReleasedAndHoldingDirections(
+        bool isHolding,
+        float velocityX,
+        float velocityY,
+        SaleSortingHandCursor.HandCursorState expected)
+    {
+        SaleSortingHandCursor.HandCursorState actual = SaleSortingHandCursor.ResolveState(
+            isHolding,
+            new Vector2(velocityX, velocityY),
+            30f);
+
+        Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void SaleSortingHandCursor_GameUiPrefab_IsTopmostAndFullyBound()
+    {
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab");
+        Assert.That(prefab, Is.Not.Null);
+
+        Transform cursorRoot = prefab.transform.Find("HandCursorCanvas");
+        Assert.That(cursorRoot, Is.Not.Null);
+        Assert.That(cursorRoot.GetSiblingIndex(), Is.EqualTo(prefab.transform.childCount - 1));
+
+        Canvas canvas = cursorRoot.GetComponent<Canvas>();
+        Assert.That(canvas, Is.Not.Null);
+        Assert.That(canvas.overrideSorting, Is.True);
+        Assert.That(canvas.sortingOrder, Is.EqualTo(32760));
+
+        SaleSortingHandCursor cursor = cursorRoot.GetComponent<SaleSortingHandCursor>();
+        Assert.That(cursor, Is.Not.Null);
+        SerializedObject cursorObject = new SerializedObject(cursor);
+        Assert.That(cursorObject.FindProperty("releasedSprite").objectReferenceValue.name, Is.EqualTo("Hand2"));
+        Assert.That(cursorObject.FindProperty("holdingStillSprite").objectReferenceValue.name, Is.EqualTo("Hand1"));
+        Assert.That(cursorObject.FindProperty("holdingLeftSprite").objectReferenceValue.name, Is.EqualTo("Hand3"));
+        Assert.That(cursorObject.FindProperty("holdingRightSprite").objectReferenceValue.name, Is.EqualTo("Hand4"));
+
+        UnityEngine.UI.Image image = cursorRoot.GetComponentInChildren<UnityEngine.UI.Image>(true);
+        Assert.That(image, Is.Not.Null);
+        Assert.That(image.raycastTarget, Is.False);
+
+        SaleSortingPanel panel = prefab.GetComponentInChildren<SaleSortingPanel>(true);
+        SerializedObject panelObject = new SerializedObject(panel);
+        Assert.That(panelObject.FindProperty("handCursor").objectReferenceValue, Is.SameAs(cursor));
     }
 
     [Test]

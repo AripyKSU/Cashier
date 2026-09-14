@@ -74,6 +74,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [Tooltip("상품을 여러 개 흡착해 함께 이동하는 청소기")]
     [SerializeField] private VacuumController vacuum;
 
+    [Header("Hand Cursor")]
+    [Tooltip("물품, 막대와 청소기의 통합 잡기 상태를 표시하는 최상단 손 커서")]
+    [SerializeField] private SaleSortingHandCursor handCursor;
+
     private readonly List<SaleSortingItemView> items = new List<SaleSortingItemView>();
     private readonly HashSet<SaleSortingItemView> dividerMovedItems = new HashSet<SaleSortingItemView>();
     private ViewState state;
@@ -263,6 +267,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 this.dividerBar.UpdateMotion(false, Vector2.zero, Time.unscaledDeltaTime);
             }
             this.releaseDraggedItem();
+            if (this.handCursor != null) this.handCursor.Hide();
             return;
         }
 
@@ -323,6 +328,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             this.updatePlayerDrag(allowNewInteraction);
         }
+        this.updateHandCursor(
+            this.draggedItem != null || isDividerHolding || isVacuumHolding,
+            allowNewInteraction,
+            deltaSeconds);
         this.refreshStatus();
     }
 
@@ -337,6 +346,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             this.frontContainerButton.onClick.RemoveListener(this.handleFrontContainerClicked);
         }
+        if (this.handCursor != null) this.handCursor.Hide();
     }
 
     /// <summary>새 손님의 주문을 개별 상품 오브젝트로 생성하고 Astra 순서의 화면 전환을 시작합니다.</summary>
@@ -1078,6 +1088,21 @@ public sealed class SaleSortingPanel : MonoBehaviour
 #else
         return Input.mousePosition;
 #endif
+    }
+
+    /// <summary>물품과 편의 도구의 최종 잡기 상태를 손 커서 표현에 반영합니다.</summary>
+    /// <param name="isHolding">물품, 막대 또는 청소기 중 하나를 잡고 있는지 여부입니다.</param>
+    /// <param name="allowNewInteraction">포인터가 새 작업대 입력을 시작할 수 있는 위치인지 여부입니다.</param>
+    /// <param name="deltaSeconds">손 방향 속도 계산에 사용할 실제 경과 시간입니다.</param>
+    private void updateHandCursor(bool isHolding, bool allowNewInteraction, float deltaSeconds)
+    {
+        if (this.handCursor == null) return;
+        Vector2 pointerScreenPosition = this.getPointerScreenPosition();
+        bool isInsideScreen = pointerScreenPosition.x >= 0f && pointerScreenPosition.x <= Screen.width &&
+            pointerScreenPosition.y >= 0f && pointerScreenPosition.y <= Screen.height;
+        bool isInsideWorkArea = RectTransformUtility.RectangleContainsScreenPoint(this.workArea, pointerScreenPosition, null);
+        bool visible = Application.isFocused && isInsideScreen && isInsideWorkArea && (allowNewInteraction || isHolding);
+        this.handCursor.UpdatePresentation(visible, isHolding, pointerScreenPosition, deltaSeconds);
     }
 
 

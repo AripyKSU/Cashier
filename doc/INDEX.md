@@ -21,6 +21,8 @@
 | [INDEX.md](INDEX.md) | 작업 시작·범위 변경 | 현재 체크아웃의 문서 색인과 이동 대응 |
 | [INSPECTOR_SYSTEM_DRAFT.md](INSPECTOR_SYSTEM_DRAFT.md) | 영업 전 감독관 이벤트 | 구현된 데이터·진행·UI 계약과 과거 검증 |
 | [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md) | 정산 화면의 딸 대사·날짜별 이미지 | 구현 계약·상태 소유권, 임시 데이터·병합 연결과 검증 결과 |
+| [SETTLEMENT_UI_LAYOUT.md](SETTLEMENT_UI_LAYOUT.md) | 정산 화면 배치·이미지·폰트 조정 | 플레이어가 직접 편집할 Prefab 계층, 리소스와 유지할 참조 |
+| [SETTLEMENT_TECHNICAL.md](SETTLEMENT_TECHNICAL.md) | 정산 코드·API·흐름 변경 | 클래스 책임, ViewData, 이벤트, 설비 왕복과 다음 날 연결 |
 | [FEATURE_CONTRACT_AUDIT.md](FEATURE_CONTRACT_AUDIT.md) | 담당 기능의 명세·구현 차이 확인 | 손님·설비·도덕성·대기열·감독관 대조와 미해결 항목 |
 | [work/inspector-events.md](work/inspector-events.md) | 감독관 작업 재개·통합 | 현재 브랜치·완료·후속 작업 |
 | [CITIZENSHIP_ENDING.md](CITIZENSHIP_ENDING.md) | 시민권 구매·최종 정산·엔딩 구현과 플레이 테스트 | 현재 구현 계약·데이터·검증·정책 변경 지점 |

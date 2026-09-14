@@ -63,35 +63,15 @@ public sealed class GameSessionApiTests
         }
     }
 
-    /// <summary>라디오는 입장/일시정지에 방송하지 않고 영업 후 60초 안에 한 번만 방송한다.</summary>
+    /// <summary>라디오 스케줄이 없으면 영업 시간이 지나도 가격 snapshot을 교체하지 않는다.</summary>
     [Test]
-    public void RadioTimingPauseAndCloseCancellation()
+    public void NoRadioScheduleKeepsDailyPricesStable()
     {
-        var before = session.EnsureDailyPrices(); Assert.That(before.IsRadioBroadcast, Is.False); Assert.That(before.RadioEventIdx.HasValue);
-        Assert.That(session.AdvanceTradingTime(60, false), Is.False); session.BeginTradingDay();
-        Assert.That(session.AdvanceTradingTime(60, true), Is.False); Assert.That(session.DailyPrices, Is.SameAs(before));
-        Assert.That(session.AdvanceTradingTime(60, false)); Assert.That(session.AdvanceTradingTime(60, false), Is.False);
-        session.EndTradingDay(); session.CompleteDay(0); var day1 = session.EnsureDailyPrices();
-        var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
-        progress.Start(); completeInspectors(progress);
-        session.BeginTradingDay(); session.EndTradingDay(); Assert.That(session.AdvanceTradingTime(60, false), Is.False);
-        Assert.That(session.DailyPrices, Is.SameAs(day1)); Assert.That(day1.IsRadioBroadcast, Is.False);
-    }
-
-    /// <summary>방문 희망 snapshot과 방송 이후 제출 현재가를 구분한다.</summary>
-    [Test]
-    public void RadioUpdatesSubmissionButNotInitialItems()
-    {
-        var before = session.EnsureDailyPrices(); var visit = generate(); var initial = visit.Items.Select(x => x.UnitPrice).ToArray();
-        session.BeginTradingDay(); session.AdvanceTradingTime(60, false);
-        Assert.That(visit.Items.Select(x => x.UnitPrice), Is.EqualTo(initial));
-        var expected = new PriceEventScheduler(new System.Random(1)).ApplyRadio(before, tables.GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Rows, tables.Customers.Products.Rows);
-        Assert.That(session.DailyPrices.Prices, Is.EquivalentTo(expected.Prices));
-        var final = visit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
-        long total = final.Sum(x => (long)x.Quantity * session.DailyPrices.Prices[x.ProductId]);
-        visit.BeginOffer(); visit.SubmitOffer(total, final); Assert.That(visit.Result.Value.ReferenceTotal, Is.EqualTo(total));
-        Assert.That(visit.Result.Value.SoldItems.All(x => x.UnitPrice == session.DailyPrices.Prices[x.ProductId]));
-        Assert.That(generate().Items.All(x => x.UnitPrice == session.DailyPrices.Prices[x.ProductIdx]));
+        var before = session.EnsureDailyPrices();
+        Assert.That(before.RadioEventIdx, Is.Null);
+        session.BeginTradingDay();
+        Assert.That(session.AdvanceTradingTime(60, false), Is.False);
+        Assert.That(session.DailyPrices, Is.SameAs(before));
     }
 
     /// <summary>매출 반영·종료 후 접수 거부·날짜 상태 전이를 화면 없이 검사한다.</summary>
@@ -695,9 +675,9 @@ public sealed class GameSessionApiTests
         Assert.That(day.LeavingCustomers.All(x => !ReferenceEquals(x.Visit, day.CurrentVisit)));
     }
 
-    /// <summary>진행 Tick의 pause와 방송, 방문 snapshot 및 제출 단가의 동일 원본을 검사한다.</summary>
+    /// <summary>진행 Tick 이후에도 라디오가 없고 방문 snapshot과 제출 단가가 동일한 원본을 사용하는지 검사한다.</summary>
     [Test]
-    public void ProgressRadioUsesOnlyUnpausedTradingTime()
+    public void ProgressWithoutRadioKeepsPriceSnapshot()
     {
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1), 90);
         progress.Start(); progress.OpenBusiness(); progress.BeginCustomerSorting();
@@ -709,15 +689,16 @@ public sealed class GameSessionApiTests
         Assert.That(session.DailyPrices, Is.SameAs(before));
         progress.Resume(); progress.Tick(60);
         Assert.That(day.RemainingSeconds, Is.EqualTo(30));
-        Assert.That(session.DailyPrices.IsRadioBroadcast);
-        var broadcast = session.DailyPrices;
+        Assert.That(session.DailyPrices.RadioEventIdx, Is.Null);
+        Assert.That(session.DailyPrices.IsRadioBroadcast, Is.False);
+        var currentPrices = session.DailyPrices;
         progress.Tick(1);
-        Assert.That(session.DailyPrices, Is.SameAs(broadcast));
+        Assert.That(session.DailyPrices, Is.SameAs(currentPrices));
         Assert.That(day.CurrentVisit.Items.Select(x => x.UnitPrice), Is.EqualTo(original));
         var final = day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray();
         Assert.That(progress.SubmitOffer(1, final));
         Assert.That(day.CurrentVisit.Result.Value.ReferenceTotal,
-            Is.EqualTo(final.Sum(x => (long)x.Quantity * broadcast.Prices[x.ProductId])));
+            Is.EqualTo(final.Sum(x => (long)x.Quantity * currentPrices.Prices[x.ProductId])));
     }
 
     /// <summary>긴 프레임이 영업시간을 초과해 방송하지 않으며 Closing 마지막 거래 정책은 유지한다.</summary>

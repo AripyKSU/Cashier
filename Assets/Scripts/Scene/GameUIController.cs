@@ -30,6 +30,7 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private PriceInputPresenter priceInputPresenter;
     [SerializeField] private DailySettlementPresenter dailySettlementPresenter;
     [SerializeField] private DaughterDialoguePresenter daughterDialoguePresenter;
+    [SerializeField] private DailySettlementFlowController dailySettlementFlowController;
     [SerializeField] private KeypadController keypadController;
     [SerializeField] private GameInputRouter gameInputRouter;
     [SerializeField] private SaleSortingPanel saleSortingPanel;
@@ -64,8 +65,8 @@ public sealed class GameUIController : MonoBehaviour
 
     /// <summary>독립 설비 상점 프리팹의 표시·입력 어댑터.</summary>
     [SerializeField] private FacilityShopPresenter facilityShopPresenter;
-    /// <summary>일일 정산 화면에서만 보이는 설비 진입 버튼.</summary>
-    [SerializeField] private Button facilityOpenButton;
+    /// <summary>정산 팜플렛과 다음 날 입력을 이벤트로 전달하는 View.</summary>
+    [SerializeField] private SettlementInteractionView settlementInteractionView;
     /// <summary>모달 뒤 정산 버튼의 포인터·Submit 입력을 차단한다.</summary>
     [SerializeField] private CanvasGroup settlementInputGroup;
 
@@ -208,7 +209,7 @@ public sealed class GameUIController : MonoBehaviour
                 if (this.isSettlementPresentationPending && this.queueExitRemaining <= 0)
                 {
                     this.isSettlementPresentationPending = false;
-                    this.renderSettlement(this.subscribedDay.SettlementResult.Value);
+                    this.beginSettlementFlow(this.subscribedDay.SettlementResult.Value);
                     this.refreshAllViews();
                 }
             }
@@ -338,6 +339,8 @@ public sealed class GameUIController : MonoBehaviour
             throw new InvalidOperationException("감독관 패널 또는 초기화 덮개 참조가 누락되었습니다.");
         inspectorPresenter.ValidateReferences();
         daughterDialoguePresenter?.ValidateReferences();
+        settlementInteractionView?.ValidateReferences();
+        dailySettlementFlowController?.ValidateReferences();
         if (this.useCustomerQueue && (float.IsNaN(this.queueExitSeconds) || float.IsInfinity(this.queueExitSeconds) || this.queueExitSeconds <= 0))
             throw new InvalidOperationException("큐 퇴장 시간은 유한한 양수여야 합니다.");
         if (this.gameDayPresenter == null
@@ -347,6 +350,7 @@ public sealed class GameUIController : MonoBehaviour
             || this.priceInputPresenter == null
             || this.dailySettlementPresenter == null
             || this.daughterDialoguePresenter == null
+            || this.dailySettlementFlowController == null
             || this.keypadController == null
             || this.gameInputRouter == null
             || this.saleSortingPanel == null
@@ -358,7 +362,7 @@ public sealed class GameUIController : MonoBehaviour
             || this.openBusinessButton == null
             || this.transactionContinueButton == null
             || this.facilityShopPresenter == null
-            || this.facilityOpenButton == null
+            || this.settlementInteractionView == null
             || this.settlementInputGroup == null)
         {
             throw new InvalidOperationException("게임 UI의 Presenter, 입력 라우터 또는 패널 참조가 누락되었습니다.");
@@ -371,14 +375,14 @@ public sealed class GameUIController : MonoBehaviour
         inspectorPresenter.NextRequested += handleInspectorNext;
         inspectorPresenter.ExitCompleted += handleInspectorExit;
         inspectorPresenter.Failed += showError;
-        this.facilityOpenButton.onClick.AddListener(this.handleFacilityOpenClicked);
+        this.dailySettlementFlowController.OnFacilityOpenRequested += this.handleFacilityOpenClicked;
+        this.dailySettlementFlowController.OnFlowFailed += this.showError;
         this.facilityShopPresenter.OnPurchaseRequested += this.handleFacilityPurchaseRequested;
         this.facilityShopPresenter.OnCloseRequested += this.handleFacilityCloseRequested;
         this.priceInputPresenter.OnPriceConfirmed += this.handlePriceConfirmed;
         this.priceInputPresenter.OnInputCancelled += this.handleInputCancelled;
         this.businessTimerPresenter.OnPauseRequested += this.handlePauseRequested;
         this.businessTimerPresenter.OnResumeRequested += this.handleResumeRequested;
-        this.dailySettlementPresenter.OnNextStepRequested += this.handleSettlementNextRequested;
         this.keypadController.OnPriceChanged += this.handlePriceChanged;
         this.gameInputRouter.OnConfirmRequested += this.handleKeyboardConfirmRequested;
         this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
@@ -405,7 +409,11 @@ public sealed class GameUIController : MonoBehaviour
             inspectorPresenter.ExitCompleted -= handleInspectorExit;
             inspectorPresenter.Failed -= showError;
         }
-        if (this.facilityOpenButton != null) this.facilityOpenButton.onClick.RemoveListener(this.handleFacilityOpenClicked);
+        if (this.dailySettlementFlowController != null)
+        {
+            this.dailySettlementFlowController.OnFacilityOpenRequested -= this.handleFacilityOpenClicked;
+            this.dailySettlementFlowController.OnFlowFailed -= this.showError;
+        }
         if (this.facilityShopPresenter != null)
         {
             this.facilityShopPresenter.OnPurchaseRequested -= this.handleFacilityPurchaseRequested;
@@ -421,11 +429,6 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.businessTimerPresenter.OnPauseRequested -= this.handlePauseRequested;
             this.businessTimerPresenter.OnResumeRequested -= this.handleResumeRequested;
-        }
-
-        if (this.dailySettlementPresenter != null)
-        {
-            this.dailySettlementPresenter.OnNextStepRequested -= this.handleSettlementNextRequested;
         }
 
         if (this.keypadController != null)
@@ -599,43 +602,59 @@ public sealed class GameUIController : MonoBehaviour
         }
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
-        this.renderSettlement(result);
+        this.beginSettlementFlow(result);
         this.refreshAllViews();
     }
 
     /// <summary>확정된 정산 통계는 그대로 두고 현재 잔액을 다시 표시한다.</summary>
     /// <param name="result">미납과 유예까지 확정된 최종 정산 결과입니다.</param>
-    private void renderSettlement(DailySettlementResult result)
+    private void beginSettlementFlow(DailySettlementResult result)
+    {
+        if (!this.subscribedDay.DaughterDialogueResult.HasValue)
+            throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
+        this.dailySettlementPresenter.ConfigureEnding(
+            this.subscribedDay.Day == 31,
+            this.gameProgress.HasCitizenship,
+            this.gameProgress.WasLastSettlementUnpaidGameOverExempted);
+        this.dailySettlementFlowController.Begin(
+            this.subscribedDay,
+            this.createSettlementViewData(result),
+            this.viewDataFactory.CreateDaughterDialogueViewData(
+                this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites),
+            this.gameProgress.CompleteSettlement);
+    }
+
+    /// <summary>도메인에서 확정된 정산값을 화면용 snapshot으로 변환합니다.</summary>
+    private DailySettlementViewData createSettlementViewData(DailySettlementResult result)
     {
         int finalReputationDelta = this.subscribedDay.DailyReputationResult.HasValue
             ? this.subscribedDay.DailyReputationResult.Value.FinalDelta
             : 0;
-        this.dailySettlementPresenter.UpdateView(this.viewDataFactory.CreateDailySettlementViewData(
+        return this.viewDataFactory.CreateDailySettlementViewData(
             this.subscribedDay.Day,
             result,
             finalReputationDelta,
+            Mathf.Clamp(this.subscribedDay.DayStartReputation + finalReputationDelta, -100, 100),
             this.subscribedDay.SuccessfulSales,
             this.subscribedDay.RefusedCustomers,
             this.subscribedDay.DepartedCustomers,
-            this.economy.QueryService.CurrentBalance));
-        this.dailySettlementPresenter.ConfigureEnding(this.subscribedDay.Day == 31,
-            this.gameProgress.HasCitizenship, this.gameProgress.WasLastSettlementUnpaidGameOverExempted);
-        if (!this.subscribedDay.DaughterDialogueResult.HasValue)
-            throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
-        this.daughterDialoguePresenter.UpdateView(this.viewDataFactory.CreateDaughterDialogueViewData(
-            this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites));
+            this.economy.QueryService.CurrentBalance);
     }
 
     /// <summary>날짜를 완료하기 전의 일일 정산에서만 설비 UI를 열 수 있다.</summary>
     /// <returns>상납 화면을 포함한 다른 진행 단계는false.</returns>
     private bool canOpenFacilityShop() => this.isReady && !this.hasError &&
-        !this.isSettlementPresentationPending && !this.dailySettlementPresenter.IsFinalConfirmationOpen &&
+        !this.isSettlementPresentationPending &&
         this.gameProgress.State == GameProgressState.DayInProgress && this.subscribedDay?.State == DayProgressState.Settlement;
 
     /// <summary>현재 설비 상태를 읽고 뒤 정산·키보드 입력을 차단한다.</summary>
     private void handleFacilityOpenClicked()
     {
-        if (!this.canOpenFacilityShop() || this.IsFacilityShopOpen) return;
+        if (!this.canOpenFacilityShop() || this.IsFacilityShopOpen)
+        {
+            this.dailySettlementFlowController.CancelFacilityOpen();
+            return;
+        }
         try
         {
             var citizenship = System.Linq.Enumerable.Single(
@@ -654,7 +673,7 @@ public sealed class GameUIController : MonoBehaviour
             this.economy.FinanceService.BalanceChanged += this.handleFacilityBalanceChanged;
             this.refreshFacilityShop();
         }
-        catch (Exception exception) { this.showError(exception); }
+        catch (Exception exception) { this.dailySettlementFlowController.SetFailed(exception); }
     }
 
     /// <summary>구매 중에는 닫기 요청을 무시한다. 닫기는 날짜를 바꾸지 않는다.</summary>
@@ -671,6 +690,7 @@ public sealed class GameUIController : MonoBehaviour
         this.facilityShopPresenter.gameObject.SetActive(false);
         this.settlementInputGroup.interactable = !this.hasError;
         this.settlementInputGroup.blocksRaycasts = true;
+        this.dailySettlementFlowController.NotifyFacilityClosed();
         this.gameInputRouter.enabled = this.wasInputRouterEnabled;
         if (UnityEngine.EventSystems.EventSystem.current != null)
             UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
@@ -731,7 +751,9 @@ public sealed class GameUIController : MonoBehaviour
             session.FacilityActivationDays, session.CurrentStoreStage, session.ElapsedDays,
             this.economy.QueryService.CurrentBalance), this.facilityFeedback);
         this.facilityShopPresenter.SetInteractionEnabled(!this.hasError && !this.isPurchasingFacility, !this.isPurchasingFacility);
-        if (this.subscribedDay.SettlementResult.HasValue) this.renderSettlement(this.subscribedDay.SettlementResult.Value);
+        if (this.subscribedDay.SettlementResult.HasValue)
+            this.dailySettlementFlowController.RefreshSettlement(
+                this.createSettlementViewData(this.subscribedDay.SettlementResult.Value));
         this.economyStatusPresenter.UpdateView(new EconomyStatusViewData(
             this.economy.QueryService.CurrentBalance, this.economy.QueryService.DailySaleIncome));
     }
@@ -795,7 +817,8 @@ public sealed class GameUIController : MonoBehaviour
         if (this.IsFacilityShopOpen) this.facilityFeedback = "테스트 자금 100,000 G 지급";
         this.economy.FinanceService.AddIncome(100_000, FinanceChangeReason.None);
         if (!this.IsFacilityShopOpen && this.subscribedDay?.SettlementResult.HasValue == true)
-            this.renderSettlement(this.subscribedDay.SettlementResult.Value);
+            this.dailySettlementFlowController.RefreshSettlement(
+                this.createSettlementViewData(this.subscribedDay.SettlementResult.Value));
         this.refreshAllViews();
     }
 
@@ -910,13 +933,6 @@ public sealed class GameUIController : MonoBehaviour
             if (this != null) this.showError(exception);
             else Debug.LogException(exception);
         }
-    }
-
-    /// <summary>정산 결과 확인 요청을 하루 진행에 전달합니다.</summary>
-    private void handleSettlementNextRequested()
-    {
-        if (this.IsFacilityShopOpen || this.isPurchasingFacility) return;
-        this.runProgressAction(this.gameProgress.CompleteSettlement);
     }
 
     /// <summary>타이머 일시정지 요청을 하루 진행에 전달합니다.</summary>
@@ -1114,7 +1130,6 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
         if (this.IsFacilityShopOpen && !this.canOpenFacilityShop()) this.closeFacilityShop();
-        this.facilityOpenButton.gameObject.SetActive(this.canOpenFacilityShop());
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;
         bool operating = this.isSettlementPresentationPending || this.subscribedDay.State == DayProgressState.Operating
             || this.subscribedDay.State == DayProgressState.Sorting
@@ -1245,7 +1260,7 @@ public sealed class GameUIController : MonoBehaviour
             startupCover.transform.SetAsLastSibling();
         }
         if (startupErrorText != null) startupErrorText.text = "초기화 또는 진행 오류\n" + exception?.Message;
-        if (this.facilityOpenButton != null) this.facilityOpenButton.interactable = false;
+        if (this.settlementInteractionView != null) this.settlementInteractionView.SetInteractionEnabled(false);
         if (this.facilityShopPresenter != null) this.facilityShopPresenter.SetInteractionEnabled(false, true);
         if (this.settlementInputGroup != null) this.settlementInputGroup.interactable = false;
         string message = exception?.Message ?? "Unknown progress error.";
