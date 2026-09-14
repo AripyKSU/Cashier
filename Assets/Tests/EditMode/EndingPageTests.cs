@@ -9,6 +9,17 @@ using UnityEngine.TestTools;
 /// <summary>실제 엔딩 CSV의 순서·숫자 코드·문구·리소스 참조를 검사한다.</summary>
 public sealed class EndingPageTests
 {
+    /// <summary>시민권 엔딩은 보유와 도덕성 부호가 모순된 snapshot을 거부한다.</summary>
+    [Test]
+    public void EndingResultRejectsContradictoryCitizenshipMorality()
+    {
+        Assert.DoesNotThrow(() => new GameEndingResult(EndingKind.Good, 1, true, 0, 0, 0m));
+        Assert.DoesNotThrow(() => new GameEndingResult(EndingKind.CitizenshipNegative, 1, true, 0, 0, -1m));
+        Assert.Throws<ArgumentException>(() => new GameEndingResult(EndingKind.Good, 1, true, 0, 0, -1m));
+        Assert.Throws<ArgumentException>(() => new GameEndingResult(EndingKind.CitizenshipNegative, 1, true, 0, 0, 0m));
+        Assert.Throws<ArgumentException>(() => new GameEndingResult(EndingKind.CitizenshipNegative, 1, false, 0, 0, -1m));
+    }
+
     /// <summary>각 엔딩 네 페이지와 세 줄 대사가 참조되는지 확인한다.</summary>
     [Test]
     public void ActualPagesHaveBothEndingsAndThreeLineDialogue()

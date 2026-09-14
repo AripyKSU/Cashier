@@ -28,6 +28,7 @@ public sealed class GameProgress
 
     // 현재 날짜의 하루 진행을 소유합니다.
     private DayProgress currentDayProgress;
+    private bool isPurchasingFacility;
 
     /// <summary>전체 진행의 현재 상태입니다.</summary>
     public GameProgressState State { get; private set; }
@@ -48,8 +49,8 @@ public sealed class GameProgress
     /// <summary>최근 정산의 정책 적용 후 미납 게임오버 여부입니다.</summary>
     public bool IsLastSettlementUnpaidGameOver => this.session.IsLastSettlementUnpaidGameOver;
 
-    /// <summary>최근 31일차 미납 게임오버가 사전 시민권으로 면제됐는지 여부입니다.</summary>
-    public bool WasLastSettlementUnpaidGameOverExempted => this.session.WasLastSettlementUnpaidGameOverExempted;
+    /// <summary>시민권을 제외한 3단계 이하 설비를 모두 보유했는지 여부입니다.</summary>
+    public bool HasCitizenshipPrerequisites => this.session.HasCitizenshipPrerequisites;
 
     /// <summary>확정된 게임 종료 결과입니다.</summary>
     public GameEndingResult? EndingResult => this.session.EndingResult;
@@ -235,9 +236,31 @@ public sealed class GameProgress
     {
         if (State == GameProgressState.Initializing || State == GameProgressState.Failed || State == GameProgressState.Completed)
             throw new InvalidOperationException("시작 전 또는 종료한 게임에서는 설비를 구매할 수 없습니다.");
+        if (this.isPurchasingFacility) throw new InvalidOperationException("설비 구매 처리 중입니다.");
         bool isSettlement = this.currentDayProgress != null &&
             this.currentDayProgress.State == DayProgressState.Settlement;
-        return session.TryPurchaseFacility(facilityIdx, isSettlement, out result);
+        bool isCitizenship = this.session.IsCitizenshipFacility(facilityIdx);
+        this.isPurchasingFacility = true;
+        try
+        {
+            return session.TryPurchaseFacility(facilityIdx, isSettlement, out result);
+        }
+        finally
+        {
+            try
+            {
+                // 결제 알림이 실패해도 확정된 보유 상태에서 종료를 빠뜨리지 않는다.
+                if (isCitizenship && this.session.HasCitizenship && !this.session.EndingResult.HasValue)
+                {
+                    this.applyTerminatingDayReputation(this.currentDayProgress);
+                    this.session.FinalizeGame(
+                        this.session.CurrentMorality >= 0m ? EndingKind.Good : EndingKind.CitizenshipNegative,
+                        this.currentDayProgress.Day);
+                    this.changeState(GameProgressState.Completed);
+                }
+            }
+            finally { this.isPurchasingFacility = false; }
+        }
     }
 
     /// <summary>현재 거래 결과 화면을 닫고 다음 거래 또는 마감으로 진행합니다.</summary>
@@ -264,6 +287,7 @@ public sealed class GameProgress
     /// <summary>일일 정산 화면 확인을 완료합니다.</summary>
     public void CompleteSettlement()
     {
+        if (this.isPurchasingFacility) throw new InvalidOperationException("설비 구매 처리 중에는 정산을 완료할 수 없습니다.");
         this.requireDayInProgress();
         this.currentDayProgress.CompleteSettlement();
     }
@@ -282,9 +306,7 @@ public sealed class GameProgress
         if (completedDay.Day == 31)
         {
             this.applyTerminatingDayReputation(completedDay);
-            this.session.FinalizeGame(
-                this.session.HasCitizenship ? EndingKind.Good : EndingKind.Bad,
-                completedDay.Day);
+            this.session.FinalizeGame(EndingKind.Bad, completedDay.Day);
             this.changeState(GameProgressState.Completed);
             return;
         }
@@ -314,7 +336,8 @@ public sealed class GameProgress
             this.random,
             this.CurrentReputation,
             this.businessDurationSeconds,
-            this.useCustomerQueue);
+            this.useCustomerQueue,
+            () => !this.isPurchasingFacility);
 
         nextDay.Completed += this.handleDayCompleted;
         nextDay.TransactionCompleted += this.handleTransactionCompleted;

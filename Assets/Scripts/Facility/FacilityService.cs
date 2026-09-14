@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 /// <summary>단일 세션의 독립 설비 구매와 다음 영업일 활성일을 소유한다. Unity 메인 스레드의 동기 호출만 지원한다.</summary>
 public sealed class FacilityService
@@ -71,6 +72,12 @@ public sealed class FacilityService
     /// <summary>현재 세션이 시민권을 보유했는지 조회합니다.</summary>
     public bool HasCitizenship => citizenshipFacilityIdx.HasValue && IsOwned(citizenshipFacilityIdx.Value);
 
+    /// <summary>3단계까지의 상품·편의·가게 확장을 모두 보유했는지 조회합니다.</summary>
+    public bool HasCitizenshipPrerequisites => upgradeKinds.All(pair =>
+        pair.Value == FacilityUpgradeKind.Citizenship ||
+        !IsCitizenshipPrerequisite(pair.Value, requiredStoreStages[pair.Key], targetStoreStages[pair.Key]) ||
+        activationDays.ContainsKey(pair.Key));
+
     /// <summary>등록 설비가 시민권인지 조회합니다.</summary>
     /// <param name="facilityIdx">설비 PK.</param>
     /// <returns>시민권 행이면 true.</returns>
@@ -140,7 +147,8 @@ public sealed class FacilityService
         uint requiredStoreStage = requiredStoreStages[facilityIdx];
         uint targetStoreStage = targetStoreStages[facilityIdx];
         if (CurrentStoreStage < requiredStoreStage ||
-            (upgradeKind == FacilityUpgradeKind.StoreStage && targetStoreStage != CurrentStoreStage + 1))
+            (upgradeKind == FacilityUpgradeKind.StoreStage && targetStoreStage != CurrentStoreStage + 1) ||
+            (upgradeKind == FacilityUpgradeKind.Citizenship && !HasCitizenshipPrerequisites))
         {
             result = new FacilityPurchaseResult(FacilityPurchaseStatus.StageLocked, facilityIdx, 0, null);
             return false;
@@ -198,5 +206,18 @@ public sealed class FacilityService
             throw;
         }
         finally { isPurchasing = false; }
+    }
+
+    /// <summary>현재 카탈로그에서 시민권 구매에 필요한 3단계 이하 설비인지 판정합니다.</summary>
+    /// <param name="kind">설비 종류.</param>
+    /// <param name="requiredStoreStage">요구 가게 단계.</param>
+    /// <param name="targetStoreStage">가게 확장 목표 단계.</param>
+    /// <returns>시민권보다 먼저 보유해야 하는 설비이면 true.</returns>
+    internal static bool IsCitizenshipPrerequisite(FacilityUpgradeKind kind, uint requiredStoreStage,
+        uint targetStoreStage)
+    {
+        return (kind == FacilityUpgradeKind.ProductUnlock || kind == FacilityUpgradeKind.Convenience)
+            ? requiredStoreStage <= 3
+            : kind == FacilityUpgradeKind.StoreStage && targetStoreStage <= 3;
     }
 }

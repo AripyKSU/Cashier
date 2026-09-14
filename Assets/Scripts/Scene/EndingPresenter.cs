@@ -59,13 +59,15 @@ public sealed class EndingPresenter : MonoBehaviour
             if (session == null || !session.EndingResult.HasValue)
                 throw new InvalidOperationException("게임 본편에서 확정된 엔딩을 열어 주세요.");
             result = session.EndingResult.Value;
-            if (result.Kind != EndingKind.Good && result.Kind != EndingKind.Bad)
-                throw new InvalidOperationException("굿·배드 엔딩 결과가 필요합니다.");
+            if (result.Kind != EndingKind.Good && result.Kind != EndingKind.Bad &&
+                result.Kind != EndingKind.CitizenshipNegative)
+                throw new InvalidOperationException("시민권 또는 미소지 엔딩 결과가 필요합니다.");
             var tables = DataTableManager.Instance;
             await tables.EnsureDataLoadedAsync().AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
             texts = tables.GetDB<TextDataTable>(DataTableType.Text);
+            EndingKind pageKind = result.Kind == EndingKind.CitizenshipNegative ? EndingKind.Good : result.Kind;
             pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
-                .Where(row => row.Kind == result.Kind).OrderBy(row => row.PageOrder).ToArray();
+                .Where(row => row.Kind == pageKind).OrderBy(row => row.PageOrder).ToArray();
             if (pages.Length == 0) throw new InvalidOperationException("엔딩 페이지가 없습니다.");
             var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
             foreach (uint idx in pages.Select(p => p.BackgroundResourceIdx).Distinct())
@@ -102,7 +104,12 @@ public sealed class EndingPresenter : MonoBehaviour
         if (!isReady) { loadPagesAsync().Forget(); return; }
         if (++pageIndex < pages.Length) { showPage(); return; }
         heading.text = "CASHIER";
-        speaker.text = result.Kind == EndingKind.Good ? "굿 엔딩" : "배드 엔딩";
+        speaker.text = result.Kind switch
+        {
+            EndingKind.Good => "시민권 · 긍정",
+            EndingKind.CitizenshipNegative => "시민권 · 부정",
+            _ => "시민권 미소지"
+        };
         dialogue.text = $"{result.DisplayDay}일간의 영업이 끝났습니다.\n시민권 {(result.HasCitizenship ? "보유" : "미보유")} · 남은 돈 {result.Balance:N0} G\n명성 {result.Reputation} · 도덕성 {result.Morality:0.##}";
         pageIndicator.text = "플레이해 주셔서 감사합니다.";
         nextButton.gameObject.SetActive(false);
@@ -114,7 +121,8 @@ public sealed class EndingPresenter : MonoBehaviour
     private void showPage()
     {
         var page = pages[pageIndex];
-        heading.text = result.Kind == EndingKind.Good ? "문 안으로" : "문 밖에서";
+        heading.text = result.Kind == EndingKind.Bad ? "문 밖에서" :
+            (result.Kind == EndingKind.Good ? "문 안으로" : "문 안으로 · 임시 대사");
         speaker.text = texts.Rows[page.SpeakerNameIdx].Text;
         dialogue.text = texts.Rows[page.TextIdx].Text;
         background.sprite = backgrounds[page.BackgroundResourceIdx];

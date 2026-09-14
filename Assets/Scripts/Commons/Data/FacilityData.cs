@@ -115,8 +115,8 @@ public sealed class FacilityData
                     throw new ArgumentException($"Facility PK={Idx}: 단계 상승은 요구 단계가 목표 단계보다 1 낮고 목표가 2 또는 3이어야 합니다.");
                 break;
             case FacilityUpgradeKind.Citizenship:
-                if (RequiredStoreStage != 1 || EffectType != ConvenienceEffectType.None || TargetStoreStage != 0)
-                    throw new ArgumentException($"Facility PK={Idx}: 시민권은 요구 단계 1, effect_type=None, target_store_stage=0이어야 합니다.");
+                if (RequiredStoreStage != 3 || EffectType != ConvenienceEffectType.None || TargetStoreStage != 0)
+                    throw new ArgumentException($"Facility PK={Idx}: 시민권은 요구 단계 3, effect_type=None, target_store_stage=0이어야 합니다.");
                 break;
             default:
                 throw new ArgumentException($"Facility PK={Idx}: upgrade_kind가 유효하지 않습니다.");

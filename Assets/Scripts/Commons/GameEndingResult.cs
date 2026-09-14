@@ -5,10 +5,12 @@ public enum EndingKind
     None = 0,
     /// <summary>미납 유예 종료로 실패.</summary>
     GameOver = 1,
-    /// <summary>31일차 시민권 보유 성공.</summary>
+    /// <summary>시민권 보유와 비음수 도덕성으로 종료.</summary>
     Good = 2,
     /// <summary>31일차 시민권 미보유 종료.</summary>
     Bad = 3,
+    /// <summary>시민권 보유와 음수 도덕성으로 종료.</summary>
+    CitizenshipNegative = 4,
     EndingKind_End
 }
 
@@ -40,10 +42,14 @@ public readonly struct GameEndingResult
         if (kind <= EndingKind.None || kind >= EndingKind.EndingKind_End)
             throw new System.ArgumentOutOfRangeException(nameof(kind));
         if (displayDay <= 0) throw new System.ArgumentOutOfRangeException(nameof(displayDay));
-        if (kind == EndingKind.Good && !hasCitizenship)
-            throw new System.ArgumentException("Good 엔딩에는 시민권 보유가 필요합니다.", nameof(hasCitizenship));
+        if ((kind == EndingKind.Good || kind == EndingKind.CitizenshipNegative) && !hasCitizenship)
+            throw new System.ArgumentException("시민권 엔딩에는 시민권 보유가 필요합니다.", nameof(hasCitizenship));
         if (kind == EndingKind.Bad && hasCitizenship)
             throw new System.ArgumentException("Bad 엔딩에는 시민권 미보유가 필요합니다.", nameof(hasCitizenship));
+        if (kind == EndingKind.Good && morality < 0m)
+            throw new System.ArgumentException("Good 엔딩의 도덕성은 0 이상이어야 합니다.", nameof(morality));
+        if (kind == EndingKind.CitizenshipNegative && morality >= 0m)
+            throw new System.ArgumentException("시민권 부정 엔딩의 도덕성은 0 미만이어야 합니다.", nameof(morality));
 
         Kind = kind;
         DisplayDay = displayDay;

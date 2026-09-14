@@ -61,8 +61,9 @@ public class GameSceneManager : Singleton<GameSceneManager>
     public async UniTask TransitionToFinalEndingAsync()
     {
         var result = GameSessionManager.Instance.EndingResult;
-        if (!result.HasValue || (result.Value.Kind != EndingKind.Good && result.Value.Kind != EndingKind.Bad))
-            throw new InvalidOperationException("확정된 굿·배드 엔딩 결과가 필요합니다.");
+        if (!result.HasValue || (result.Value.Kind != EndingKind.Good && result.Value.Kind != EndingKind.Bad &&
+            result.Value.Kind != EndingKind.CitizenshipNegative))
+            throw new InvalidOperationException("확정된 시민권 또는 미소지 엔딩 결과가 필요합니다.");
         try
         {
             await TransitionTo(result.Value.Kind == EndingKind.Good ? SceneName.GoodEnding : SceneName.BadEnding);

@@ -229,6 +229,9 @@ public sealed class ProgressViewDataFactory
         if (currentStoreStage < 1 || currentStoreStage > 3)
             throw new ArgumentOutOfRangeException(nameof(currentStoreStage));
         if (balance < 0) throw new ArgumentOutOfRangeException(nameof(balance));
+        bool hasCitizenshipPrerequisites = facilities.Values.All(facility =>
+            !FacilityService.IsCitizenshipPrerequisite(facility.UpgradeKind, facility.RequiredStoreStage,
+                facility.TargetStoreStage) || activationDays.ContainsKey(facility.Idx));
         var items = new List<FacilityItemViewData>(facilities.Count);
         foreach (var pair in facilities.OrderBy(x => x.Key))
         {
@@ -239,12 +242,18 @@ public sealed class ProgressViewDataFactory
             bool stageLocked = currentStoreStage < facility.RequiredStoreStage ||
                 (facility.UpgradeKind == FacilityUpgradeKind.StoreStage &&
                  facility.TargetStoreStage != currentStoreStage + 1);
+            bool prerequisiteLocked = facility.UpgradeKind == FacilityUpgradeKind.Citizenship &&
+                !hasCitizenshipPrerequisites;
             FacilityDisplayState state;
             if (owned)
             {
                 state = facility.UpgradeKind == FacilityUpgradeKind.StoreStage
                     ? FacilityDisplayState.OwnedStageUpgrade
                     : (activationDay <= elapsedDays ? FacilityDisplayState.Active : FacilityDisplayState.ActivationPending);
+            }
+            else if (prerequisiteLocked)
+            {
+                state = FacilityDisplayState.PrerequisiteLocked;
             }
             else if (stageLocked)
             {

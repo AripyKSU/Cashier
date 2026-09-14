@@ -203,11 +203,10 @@ public class DailySettlementPresenter : MonoBehaviour
         this.OnNextStepRequested?.Invoke();
     }
 
-    /// <summary>세션이 확정한 마지막 날과 면제 상태를 표시한다.</summary>
+    /// <summary>세션이 확정한 마지막 날과 시민권 보유 상태를 표시한다.</summary>
     /// <param name="isFinalDay">최종 영업일 정산 여부.</param>
     /// <param name="hasCitizenship">현재 보유 여부.</param>
-    /// <param name="isUnpaidExempted">최종일 미납 종료 면제 여부.</param>
-    public void ConfigureEnding(bool isFinalDay, bool hasCitizenship, bool isUnpaidExempted)
+    public void ConfigureEnding(bool isFinalDay, bool hasCitizenship)
     {
         requiresFinalConfirmation = isFinalDay && !hasCitizenship;
         if (nextStepButton != null)
@@ -216,8 +215,6 @@ public class DailySettlementPresenter : MonoBehaviour
             if (label != null) label.text = isFinalDay ? "최종 확인" : "다음 날";
             nextStepButton.interactable = !IsFinalConfirmationOpen;
         }
-        if (isUnpaidExempted && gracePeriodText != null)
-            gracePeriodText.text = "시민권 사전 보유 · 최종일 미납 게임오버 면제";
     }
 
     /// <summary>사용자가 구매 기회 종료를 확인한 경우에만 진행 요청을 전달한다.</summary>

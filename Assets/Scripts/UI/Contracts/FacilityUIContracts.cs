@@ -10,6 +10,7 @@ public enum FacilityDisplayState
     ActivationPending,
     Active,
     OwnedStageUpgrade,
+    PrerequisiteLocked,
     FacilityDisplayState_End
 }
 
