@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 8c5509423fa570745bc62cafae857f42
+guid: f5ddcfb5ea7b4ddc8566eeb613c8baf6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9050546967464764145
-    second: Vacuum_0
+      213: 6357159272428169410
+    second: Stage2Table_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 40
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Vacuum_0
+      name: Stage2Table_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 1
-        width: 74
-        height: 127
+        x: 0
+        y: 0
+        width: 289
+        height: 217
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1f2e9bad3800a9d70800000000000000
-      internalID: 9050546967464764145
+      spriteID: 7bbc2c99b6984961892585e276473369
+      internalID: 6357159272428169410
       vertices: []
       indices:
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Vacuum_0: 9050546967464764145
+      Stage2Table_0: 6357159272428169410
   mipmapLimitGroupName:
   pSDRemoveMatte: 0
   userData:

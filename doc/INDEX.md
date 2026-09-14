@@ -19,6 +19,8 @@
 | [WORK_RULES.md](WORK_RULES.md) | 모든 작업에서 필수 | 공통 절차·승인·보호·Git·검증·역할 경계 |
 | [CODING_RULES.md](CODING_RULES.md) | 코드 수정에서 필수. 자산·경로·설정 변경은 7·8절, CSV enum·식별자 변경은 관련 9절 | 프로그래머 규칙·기술 기준·폴더·C# 규격 |
 | [INDEX.md](INDEX.md) | 작업 시작·범위 변경 | 현재 체크아웃의 문서 색인과 이동 대응 |
+| [work/sales-window-lighting.md](work/sales-window-lighting.md) | 판매창 시간대 색감·단계별 아트 연결 | Astra 7300f99 통합 범위, 기존 조명 경로, 구현 순서와 검증 |
+| [TOPDOWN_VACUUM.md](TOPDOWN_VACUUM.md) | Astra 프로토타입 청소기 확인 | 다중 흡입·보관·배출 사양. 본편 청소기와 별도 |
 | [INSPECTOR_SYSTEM_DRAFT.md](INSPECTOR_SYSTEM_DRAFT.md) | 영업 전 감독관 이벤트 | 구현된 데이터·진행·UI 계약과 과거 검증 |
 | [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md) | 정산 화면의 딸 대사·날짜별 이미지 | 구현 계약·상태 소유권, 임시 데이터·병합 연결과 검증 결과 |
 | [SETTLEMENT_UI_LAYOUT.md](SETTLEMENT_UI_LAYOUT.md) | 정산 화면 배치·이미지·폰트 조정 | 플레이어가 직접 편집할 Prefab 계층, 리소스와 유지할 참조 |

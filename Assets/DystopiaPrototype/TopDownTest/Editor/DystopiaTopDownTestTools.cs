@@ -49,23 +49,32 @@ public static class DystopiaTopDownTestTools
         var go=created?new GameObject("Vacuum"):vacuumTransform.gameObject;
         if(created) { Undo.RegisterCreatedObjectUndo(go,"Place vacuum"); go.transform.SetParent(checkout.transform,false); }
         var visual=go.GetComponent<SpriteRenderer>()??Undo.AddComponent<SpriteRenderer>(go);
-        var vacuum=go.GetComponent<DystopiaVacuumController>()??Undo.AddComponent<DystopiaVacuumController>(go);
         Undo.RecordObject(visual,"Connect vacuum artwork");
         visual.sprite=AssetDatabase.LoadAssetAtPath<Sprite>(art+"Vacuum.png"); visual.sortingOrder=110;
+        // RequireComponent가 추가되는 순간 Awake가 실행돼도 SpriteRenderer가 먼저 준비되어 있어야 합니다.
+        var vacuum=go.GetComponent<DystopiaVacuumController>()??Undo.AddComponent<DystopiaVacuumController>(go);
         var wind=AssetDatabase.LoadAssetAtPath<Material>(art+"VacuumWind.mat");
         if(wind==null) { wind=new Material(Shader.Find("Sprites/Default")); AssetDatabase.CreateAsset(wind,art+"VacuumWind.mat"); }
         Undo.RecordObject(vacuum,"Connect vacuum input"); vacuum.checkout=checkout; vacuum.windMaterial=wind;
-        if(created)
+        bool needsPlacement=created || vacuum.grip==null && vacuum.nozzle==null;
+        if(vacuum.grip==null)
+        {
+            var grip=new GameObject("Grip").transform; Undo.RegisterCreatedObjectUndo(grip.gameObject,"Place vacuum grip");
+            grip.SetParent(go.transform,false); vacuum.grip=grip;
+        }
+        if(vacuum.nozzle==null)
+        {
+            var nozzle=new GameObject("Nozzle").transform; Undo.RegisterCreatedObjectUndo(nozzle.gameObject,"Place vacuum nozzle");
+            nozzle.SetParent(go.transform,false); vacuum.nozzle=nozzle;
+        }
+        if(needsPlacement)
         {
             float height=visual.sprite.bounds.size.y;
-            var grip=new GameObject("Grip").transform; Undo.RegisterCreatedObjectUndo(grip.gameObject,"Place vacuum grip");
-            grip.SetParent(go.transform,false); grip.localPosition=new Vector3(0,height*.38f,0);
-            var nozzle=new GameObject("Nozzle").transform; Undo.RegisterCreatedObjectUndo(nozzle.gameObject,"Place vacuum nozzle");
-            nozzle.SetParent(go.transform,false); nozzle.localPosition=new Vector3(0,-height*.46f,0);
-            vacuum.grip=grip; vacuum.nozzle=nozzle;
+            vacuum.grip.localPosition=new Vector3(0,height*.38f,0);
+            vacuum.nozzle.localPosition=new Vector3(0,-height*.46f,0);
             // 신규 요소만 하단에 배치합니다. 기존 청소기를 다시 연결해도 사용자 배치는 보존합니다.
             Vector3 bottom=camera.ViewportToWorldPoint(new Vector3(.5f,0,-camera.transform.position.z));
-            go.transform.position=new Vector3(bottom.x,bottom.y+.22f-height*.38f,bench.transform.position.z);
+            go.transform.position=new Vector3(bottom.x,bottom.y+.97f-height*.38f,bench.transform.position.z);
         }
         var fields=new SerializedObject(checkout); fields.FindProperty("vacuum").objectReferenceValue=vacuum; fields.ApplyModifiedProperties();
         foreach(var target in new UnityEngine.Object[]{bench,lighting,visual,vacuum,checkout})

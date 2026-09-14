@@ -63,11 +63,14 @@ public static class DystopiaTools
         var sprite=AssetDatabase.LoadAllAssetsAtPath(Root+"Art/Stage3Container.png").OfType<Sprite>().Single();
         Undo.RecordObject(image,"Replace stage 3 container sprite");
         image.sprite=sprite; image.color=new Color(.62f,.66f,.70f,1);
-        layer.normalSprite=null; layer.normalMap=null;
+        layer.normalSprite=sprite;
+        layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"Art/Stage3ContainerNormal.png");
+        layer.normalResponse=.45f;
+        layer.highlightResponse=.8f;
         // 얇은 검은 외곽선을 추가 테두리 조명으로 밝히지 않습니다.
         layer.rimResponse=0;
-        layer.specularResponse=0;
-        layer.bottomShade=.35f;
+        layer.specularResponse=.08f;
+        layer.bottomShade=.45f;
         layer.contactShadow=new Vector4(.5f,layer.contactShadow.y,1.5f,.65f);
         EditorUtility.SetDirty(image); PrefabUtility.RecordPrefabInstancePropertyModifications(image);
     }
@@ -819,6 +822,44 @@ public static class DystopiaTools
         Debug.Log("Four replacement product sprites refreshed; existing GUIDs and sprite IDs preserved.");
     }
 
+    /// <summary>새 2단계 테이블 이미지만 연결하고 사용자가 조정한 위치와 크기는 보존합니다.</summary>
+    [MenuItem("Dystopia/Apply Stage 2 Table")]
+    public static void ApplyStage2Table()
+    {
+        bool isPlaying=EditorApplication.isPlaying;
+        var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
+        if(stage==null || stage.gameObject.scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
+        const string path=Root+"Art/Stage2Table.png";
+        AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceUpdate);
+        var sprite=AssetDatabase.LoadAssetAtPath<Sprite>(path);
+        if(sprite==null) throw new InvalidOperationException("Stage2Table must import as a single sprite.");
+        var layer=stage.layers.Single(item=>item.source!=null && item.source.name=="Counter");
+        var image=layer.source as UnityEngine.UI.Image;
+        if(image==null) throw new InvalidOperationException("Counter must use a UI Image.");
+        if(!isPlaying)
+        {
+            Undo.RecordObject(stage,"Apply stage 2 table");
+            Undo.RecordObject(image,"Apply stage 2 table sprite");
+        }
+        image.sprite=sprite;
+        image.preserveAspect=false;
+        layer.normalSprite=sprite;
+        layer.normalMap=null;
+        layer.normalResponse=0;
+        if(!isPlaying)
+        {
+            EditorUtility.SetDirty(stage);
+            EditorUtility.SetDirty(image);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(image);
+            EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        }
+        var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+        typeof(DystopiaPixelStage).GetMethod("Release",flags).Invoke(stage,null);
+        typeof(DystopiaPixelStage).GetMethod("LateUpdate",flags).Invoke(stage,null);
+        Debug.Log("Stage 2 table replaced"+(isPlaying?" for Play Mode preview":"")+". Counter RectTransform position and size were preserved for manual adjustment.");
+    }
+
     /// <summary>상자와 시계를 유지하며 크기 조정 전 2단계 프레임으로 복원합니다.</summary>
     [MenuItem("Dystopia/Restore Previous Stage 2 Frame")]
     public static void RestorePreviousStage2Frame()
@@ -931,6 +972,7 @@ public static class DystopiaTools
             }
             stage.ceilingLamp=stage.layers.FirstOrDefault(l=>l.source!=null && l.source.name=="Stage3CeilingLamp")?.source as UnityEngine.UI.Image;
             stage.lampPosition=saved.lampPosition; stage.lampHeight=saved.lampHeight; stage.lampRadius=saved.lampRadius; stage.lampIntensity=saved.lampIntensity; stage.lampColor=saved.lampColor;
+            EnsureCanopyBehindCounter(stage);
             SetProductShopStage(stageNumber);
             EditorUtility.SetDirty(stage);
             EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
@@ -1327,6 +1369,37 @@ public static class DystopiaTools
         ApplyApprovedStageReference(1);
     }
 
+    /// <summary>현재 가판의 위치와 크기를 유지하고 캐노피 계열 레이어만 계산대보다 먼저 그립니다.</summary>
+    [MenuItem("Dystopia/Move Canopy Behind Counter")]
+    public static void MoveCanopyBehindCounter()
+    {
+        if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
+        var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
+        if(stage==null) throw new InvalidOperationException("Open the checkout scene first.");
+        Undo.RecordObject(stage,"Move canopy behind counter");
+        if(!EnsureCanopyBehindCounter(stage)) return;
+        PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
+        EditorUtility.SetDirty(stage);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        Debug.Log("Canopy render layers moved behind the counter. Scene left unsaved.");
+    }
+
+    /// <summary>캐노피와 천장 레이어를 모든 계산대 레이어 바로 뒤 순서로 정렬합니다.</summary>
+    /// <param name="stage">렌더 순서를 소유하는 픽셀 스테이지입니다.</param>
+    /// <returns>레이어 순서가 변경됐으면 true입니다.</returns>
+    private static bool EnsureCanopyBehindCounter(DystopiaPixelStage stage)
+    {
+        var ordered=stage.layers.ToList();
+        var canopies=ordered.Where(x=>x.source!=null && (x.source.name=="Canopy" || x.source.name=="Stage3Ceiling")).ToArray();
+        int firstCounter=ordered.FindIndex(x=>x.source!=null && (x.source.name=="Counter" || x.source.name=="Stage3Counter"));
+        if(canopies.Length==0 || firstCounter<0 || canopies.All(x=>ordered.IndexOf(x)<firstCounter)) return false;
+        foreach(var canopy in canopies) ordered.Remove(canopy);
+        firstCounter=ordered.FindIndex(x=>x.source!=null && (x.source.name=="Counter" || x.source.name=="Stage3Counter"));
+        ordered.InsertRange(firstCounter,canopies);
+        stage.layers=ordered.ToArray();
+        return true;
+    }
+
     /// <summary>제공된 1단계 그림의 투명 여백을 제외하고 가게 겹침 순서와 상자 접지 배치를 적용합니다.</summary>
     [MenuItem("Dystopia/Apply Stage 1 Artwork")]
     public static void ApplyStage1Artwork()
@@ -1421,14 +1494,7 @@ public static class DystopiaTools
             layer.normalSprite=layer.normalMap != null ? image.sprite : null;
             PrefabUtility.RecordPrefabInstancePropertyModifications(image);
         }
-        // PixelStage는 Hierarchy가 아닌 layers 순서로 그리므로 캐노피를 테이블 뒤로 옮깁니다.
-        int tableIndex=Array.FindIndex(stage.layers,x => x.source != null && (x.source.name == "Counter" || x.source.name == "Stage3Counter"));
-        int canopyIndex=Array.FindIndex(stage.layers,x => x.source != null && (x.source.name == "Canopy" || x.source.name == "Stage3Ceiling"));
-        if(!boxOnly && canopyIndex > tableIndex)
-        {
-            var canopy=stage.layers[canopyIndex];
-            stage.layers[canopyIndex]=stage.layers[tableIndex]; stage.layers[tableIndex]=canopy;
-        }
+        if(!boxOnly) EnsureCanopyBehindCounter(stage);
         PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
         EditorUtility.SetDirty(stage); EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
         // 단계 재적용은 사용자가 맞춘 시계 숫자의 위치와 크기도 유지합니다.

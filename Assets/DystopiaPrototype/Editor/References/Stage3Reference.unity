@@ -4541,18 +4541,18 @@ MonoBehaviour:
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
   - source: {fileID: 2356696958130715508}
     surface: 3
-    normalSprite: {fileID: 0}
-    normalMap: {fileID: 0}
+    normalSprite: {fileID: 5187440768154225832, guid: ba80f4bbc4fb47b4caa16e46e22ab9cb, type: 3}
+    normalMap: {fileID: 2800000, guid: aadbeaa232d6eca4080131483bbe4824, type: 3}
     textureEdgeTrim: {x: 0, y: 0}
     roomResponse: 0
     lampResponse: 1
     rimWidthPixels: 2
     rimResponse: 0
-    normalResponse: 0.55
-    highlightResponse: 1
-    specularResponse: 0
+    normalResponse: 0.45
+    highlightResponse: 0.8
+    specularResponse: 0.08
     emission: 0
-    bottomShade: 0.35
+    bottomShade: 0.45
     contactShadow: {x: 0.5, y: 0.056, z: 1.5, w: 0.65}
   - source: {fileID: 2356696958130715507}
     surface: 3
