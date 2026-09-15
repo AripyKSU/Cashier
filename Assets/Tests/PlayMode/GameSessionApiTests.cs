@@ -854,6 +854,7 @@ public sealed class GameSessionApiTests
         var states = (IDictionary)typeof(CustomerWorldQueueView).GetField("visuals", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(queue);
         var visual = states[waiting];
         var type = visual.GetType();
+        var rootTransform = (Transform)type.GetField("Root").GetValue(visual);
         var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
         var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
         yield return new WaitForSeconds(.8f);
@@ -861,12 +862,18 @@ public sealed class GameSessionApiTests
         progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
         yield return null;
         Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);
-        Vector3 speechPosition = speech.transform.localPosition;
-        yield return new WaitForSeconds(.55f);
+        var rightExit = (Transform)new UnityEditor.SerializedObject(queue).FindProperty("rightExit").objectReferenceValue;
+        Assert.That(type.GetField("Target").GetValue(visual), Is.SameAs(rightExit));
+        float exitStartX = rootTransform.localPosition.x;
+        Vector3 speechOffset = speech.transform.localPosition - rootTransform.localPosition;
+        yield return new WaitForSeconds(.2f);
+        Assert.That(rootTransform.localPosition.x, Is.GreaterThan(exitStartX));
+        Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(speechOffset));
+        yield return new WaitForSeconds(.35f);
         Assert.That(body.color.a, Is.Zero.Within(.001f));
         Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
         Assert.That(speech.text, Is.Not.Empty);
-        Assert.That(speech.transform.localPosition, Is.EqualTo(speechPosition));
+        Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(speechOffset));
         ui.FrontView.gameObject.SetActive(false);
         yield return null;
         Assert.That(world.RenderRoot.gameObject.activeSelf, Is.False);
@@ -919,6 +926,7 @@ public sealed class GameSessionApiTests
         // 표시가 남은 상태에서도 실제 거래 완료 이벤트가 즉시 정리하는지 확인한다.
         reaction.gameObject.SetActive(true);
         progress.CompleteTransactionResult();
+        Assert.That(type.GetField("Target").GetValue(visual), Is.SameAs(rightExit));
         yield return null;
         Assert.That(reaction.gameObject.activeSelf, Is.False);
     }
