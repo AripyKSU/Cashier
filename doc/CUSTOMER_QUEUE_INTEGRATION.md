@@ -2,7 +2,8 @@
 
 ## 현재 구현 상태 (2026-09-15)
 
-- `codex/customer-talk-ui`: 거래 완료·대기 이탈의 오른쪽 출구 고정과 대기 불만 대사 추종을 구현했다. 씬·프리팹·CSV 변경 없이 기존 연결을 사용하며 아직 통합 브랜치에 병합하지 않았다.
+- `codex/customer-talk-ui`의 오른쪽 출구 고정·대기 불만 대사 추종과 성별·연령별 외형 선택을 `total_merge`에 병합했다(2026-09-15, `bec03a9 → d3e4784`, fast-forward). 퇴장 연출은 기존 씬·프리팹 연결을 사용하고, 외형 CSV·생성 API 변경은 [생성 통합 계약](CUSTOMER_SPAWN_INTEGRATION.md)을 따른다.
+- 통합 checkout에서 EditMode `CustomerCompositionSelectorIntegrationTests` **9/9**, PlayMode 성별·외형 연결 및 월드 대기열 회귀 **2/2** 통과(실패·skip 0). 증거: `Temp/CustomerTalkMerge-EditMode.json`, `Temp/CustomerTalkMerge-Gender-Recovered.json`, `Temp/CustomerTalkMerge-Queue-PlayMode.json`. 성별 검사 CLI는 결과 수신 중 연결을 잃었으나 해당 실행의 완료 파일에서 테스트명·1/1 성공을 확인했다. 컴파일·제품 Console 오류 0, 씬·프리팹·Addressables·폰트 변경 없음. 전체 suite·Init→Hub→Main 수동 진행·최종 시각적 적합성은 이번 재검증 범위 밖이다.
 - Unity 컴파일 오류 0, 제품 Console error 0. 기존 `InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime` PlayMode 1/1 통과(실패·skip 0): 오른쪽 목표·이동·대사 오프셋, 이미지 fade·3초 대사 정리·숨김·재활성·거래 이모지를 확인했다. 증거: `Temp/CustomerTalkFocusedTestResult.json`. 전체 suite·legacy UI 실행·최종 화면 가독성은 이번 검증 범위 밖이다.
 
 GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연결한다. GameUI prefab 기본값은 false지만 공유 MainScene은 override로 true를 지정하고 공유 CustomerWorld.prefab의 CustomerWorldQueueView를 연결한다. 개인 씬이나 Local 코드 없이 공유 씬에서 대기열을 표시한다. 현재 진행/시간/정산은 [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)를 따른다. 아래 과거 Dev3 설치·검증 기록은 보존하되 현재 공유 씬 사용법으로 해석하지 않는다.

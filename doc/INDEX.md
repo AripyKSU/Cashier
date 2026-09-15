@@ -57,7 +57,7 @@
 | [RESOURCE_POOL_CONTRACT.md](RESOURCE_POOL_CONTRACT.md) | 리소스 비동기 로드·풀 수명 | ResourceManager·Pool 계약 |
 | [SALE_ITEM_LAYOUT_RULES.md](SALE_ITEM_LAYOUT_RULES.md) | 판매 상품 위치·레이아웃 | 판매 상품 배치 규칙 |
 | [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md) | 상품·손님 Sprite 연결 | 이미지 FK·migration·연결 |
-| [CUSTOMER_APPEARANCE_CLASSIFICATION.md](CUSTOMER_APPEARANCE_CLASSIFICATION.md) | 손님 외형의 표시 이름 검토 | 이미지45종 이름 정리 참고표; 성별·연령은 고정 데이터가 아님 |
+| [CUSTOMER_APPEARANCE_CLASSIFICATION.md](CUSTOMER_APPEARANCE_CLASSIFICATION.md) | 손님 외형의 이름·성별·연령 분류 검토 | 이미지45종 초안 분류; 런타임 기준은 CustomerAppearanceData.csv의 gender·age |
 | [2026-09-14-prototype-handoff.md](2026-09-14-prototype-handoff.md) | Astra 단계별 외형·상품16종 원본 작업 조사 | 원본 저작 메뉴·데이터 경계·미검증 사항; 통합 상태는 DYSTOPIA_RESOURCE_INTEGRATION 기준 |
 | [DYSTOPIA_RESOURCE_INTEGRATION.md](DYSTOPIA_RESOURCE_INTEGRATION.md) | Dystopia 원본·선택 이관 | 리소스 이관 기록과 범위 |
 | [DEV3_GUIDE.md](DEV3_GUIDE.md) | 기존 UI·입력 구현 경위 조사 | 개발자 3 UI 가이드·로드맵 |
