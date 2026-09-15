@@ -11,6 +11,95 @@ using UnityEngine.SceneManagement;
 /// <summary>승인된 전용 경로에서만 Scene을 제작하고 검사하는 Editor 진입점입니다.</summary>
 public static class DystopiaTools
 {
+    /// <summary>현재 배경 크기에 맞춰 분리된 경비를 연결하고 편집 상태를 백업한 뒤 저장합니다.</summary>
+    [MenuItem("Dystopia/배경에 경비 위치 맞추기")]
+    public static void AlignRearGuardsToBackground()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Play 종료 후 실행하세요.");
+        var stage = UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
+        if (stage == null || stage.gameObject.scene.path != Root + "Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("DystopiaVerticalSlice 씬에서 실행하세요.");
+        string directory = "output/rear-guard-alignment/" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if (!EditorSceneManager.SaveScene(stage.gameObject.scene, directory + "/before.unity", true)) throw new IOException("Backup failed.");
+        AlignRearGuardRects(stage);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        if (!EditorSceneManager.SaveScene(stage.gameObject.scene)) throw new IOException("Scene save failed.");
+        Debug.Log("배경 크기에 맞춘 경비 배치 저장 완료: " + directory);
+    }
+
+    /// <summary>경비 추출에 사용한 원본 픽셀 영역을 현재 배경의 실제 Transform으로 변환합니다.</summary>
+    /// <param name="stage">사용자가 명시적으로 배치를 적용하는 현재 가판입니다.</param>
+    private static void AlignRearGuardRects(DystopiaPixelStage stage)
+    {
+        var background = (UnityEngine.UI.Image)stage.layers.Single(layer => layer.source != null && layer.source.name == "MidBackground").source;
+        var names = new[] { "LeftWatchGuard", "RightWatchGuard" };
+        var crops = new[] { new Rect(83, 286, 45, 43), new Rect(1557, 401, 36, 34) };
+        Rect spriteRect = background.sprite.rect;
+        for (int i = 0; i < names.Length; i++)
+        {
+            var rect = stage.layers.Single(layer => layer.source != null && layer.source.name == names[i]).source.rectTransform;
+            var parent = (RectTransform)rect.parent;
+            Vector2 uv = new Vector2((crops[i].center.x - spriteRect.x) / spriteRect.width,
+                (background.sprite.texture.height - crops[i].center.y - spriteRect.y) / spriteRect.height);
+            Vector3 point = background.rectTransform.TransformPoint(new Vector3(
+                Mathf.Lerp(background.rectTransform.rect.xMin, background.rectTransform.rect.xMax, uv.x),
+                Mathf.Lerp(background.rectTransform.rect.yMin, background.rectTransform.rect.yMax, uv.y), 0));
+            Undo.RecordObject(rect, "Align rear guard to background");
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.localScale = Vector3.one;
+            rect.position = point;
+            rect.sizeDelta = new Vector2(background.rectTransform.rect.width * crops[i].width / spriteRect.width * background.rectTransform.lossyScale.x / parent.lossyScale.x,
+                background.rectTransform.rect.height * crops[i].height / spriteRect.height * background.rectTransform.lossyScale.y / parent.lossyScale.y);
+            EditorUtility.SetDirty(rect);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(rect);
+        }
+    }
+
+    /// <summary>현재 편집 상태를 보존하고 사용하지 않는 앞쪽 타워 표현만 제거합니다.</summary>
+    [MenuItem("Dystopia/앞쪽 가드타워 제거")]
+    public static void RemoveFrontTowerVisuals()
+    {
+        if (EditorApplication.isPlaying) throw new InvalidOperationException("Play 종료 후 실행하세요.");
+        var stage = UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
+        if (stage == null || stage.gameObject.scene.path != Root + "Scenes/DystopiaVerticalSlice.unity")
+            throw new InvalidOperationException("DystopiaVerticalSlice 씬에서 실행하세요.");
+        string directory = "output/front-tower-removal/" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if (!EditorSceneManager.SaveScene(stage.gameObject.scene, directory + "/before.unity", true)) throw new IOException("Backup failed.");
+        RemoveFrontTowerLayers(stage);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        if (!EditorSceneManager.SaveScene(stage.gameObject.scene, directory + "/after.unity", true)) throw new IOException("Verification copy failed.");
+        if (!EditorSceneManager.SaveScene(stage.gameObject.scene)) throw new IOException("Scene save failed.");
+        Debug.Log("앞쪽 타워·난간 표시 제거 완료. 뒤쪽 경비와 배경 유지. 백업: " + directory);
+    }
+
+    /// <summary>앞쪽 타워·난간을 렌더링 목록에서 제거하고 원본 Prefab의 해당 표현만 비활성화합니다.</summary>
+    /// <param name="stage">사용자가 현재 편집하거나 명시적으로 단계 적용 중인 가판입니다.</param>
+    private static void RemoveFrontTowerLayers(DystopiaPixelStage stage)
+    {
+        var names = new[] { "LeftWatchTower", "RightWatchTower", "LeftWatchRail", "RightWatchRail", "LeftWatchRailMask", "RightWatchRailMask" };
+        // 원본 목록에서 먼저 빼면 Sync가 더 이상 복제 Renderer를 끄지 못하므로 생성된 표시물도 함께 제거합니다.
+        var runtimeRoot = (GameObject)typeof(DystopiaPixelStage).GetField("renderRoot", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).GetValue(stage);
+        if (runtimeRoot != null)
+        {
+            foreach (var renderer in runtimeRoot.GetComponentsInChildren<MeshRenderer>(true))
+                if (names.Any(name => renderer.name == name || renderer.name == name + " Contact Shadow"))
+                    UnityEngine.Object.DestroyImmediate(renderer.gameObject);
+        }
+        Undo.RecordObject(stage, "Remove unused front tower layers");
+        stage.layers = stage.layers.Where(layer => layer.source == null || !names.Contains(layer.source.name)).ToArray();
+        foreach (var rect in stage.frontCanvas.GetComponentsInChildren<RectTransform>(true).Where(rect => names.Contains(rect.name)))
+        {
+            // Prefab 전체를 풀거나 경비 연결을 삭제하지 않고 앞쪽 구조물만 제외합니다.
+            Undo.RecordObject(rect.gameObject, "Remove unused front tower visuals");
+            rect.gameObject.SetActive(false);
+            EditorUtility.SetDirty(rect.gameObject);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(rect.gameObject);
+        }
+        EditorUtility.SetDirty(stage);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
+    }
+
     /// <summary>현재 Stage 3 전체 배치를 보존하고 적용 메뉴의 기준 사본을 갱신합니다.</summary>
     [MenuItem("Dystopia/Save Current Stage 3 Reference")]
     public static void SaveCurrentStage3Reference()
@@ -29,13 +118,13 @@ public static class DystopiaTools
     }
 
     /// <summary>제공받은 Stage 3 상자를 임포트하고 현재 상자의 배치를 유지한 채 교체합니다.</summary>
-    [MenuItem("Dystopia/Import Stage 3 Container")]
+
     public static void ImportStage3Container()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage==null || stage.gameObject.scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        const string path=Root+"Art/Stage3Container.png";
+        const string path="Assets/Textures/Checkout/Shop/Stage3Container.png";
         AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
@@ -60,11 +149,11 @@ public static class DystopiaTools
     private static void SetStage3Container(DystopiaPixelStage.Layer layer)
     {
         var image=(UnityEngine.UI.Image)layer.source;
-        var sprite=AssetDatabase.LoadAllAssetsAtPath(Root+"Art/Stage3Container.png").OfType<Sprite>().Single();
+        var sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Shop/Stage3Container.png").OfType<Sprite>().Single();
         Undo.RecordObject(image,"Replace stage 3 container sprite");
         image.sprite=sprite; image.color=new Color(.62f,.66f,.70f,1);
         layer.normalSprite=sprite;
-        layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"Art/Stage3ContainerNormal.png");
+        layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Shop/Stage3ContainerNormal.png");
         layer.normalResponse=.45f;
         layer.highlightResponse=.8f;
         // 얇은 검은 외곽선을 추가 테두리 조명으로 밝히지 않습니다.
@@ -102,7 +191,7 @@ public static class DystopiaTools
     }
 
     /// <summary>왼쪽 연기 하단을 타워 옆 건물 지붕 좌표에 맞추고 결과를 촬영합니다.</summary>
-    [MenuItem("Dystopia/Align Smoke To Inset Background")]
+
     public static void AlignSmokeToInsetBackground()
     {
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
@@ -133,7 +222,7 @@ public static class DystopiaTools
     }
 
     /// <summary>2단계 소품의 가져오기 해상도, 약한 노멀과 요청된 배치를 한 번 조절합니다.</summary>
-    [MenuItem("Dystopia/Tune Stage 2 Props")]
+
     public static void TuneStage2Props()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -196,7 +285,7 @@ public static class DystopiaTools
     }
 
     /// <summary>제공된 2단계 소품 원본만 연결하고 상자와 시계 숫자의 배치를 보존합니다.</summary>
-    [MenuItem("Dystopia/Apply Stage 2 Props Only")]
+
     public static void ApplyStage2PropsOnly()
     {
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -210,7 +299,7 @@ public static class DystopiaTools
         Undo.RecordObject(stage,"Apply stage 2 props");
         for (int i=0;i<2;i++)
         {
-            string path=Root+"Art/"+(i==0 ? "Stage2Container" : "Stage2Clock")+".png";
+            string path="Assets/Textures/Checkout/Shop/"+(i==0 ? "Stage2Container" : "Stage2Clock")+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
@@ -239,7 +328,7 @@ public static class DystopiaTools
     }
 
     /// <summary>경비병의 실제 애니메이션 참조와 렌더 표시 조건을 읽기 전용으로 기록합니다.</summary>
-    [MenuItem("Dystopia/Inspect Rear Guard Links")]
+
     public static void InspectRearGuardLinks()
     {
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
@@ -258,7 +347,7 @@ public static class DystopiaTools
     }
 
     /// <summary>배경을 상판 기준으로 축소하고 상판 원본 명암을 복원합니다.</summary>
-    [MenuItem("Dystopia/Inset Background And Restore Counter Detail")]
+
     public static void InsetBackgroundAndRestoreCounterDetail()
     {
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
@@ -298,7 +387,7 @@ public static class DystopiaTools
     }
 
     /// <summary>분리한 배경 경비병을 기존 움직임 오브젝트에 연결합니다.</summary>
-    [MenuItem("Dystopia/Animate Extracted Rear Guards")]
+
     public static void AnimateExtractedRearGuards()
     {
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
@@ -309,7 +398,7 @@ public static class DystopiaTools
         var sprites=new Sprite[2];
         for(int i=0;i<2;i++)
         {
-            string path=Root+"Art/RearWatchGuard"+i+".png";
+            string path="Assets/Textures/Checkout/Characters/RearWatchGuard"+i+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
@@ -317,7 +406,7 @@ public static class DystopiaTools
             importer.textureCompression=TextureImporterCompression.Uncompressed; importer.npotScale=TextureImporterNPOTScale.None;
             importer.SaveAndReimport(); sprites[i]=AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
-        AssetDatabase.ImportAsset(Root+"Art/MidBackground.png",ImportAssetOptions.ForceSynchronousImport);
+        AssetDatabase.ImportAsset("Assets/Textures/Checkout/Background/MidBackground.png",ImportAssetOptions.ForceSynchronousImport);
         var names=new[] { "LeftWatchGuard", "RightWatchGuard" };
         var layers=names.Select(name=>stage.layers.Single(layer=>layer.source.name==name)).ToArray();
         string directory="output/shop-stage-switch/rear-guard-animation/applied/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
@@ -356,7 +445,7 @@ public static class DystopiaTools
     }
 
     /// <summary>가게 프레임 네 부품의 노멀 반응만 끄고 비교용 렌더를 기록합니다.</summary>
-    [MenuItem("Dystopia/Disable Stage 2 Frame Normals")]
+
     public static void DisableStage2FrameNormals()
     {
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
@@ -384,7 +473,7 @@ public static class DystopiaTools
     }
 
     /// <summary>상판과 소품 높이를 유지하며 2단계 천장과 기둥을 원본 폭에 맞춥니다.</summary>
-    [MenuItem("Dystopia/Fit Stage 2 Frame Keep Table Height")]
+
     public static void FitStage2FrameKeepTableHeight()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -430,7 +519,7 @@ public static class DystopiaTools
     }
 
     /// <summary>앞쪽 탑과 소속 경비 표현만 숨기고 배경 탑은 유지합니다.</summary>
-    [MenuItem("Dystopia/Hide Front Watchtowers")]
+
     public static void HideFrontWatchtowers()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -455,7 +544,7 @@ public static class DystopiaTools
     }
 
     /// <summary>탑 교체에서 추가된 속성만 교체 전 프리팹 값으로 복구합니다.</summary>
-    [MenuItem("Dystopia/Restore Watchtowers Before Replacement")]
+
     public static void RestoreWatchtowersBeforeReplacement()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -493,13 +582,13 @@ public static class DystopiaTools
     }
 
     /// <summary>승인된 분리 탑을 기존 앞쪽 탑 위치에 연결하고 현재 경비를 빈 창에 배치합니다.</summary>
-    [MenuItem("Dystopia/Replace Front Watchtowers")]
+
     public static void ReplaceFrontWatchtowers()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage==null || stage.gameObject.scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        const string path=Root+"Art/ExtractedWatchTowers.png";
+        const string path="Assets/Editor/Checkout/SourceTextures/ExtractedWatchTowers.png";
         string directory="output/shop-stage-switch/tower-replacement/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up current scene.");
@@ -570,7 +659,7 @@ public static class DystopiaTools
     }
 
     /// <summary>사선 분리한 다섯 부품을 현재 상판과 소품 배치를 기준으로 연결합니다.</summary>
-    [MenuItem("Dystopia/Apply Stage 2 Seam Parts")]
+
     public static void ApplyStage2SeamParts()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -587,7 +676,7 @@ public static class DystopiaTools
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up current layout.");
         SliceStage2AlongSeams();
-        var sprites=AssetDatabase.LoadAllAssetsAtPath(Root+"Art/Stage2Shop.png").OfType<Sprite>().ToArray();
+        var sprites=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Shop/Stage2Shop.png").OfType<Sprite>().ToArray();
         Undo.RecordObject(stage,"Connect stage 2 seam parts");
         var cabinet=stage.layers.SingleOrDefault(l=>l.source!=null && l.source.name=="Stage2Cabinet");
         if(cabinet==null)
@@ -628,7 +717,7 @@ public static class DystopiaTools
             var layer=targets[i]; var image=(UnityEngine.UI.Image)layer.source;
             image.sprite=sprites.Single(s=>s.name==names[i]); image.useSpriteMesh=true; image.preserveAspect=false;
             image.gameObject.SetActive(true); layer.normalSprite=image.sprite;
-            layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"Art/Stage2ShopNormal.png");
+            layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Shop/Stage2ShopNormal.png");
             foreach(var obj in new UnityEngine.Object[] { image,image.rectTransform,image.gameObject }) PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
         }
         // 상판이 기둥 밑동을 덮는 원본 순서를 유지하고 다른 배경 레이어 순서는 보존합니다.
@@ -652,10 +741,10 @@ public static class DystopiaTools
     }
 
     /// <summary>2단계 원본의 검은 사선 경계를 따라 다섯 부품을 독립 스프라이트로 나눕니다.</summary>
-    [MenuItem("Dystopia/Slice Stage 2 Along Seams")]
+
     public static void SliceStage2AlongSeams()
     {
-        const string path=Root+"Art/Stage2Shop.png";
+        const string path="Assets/Textures/Checkout/Shop/Stage2Shop.png";
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         var settings=new TextureImporterSettings(); importer.ReadTextureSettings(settings);
         settings.spriteMeshType=SpriteMeshType.Tight; importer.SetTextureSettings(settings);
@@ -715,7 +804,7 @@ public static class DystopiaTools
     }
 
     /// <summary>배경 군중의 인위적인 외곽광만 끄고 편집 모드 전후 렌더를 기록합니다.</summary>
-    [MenuItem("Dystopia/Remove Crowd Rim Light")]
+
     public static void RemoveCrowdRimLight()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -747,7 +836,7 @@ public static class DystopiaTools
     }
 
     /// <summary>2단계에서 감시탑 원본에 포함된 옛 상점 기둥만 숨깁니다.</summary>
-    [MenuItem("Dystopia/Hide Legacy Stage 2 Posts")]
+
     public static void HideLegacyStage2Posts()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -784,8 +873,8 @@ public static class DystopiaTools
         {
             if(!(layer.source is UnityEngine.UI.Image image) || image.sprite == null) continue;
             string path=AssetDatabase.GetAssetPath(image.sprite);
-            if(path==Root+"Art/LeftWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(108f/1672,0) : Vector2.zero;
-            else if(path==Root+"Art/RightWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(0,98f/1672) : Vector2.zero;
+            if(path=="Assets/Textures/Checkout/Background/LeftWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(108f/1672,0) : Vector2.zero;
+            else if(path=="Assets/Textures/Checkout/Background/RightWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(0,98f/1672) : Vector2.zero;
         }
     }
 
@@ -793,12 +882,12 @@ public static class DystopiaTools
     private static readonly string[] SurvivalProductArt = { "DrinkingWater","CannedFood","MedicalBandage","DryBattery","MilitaryRation","NutritionBar","Medicine","EmergencyInjection","Flashlight","FoldingShovel","Radio","PowerBattery","GasMask","ProtectiveSuit","RadiationDetector","ThermalCamera" };
 
     /// <summary>교체한 네 상품의 Sprite ID를 유지하며 새 이미지의 실제 영역으로 갱신합니다.</summary>
-    [MenuItem("Dystopia/Refresh Replaced Protection Products")]
+
     public static void RefreshReplacedProtectionProducts()
     {
         foreach(string name in new[] { "ProtectiveSuit","RadiationDetector","GasMask","ThermalCamera" })
         {
-            string path=Root+"Art/Products/"+name+".png";
+            string path="Assets/Textures/Checkout/Products/"+name+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             var factory=new SpriteDataProviderFactories(); factory.Init();
@@ -823,45 +912,14 @@ public static class DystopiaTools
     }
 
     /// <summary>새 2단계 테이블 이미지만 연결하고 사용자가 조정한 위치와 크기는 보존합니다.</summary>
-    [MenuItem("Dystopia/Apply Stage 2 Table")]
+
     public static void ApplyStage2Table()
     {
-        bool isPlaying=EditorApplication.isPlaying;
-        var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
-        if(stage==null || stage.gameObject.scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        const string path=Root+"Art/Stage2Table.png";
-        AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceUpdate);
-        var sprite=AssetDatabase.LoadAssetAtPath<Sprite>(path);
-        if(sprite==null) throw new InvalidOperationException("Stage2Table must import as a single sprite.");
-        var layer=stage.layers.Single(item=>item.source!=null && item.source.name=="Counter");
-        var image=layer.source as UnityEngine.UI.Image;
-        if(image==null) throw new InvalidOperationException("Counter must use a UI Image.");
-        if(!isPlaying)
-        {
-            Undo.RecordObject(stage,"Apply stage 2 table");
-            Undo.RecordObject(image,"Apply stage 2 table sprite");
-        }
-        image.sprite=sprite;
-        image.preserveAspect=false;
-        layer.normalSprite=sprite;
-        layer.normalMap=null;
-        layer.normalResponse=0;
-        if(!isPlaying)
-        {
-            EditorUtility.SetDirty(stage);
-            EditorUtility.SetDirty(image);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(stage);
-            PrefabUtility.RecordPrefabInstancePropertyModifications(image);
-            EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
-        }
-        var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
-        typeof(DystopiaPixelStage).GetMethod("Release",flags).Invoke(stage,null);
-        typeof(DystopiaPixelStage).GetMethod("LateUpdate",flags).Invoke(stage,null);
-        Debug.Log("Stage 2 table replaced"+(isPlaying?" for Play Mode preview":"")+". Counter RectTransform position and size were preserved for manual adjustment.");
+        throw new InvalidOperationException("폐기된 Stage2Table 원본입니다. Dystopia/Apply Stage 2 Shop을 사용하세요.");
     }
 
     /// <summary>상자와 시계를 유지하며 크기 조정 전 2단계 프레임으로 복원합니다.</summary>
-    [MenuItem("Dystopia/Restore Previous Stage 2 Frame")]
+
     public static void RestorePreviousStage2Frame()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -973,6 +1031,8 @@ public static class DystopiaTools
             stage.ceilingLamp=stage.layers.FirstOrDefault(l=>l.source!=null && l.source.name=="Stage3CeilingLamp")?.source as UnityEngine.UI.Image;
             stage.lampPosition=saved.lampPosition; stage.lampHeight=saved.lampHeight; stage.lampRadius=saved.lampRadius; stage.lampIntensity=saved.lampIntensity; stage.lampColor=saved.lampColor;
             EnsureCanopyBehindCounter(stage);
+            RemoveFrontTowerLayers(stage);
+            AlignRearGuardRects(stage);
             SetProductShopStage(stageNumber);
             EditorUtility.SetDirty(stage);
             EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
@@ -1004,7 +1064,7 @@ public static class DystopiaTools
         {
             foreach(string name in SurvivalProductArt)
             {
-                var sprite=AssetDatabase.LoadAllAssetsAtPath(Root+"Art/Products/"+name+".png").OfType<Sprite>().Single();
+                var sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Products/"+name+".png").OfType<Sprite>().Single();
                 var instance=new GameObject(name);
                 UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(instance,preview);
                 instance.AddComponent<SpriteRenderer>().sprite=sprite;
@@ -1035,7 +1095,7 @@ public static class DystopiaTools
         for(int i=0;i<16;i++)
         {
             var product=settings.products[i];
-            if(product.id != (DystopiaProductId)(i+1) || product.sprite == null || AssetDatabase.GetAssetPath(product.sprite) != Root+"Art/Products/"+SurvivalProductArt[i]+".png") throw new InvalidOperationException("Wrong product sprite: "+product.name);
+            if(product.id != (DystopiaProductId)(i+1) || product.sprite == null || AssetDatabase.GetAssetPath(product.sprite) != "Assets/Textures/Checkout/Products/"+SurvivalProductArt[i]+".png") throw new InvalidOperationException("Wrong product sprite: "+product.name);
             product.price=100;
         }
         int scenarios=0;
@@ -1086,7 +1146,7 @@ public static class DystopiaTools
         var catalog=new DystopiaSettings().products;
         for(int i=0;i<catalog.Length;i++)
         {
-            string path=Root+"Art/Products/"+SurvivalProductArt[i]+".png";
+            string path="Assets/Textures/Checkout/Products/"+SurvivalProductArt[i]+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite;
@@ -1147,7 +1207,7 @@ public static class DystopiaTools
         Debug.Log("16 survival products registered. Unpriced products stay out of orders. Scene left unsaved. "+directory);
     }
     /// <summary>사용자 제공 일일지침의 바깥 체크무늬를 제거하고 기존 문서의 본문 배치만 맞춥니다.</summary>
-    [MenuItem("Dystopia/Apply New Daily Instruction")]
+
     public static void ApplyNewDailyInstruction()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play before changing document layout.");
@@ -1156,7 +1216,7 @@ public static class DystopiaTools
         var sheet=screen.transform.Find("DystopiaCanvas/DailyInstruction/Sheet").GetComponent<UnityEngine.UI.Image>();
         var content=(RectTransform)sheet.transform.Find("PrintedContent");
         const string source="output/instruction-update/DailyInstruction-source.png";
-        const string target="Assets/DystopiaPrototype/Art/DailyInstruction.png";
+        const string target="Assets/Textures/Checkout/UI/DailyInstruction.png";
         if(!File.Exists(source)) throw new FileNotFoundException("Daily instruction source is missing.",source);
         string backup="output/instruction-update/Live-before-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".unity";
         if(!EditorSceneManager.SaveScene(screen.gameObject.scene,backup,true)) throw new IOException("Could not back up live scene.");
@@ -1236,10 +1296,10 @@ public static class DystopiaTools
     [MenuItem("Dystopia/Assets/Import Pending Artwork Only")]
     public static void ImportPendingArtworkOnly()
     {
-        const string handsPath = "Assets/DystopiaPrototype/Art/Hands.png";
-        const string boxPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png";
-        const string normalPath = "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png";
-        const string instructionPath = "Assets/DystopiaPrototype/Art/DailyInstruction.png";
+        const string handsPath = "Assets/Textures/Checkout/UI/Hands.png";
+        const string boxPath = "Assets/Textures/Checkout/Workbench/FrontContainerMale.png";
+        const string normalPath = "Assets/Textures/Checkout/Workbench/FrontContainerNormal.png";
+        const string instructionPath = "Assets/Textures/Checkout/UI/DailyInstruction.png";
         foreach (string path in new[] { handsPath, boxPath, instructionPath })
         {
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
@@ -1325,13 +1385,13 @@ public static class DystopiaTools
     }
 
     /// <summary>사용자 말풍선을 꼬리까지 보존하는 9-slice Sprite로 가져와 정산 화면에 연결합니다.</summary>
-    [MenuItem("Dystopia/Apply Ledger Speech Bubble")]
+
     public static void ApplyLedgerSpeechBubble()
     {
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var screen = UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>();
         if (screen == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        const string path = "Assets/DystopiaPrototype/Art/LedgerSpeechBubble.png";
+        const string path = "Assets/Textures/Checkout/UI/LedgerSpeechBubble.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
@@ -1370,7 +1430,7 @@ public static class DystopiaTools
     }
 
     /// <summary>현재 가판의 위치와 크기를 유지하고 캐노피 계열 레이어만 계산대보다 먼저 그립니다.</summary>
-    [MenuItem("Dystopia/Move Canopy Behind Counter")]
+
     public static void MoveCanopyBehindCounter()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -1401,14 +1461,14 @@ public static class DystopiaTools
     }
 
     /// <summary>제공된 1단계 그림의 투명 여백을 제외하고 가게 겹침 순서와 상자 접지 배치를 적용합니다.</summary>
-    [MenuItem("Dystopia/Apply Stage 1 Artwork")]
+
     public static void ApplyStage1Artwork()
     {
         ApplyStage1Artwork(false);
     }
 
     /// <summary>새 1단계 상자만 교체하고 손님 중심에 정렬합니다.</summary>
-    [MenuItem("Dystopia/Apply Stage 1 Box")]
+
     public static void ApplyStage1Box()
     {
         ApplyStage1Artwork(true);
@@ -1426,7 +1486,7 @@ public static class DystopiaTools
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up scene.");
         string[] names={ "Counter","FrontContainer","CounterClock" };
-        string[] paths={ "Assets/DystopiaPrototype/Art/Stage1WoodCounter.png","Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompact.png","Assets/DystopiaPrototype/Art/Stage1BasicClock.png" };
+        string[] paths={ "Assets/Textures/Checkout/Shop/Stage1WoodCounter.png","Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png","Assets/Textures/Checkout/Shop/Stage1BasicClock.png" };
         Undo.RecordObject(stage,"Apply stage 1 artwork");
         for(int i=0;i<paths.Length;i++)
         {
@@ -1503,14 +1563,14 @@ public static class DystopiaTools
     }
 
     /// <summary>저해상도 1단계 상자의 과도한 외곽광 폭과 강도만 줄입니다.</summary>
-    [MenuItem("Dystopia/Soften Stage 1 Box Rim")]
+
     public static void SoftenStage1BoxRim()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage == null || stage.gameObject.scene.path != "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         var layer=stage.layers.Single(x => x.source != null && x.source.name == "FrontContainer");
-        if(AssetDatabase.GetAssetPath(((UnityEngine.UI.Image)layer.source).sprite) != "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompact.png") throw new InvalidOperationException("Apply stage 1 box first.");
+        if(AssetDatabase.GetAssetPath(((UnityEngine.UI.Image)layer.source).sprite) != "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png") throw new InvalidOperationException("Apply stage 1 box first.");
         string directory="output/shop-stage-switch/box-rim-"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up scene.");
@@ -1523,7 +1583,7 @@ public static class DystopiaTools
     }
 
     /// <summary>상자·시계의 밑면 음영과 상판에 퍼지는 접촉 그림자만 강화합니다.</summary>
-    [MenuItem("Dystopia/Strengthen Stage 1 Contact Shadows")]
+
     public static void StrengthenStage1ContactShadows()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -1545,14 +1605,14 @@ public static class DystopiaTools
     }
 
     /// <summary>현재 상자·시계에 전용 RGB 노멀맵만 연결하며 배치·색상·조명 강도를 유지합니다.</summary>
-    [MenuItem("Dystopia/Apply Stage 1 Prop Normals")]
+
     public static void ApplyStage1PropNormals()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage == null || stage.gameObject.scene.path != "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         string[] names={ "FrontContainer","CounterClock" };
-        string[] paths={ "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompact.png","Assets/DystopiaPrototype/Art/Stage1BasicClock.png" };
+        string[] paths={ "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png","Assets/Textures/Checkout/Shop/Stage1BasicClock.png" };
         var layers=names.Select(name => stage.layers.Single(x => x.source != null && x.source.name == name)).ToArray();
         for(int i=0;i<2;i++)
             if(AssetDatabase.GetAssetPath(((UnityEngine.UI.Image)layers[i].source).sprite) != paths[i]) throw new InvalidOperationException("Apply current stage 1 artwork first.");
@@ -1581,7 +1641,7 @@ public static class DystopiaTools
 
     /// <summary>현재 시계 그림의 실제 표시창에 숫자 크기와 중심만 맞춥니다.</summary>
     [MenuItem("Dystopia/Fit Current Clock Display")]
-    [MenuItem("Dystopia/Fit Stage 1 Clock Display")]
+
     public static void FitStage1ClockDisplay()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -1590,8 +1650,8 @@ public static class DystopiaTools
             throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         var image=(UnityEngine.UI.Image)stage.layers.Single(x => x.source != null && x.source.name == "CounterClock").source;
         string spritePath=AssetDatabase.GetAssetPath(image.sprite);
-        bool stage3=spritePath == "Assets/DystopiaPrototype/Art/시계.png";
-        if(image.sprite == null || !stage3 && spritePath != "Assets/DystopiaPrototype/Art/Stage1BasicClock.png")
+        bool stage3=spritePath == "Assets/Textures/Checkout/Shop/Stage3Clock.png";
+        if(image.sprite == null || !stage3 && spritePath != "Assets/Textures/Checkout/Shop/Stage1BasicClock.png")
             throw new InvalidOperationException("Unsupported clock artwork.");
         var text=image.transform.Find("BusinessClock").GetComponent<UnityEngine.UI.Text>();
         var rect=text.rectTransform;
@@ -1624,10 +1684,10 @@ public static class DystopiaTools
     private static void ApplyShopProps(DystopiaPixelStage stage,bool stage1)
     {
         string[] names={ "FrontContainer","CounterClock" };
-        string[] paths=stage1 ? new[] { "Assets/DystopiaPrototype/TopDownTest/Art/Stage1Container.png","Assets/DystopiaPrototype/Art/Stage1Clock.png" }
-            : new[] { "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png","Assets/DystopiaPrototype/Art/시계.png" };
-        string[] normals=stage1 ? new[] { "Assets/DystopiaPrototype/TopDownTest/Art/Stage1ContainerNormal.png","Assets/DystopiaPrototype/Art/Stage1ClockNormal.png" }
-            : new[] { "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png","Assets/DystopiaPrototype/Art/CounterClockNormal.png" };
+        string[] paths=stage1 ? new[] { "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png","Assets/Textures/Checkout/Shop/Stage1BasicClock.png" }
+            : new[] { "Assets/Textures/Checkout/Workbench/FrontContainerMale.png","Assets/Textures/Checkout/Shop/Stage3Clock.png" };
+        string[] normals=stage1 ? new[] { "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompactNormal.png","Assets/Textures/Checkout/Shop/Stage1BasicClockNormal.png" }
+            : new[] { "Assets/Textures/Checkout/Workbench/FrontContainerNormal.png","Assets/Textures/Checkout/Shop/Stage3ClockNormal.png" };
         for(int i=0;i<2;i++)
         {
             if(stage1)
@@ -1660,7 +1720,7 @@ public static class DystopiaTools
     /// <returns>전체 원본 영역을 사용하는 영속 Sprite입니다.</returns>
     private static Sprite FullBoothSprite(string name)
     {
-        string path="Assets/DystopiaPrototype/Art/"+name+".png";
+        string path=FindCheckoutArtwork(name);
         string spriteName=name+"Full";
         return AssetDatabase.LoadAssetAtPath<Sprite>(path);
     }
@@ -1671,13 +1731,13 @@ public static class DystopiaTools
     {
         var stage = UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if (stage == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        var normal = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/Stage3ShopNormal.png");
+        var normal = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Shop/Stage3ShopNormal.png");
         Selection.objects = stage.layers.Where(x => x.source != null && (normal != null && x.normalMap == normal || x.source == stage.ceilingLamp))
             .Select(x => (UnityEngine.Object)x.source.gameObject).ToArray();
     }
 
     /// <summary>사용자 표정 시트를 네 상태로 슬라이싱하고 현재 정면 화면의 손님 오른쪽에 연결합니다.</summary>
-    [MenuItem("Dystopia/Apply Trade Reactions")]
+
     public static void ApplyTradeReactions()
     {
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -1685,7 +1745,7 @@ public static class DystopiaTools
         if (screen == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         var portrait = screen.transform.Find("DystopiaCanvas/Customer");
         if (portrait == null) throw new InvalidOperationException("Customer portrait is missing.");
-        const string path = "Assets/DystopiaPrototype/Art/TradeReactions.png";
+        const string path = "Assets/Textures/Checkout/UI/TradeReactions.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType = TextureImporterType.Sprite;
@@ -1742,7 +1802,7 @@ public static class DystopiaTools
     }
 
     /// <summary>프리팹 내부 대사를 박스의 자식으로 저장합니다.</summary>
-    [MenuItem("Dystopia/Fix Dialogue Prefab Layout")]
+
     public static void FixDialoguePrefabLayout()
     {
         const string path = "Assets/DystopiaPrototype/Prefabs/FrontView.prefab";
@@ -1764,11 +1824,11 @@ public static class DystopiaTools
         finally { PrefabUtility.UnloadPrefabContents(root); }
     }
     /// <summary>사용자 대사창을 9-slice Sprite로 임포트하고 대사를 박스 중앙에 연결합니다.</summary>
-    [MenuItem("Dystopia/Apply Dialogue Frame")]
+
     public static void ApplyDialogueFrame()
     {
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
-        const string path = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
+        const string path = "Assets/Textures/Checkout/UI/DialogueFrame.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType = TextureImporterType.Sprite;
@@ -1830,7 +1890,7 @@ public static class DystopiaTools
     private static readonly string[] Products = {"Water","Crackers","Can","Rice","Bandage","Painkiller","Battery","Soap","Mask","Fuel"};
 
     /// <summary>승인된 빈 무제목 Scene만 교체하고, 저장된 Scene은 보존하여 전용 장면을 생성합니다.</summary>
-    [MenuItem("Dystopia/Create Dedicated Scene")]
+
     public static void CreateScene()
     {
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -1857,11 +1917,11 @@ public static class DystopiaTools
     }
 
     /// <summary>전용 폴더의 신규 아트에만 Sprite import 설정을 적용합니다.</summary>
-    [MenuItem("Dystopia/Import Art")]
+
     private static void ImportArt()
     {
         AssetDatabase.Refresh();
-        foreach(string path in Directory.GetFiles(Root+"Art","*.png"))
+        foreach(string path in Directory.GetFiles("Assets/Textures/Checkout", "*.png", SearchOption.AllDirectories))
         {
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite;
@@ -1889,9 +1949,9 @@ public static class DystopiaTools
         crowdRows.GetArrayElementAtIndex(1).objectReferenceValue=Art("CrowdMiddle");
         crowdRows.GetArrayElementAtIndex(2).objectReferenceValue=Art("CrowdFront");
         serialized.FindProperty("watchGuard").objectReferenceValue=Art("WatchGuard");
-        serialized.FindProperty("guardTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/GuardNeutral.mat");
-        serialized.FindProperty("leftTowerTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/LeftTowerNeutral.mat");
-        serialized.FindProperty("rightTowerTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/RightTowerNeutral.mat");
+        serialized.FindProperty("guardTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/GuardNeutral.mat");
+        serialized.FindProperty("leftTowerTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/LeftTowerNeutral.mat");
+        serialized.FindProperty("rightTowerTone").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/RightTowerNeutral.mat");
         var smokeFrames=serialized.FindProperty("chimneySmokeFrames"); smokeFrames.arraySize=4;
         for(int i=0;i<smokeFrames.arraySize;i++) smokeFrames.GetArrayElementAtIndex(i).objectReferenceValue=Art("ChimneySmoke"+i);
         serialized.FindProperty("leftWatchTower").objectReferenceValue=Art("LeftWatchTower");
@@ -1901,9 +1961,9 @@ public static class DystopiaTools
         serialized.FindProperty("fogBack").objectReferenceValue=Art("FogBack");
         serialized.FindProperty("fogMid").objectReferenceValue=Art("FogMid");
         serialized.FindProperty("fogFront").objectReferenceValue=Art("FogFront");
-        serialized.FindProperty("fogBackMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogBack.mat");
-        serialized.FindProperty("fogMidMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogMid.mat");
-        serialized.FindProperty("fogFrontMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>(Root+"Art/FogFront.mat");
+        serialized.FindProperty("fogBackMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/FogBack.mat");
+        serialized.FindProperty("fogMidMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/FogMid.mat");
+        serialized.FindProperty("fogFrontMaterial").objectReferenceValue=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/FogFront.mat");
         serialized.FindProperty("daughter").objectReferenceValue=Art("Daughter");
         serialized.FindProperty("inspector").objectReferenceValue=Art("Inspector");
         serialized.FindProperty("inspectorPortraitPrefab").objectReferenceValue=AssetDatabase.LoadAssetAtPath<GameObject>(Root+"Prefabs/InspectorPortrait.prefab");
@@ -1915,17 +1975,28 @@ public static class DystopiaTools
             var entry=products.GetArrayElementAtIndex(i);
             int id=entry.FindPropertyRelative("id").intValue;
             if(id > 0 && id <= SurvivalProductArt.Length)
-                entry.FindPropertyRelative("sprite").objectReferenceValue=AssetDatabase.LoadAllAssetsAtPath(Root+"Art/Products/"+SurvivalProductArt[id-1]+".png").OfType<Sprite>().SingleOrDefault();
+                entry.FindPropertyRelative("sprite").objectReferenceValue=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Products/"+SurvivalProductArt[id-1]+".png").OfType<Sprite>().SingleOrDefault();
             else if(i < Products.Length) entry.FindPropertyRelative("sprite").objectReferenceValue=Art(Products[i]);
         }
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
-    /// <summary>プロジェクト内部の正確なパスからEditorでのみ取得します。</summary>
-    private static Sprite Art(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(Root+"Art/"+name+".png");
+    /// <summary>Editor에서 정리된 하위 폴더의 정확한 이미지 이름을 찾습니다.</summary>
+    /// <param name="name">확장자를 제외한 기존 아트 이름입니다.</param>
+    /// <returns>동일 이름이 유일하면 해당 경로, 없으면 null입니다.</returns>
+    private static string FindCheckoutArtwork(string name)
+    {
+        // Editor 전용 기존 이름 조회입니다. 이동된 폴더에서 정확히 같은 파일 하나만 허용합니다.
+        return Directory.GetFiles("Assets/Textures/Checkout", name + ".png", SearchOption.AllDirectories).SingleOrDefault()?.Replace('\\', '/');
+    }
+
+    /// <summary>정리된 이미지 폴더에서 기존 아트 이름의 Sprite를 읽습니다.</summary>
+    /// <param name="name">확장자를 제외한 아트 이름입니다.</param>
+    /// <returns>등록된 Sprite 또는 null입니다.</returns>
+    private static Sprite Art(string name) => AssetDatabase.LoadAssetAtPath<Sprite>(FindCheckoutArtwork(name));
 
     /// <summary>専用Sceneの画像参照だけを更新し、調整済みの設定値を維持します。</summary>
-    [MenuItem("Dystopia/Refresh Art References")]
+
     public static void RefreshArt()
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
@@ -1946,7 +2017,7 @@ public static class DystopiaTools
     }
 
     /// <summary>既存Sceneセットを閉じずに専用SceneをPlay開始Sceneとして指定します。</summary>
-    [MenuItem("Dystopia/Play Vertical Slice")]
+
     public static void Play()
     {
         if(EditorApplication.isPlaying) return;
@@ -1983,7 +2054,7 @@ public static class DystopiaTools
     }
 
     /// <summary>UnityのPlay状態を終了します。</summary>
-    [MenuItem("Dystopia/Stop Play")]
+
     public static void Stop() { EditorApplication.isPlaying=false; }
 }
 
@@ -2029,8 +2100,7 @@ public class DystopiaLayoutInspector : Editor
         showClock = GUILayout.Toolbar(showClock ? 1 : 0, new[] { "탑다운 계산기", "정면 시계" }) == 1;
         Rect area = GUILayoutUtility.GetAspectRect(1280f / 720f);
         EditorGUI.DrawRect(area, new Color(.08f,.08f,.08f));
-        string art = "Assets/DystopiaPrototype/";
-        Texture2D background = AssetDatabase.LoadAssetAtPath<Texture2D>(art + (showClock ? "Art/BoothCounter.png" : "TopDownTest/Art/TopDownWorkbench.png"));
+        Texture2D background = AssetDatabase.LoadAssetAtPath<Texture2D>(showClock ? "Assets/Textures/Checkout/Shop/BoothCounter.png" : "Assets/Textures/Checkout/Workbench/TopDownWorkbench.png");
         if (background != null) GUI.DrawTexture(area, background, ScaleMode.StretchToFill);
         GUI.BeginClip(area);
         float scale = area.width / 1280;
@@ -2058,7 +2128,7 @@ public class DystopiaLayoutInspector : Editor
     {
         Rect layout = data.FindProperty(field).rectValue;
         Rect display = new Rect(layout.x*scale,layout.y*scale,Mathf.Max(1,layout.width)*scale,Mathf.Max(1,layout.height)*scale);
-        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/TopDownTest/Art/"+asset+".png");
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Workbench/"+asset+".png");
         if (texture != null) GUI.DrawTextureWithTexCoords(display,texture,uv);
     }
 }
@@ -2220,3 +2290,97 @@ public static class DystopiaSceneLayout
     }
 
 }
+
+/// <summary>현재 Play 세션에서만 설비를 연결하고 기존 정렬·계수 결과를 시험합니다.</summary>
+public sealed class DystopiaEquipmentTestWindow : EditorWindow
+{
+    // Play 종료 시 Unity가 제거하는 테스트 대상만 보관합니다.
+    private DystopiaWorkbenchUpgrades upgrades;
+    private Vector2 scroll;
+
+    /// <summary>Dystopia 메뉴에서 구매와 수동 UI 연결 없이 테스트 창을 엽니다.</summary>
+    [MenuItem("Dystopia/설비 테스트", false, 0)]
+    public static void Open() => GetWindow<DystopiaEquipmentTestWindow>("설비 테스트");
+
+    /// <summary>기존 이벤트로 갱신된 수량을 Editor 창에 반영합니다.</summary>
+    private void OnInspectorUpdate() => Repaint();
+
+    /// <summary>명시적으로 누른 버튼만 실행 중 대상에 적용하고 실제 계수 결과를 표시합니다.</summary>
+    private void OnGUI()
+    {
+        EditorGUILayout.HelpBox("현재 씬을 Play한 뒤 연결 버튼을 누르세요. 구매·잔액은 바뀌지 않으며 Play 종료 시 임시 연결과 테스트 설정은 사라집니다.", MessageType.Info);
+        if (!EditorApplication.isPlaying || EditorApplication.isPaused)
+        {
+            EditorGUILayout.LabelField("Play 실행 및 일시정지 해제 후 사용 가능합니다.");
+            return;
+        }
+        if (upgrades == null)
+        {
+            if (GUILayout.Button("두 설비 켜고 테스트 시작")) Connect();
+            return;
+        }
+        var data = new SerializedObject(upgrades);
+        data.Update();
+        EditorGUILayout.PropertyField(data.FindProperty("testSortingTray"), new GUIContent("정렬 켜기"));
+        EditorGUILayout.PropertyField(data.FindProperty("testQuantityCounter"), new GUIContent("계수기 켜기"));
+        data.ApplyModifiedPropertiesWithoutUndo();
+        EditorGUILayout.HelpBox("정렬: 오른쪽 체크아웃에 물품을 놓으세요.\n계수기: 아래에 미처리 물품 전체의 수량을 표시합니다. 이미 구매한 설비는 체크를 꺼도 계속 작동합니다.", MessageType.None);
+        EditorGUILayout.HelpBox(upgrades.SortingStatus, MessageType.Info);
+        EditorGUILayout.HelpBox("다품목 테스트는 현재 거래를 교체합니다. 해금된 상품 최대 3종을 각 3개씩 생성합니다.", MessageType.None);
+        if (GUILayout.Button("3종 × 3개 다시 쏟기"))
+        {
+            if (!upgrades.RestartTestCustomer()) ShowNotification(new GUIContent("쏟기가 끝난 뒤 물품을 조작할 수 있는 상태에서 눌러 주세요."));
+        }
+        scroll = EditorGUILayout.BeginScrollView(scroll);
+        foreach (var pair in upgrades.TestQuantities)
+        {
+            var product = upgrades.TestProducts[pair.Key];
+            EditorGUILayout.BeginHorizontal();
+            if (product.sprite != null)
+                GUILayout.Label(AssetPreview.GetAssetPreview(product.sprite) ?? AssetPreview.GetMiniThumbnail(product.sprite), GUILayout.Width(32), GUILayout.Height(32));
+            EditorGUILayout.LabelField(product.name + " × " + pair.Value);
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndScrollView();
+    }
+
+    /// <summary>실행 중인 유일한 계산대를 찾고 누락된 설비만 임시로 연결합니다.</summary>
+    private void Connect()
+    {
+        var checkouts = UnityEngine.Object.FindObjectsByType<DystopiaTopDownTest>(FindObjectsSortMode.None);
+        if (checkouts.Length != 1)
+        {
+            ShowNotification(new GUIContent("실행 중인 Dystopia 계산대가 정확히 하나 있어야 합니다."));
+            return;
+        }
+        var checkout = checkouts[0];
+        foreach (var existing in UnityEngine.Object.FindObjectsByType<DystopiaWorkbenchUpgrades>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            var existingData = new SerializedObject(existing);
+            if (existingData.FindProperty("checkout").objectReferenceValue != checkout) continue;
+            if (!existing.isActiveAndEnabled)
+            {
+                ShowNotification(new GUIContent("기존 설비 컴포넌트를 활성화한 뒤 다시 연결하세요."));
+                return;
+            }
+            upgrades = existing;
+            EnableBoth();
+            return;
+        }
+        var temporary = new GameObject("WorkbenchUpgrades_PlayTest");
+        temporary.SetActive(false);
+        upgrades = temporary.AddComponent<DystopiaWorkbenchUpgrades>();
+        var data = new SerializedObject(upgrades);
+        data.FindProperty("checkout").objectReferenceValue = checkout;
+        data.ApplyModifiedPropertiesWithoutUndo();
+        EnableBoth();
+        temporary.SetActive(true);
+    }
+    /// <summary>테스트 시작 버튼 한 번으로 구매 없이 두 설비를 활성화합니다.</summary>
+    private void EnableBoth()
+    {
+        var data = new SerializedObject(upgrades);
+        data.FindProperty("testSortingTray").boolValue = true;
+        data.FindProperty("testQuantityCounter").boolValue = true;
+        data.ApplyModifiedPropertiesWithoutUndo();
+    }}

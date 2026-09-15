@@ -1,0 +1,370 @@
+fileFormatVersion: 2
+guid: d8735ebfa501cee4cab883553043a457
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -1862612205318398660
+    second: Stage2Shop_0
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Stage2Counter
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1672
+        height: 342
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dff62eb29884184479879635a28d6494
+      internalID: 1711071217
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2Ceiling
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 761
+        width: 1672
+        height: 180
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9ef89e3377ccbd945945986fcad0e91b
+      internalID: 1932199247
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2LeftPillar
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 342
+        width: 183
+        height: 419
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 76a4f32dce9113f40810df86f7fda068
+      internalID: -173676656
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2RightPillar
+      rect:
+        serializedVersion: 2
+        x: 1493
+        y: 342
+        width: 179
+        height: 419
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9d6eb652bc4f64c4b8ea7d43acc9101f
+      internalID: -1210541805
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2_LeftPost
+      rect:
+        serializedVersion: 2
+        x: 28
+        y: 295
+        width: 72
+        height: 558
+      alignment: 9
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline:
+      - - {x: -36, y: -279}
+        - {x: 36, y: -232}
+        - {x: 36, y: 279}
+        - {x: -36, y: 279}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 16e188c41f5a20248aed8ecf1d0f9af4
+      internalID: -1456660059
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2_RightPost
+      rect:
+        serializedVersion: 2
+        x: 1572
+        y: 295
+        width: 72
+        height: 558
+      alignment: 9
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline:
+      - - {x: -36, y: -232}
+        - {x: 36, y: -279}
+        - {x: 36, y: 279}
+        - {x: -36, y: 279}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 759f1f25031e05a4d8078a2af8367bf9
+      internalID: -654778523
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2_TopPlate
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 171
+        width: 1672
+        height: 171
+      alignment: 9
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline:
+      - - {x: -836, y: 16.5}
+        - {x: -836, y: -85.5}
+        - {x: 836, y: -85.5}
+        - {x: 836, y: 16.5}
+        - {x: 736, y: 85.5}
+        - {x: -736, y: 85.5}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 38a9dbbee67d2e94895a4b8dd1cc1bdd
+      internalID: 1030186580
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2_Ceiling
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 760
+        width: 1672
+        height: 181
+      alignment: 9
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline:
+      - - {x: -836, y: 34.5}
+        - {x: -808, y: 2.5}
+        - {x: -736, y: 2.5}
+        - {x: -736, y: -90.5}
+        - {x: -657, y: -17.5}
+        - {x: 657, y: -17.5}
+        - {x: 736, y: -90.5}
+        - {x: 736, y: 2.5}
+        - {x: 808, y: 2.5}
+        - {x: 836, y: 34.5}
+        - {x: 836, y: 90.5}
+        - {x: -836, y: 90.5}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0804ded5904c8e498545a387ee264ba
+      internalID: -16480776
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Stage2_Cabinet
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1672
+        height: 171
+      alignment: 9
+      pivot: {x: 0, y: 1}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData:
+      outline:
+      - - {x: -836, y: -85.5}
+        - {x: 836, y: -85.5}
+        - {x: 836, y: 85.5}
+        - {x: -836, y: 85.5}
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ed56974c06960b4480bda732fd78835
+      internalID: 535030208
+      vertices: []
+      indices:
+      edges: []
+      weights: []
+    outline: []
+    customData:
+    physicsShape: []
+    bones: []
+    spriteID: fe1e4d1ee284e954aaaf63152935f023
+    internalID: 0
+    vertices: []
+    indices:
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Stage2Ceiling: 1932199247
+      Stage2Counter: 1711071217
+      Stage2LeftPillar: -173676656
+      Stage2RightPillar: -1210541805
+      Stage2_Cabinet: 535030208
+      Stage2_Ceiling: -16480776
+      Stage2_LeftPost: -1456660059
+      Stage2_RightPost: -654778523
+      Stage2_TopPlate: 1030186580
+  mipmapLimitGroupName:
+  pSDRemoveMatte: 0
+  userData:
+  assetBundleName:
+  assetBundleVariant:

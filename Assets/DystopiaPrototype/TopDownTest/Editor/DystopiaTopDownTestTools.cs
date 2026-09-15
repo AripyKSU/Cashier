@@ -24,7 +24,7 @@ public static class DystopiaTopDownTestTools
         string backup="output/vacuum-work/Live-before-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".unity";
         Directory.CreateDirectory("output/vacuum-work");
         if(!EditorSceneManager.SaveScene(checkout.gameObject.scene,backup,true)) throw new IOException("Could not preserve the current scene.");
-        const string art="Assets/DystopiaPrototype/TopDownTest/Art/";
+        const string art="Assets/Textures/Checkout/Workbench/";
         AssetDatabase.ImportAsset(art+"Vacuum.png");
         var importer=(TextureImporter)AssetImporter.GetAtPath(art+"Vacuum.png");
         importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
@@ -38,8 +38,8 @@ public static class DystopiaTopDownTestTools
         normal.SaveAndReimport();
         var shader=Shader.Find("Cashier/WorkbenchLighting");
         if(shader==null || ShaderUtil.ShaderHasError(shader)) throw new InvalidOperationException("Workbench lighting shader must compile first.");
-        var mat=AssetDatabase.LoadAssetAtPath<Material>(art+"WorkbenchLighting.mat");
-        if(mat==null) { mat=new Material(shader); AssetDatabase.CreateAsset(mat,art+"WorkbenchLighting.mat"); }
+        var mat=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/WorkbenchLighting.mat");
+        if(mat==null) { mat=new Material(shader); AssetDatabase.CreateAsset(mat,"Assets/Materials/Checkout/WorkbenchLighting.mat"); }
         mat.SetTexture("_NormalMap",AssetDatabase.LoadAssetAtPath<Texture2D>(art+"TopDownWorkbenchNormal.png"));
         Undo.RecordObject(bench,"Connect workbench normal lighting"); bench.sharedMaterial=mat;
         var lighting=bench.GetComponent<DystopiaWorkbenchLighting>()??Undo.AddComponent<DystopiaWorkbenchLighting>(bench.gameObject);
@@ -53,8 +53,8 @@ public static class DystopiaTopDownTestTools
         visual.sprite=AssetDatabase.LoadAssetAtPath<Sprite>(art+"Vacuum.png"); visual.sortingOrder=110;
         // RequireComponent가 추가되는 순간 Awake가 실행돼도 SpriteRenderer가 먼저 준비되어 있어야 합니다.
         var vacuum=go.GetComponent<DystopiaVacuumController>()??Undo.AddComponent<DystopiaVacuumController>(go);
-        var wind=AssetDatabase.LoadAssetAtPath<Material>(art+"VacuumWind.mat");
-        if(wind==null) { wind=new Material(Shader.Find("Sprites/Default")); AssetDatabase.CreateAsset(wind,art+"VacuumWind.mat"); }
+        var wind=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/VacuumWind.mat");
+        if(wind==null) { wind=new Material(Shader.Find("Sprites/Default")); AssetDatabase.CreateAsset(wind,"Assets/Materials/Checkout/VacuumWind.mat"); }
         Undo.RecordObject(vacuum,"Connect vacuum input"); vacuum.checkout=checkout; vacuum.windMaterial=wind;
         bool needsPlacement=created || vacuum.grip==null && vacuum.nozzle==null;
         if(vacuum.grip==null)
@@ -92,7 +92,7 @@ public static class DystopiaTopDownTestTools
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode before connecting the saved divider.");
         var checkout = UnityEngine.Object.FindFirstObjectByType<DystopiaTopDownTest>(FindObjectsInactive.Include);
         if (checkout == null) throw new InvalidOperationException("Open the checkout scene first.");
-        const string path = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
+        const string path = "Assets/Textures/Checkout/Workbench/DividerBar.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType = TextureImporterType.Sprite;

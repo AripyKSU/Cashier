@@ -1,0 +1,1248 @@
+fileFormatVersion: 2
+guid: 27ea243b3280a6d48a50257d78565fb9
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4116792740998521595
+    second: CrowdMiddle_0
+  - first:
+      213: 135380127275225145
+    second: CrowdMiddle_1
+  - first:
+      213: -4559442114107020159
+    second: CrowdMiddle_2
+  - first:
+      213: 7095023910796793704
+    second: CrowdMiddle_3
+  - first:
+      213: 4701262010768048032
+    second: CrowdMiddle_4
+  - first:
+      213: 7945873549515914087
+    second: CrowdMiddle_5
+  - first:
+      213: -2997410024433964210
+    second: CrowdMiddle_6
+  - first:
+      213: -290625307235177723
+    second: CrowdMiddle_7
+  - first:
+      213: 7548517978795065749
+    second: CrowdMiddle_8
+  - first:
+      213: 2392162071757091534
+    second: CrowdMiddle_9
+  - first:
+      213: -3336079591590331992
+    second: CrowdMiddle_10
+  - first:
+      213: -1503634348609190963
+    second: CrowdMiddle_11
+  - first:
+      213: -1323900824032628421
+    second: CrowdMiddle_12
+  - first:
+      213: 8959740329023140917
+    second: CrowdMiddle_13
+  - first:
+      213: -8193718470750593176
+    second: CrowdMiddle_14
+  - first:
+      213: -5558919261015531200
+    second: CrowdMiddle_15
+  - first:
+      213: 6546014572118678299
+    second: CrowdMiddle_16
+  - first:
+      213: -6573809353921174384
+    second: CrowdMiddle_17
+  - first:
+      213: -5629807067154534559
+    second: CrowdMiddle_18
+  - first:
+      213: -2821538886843851683
+    second: CrowdMiddle_19
+  - first:
+      213: -7059661304030125379
+    second: CrowdMiddle_20
+  - first:
+      213: -5490323675057338172
+    second: CrowdMiddle_21
+  - first:
+      213: -5172033765585306969
+    second: CrowdMiddle_22
+  - first:
+      213: -4564397906670151229
+    second: CrowdMiddle_23
+  - first:
+      213: 6988906494623743520
+    second: CrowdMiddle_24
+  - first:
+      213: -3545303369532282038
+    second: CrowdMiddle_25
+  - first:
+      213: -2966990450648693679
+    second: CrowdMiddle_26
+  - first:
+      213: -4013269125726079537
+    second: CrowdMiddle_27
+  - first:
+      213: 767687512024972386
+    second: CrowdMiddle_28
+  - first:
+      213: 1976745518220954632
+    second: CrowdMiddle_29
+  - first:
+      213: -7270452483788331324
+    second: CrowdMiddle_30
+  - first:
+      213: -6881948553628197257
+    second: CrowdMiddle_31
+  - first:
+      213: 2831666629577504310
+    second: CrowdMiddle_32
+  - first:
+      213: -632743531680045117
+    second: CrowdMiddle_33
+  - first:
+      213: -6111532936991744433
+    second: CrowdMiddle_34
+  - first:
+      213: -2271852134164907980
+    second: CrowdMiddle_35
+  - first:
+      213: 8738762633424244517
+    second: CrowdMiddle_36
+  - first:
+      213: -7134720479281635667
+    second: CrowdMiddle_37
+  - first:
+      213: -6077332654306168763
+    second: CrowdMiddle_38
+  - first:
+      213: 1507065469011893313
+    second: CrowdMiddle_39
+  - first:
+      213: -4828531314940815638
+    second: CrowdMiddle_40
+  - first:
+      213: -3981679154010180805
+    second: CrowdMiddle_41
+  - first:
+      213: -5471838922837642114
+    second: CrowdMiddle_42
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: CrowdMiddle_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 338
+        width: 13
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf2af1daf29c12930800000000000000
+      internalID: 4116792740998521595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_1
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 338
+        width: 9
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93013eb2287f0e100800000000000000
+      internalID: 135380127275225145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_2
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 338
+        width: 150
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18ce1bedd8b99b0c0800000000000000
+      internalID: -4559442114107020159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_3
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 338
+        width: 11
+        height: 124
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86712f3e7a6967260800000000000000
+      internalID: 7095023910796793704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_4
+      rect:
+        serializedVersion: 2
+        x: 187
+        y: 338
+        width: 14
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0af3ed3f3ec3e3140800000000000000
+      internalID: 4701262010768048032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_5
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 338
+        width: 134
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 76b711de4e9654e60800000000000000
+      internalID: 7945873549515914087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_6
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 338
+        width: 13
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4b2b67b67f0766d0800000000000000
+      internalID: -2997410024433964210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_7
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 338
+        width: 16
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 50b2287a2dd77fbf0800000000000000
+      internalID: -290625307235177723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_8
+      rect:
+        serializedVersion: 2
+        x: 389
+        y: 338
+        width: 24
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 591cab2ab19b1c860800000000000000
+      internalID: 7548517978795065749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_9
+      rect:
+        serializedVersion: 2
+        x: 412
+        y: 338
+        width: 127
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec27e34eabaa23120800000000000000
+      internalID: 2392162071757091534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_10
+      rect:
+        serializedVersion: 2
+        x: 539
+        y: 338
+        width: 14
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a9f3d8694dd3b1d0800000000000000
+      internalID: -3336079591590331992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_11
+      rect:
+        serializedVersion: 2
+        x: 552
+        y: 338
+        width: 13
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc3c21bc684022be0800000000000000
+      internalID: -1503634348609190963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_12
+      rect:
+        serializedVersion: 2
+        x: 573
+        y: 338
+        width: 11
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3130b1073f80ade0800000000000000
+      internalID: -1323900824032628421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_13
+      rect:
+        serializedVersion: 2
+        x: 588
+        y: 338
+        width: 114
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5347a27cb54675c70800000000000000
+      internalID: 8959740329023140917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_14
+      rect:
+        serializedVersion: 2
+        x: 704
+        y: 338
+        width: 17
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86f9a5986701a4e80800000000000000
+      internalID: -8193718470750593176
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_15
+      rect:
+        serializedVersion: 2
+        x: 727
+        y: 338
+        width: 24
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 041a7107260cad2b0800000000000000
+      internalID: -5558919261015531200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_16
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 338
+        width: 15
+        height: 123
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b1b1aa1329d18da50800000000000000
+      internalID: 6546014572118678299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_17
+      rect:
+        serializedVersion: 2
+        x: 774
+        y: 338
+        width: 56
+        height: 130
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 094636ed83325c4a0800000000000000
+      internalID: -6573809353921174384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_18
+      rect:
+        serializedVersion: 2
+        x: 835
+        y: 338
+        width: 10
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16f2548ec48eed1b0800000000000000
+      internalID: -5629807067154534559
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_19
+      rect:
+        serializedVersion: 2
+        x: 846
+        y: 338
+        width: 11
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5c98b1e451e7d8d0800000000000000
+      internalID: -2821538886843851683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_20
+      rect:
+        serializedVersion: 2
+        x: 862
+        y: 338
+        width: 11
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db2a6ba927b070e90800000000000000
+      internalID: -7059661304030125379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_21
+      rect:
+        serializedVersion: 2
+        x: 872
+        y: 338
+        width: 10
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c84a4ed4b37ec3b0800000000000000
+      internalID: -5490323675057338172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_22
+      rect:
+        serializedVersion: 2
+        x: 885
+        y: 338
+        width: 184
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7aa36fb51be3938b0800000000000000
+      internalID: -5172033765585306969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_23
+      rect:
+        serializedVersion: 2
+        x: 1068
+        y: 338
+        width: 7
+        height: 95
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c9936f794008a0c0800000000000000
+      internalID: -4564397906670151229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_24
+      rect:
+        serializedVersion: 2
+        x: 1080
+        y: 338
+        width: 11
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 02ef7749d659df060800000000000000
+      internalID: 6988906494623743520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_25
+      rect:
+        serializedVersion: 2
+        x: 1116
+        y: 338
+        width: 17
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4b68068e5d8ccec0800000000000000
+      internalID: -3545303369532282038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_26
+      rect:
+        serializedVersion: 2
+        x: 1138
+        y: 338
+        width: 72
+        height: 130
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 154cb19a7e123d6d0800000000000000
+      internalID: -2966990450648693679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_27
+      rect:
+        serializedVersion: 2
+        x: 1213
+        y: 338
+        width: 16
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc5fd0d4ef00e48c0800000000000000
+      internalID: -4013269125726079537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_28
+      rect:
+        serializedVersion: 2
+        x: 1231
+        y: 338
+        width: 14
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26c70cc89bf57aa00800000000000000
+      internalID: 767687512024972386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_29
+      rect:
+        serializedVersion: 2
+        x: 1259
+        y: 338
+        width: 14
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80cc7e8539fce6b10800000000000000
+      internalID: 1976745518220954632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_30
+      rect:
+        serializedVersion: 2
+        x: 1277
+        y: 338
+        width: 58
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c6a07b8cf92a1b90800000000000000
+      internalID: -7270452483788331324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_31
+      rect:
+        serializedVersion: 2
+        x: 1344
+        y: 338
+        width: 8
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77e5a7aa0486e70a0800000000000000
+      internalID: -6881948553628197257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_32
+      rect:
+        serializedVersion: 2
+        x: 1353
+        y: 338
+        width: 7
+        height: 133
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6367b4afbc91c4720800000000000000
+      internalID: 2831666629577504310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_33
+      rect:
+        serializedVersion: 2
+        x: 1359
+        y: 338
+        width: 12
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c7e8404c1b0837f0800000000000000
+      internalID: -632743531680045117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_34
+      rect:
+        serializedVersion: 2
+        x: 1378
+        y: 338
+        width: 15
+        height: 139
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f4ed1819c297f2ba0800000000000000
+      internalID: -6111532936991744433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_35
+      rect:
+        serializedVersion: 2
+        x: 1396
+        y: 338
+        width: 106
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43833e05582c870e0800000000000000
+      internalID: -2271852134164907980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_36
+      rect:
+        serializedVersion: 2
+        x: 1510
+        y: 338
+        width: 7
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52f85bda052564970800000000000000
+      internalID: 8738762633424244517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_37
+      rect:
+        serializedVersion: 2
+        x: 1518
+        y: 338
+        width: 16
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dae96b486816cfc90800000000000000
+      internalID: -7134720479281635667
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_38
+      rect:
+        serializedVersion: 2
+        x: 1537
+        y: 338
+        width: 17
+        height: 131
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 540f236662af8aba0800000000000000
+      internalID: -6077332654306168763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_39
+      rect:
+        serializedVersion: 2
+        x: 1558
+        y: 338
+        width: 91
+        height: 138
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14c16bd2f0c2ae410800000000000000
+      internalID: 1507065469011893313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_40
+      rect:
+        serializedVersion: 2
+        x: 1648
+        y: 338
+        width: 6
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae65a1a0a5c9dfcb0800000000000000
+      internalID: -4828531314940815638
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_41
+      rect:
+        serializedVersion: 2
+        x: 1653
+        y: 338
+        width: 13
+        height: 126
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3335afb7eb3eb8c0800000000000000
+      internalID: -3981679154010180805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: CrowdMiddle_42
+      rect:
+        serializedVersion: 2
+        x: 1666
+        y: 338
+        width: 6
+        height: 127
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e743b10ad7f1014b0800000000000000
+      internalID: -5471838922837642114
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      CrowdMiddle_0: 4116792740998521595
+      CrowdMiddle_1: 135380127275225145
+      CrowdMiddle_10: -3336079591590331992
+      CrowdMiddle_11: -1503634348609190963
+      CrowdMiddle_12: -1323900824032628421
+      CrowdMiddle_13: 8959740329023140917
+      CrowdMiddle_14: -8193718470750593176
+      CrowdMiddle_15: -5558919261015531200
+      CrowdMiddle_16: 6546014572118678299
+      CrowdMiddle_17: -6573809353921174384
+      CrowdMiddle_18: -5629807067154534559
+      CrowdMiddle_19: -2821538886843851683
+      CrowdMiddle_2: -4559442114107020159
+      CrowdMiddle_20: -7059661304030125379
+      CrowdMiddle_21: -5490323675057338172
+      CrowdMiddle_22: -5172033765585306969
+      CrowdMiddle_23: -4564397906670151229
+      CrowdMiddle_24: 6988906494623743520
+      CrowdMiddle_25: -3545303369532282038
+      CrowdMiddle_26: -2966990450648693679
+      CrowdMiddle_27: -4013269125726079537
+      CrowdMiddle_28: 767687512024972386
+      CrowdMiddle_29: 1976745518220954632
+      CrowdMiddle_3: 7095023910796793704
+      CrowdMiddle_30: -7270452483788331324
+      CrowdMiddle_31: -6881948553628197257
+      CrowdMiddle_32: 2831666629577504310
+      CrowdMiddle_33: -632743531680045117
+      CrowdMiddle_34: -6111532936991744433
+      CrowdMiddle_35: -2271852134164907980
+      CrowdMiddle_36: 8738762633424244517
+      CrowdMiddle_37: -7134720479281635667
+      CrowdMiddle_38: -6077332654306168763
+      CrowdMiddle_39: 1507065469011893313
+      CrowdMiddle_4: 4701262010768048032
+      CrowdMiddle_40: -4828531314940815638
+      CrowdMiddle_41: -3981679154010180805
+      CrowdMiddle_42: -5471838922837642114
+      CrowdMiddle_5: 7945873549515914087
+      CrowdMiddle_6: -2997410024433964210
+      CrowdMiddle_7: -290625307235177723
+      CrowdMiddle_8: 7548517978795065749
+      CrowdMiddle_9: 2392162071757091534
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

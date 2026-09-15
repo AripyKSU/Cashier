@@ -1,0 +1,1670 @@
+{
+  "items": [
+    {
+      "source": "Assets/DystopiaPrototype/Art/Bandage.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Bandage.png",
+      "guid": "ff2c923cbd38d8f408f1263c99b8ea2b",
+      "sha256": "7567d975e0fca11e34d2e21f75699bedc21f92f6ba7e4592e4a77bc2c077128e",
+      "metaSha256": "bc4960adacdb593282587a6a89e0b163c0230121ced0705c3d8fdc250d601554",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Battery.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Battery.png",
+      "guid": "a1890a0fe547b394496e7e56a7bc8f98",
+      "sha256": "6184e30824d604ea43301ab763ca1c508b9fe3a591860d44904adb131e3a7dec",
+      "metaSha256": "8344efe28f93352787700e143b39b73c6ad442556af01f60cada0e64fb3aec0b",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/BoothBarricade.png",
+      "destination": "Assets/Textures/Checkout/Shop/BoothBarricade.png",
+      "guid": "c10c73fc054ac19498fffbbacf16b031",
+      "sha256": "dfc65081b3b3728e06021d4ee36f085f1e1a2b37cb9c6cc614804838e9f4410f",
+      "metaSha256": "e084cf9df351e4da9e2f4dc1d5c577c9f8e88b3a13d3518dc9f50093da2c4ad4",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/BoothCanopy.png",
+      "destination": "Assets/Textures/Checkout/Shop/BoothCanopy.png",
+      "guid": "6978fa40aee53b643836c083c2dd4d52",
+      "sha256": "0478f893de799dab74877bdc322e6efe88e4be04755ea9c5ac956cf0fa6c67ed",
+      "metaSha256": "3bb17e92a2c48a2d7724c0d68777c1fdd0ac1b9dc5ec34f9ffdbef68bb3b0835",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/BoothCounter.png",
+      "destination": "Assets/Textures/Checkout/Shop/BoothCounter.png",
+      "guid": "dec0edb6a0a29eb4ba990f92dff08f2b",
+      "sha256": "a8193103015b9e7b9f2ece58688f31faec0e520969753666226decc7ba591570",
+      "metaSha256": "05106d720ffaa8993df7ca9b58c64358378d6dbcd9ab0f0a00f646405c0c3526",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Can.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Can.png",
+      "guid": "0bd04b7017c4fa84094c818943317338",
+      "sha256": "352aac4f386843199489bf5514d243e4e0ab4ca237053b561c40ec569e4757e5",
+      "metaSha256": "a16e736f82797b61a86faee35a083e58d8a8b660455079e1ecc7d804d998d7b9",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/ChimneySmoke0.png",
+      "destination": "Assets/Textures/Checkout/Effects/ChimneySmoke0.png",
+      "guid": "8146c36afd06422a92ae965371323f2e",
+      "sha256": "4b56ded125cd7065cd540ed9508035416d4edf3f741964d0d55b0ca11930da36",
+      "metaSha256": "62c05cb11860b51301b2f18f177a6469a95f9c47d33d6e90886bcf572ea1bdb7",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/ChimneySmoke1.png",
+      "destination": "Assets/Textures/Checkout/Effects/ChimneySmoke1.png",
+      "guid": "a732901af7a142c68d5ff1e17b15dc79",
+      "sha256": "ce81df521f4be1ef515cefafbb7d537ec1402501ccef65143b6deecf8360e271",
+      "metaSha256": "f539e4a0f51e64f838376ed31899082351496e04aff535b9f882e89cdacf9fe4",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/ChimneySmoke2.png",
+      "destination": "Assets/Textures/Checkout/Effects/ChimneySmoke2.png",
+      "guid": "9ee90dc6331641169fb2748b57111bac",
+      "sha256": "bdbe89665d1ea8057621c5d6444735b20a7802e0d98d790b35a47a8e84d458ae",
+      "metaSha256": "8b1958d7eab373e353cd712f2fed9f3d1b359a145205b194c3354442021dea18",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/ChimneySmoke3.png",
+      "destination": "Assets/Textures/Checkout/Effects/ChimneySmoke3.png",
+      "guid": "06504071d22a47b386d3a3a7053d2364",
+      "sha256": "63ef9fe636886e80faa12230745461fc8936e97924f93b76dbc578ae356c4539",
+      "metaSha256": "dc33ccce6e40450e5af4dde32415c5288569c916f5dda987207882075d611cba",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Counter.png",
+      "destination": "Assets/Textures/Checkout/Shop/Counter.png",
+      "guid": "b8b405d086908a542a68b296eb646229",
+      "sha256": "91e7cdcfc66b2c6fba32fa40bed699707cac991876bc7eb0df25156652df8a02",
+      "metaSha256": "24aef54bb00fbfcdd685bcdd835be3baee1546ba8518a988518a28f9e0dfe68d",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/CounterClock1.png",
+      "destination": "",
+      "guid": "d1c438adc8214e744befbcca7268d723",
+      "sha256": "f6b8148ab19e9ddd4d00e78321050c8c1df0d4be551e4c9e2ae12678a135b8cd",
+      "metaSha256": "74ce62d69cf38c7bda5931abc257512825dbc6309f7ca40337efa89ae7961cdc",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/CounterClockNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3ClockNormal.png",
+      "guid": "b5a11b12b4ba4fd49b86e1c6674c0793",
+      "sha256": "cfd4949ce2749d33e9ce241a8df379c15a7ac3fab3b089415d4ed6becaf4be0e",
+      "metaSha256": "41d3a8e85cc586512400e2ee5296660814f5376881647ad0f531f29cf62526a1",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Crackers.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Crackers.png",
+      "guid": "80a3439022bd3054ab1d7a3a9a33cc0f",
+      "sha256": "e8c8b0935591ffb00d28f8e37fb1573c81750d10cfdd113e2f4f7f537ee1d66d",
+      "metaSha256": "db89f5c0f663187baa41f1aa60049c2ea699d75a3c18a6ebe854af0c53618e29",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Crowd.png",
+      "destination": "",
+      "guid": "26d6bf1c76ce1984da914d8370314ac8",
+      "sha256": "c4a0ca23ebede2175eb94e42c5f71c5d2b6f0e7e2aa9d575f8bfb155476f31fe",
+      "metaSha256": "2d264079249301676213efff73fe83fb4006923ffce24b566ad4483b357550e1",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/CrowdBack.png",
+      "destination": "Assets/Textures/Checkout/Characters/CrowdBack.png",
+      "guid": "7c746110a1d6bff44bb5e422328cb82c",
+      "sha256": "12f66538234c88feec419caf77ace8606f441724be8e6d6b30997d8c1e352727",
+      "metaSha256": "83f361d0f44a3fcaedb2bfa228b903b1bebeead30303700cb552635fcce72938",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/CrowdFront.png",
+      "destination": "Assets/Textures/Checkout/Characters/CrowdFront.png",
+      "guid": "38fc8765ba9bcc14e9475d993dc60520",
+      "sha256": "5ce8ba4c497a5fba47c1694ea6d989909023d2a8061f829c9232db930c7cc305",
+      "metaSha256": "9980ff4e2214bfc062151b65b20b77dda0bbcaa441156c83cfea9826bf91ddfb",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/CrowdMiddle.png",
+      "destination": "Assets/Textures/Checkout/Characters/CrowdMiddle.png",
+      "guid": "27ea243b3280a6d48a50257d78565fb9",
+      "sha256": "13bd13f9345b27f154090a3f978175a68ec2c2870eca05f99bec9c54834c0fe2",
+      "metaSha256": "ce739564d9a166e66dba4e3975fb0b4f29a045dad2f7f22e97cac9976b65ee40",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/DailyInstruction.png",
+      "destination": "Assets/Textures/Checkout/UI/DailyInstruction.png",
+      "guid": "91cbf5fa51af4690bed80b78400fcbdb",
+      "sha256": "cd77a552ff2dba58abc083bd3bb7b1be85bf2872b5a926dcc30862d940afb4ea",
+      "metaSha256": "d4dac48fd43ced1a7c7220f04b96cf75b06c60c92ccc1f8de97d358d695b3320",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/DailyLedger.png",
+      "destination": "Assets/Textures/Checkout/UI/DailyLedger.png",
+      "guid": "8d3c27e5fb984a4e979b295e18ee51b2",
+      "sha256": "6633f9780580abba55b27ea92bef6d752c9f41419ff555a7ec43a3d41e5d82db",
+      "metaSha256": "d04bfea71cacfae21ecf7bc2be10028337997f1a38fb92f85c03393a9d7d5770",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/DialogueFrame.png",
+      "destination": "Assets/Textures/Checkout/UI/DialogueFrame.png",
+      "guid": "c098d249b6e102c46a26d2be06dbd308",
+      "sha256": "ff51bf53c90188b9ed46b0255d7a1441040068eec6e60b00d8b45b512731ae25",
+      "metaSha256": "02258bb16c2c70fd74da165806c11b8430e45fbcb6d1d449a99d3f2d41b4cf29",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/ExtractedWatchTowers.png",
+      "destination": "Assets/Editor/Checkout/SourceTextures/ExtractedWatchTowers.png",
+      "guid": "64b2b5bd3eebcbd428518c7d4ba673f5",
+      "sha256": "af53cbbfbd96bc350f6af9a939fedefe21d98abb067156777ecfb235218df3c4",
+      "metaSha256": "a2140b2e6b7c19bf814378b8a56451b634b1d06f6785f4728b2c51f43cb4451d",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FARBACKGROUND.png",
+      "destination": "Assets/Textures/Checkout/Background/FARBACKGROUND.png",
+      "guid": "8828d23a57ac09d4db48ac618820ad7b",
+      "sha256": "06d082cafca75a376ff066b82a79cbfc5b8bc2302be6aaaab2c3182ca6e59b24",
+      "metaSha256": "87907e6c11788aac944b90e780cbae17a23420e30b032b15fed1f3992eadd958",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FogBack.mat",
+      "destination": "Assets/Materials/Checkout/FogBack.mat",
+      "guid": "25184aa25fc6458993180d5b1b7fabeb",
+      "sha256": "32d37bc422acb8801de94d863a87293075b9c525fc11d50dad01a983b9638a22",
+      "metaSha256": "157000402f75911c9a6edf78eebd491eda879494af8291dda1252197d4225a99",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FogBack.png",
+      "destination": "Assets/Textures/Checkout/Effects/FogBack.png",
+      "guid": "ef4c55532956466b9df1c26a4fd8fc4e",
+      "sha256": "5dfadfae6fef684e705193d6e80a0e644860e1545e6e317ca3615247804b94e4",
+      "metaSha256": "37273c3169cfbeb9bcb75a8a5406c4856018de0943f673d1a08f8063e9975381",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FogFront.mat",
+      "destination": "Assets/Materials/Checkout/FogFront.mat",
+      "guid": "df82a218fe354b8ead6163ea40ea1821",
+      "sha256": "f3e07b25fed9715618c5b167e48984f9a19aca6ed26454f31a8d83a7318485d8",
+      "metaSha256": "6febf93a72ae79c3b9d01582dd576394d6d9dfd1794f86a6e3d26c118ccdd2a2",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FogFront.png",
+      "destination": "Assets/Textures/Checkout/Effects/FogFront.png",
+      "guid": "5f176efe93944680a2c22cc7bbc8ae11",
+      "sha256": "aacc9374278c6207f94a4d7776cbdf78ed0e5bdd838553837a1499b3fde6b779",
+      "metaSha256": "fa7997791304d0a4d90562282b8e751ea77f1bc51c49631311a21a2deb046a56",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FogMid.mat",
+      "destination": "Assets/Materials/Checkout/FogMid.mat",
+      "guid": "d48fa113cbdd44fe88d4786f7d954897",
+      "sha256": "469946e923247132affab27cfb61ab753ea17a4b47249abd46375a9c6bc77d3d",
+      "metaSha256": "d4301bbe7ea6046b68562b2ca37d74cd7d6e57ba13136594d8a22f78845ab3a1",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/FogMid.png",
+      "destination": "Assets/Textures/Checkout/Effects/FogMid.png",
+      "guid": "224e6b0c3cfb4a32a560db7fbde73e52",
+      "sha256": "6ae02ede098e6e3ed8dfef482f8ec977f2ecfe5b3d7e324272f05bd29f0f6c16",
+      "metaSha256": "bd55cf7fc693f1a7710d847a12f71a1d5134ef54c5f5c0a8181e6db92cb1eb16",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Fuel.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Fuel.png",
+      "guid": "2905dc05a8c11c54da21962a77406a8f",
+      "sha256": "db77c65bedeabb475439c940873422ae099705711a6f3baba250ab10c608bdae",
+      "metaSha256": "5db584eff195776862d0a2b173f1cc98baf8208fa9b45baa20a08b92ab31fa80",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/GuardNeutral.mat",
+      "destination": "Assets/Materials/Checkout/GuardNeutral.mat",
+      "guid": "5e537d872b1f4b928229e214b072484d",
+      "sha256": "8446ab2a315908f3cdbebc4cdc94c6f67e81a5da6f60b9f292a90688c9fe4cfe",
+      "metaSha256": "2f12978ae4d32cc49c23cfdc0570449abee6648161df301065af8b6874151e08",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Hands.png",
+      "destination": "Assets/Textures/Checkout/UI/Hands.png",
+      "guid": "b960ea489f33e484fa62df90f24bf399",
+      "sha256": "58790e78718c56bf87b070dd11a77c8f07cd95e29261d078fe039994ad1ad008",
+      "metaSha256": "3890e8e54f901871e04470db8def70ce4d086204cff5664f2e7150ce3635fac9",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Inspector.png",
+      "destination": "Assets/Textures/Checkout/Characters/Inspector.png",
+      "guid": "5ec7b88773b5f754b9c36efbac851495",
+      "sha256": "7025def049b3e8314c36998babc404f2360f94e6d654aeb08b607e33f0b8ecaa",
+      "metaSha256": "d8c20d3e5de8cd2b72564fb6e33eec8315cc76ba3981ee8b5b575af9bba4612f",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaInspectorPortrait.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/InspectorBody.png",
+      "destination": "",
+      "guid": "99eee00de85e12943b99e961469168fc",
+      "sha256": "a26a2ca61e4fc83eb0d2121a28b380e2111fc238e2626d2bd91ce67921598b40",
+      "metaSha256": "718f467ae989ee11da59fecda093afba60ee0b3ff07fadccfb990b14cd3681d2",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/InspectorHead.png",
+      "destination": "Assets/Textures/Checkout/Characters/InspectorHead.png",
+      "guid": "a89154b1697d83943b3151e14c2e0e73",
+      "sha256": "eefff94621dce46c4ff081a632272ed1ad19de31fa532050eea485bfcff35339",
+      "metaSha256": "b9c3949ab311491dfde157aca3c7e6df43409076817e6940a279761b7473a40c",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/InspectorNormal.png",
+      "destination": "",
+      "guid": "a4bd502b30586284aa433acaaafebf68",
+      "sha256": "86025b309ae8ee060f5d3a2cc1b8e14d3db8e05a7af317483c180a446f823589",
+      "metaSha256": "6be7fcc9f024c794a0e10fd130751cff0c94e686d02d97583c1212bb442c0f3e",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/InspectorPortrait.shader",
+      "destination": "",
+      "guid": "947b16e8967e32641b790f93eef147b5",
+      "sha256": "44abe5a15f19a2c4928f72f2341d266cac91e16441927e6cb441c115d395338f",
+      "metaSha256": "9eda6f6fbbb946124f921dcb4d42f7143036bd8d860fbf5bf0087ba8ed225544",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/InstructionStartStamp.png",
+      "destination": "Assets/Textures/Checkout/UI/InstructionStartStamp.png",
+      "guid": "92448e477998d824896a965dabe399bf",
+      "sha256": "2b966bab354561365972174935cb71ad836969f44690a7b904d6356ac783b87e",
+      "metaSha256": "6b99c1a9185edbea768a4b0d2ce086df0aa66657bf6796e188a0f4821870ae21",
+      "code": [
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/LedgerDaughter.png",
+      "destination": "Assets/Textures/Checkout/UI/LedgerDaughter.png",
+      "guid": "1c6d94798c72c534b87845aed78eac43",
+      "sha256": "689ef93cfa7d78f1d803d352734e98c309ed8bcfd4c6e2236b88eaf31dadaee0",
+      "metaSha256": "f20e8a6131538ebe29fef9d98099d173606aadfbdcf7034af1cb0880ae102a88",
+      "code": [
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/LedgerDrawing.png",
+      "destination": "Assets/Textures/Checkout/UI/LedgerDrawing.png",
+      "guid": "55949d20b4695ef4cb924f3ad2ff79e3",
+      "sha256": "245137656e4428b52c00896d8b92b5dcf401c04bba553bb6d537a56e7d7eba7a",
+      "metaSha256": "4f9d2fa48278509917188d7a6abbbbc73dc8faa16151040fd4c4cbd478499587",
+      "code": [
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/LedgerSpeechBubble.png",
+      "destination": "Assets/Textures/Checkout/UI/LedgerSpeechBubble.png",
+      "guid": "601df86b8c70d744a8eecf44ad013dd0",
+      "sha256": "82669292cf09836a694d106513c2db1a9310d884859f7d867ea7fb383eeb0101",
+      "metaSha256": "bdbb091046e68eb5dd938d4328fe4e1962deba288701b255be5dc33cf0645105",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat",
+      "destination": "Assets/Materials/Checkout/LeftTowerNeutral.mat",
+      "guid": "fe2e76b0754f4f01a56673cb38ceaae2",
+      "sha256": "582f6f95717ac5f7e9f0dbac8f5431d2b23c90bca2961d9acdb12345830de7ac",
+      "metaSha256": "07dd8e8559d2e0ddac3e27874d00b43ed1093f393b4c9db66fce1a32ebff2116",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/LeftWatchTower.png",
+      "destination": "Assets/Textures/Checkout/Background/LeftWatchTower.png",
+      "guid": "1ca5f6632c398c14ba179258cead1796",
+      "sha256": "5cb9176bd306acf2a86d15285da09397d38e2eb0c4824af650feb26f8da42dba",
+      "metaSha256": "6d0d516025433bcf2e1be97c71b2066ec44117b417c64f1228e3ff844a5f8744",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/MaleCustomer0.png",
+      "destination": "Assets/Textures/Checkout/Characters/MaleCustomer0.png",
+      "guid": "475588eff93a49a1bb6368d7b6a6f2ae",
+      "sha256": "29e3d4321f8c9577ff4f5c95e653a63020806cfdd26442f04388357fdc5174b1",
+      "metaSha256": "b953003712739e56aaa5f3e0eeeec93f523e7397673f77c9cbcb4140b0f962dc",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Mask.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Mask.png",
+      "guid": "c7d8d31de3c856a4aa6cafdaba816dd5",
+      "sha256": "349a7c4212f93b3c77f8be7325aae4cb83b3b9d2e296d4d32ea92e6c83ca5ca3",
+      "metaSha256": "ba4b15f48172a329481e5d7590469eb94e69a9cf98694c0889bc18bd8c9bc871",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/MidBackground.png",
+      "destination": "Assets/Textures/Checkout/Background/MidBackground.png",
+      "guid": "0675361a18134594e9e942f04ff98660",
+      "sha256": "25761696881656279932441b79e8ace71c0a36b9b32c9a3a5b73a1f1e55313a8",
+      "metaSha256": "17897be500414d899a74c7b7112915f72e1663c75cefa5d770f80fda4d7d343d",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Mulmaru SDF.asset",
+      "destination": "",
+      "guid": "d0489e42821d4094fbd0729a429f29d1",
+      "sha256": "396e868f49ad2b3b75cd8ba1220ebc3e8f578a7a86afa0dd21abf112c1ba6d5c",
+      "metaSha256": "219553ec912e004d0eabd813e0d93e48a570d6c2299330be2a5a036f826a56f3",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Mulmaru.otf",
+      "destination": "Assets/Fonts/Checkout/Mulmaru.otf",
+      "guid": "b3f0a6c94e8e4fc3a1f40d741190c0e6",
+      "sha256": "cdc35e79d4bffb6a6fa46fad985ea8911f176940de62f91b310343cf21a0206d",
+      "metaSha256": "857cfe854b518fa915e012c7749b4a34cbb0b9d91791eb85442aff5335e8baf6",
+      "code": [
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Painkiller.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Painkiller.png",
+      "guid": "76950be1f78988945ac0d3b21da802bb",
+      "sha256": "8b975a6f82a9487e0e5689a338ce8623cfc7c938a41edb0469498e61405eddbc",
+      "metaSha256": "285bc82c7f3b918345f932595d376578a230323f8603bbb1ec811757d9612e29",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/RearWatchGuard0.png",
+      "destination": "Assets/Textures/Checkout/Characters/RearWatchGuard0.png",
+      "guid": "1897b9bb37223784fa35352306877124",
+      "sha256": "886eab6ba201fc1e5438fa110c9797c17e6153f9082aab85cc4e9c0111d23046",
+      "metaSha256": "5cf4174f95f12d038f9de9010c9203f065cd805a7c0b4f9632a9f7042d1f4c3c",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/RearWatchGuard1.png",
+      "destination": "Assets/Textures/Checkout/Characters/RearWatchGuard1.png",
+      "guid": "64674e1e1759fab4ca544acb15dd6927",
+      "sha256": "cc960b8e2fd67b8b1ba20511f9d7ed46c030c0c864fa4adb9e92011faa6f80f4",
+      "metaSha256": "455dc0c3be70daa0dedbbf28b28be11023ddd06fb6c3333724bf8e4feac34ed8",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Rice.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Rice.png",
+      "guid": "a6836116f5e94f448a0af82c6e258f8b",
+      "sha256": "e028654275efbfb8d677458ce9ce39ef734e1bae2fe769e298280ede13da429b",
+      "metaSha256": "c453536af8f593e011775c92383b6faa87a47e70e1cc0508baab7cbc722af76b",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/RightTowerNeutral.mat",
+      "destination": "Assets/Materials/Checkout/RightTowerNeutral.mat",
+      "guid": "19e943c669fd498b883e67c0e88be232",
+      "sha256": "a4666a4e59db8a1c7058134a4f4be33883e7aac087c3751105fadf62cdacaae2",
+      "metaSha256": "88f5367bba05619fd45b4b557fe0b068c0f45793c0734c5d7b7eeeaba96d9d8a",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/RightWatchTower.png",
+      "destination": "Assets/Textures/Checkout/Background/RightWatchTower.png",
+      "guid": "e00f255da7894164497dfd5df66938dd",
+      "sha256": "ed2b4a2e0603d04c04729f5fa246e06fd890646fd5b8b07d4b09c36206ff6723",
+      "metaSha256": "5055b9d892af583f953ea69236d8115ea747b3ef5c63a0976e3a07b5d60d5a22",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Seoul.png",
+      "destination": "",
+      "guid": "2d245b103625d8f41a647418200e586e",
+      "sha256": "e6eb3ae809172d759379b43ad22687b595ff3bf4be797955aaf030c8ab1e5f5a",
+      "metaSha256": "923784cd8f3b0aded90b18f343d9a38d6b16c3d507a1795f00faa338b913eca2",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Soap.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Soap.png",
+      "guid": "c10a44c1dcd91e54aa54a302156acdae",
+      "sha256": "b9b2f0982c05a04975b9c94798b864bc09a0d7ac2bb97da29d2c2c04104d9c7b",
+      "metaSha256": "599f1b01512d94dbe4fc08c9b7c45cc83763e0d75e5c93faccf541ff3e1eabfe",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage1BasicClock.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage1BasicClock.png",
+      "guid": "2bffadd95cbce7b42bf7dbfef7806daa",
+      "sha256": "ad47e8f0ed095965b6cea7f28ac17daed25fa63072539822fe1e33bdb1427cf5",
+      "metaSha256": "df3de37129343cdb20b9738c327f5e76cf2ef5f9c0fe9d914809369b6e908236",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage1BasicClockNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage1BasicClockNormal.png",
+      "guid": "1705f218bbf63bb4dac6c194585f7505",
+      "sha256": "51a7764a252ced3995131e712c184907bd76ac3a33456ebffbe42267ad76572d",
+      "metaSha256": "5fc07bf459ecdcec08ffbd034238ffe4483212ef6a3c72bd6055a67427403b5f",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage1Clock.png",
+      "destination": "",
+      "guid": "a42a270b2e2672e4cb33b749cbc61c27",
+      "sha256": "2c864cf6fd635d1752761e29121d696a8c8dc5a83566923e4cb323610134ead1",
+      "metaSha256": "61448afb07b2e7dab47cb3f3cf7f96737f455a2ff2edb12c212de356e53de14f",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage1ClockNormal.png",
+      "destination": "",
+      "guid": "4ce137a21d489ba4594a595e5e542c77",
+      "sha256": "b141efc2188f5c3755717e94780d8561d84383b4b8ed157644b66e50e39cb380",
+      "metaSha256": "b31799dc3de7534a0c45c1f9ace1c7a4b6dd49b2770bc1164e85c7f405c24c7c",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage1WoodCounter.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage1WoodCounter.png",
+      "guid": "2cb78cd1d4ca83d4ca2c81af670f5ccc",
+      "sha256": "613f92483e5cca89b78cc3d13d90fd9313bbea5fe5650efae1578fedc9fd4e4b",
+      "metaSha256": "af7db6f77368865b8c1f702af54c9b73d90e2822460796f4f5185a76e85b28df",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2Clock.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage2Clock.png",
+      "guid": "deabc873fc7f42e47a66349512710cdf",
+      "sha256": "873fc56532a17652c2da171092b42e1403d971a561bf9088ff7d4e5353b2c849",
+      "metaSha256": "71f2844cbac50d962d24b2056f22c3256d22ed0293b0cab7e77821280f3c4d66",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2ClockNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage2ClockNormal.png",
+      "guid": "dd37c9ae13d89784c8b32cd966818f02",
+      "sha256": "90e3f86b85781f5bcaa380a686aef30912edd9a81389236f9bbf5ea6dcdd23d0",
+      "metaSha256": "724196b0529bb368ae107a93f369621be975ac24406e5da2bf028bbca1a77900",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2Container.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage2Container.png",
+      "guid": "8164fafd187c45a42917c1594b42fe91",
+      "sha256": "9533635ad0d23dd9f9a8becd778bac92d8462b68d68e7731191db2b2df22538b",
+      "metaSha256": "0481f144936b55aca8aca376dfb280bf756c84d4564070de178087878e3d2b8b",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2ContainerNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage2ContainerNormal.png",
+      "guid": "44cdeba4a972958468be0ec121357197",
+      "sha256": "25c1c34c331f0e1b6624cdf8bf75fc5eff8622fae7e414e98f8fd6b3c891af74",
+      "metaSha256": "36a85cb5b89ab9e30b5558ac916a641c3d306265b5d811ac0be81beefbdafffc",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2Shop.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage2Shop.png",
+      "guid": "d8735ebfa501cee4cab883553043a457",
+      "sha256": "6d356d6df9e6a4009e261bd3efd46167ff7e4fc457a74d6df63e1a7d8058997c",
+      "metaSha256": "366bfd34c0ab569ba7cf066893cb41f8fb1beff7bdd7f24c41e9e4fad44589d5",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2ShopNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage2ShopNormal.png",
+      "guid": "5483abef4a4d8994ba8bcf82666a5da9",
+      "sha256": "a944ef5dfe3f59cb2f0d017aa5639e12d8f092598982d3fda5ad9ef7a4d4aafd",
+      "metaSha256": "63238923f4e94628506b0e199790c0bf4bd30d8a710a002d0caa8c7410eea6ef",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage2Table.png",
+      "destination": "",
+      "guid": "f5ddcfb5ea7b4ddc8566eeb613c8baf6",
+      "sha256": "df34107ec75a43359edb4f9e0d721937e4324265ea9a346c9232e5eaa9b415fb",
+      "metaSha256": "fc7b0b7b1dc60805427d727bef767646ac0289ff3f99b4d7893d1a5124a9a4bb",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage3Container.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3Container.png",
+      "guid": "ba80f4bbc4fb47b4caa16e46e22ab9cb",
+      "sha256": "144968b1cfd5a25cb42e15b1899ea59691f9143e8c0b79046d9a881540d6266e",
+      "metaSha256": "2c8746a30b8c49595f7f92dd73f43ebcc6744afc0a2ff51f977295b9fcd42ea6",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage3ContainerNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3ContainerNormal.png",
+      "guid": "aadbeaa232d6eca4080131483bbe4824",
+      "sha256": "8512b35ec938851bb40b6e2ca3a119dd9baf3a6794691aea49d8d704c2835373",
+      "metaSha256": "bca2c9b2d79d9a41505ea570f321b5cfe5ae7d9608b1e3522bd18fff49237e49",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage3Counter.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3Counter.png",
+      "guid": "64a348b48b216024bb1c780963051b77",
+      "sha256": "7f2fc31459fbd00edf005b40566b26cb3533303a1a34752e01f5954d48d8e0df",
+      "metaSha256": "5c0db6a9becddff69368d92dff42b5a601d4831647ea0bea29fe4454ea3f0e1d",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage3CounterNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3CounterNormal.png",
+      "guid": "8af3f16b0d77b824196f0aad2d649aa4",
+      "sha256": "3154ae4a5ad192861b29852b35809ad53d3a665136d3791cc44b4e5253874607",
+      "metaSha256": "6c7cf82b225f795bcdc44adb4f6774556fea8ccb987c5dd7047eb7902039f108",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage3Shop.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3Shop.png",
+      "guid": "20d1fc7e6767539498ac36a33edbc4a4",
+      "sha256": "abfd89c989d04a6ad33cb986aca1d5d86a4ef08458d6de67ff7989a407e8153f",
+      "metaSha256": "906583a3a8c16f19390fe38af3c79585a90370d40925c7725ea7667fe0e9e685",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Stage3ShopNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3ShopNormal.png",
+      "guid": "03508faaded067842bb96042a176d71d",
+      "sha256": "c6a658dd9035c67d0188341bdeb84f91d2e4e3bfc800c8ec5e3673a0bb401dee",
+      "metaSha256": "21026ad2a955caf359f7b39004db8d7c0cec5986d4a33817d1be78d8e0b81100",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TradeReactions.png",
+      "destination": "Assets/Textures/Checkout/UI/TradeReactions.png",
+      "guid": "330cb57e802eb214088fe60f7e5eb063",
+      "sha256": "8ef91ee9683f0aa657b74812ec66841131c67beeac764fa9bb883577e7dc3bd4",
+      "metaSha256": "e7778dc50483f94b34232e7b7f577e7907bc136624d26aa847f0df6d5180f4ae",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/WatchGuard.png",
+      "destination": "Assets/Textures/Checkout/Characters/WatchGuard.png",
+      "guid": "72f801b7e9d8ad44c8b4fe24b01f89f4",
+      "sha256": "62297dd4879b3c6e0832c1c530ee15eaa4b11dce3eb07f2f230d874fcf0ff9df",
+      "metaSha256": "4ae4c006aadb00b48419ff80c8a48c1b9eb6099e67caaa5ec6d620cafe84a9ac",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/WatchNeutral.shader",
+      "destination": "Assets/Shaders/Checkout/WatchNeutral.shader",
+      "guid": "03b26e74212f4726ba6484795982af38",
+      "sha256": "b312ba308d19628f514f595ba493346afc9b55d88097938a69379b9606a1f11a",
+      "metaSha256": "14844ea39b3fa6cb9eebf0ae384ff55cfdede472aa830d77bddbebca73cc90b0",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Water.png",
+      "destination": "Assets/Textures/Checkout/Products/Legacy/Water.png",
+      "guid": "2ed767a5d47f8114088e0e9fae6c333f",
+      "sha256": "8814d7b5b6e0c9cefc4d5b2363c406db3bb0d2667761ca4502d43b204ef29e57",
+      "metaSha256": "2187cf3779d9a77e2f4e700612acca5795d510b0e29c37d140a080ce5c624297",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/스탬프1.png",
+      "destination": "",
+      "guid": "f0cdeb5bb8b8fac4483d0120b1ae52ca",
+      "sha256": "4f1fdca076103712f45881fbaf6fdd804edc017ec91ea417dfc2c52bf52cdf7a",
+      "metaSha256": "3255caa8acc8bbc7e158609ee190cb38741d72b4ba2b9a3fd50d8b5d2118f04c",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/스탬프2.png",
+      "destination": "",
+      "guid": "3b4b4969b2a720845b6058f82029b9a6",
+      "sha256": "7f29fe9a0a018e21b68278772146b1fd734c57f9e15e8d9083912f213fecb7a5",
+      "metaSha256": "a47365f08ede782731ff56d0f4438639e549cd355052f7d9ca9b79d048ae9e37",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/스탬프3.png",
+      "destination": "",
+      "guid": "ffb00f19ad911d4488555abedb1975a8",
+      "sha256": "340a3529fd3c4123ff5ce96fb402ef761d0ea7a7e2bdf7e039fc9de1dd142fe6",
+      "metaSha256": "8a455a58fc4853c2bdabd54509669bbcfe0017bbc5a978a948265ab4afcae525",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/스탬프4.png",
+      "destination": "",
+      "guid": "0701f83b5ab19f5499a21bf0d14d2147",
+      "sha256": "0a02c5db842d75546011ac14d192fa1c3d6915d467d1fed0805a49b59fe74bef",
+      "metaSha256": "c2f7d51e67d15ceac82028ef314fa6cd9c81cc7dfcaea6c7d23a93cf2b155c33",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/스탬프5.png",
+      "destination": "",
+      "guid": "e8041633b718d3447b2f09436c11615a",
+      "sha256": "bd48c3b8ee2f124886fbb5ee0f7bec89e4367d4bc277e5f7866d0782a0ab29c5",
+      "metaSha256": "76255f644a24f4677aa003f3f38841290c2625871e268510d5820347e6511608",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/시계.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage3Clock.png",
+      "guid": "ed2a86b7e120e1140912cd484db7cd6f",
+      "sha256": "62afcb534375e77a5591dbdc0e4400f25a8e499a2985c6fd09eb6504ae4d2696",
+      "metaSha256": "eafe9a92c0202135c93d3adca1f8ab0f1500db68aa469a8bc7c25e1b2b2ed378",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_01.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_01.png",
+      "guid": "90366358f6bc45a6813f739ae146ca26",
+      "sha256": "b8af9da803340546944de10b883d5509b10cd2a4cb389d39ec89536a603a8570",
+      "metaSha256": "f364192e395ed5866942fea81c3a067bf7c6056d0bbf8deaba508704c8349e09",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_02.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_02.png",
+      "guid": "df439d2a51564eefb00dc3379c3661fd",
+      "sha256": "45473fd010ef1015b9fe452be06a24b858d5a0b63c3dd41487fe5f82c8cb8102",
+      "metaSha256": "f60f79bc5975836ec6645d0c25f2c063789a15fad2b592856e82426e8adf5a73",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_03.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_03.png",
+      "guid": "2e1eb00beed345d5b381d3e32d887fb9",
+      "sha256": "f649aa45492e908d04ff31a74755359b7cbc6756ff303336e9f26aa777df790b",
+      "metaSha256": "624845077506ccd6aa66e91c7fb7eedc8edeae5067a333d170ab3d832c89c793",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_04.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_04.png",
+      "guid": "222338f61b814f448937db8caf712c8d",
+      "sha256": "ea52b93e488e9cb8e29755d0b659398dd2ea18af7c5ba91c708d55d8bc82e86b",
+      "metaSha256": "b8eb3ac5d82e01786e5385211b34e252f49b611681ff5dde8b07e0552f5e0cb2",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_05.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_05.png",
+      "guid": "4ce370668df34d858a1ba9c3f5e5ab33",
+      "sha256": "a36c6ced7ebb31a5e79de5d2ec70cdaa46724bc420bc409a9ffe1922c724be33",
+      "metaSha256": "c1dee913fe2e56c344321548c0b7d04acac65a3f869455d7026eb591af923a3f",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_06.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_06.png",
+      "guid": "9b4693fee3294febb4b612636bced872",
+      "sha256": "934b55b8d5ac6f2279f65c955ce8687fa118bfe6fe16d5b3eb62bb324b9a2227",
+      "metaSha256": "07c40e0220832304103ec6d34043dbc0387a14b711b68a1c18a8cfb766448df4",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_08.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_08.png",
+      "guid": "c5735fdfa59442c3894e635b0535710d",
+      "sha256": "722030efd5f689efeb91ed3b1baa0e2d6c593d70e82446cee3966cbeca40db13",
+      "metaSha256": "4660670c5e1c877a06f7519b9bcee7c0c5e5f5006c9ad65817d6ae2b7eb25969",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_09.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_09.png",
+      "guid": "d83f51561b00492eb419dfc2b554be0f",
+      "sha256": "0a76d7869cd3b02f8adfa1f5961bbe6177f2a5b9d039eba17a6571cb9c0de1e2",
+      "metaSha256": "78e8f86b9bc428dc772d68b89cd01976ecb536b6795dc1a4db0b270f0beccd49",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_10.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_10.png",
+      "guid": "647096b5a8b94cb69e6b8372608e2f38",
+      "sha256": "ede05d1345adba1a1fc5346b0ad11be83d4f871b9027669cd99467eca749a526",
+      "metaSha256": "a0a8d7135fc7da489f00d7026b812c517ad7afb9b84fee182f008120c9195a8c",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_11.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_11.png",
+      "guid": "527e8afc2f794311b6c5bba647102995",
+      "sha256": "4f2772d5b9a78e8b7227ff248ed8f5af9d0a2a7a2152c0b50aab67e5afc16932",
+      "metaSha256": "4c51b224a6ccfbcebaf45fa2c7a3d9833bbdc7cc2e301821b49d096a18308de1",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_12.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_12.png",
+      "guid": "e724a9fe5d1842e39c974a19d221ae47",
+      "sha256": "cf9a398b0869885c2681195f0ae8c2c5b9e5946a575b8570b54398f6abe12e11",
+      "metaSha256": "24f86b9262a1d68b93dea1b75b32e86833c10b7d7e450a6a969e4d2e333cd83b",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_14.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_14.png",
+      "guid": "f1582d42db204b9ab3ceafec5feb2472",
+      "sha256": "12e985d3052da652dcbe34bb2482a2761f9a5d5efe6a0a6fdc9d04e4f1dc515f",
+      "metaSha256": "493d7577d738838f04292e1bbb9e2bf3a66bfa891cf9e0e0736e75f0d5b0b48a",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_15.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_15.png",
+      "guid": "5b7521a416f54910a18cccb4dfd8f363",
+      "sha256": "2971c32fc9e12704dfc3d4c48d41172ee3708aa640c685864e0ef921989b2102",
+      "metaSha256": "f4645b27f421be0a21c0dc7341de30015fc6c0c7d5d645ed5eccd3a96f2b92e2",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_16.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_16.png",
+      "guid": "a39df4d44a744b048d18bd43ec4e9665",
+      "sha256": "68aac9023dff8ea6060808549e841b0a5f6c9fee21ce9af7524ef5790bf08424",
+      "metaSha256": "552c7347d069246c20a4c63780f9cccb5f0e755300cdc15be68a495e7ab72c8c",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_17.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_17.png",
+      "guid": "77d39c5885813fa439da19bf99801e80",
+      "sha256": "a3f8697482e714f2940e81774d80ddd5903db0144e0b503cfe0104780253391b",
+      "metaSha256": "cc81fb04f57aeab095dffaa3f8f4db9ae1e0334ac88c4519e2144b897c0bd676",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_18.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_18.png",
+      "guid": "968baf30567de104fa8ebe65f28ed793",
+      "sha256": "d466d53b8878b244e07c79d39487ab794f2e7218965982d4343b846f2b9cebbb",
+      "metaSha256": "dae2325ebec4c6933eb6c0eef6fb68d0161b8e7e399f1ccb43c30963deed5c07",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_19.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_19.png",
+      "guid": "dc94dc6651ef29743bfe001a09c77f5e",
+      "sha256": "4cf10af8a2d5d12c4c92e0aba24140455ec4369b180d5fcaa9b608b5de9eea17",
+      "metaSha256": "d4e65897330dca15f5dc87def44f52fe7e5b53c6c1f9c59f553117a55ced57e4",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_20.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_20.png",
+      "guid": "6d35e6acfd47ef84da053f30ea02ba75",
+      "sha256": "85f477c830f0e79884bf5a34cc908d4dc49fa48663ab88ac392dad495db44740",
+      "metaSha256": "d0cbd8359923bcfa25d2157642dbfa368d19ac5a0739299040ee896b200a60f5",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_01.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_01.png",
+      "guid": "6e841d9c516348bcb5d8e1586b930ed2",
+      "sha256": "5dfa9303bddabd3648824924c0da534d9ba427b25be03a15e52908c4a2e8c6d4",
+      "metaSha256": "9ed9f6755573c813310c16042e3ed19b3f8d28f6519cd2771e7234dc0beb8bcf",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_02.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_02.png",
+      "guid": "2c86bb2bc6b94d9391c7762a0eec959f",
+      "sha256": "2324e9b2501b2c94729485f0382d959937aed64e6349deaaae4985afa0659fd7",
+      "metaSha256": "879366b84ab738a37dd201d5a942b710baa279fb0d7753a5969ae8a8a44bc438",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_03.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_03.png",
+      "guid": "ae8354988eb941af81600671205a7835",
+      "sha256": "f9b33483e6a5f8b629728b352110e680af16351358e716f9867e62fd84431e1f",
+      "metaSha256": "a937dd237003a3213d9c41d8f6324420dcd39bff9c84294558f0903744e82479",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_04.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_04.png",
+      "guid": "289007e448394ce9b4736854d48eba62",
+      "sha256": "0dd5009cdae2c057a71ade01596ba5cc16382a7160f9d6f61c7bc008d325f645",
+      "metaSha256": "454056cdbdfecff851fe13356f6565700c7371e5ebaff4f36ba33b77de0ce33d",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_05.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_05.png",
+      "guid": "a3fa809f22224b4cb468e537a6a7b736",
+      "sha256": "6aecf6cf06000cb81f526a573950daaaf1fc4cb49c1be6e09dac233c3a5b6593",
+      "metaSha256": "5a014d609aa40c0a791ef8dfc1450a8c789a4ec9d89986dd46c5cf69576c4db0",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_06.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_06.png",
+      "guid": "b8598a85ea3543b18f0149034de85678",
+      "sha256": "27f22b83a1030b8e6b59130cad62318bd4188d50cae55354a40c96f8d033d878",
+      "metaSha256": "97ac82f49d7d0ef40b88a2b87c3091192097ddc3afb4dab50fddf1b58d6d4466",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_07.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_07.png",
+      "guid": "ae577f9c7f1a47d0b2a465911a195fac",
+      "sha256": "6f6fdd1c2857ff2e8f9ae947e5099713a405bff09d9bbda8c2a4b27de81749d9",
+      "metaSha256": "727462c7c2bce7bc93089235905f50fb6a2761ca1b23241d99d99cb306d39be9",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_08.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_08.png",
+      "guid": "ce5c79aec70547d6ae3e5f21537f65c7",
+      "sha256": "6b1061f8411d9cfaeb599aa7d5d52e3b2525113b7fb62c8d435152ec8d14867f",
+      "metaSha256": "99d9f6fd89feb3e2fbb3ef28462e967d469d4858c3964372a8d4e589924e939f",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_09.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_09.png",
+      "guid": "43aeb543528d415c87133e6a6f0420ef",
+      "sha256": "2ca2f8007e2d8f933f1ead38e70a34fc018ad31383589621bc1b676d9ff91c32",
+      "metaSha256": "1a2721a2cd3f0459f4c6771442113f4bbca282085c95ccdb7a17845f52d14576",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_10.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_10.png",
+      "guid": "6e1c58898c5f46b98f90b75fdcc0fee4",
+      "sha256": "32db445899f0aa62ab87cee6e4364bcaabbddf765e14a340b09e773b54052521",
+      "metaSha256": "21254628543578ea237becc9ea9edc6262489bde3044194bb4f6eff3a0028d40",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_12.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_12.png",
+      "guid": "9c01654b40e2495abd4162a68fa1c4e4",
+      "sha256": "246251cc627c59727ffac69321d1aa75cd434cb8969731b4c0cba0a784df7549",
+      "metaSha256": "5e8d07839f4813111687f75ab18fc32d73c74d4ea0df7a084aae6dc2c8cdf511",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_13.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_13.png",
+      "guid": "62ad01edf58e444789e9940711a6eee4",
+      "sha256": "ba5755a235963c642404c242aeaa389c224fd0f417fa4fb3e0bb838531740b97",
+      "metaSha256": "7fafe3147ca3dfd58ead47d3d843a6867a7bee5055c7efdeba01661381e34d28",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_14.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_14.png",
+      "guid": "f64bf6883d3947dbb3cd5a618f04b611",
+      "sha256": "65b00eee51860c8ab43bc842511374980228245b01750716c1335d5f9287bc70",
+      "metaSha256": "3eab1c9c0d7c71c47fad9851dc99afa7dd4aba40a2e8a4ea444356435605a9e5",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_15.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_15.png",
+      "guid": "8dafdd046b2b4a53b5053a650c6a2418",
+      "sha256": "434c218b7b1a425bfd0c4e0b04d1de4e56756a0d9fdcf1205b3a9096dcc36b98",
+      "metaSha256": "387826293d60ed706b29e0c7051df6010ba2881735c81609bde9d6aa63b8ecb2",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_16.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_16.png",
+      "guid": "33ab328bb0634a508c976b27e247a650",
+      "sha256": "784c8b320b8bbfcb8058932b181100baa5fc829db7980825cc1fb2aeb81fb4fe",
+      "metaSha256": "96f58233467d2382735f094c6c932a8c8f8e495564181cceda2a31ad7dd852f6",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_17.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_17.png",
+      "guid": "c6b9d5f5f31e464ba5c70e174f36032c",
+      "sha256": "115dd2dfc04146298acc740e66e80e3029c10c0850c73d94798ba412af176a03",
+      "metaSha256": "ea65395fa3d39702ec0431a22285ed014d825496ee6f43b44b28f9ac28e8faa1",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_18.png",
+      "guid": "9850d0493f1e41a88751bc3be659ecd3",
+      "sha256": "8c868e442e20337d092387aa496b05e8b9f1cdff6593116ff4e90894d6261dce",
+      "metaSha256": "7b52b314f4cab2f6f0dc50b9670a87eea2dbfc0e1dc640d7c421a177bd49e5c1",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18_Normal.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_18_Normal.png",
+      "guid": "e458a6bab559136459f6873dd40adbca",
+      "sha256": "652ebf0cc93e492db5ae12553757da1e1e168f9c2d4f2ba71e7452c68834d26d",
+      "metaSha256": "b987288f4bfd9d0ed2cbeb462be52136b0691ac6c1e376aad39a6c4dfd9cecb6",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_19.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_19.png",
+      "guid": "34e65cf4c9364747858c7339ba7ab36d",
+      "sha256": "d50df1981d9df65dc47cf396d398bcd19b817c7c3da88f39431b13e66ca21576",
+      "metaSha256": "a65a71ba12522845e787bb63412c1c5381e1b525f7729de7092b38522164e560",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_21.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_21.png",
+      "guid": "8a98ffe319224ec5abf47adda8dd6e9f",
+      "sha256": "c7b1b0f971cf133a16d989615e3623d95e8172b0857759ad71c0bd6c14041387",
+      "metaSha256": "48f1ac03db24f37ff97183c3560374dad5ef8b8a3847ee0070fdddf80385c4e7",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_22.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_22.png",
+      "guid": "2bc3731d37094be6a22363e65f4e2add",
+      "sha256": "954d629fd30ec75d9ec473d81edc1e1d1c5c05e979fde9a3da004123eafbece3",
+      "metaSha256": "952b78a554897423286bc6323e4f038cb4c1f38601b6ef4c4913aacfa9e1ae27",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_23.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_23.png",
+      "guid": "15da0f47beb54722ab963ee7a3406128",
+      "sha256": "fd3395cf1d9cb1de4dba199d345c8e97d2b1811a6b4f344d889a7eed25a38758",
+      "metaSha256": "3eac0896f046a65bbf242142527edea2afb0d32de2badebf010094b7003dbc70",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_24.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_24.png",
+      "guid": "2907d7c6dbe24ec180ae767c1ad75cf9",
+      "sha256": "9c60947271f1f8316e9656cd3eb4b3e1269820b98fcab24ca57e03b53f91cfa8",
+      "metaSha256": "e3396eca0f387821bc7fe34f3409c72159e72915e62eab796f27eeb4b02d40e3",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_25.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_25.png",
+      "guid": "0187854495a55ec44a6a958637d567d3",
+      "sha256": "d9d9c464edfb611b4d360559b88d690ba6ffed89bf7b841951c45f79559a93b8",
+      "metaSha256": "85bcf9fd739c8663dfcaaed8ecd05274c7e616a0b30eb0f0cbc8ae8c5aeb9f62",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_26.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_26.png",
+      "guid": "5a9f710fa1290dc4fb90548467a70033",
+      "sha256": "132b7c62300dbd6edafc6533e50b59c25006a0786aa3f034f8fa741ac5859097",
+      "metaSha256": "bf95b2c04b82601ce289b5063e182dfdb3ab3f9cee4b59c4e909ad645b8e0622",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_28.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_28.png",
+      "guid": "570747e831c3bae4bb8595adc8398007",
+      "sha256": "0f4c2ddab7b9503cab6fd96cdef157175b92d6514ff9541a022f5d028393742b",
+      "metaSha256": "5beb2d8743f85797b9eb5dfb768c7a474e483a60848efd8e6a3779ca73e0060f",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_29.png",
+      "destination": "Assets/Textures/Checkout/Characters/Customers/MaleCustomer_29.png",
+      "guid": "f5694c6624c8daf488667ea27fdb0744",
+      "sha256": "a8c7ca89fe613f546e61e120debab8c36bd6181642ce24137a019d58847f9709",
+      "metaSha256": "cd5566ca0f3b3151e26c760e814aea92db1eb3b536ddc354332d5defcef78b8e",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/CannedFood.png",
+      "destination": "Assets/Textures/Checkout/Products/CannedFood.png",
+      "guid": "5de934797e6d0f04a9ef01fc3692fa97",
+      "sha256": "9b204f8ce9ab34e076d13b02af44da8f2940223c2c9f5e73100339382106a675",
+      "metaSha256": "679c21977f06594412464098a02f8a954896d5695ee26c8527fa140937cf5d12",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/DrinkingWater.png",
+      "destination": "Assets/Textures/Checkout/Products/DrinkingWater.png",
+      "guid": "57fd43ccaee8ecd4a8736fb5297b22df",
+      "sha256": "339f444fca48ed7db5241eeee830bf776be738b61dfa8c1c16af6cccb0c29f71",
+      "metaSha256": "dd54d4acb854505c76c17c3f80df0280e55dd702407ca0010534c999ba9024c7",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/DryBattery.png",
+      "destination": "Assets/Textures/Checkout/Products/DryBattery.png",
+      "guid": "6aaa838615306cf4d8ba25c85ead22d6",
+      "sha256": "8d1c9071c0d308f726c143e6020a947e18e15fdf82aa5f8c31a08a49a3377a10",
+      "metaSha256": "1a458b874a016b69c1c13eb448bfe64287df23076b5685ee53ac660915404498",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/EmergencyInjection.png",
+      "destination": "Assets/Textures/Checkout/Products/EmergencyInjection.png",
+      "guid": "9e219d8862ff7c54bb9a76b477f3838c",
+      "sha256": "4a4d241ab9c74a535df8a1e99b32034fd2747eae138cc7c9d7a78f829479617b",
+      "metaSha256": "30551c8db11b24f9b67653b0297472891b4c0a818874cd3dc1ff8cd64d6d787a",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/Flashlight.png",
+      "destination": "Assets/Textures/Checkout/Products/Flashlight.png",
+      "guid": "feaf852d7b25364469a2f4c7db58631f",
+      "sha256": "57260e17692ce2822367761dda6f1257bf9370f207151dde1c6b92fcbba4446d",
+      "metaSha256": "82477fd247347968e930f780d52e58cd79f3db08868faa3648dc063c6c0fef33",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/FoldingShovel.png",
+      "destination": "Assets/Textures/Checkout/Products/FoldingShovel.png",
+      "guid": "23fc9344777e016438d26b8c7b9a8fc2",
+      "sha256": "a9bf2949795833a7ed7b2bdc0535cc7d599679cc425e54c044a7c2d110bbab1e",
+      "metaSha256": "ac58ab6c4c39d6083be00177e8275fa764c5a5f23ce6caa8c0fde13199c67ee6",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/GasMask.png",
+      "destination": "Assets/Textures/Checkout/Products/GasMask.png",
+      "guid": "4d7494db5f40d4a448a7b2acdb6d3cdc",
+      "sha256": "5c478207bab82a502ca47810636fb41b34dc10fd66de0bcbd0865f646a2f7663",
+      "metaSha256": "7ddd275e99ccc798668441713b13a269f574af25feccfc0ed908dcbf152523da",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/MedicalBandage.png",
+      "destination": "Assets/Textures/Checkout/Products/MedicalBandage.png",
+      "guid": "cddff39dd9750b14593a5dfb0ddb772b",
+      "sha256": "40f5caad0e26647407541ab80f65fdaad4777bfa880bb5fa6e19009fb1591080",
+      "metaSha256": "aac370b9d949000f41e3509fa253457e3d6c2ad25d0956d6c2c02062ac4677bf",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/Medicine.png",
+      "destination": "Assets/Textures/Checkout/Products/Medicine.png",
+      "guid": "303dc58656fbec341a80658cbda9b548",
+      "sha256": "dd310e4e8884c95e6ac00bfa72449e93471bc9138b1a438f5d09e04fcaee8ef5",
+      "metaSha256": "57ef8541260cdf90ee192392912f38b24e234446d9c8737f9a22ac13bdc0af94",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/MilitaryRation.png",
+      "destination": "Assets/Textures/Checkout/Products/MilitaryRation.png",
+      "guid": "334584a1119da584ab0346d127869d09",
+      "sha256": "04d22479de82633c07e0db65f8a6c603cc5d601dcc7eecdd3f3bd24887ddd351",
+      "metaSha256": "59aaec1001a690b11c2b4f9688fffe5f9f3cf33586875e227ea6edd868e872a2",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/NutritionBar.png",
+      "destination": "Assets/Textures/Checkout/Products/NutritionBar.png",
+      "guid": "51da5fd132c97d54383f70be61cac3b1",
+      "sha256": "336687236fcfb3142c745bc8d104fcaefabbd75dc47a02bd4616a249d6798f97",
+      "metaSha256": "c5de46610a1228b2bb6355a817c55dcaf3a3f2aab279e0ab89f14a2bdd115a26",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/PowerBattery.png",
+      "destination": "Assets/Textures/Checkout/Products/PowerBattery.png",
+      "guid": "8b23b5ed8030f824abf68d908b57607e",
+      "sha256": "e964858f5c4d8cc3fd4dda62ea99732e1205194f769c2fe503004fd77bc23627",
+      "metaSha256": "8a8aae11580f6e8f99155c4222c5218ba434104e5d4fba6517d8f08c159ca273",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/ProtectiveSuit.png",
+      "destination": "Assets/Textures/Checkout/Products/ProtectiveSuit.png",
+      "guid": "b07599151bbd35f48bc6b995e34f3af1",
+      "sha256": "58bbd3c1d1d46b1a7514bfad3c2192a66f5fd05f36e478b1fdf4ac4f9812793c",
+      "metaSha256": "f75747f7220654412420ad012340718bf6c6a232ab3b11892a10b46f91d569b5",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/RadiationDetector.png",
+      "destination": "Assets/Textures/Checkout/Products/RadiationDetector.png",
+      "guid": "a0a1efba266304b44814d2b8d7750bf2",
+      "sha256": "05ab31805ea98c0509e8ac793d55192d1a6ce6038c8acefc53087ca6858e2882",
+      "metaSha256": "7f8a98e0ba4e1c93eeb4418f75f43068609daa94ec154779bb2bc95a8d5b6197",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/Radio.png",
+      "destination": "Assets/Textures/Checkout/Products/Radio.png",
+      "guid": "0acb55395f9655a4d97c529d2b1d0288",
+      "sha256": "067052b712826ef4e805c164d4b5e8da0cc0d44c63f09fe82c8eac0b81589bde",
+      "metaSha256": "252ac8b973a9beb37fbf03f39aa4111481982eba0864ee73f0ccb3d917de9c9a",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/Products/ThermalCamera.png",
+      "destination": "Assets/Textures/Checkout/Products/ThermalCamera.png",
+      "guid": "3a45fc018e0f0f74ea54d25b62394157",
+      "sha256": "8429d397effed86d55043c52773f8aea3cdf97f664550630070ab69d6c559576",
+      "metaSha256": "2fbbf4e709275222f2769b9f2bbc9d92141bef99be0eb0dae43fe0d7718b2686",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat",
+      "destination": "Assets/Materials/Checkout/CityLights.mat",
+      "guid": "e7d812b0b7597764caabcc59ae790973",
+      "sha256": "74bc5d2317aafa766cd30de605af505948e4d6034c5df6ecc7abefa75372805c",
+      "metaSha256": "e8cbeaf08479fb3776ff8a06c5d36c685f9b3adda8859b5220d803a3787c390e",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png",
+      "destination": "Assets/Textures/Checkout/Effects/CityLights.png",
+      "guid": "d9322dd776712984fbbee219b96cc8ce",
+      "sha256": "61b8a541e207c6e5457822243d2f60c12b1e4a9bd75462386956d258a7b52a90",
+      "metaSha256": "433aae6aec36621741382f8c658c4191d383c6356f0d1bdeedf9907ff0e58b7a",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.shader",
+      "destination": "Assets/Shaders/Checkout/CityLights.shader",
+      "guid": "52df7d4a0b3c4104c96cd7e96b8422c4",
+      "sha256": "aaccef5ce9134e387a446150ef3004555c20d9c05877387577063d667123a778",
+      "metaSha256": "9f83a75bed87a005a4a5ac282eb389a365eec11b87e53528976a8a8aeda332f5",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png",
+      "destination": "Assets/Textures/Checkout/Effects/CounterLight.png",
+      "guid": "2579725b5a01a4244a5914b55017c014",
+      "sha256": "a9e334a6468815f8b4872db2aa4b610fdc96318aee53be06d27ccca2516bd6cc",
+      "metaSha256": "54f670e9ac061f97868173ad90fb5dd34576528862e85c681ca835ee16a243cf",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png",
+      "destination": "Assets/Textures/Checkout/Effects/Dawn.png",
+      "guid": "7769da782da17f345a6e5a8141c2e56d",
+      "sha256": "805f19bcd0aa732654a6ce3a3198117cd756d176da78da5dcee190ba9a932241",
+      "metaSha256": "b682e3fc58c373863471ad204ce749a6289f7e6d2365a81e808e632baeb1f277",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png",
+      "destination": "Assets/Textures/Checkout/Effects/Evening.png",
+      "guid": "21ee1b35d9ae7b245b8dfeaba460a7b0",
+      "sha256": "5214a5cd288c7b45da6b7c959a5b347ae998ab632c65daffdfb55662e98b8b5b",
+      "metaSha256": "8bb5dcf0844a03c79c6b46f8e577f7922a552d17bd3da09a30886787546a38cf",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/PixelStageLighting.shader",
+      "destination": "Assets/Shaders/Checkout/PixelStageLighting.shader",
+      "guid": "4bb3a3480b9d7864ba03db51d2f31812",
+      "sha256": "2d7283218cad7cce9bf29d4e046ac881194d6ef88dc29b534cab10e2f80e04f7",
+      "metaSha256": "49cc37f013afd55c2dd9f9b2f6d19cb100b5e6a6409514e3a543c560862b1875",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png",
+      "destination": "Assets/Textures/Checkout/Effects/Searchlight.png",
+      "guid": "27268933eeab74b41a932f1049dbab1a",
+      "sha256": "4f4fae0858b09e5b8d38186bc06b443a9b807040e4771073654d55379403b5e3",
+      "metaSha256": "44d8b3899902415c8a48f74cf5d9ca00d02f42b201ea1b5ada813061aeb6a6e1",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png",
+      "destination": "",
+      "guid": "0eb464158f595d044bf13ce9dd951a90",
+      "sha256": "8c9a9924b6615fa359bd95920e487bc15fc8b272b9c48f3d48ac1b801e410631",
+      "metaSha256": "83f1bb0970e3920046e428b32faba06e0d834a48c7010926d515680be6b64ee1",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/Art/TimeOfDay/SunsetClouded.png",
+      "destination": "Assets/Textures/Checkout/Effects/SunsetClouded.png",
+      "guid": "1a0433ce38e502b49a4f95fb6808d588",
+      "sha256": "8e187e379a43ed054eab8fd0e9ba72f04ce9e3837fc57c3a824fccd2e3170300",
+      "metaSha256": "90f031670f4eec856daac278436cb98334081ead8b5e88ac06bfda29af4c9e5a",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png",
+      "destination": "Assets/Textures/Checkout/Workbench/Calculator.png",
+      "guid": "e4e4da47c41746288e9e526d48ba51cd",
+      "sha256": "59a5a5b72703f129adb6679f8b0887ddc2a979022b09f450ed757e0cbe0cf84b",
+      "metaSha256": "1677f54c11da497a98615b60d1f52c083d765bdb2c081828d39c0f01fd4bb845",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png",
+      "destination": "Assets/Textures/Checkout/Workbench/CalculatorToggle.png",
+      "guid": "8b11ce334813452e934fcdfb82c8c277",
+      "sha256": "f38b1f81f00b16fd5931bc4b92d05c18e94a590cbffa965d4a527e60031967b7",
+      "metaSha256": "3eb797a7e2c9e002bd56fb6f6a755f55472b4bea04095b6ab9f5ec27eb355304",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/CounterClock.png",
+      "destination": "Assets/Textures/Checkout/Workbench/CounterClock.png",
+      "guid": "594304eb42c84524a1909e1dd7546641",
+      "sha256": "2d34a1d805c6ba5e0c6f9a1a3d595741ad3fa291733ef6255d40c5732f05934c",
+      "metaSha256": "5b6113554f8a507838a88d91ed585366ceab49736becacf46cc36774cc307033",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/CounterClockUpdated.png",
+      "destination": "",
+      "guid": "b1295ce4cbdf566438828d22fd3539e7",
+      "sha256": "08ed56d620718ef0b91c11b8a04991474f3f23409a65ddbae6d49449139c3027",
+      "metaSha256": "6547f5e06c926b56dfc07db058236e362ec8baebb40e71baf367057e87d7aef7",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png",
+      "destination": "Assets/Textures/Checkout/Workbench/DividerBar.png",
+      "guid": "5c4c5257f2ef8b646b0183430ca65218",
+      "sha256": "1c29d0bbdd5d9312cf006978e52acb14a43cb602b2e926fee11b01311eb9af9e",
+      "metaSha256": "80b9db1f5dc9186a74102f9e432e4b4ac42a496e3f0b6d14d572565304338175",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerFemale.png",
+      "destination": "Assets/Textures/Checkout/Workbench/FrontContainerFemale.png",
+      "guid": "c560433c0142a2e4596b7f7cbc13fb5a",
+      "sha256": "c75d727e39ef08078c2b6e1340b6e8bfdc1755028f035492f1523dd099400c3b",
+      "metaSha256": "03c72bd3816060651352a916cd84eae050fab9eebcfcc40d99368039d6aba34c",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png",
+      "destination": "Assets/Textures/Checkout/Workbench/FrontContainerMale.png",
+      "guid": "47c07e51f9acabe45b7dfb3fa9362df5",
+      "sha256": "123c66c00861744463d02473e63e72a7d7c3c2e23c1a4c20df700fe66ae08904",
+      "metaSha256": "af4ae873a1676a8947370da9e97d32a87701e0732acf024aa35c121cc85178ad",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png",
+      "destination": "Assets/Textures/Checkout/Workbench/FrontContainerNormal.png",
+      "guid": "8a499c0e4e268f34fac0e7606018541a",
+      "sha256": "eef9691bd4302cdc771768e048fc09222d2da7d3418d680d0dd9af66d638976e",
+      "metaSha256": "58552cd710ee2ba064ede0842e97b71704ffa5c8df4861286edf2f9553b43e0c",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1Container.png",
+      "destination": "",
+      "guid": "87a5d42045fe15642a57a21f05fe858c",
+      "sha256": "a62f31378bbbedd6abe60f1cf380e1e977bfaa07cd1c8279191d90d8018ffd60",
+      "metaSha256": "97c7366eeac649a6e5ebd908bacf97db523aa28cb076867bec1cdcd5dfc1268a",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1ContainerNormal.png",
+      "destination": "",
+      "guid": "f5cc27dbcbcdca54cb12888fa4f50f07",
+      "sha256": "a56f345924c0d9ce348d81b219a5d9c6a17b2455fb10740b5205d743afc1e822",
+      "metaSha256": "3892922ca230fd1b2fbaaff337c2c18ff523de0ce8201e25b5d8c1504210edd3",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainer.png",
+      "destination": "",
+      "guid": "44754281990b09849998cbbecb997b32",
+      "sha256": "dddbc7d58b7903b5d490b70091bbfa4399e6efe67bbe49dcef385ef6504b2f84",
+      "metaSha256": "b49f494bff5a4c29ff05e3eb61d2ec33adfb8335c02641b7bfd6cd535250e17d",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompact.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png",
+      "guid": "bc98141fd87a2b84ea84e00c833a03ec",
+      "sha256": "114caea22b7440c179647ef9fa2473ef65fd21fcae781d400d940bb0e50eacec",
+      "metaSha256": "d97de646df6dde956f838dd796322bbdb118fa87e7f018fc4158efb718822f9f",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompactNormal.png",
+      "destination": "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompactNormal.png",
+      "guid": "619f5b57acd62394daf77a09e2ad5715",
+      "sha256": "ba23c0347eff5a35e76980fb4f50ba85345bf5d2c06e74fc5c4f70a8b2df2f20",
+      "metaSha256": "04dad1feb6fd9202d6d33c3d4c2f0f5a6390f8f546b6ab64b3eb8abd9eb49d98",
+      "code": []
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownCan.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownCan.png",
+      "guid": "ba5d7de8656dcad438db313d714cd6d1",
+      "sha256": "95445a163bafa082eb406febd03952ac96018ad654168621299c1c2b18166899",
+      "metaSha256": "ad70030914a54ebcb940a2c0eb57df5b3165d68b1abc8217899b51cf6eda17d8",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownContainerEmpty.png",
+      "guid": "5058e7ded0fcdd049997cb7d4bef30f6",
+      "sha256": "c75d727e39ef08078c2b6e1340b6e8bfdc1755028f035492f1523dd099400c3b",
+      "metaSha256": "0bcc86e26d2e2dbde854f93d0d80f8ea85fd969cc0290d62cc0cd30bbc4ad4cc",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownContainerTilted.png",
+      "guid": "6866e4272ad30b44c92d59358a3a12f6",
+      "sha256": "c75d727e39ef08078c2b6e1340b6e8bfdc1755028f035492f1523dd099400c3b",
+      "metaSha256": "c47433a1f348e6dc0859da81fc29a714795765448de9431099d53ebf4d810332",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownCrackers.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownCrackers.png",
+      "guid": "4050b76a7ca45de4ab139d77bfbfdd2b",
+      "sha256": "e30400485f7c6a5d28f362c054ca310c6aa5d185193a26f849df9e8c54feab37",
+      "metaSha256": "27b73b169c072496f95af7faa3f285cbe76f790e3c61bcc9c95a2e4fe06193da",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownRiceRound.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownRiceRound.png",
+      "guid": "b5572b8887a505448a991dbc0fe7aaa4",
+      "sha256": "fc175c48a3ee6d3377884502a13c9a0b7fc806f63f273f11674eae5a18182294",
+      "metaSha256": "e8a2f747070ef1dadd11a686cf29594819afbb442d89793fc148410f7c63af9d",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWater.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownWater.png",
+      "guid": "85116844fe2300d47a1e7ed17365fdbf",
+      "sha256": "dc95de3b7ab4a3d4c58b50ba042b80466acf0a07d80771a52385cfa6b7d909d6",
+      "metaSha256": "bd1159394e9a22d2bf164d7d077e1783676e9484c36b20d5fd42be26fc537b90",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownWorkbench.png",
+      "guid": "2a170e436543a5647a171a435e7ba07d",
+      "sha256": "23bf49ab25b8a99931b79f075db2b4e42db054923d7f0b4dd6bbcc70bdeb075d",
+      "metaSha256": "00dfb1e6c22c93d835f350b4a52a2c1ffd0eba930df87ac05f76ad01ccc59110",
+      "code": [
+        "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+        "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs",
+        "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbenchNormal.png",
+      "destination": "Assets/Textures/Checkout/Workbench/TopDownWorkbenchNormal.png",
+      "guid": "d5aacb9d7720a8d4a9d903ca4998e9f5",
+      "sha256": "23bf49ab25b8a99931b79f075db2b4e42db054923d7f0b4dd6bbcc70bdeb075d",
+      "metaSha256": "03eb1fdace952a77149cb401fd4119910284131337232f72105fd7aa847467f0",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png",
+      "destination": "Assets/Textures/Checkout/Workbench/Vacuum.png",
+      "guid": "8c5509423fa570745bc62cafae857f42",
+      "sha256": "24aba48b169a98c87054ea8ab94c77681f08cffa0cf571cb270313935a48b61c",
+      "metaSha256": "a31ee3c8a039d310d32021e3fec1bca9f50fbff1e674ecc5dab4307cab4e2e6d",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/VacuumWind.mat",
+      "destination": "Assets/Materials/Checkout/VacuumWind.mat",
+      "guid": "0b4300acd2095ef4eb588a74156882bb",
+      "sha256": "707d3d88baae519606dacd70ae7ccfd722761055d61cc5f85dd05002f975505d",
+      "metaSha256": "088571b41ee6383f38d28b7deb90428310d46e77cc78f81af69118b214bd08ca",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/WorkbenchLighting.mat",
+      "destination": "Assets/Materials/Checkout/WorkbenchLighting.mat",
+      "guid": "3f51cfaf56af6e74b91af19b25d559e0",
+      "sha256": "38d0981d0e6691522a00827b0449dcd044f21eeea9df05ece7c93b8fef8b0b69",
+      "metaSha256": "169bf1c338536a54d9c2d86e2df13818d44a82b3b15f97a2e028bda959e18ef8",
+      "code": [
+        "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+      ]
+    },
+    {
+      "source": "Assets/DystopiaPrototype/TopDownTest/Art/WorkbenchLighting.shader",
+      "destination": "Assets/Shaders/Checkout/WorkbenchLighting.shader",
+      "guid": "bd543c809b02b6d4ab4020947c3be635",
+      "sha256": "86a3190c2573ca2d3a28ee8910d275a1f115d8872cc2bf2ade014256b81985b3",
+      "metaSha256": "ead8dfd7d56edc01d209ced8ccfc39fdb52510232eb807b092750b293db01ed9",
+      "code": []
+    }
+  ],
+  "backupRoot": "output/asset-cleanup/20260915-144816"
+}

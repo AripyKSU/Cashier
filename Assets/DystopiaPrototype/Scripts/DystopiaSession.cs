@@ -86,6 +86,10 @@ public enum DystopiaFacility
     [InspectorName("정밀 전자장비 보관장")] PrecisionElectronics=32
 }
 
+/// <summary>상품 해금 설비와 구분되는 작업대 보조 설비의 독립 구매 비트입니다.</summary>
+[Flags]
+internal enum DystopiaWorkbenchUpgrade { None = 0, SortingTray = 1, QuantityCounter = 2 }
+
 /// <summary>Scene에 직렬화하는 상품 한 종류입니다.</summary>
 [Serializable]
 public sealed class DystopiaProduct
@@ -218,6 +222,8 @@ public sealed class DystopiaSession
     public DystopiaCustomer Customer { get; private set; }
     public int Day { get; private set; } = 1;
     public int Cash { get; private set; }
+    /// <summary>현재 런에서 각각 구매한 작업대 설비입니다. 새 세션은 미구매로 시작합니다.</summary>
+    internal DystopiaWorkbenchUpgrade WorkbenchUpgrades { get; private set; }
     public int Reputation { get; private set; } = 50;
     /// <summary>현재 누적 명성의 표시 등급입니다. 당일 증감량과 구분합니다.</summary>
     public DystopiaReputationTier ReputationTier => settings.GetReputationTier(Reputation);
@@ -419,6 +425,20 @@ public sealed class DystopiaSession
         Revision++;
     }
 
+    /// <summary>정산 중 한 설비의 구매를 검증하고 현금과 보유 상태를 함께 갱신합니다.</summary>
+    /// <param name="upgrade">이번에 구매할 단일 작업대 설비입니다.</param>
+    /// <param name="price">Inspector의 원 단위 가격입니다. 음수는 미설정입니다.</param>
+    /// <returns>중복 구매·잔액·정산·일시정지 조건을 통과하면 true입니다.</returns>
+    internal bool TryBuyWorkbenchUpgrade(DystopiaWorkbenchUpgrade upgrade, int price)
+    {
+        if (upgrade != DystopiaWorkbenchUpgrade.SortingTray && upgrade != DystopiaWorkbenchUpgrade.QuantityCounter) return false;
+        if (price < 0 || Phase != DystopiaPhase.Settlement || IsPaused || Cash < price || (WorkbenchUpgrades & upgrade) != 0) return false;
+        Cash -= price;
+        WorkbenchUpgrades |= upgrade;
+        Revision++;
+        return true;
+    }
+
     /// <summary>ランの時間だけを停止します。Unity 全体の timeScale は変更しません。</summary>
     public void TogglePause() { IsPaused = !IsPaused; Revision++; }
 
@@ -477,10 +497,20 @@ public sealed class DystopiaSession
         Revision++;
     }
 
+#if UNITY_EDITOR
+    /// <summary>현재 거래만 기존 생성 경로의 다품목 테스트 주문으로 교체합니다.</summary>
+    internal void PrepareEquipmentTestCustomer()
+    {
+        Customer = CreateCustomer(Customer, true);
+        Revision++;
+    }
+#endif
+
     /// <summary>앞 손님과 다른 타입·성별의 등록 외형을 동등한 확률로 선택하고 구매 상황을 생성합니다.</summary>
     /// <param name="previous">실제 대기 순서에서 바로 앞에 있는 손님입니다. 첫 생성에는 null입니다.</param>
+    /// <param name="equipmentTest">Editor 설비 테스트에서만 최대 3종을 각 3개씩 생성합니다.</param>
     /// <returns>購入商品と非公開予算を持つ客。</returns>
-    private DystopiaCustomer CreateCustomer(DystopiaCustomer previous)
+    private DystopiaCustomer CreateCustomer(DystopiaCustomer previous, bool equipmentTest = false)
     {
         var customer = new DystopiaCustomer { isPoor = random.NextDouble() < settings.poorChance };
         int toleranceType = customer.isPoor ? 0 : random.Next(1, 4);
@@ -504,10 +534,16 @@ public sealed class DystopiaSession
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
         int count = random.Next(1, Math.Min(available.Count, Day < 3 ? 2 : 3) + 1);
+#if UNITY_EDITOR
+        if (equipmentTest) count = Math.Min(3, available.Count);
+#endif
         for (int i = 0; i < count; i++)
         {
             int index = random.Next(available.Count);
             var line = new DystopiaBasketLine { product = available[index], quantity = random.Next(1, 4) };
+#if UNITY_EDITOR
+            if (equipmentTest) line.quantity = 3;
+#endif
             available.RemoveAt(index);
             customer.basket.Add(line);
             customer.total += line.product.price * line.quantity;

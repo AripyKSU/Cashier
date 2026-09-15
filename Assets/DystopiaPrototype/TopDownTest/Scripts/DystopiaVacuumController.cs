@@ -150,7 +150,7 @@ public sealed class DystopiaVacuumController : MonoBehaviour
         }
     }
 
-    /// <summary>각 물건을 독립적으로 흡입구까지 휘말리게 한 뒤 청소기 안에 보관합니다.</summary>
+    /// <summary>각 물건의 방향을 유지하며 흡입구까지 이동·축소한 뒤 청소기 안에 보관합니다.</summary>
     /// <param name="dt">일시정지를 제외한 경과 초입니다.</param>
     private void AdvanceCapture(float dt)
     {
@@ -161,7 +161,7 @@ public sealed class DystopiaVacuumController : MonoBehaviour
             float t=Mathf.Clamp01(stored.elapsed/Mathf.Max(.05f,swallowSeconds));
             stored.item.transform.position=Vector3.Lerp(stored.position,nozzle.position,t*t);
             stored.item.transform.localScale=stored.scale*Mathf.Max(.02f,1-t*t);
-            stored.item.transform.rotation=stored.rotation*Quaternion.Euler(0,0,t*150);
+            stored.item.transform.rotation=stored.rotation;
             if(t<1) continue;
             stored.hasSwallowed=true;
             stored.item.gameObject.SetActive(false);
@@ -222,8 +222,9 @@ public sealed class DystopiaVacuumController : MonoBehaviour
         item.transform.localScale=stored.scale; item.transform.rotation=stored.rotation;
         item.State=TopDownItemState.Working; item.WasStirred=true;
         item.gameObject.SetActive(true); item.Body.simulated=stored.simulated;
+        item.IgnoreItemCollisions();
         item.Body.linearVelocity=direction*speed;
-        item.Body.angularVelocity=Mathf.Sin(sample*1.31f)*75f;
+        item.Body.angularVelocity=0;
         item.IsBeingVacuumed=false;
     }
 
@@ -236,6 +237,7 @@ public sealed class DystopiaVacuumController : MonoBehaviour
         item.transform.SetPositionAndRotation(stored.position,stored.rotation);
         item.transform.localScale=stored.scale; item.State=stored.state;
         item.gameObject.SetActive(true); item.Body.simulated=stored.simulated;
+        item.IgnoreItemCollisions();
         item.IsBeingVacuumed=false;
     }
 
