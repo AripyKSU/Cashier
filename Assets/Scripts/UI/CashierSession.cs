@@ -129,7 +129,6 @@ public sealed class CashierSession
     public int ReputationChange => this.Reputation - this.dayStartReputation;
     public int MoralityChange => this.Morality - this.dayStartMorality;
     public float Gauge { get; private set; }
-    public bool IsPaused { get; private set; }
     public bool LastAccepted { get; private set; }
     public string Feedback { get; private set; } = "";
     public string Reason { get; private set; } = "";
@@ -148,14 +147,14 @@ public sealed class CashierSession
 
     public void OpenShop()
     {
-        if (this.Phase != CashierPhase.PriceGuide || this.IsPaused) return;
+        if (this.Phase != CashierPhase.PriceGuide) return;
         this.Phase = CashierPhase.Trading;
         this.Revision++;
     }
 
     public void Tick(float seconds)
     {
-        if (this.IsPaused || seconds <= 0) return;
+        if (seconds <= 0) return;
 
         if (this.Phase == CashierPhase.Trading)
         {
@@ -201,7 +200,7 @@ public sealed class CashierSession
 
     public bool Confirm(string input)
     {
-        if (this.Phase != CashierPhase.Trading || this.IsPaused || string.IsNullOrEmpty(input) || input.Length > 7) return false;
+        if (this.Phase != CashierPhase.Trading || string.IsNullOrEmpty(input) || input.Length > 7) return false;
         foreach (char c in input) if (c < '0' || c > '9') return false;
         if (!int.TryParse(input, out int price) || price <= 0) return false;
 
@@ -252,7 +251,7 @@ public sealed class CashierSession
 
     public void PayTribute()
     {
-        if (this.Phase != CashierPhase.Tribute || this.IsPaused) return;
+        if (this.Phase != CashierPhase.Tribute) return;
 
         if (this.Cash >= this.TributeAmount)
         {
@@ -268,22 +267,16 @@ public sealed class CashierSession
 
     public void NextDay()
     {
-        if (this.Phase != CashierPhase.Settlement || this.IsPaused) return;
+        if (this.Phase != CashierPhase.Settlement) return;
         this.Day++;
         this.beginDay();
     }
 
     public void BuyCitizenship()
     {
-        if (!this.CanBuy || this.IsPaused) return;
+        if (!this.CanBuy) return;
         this.Cash -= this.settings.citizenshipPrice;
         this.Phase = CashierPhase.Goal;
-        this.Revision++;
-    }
-
-    public void TogglePause()
-    {
-        this.IsPaused = !this.IsPaused;
         this.Revision++;
     }
 

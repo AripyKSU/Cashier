@@ -103,7 +103,7 @@ public class DayTimerController : MonoBehaviour
     public void UpdateFromViewData(BusinessTimerViewData viewData)
     {
         this.remainingSeconds = viewData.RemainingSeconds;
-        this.isRunning = !viewData.IsPaused;
+        this.isRunning = true;
 
         if (this.timeSlider != null)
         {
@@ -130,21 +130,6 @@ public class DayTimerController : MonoBehaviour
         this.updateUI();
 
         Debug.Log($"<color=cyan>[DayTimer] 영업 시작: {this.totalBusinessTimeSeconds}초 카운트다운</color>");
-    }
-
-    /// <summary>타이머 일시 정지</summary>
-    public void PauseTimer()
-    {
-        this.isRunning = false;
-    }
-
-    /// <summary>타이머 재개</summary>
-    public void ResumeTimer()
-    {
-        if (this.remainingSeconds > 0f)
-        {
-            this.isRunning = true;
-        }
     }
 
     /// <summary>타이머 정지 및 초기화</summary>

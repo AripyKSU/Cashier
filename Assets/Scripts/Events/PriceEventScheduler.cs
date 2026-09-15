@@ -89,7 +89,7 @@ public sealed class PriceEventScheduler
     }
 
     /// <summary>영업 시작 기준 0~60초 미만의 무작위 방송 대기 시간을 생성한다.</summary>
-    /// <returns>일시정지 시간을 제외할 대기 초.</returns>
+    /// <returns>방송 전까지 기다릴 초.</returns>
     public float GetRadioDelaySeconds() => (float)(random.NextDouble() * 60);
 
     /// <summary>활성 효과만 기본가격에서 재계산하여 누적 적용을 방지한다.</summary>

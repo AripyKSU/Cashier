@@ -270,20 +270,6 @@ public sealed class GameProgress
         this.currentDayProgress.CompleteTransactionResult();
     }
 
-    /// <summary>현재 하루의 영업시간을 일시정지합니다.</summary>
-    public void Pause()
-    {
-        this.requireDayInProgress();
-        this.currentDayProgress.Pause();
-    }
-
-    /// <summary>일시정지한 현재 하루의 영업시간을 재개합니다.</summary>
-    public void Resume()
-    {
-        this.requireDayInProgress();
-        this.currentDayProgress.Resume();
-    }
-
     /// <summary>일일 정산 화면 확인을 완료합니다.</summary>
     public void CompleteSettlement()
     {
