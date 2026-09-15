@@ -11,13 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/Assets/Datas/InspectorEventData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/InspectorEventData.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Datas/TextData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/TextData.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Inspector/InspectorEventService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Inspector/InspectorEventService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/InspectorEventTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/InspectorEventTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/DATA_CATALOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DATA_CATALOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/INSPECTOR_SYSTEM_DRAFT.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/INSPECTOR_SYSTEM_DRAFT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/DividerBar.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/DividerBar.png.meta" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +27,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/AddressableAssetsData/AssetGroups/Default Local Group.asset" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Prefabs/GameUI/SettlementPanel.prefab" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionDataTable.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Finance/DailyAggregationResult.cs" root0="FORCE_HIGHLIGHTING" />
@@ -117,23 +116,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.0000005911386967" />
-      <entry key="MS500" value="1.0572181261029197" />
-      <entry key="S2" value="1.708962004364622" />
-      <entry key="S5" value="2.7474888832850533" />
-      <entry key="S10" value="3.623857884550855" />
-      <entry key="S30" value="5.741289419322842" />
-      <entry key="S60" value="8.44165889472482" />
-      <entry key="M2" value="12.222580012117135" />
-      <entry key="M5" value="18.628347337248368" />
-      <entry key="M10" value="23.040859721497434" />
-      <entry key="M15" value="25.006385366966445" />
-      <entry key="M30" value="27.303637373409845" />
-      <entry key="H1" value="28.597177430631557" />
-      <entry key="H2" value="29.284281464086355" />
-      <entry key="H4" value="29.638479485380802" />
-      <entry key="D1" value="29.939230735381056" />
-      <entry key="W1" value="29.99130594664622" />
+      <entry key="MS100" value="1.000000003144607" />
+      <entry key="MS500" value="1.032039021716016" />
+      <entry key="S2" value="1.9367416870132166" />
+      <entry key="S5" value="3.436408093346036" />
+      <entry key="S10" value="4.723150601692687" />
+      <entry key="S30" value="7.26785029224273" />
+      <entry key="S60" value="10.10240822584023" />
+      <entry key="M2" value="13.982006519628523" />
+      <entry key="M5" value="20.48429735686812" />
+      <entry key="M10" value="24.952384464930077" />
+      <entry key="M15" value="26.94251691530157" />
+      <entry key="M30" value="29.268848250090763" />
+      <entry key="H1" value="30.57897903135382" />
+      <entry key="H2" value="31.274968761414073" />
+      <entry key="H4" value="31.63376810266089" />
+      <entry key="D1" value="31.9384377168785" />
+      <entry key="W1" value="31.991192465643284" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -155,23 +154,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9460582098667805" />
-      <entry key="MS500" value="1.0456352209496158" />
-      <entry key="S2" value="1.7040876820865467" />
-      <entry key="S5" value="2.7437711103544435" />
-      <entry key="S10" value="3.6211719807080662" />
-      <entry key="S30" value="5.739813716548549" />
-      <entry key="S60" value="8.440587089831611" />
-      <entry key="M2" value="12.221715073979679" />
-      <entry key="M5" value="18.627522631132937" />
-      <entry key="M10" value="23.040200755697935" />
-      <entry key="M15" value="25.005862111761964" />
-      <entry key="M30" value="27.303323198243604" />
-      <entry key="H1" value="28.597004802681287" />
-      <entry key="H2" value="29.28419092141069" />
-      <entry key="H4" value="29.638433110908018" />
-      <entry key="D1" value="29.93922284904005" />
-      <entry key="W1" value="29.99130481612093" />
+      <entry key="MS100" value="0.9201876510565172" />
+      <entry key="MS500" value="1.0074916073958318" />
+      <entry key="S2" value="1.8857046029863023" />
+      <entry key="S5" value="3.398434030176111" />
+      <entry key="S10" value="4.699254513610653" />
+      <entry key="S30" value="7.258187185445454" />
+      <entry key="S60" value="10.097086663818928" />
+      <entry key="M2" value="13.978976557941772" />
+      <entry key="M5" value="20.482597489427903" />
+      <entry key="M10" value="24.951285819110634" />
+      <entry key="M15" value="26.941699873958953" />
+      <entry key="M30" value="29.268386757840872" />
+      <entry key="H1" value="30.57873261591795" />
+      <entry key="H2" value="31.274841289253185" />
+      <entry key="H4" value="31.633703254025402" />
+      <entry key="D1" value="31.93842675015859" />
+      <entry key="W1" value="31.991190895030176" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -194,7 +193,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "QA",
+    "git-widget-placeholder": "UIFix",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
