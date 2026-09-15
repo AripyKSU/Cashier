@@ -37,9 +37,9 @@ public sealed class PriceEventTests
     public void ScheduleDayBoundaries()
     {
         var newspaper = schedules[10001];
-        Assert.That(newspaper.IsDue(0));
-        Assert.That(newspaper.IsDue(1), Is.False);
-        Assert.That(newspaper.IsDue(2));
+        Assert.That(newspaper.IsDue(newspaper.StartDay));
+        Assert.That(newspaper.IsDue(newspaper.StartDay + 1), Is.False);
+        Assert.That(newspaper.IsDue(newspaper.StartDay + 2));
         var bounded = new PriceEventScheduleData
         { Idx = 1, EventIdx = 9001, ChannelValue = 1, StartDay = 2, EndDay = 4, RepeatDays = 0, SelectionWeight = 1 };
         Assert.That(bounded.IsDue(1), Is.False);
@@ -76,6 +76,7 @@ public sealed class PriceEventTests
         var selected = newspaper
             ? schedules.ToDictionary(x => x.Key, x => x.Value)
             : new Dictionary<uint, PriceEventScheduleData>();
+        uint day = newspaper ? schedules.Values.First().StartDay : 0;
         if (radio)
         {
             selected.Add(10999, new PriceEventScheduleData
@@ -83,13 +84,13 @@ public sealed class PriceEventTests
                 Idx = 10999,
                 EventIdx = 9001,
                 ChannelValue = (uint)PriceEventChannel.Radio,
-                StartDay = 0,
+                StartDay = day,
                 RepeatDays = 0,
                 SelectionWeight = 1
             });
         }
         var engine = new PriceEventScheduler(new Random(1));
-        var state = engine.CreateDay(0, events, selected, products);
+        var state = engine.CreateDay(day, events, selected, products);
         Assert.That(state.NewspaperEventIdx.HasValue, Is.EqualTo(newspaper));
         Assert.That(state.RadioEventIdx.HasValue, Is.EqualTo(radio));
         if (!radio) Assert.That(engine.ApplyRadio(state, events, products), Is.SameAs(state));
@@ -100,21 +101,22 @@ public sealed class PriceEventTests
     public void ReproducibleSelectionAndInvalidReferences()
     {
         var reversed = schedules.Reverse().ToDictionary(x => x.Key, x => x.Value);
-        var first = new PriceEventScheduler(new Random(42)).CreateDay(0, events, schedules, products);
-        var second = new PriceEventScheduler(new Random(42)).CreateDay(0, events, reversed, products);
+        uint testDay = schedules.Values.First().StartDay;
+        var first = new PriceEventScheduler(new Random(42)).CreateDay(testDay, events, schedules, products);
+        var second = new PriceEventScheduler(new Random(42)).CreateDay(testDay, events, reversed, products);
         Assert.That(second.NewspaperEventIdx, Is.EqualTo(first.NewspaperEventIdx));
         Assert.That(second.RadioEventIdx, Is.EqualTo(first.RadioEventIdx));
         var engine = new PriceEventScheduler(new Random(1));
         var row = schedules.Values.First();
         uint eventIdx = row.EventIdx;
         row.EventIdx = 9999;
-        Assert.Throws<InvalidDataException>(() => engine.CreateDay(0, events, schedules, products));
+        Assert.Throws<InvalidDataException>(() => engine.CreateDay(testDay, events, schedules, products));
         row.EventIdx = eventIdx;
         row.SelectionWeight = uint.MaxValue;
-        Assert.Throws<OverflowException>(() => engine.CreateDay(0, events, schedules, products));
+        Assert.Throws<OverflowException>(() => engine.CreateDay(testDay, events, schedules, products));
         row.SelectionWeight = 1;
         events[eventIdx].ProductIdxs = new uint[] { 1999 };
-        Assert.Throws<InvalidDataException>(() => engine.CreateDay(0, events, schedules, products));
+        Assert.Throws<InvalidDataException>(() => engine.CreateDay(testDay, events, schedules, products));
     }
 
     /// <summary>합집합·소수 버림·일자 초기화·불변 가격표·최솟값·중립/overflow를 검사한다.</summary>

@@ -8,6 +8,9 @@ using UnityEngine.UI;
 /// <summary>독립 감독관 패널의 대사·입력·검은 틴트 페이드만 담당한다. 진행 이력은 세션 소유다.</summary>
 public sealed class InspectorPresenter : MonoBehaviour
 {
+    private const float DialogueVoiceDurationSeconds = 2.5f;
+    private const float DialogueVoiceVolumeScale = 0.75f;
+
     /// <summary>감독관 초상 표시.</summary>
     [SerializeField] private Image portrait;
     /// <summary>대사 표시.</summary>
@@ -20,7 +23,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     [SerializeField, Min(0.01f)] private float fadeSeconds = 0.4f;
     private InspectorEventSnapshot current;
     private CancellationTokenSource presentationCancellation;
-    private Func<bool> isPaused;
+    private Func<bool> isPresentationBlocked;
     private bool hasPresentation;
     private bool entered;
     private bool exiting;
@@ -44,7 +47,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <summary>부모의 바인딩이 자식 활성화보다 먼저 실행된 경우 준비된 연출을 재개한다.</summary>
     private void OnEnable()
     {
-        if (hasPresentation && canReveal) Present(current, dialogue.text, portrait.sprite, true, isPaused);
+        if (hasPresentation && canReveal) Present(current, dialogue.text, portrait.sprite, true, isPresentationBlocked);
     }
 
     /// <summary>패널을 숨기면 진행 중 연출과 늦은 완료 콜백을 취소한다.</summary>
@@ -79,16 +82,18 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <param name="text">검증된 Text 문구.</param>
     /// <param name="sprite">검증된 초상.</param>
     /// <param name="reveal">전체 화면 준비가 끝났는지 여부.</param>
-    /// <param name="pauseQuery">화면 소유자의 일시정지 질의.</param>
+    /// <param name="blockQuery">화면 소유자의 표현 진행 차단 질의.</param>
     /// <exception cref="InvalidOperationException">표시 데이터 누락.</exception>
-    public void Present(InspectorEventSnapshot snapshot, string text, Sprite sprite, bool reveal, Func<bool> pauseQuery)
+    public void Present(InspectorEventSnapshot snapshot, string text, Sprite sprite, bool reveal, Func<bool> blockQuery)
     {
         ValidateReferences();
         if (sprite == null || string.IsNullOrWhiteSpace(text) || snapshot.Phase == InspectorEventPhase.Completed)
             throw new InvalidOperationException("InspectorPanel: 표시할 대사·초상·진행 필요");
         bool newEvent = !hasPresentation || current.Day != snapshot.Day || current.EventIdx != snapshot.EventIdx;
+        bool newDialogueLine = hasPresentation && !newEvent
+            && current.LineIndex != snapshot.LineIndex;
         current = snapshot;
-        isPaused = pauseQuery;
+        isPresentationBlocked = blockQuery;
         canReveal = reveal;
         if (newEvent)
         {
@@ -103,6 +108,7 @@ public sealed class InspectorPresenter : MonoBehaviour
         }
         dialogue.text = text;
         if (!reveal || !isActiveAndEnabled) return;
+        if (newDialogueLine) playDialogueVoice();
         if (snapshot.Phase == InspectorEventPhase.AwaitingExit)
         {
             if (exiting) return;
@@ -113,13 +119,13 @@ public sealed class InspectorPresenter : MonoBehaviour
             startFade(false, snapshot);
         }
         else if (!entered && presentationCancellation == null) startFade(true, snapshot);
-        else if (entered) nextButton.interactable = !(isPaused?.Invoke() ?? false);
+        else if (entered) nextButton.interactable = !(isPresentationBlocked?.Invoke() ?? false);
     }
 
     /// <summary>현재 대사 스냅샷으로만 입력을 보낸다.</summary>
     private void handleNext()
     {
-        if (!entered || exiting || !nextButton.interactable || (isPaused?.Invoke() ?? false)) return;
+        if (!entered || exiting || !nextButton.interactable || (isPresentationBlocked?.Invoke() ?? false)) return;
         nextButton.interactable = false;
         NextRequested?.Invoke(current);
     }
@@ -129,10 +135,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <param name="snapshot">연출 시작 상태.</param>
     private void startFade(bool entering, InspectorEventSnapshot snapshot)
     {
-        if (entering)
-        {
-            SoundManager.Instance?.PlaySfxUntilStopped(SoundKeys.DialogueVoice);
-        }
+        if (entering) playDialogueVoice();
         presentationCancellation = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
         fadeAsync(entering, snapshot, presentationCancellation.Token).Forget(exception => Failed?.Invoke(exception));
     }
@@ -154,7 +157,7 @@ public sealed class InspectorPresenter : MonoBehaviour
             {
                 await UniTask.Yield(PlayerLoopTiming.Update, token);
                 token.ThrowIfCancellationRequested();
-                if (isPaused?.Invoke() ?? false) continue;
+                if (isPresentationBlocked?.Invoke() ?? false) continue;
                 elapsed += Time.deltaTime;
                 float progress = Mathf.Clamp01(elapsed / fadeSeconds);
                 portrait.color = Color.Lerp(from, to, progress);
@@ -171,7 +174,7 @@ public sealed class InspectorPresenter : MonoBehaviour
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 
-    /// <summary>진행·일시정지를 바꾸지 않고 표현 수명만 종료한다.</summary>
+    /// <summary>게임 진행을 바꾸지 않고 표현 수명만 종료합니다.</summary>
     private void cancelPresentation()
     {
         presentationCancellation?.Cancel();
@@ -183,5 +186,14 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void stopDialogueVoice()
     {
         SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
+    }
+
+    /// <summary>현재 감독관 대사 단위에 한정된 음성을 약한 볼륨으로 재생한다.</summary>
+    private void playDialogueVoice()
+    {
+        SoundManager.Instance?.PlaySfxForDuration(
+            SoundKeys.DialogueVoice,
+            DialogueVoiceDurationSeconds,
+            DialogueVoiceVolumeScale);
     }
 }

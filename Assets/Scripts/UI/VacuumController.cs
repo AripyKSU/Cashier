@@ -273,7 +273,7 @@ public sealed class VacuumController : MonoBehaviour
     }
 
     /// <summary>
-    /// 화면 종료·시설 비활성화·일시정지에 사용하는 강제 취소입니다.
+    /// 화면 종료와 시설 비활성화에 사용하는 강제 취소입니다.
     /// 이미 배출되어 Panel 소유가 된 상품은 되돌리지 않고 내부 잔여 상품만 복원합니다.
     /// </summary>
     public void CancelAndRestoreItems()

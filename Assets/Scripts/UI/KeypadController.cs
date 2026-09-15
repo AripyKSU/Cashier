@@ -198,8 +198,7 @@ public class KeypadController : MonoBehaviour
     {
         if (this.priceDisplayText != null)
         {
-            // Currency display in English (e.g., 1,500 G)
-            this.priceDisplayText.text = $"{this.currentPrice:N0} G";
+            this.priceDisplayText.text = TextDataTable.FormatCurrency(this.currentPrice);
         }
 
         this.OnPriceChanged?.Invoke(this.currentPrice);

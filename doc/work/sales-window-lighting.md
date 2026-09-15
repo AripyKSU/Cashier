@@ -171,7 +171,7 @@
 
 - CSV 종류 ID 권위 탭 `t.ccpln6m1g4kv`에 `StoreStage=19`, `19001~19003` 예약을 추가하고 다시 조회해 확인했다. 회의록·경제 기획 본문은 변경하지 않았다.
 - `Assets/Datas/StoreStageData.csv`는 6개 필수 uint 컬럼을 사용한다. 1/2/3단계 각각 한 행, 외형 프리팹·시계 Resource FK, 설비의 요구/목표 단계 포함을 검증한 뒤 DataTableManager가 공개한다.
-- 리소스 매핑: 1단계 World/Front/TopView=`4292/4293/4294`, 2단계=`4295/4296/4294`, 3단계=`4298/4299/4294`. 4297은 사용하지 않는다. ResourceData→Addressables→`Assets/Prefabs/StoreStage/`의 실제 프리팹 7개를 참조한다.
+- 리소스 매핑: 1단계 World/Front/TopView=`4292/4293/4294`, 2단계=`4297/4296/4294`, 3단계=`4298/4299/4294`. `4295`는 `CustomerBoxDrop` 사운드가 사용한다. ResourceData→Addressables→`Assets/Prefabs/StoreStage/`의 실제 프리팹 7개를 참조한다.
 - 단계별 시계 Sprite는 `clock_resource_idx`가 선택한다. 1/2/3단계는 각각 `4300/4301/4302`, 본편 주소는 `Stage1Clock`/`Stage2Clock`/`Stage3Clock`이며 프리팹의 시계 슬롯은 위치·크기·숫자 앵커만 제공한다.
 - 현재 세 단계 모두 공통 탑뷰 작업대 이미지를 사용한다. 정면 상자와 시계·가판은 단계별 기준 씬을 따른다. 손님별 동적 상자/쏟기 이미지나 물리 판정은 이 표의 작업대 장식과 별개다.
 - 구현을 줄이고 입력 참조를 보존하기 위해 **프리팹을 인스턴스로 교체하는 제안 대신, 준비한 프리팹을 외형 원본으로 읽어 기존 슬롯에 Sprite와 배치를 적용**한다. 세계 배경의 기존 Renderer, 정면 시계·상자 버튼, 작업대 자식의 판정/상품/계산기 오브젝트를 파괴하지 않는다.

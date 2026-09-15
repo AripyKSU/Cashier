@@ -95,14 +95,14 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private bool calculatorTargetVisible;
     private IReadOnlyList<CustomerBasketItemViewData> pendingBasket = Array.Empty<CustomerBasketItemViewData>();
     // 로컬 큐 표현에서만 제공하며 Controller 제거 시 해제합니다.
-    private Func<bool> isPresentationPaused;
+    private Func<bool> isPresentationBlocked;
 
     /// <summary>기존 연출 시계를 멈출 조회자를 연결한다. null은 기존 unscaled 동작이다.</summary>
-    /// <param name="isPaused">표현의 일시정지·오류 상태 조회. 시간이나 모델을 변경하지 않는다.</param>
-    public void SetPauseQuery(Func<bool> isPaused) => this.isPresentationPaused = isPaused;
+    /// <param name="isBlocked">오류나 비활성화로 표현 진행이 막혔는지 조회합니다.</param>
+    public void SetPresentationBlockQuery(Func<bool> isBlocked) => this.isPresentationBlocked = isBlocked;
 
-    /// <summary>기존 unscaled 시간을 사용하되 명시적인 일시정지만 제외한다.</summary>
-    private float PresentationDeltaSeconds => this.isPresentationPaused?.Invoke() == true ? 0f : Time.unscaledDeltaTime;
+    /// <summary>기존 unscaled 시간을 사용하되 표현 진행이 막힌 동안은 제외합니다.</summary>
+    private float PresentationDeltaSeconds => this.isPresentationBlocked?.Invoke() == true ? 0f : Time.unscaledDeltaTime;
 
     /// <summary>판매 상품 목록이 확정됐을 때 가격과 함께 전달됩니다.</summary>
     public event Action<IReadOnlyList<SaleItem>> SaleItemsConfirmed;
@@ -259,7 +259,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>현재 도구 또는 플레이어가 소유한 상품만 한 번 이동시킵니다.</summary>
     private void Update()
     {
-        if (this.state != ViewState.Sorting || this.workArea == null || this.isPresentationPaused?.Invoke() == true)
+        if (this.state != ViewState.Sorting || this.workArea == null || this.isPresentationBlocked?.Invoke() == true)
         {
             this.stopAutoSorting();
             if (this.vacuum != null)
@@ -633,6 +633,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                     {
                         dust.Play(box);
                     }
+                    SoundManager.Instance?.PlaySfx(SoundKeys.CustomerBoxDrop);
                 }
 
                 yield return null;
@@ -662,7 +663,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>가판대 위 박스를 클릭했을 때만 탑다운 작업대로 전환합니다.</summary>
     private void handleFrontContainerClicked()
     {
-        if (this.state != ViewState.FrontWaiting || this.transitionRoutine != null || this.isPresentationPaused?.Invoke() == true) return;
+        if (this.state != ViewState.FrontWaiting || this.transitionRoutine != null || this.isPresentationBlocked?.Invoke() == true) return;
         this.frontContainerButton.interactable = false;
         this.transitionRoutine = StartCoroutine(this.playEntryFlow());
     }

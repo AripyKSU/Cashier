@@ -142,7 +142,7 @@ public sealed class SoundManager : Singleton<SoundManager>
     /// </summary>
     /// <param name="dataTables">ResourceDataTable을 소유한 데이터 매니저입니다.</param>
     /// <param name="cancellationToken">호출자의 대기만 취소하는 토큰입니다.</param>
-    /// <returns>19개 필수 사운드 클립의 초기화 완료를 나타내는 작업입니다.</returns>
+    /// <returns>20개 필수 사운드 클립의 초기화 완료를 나타내는 작업입니다.</returns>
     /// <exception cref="ArgumentNullException">dataTables가 null인 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">필수 manager, 데이터 테이블 또는 사운드 설정이 없는 경우 발생합니다.</exception>
     /// <exception cref="InvalidDataException">ResourceData 매핑이 누락되었거나 중복된 경우 발생합니다.</exception>
@@ -178,13 +178,15 @@ public sealed class SoundManager : Singleton<SoundManager>
     /// 이미 같은 AudioClip이 재생 중이면 재생 위치를 유지한다.
     /// </summary>
     /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
-    public void PlayBgm(uint resourceIdx)
+    /// <param name="volumeScale">해당 BGM에 적용할 0~2 볼륨 배율입니다.</param>
+    public void PlayBgm(uint resourceIdx, float volumeScale = 1f)
     {
         if (!tryGetClip(resourceIdx, out AudioClip clip) || bgmSource == null)
         {
             return;
         }
 
+        bgmSource.volume = Mathf.Clamp(volumeScale, 0f, 2f);
         if (currentBgmClip == clip && bgmSource.isPlaying)
         {
             return;
@@ -215,7 +217,7 @@ public sealed class SoundManager : Singleton<SoundManager>
     /// ResourceData 식별자에 연결된 효과음을 일회성으로 재생한다.
     /// </summary>
     /// <param name="resourceIdx">재생할 ResourceData 식별자입니다.</param>
-    /// <param name="volumeScale">해당 효과음에 적용할 0~1 볼륨 배율입니다.</param>
+    /// <param name="volumeScale">해당 효과음에 적용할 0~2 볼륨 배율입니다.</param>
     public void PlaySfx(uint resourceIdx, float volumeScale = 1f)
     {
         if (!tryGetClip(resourceIdx, out AudioClip clip))
@@ -231,7 +233,7 @@ public sealed class SoundManager : Singleton<SoundManager>
 
         AudioSource source = sfxSources[nextSfxSourceIndex];
         nextSfxSourceIndex = (nextSfxSourceIndex + 1) % sfxSources.Count;
-        source.PlayOneShot(clip, Mathf.Clamp01(volumeScale));
+        source.PlayOneShot(clip, Mathf.Clamp(volumeScale, 0f, 2f));
     }
 
     /// <summary>
@@ -448,9 +450,9 @@ public sealed class SoundManager : Singleton<SoundManager>
                 throw new InvalidOperationException("ResourceDataTable is not available.");
             }
 
-            if (SoundKeys.All == null || SoundKeys.All.Count != 19)
+            if (SoundKeys.All == null || SoundKeys.All.Count != 20)
             {
-                throw new InvalidDataException("SoundKeys.All must contain exactly 19 resource IDs.");
+                throw new InvalidDataException("SoundKeys.All must contain exactly 20 resource IDs.");
             }
 
             foreach (uint resourceIdx in SoundKeys.All)

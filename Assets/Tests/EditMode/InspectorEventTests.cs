@@ -39,7 +39,7 @@ public sealed class InspectorEventTests
         texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
         var textRows = (System.Collections.Generic.Dictionary<uint, TextData>)typeof(TextDataTable)
             .GetProperty("PendingRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(texts);
-        Assert.That(textRows.Count, Is.EqualTo(242), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
+        Assert.That(textRows.Count, Is.EqualTo(243), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
         uint[] pageIds = rows.SelectMany(x => x.DialogueTextIdxs).ToArray();
         Assert.That(pageIds.Length, Is.EqualTo(9));
         Assert.That(rows.All(x => textRows.ContainsKey(x.NameIdx)) && pageIds.All(textRows.ContainsKey), Is.True);

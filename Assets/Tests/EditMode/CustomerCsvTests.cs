@@ -16,7 +16,7 @@ public sealed class CustomerCsvTests
     {
         var economy = new EconomyBalanceDataTable();
         economy.LoadData(File.ReadAllText("Assets/Datas/EconomyBalanceData.csv"));
-        Assert.That(economy.GetData().InitialBalance, Is.EqualTo(1000));
+        Assert.That(economy.GetData().InitialBalance, Is.EqualTo(10000));
 
         var maintenance = new MaintenanceBalanceDataTable();
         maintenance.LoadData(File.ReadAllText("Assets/Datas/MaintenanceBalanceData.csv"));
@@ -26,7 +26,7 @@ public sealed class CustomerCsvTests
             Assert.That(service.TryPay(day, out _), Is.True);
 
         Assert.That(amounts.Length, Is.EqualTo(31));
-        Assert.That(service.GetRequiredAmount(31), Is.EqualTo(3200));
+        Assert.That(service.GetRequiredAmount(31), Is.EqualTo(32000));
         Assert.That(service.LastPaidDay, Is.EqualTo(31));
     }
 
@@ -53,7 +53,9 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 242) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 243) throw new Exception("Unexpected sample counts");
+Assert.That(textTables[valid].GetCurrencyUnit(), Is.EqualTo("원"));
+Assert.That(textTables[valid].GetCurrencyFormat(), Is.EqualTo("{0:N0} 원"));
 var expectedProductIds = new uint[] { 1001, 1004, 1005, 1006, 1007, 1010, 1013, 1014, 1015, 1016, 1018, 1019, 1020, 1021, 1022, 1023 };
 if (!valid.Products.Rows.Keys.OrderBy(x => x).SequenceEqual(expectedProductIds)) throw new Exception("Unexpected final product IDs");
 if (valid.Products.Rows.Values.Count(x => !x.RequiredFacilityIdx.HasValue) != 4) throw new Exception("Unexpected default product count");
@@ -165,6 +167,7 @@ Func<CustomerCatalog> load = () => {
 
 var c=load();
 Action mutate;
+string invalidProduct = null;
 switch(name) {
 case "old probability header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("preferred_selection_chance", "preferred_selection_percent")); break;
 case "negative probability": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",900,", ",-1,")); break;
@@ -186,10 +189,10 @@ case "missing text table": mutate=()=>textTables[c].Release(); break;
 case "enum string": mutate=()=>c.Products.LoadData(product.Replace("1001,8012,1,", "1001,8012,Water,")); break;
 case "duplicate category type": mutate=()=>c.Categories.LoadData(category.Replace("7002,8009,2", "7002,8009,1")); break;
 case "missing category display": mutate=()=>c.Categories.LoadData(category.Replace("7004,8011,4", "")); break;
-case "base price": mutate=()=>c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,0,0,")); break;
-case "negative day": mutate=()=>c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,100,-1,")); break;
-case "zero image": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,0,50")); break;
-case "image FK": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,4999,50")); break;
+case "base price": invalidProduct=product.Replace("1,1,1000,0,", "1,1,0,0,"); mutate=()=>c.Products.LoadData(invalidProduct); break;
+case "negative day": invalidProduct=product.Replace("1,1,1000,0,", "1,1,1000,-1,"); mutate=()=>c.Products.LoadData(invalidProduct); break;
+case "zero image": invalidProduct=product.Replace("1000,0,4276,500", "1000,0,0,500"); mutate=()=>c.Products.LoadData(invalidProduct); break;
+case "image FK": invalidProduct=product.Replace("1000,0,4276,500", "1000,0,4999,500"); mutate=()=>c.Products.LoadData(invalidProduct); break;
 case "entry dialog FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8999")); break;
 case "empty entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "")); break;
 case "duplicate entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8024_8024")); break;
@@ -204,7 +207,7 @@ case "queue warning FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace(
 case "queue leave FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8050,8999")); break;
 case "queue header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("queue_patience_seconds", "missing_queue_patience")); break;
 case "cost header": mutate=()=>c.Products.LoadData(product.Replace("cost_price", "missing_cost")); break;
-case "zero cost": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,4276,0")); break;
+case "zero cost": invalidProduct=product.Replace("1000,0,4276,500", "1000,0,4276,0"); mutate=()=>c.Products.LoadData(invalidProduct); break;
 case "type header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("disposition_type", "missing_type")); break;
 case "product preference header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("preferred_product_idxs", "missing_products")); break;
 case "regular min header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("regular_price_min_rate","missing_min")); break;
@@ -228,6 +231,7 @@ case "regular max 999": mutate=()=>c.Dispositions.LoadData(disposition.Replace("
 case "regular max empty": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8051,1,,1000,1000", "8051,1,,1000,")); break;
 default: throw new ArgumentOutOfRangeException(nameof(name));
 }
+if (invalidProduct != null) Assert.That(invalidProduct, Is.Not.EqualTo(product), "상품 CSV 오류 주입이 실제 CSV를 변경해야 합니다.");
 var resources = loadResources();
 LogAssert.Expect(LogType.Error,new Regex(@"^(?:\[Customer CSV\] |(?:CustomerAppearanceData|CustomerDispositionData|ProductCategoryData|ProductData|TextData)\.csv)"));
 Assert.Catch(()=>{mutate(); c.ValidateAndCommit(textTables[c], resources, facilities: loadFacilities());});

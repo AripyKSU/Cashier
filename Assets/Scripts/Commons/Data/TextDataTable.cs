@@ -25,6 +25,67 @@ public sealed class TextDataTable : IDataLoad
     /// <returns>존재 여부.</returns>
     public bool TryGetData(uint idx, out TextData data) => dataDict.TryGetValue(idx, out data);
 
+    /// <summary>통화 서식 템플릿 PK (TextData.csv 8248).</summary>
+    public const uint CurrencyFormatIdx = 8248;
+    /// <summary>통화 단위 텍스트 PK (하위 호환성 유지).</summary>
+    public const uint CurrencyUnitIdx = 8248;
+
+    /// <summary>TextData PK 8248번에서 통화 서식 템플릿(기본: "{0:N0} 원")을 조회합니다.</summary>
+    public string GetCurrencyFormat()
+    {
+        return TryGetData(CurrencyFormatIdx, out var textData) && !string.IsNullOrWhiteSpace(textData.Text)
+            ? textData.Text
+            : "{0:N0} 원";
+    }
+
+    /// <summary>TextData PK 8248번에서 통화 단위를 조회합니다. 포맷 템플릿인 경우 서식 기호를 제외한 단위 문자열을 반환합니다.</summary>
+    public string GetCurrencyUnit()
+    {
+        string format = GetCurrencyFormat();
+        int braceEnd = format.LastIndexOf('}');
+        if (braceEnd >= 0 && braceEnd < format.Length - 1)
+        {
+            return format.Substring(braceEnd + 1).Trim();
+        }
+        return format;
+    }
+
+    /// <summary>현재 로드된 DataTableManager 싱글톤에서 통화 서식 템플릿을 조회합니다.</summary>
+    public static string ResolveCurrencyFormat()
+    {
+        if (DataTableManager.Instance != null &&
+            DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text) is { } textTable)
+        {
+            return textTable.GetCurrencyFormat();
+        }
+        return "{0:N0} 원";
+    }
+
+    /// <summary>현재 로드된 DataTableManager 싱글톤에서 통화 단위를 조회합니다. 없으면 '원'을 반환합니다.</summary>
+    public static string ResolveCurrencyUnit()
+    {
+        if (DataTableManager.Instance != null &&
+            DataTableManager.Instance.GetDB<TextDataTable>(DataTableType.Text) is { } textTable)
+        {
+            return textTable.GetCurrencyUnit();
+        }
+        return "원";
+    }
+
+    /// <summary>금액을 등록된 통화 서식 템플릿(기본: "{0:N0} 원")에 맞추어 포맷팅합니다. (예: 1000 -> "1,000 원")</summary>
+    public static string FormatCurrency(long amount)
+    {
+        string format = ResolveCurrencyFormat();
+        try
+        {
+            return string.Format(format, amount);
+        }
+        catch (FormatException)
+        {
+            return $"{amount:N0} 원";
+        }
+    }
+
     /// <summary>CSV 전체를 별도 사전에 검증한다. 공개는 CustomerCatalog의 FK 검사 후 수행한다.</summary>
     /// <param name="csvText">CSV 원문.</param>
     /// <exception cref="Exception">header·형식·PK·행 값 오류.</exception>

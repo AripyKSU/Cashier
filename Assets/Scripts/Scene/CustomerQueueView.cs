@@ -100,7 +100,7 @@ public sealed class CustomerQueueView : MonoBehaviour
             setSpeech(visual, 0); // 실제 계산대 대사와 debuglabel은 기존 Presenter가 표시한다.
             visual.Rect.SetAsLastSibling();
         }
-        float delta = controller.IsPresentationPaused ? 0 : Time.deltaTime;
+        float delta = controller.IsPresentationBlocked ? 0 : Time.deltaTime;
         remove.Clear();
         foreach (var pair in visuals)
         {

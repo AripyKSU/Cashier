@@ -99,7 +99,7 @@ public sealed class FacilityTests
     public void CitizenshipRequiresEveryStageThreeCatalogUpgrade(uint omittedFacilityIdx)
     {
         var (_, table) = loadShopData();
-        var richFinance = new FinanceService(2_000_000);
+        var richFinance = new FinanceService(20_000_000);
         var catalogService = new FacilityService(richFinance, table.Rows, () => 0);
         for (uint stage = 1; stage <= 3; stage++)
         {
@@ -340,7 +340,7 @@ public sealed class FacilityTests
     {
         var (factory, table) = loadShopData();
         var owned = new Dictionary<uint, uint>();
-        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, 18000);
+        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, 180000);
         Assert.That(before.RegularItems.Count, Is.EqualTo(3));
         Assert.That(before.ProgressionItem.Value.FacilityIdx, Is.EqualTo(12008));
         Assert.That(before.Items.Count, Is.EqualTo(4));
@@ -430,20 +430,23 @@ public sealed class FacilityTests
     [TestCase("missing effect")]
     public void CsvRejectsInvalidUpgradeStructure(string kind)
     {
-        string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
+        string originalCsv = File.ReadAllText("Assets/Datas/FacilityData.csv");
+        string csv = originalCsv;
         switch (kind)
         {
-            case "upgrade enum": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,99,1,0,0"); break;
-            case "effect enum": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,99,0"); break;
-            case "product target": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,1,1,0,2"); break;
-            case "convenience target": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,1,2"); break;
-            case "stage effect": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,1,1,2"); break;
-            case "stage requirement": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,2,0,2"); break;
+            case "upgrade enum": csv = csv.Replace("12001,8056,180000,1,1,0,0", "12001,8056,180000,99,1,0,0"); break;
+            case "effect enum": csv = csv.Replace("12007,8077,8000,2,1,1,0", "12007,8077,8000,2,1,99,0"); break;
+            case "product target": csv = csv.Replace("12001,8056,180000,1,1,0,0", "12001,8056,180000,1,1,0,2"); break;
+            case "convenience target": csv = csv.Replace("12007,8077,8000,2,1,1,0", "12007,8077,8000,2,1,1,2"); break;
+            case "stage effect": csv = csv.Replace("12008,8078,230000,3,1,0,2", "12008,8078,230000,3,1,1,2"); break;
+            case "stage requirement": csv = csv.Replace("12008,8078,230000,3,1,0,2", "12008,8078,230000,3,2,0,2"); break;
             case "duplicate effect": csv += "12012,8077,800,2,1,1,0\n"; break;
             case "duplicate target": csv += "12012,8078,1500,3,1,0,2\n"; break;
-            case "missing effect": csv = csv.Replace("12011,8081,1500,2,3,3,0\r\n", string.Empty).Replace("12011,8081,1500,2,3,3,0\n", string.Empty); break;
+            case "missing effect": csv = csv.Replace("12011,8081,15000,2,3,3,0\r\n", string.Empty).Replace("12011,8081,15000,2,3,3,0\n", string.Empty); break;
             default: throw new ArgumentOutOfRangeException(nameof(kind));
         }
+
+        Assert.That(csv, Is.Not.EqualTo(originalCsv), "설비 CSV 오류 주입이 실제 CSV를 변경해야 합니다.");
 
         var table = new FacilityDataTable();
         LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("FacilityData"));

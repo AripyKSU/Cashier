@@ -14,6 +14,10 @@ using UnityEngine.InputSystem;
 /// </summary>
 public sealed class GameUIController : MonoBehaviour
 {
+    private const float SettlementBgmVolumeScale = 1.5f;
+    private const float DayEndSfxVolumeScale = 0.65f;
+    private const float TransactionSuccessSfxVolumeScale = 1.35f;
+
     private GameProgress gameProgress;
     private DayProgress subscribedDay;
     private EconomyRuntime economy;
@@ -98,8 +102,8 @@ public sealed class GameUIController : MonoBehaviour
     public bool IsSettlementPresentationPending => this.isSettlementPresentationPending;
     /// <summary>로컬 표현이 관찰하는 현재 하루. 비동기 초기화 전에는 null.</summary>
     public DayProgress CurrentDayProgress => this.gameProgress?.CurrentDayProgress;
-    /// <summary>표현 시간이 멈춰야 하는 일시정지·기술 오류 상태.</summary>
-    public bool IsPresentationPaused => this.hasError || !this.isActiveAndEnabled || this.subscribedDay?.IsPaused == true;
+    /// <summary>기술 오류나 비활성화로 표현 시간이 멈춰야 하는 상태.</summary>
+    public bool IsPresentationBlocked => this.hasError || !this.isActiveAndEnabled;
     /// <summary>월드 표시가 정렬·가시성만 관찰하는 기존 전면 UI 영역.</summary>
     public RectTransform FrontView => this.saleSortingPanel.FrontView;
     /// <summary>진행 시간이 이미 반영된 표시 전용 시계.</summary>
@@ -165,7 +169,7 @@ public sealed class GameUIController : MonoBehaviour
 
             this.validateUiReferences();
             if (this.businessClock != null) this.businessClock.StopClock();
-            if (this.useCustomerQueue) this.saleSortingPanel.SetPauseQuery(() => this.IsPresentationPaused);
+            if (this.useCustomerQueue) this.saleSortingPanel.SetPresentationBlockQuery(() => this.IsPresentationBlocked);
             this.subscribeUi();
             this.gameProgress = new GameProgress(
                 GameSessionManager.Instance,
@@ -206,7 +210,7 @@ public sealed class GameUIController : MonoBehaviour
 
         try
         {
-            if (this.useCustomerQueue && this.queueExitRemaining > 0 && !this.IsPresentationPaused)
+            if (this.useCustomerQueue && this.queueExitRemaining > 0 && !this.IsPresentationBlocked)
             {
                 this.queueExitRemaining = Mathf.Max(0, this.queueExitRemaining - Time.deltaTime);
                 if (this.isSettlementPresentationPending && this.queueExitRemaining <= 0)
@@ -314,7 +318,7 @@ public sealed class GameUIController : MonoBehaviour
         this.isSettlementPresentationPending = false;
         this.queueExitRemaining = 0;
         this.subscribedDay?.StopQueue();
-        if (this.useCustomerQueue && this.saleSortingPanel != null) this.saleSortingPanel.SetPauseQuery(null);
+        if (this.useCustomerQueue && this.saleSortingPanel != null) this.saleSortingPanel.SetPresentationBlockQuery(null);
         if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
         this.unsubscribeUi();
@@ -386,8 +390,6 @@ public sealed class GameUIController : MonoBehaviour
         this.facilityShopPresenter.OnCloseRequested += this.handleFacilityCloseRequested;
         this.priceInputPresenter.OnPriceConfirmed += this.handlePriceConfirmed;
         this.priceInputPresenter.OnInputCancelled += this.handleInputCancelled;
-        this.businessTimerPresenter.OnPauseRequested += this.handlePauseRequested;
-        this.businessTimerPresenter.OnResumeRequested += this.handleResumeRequested;
         this.keypadController.OnPriceChanged += this.handlePriceChanged;
         this.gameInputRouter.OnConfirmRequested += this.handleKeyboardConfirmRequested;
         this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
@@ -429,12 +431,6 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.priceInputPresenter.OnPriceConfirmed -= this.handlePriceConfirmed;
             this.priceInputPresenter.OnInputCancelled -= this.handleInputCancelled;
-        }
-
-        if (this.businessTimerPresenter != null)
-        {
-            this.businessTimerPresenter.OnPauseRequested -= this.handlePauseRequested;
-            this.businessTimerPresenter.OnResumeRequested -= this.handleResumeRequested;
         }
 
         if (this.keypadController != null)
@@ -576,7 +572,7 @@ public sealed class GameUIController : MonoBehaviour
         else if (state == DayProgressState.Closing)
         {
             // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다.
-            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd, DayEndSfxVolumeScale);
         }
         this.refreshAllViews();
     }
@@ -609,8 +605,10 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
+        bool wasAccepted = visit.WasAccepted == true;
         SoundManager.Instance?.PlaySfx(
-            visit.WasAccepted == true ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail);
+            wasAccepted ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail,
+            wasAccepted ? TransactionSuccessSfxVolumeScale : 1f);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = visit.WasAccepted == true
             ? "ACCEPTED · income applied"
@@ -623,13 +621,15 @@ public sealed class GameUIController : MonoBehaviour
     private void handleSettlementStarted(DailySettlementResult result)
     {
         if (this.gameProgress.State == GameProgressState.Failed) return;
+        // SettlementStarted may wait for the local queue exit. Stop gameplay ambience immediately
+        // so it cannot leak into the settlement screen while the presentation is pending.
+        SoundManager.Instance?.StopBgm();
         if (this.useCustomerQueue && this.queueExitRemaining > 0)
         {
             this.isSettlementPresentationPending = true;
             this.refreshAllViews();
             return;
         }
-        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm);
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.beginSettlementFlow(result);
@@ -648,6 +648,7 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
+        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
         this.dailySettlementPresenter.ConfigureEnding(
             this.subscribedDay.Day == 31,
             this.gameProgress.HasCitizenship);
@@ -996,28 +997,6 @@ public sealed class GameUIController : MonoBehaviour
         }
     }
 
-    /// <summary>타이머 일시정지 요청을 하루 진행에 전달합니다.</summary>
-    private void handlePauseRequested()
-    {
-        if (!this.canPause())
-        {
-            return;
-        }
-
-        this.runProgressAction(this.gameProgress.Pause);
-    }
-
-    /// <summary>타이머 재개 요청을 하루 진행에 전달합니다.</summary>
-    private void handleResumeRequested()
-    {
-        if (!this.canResume())
-        {
-            return;
-        }
-
-        this.runProgressAction(this.gameProgress.Resume);
-    }
-
     /// <summary>진행 호출의 예외를 UI 오류로 표시합니다.</summary>
     /// <param name="action">실행할 Progress 공개 동작입니다.</param>
     private void runProgressAction(Action action)
@@ -1173,10 +1152,7 @@ public sealed class GameUIController : MonoBehaviour
         }
         this.businessTimerPresenter.UpdateView(new BusinessTimerViewData(
             this.subscribedDay.RemainingSeconds,
-            normalizedTime,
-            this.subscribedDay.IsPaused,
-            this.canPause(),
-            this.canResume()));
+            normalizedTime));
     }
 
     /// <summary>진행 상태에 따라 패널과 기본 버튼을 표시합니다.</summary>
@@ -1211,7 +1187,7 @@ public sealed class GameUIController : MonoBehaviour
         {
             InspectorEventSnapshot snapshot = GameSessionManager.Instance.InspectorEvents.Current;
             this.inspectorPresenter.Present(snapshot, textData.Rows[snapshot.TextIdx].Text,
-                inspectorSprites[snapshot.PortraitResourceIdx], presentationReady, () => IsPresentationPaused);
+                inspectorSprites[snapshot.PortraitResourceIdx], presentationReady, () => IsPresentationBlocked);
         }
     }
 
@@ -1279,32 +1255,6 @@ public sealed class GameUIController : MonoBehaviour
                 button.interactable = isInteractable;
             }
         }
-    }
-
-    /// <summary>현재 하루가 일시정지를 받을 수 있는 상태인지 확인합니다.</summary>
-    /// <returns>영업 중이고 아직 일시정지하지 않은 경우 true입니다.</returns>
-    private bool canPause()
-    {
-        return this.gameProgress != null
-            && this.gameProgress.State == GameProgressState.DayInProgress
-            && this.subscribedDay != null
-            && !this.subscribedDay.IsPaused
-            && (this.subscribedDay.State == DayProgressState.Operating
-                || this.subscribedDay.State == DayProgressState.Sorting
-                || this.subscribedDay.State == DayProgressState.TransactionResult);
-    }
-
-    /// <summary>현재 하루가 재개 요청을 받을 수 있는 상태인지 확인합니다.</summary>
-    /// <returns>영업 중이고 일시정지된 경우 true입니다.</returns>
-    private bool canResume()
-    {
-        return this.gameProgress != null
-            && this.gameProgress.State == GameProgressState.DayInProgress
-            && this.subscribedDay != null
-            && this.subscribedDay.IsPaused
-            && (this.subscribedDay.State == DayProgressState.Operating
-                || this.subscribedDay.State == DayProgressState.Sorting
-                || this.subscribedDay.State == DayProgressState.TransactionResult);
     }
 
     /// <summary>기술 오류를 화면에 표시하고 추가 입력을 차단합니다.</summary>

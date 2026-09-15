@@ -73,9 +73,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BusinessTimerPresenter
   timeSlider: {fileID: 7214761685044196794}
   timeText: {fileID: 0}
-  pauseButton: {fileID: 0}
-  resumeButton: {fileID: 0}
-  pauseIndicator: {fileID: 0}
 --- !u!114 &5537285102847769110
 MonoBehaviour:
   m_ObjectHideFlags: 0
