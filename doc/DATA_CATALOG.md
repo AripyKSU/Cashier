@@ -81,7 +81,7 @@
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 12 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백·손님 생성 가중치 연결 |
-| [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 2 | 4 | 일일 지침 생성·거래 위반·정산 벌금 연결 |
+| [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 2 | 3 | 일일 지침 생성·거래 위반·총매출 비율 정산 벌금 연결 |
 | [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
 | [InspectorEventData](../Assets/Datas/InspectorEventData.csv) | 7 | 9 | 영업 전 감독관 대화·조건·완료 이력 연결 |
 
@@ -1053,14 +1053,15 @@ idx,nameidx,purchase_price,upgrade_kind,required_store_stage,effect_type,target_
 
 ### Assets/Datas/DailyGuidelineData.csv
 
-데이터 3행, 7컬럼. SHA-256: `F653062411B04B0171EB265E986B1A4A53EDADCF1209FA57ABCEF60A378911A4`.
+데이터 2행, 3컬럼. SHA-256: `A1A771D21A774B61ED24BA4DD99425F26A574D22348CF003A4DB1BD5AD993363`.
 
 ```csv
-idx,day,nameidx,descriptionidx,rule_type,target_product_idx,param_value
-13001,1,8101,8102,0,0,0
-13002,2,8101,8104,1,1001,1
-13003,3,8101,8106,2,1007,0
+idx,rule_type,allowed_quantity
+13001,1,0
+13002,2,1
 ```
+
+패널티 금액은 CSV에 저장하지 않는다. 하루 종료 시 총 판매 금액에 총 위반 횟수당 5%를 적용하고, 20회 이상은 총 판매 금액의 100%로 제한하며 1원 미만은 버린다.
 
 
 ### Assets/Datas/MoralityData.csv

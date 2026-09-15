@@ -196,28 +196,22 @@ public struct TransactionViewData
     }
 }
 
-/// <summary>정산 화면에 표시할 지침별 위반 횟수와 벌금입니다.</summary>
+/// <summary>정산 화면에 표시할 지침별 위반 횟수입니다.</summary>
 public readonly struct SettlementGuidelineViolationViewData
 {
     /// <summary>손님 조건·상품·제한을 조합한 완성 문구입니다.</summary>
     public string Content { get; }
     /// <summary>해당 지침의 당일 위반 횟수입니다.</summary>
     public int ViolationCount { get; }
-    /// <summary>해당 지침의 당일 벌금 합계입니다.</summary>
-    public long PenaltyAmount { get; }
-
     /// <summary>지침별 정산 표시 항목을 생성합니다.</summary>
     /// <param name="content">완성된 지침 문구입니다.</param>
     /// <param name="violationCount">양수 위반 횟수입니다.</param>
-    /// <param name="penaltyAmount">음수가 아닌 벌금 합계입니다.</param>
-    public SettlementGuidelineViolationViewData(string content, int violationCount, long penaltyAmount)
+    public SettlementGuidelineViolationViewData(string content, int violationCount)
     {
         if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("지침 표시 문구가 필요합니다.", nameof(content));
         if (violationCount <= 0) throw new ArgumentOutOfRangeException(nameof(violationCount));
-        if (penaltyAmount < 0) throw new ArgumentOutOfRangeException(nameof(penaltyAmount));
         Content = content;
         ViolationCount = violationCount;
-        PenaltyAmount = penaltyAmount;
     }
 }
 
@@ -260,6 +254,7 @@ public readonly struct DailySettlementViewData
     public int RefusedCustomers { get; }
     public int DepartedCustomers { get; }
     public long MaintenanceAmount { get; }
+    public int GuidelineViolationCount { get; }
     public long GuidelinePenaltyAmount { get; }
     public IReadOnlyList<SettlementGuidelineViolationViewData> GuidelineViolations { get; }
     public long PreviousUnpaidAmount { get; }
@@ -281,6 +276,7 @@ public readonly struct DailySettlementViewData
         int refusedCustomers,
         int departedCustomers,
         long maintenanceAmount,
+        int guidelineViolationCount,
         long guidelinePenaltyAmount,
         IReadOnlyList<SettlementGuidelineViolationViewData> guidelineViolations,
         long previousUnpaidAmount,
@@ -294,6 +290,8 @@ public readonly struct DailySettlementViewData
         Day = day;
         SaleIncome = saleIncome;
         MaintenanceAmount = maintenanceAmount;
+        if (guidelineViolationCount < 0) throw new ArgumentOutOfRangeException(nameof(guidelineViolationCount));
+        GuidelineViolationCount = guidelineViolationCount;
         GuidelinePenaltyAmount = guidelinePenaltyAmount;
         Expenses = checked(maintenanceAmount + guidelinePenaltyAmount);
         NetProfit = checked(saleIncome - Expenses);

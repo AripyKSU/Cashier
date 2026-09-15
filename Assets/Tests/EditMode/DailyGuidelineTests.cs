@@ -52,7 +52,6 @@ public sealed class DailyGuidelineTests
         {
             Assert.DoesNotThrow(row.Validate);
             Assert.That(Util.GetDataTableType(row.Idx), Is.EqualTo(DataTableType.DailyGuideline));
-            Assert.That(row.PenaltyAmount, Is.EqualTo(5000));
         }
     }
 
@@ -71,7 +70,34 @@ public sealed class DailyGuidelineTests
         Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.QuantityLimited, out DailyGuidelineData data), Is.True);
         DailyGuideline guideline = data.CreateGuideline(CustomerAttributes.Female | CustomerAttributes.Adult, 1001);
         Assert.That(guideline.AllowedQuantity, Is.EqualTo(1));
-        Assert.That(guideline.PenaltyAmount, Is.EqualTo(5000));
+    }
+
+    /// <summary>당일 총 판매 금액에 위반당 5%를 적용하고 20회부터 100%로 제한합니다.</summary>
+    /// <param name="saleIncome">당일 총 판매 금액입니다.</param>
+    /// <param name="violationCount">당일 총 위반 횟수입니다.</param>
+    /// <param name="expectedPenalty">예상 패널티입니다.</param>
+    [TestCase(1000L, 0, 0L)]
+    [TestCase(1000L, 1, 50L)]
+    [TestCase(1000L, 19, 950L)]
+    [TestCase(1000L, 20, 1000L)]
+    [TestCase(1000L, 21, 1000L)]
+    [TestCase(1L, 1, 0L)]
+    [TestCase(21L, 1, 1L)]
+    [TestCase(long.MaxValue, 20, long.MaxValue)]
+    public void DailyGuidelinePenaltyCalculator_UsesSalePercentageWithCap(
+        long saleIncome,
+        int violationCount,
+        long expectedPenalty)
+    {
+        Assert.That(DailyGuidelinePenaltyCalculator.Calculate(saleIncome, violationCount), Is.EqualTo(expectedPenalty));
+    }
+
+    /// <summary>패널티 계산의 음수 입력을 거부합니다.</summary>
+    [Test]
+    public void DailyGuidelinePenaltyCalculator_RejectsNegativeInputs()
+    {
+        Assert.Throws<System.ArgumentOutOfRangeException>(() => DailyGuidelinePenaltyCalculator.Calculate(-1, 0));
+        Assert.Throws<System.ArgumentOutOfRangeException>(() => DailyGuidelinePenaltyCalculator.Calculate(0, -1));
     }
 
     [TestCase(0u, 0)]

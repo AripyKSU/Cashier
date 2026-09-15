@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-/// <summary>하루 동안 동일한 조건의 일일지침에서 발생한 위반 횟수와 벌금 합계입니다.</summary>
+/// <summary>하루 동안 동일한 조건의 일일지침에서 발생한 위반 횟수입니다.</summary>
 public readonly struct DailyGuidelineViolationSummary
 {
     /// <summary>위반 횟수를 집계한 일일지침입니다.</summary>
@@ -10,14 +10,10 @@ public readonly struct DailyGuidelineViolationSummary
     /// <summary>해당 지침을 위반한 거래 건수입니다.</summary>
     public int ViolationCount { get; }
 
-    /// <summary>해당 지침의 위반 횟수에 따른 벌금 합계입니다.</summary>
-    public long PenaltyAmount { get; }
-
     /// <summary>동일한 일일지침의 위반 집계 결과를 생성합니다.</summary>
     /// <param name="guideline">집계 대상 일일지침입니다.</param>
     /// <param name="violationCount">해당 지침을 위반한 거래 건수입니다.</param>
     /// <exception cref="ArgumentOutOfRangeException">위반 건수가 양수가 아닌 경우 발생합니다.</exception>
-    /// <exception cref="OverflowException">벌금 합계가 자료형 범위를 초과한 경우 발생합니다.</exception>
     public DailyGuidelineViolationSummary(DailyGuideline guideline, int violationCount)
     {
         guideline.Validate();
@@ -26,7 +22,32 @@ public readonly struct DailyGuidelineViolationSummary
 
         Guideline = guideline;
         ViolationCount = violationCount;
-        PenaltyAmount = checked(guideline.PenaltyAmount * violationCount);
+    }
+}
+
+/// <summary>당일 총 판매 금액과 지침 위반 횟수로 정산 패널티를 계산합니다.</summary>
+public static class DailyGuidelinePenaltyCalculator
+{
+    /// <summary>위반 1회당 적용하는 판매 금액 비율입니다.</summary>
+    public const int PercentPerViolation = 5;
+    /// <summary>판매 금액의 100%에 도달하는 최대 유효 위반 횟수입니다.</summary>
+    public const int MaximumChargedViolationCount = 20;
+
+    /// <summary>총 판매 금액의 위반 횟수별 비율을 적용하고 1원 미만을 버린 패널티를 반환합니다.</summary>
+    /// <param name="dailySaleIncome">음수가 아닌 당일 총 판매 금액입니다.</param>
+    /// <param name="violationCount">음수가 아닌 당일 총 지침 위반 횟수입니다.</param>
+    /// <returns>총 판매 금액 이하의 정산 패널티입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">판매 금액이나 위반 횟수가 음수인 경우 발생합니다.</exception>
+    public static long Calculate(long dailySaleIncome, int violationCount)
+    {
+        if (dailySaleIncome < 0) throw new ArgumentOutOfRangeException(nameof(dailySaleIncome));
+        if (violationCount < 0) throw new ArgumentOutOfRangeException(nameof(violationCount));
+
+        int chargedViolationCount = Math.Min(violationCount, MaximumChargedViolationCount);
+        if (chargedViolationCount == MaximumChargedViolationCount) return dailySaleIncome;
+
+        decimal penalty = dailySaleIncome * chargedViolationCount * PercentPerViolation / 100m;
+        return checked((long)decimal.Floor(penalty));
     }
 }
 
@@ -116,7 +137,7 @@ public readonly struct DailyAggregationResult
     /// <summary>하루 동안 성립한 거래에서 발생한 정식 일일지침 위반 건수입니다.</summary>
     public int DailyGuidelineViolationCount { get; }
 
-    /// <summary>하루의 지침별 고정 벌금을 합산한 예정 벌금입니다.</summary>
+    /// <summary>당일 총 판매 금액에 위반 1회당 5%를 적용한 예정 벌금입니다. 최대 판매 금액의 100%입니다.</summary>
     public long DailyGuidelinePenaltyAmount { get; }
 
     /// <summary>정산 표시와 상세 확인에 사용하는 지침 위반 snapshot입니다.</summary>
@@ -162,16 +183,15 @@ public readonly struct DailyAggregationResult
             throw new ArgumentException("지침 위반 건수와 상세 내역 수가 일치해야 합니다.", nameof(dailyGuidelineViolations));
 
         var guidelineCounts = new Dictionary<DailyGuideline, int>();
-        long calculatedPenaltyAmount = 0;
         foreach (DailyGuidelineViolation violation in violationCopy)
         {
             violation.Guideline.Validate();
             guidelineCounts.TryGetValue(violation.Guideline, out int count);
             guidelineCounts[violation.Guideline] = checked(count + 1);
-            calculatedPenaltyAmount = checked(calculatedPenaltyAmount + violation.PenaltyAmount);
         }
+        long calculatedPenaltyAmount = DailyGuidelinePenaltyCalculator.Calculate(saleIncome, dailyGuidelineViolationCount);
         if (calculatedPenaltyAmount != dailyGuidelinePenaltyAmount)
-            throw new ArgumentException("지침 벌금 합계와 상세 내역의 벌금 합계가 일치해야 합니다.", nameof(dailyGuidelinePenaltyAmount));
+            throw new ArgumentException("지침 벌금은 당일 총 판매 금액과 위반 횟수로 계산한 값과 일치해야 합니다.", nameof(dailyGuidelinePenaltyAmount));
 
         var summaries = new List<DailyGuidelineViolationSummary>(guidelineCounts.Count);
         foreach (KeyValuePair<DailyGuideline, int> pair in guidelineCounts)
