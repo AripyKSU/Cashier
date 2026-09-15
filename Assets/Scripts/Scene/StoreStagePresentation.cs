@@ -13,7 +13,8 @@ public sealed class StoreStagePresentation : MonoBehaviour
     [SerializeField] private Image[] frontTargets;
     [SerializeField] private Image workbench;
     [SerializeField] private RectTransform clockDigits;
-    private readonly Dictionary<uint, StoreStageVisual[]> prepared = new Dictionary<uint, StoreStageVisual[]>();
+    private IReadOnlyDictionary<uint, (StoreStageVisual[] Visuals, Sprite Clock)> prepared =
+        new Dictionary<uint, (StoreStageVisual[] Visuals, Sprite Clock)>();
     public uint AppliedStage { get; private set; }
 
     /// <summary>초기화 덮개 아래에서 3단계 모두 로드·검증한다. 취소/실패 시 표시에는 손대지 않는다.</summary>
@@ -22,7 +23,7 @@ public sealed class StoreStagePresentation : MonoBehaviour
         ValidateTargets();
         var tables = DataTableManager.Instance;
         var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
-        var next = new Dictionary<uint, StoreStageVisual[]>();
+        var next = new Dictionary<uint, (StoreStageVisual[] Visuals, Sprite Clock)>();
         foreach (var row in tables.GetDB<StoreStageDataTable>(DataTableType.StoreStage).Rows.Values)
         {
             var visuals = new StoreStageVisual[3];
@@ -35,18 +36,22 @@ public sealed class StoreStagePresentation : MonoBehaviour
                 if (visuals[i] == null) throw new InvalidOperationException($"StoreStage {row.Idx}: {resource.Path} has no StoreStageVisual");
                 visuals[i].Validate((StoreStageVisual.Region)i);
             }
-            next.Add(row.StoreStage, visuals);
+            if (!resources.TryGetResource(row.ClockResourceIdx, out var clockResource))
+                throw new InvalidOperationException($"StoreStage {row.Idx}: Resource {row.ClockResourceIdx} missing");
+            var clock = await ResourceManager.Instance.LoadAssetAsync<Sprite>(clockResource.Path, cancellationToken);
+            if (clock == null) throw new InvalidOperationException($"StoreStage {row.Idx}: {clockResource.Path} is not a Sprite");
+            next.Add(row.StoreStage, (visuals, clock));
         }
         cancellationToken.ThrowIfCancellationRequested();
-        prepared.Clear();
-        foreach (var entry in next) prepared.Add(entry.Key, entry.Value);
+        prepared = next;
     }
 
     /// <summary>게임 상태를 변경하지 않고 외형만 적용한다. 같은 단계의 반복 갱신은 생략한다.</summary>
     public void Apply(uint stage)
     {
         if (AppliedStage == stage) return;
-        if (!prepared.TryGetValue(stage, out var visuals)) throw new InvalidOperationException($"StoreStage {stage}: assets not prepared");
+        if (!prepared.TryGetValue(stage, out var stageAssets)) throw new InvalidOperationException($"StoreStage {stage}: assets not prepared");
+        var visuals = stageAssets.Visuals;
         ValidateTargets();
         for (int i = 0; i < visuals.Length; i++) visuals[i].Validate((StoreStageVisual.Region)i);
         for (int i = 0; i < worldTargets.Length; i++)
@@ -66,6 +71,7 @@ public sealed class StoreStagePresentation : MonoBehaviour
             target.useSpriteMesh = source.useSpriteMesh;
             target.enabled = source.enabled;
         }
+        frontTargets[6].sprite = stageAssets.Clock;
         StoreStageVisual.CopyRect(clockDigits, visuals[1].clockDigits);
         workbench.sprite = visuals[2].images[0].sprite;
         workbench.color = visuals[2].images[0].color;

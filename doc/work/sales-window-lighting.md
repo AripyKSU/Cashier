@@ -96,7 +96,7 @@
 연결 순서는 다음과 같다.
 
 1. Editor에서 3개 기준 씬의 표현 자산·배치만 확인하고 기존 사용용 자산 경로/매핑에 맞춰 이관한다. GUID·sprite fileID·슬라이싱을 보존한다. Prototype Session, Clock, 입력 컨트롤러는 본편에 중복 생성하지 않는다.
-2. 아래 단계별 외형 데이터 제안에 따라 CSV의 Resource FK로 표시 묶음을 선택한다. `OperatingPanel`의 정면 프레임·상판·상자·시계, `CustomerWorld`의 배경, `GameUI`의 탑뷰 장식을 구분한다. 프리팹은 묶음 내부 배치·참조를 소유하며 상품/계산기 입력 영역과 기존 버튼 이벤트는 유지한다.
+2. 아래 단계별 외형 데이터 제안에 따라 CSV의 Resource FK로 표시 묶음을 선택한다. `OperatingPanel`의 정면 프레임·상판·상자·시계, `CustomerWorld`의 배경, `GameUI`의 탑뷰 장식을 구분한다. 프리팹은 묶음 내부 배치·참조를 소유하며 상품/계산기 입력 영역과 기존 버튼 이벤트는 유지한다. 시계는 예외로 CSV가 Sprite를 선택하고 프리팹은 배치·숫자 앵커만 소유한다.
 3. 초기 준비 완료, 설비 구매 성공 후 UI 갱신, 다음날 갱신 때 `GameProgress.CurrentStoreStage`를 읽어 적용한다. 이전 적용 단계와 같으면 재생성하지 않는다. 새 전역 이벤트가 필요하지 않으며 기존 구매 이벤트를 사용한다면 구독 해제를 함께 구현한다.
 4. 단계 적용 후 활성 장식 목록에 같은 시각의 tint를 다시 적용한다. 시계 Sprite가 바뀌어도 숫자 위치·영업시각/마감은 독립적으로 보존한다.
 5. 일반 설비의 효과 표시가 필요하면 `IsFacilityEffectActive` 등 실제 활성 조회를 사용한다. 가게 단계만으로 청소기·자동분류를 활성화하지 않는다.
@@ -123,22 +123,23 @@
 | `idx` | 신규 테이블 종류의 PK. 권위 목록 확인·예약 후 배정하며 단계 숫자 1/2/3을 PK로 사용하지 않음 |
 | `store_stage` | 실제 가게 단계 1/2/3. 각 단계 정확히 1행, 초기 1단계도 필수 |
 | `world_prefab_resource_idx` | ResourceData FK. 월드 배경의 단계별 SpriteRenderer·배치 묶음 프리팹 |
-| `front_prefab_resource_idx` | ResourceData FK. 정면 가판 프레임·계산대·상자·시계 장식의 uGUI 프리팹 |
+| `front_prefab_resource_idx` | ResourceData FK. 정면 가판 프레임·계산대·상자와 시계 배치의 uGUI 프리팹 |
 | `top_view_prefab_resource_idx` | ResourceData FK. 탑뷰 작업대·상자 장식의 uGUI 프리팹 |
+| `clock_resource_idx` | ResourceData FK. 단계별 정면 시계 Sprite. 프리팹은 위치·숫자 앵커만 소유 |
 
-세 FK는 준비된 유효 자산을 가리키며 0/빈값/누락을 임의 기본값으로 처리하지 않는다. 동일 리소스를 여러 단계가 참조하는 것은 허용한다. 예를 들어 탑뷰 2·3단계 전용 아트가 없으면 공통 탑뷰 프리팹의 **실제 Resource ID를 명시적으로 재사용**한다. 이는 단계별 전용 원화가 완성됐다는 뜻이 아니다.
+네 FK는 준비된 유효 자산을 가리키며 0/빈값/누락을 임의 기본값으로 처리하지 않는다. 동일 리소스를 여러 단계가 참조하는 것은 허용한다. 예를 들어 탑뷰 2·3단계 전용 아트가 없으면 공통 탑뷰 프리팹의 **실제 Resource ID를 명시적으로 재사용**한다. 이는 단계별 전용 원화가 완성됐다는 뜻이 아니다.
 
-세 갈래를 구분하는 이유는 본편 월드 배경과 uGUI의 좌표계·부모·정렬 책임이 다르기 때문이다. 단일 PNG FK는 시계 숫자 앵커, 단계 2/3의 배경 92% 배치, 노멀맵·재질·전등 위치까지 표현할 수 없다. 각 묶음 내부 Sprite·Material·NormalMap·Transform은 프리팹에서 직접 연결하고, 모든 세부 이미지를 CSV 컬럼으로 펼치지 않는다. 낮/석양/밤별 CSV 행이나 별도 게임 시계를 추가하지 않으며 시간에 따른 보간은 기존 코드 책임을 유지한다.
+세 갈래를 구분하는 이유는 본편 월드 배경과 uGUI의 좌표계·부모·정렬 책임이 다르기 때문이다. 단일 PNG FK는 시계 숫자 앵커, 단계 2/3의 배경 92% 배치, 노멀맵·재질·전등 위치까지 표현할 수 없다. 시계 Sprite는 CSV의 `clock_resource_idx`로 선택한다. 그 외 묶음 내부 Sprite·Material·NormalMap·Transform은 프리팹에서 직접 연결하고, 모든 세부 이미지를 CSV 컬럼으로 펼치지 않는다. 낮/석양/밤별 CSV 행이나 별도 게임 시계를 추가하지 않으며 시간에 따른 보간은 기존 코드 책임을 유지한다.
 
 구매용 썸네일이 나중에 필요하면 그것은 FacilityData의 별도 UI 요구사항이다. 단계 외형 FK를 구매 아이콘과 겸용하지 않는다. 개별 설비 소품의 구매·활성 상태도 단계 외형 데이터에 섞지 않으며, 이번 스키마에 미확정 소품 컬럼을 추가하지 않는다.
 
 #### 조회·적용 및 필요한 보완
 
-1. `FacilityService.CurrentStoreStage` → `store_stage`로 1행 조회 → 세 Resource FK → `ResourceData.path` → 기존 ResourceManager → 각 표현 부모에 적용한다. 가격·선행 구매·단계 상승은 FacilityService가 계속 소유한다. 새 테이블의 `store_stage`는 표현 조회 키이며 추가 진행 상태가 아니다.
+1. `FacilityService.CurrentStoreStage` → `store_stage`로 1행 조회 → 세 프리팹과 시계 Resource FK → `ResourceData.path` → 기존 ResourceManager → 각 표현 부모에 적용한다. 가격·선행 구매·단계 상승은 FacilityService가 계속 소유한다. 새 테이블의 `store_stage`는 표현 조회 키이며 추가 진행 상태가 아니다.
 2. 신규 게임의 초기 1단계, 모든 `required_store_stage`, 양수인 `target_store_stage`에 대응 행이 있는지 로딩 완료 경계에서 교차 검증한다. FacilityData의 기존 단계 숫자를 새 테이블 PK로 재해석하지 않는다. 현재 FacilityData 스키마와 가격은 그대로 유지할 수 있다.
 3. Prefab 교체 시 `WorldSceneView.layers/counterGraphics/counterLight` 등 기존 참조가 파괴된 이전 객체를 계속 가리키지 않게 해야 한다. 새 묶음의 필수 Sprite/Graphic·시계 표시 앵커·광원 참조를 검증하고 소유 표현 컨트롤러에 함께 다시 연결한다. 런타임 이름 검색 대신 명시적 직렬화 연결을 사용한다.
 4. 새 아트가 현재 `SaleSortingPanel`의 입력 RectTransform·슬라이드·물리 구역을 교체하지 않도록 장식 부모 아래에 연결한다. 프리팹에는 별도 GameSessionManager/Clock/EventSystem/구매 로직을 넣지 않는다. 기존 WorldSceneView를 중복 생성하지 않는다.
-5. 새 단계의 세 묶음을 모두 준비·검증한 뒤 함께 교체하고 현재 시간 tint를 다시 적용한다. 로드 실패 시 이전 외형을 보존하고 오류·재시도 경로를 제공한다. 이미 완료한 구매를 표현 코드가 환불/롤백하지 않는다. 진행 중 더 높은 단계 요청이나 새 게임/씬 종료가 발생하면 늦게 도착한 로드 결과가 현재 외형을 덮지 않도록 취소·현재 요청 검사를 적용한다.
+5. 새 단계의 세 묶음과 시계를 모두 준비·검증한 뒤 함께 교체하고 현재 시간 tint를 다시 적용한다. 로드 실패 시 이전 외형을 보존하고 오류·재시도 경로를 제공한다. 이미 완료한 구매를 표현 코드가 환불/롤백하지 않는다. 진행 중 더 높은 단계 요청이나 새 게임/씬 종료가 발생하면 늦게 도착한 로드 결과가 현재 외형을 덮지 않도록 취소·현재 요청 검사를 적용한다.
 6. 같은 단계/동일 프리팹의 중복 갱신은 재생성하지 않는다. 바뀐 장식 인스턴스만 정리하며 공유 ResourceManager의 `ReleaseAll`을 호출하지 않는다. 기존 캐시·인스턴스 해제 계약을 따른다.
 7. 구현 시 신규 CSV 종류 ID를 Google Docs 권위 목록에서 확인·예약한 다음 CSV/meta·DTO/DataTable·DataTableType/로더·ResourceData FK·Addressables·표현 소비자·문서를 한 묶음으로 반영한다. 숫자상 다음 enum 값이 비어 있다는 이유만으로 새 ID를 확정하지 않는다. 원격 ID 예약과 자산 등록은 실제 구현 단계의 작업이다.
 
@@ -169,8 +170,9 @@
 ## 승인 후 구현: 가게 단계 데이터와 기본 색감
 
 - CSV 종류 ID 권위 탭 `t.ccpln6m1g4kv`에 `StoreStage=19`, `19001~19003` 예약을 추가하고 다시 조회해 확인했다. 회의록·경제 기획 본문은 변경하지 않았다.
-- `Assets/Datas/StoreStageData.csv`는 위 제안의 5개 필수 uint 컬럼을 사용한다. 1/2/3단계 각각 한 행, Resource FK, 설비의 요구/목표 단계 포함을 검증한 뒤 DataTableManager가 공개한다.
+- `Assets/Datas/StoreStageData.csv`는 6개 필수 uint 컬럼을 사용한다. 1/2/3단계 각각 한 행, 외형 프리팹·시계 Resource FK, 설비의 요구/목표 단계 포함을 검증한 뒤 DataTableManager가 공개한다.
 - 리소스 매핑: 1단계 World/Front/TopView=`4292/4293/4294`, 2단계=`4295/4296/4294`, 3단계=`4298/4299/4294`. 4297은 사용하지 않는다. ResourceData→Addressables→`Assets/Prefabs/StoreStage/`의 실제 프리팹 7개를 참조한다.
+- 단계별 시계 Sprite는 `clock_resource_idx`가 선택한다. 1/2/3단계는 각각 `4300/4301/4302`, 본편 주소는 `Stage1Clock`/`Stage2Clock`/`Stage3Clock`이며 프리팹의 시계 슬롯은 위치·크기·숫자 앵커만 제공한다.
 - 현재 세 단계 모두 공통 탑뷰 작업대 이미지를 사용한다. 정면 상자와 시계·가판은 단계별 기준 씬을 따른다. 손님별 동적 상자/쏟기 이미지나 물리 판정은 이 표의 작업대 장식과 별개다.
 - 구현을 줄이고 입력 참조를 보존하기 위해 **프리팹을 인스턴스로 교체하는 제안 대신, 준비한 프리팹을 외형 원본으로 읽어 기존 슬롯에 Sprite와 배치를 적용**한다. 세계 배경의 기존 Renderer, 정면 시계·상자 버튼, 작업대 자식의 판정/상품/계산기 오브젝트를 파괴하지 않는다.
 - `StoreStagePresentation`은 MainScene의 GameUI와 WorldSceneView에 연결한다. 초기화 덮개가 열린 상태에서 세 단계 모두 타입·슬롯을 준비하고, 완료 후 `GameProgress.CurrentStoreStage`를 적용한다. 설비 구매 뒤 상점 갱신에도 적용한다. 같은 단계의 반복 요청은 작업을 생략한다.
@@ -199,3 +201,15 @@
 - 첫 수동 진입 시 재컴파일/초기화 중 전환으로 생긴 미준비 세션은 성공으로 세지 않았다. 정식 부트부터 다시 확인했으며 플레이 종료 후 테스트 재정과 임시 `runInBackground`를 정리했다.
 - 해상도별 배치·야간 가독성의 사용자 플레이 테스트, 전체 마우스 거래 흐름, Player 빌드와 픽셀 단위 노멀 조명은 미검증/후속 범위다.
 - **최종 회귀: EditMode 268/268, PlayMode 60/60, 실패·skip·미완료 0.** 보완 후 `Tools/Run-Tests.ps1 -Mode Both -TimeoutSeconds 300`으로 실행했다. 결과: `Temp/TestResults/20260914-213906-030b11771fb94526acd64ff36d24d808/{EditMode,PlayMode}.xml` 및 `.log`.
+
+### 2026-09-15 후속: 시계 FK와 Textures 이관 검증
+
+- 사용자 요청과 Addressables 이미지 3개 등록 승인을 반영했다. StoreStageData 3행·6컬럼, 시계 FK 4300/4301/4302, ResourceData 총 101행이다. 프리팹 3종 FK와 저장된 가게 단계는 유지한다. 상세 복사 범위·복구 기준은 `doc/DYSTOPIA_RESOURCE_INTEGRATION.md`의 같은 날짜 절을 따른다.
+- `PrepareAsync`는 시계 Sprite와 기존 외형 프리팹 전부를 검증한 뒤 새 캐시를 한 번에 공개한다. 준비 실패는 기존 캐시를 바꾸지 않는다. Front의 시계 슬롯은 위치·숫자 앵커만 소유하고 Sprite는 CSV에서 적용한다. 코드·데이터·주소·프리팹 읽기 전용 교차 리뷰에서 차단 문제 없음, 문서의 시계 권위 예외를 보완하는 데 동의했다.
+- EditMode **270/270**, PlayMode **60/60**, 실패·skip·미완료 0. `Tools/Run-Tests.ps1 -Mode Both -TimeoutSeconds 420`. 증거: `Temp/TestResults/20260915-100032-96906c4a4f374089bf0bd0d7df52ceb5/{EditMode,PlayMode}.xml` 및 `.log`. 기존 61 Sprite 테스트는 상품·손님 전용 집합이며 추가 시계 3종 로드는 아래 정식 부트에서 별도로 확인했다.
+- Init→Hub 새 게임→Main 초기 단계1에서 `Assets/Textures/UI/Dystopia/Stage1BasicClock.png` 로드. 1→2→3→1→3→3 적용 시 CSV FK에 따라 `Stage1BasicClock`/`Stage2Clock`/`시계`로 교체되고, 시각 `10:31`과 시계/GameUI Transform 인스턴스를 유지했다. 없는 단계4 거부 후 3단계 유지. 초기 준비 덮개 아래에서 모든 시계가 정상 로드됐다.
+- 런타임 UI Image/월드 SpriteRenderer의 프로토타입 Sprite 0, MainScene과 단계 프리팹 7개의 prototype 의존성 0, 단계 프리팹 Validate 7/7, Main missing script 0, ResourceManager 1개. 새로 복사한 10개와 최신화한 9개를 포함한 총 37개 원본/사본 PNG 해시 및 Sprite fileID 일치, 기존 GUID 보존·전체 GUID 중복 0. 기존 Addressables 매핑 보존 및 승인한 3개 추가 확인.
+- 증거: `Temp/StageTextureStatic.txt`, `Temp/StageTexturesRuntime.txt`, `Temp/StageTextures-Stage2.png`, `Temp/StageTextures-Stage3.png`, `Temp/StageTexturesConsole.json`. 최종 제품 Console 오류 0, compile idle, Play 종료·InitScene dirty=False·runInBackground=False. 테스트 중 자동 생성된 TMP fallback 글리프만 작업 전 dirty 사본으로 복원하여 기존 사용자 변경을 보존했다.
+- 상태 PASS는 데이터·리소스 로딩 및 단계 전환 API의 최소 실행 기준이다. 단계2 낮/단계3 밤 캡처는 표시 미리보기이며, 구매부터 진행하는 전체 수동 UX·해상도별 가독성·Player build는 미검증이다. 이번 후속은 commit/push하지 않았다.
+- 후속 이름 통일에서 원본 `Stage1BasicClock.png`/`Stage2Clock.png`/`시계.png`는 유지하고 본편 사본·주소만 `Stage1Clock.png`/`Stage2Clock.png`/`Stage3Clock.png`으로 변경했다. Resource ID 4300~4302, GUID·Sprite fileID와 StoreStage FK는 유지한다. 위 검증 기록의 당시 실제 경로·주소 표기는 과거 증거로 보존한다.
+- 이름 통일 후 재검증(2026-09-15): EditMode **270/270**, 실패·skip·미완료 0 (`Temp/TestResults/20260915-102335-a6c9d9f7032e45eeb41f4db5c068e0de/EditMode.xml` 및 `.log`). 정식 Init→Hub→Main에서 1→2→3→1 적용 시 `Assets/Textures/UI/Dystopia/Stage1Clock.png`/`Stage2Clock.png`/`Stage3Clock.png` 실제 로드·표시와 동일 시계 객체·09:00 유지 확인 (`Temp/StageClockRenameRuntime.txt`). PNG3개는 현재 원본과 바이트 일치, 기존 GUID·Sprite fileID 보존. 최종 Console 오류0, Play 종료·dirty=False·runInBackground=False. 이름·주소 변경만 검증한 이번 후속에서는 전체 PlayMode suite를 반복 실행하지 않았고, commit/push하지 않았다.

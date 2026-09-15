@@ -71,6 +71,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 272990375374eaf4b8c2d2a2f4526e50
+    m_Address: Stage2Clock
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 28616b2c53126ac4b8fcc9db974d02ce
     m_Address: Battery
     m_ReadOnly: 0
@@ -253,6 +258,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5f5a4bfe69f035b4e84904c4b48d3d8f
     m_Address: MaleCustomer_28
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61e262088f04317468be542fecbcd00d
+    m_Address: Stage1Clock
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -542,6 +552,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dbe1fda4c8ef9b749962ebd281cff00d
     m_Address: GasMask
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e0fe256b222410646ba0eae5306f07db
+    m_Address: Stage3Clock
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

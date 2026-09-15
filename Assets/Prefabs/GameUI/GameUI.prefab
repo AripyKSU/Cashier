@@ -603,10 +603,10 @@ MonoBehaviour:
   cursorCanvas: {fileID: 4811969470572574076}
   cursorRect: {fileID: 2224852479392975003}
   cursorImage: {fileID: 3384499796441228470}
-  releasedSprite: {fileID: -133083151, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
-  holdingStillSprite: {fileID: -1689355269, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
-  holdingLeftSprite: {fileID: 1566540190, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
-  holdingRightSprite: {fileID: 462894044, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
+  releasedSprite: {fileID: -133083151, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
+  holdingStillSprite: {fileID: -1689355269, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
+  holdingLeftSprite: {fileID: 1566540190, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
+  holdingRightSprite: {fileID: 462894044, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
   directionThresholdPixelsPerSecond: 30
   velocitySmoothing: 20
 --- !u!1 &2409673214480401270
@@ -771,7 +771,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5c4c5257f2ef8b646b0183430ca65218, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a365872f627ccc44fa5f605e50c48b63, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1314,7 +1314,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2a170e436543a5647a171a435e7ba07d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9cedd5aaac8572d4991b75c8b0b499e9, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1606,7 +1606,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6866e4272ad30b44c92d59358a3a12f6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6d6c5630015749d4c9448854e1d7cb7d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -3081,7 +3081,7 @@ PrefabInstance:
     - target: {fileID: 8099590994143925570, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
+      objectReference: {fileID: 21300000, guid: 9db7aca6ea25a55468c0cf1189125352, type: 3}
     - target: {fileID: 8319023581108526410, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_SizeDelta.x
       value: 120
@@ -3276,8 +3276,8 @@ MonoBehaviour:
   - {fileID: 6635209346887950167}
   transitionOverlay: {fileID: 0}
   containerImage: {fileID: 2750369601870479065}
-  tiltedContainerSprite: {fileID: 21300000, guid: 6866e4272ad30b44c92d59358a3a12f6, type: 3}
-  emptyContainerSprite: {fileID: 21300000, guid: 5058e7ded0fcdd049997cb7d4bef30f6, type: 3}
+  tiltedContainerSprite: {fileID: 21300000, guid: 6d6c5630015749d4c9448854e1d7cb7d, type: 3}
+  emptyContainerSprite: {fileID: 21300000, guid: 6955a94fee299c041b90e4b175985c99, type: 3}
   frontContainerButton: {fileID: 3583298790932689073}
   frontBasketRoot: {fileID: 3340005534182362982}
   landingDustEffect: {fileID: 9000000000000000001}

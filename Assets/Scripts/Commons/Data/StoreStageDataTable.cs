@@ -51,7 +51,7 @@ public sealed class StoreStageDataTable : IDataLoad
             if (!stages.Contains(facility.RequiredStoreStage) || (facility.TargetStoreStage > 0 && !stages.Contains(facility.TargetStoreStage)))
                 throw new InvalidDataException($"Facility PK={facility.Idx}: StoreStage 누락");
         foreach (var row in PendingRows.Values)
-            foreach (uint resource in new[] { row.WorldPrefabResourceIdx, row.FrontPrefabResourceIdx, row.TopViewPrefabResourceIdx })
+            foreach (uint resource in new[] { row.WorldPrefabResourceIdx, row.FrontPrefabResourceIdx, row.TopViewPrefabResourceIdx, row.ClockResourceIdx })
                 if (!resources.TryGetResource(resource, out _)) throw new InvalidDataException($"StoreStage PK={row.Idx}: Resource FK={resource} 누락");
     }
 

@@ -1,5 +1,17 @@
 # 기획용 데이터 카탈로그
 
+## 2026-09-15 가게 단계 외형 데이터
+
+`StoreStageData.csv`는 3행·6컬럼이다. 모든 컬럼은 `uint`, 빈값·0은 금지다. `idx`는 19001~19003, `store_stage`는 1~3을 각각 한 번 사용한다. 나머지 네 컬럼은 `ResourceData.idx` FK이며 앞의 세 개는 Prefab, 마지막은 시계 Sprite다. 가게 구매 조건·금액은 FacilityData에 남는다.
+
+| 단계 | idx | world_prefab_resource_idx | front_prefab_resource_idx | top_view_prefab_resource_idx | clock_resource_idx |
+|---|---|---|---|---|---|
+| 1 | 19001 | 4292 | 4293 | 4294 | 4300 (`Stage1Clock`) |
+| 2 | 19002 | 4295 | 4296 | 4294 | 4301 (`Stage2Clock`) |
+| 3 | 19003 | 4298 | 4299 | 4294 | 4302 (`Stage3Clock`) |
+
+시계 위치·크기·숫자 배치는 Front 프리팹, 이미지 선택은 `clock_resource_idx`가 소유한다. 본편 주소는 `Stage1Clock`/`Stage2Clock`/`Stage3Clock`으로 통일하며 원본 파일명은 이관표에만 보존한다. 탑뷰는 세 단계 모두 4294를 공유한다. 실제 이미지는 `Assets/Textures`를 참조하며 현재 ResourceData는 총 101행이다. 아래 과거 스냅샷보다 이 표와 [리소스 이관 기록](DYSTOPIA_RESOURCE_INTEGRATION.md)을 우선한다.
+
 > 2026-09-14 최종 상품 16종 반영: 사용자 확정에 따라 [물품 기획서](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.mxsfe4eewdaq)의 16종안을 적용한다. 1009·1011·1017·1024·1025를 제외하고 1005는 군용식량, 1013은 약통으로 개명한다. 1022 방사능 측정기는 설비 12006 해금으로 이동한다. 남은 16종의 가격·원가·ID는 유지하며 모두 기본/탑뷰 이미지를 연결했다(Resource 4276~4291, 사운드 포함 전체 91행). 아래 과거 원문 스냅샷보다 [현재 이미지 매핑](IMAGE_RESOURCE_INTEGRATION.md#디스토피아-상품-이미지-연결-2026-09-14)과 실제 CSV를 우선한다. 문서의 검토안 표기는 사용자의 최종 확정으로 대체한다.
 
 > 2026-09-13 손님 외형 이름 정리: 성별·연령은 이름을 정리하는 참고 기준이며 고정 데이터가 아니다. 추가했던 컬럼과 검증을 제거해 CustomerAppearanceData는 기존3열을 유지한다. 기존 외형 이름45개는 정리한 이름을 유지한다. [현재 스키마](IMAGE_RESOURCE_INTEGRATION.md#외형-성별연령-분류-2026-09-13)와 [이름 정리 참고표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)를 참고한다. 아래 예전 표시 이름은 과거 스냅샷이다.

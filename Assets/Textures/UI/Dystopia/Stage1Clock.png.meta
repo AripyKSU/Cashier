@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e0fe256b222410646ba0eae5306f07db
+guid: 61e262088f04317468be542fecbcd00d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6177856681799310721
-    second: "\uC2DC\uACC4_0"
+      213: 5159471508451480017
+    second: Stage1BasicClock_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -113,44 +113,44 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\uC2DC\uACC4_0"
+      name: Stage1BasicClock
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 144
-        height: 108
+        x: 200
+        y: 314
+        width: 1002
+        height: 494
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
+      customData:
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 18ddbef9be72cb550800000000000000
-      internalID: 6177856681799310721
+      spriteID: 1d1dff930002a9740800000000000000
+      internalID: 5159471508451480017
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     outline: []
-    customData: 
+    customData:
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
-    indices: 
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\uC2DC\uACC4_0": 6177856681799310721
-  mipmapLimitGroupName: 
+      Stage1BasicClock: 5159471508451480017
+  mipmapLimitGroupName:
   pSDRemoveMatte: 0
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

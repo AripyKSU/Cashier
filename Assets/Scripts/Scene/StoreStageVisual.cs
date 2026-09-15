@@ -33,8 +33,9 @@ public sealed class StoreStageVisual : MonoBehaviour
         else
         {
             if (images == null || images.Length != (region == Region.Front ? 8 : 1)) throw new InvalidOperationException($"{name}: image slots missing");
-            foreach (var image in images)
-                if (image == null || (image.enabled && image.sprite == null)) throw new InvalidOperationException($"{name}: visible Sprite missing");
+            for (int i = 0; i < images.Length; i++)
+                if (images[i] == null || (images[i].enabled && images[i].sprite == null && !(region == Region.Front && i == 6)))
+                    throw new InvalidOperationException($"{name}: visible Sprite missing");
             if (region == Region.Front && clockDigits == null) throw new InvalidOperationException($"{name}: clock anchor missing");
         }
     }

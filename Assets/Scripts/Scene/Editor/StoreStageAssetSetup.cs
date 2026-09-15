@@ -55,7 +55,7 @@ public static class StoreStageAssetSetup
             {
                 var image = Find(reference, Backgrounds[i]); var rect = Find(layout, Backgrounds[i]).rectTransform;
                 var renderer = new GameObject(Backgrounds[i], typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
-                renderer.transform.SetParent(root.transform, false); renderer.sprite = image.sprite;
+                renderer.transform.SetParent(root.transform, false); renderer.sprite = ResolveCopiedSprite(image.sprite);
                 renderer.color = image.color;
                 Vector2 size = Vector2.Scale(rect.sizeDelta, rect.localScale);
                 renderer.transform.localPosition = rect.anchoredPosition + Vector2.Scale(Vector2.one * .5f - rect.pivot, size);
@@ -96,7 +96,8 @@ public static class StoreStageAssetSetup
                 if (source != null)
                 {
                     StoreStageVisual.CopyRect(image.rectTransform, source.rectTransform);
-                    image.sprite = source.sprite; image.color = source.color; image.preserveAspect = source.preserveAspect;
+                    image.sprite = i == 6 || source.sprite == null ? null : ResolveCopiedSprite(source.sprite);
+                    image.color = source.color; image.preserveAspect = source.preserveAspect;
                     image.useSpriteMesh = source.useSpriteMesh;
                 }
                 image.enabled = i == 7 ? stage == 2 && source != null && source.sprite != null : source != null && source.enabled && source.gameObject.activeSelf;
@@ -130,7 +131,7 @@ public static class StoreStageAssetSetup
             var visual = root.AddComponent<StoreStageVisual>(); visual.region = StoreStageVisual.Region.TopView;
             var image = new GameObject("Workbench", typeof(RectTransform), typeof(Image)).GetComponent<Image>();
             image.transform.SetParent(root.transform, false); image.raycastTarget = false;
-            image.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png");
+            image.sprite = ResolveCopiedSprite(AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png"));
             visual.images = new[] { image }; Save(root, visual);
         }
         finally { UnityEngine.Object.DestroyImmediate(root); }
@@ -205,5 +206,24 @@ public static class StoreStageAssetSetup
     {
         property.arraySize = values.Length;
         for (int i = 0; i < values.Length; i++) property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+    }
+
+    /// <summary>참고 자산과 파일명·Sprite 이름이 같은 정식 Textures 복사본 한 건만 반환한다.</summary>
+    private static Sprite ResolveCopiedSprite(Sprite source)
+    {
+        if (source == null) throw new InvalidOperationException("StoreStage source Sprite missing");
+        string sourcePath = AssetDatabase.GetAssetPath(source);
+        string fileName = Path.GetFileName(sourcePath);
+        string[] paths = AssetDatabase.FindAssets($"{Path.GetFileNameWithoutExtension(sourcePath)} t:Texture2D", new[] { "Assets/Textures" })
+            .Select(AssetDatabase.GUIDToAssetPath)
+            .Where(path => string.Equals(Path.GetFileName(path), fileName, StringComparison.Ordinal))
+            .Distinct()
+            .ToArray();
+        if (paths.Length != 1) throw new InvalidOperationException($"StoreStage copied Texture '{fileName}' count={paths.Length}");
+        Sprite[] sprites = AssetDatabase.LoadAllAssetsAtPath(paths[0]).OfType<Sprite>()
+            .Where(sprite => sprite.name == source.name)
+            .ToArray();
+        if (sprites.Length != 1) throw new InvalidOperationException($"StoreStage copied Sprite '{fileName}/{source.name}' count={sprites.Length}");
+        return sprites[0];
     }
 }

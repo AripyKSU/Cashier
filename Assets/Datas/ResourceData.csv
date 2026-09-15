@@ -97,3 +97,6 @@ idx,path
 4296,StoreStage2Front
 4298,StoreStage3World
 4299,StoreStage3Front
+4300,Stage1Clock
+4301,Stage2Clock
+4302,Stage3Clock
