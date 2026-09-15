@@ -14,6 +14,10 @@ using UnityEngine.InputSystem;
 /// </summary>
 public sealed class GameUIController : MonoBehaviour
 {
+    private const float SettlementBgmVolumeScale = 1.5f;
+    private const float DayEndSfxVolumeScale = 0.65f;
+    private const float TransactionSuccessSfxVolumeScale = 1.35f;
+
     private GameProgress gameProgress;
     private DayProgress subscribedDay;
     private EconomyRuntime economy;
@@ -573,7 +577,7 @@ public sealed class GameUIController : MonoBehaviour
         else if (state == DayProgressState.Closing)
         {
             // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다.
-            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd, DayEndSfxVolumeScale);
         }
         this.refreshAllViews();
     }
@@ -606,8 +610,10 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
+        bool wasAccepted = visit.WasAccepted == true;
         SoundManager.Instance?.PlaySfx(
-            visit.WasAccepted == true ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail);
+            wasAccepted ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail,
+            wasAccepted ? TransactionSuccessSfxVolumeScale : 1f);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = visit.WasAccepted == true
             ? "ACCEPTED · income applied"
@@ -620,13 +626,15 @@ public sealed class GameUIController : MonoBehaviour
     private void handleSettlementStarted(DailySettlementResult result)
     {
         if (this.gameProgress.State == GameProgressState.Failed) return;
+        // SettlementStarted may wait for the local queue exit. Stop gameplay ambience immediately
+        // so it cannot leak into the settlement screen while the presentation is pending.
+        SoundManager.Instance?.StopBgm();
         if (this.useCustomerQueue && this.queueExitRemaining > 0)
         {
             this.isSettlementPresentationPending = true;
             this.refreshAllViews();
             return;
         }
-        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm);
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.beginSettlementFlow(result);
@@ -645,6 +653,7 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
+        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
         this.dailySettlementPresenter.ConfigureEnding(
             this.subscribedDay.Day == 31,
             this.gameProgress.HasCitizenship);

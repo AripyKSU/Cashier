@@ -633,6 +633,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                     {
                         dust.Play(box);
                     }
+                    SoundManager.Instance?.PlaySfx(SoundKeys.CustomerBoxDrop);
                 }
 
                 yield return null;

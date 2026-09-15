@@ -24,6 +24,7 @@ public static class SoundKeys
     public const uint ItemPlace = 4265;
     public const uint ItemRemove = 4266;
     public const uint BoxItemDrop = 4267;
+    public const uint CustomerBoxDrop = 4292;
 
     // 작업 / 설비
     public const uint Vacuum = 4268;
@@ -54,6 +55,7 @@ public static class SoundKeys
         ItemPlace,
         ItemRemove,
         BoxItemDrop,
+        CustomerBoxDrop,
         Vacuum,
         FacilityUpgrade,
         DailyGuideline,

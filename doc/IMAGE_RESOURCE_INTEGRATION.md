@@ -7,7 +7,7 @@
 - 통합 대상 `ResourceData`의 기존 75행과 PK·path는 보존하고 4276~4291에 디스토피아 상품 Sprite 16개를 추가했다. 주소와 ID 순서는 `DrinkingWater` 4276부터 `ThermalCamera` 4291까지이며 주소와 GUID는 승인된 등록을 유지한다.
 - 최종 ProductData는 16종이다. 기존 1009 해열제, 1011 성냥, 1017 쇠지렛대, 1024 야간 투시경, 1025 휴대용 탐지기는 제외했으며 삭제 PK를 재사용하지 않는다. 제외 상품의 Text와 원본 자산은 보존한다.
 - 16종 모두 기본·탑뷰에 같은 신규 FK를 명시했다. `MilitaryRation` 4280은 군용식량 1005, `Medicine` 4282은 이름을 약통으로 확정한 1013에 연결한다. 1022 방사능 측정기는 정밀 전자장비 보관장 12006에서 해금된다.
-- 현재 데이터 기준 ResourceData는 91행이며 상품·외형이 참조하는 고유 Sprite FK는 61개(외형 45 + 신규 상품 16)다. 사용자 승인으로 기존 Default Local Group에 파일명 주소 16개를 등록했다. 새 그룹·라벨은 없다.
+- 현재 데이터 기준 ResourceData는 92행이며 상품·외형이 참조하는 고유 Sprite FK는 61개(외형 45 + 신규 상품 16)다. 사용자 승인으로 기존 Default Local Group에 파일명 주소 16개를 등록했다. 새 그룹·라벨은 없다. 사운드 `CustomerBoxDrop` 1행은 Sprite 집계에 포함하지 않는다.
 - 본 절 아래의 54행·기존 6~7종 연결 수치는 과거 migration 기록이며 현재값으로 해석하지 않는다.
 
 상품 구성은 [물품 기획서](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.mxsfe4eewdaq), 이미지 대응은 [프로토타입 인계](2026-09-14-prototype-handoff.md)를 따른다. 기획서의 검토안 표기는 사용자의 최종 16종 확정으로 대체한다. 가격·원가와 남은 상품 ID는 유지했다.
