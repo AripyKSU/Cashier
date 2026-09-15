@@ -1,5 +1,15 @@
 # MainScene 진행·세션 API 통합
 
+## 원격 청소기 작업과 시계·리소스 통합 (2026-09-15)
+
+- 사용자 fetch·commit·push 요청에 따라 현재 시계/Textures 작업을 `62d48b4`로 커밋하고, 최신 `origin/total_merge d9bdd9a`를 병합한다. 원격에는 `08e3a2b`(청소기 구현)와 이를 통합한 `d9bdd9a`가 추가되어 있었다. 공통 조상은 `b3abf98`이다. 소스 이력을 유지하며 `GameUI.prefab` 자동 병합 후 기존 Textures 참조 GUID와 청소기 신규 연결이 모두 남는지 확인했다.
+- 청소기 본체 1.9배·Visual/GripArea/Nozzle/SuctionVfxRoot·원본 바람 재질, 손 커서 160×160, 흡입 가속도 2800과 상품별 흡입/보관/순차 배출을 반영한다. 배출 중 확인/자동 정렬/다른 조작을 막고, 정상 배출은 Panel이 개별 분류하며 화면 종료·설비 OFF는 잔여 상품을 복원한다. 원격 구현 명세는 [청소기 작업 계획과 결과](work/astra-vacuum-ui-integration-plan.md)를 따른다.
+- 로컬의 StoreStage/시계 FK 4300~4302와 `Stage1Clock`/`Stage2Clock`/`Stage3Clock`, 기존 Textures 매핑은 유지한다. 청소기 작업의 원본 이미지·재질 참조는 원격 계약 그대로 반영하므로 아래 과거의 MainScene 전체 prototype 의존성 0 기록을 현재 전체 의존성으로 해석하지 않는다. 가게 단계 프리팹의 Textures 정책은 유지된다.
+- 읽기 전용 교차 리뷰에서 병합을 막는 코드 문제를 발견하지 못했다. 원격의 `.idea` 변경과 원본 Vacuum import/재질 변경도 해당 커밋의 내용으로 보존한다. 기존 사용자 TMP fallback 폰트 변경·stash 2개는 병합/커밋에서 제외한다. 실제 통합 checkout의 검증 결과는 아래에 별도로 기록한다.
+- 최종 통합 검증: EditMode **272/272**, PlayMode **60/60**, 실패·skip·미완료 0. `Temp/TestResults/20260915-103054-d04784b55cd1457baa71b2245a9e1fee/{EditMode,PlayMode}.xml` 및 `.log`. 원격이 추가한 청소기 import/프리팹 연결 검사 2개도 포함한다. 원격 작업 문서의 과거 PARTIAL 기록을 이 실행 증거와 구분한다.
+- Init→Hub 새 게임→Main→감독관→영업 진입 후 시계 1→2→3→1의 Textures 주소 로드를 확인했다. 실제 Panel 상품 2개를 노즐 위치에 놓고 내부 흡입 콜백으로 준비한 뒤 정상 배출 API에서 저장 2→1→0, Panel 인수 1회, 상품 수·활성 상태 보존을 확인했다. 다시 흡입 후 `SetVacuumAvailable(false)`에서 저장 0·위치/활성/Idle 복원을 확인했다. 검사 후 상품 상태는 복원했다. 이는 콜백/API를 통한 최소 실행이며 실제 마우스 흡입 감각·전체 UX·Player build 검증은 아니다.
+- 증거: `Temp/VacuumMergeRuntime.txt`, `Temp/VacuumMergeConsole.json`. Main missing script 0, 제품 Console 오류 0, Play 종료·InitScene dirty=False·compile idle·runInBackground=False. Main prototype 의존성은 원격 청소기의 `Vacuum.png`, `VacuumWind.mat` 2개이며 기존 가게/시계 Textures 연결은 보존됐다. 기존 폰트 dirty 사본 해시도 작업 전과 일치한다.
+
 ## 판매창 색감·가게 단계 아트 통합 (2026-09-15)
 
 - 대상 `total_merge b3abf98`에 `codex/sales-window-lighting 4457091`을 병합한다. 대상이 소스의 조상이므로 코드·데이터 충돌은 없었다. 소스의 MainScene/OperatingPanel 직렬화 연결과 단계 외형 프리팹을 함께 반영한다. 사용자 미커밋 TMP fallback 폰트와 기존 stash는 제외·보존한다.
