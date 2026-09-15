@@ -189,7 +189,7 @@ public static class SaleSortingPrefabSetup
             controllerObject.ApplyModifiedPropertiesWithoutUndo();
 
             Transform visualRoot = findChild(root.transform, "Root");
-            setDirectChildrenInactive(visualRoot, "Background", "Timer", "Pause", "Resume", "PauseIndicator", "CommonHUD");
+            setDirectChildrenInactive(visualRoot, "Background", "Timer", "CommonHUD");
 
             setupHandCursor(root, panel);
 

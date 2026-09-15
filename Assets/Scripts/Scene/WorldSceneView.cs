@@ -148,9 +148,9 @@ public sealed class WorldSceneView : MonoBehaviour
             // 원본 idleSeconds처럼 씬 수명 동안 유지한다. 매일 초기화하면 30초 영업에서 경비병 발사가 불가능하다.
             deltaSeconds = 0;
         }
-        bool canAdvance = Opacity > 0 && renderRoot != null && renderRoot.gameObject.activeInHierarchy && !controller.IsPresentationPaused;
+        bool canAdvance = Opacity > 0 && renderRoot != null && renderRoot.gameObject.activeInHierarchy && !controller.IsPresentationBlocked;
         if (canAdvance) effectSeconds += deltaSeconds;
-        // 재활성 중 pause라도 MPB에는 마지막 시간을 복원하여 shader 기본 시간으로 점프하지 않는다.
+        // 재활성 중 표현이 막혀도 MPB에는 마지막 시간을 복원하여 shader 기본 시간으로 점프하지 않는다.
         if (effectBlock == null) effectBlock = new MaterialPropertyBlock();
         foreach (var effect in timedEffects)
         {

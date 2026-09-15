@@ -79,7 +79,6 @@ public sealed class BusinessClockController : MonoBehaviour
     private float currentMinutes = BusinessHours.OpenMinutes;
     private int lastBroadcastMinute = -1;
     private bool isRunning;
-    private bool isPaused;
 
 
     // =========================================================================
@@ -103,7 +102,7 @@ public sealed class BusinessClockController : MonoBehaviour
 
     private void Update()
     {
-        if (!this.isRunning || this.isPaused)
+        if (!this.isRunning)
         {
             return;
         }
@@ -141,17 +140,9 @@ public sealed class BusinessClockController : MonoBehaviour
     {
         this.currentMinutes = BusinessHours.OpenMinutes;
         this.isRunning = true;
-        this.isPaused = false;
         this.lastBroadcastMinute = -1;
         this.updateDisplay();
         this.notifyTimeChangeIfMinuteChanged();
-    }
-
-    /// <summary>일시정지 상태를 토글하거나 지정합니다.</summary>
-    /// <param name="paused">일시정지 여부입니다.</param>
-    public void SetPaused(bool paused)
-    {
-        this.isPaused = paused;
     }
 
     /// <summary>시계 동작을 일시 중단합니다.</summary>
