@@ -19,7 +19,7 @@ public sealed class CustomerQueueTests
         var dispositions = Util.ParseFromCSV<CustomerDispositionData>(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv")).ToDictionary(x => x.Idx);
         var products = Util.ParseFromCSV<ProductData>(File.ReadAllText("Assets/Datas/Customer/ProductData.csv")).ToDictionary(x => x.Idx);
         config = dispositions[6002]; var generator = new CustomerGenerator(new Random(1)); price = 100; created = 0;
-        queue = new CustomerQueue(() => { created++; return generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, getCurrentPrices: () => CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x => x.Idx, x => price)); }, dispositions);
+        queue = new CustomerQueue(() => { created++; return generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, getCurrentPrices: () => CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x => x.Idx, x => price)); }, dispositions, new Random(1));
         queue.Start(); queue.TryAdd();
     }
 
@@ -28,9 +28,12 @@ public sealed class CustomerQueueTests
     public void WarningExpiryAndComplaintLifetime()
     {
         var first = queue.Waiting[0]; queue.Advance(2); Assert.That(queue.GetSpeech(first), Is.Zero);
-        queue.Advance(1); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueWarningTextIdx));
+        queue.Advance(1); Assert.That(config.GetGenderDialogue(first.Visit.Attributes, config.MaleQueueWarningTextIdxs,
+            config.FemaleQueueWarningTextIdxs, new uint[] { config.QueueWarningTextIdx }), Contains.Item(queue.GetSpeech(first)));
         queue.Advance(3); Assert.That(queue.GetSpeech(first), Is.Zero);
-        queue.Advance(3); Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned)); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueLeaveTextIdx));
+        queue.Advance(3); Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned));
+        Assert.That(config.GetGenderDialogue(first.Visit.Attributes, config.MaleQueueLeaveTextIdxs,
+            config.FemaleQueueLeaveTextIdxs, new uint[] { config.QueueLeaveTextIdx }), Contains.Item(queue.GetSpeech(first)));
         queue.Advance(3); Assert.That(queue.Leaving.Contains(first), Is.False);
     }
 
@@ -54,6 +57,8 @@ public sealed class CustomerQueueTests
     public void HitchPrioritizesExpiry()
     {
         var first = queue.Waiting[0]; queue.Advance(9);
-        Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned)); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueLeaveTextIdx));
+        Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned));
+        Assert.That(config.GetGenderDialogue(first.Visit.Attributes, config.MaleQueueLeaveTextIdxs,
+            config.FemaleQueueLeaveTextIdxs, new uint[] { config.QueueLeaveTextIdx }), Contains.Item(queue.GetSpeech(first)));
     }
 }

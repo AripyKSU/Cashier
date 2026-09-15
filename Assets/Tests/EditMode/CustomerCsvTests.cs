@@ -53,7 +53,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 243) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 416) throw new Exception("Unexpected sample counts");
 foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
 foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
     Assert.That(valid.Appearances.Rows.Values.Any(row => row.Gender == gender && row.Age == age), Is.True, $"{gender}/{age}");
@@ -78,6 +78,10 @@ Assert.That(valid.Dispositions.Rows.OrderBy(x=>x.Key).Select(x=>x.Value.Disposit
 var normal = valid.Dispositions.Rows.Values.Where(x => x.DispositionType == CustomerDispositionType.Normal);
 Assert.That(normal.All(x => x.EntryTextIdxs.SequenceEqual(new uint[] { 8024, 8025 }) && x.RegularSaleTextIdxs.SequenceEqual(new uint[] { 8026, 8027 }) &&
     x.DiscountSaleTextIdxs.SequenceEqual(new uint[] { 8203, 8204 }) && x.ExploitativeSaleTextIdxs.SequenceEqual(new uint[] { 8205, 8206 }) && x.RejectTextIdxs.SequenceEqual(new uint[] { 8028, 8029 })), Is.True);
+Assert.That(normal.All(x => x.MaleEntryTextIdxs.SequenceEqual(new uint[] { 8249, 8250 }) &&
+    x.FemaleEntryTextIdxs.SequenceEqual(new uint[] { 8263, 8264 }) &&
+    x.MaleQueueWarningTextIdxs.SequenceEqual(new uint[] { 8259, 8260 }) &&
+    x.FemaleQueueLeaveTextIdxs.SequenceEqual(new uint[] { 8275, 8276 })), Is.True);
 var hasty = valid.Dispositions.Rows.Values.Single(x => x.DispositionType == CustomerDispositionType.Hasty);
 Assert.That(hasty.EntryTextIdxs, Is.EqualTo(new uint[] { 8030, 8031 })); Assert.That(hasty.RegularSaleTextIdxs, Is.EqualTo(new uint[] { 8032, 8033 }));
 Assert.That(hasty.DiscountSaleTextIdxs, Is.EqualTo(new uint[] { 8207, 8208 })); Assert.That(hasty.ExploitativeSaleTextIdxs, Is.EqualTo(new uint[] { 8209, 8210 })); Assert.That(hasty.RejectTextIdxs, Is.EqualTo(new uint[] { 8034, 8035 }));

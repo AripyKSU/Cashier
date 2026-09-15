@@ -48,6 +48,8 @@ public sealed class InspectorEventService
     private readonly List<InspectorEventData> rows = new List<InspectorEventData>();
     private readonly HashSet<uint> completedSession = new HashSet<uint>();
     private readonly HashSet<(uint day, uint idx)> completedDays = new HashSet<(uint, uint)>();
+    // 날짜 이벤트와 겹쳐 표시하지 않기로 확정된 설비·단계 이벤트의 세션 이력.
+    private readonly HashSet<uint> skippedSession = new HashSet<uint>();
     private List<InspectorEventData> selected = new List<InspectorEventData>();
     private uint day;
     private int eventIndex;
@@ -105,8 +107,20 @@ public sealed class InspectorEventService
                 row.RequiredFacilityIdx.HasValue && !owned.Contains(row.RequiredFacilityIdx.Value) ||
                 row.MinStoreStage.HasValue && priorStoreStage < row.MinStoreStage.Value ||
                 row.RepeatMode == InspectorRepeatMode.OncePerSession && completedSession.Contains(row.Idx) ||
+                skippedSession.Contains(row.Idx) ||
                 completedDays.Contains((displayDay, row.Idx))) continue;
             candidates.Add(row);
+        }
+
+        // 날짜 고정 이벤트가 우선한다. 같은 날 활성화된 날짜 미지정 설비 이벤트는 이후에도 보충하지 않는다.
+        if (candidates.Exists(row => row.Day.HasValue))
+        {
+            foreach (InspectorEventData row in candidates)
+            {
+                if (!row.Day.HasValue && (row.RequiredFacilityIdx.HasValue || row.MinStoreStage.HasValue))
+                    skippedSession.Add(row.Idx);
+            }
+            candidates.RemoveAll(row => skippedSession.Contains(row.Idx));
         }
         selected = candidates;
         day = displayDay;

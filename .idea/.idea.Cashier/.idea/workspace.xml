@@ -11,15 +11,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingItemView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingItemView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/BusinessClockAndSortingTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/BusinessClockAndSortingTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/InspectorEventData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/InspectorEventData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/TextData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/TextData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Inspector/InspectorEventService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Inspector/InspectorEventService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/InspectorEventTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/InspectorEventTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/DATA_CATALOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DATA_CATALOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/INSPECTOR_SYSTEM_DRAFT.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/INSPECTOR_SYSTEM_DRAFT.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,7 +194,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "vacuum",
+    "git-widget-placeholder": "QA",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -253,6 +251,7 @@
       <workItem from="1788487160146" duration="3893000" />
       <workItem from="1788743272615" duration="6497000" />
       <workItem from="1788914650040" duration="5493000" />
+      <workItem from="1789441979434" duration="4102000" />
     </task>
     <servers />
   </component>

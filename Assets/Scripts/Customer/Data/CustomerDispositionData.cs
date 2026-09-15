@@ -61,6 +61,48 @@ public sealed class CustomerDispositionData
     /// <summary>거절 대사 TextData FK 목록.</summary>
     [Name("reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
     public IReadOnlyList<uint> RejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 입장 대사 후보.</summary>
+    [Name("male_entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleEntryTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 기준가 판매 대사 후보.</summary>
+    [Name("male_regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleRegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 할인 판매 대사 후보.</summary>
+    [Name("male_discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleDiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 착취 판매 대사 후보.</summary>
+    [Name("male_exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleExploitativeSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 결제 거부 대사 후보.</summary>
+    [Name("male_reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleRejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 대기 재촉 대사 후보.</summary>
+    [Name("male_queue_warning_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleQueueWarningTextIdxs { get; set; } = new uint[0];
+    /// <summary>남성 손님의 대기열 이탈 대사 후보.</summary>
+    [Name("male_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleQueueLeaveTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 입장 대사 후보.</summary>
+    [Name("female_entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleEntryTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 기준가 판매 대사 후보.</summary>
+    [Name("female_regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleRegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 할인 판매 대사 후보.</summary>
+    [Name("female_discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleDiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 착취 판매 대사 후보.</summary>
+    [Name("female_exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleExploitativeSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 결제 거부 대사 후보.</summary>
+    [Name("female_reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleRejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 대기 재촉 대사 후보.</summary>
+    [Name("female_queue_warning_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleQueueWarningTextIdxs { get; set; } = new uint[0];
+    /// <summary>여성 손님의 대기열 이탈 대사 후보.</summary>
+    [Name("female_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleQueueLeaveTextIdxs { get; set; } = new uint[0];
     /// <summary>양쪽 후보가 남아 있을 때 선호군 선택 확률, 0~1000 (1000 = 100%).</summary>
     [Name("preferred_selection_chance")]
     public int PreferredSelectionChance { get; set; } = 900;
@@ -83,6 +125,10 @@ public sealed class CustomerDispositionData
     {
         if (QueuePatienceSeconds <= 6 || QueueWarningTextIdx == 0 || QueueLeaveTextIdx == 0)
             throw new ArgumentException($"성향 {Idx}: queue_patience_seconds > 6 및 대사 FK가 필요합니다.");
+        validateGenderDialog(MaleQueueWarningTextIdxs, "male_queue_warning_text_idxs");
+        validateGenderDialog(MaleQueueLeaveTextIdxs, "male_queue_leave_text_idxs");
+        validateGenderDialog(FemaleQueueWarningTextIdxs, "female_queue_warning_text_idxs");
+        validateGenderDialog(FemaleQueueLeaveTextIdxs, "female_queue_leave_text_idxs");
     }
 
     /// <summary>생성기와 CSV 로더가 공유하는 구매 설정의 불변 조건을 검사한다.</summary>
@@ -111,6 +157,50 @@ public sealed class CustomerDispositionData
         validateDialog(DiscountSaleTextIdxs, "discount_sale_text_idxs");
         validateDialog(ExploitativeSaleTextIdxs, "exploitative_sale_text_idxs");
         validateDialog(RejectTextIdxs, "reject_text_idxs");
+        validateGenderDialog(MaleEntryTextIdxs, "male_entry_text_idxs");
+        validateGenderDialog(MaleRegularSaleTextIdxs, "male_regular_sale_text_idxs");
+        validateGenderDialog(MaleDiscountSaleTextIdxs, "male_discount_sale_text_idxs");
+        validateGenderDialog(MaleExploitativeSaleTextIdxs, "male_exploitative_sale_text_idxs");
+        validateGenderDialog(MaleRejectTextIdxs, "male_reject_text_idxs");
+        validateGenderDialog(FemaleEntryTextIdxs, "female_entry_text_idxs");
+        validateGenderDialog(FemaleRegularSaleTextIdxs, "female_regular_sale_text_idxs");
+        validateGenderDialog(FemaleDiscountSaleTextIdxs, "female_discount_sale_text_idxs");
+        validateGenderDialog(FemaleExploitativeSaleTextIdxs, "female_exploitative_sale_text_idxs");
+        validateGenderDialog(FemaleRejectTextIdxs, "female_reject_text_idxs");
+    }
+
+    /// <summary>성별에 맞는 후보를 반환하고, 기존 코드 생성 데이터에는 공용 후보를 사용한다.</summary>
+    /// <param name="attributes">완성된 손님 속성.</param>
+    /// <param name="male">남성 후보.</param>
+    /// <param name="female">여성 후보.</param>
+    /// <param name="fallback">스키마 이전 호환용 공용 후보.</param>
+    /// <returns>해당 성별의 대사 후보.</returns>
+    public IReadOnlyList<uint> GetGenderDialogue(CustomerAttributes attributes, IReadOnlyList<uint> male,
+        IReadOnlyList<uint> female, IReadOnlyList<uint> fallback)
+    {
+        CustomerProfileValidation.ValidateCompleteAttributes(attributes);
+        IReadOnlyList<uint> selected = (attributes & CustomerAttributes.Male) != 0 ? male : female;
+        return selected != null && selected.Count > 0 ? selected : fallback;
+    }
+
+    /// <summary>런타임 CSV 행에 남녀별 모든 판매·대기 대사가 들어 있는지 확인한다.</summary>
+    /// <exception cref="ArgumentException">성별별 필수 후보가 비어 있는 경우.</exception>
+    public void ValidateGenderDialoguesRequired()
+    {
+        validateDialog(MaleEntryTextIdxs, "male_entry_text_idxs");
+        validateDialog(MaleRegularSaleTextIdxs, "male_regular_sale_text_idxs");
+        validateDialog(MaleDiscountSaleTextIdxs, "male_discount_sale_text_idxs");
+        validateDialog(MaleExploitativeSaleTextIdxs, "male_exploitative_sale_text_idxs");
+        validateDialog(MaleRejectTextIdxs, "male_reject_text_idxs");
+        validateDialog(MaleQueueWarningTextIdxs, "male_queue_warning_text_idxs");
+        validateDialog(MaleQueueLeaveTextIdxs, "male_queue_leave_text_idxs");
+        validateDialog(FemaleEntryTextIdxs, "female_entry_text_idxs");
+        validateDialog(FemaleRegularSaleTextIdxs, "female_regular_sale_text_idxs");
+        validateDialog(FemaleDiscountSaleTextIdxs, "female_discount_sale_text_idxs");
+        validateDialog(FemaleExploitativeSaleTextIdxs, "female_exploitative_sale_text_idxs");
+        validateDialog(FemaleRejectTextIdxs, "female_reject_text_idxs");
+        validateDialog(FemaleQueueWarningTextIdxs, "female_queue_warning_text_idxs");
+        validateDialog(FemaleQueueLeaveTextIdxs, "female_queue_leave_text_idxs");
     }
 
     /// <summary>대사 후보의 필수값·중복을 검사한다. 실제 FK는 catalog에서 검사한다.</summary>
@@ -123,5 +213,15 @@ public sealed class CustomerDispositionData
         var seen = new HashSet<uint>();
         foreach (uint value in values)
             if (value == 0 || !seen.Add(value)) throw new ArgumentException($"성향 {Idx}: {column} 중복 또는 0");
+    }
+
+    /// <summary>성별 후보가 제공된 경우 0과 중복을 거부한다.</summary>
+    /// <param name="values">성별 대사 후보.</param>
+    /// <param name="column">오류 컬럼.</param>
+    /// <exception cref="ArgumentException">0 또는 중복 ID.</exception>
+    private void validateGenderDialog(IReadOnlyList<uint> values, string column)
+    {
+        if (values == null) throw new ArgumentException($"성향 {Idx}: {column} null");
+        if (values.Count > 0) validateDialog(values, column);
     }
 }
