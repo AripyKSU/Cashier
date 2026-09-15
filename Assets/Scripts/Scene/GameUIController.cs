@@ -117,6 +117,14 @@ public sealed class GameUIController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        if (startupCover != null)
+        {
+            startupCover.gameObject.SetActive(true);
+            startupCover.alpha = 1f;
+            startupCover.interactable = true;
+            startupCover.blocksRaycasts = true;
+            startupCover.transform.SetAsLastSibling();
+        }
         Transform bg = this.transform.Find("Root/Background");
         if (bg == null) bg = this.transform.Find("ProgressCanvas/Root/Background");
         if (bg != null && bg.gameObject.activeSelf)
@@ -185,9 +193,6 @@ public sealed class GameUIController : MonoBehaviour
             await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, this.GetCancellationTokenOnDestroy());
             Canvas.ForceUpdateCanvases();
             this.presentationReady = true;
-            this.startupCover.blocksRaycasts = false;
-            this.startupCover.interactable = false;
-            this.startupCover.gameObject.SetActive(false);
             this.refreshAllViews();
         }
         catch (OperationCanceledException)
@@ -816,7 +821,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>영업 전 버튼 요청을 하루 진행에 전달합니다.</summary>
     private void handleOpenBusinessClicked()
     {
-        if (!this.isReady || this.hasError || this.isOpeningBusiness ||
+        if (!this.isReady || !this.presentationReady || this.hasError || this.isOpeningBusiness ||
             this.subscribedDay == null || this.subscribedDay.State != DayProgressState.PreOpen)
         {
             return;
@@ -1188,6 +1193,25 @@ public sealed class GameUIController : MonoBehaviour
             InspectorEventSnapshot snapshot = GameSessionManager.Instance.InspectorEvents.Current;
             this.inspectorPresenter.Present(snapshot, textData.Rows[snapshot.TextIdx].Text,
                 inspectorSprites[snapshot.PortraitResourceIdx], presentationReady, () => IsPresentationBlocked);
+        }
+        this.refreshStartupCover();
+    }
+
+    /// <summary>기술 준비 중에는 전체 입력을 막고, 준비 후 영업 전 콘텐츠만 검은 배경 위에 표시합니다.</summary>
+    private void refreshStartupCover()
+    {
+        if (this.startupCover == null || this.hasError || this.subscribedDay == null) return;
+
+        bool beforeOpening = !this.presentationReady || this.subscribedDay.State == DayProgressState.InspectorEvent
+            || this.subscribedDay.State == DayProgressState.PreOpen;
+        this.startupCover.gameObject.SetActive(beforeOpening);
+        this.startupCover.alpha = 1f;
+        this.startupCover.interactable = beforeOpening;
+        this.startupCover.blocksRaycasts = beforeOpening;
+        if (beforeOpening)
+        {
+            if (this.presentationReady) this.startupCover.transform.SetAsFirstSibling();
+            else this.startupCover.transform.SetAsLastSibling();
         }
     }
 

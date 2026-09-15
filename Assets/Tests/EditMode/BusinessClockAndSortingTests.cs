@@ -119,12 +119,13 @@ public sealed class BusinessClockAndSortingTests
         itemGo.transform.SetParent(workRect, false);
         var itemView = itemGo.AddComponent<SaleSortingItemView>();
 
-        itemView.Initialize(1001, 0, null, 72f, "TestProduct", workRect);
+        itemView.Initialize(1001, 0, null, 144f, "TestProduct", workRect);
 
         var image = itemGo.GetComponent<UnityEngine.UI.Image>();
         Assert.That(image.raycastTarget, Is.True, "Image raycastTarget must be true for drag and drop");
         Assert.That(itemView.IsDragging, Is.False);
         Assert.That(itemView.State, Is.EqualTo(SaleSortingItemView.SortingState.Working));
+        Assert.That(((RectTransform)itemView.transform).sizeDelta, Is.EqualTo(new Vector2(144f, 144f)));
 
         // ForSale 상태 전환 시 시각 피드백 검증
         itemView.State = SaleSortingItemView.SortingState.ForSale;
@@ -182,6 +183,10 @@ public sealed class BusinessClockAndSortingTests
 
         SaleSortingPanel panel = prefab.GetComponentInChildren<SaleSortingPanel>(true);
         SerializedObject panelObject = new SerializedObject(panel);
+        Assert.That(panelObject.FindProperty("itemSizePixels").floatValue, Is.EqualTo(144f));
+        var itemPrefab = (SaleSortingItemView)panelObject.FindProperty("itemPrefab").objectReferenceValue;
+        Assert.That(((RectTransform)itemPrefab.transform).sizeDelta,
+            Is.EqualTo(new Vector2(144f, 144f)));
         Assert.That(panelObject.FindProperty("handCursor").objectReferenceValue, Is.SameAs(cursor));
         Assert.That(panelObject.FindProperty("calculatorToggleButton"), Is.Null);
         Assert.That(System.Array.Exists(prefab.GetComponentsInChildren<Transform>(true), child => child.name == "CalculatorToggle"), Is.False);
