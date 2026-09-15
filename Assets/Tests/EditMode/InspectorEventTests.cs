@@ -8,30 +8,31 @@ using UnityEngine.TestTools;
 /// <summary>감독관 조건·날짜 캐시·대사 입력·완료 이력 및 실제 CSV 형식을 검사한다.</summary>
 public sealed class InspectorEventTests
 {
-    /// <summary>실제 세 이벤트의 1·10·21일 페이지와 다중행 Text 표시 계약을 검사한다.</summary>
+    /// <summary>실제 날짜·단계 이벤트 7개의 조건과 다중행 Text 표시 계약을 검사한다.</summary>
     [Test]
-    public void ActualCsvHasThreeScheduledEventsAndMultilinePages()
+    public void ActualCsvHasSevenEventsAndMultilinePages()
     {
         var table = new InspectorEventDataTable();
         table.LoadData(File.ReadAllText("Assets/Datas/InspectorEventData.csv"));
         var pending = (System.Collections.Generic.Dictionary<uint, InspectorEventData>)typeof(InspectorEventDataTable)
             .GetProperty("PendingRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(table);
         var rows = pending.Values.OrderBy(x => x.Idx).ToArray();
-        Assert.That(rows.Length, Is.EqualTo(3));
+        Assert.That(rows.Length, Is.EqualTo(7));
         foreach (var row in rows) Assert.DoesNotThrow(row.Validate);
-        Assert.That(rows[0].DialogueTextIdxs, Is.EqualTo(new uint[] { 8131, 8132, 8133, 8134 }));
-        Assert.That(rows[1].DialogueTextIdxs, Is.EqualTo(new uint[] { 8151, 8152, 8153 }));
-        Assert.That(rows[0].Day, Is.EqualTo(1)); Assert.That(rows[1].Day, Is.EqualTo(21));
-        Assert.That(rows[2].Idx, Is.EqualTo(15003));
-        Assert.That(rows[2].NameIdx, Is.EqualTo(8180));
-        Assert.That(rows[2].Day, Is.EqualTo(10));
-        Assert.That(rows[2].RequiredFacilityIdx, Is.Null);
-        Assert.That(rows[2].MinStoreStage, Is.Null);
-        Assert.That(rows[2].Priority, Is.Zero);
-        Assert.That(rows[2].RepeatMode, Is.EqualTo(InspectorRepeatMode.OncePerSession));
-        Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8181, 8135 }));
-        Assert.That(rows.All(x => !x.RequiredFacilityIdx.HasValue && !x.MinStoreStage.HasValue &&
-            x.Priority == 0 && x.RepeatMode == InspectorRepeatMode.OncePerSession), Is.True);
+        Assert.That(rows.Select(x => x.NameIdx), Is.EqualTo(new uint[] { 8389, 8390, 8391, 8392, 8393, 8394, 8395 }));
+        Assert.That(rows.Take(5).Select(x => x.Day), Is.EqualTo(new uint?[] { 1, 3, 10, 20, 30 }));
+        Assert.That(rows.Take(5).All(x => !x.RequiredFacilityIdx.HasValue && !x.MinStoreStage.HasValue), Is.True);
+        Assert.That(rows[5].Day, Is.Null); Assert.That(rows[5].RequiredFacilityIdx, Is.EqualTo(12008));
+        Assert.That(rows[6].Day, Is.Null); Assert.That(rows[6].RequiredFacilityIdx, Is.EqualTo(12010));
+        Assert.That(rows.Skip(5).All(x => !x.MinStoreStage.HasValue), Is.True);
+        Assert.That(rows[0].DialogueTextIdxs, Is.EqualTo(new uint[] { 8396, 8397, 8398, 8399 }));
+        Assert.That(rows[1].DialogueTextIdxs, Is.EqualTo(new uint[] { 8400, 8401, 8402, 8403, 8404 }));
+        Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8405, 8406, 8407, 8408 }));
+        Assert.That(rows[3].DialogueTextIdxs, Is.EqualTo(new uint[] { 8409, 8410, 8411, 8412 }));
+        Assert.That(rows[4].DialogueTextIdxs, Is.EqualTo(new uint[] { 8413, 8414, 8415 }));
+        Assert.That(rows[5].DialogueTextIdxs, Is.EqualTo(new uint[] { 8416, 8417 }));
+        Assert.That(rows[6].DialogueTextIdxs, Is.EqualTo(new uint[] { 8418, 8419, 8420, 8421 }));
+        Assert.That(rows.All(x => x.Priority == 0 && x.RepeatMode == InspectorRepeatMode.OncePerSession), Is.True);
         Assert.That(rows.All(x => x.PortraitResourceIdx == 4256));
         Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(20));
 
@@ -39,9 +40,9 @@ public sealed class InspectorEventTests
         texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
         var textRows = (System.Collections.Generic.Dictionary<uint, TextData>)typeof(TextDataTable)
             .GetProperty("PendingRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(texts);
-        Assert.That(textRows.Count, Is.EqualTo(242), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
+        Assert.That(textRows.Count, Is.EqualTo(416), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
         uint[] pageIds = rows.SelectMany(x => x.DialogueTextIdxs).ToArray();
-        Assert.That(pageIds.Length, Is.EqualTo(9));
+        Assert.That(pageIds.Length, Is.EqualTo(26));
         Assert.That(rows.All(x => textRows.ContainsKey(x.NameIdx)) && pageIds.All(textRows.ContainsKey), Is.True);
         var panel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab");
         var dialogue = panel.transform.Find("Dialogue/Text").GetComponent<TMPro.TextMeshProUGUI>();
@@ -64,16 +65,14 @@ public sealed class InspectorEventTests
         service.BeginDay(1, Array.Empty<uint>(), 1);
         Assert.That(service.Current.EventIdx, Is.EqualTo(15001));
         finish(service);
-        service.BeginDay(2, new uint[] { 12001, 12008, 12010 }, 3);
-        Assert.That(service.HasPending, Is.False, "조기 설비·단계 구매는 정확한 공개일을 앞당기지 않는다.");
-        service.BeginDay(10, new uint[] { 12001, 12008, 12010 }, 3);
-        Assert.That(service.Current.EventIdx, Is.EqualTo(15003)); Assert.That(service.Current.TextIdx, Is.EqualTo(8181));
-        finish(service);
-        service.BeginDay(10, Array.Empty<uint>(), 1);
-        Assert.That(service.HasPending, Is.False);
-        service.BeginDay(20, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
-        service.BeginDay(21, Array.Empty<uint>(), 1); Assert.That(service.Current.EventIdx, Is.EqualTo(15002));
-        finish(service); service.BeginDay(22, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
+        service.BeginDay(2, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
+        foreach ((uint day, uint eventIdx) in new[] { (3u, 15002u), (10u, 15003u), (20u, 15004u), (30u, 15005u) })
+        {
+            service.BeginDay(day, Array.Empty<uint>(), 1);
+            Assert.That(service.Current.EventIdx, Is.EqualTo(eventIdx));
+            finish(service);
+        }
+        service.BeginDay(31, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
     }
 
     /// <summary>전체 조건 AND·priority/PK 정렬·완료 이력·중복 입력을 확인한다.</summary>
@@ -120,6 +119,23 @@ public sealed class InspectorEventTests
         service.BeginDay(4, new uint[] {12001}, 3); Assert.That(service.HasPending, Is.False);
     }
 
+    /// <summary>날짜 이벤트와 겹친 날짜 미지정 설비 이벤트는 표시하거나 다음 날 보충하지 않는다.</summary>
+    [Test]
+    public void ScheduledEventConsumesOverlappingFacilityEvent()
+    {
+        var scheduled = row(15001); scheduled.Day = 4; scheduled.Priority = 10;
+        var facility = row(15002); facility.RequiredFacilityIdx = 12001; facility.Priority = -10;
+        var service = new InspectorEventService(new[] { scheduled, facility });
+
+        service.BeginDay(3, Array.Empty<uint>(), 1);
+        Assert.That(service.HasPending, Is.False);
+        service.BeginDay(4, new uint[] { 12001 }, 1);
+        Assert.That(service.Current.EventIdx, Is.EqualTo(15001), "priority와 무관하게 날짜 이벤트가 우선해야 합니다.");
+        finish(service);
+        service.BeginDay(5, new uint[] { 12001 }, 1);
+        Assert.That(service.HasPending, Is.False, "겹쳐서 생략한 설비 이벤트를 다음 날 보충하면 안 됩니다.");
+    }
+
     /// <summary>매일 반복하는 같은 PK도 전날 콜백으로 다음날 대사·퇴장을 진행할 수 없다.</summary>
     [Test]
     public void OncePerDayRejectsPriorDayCallbacksAndCopiesData()
@@ -143,7 +159,7 @@ public sealed class InspectorEventTests
             r => r.DialogueTextIdxs=Array.Empty<uint>(), r => r.PortraitResourceIdx=0 })
         { var item=row(15001); mutation(item); Assert.Throws<ArgumentException>(item.Validate); }
         var table = new InspectorEventDataTable();
-        string csv = File.ReadAllText("Assets/Datas/InspectorEventData.csv").Replace(",0,1,8131", ",0,OncePerSession,8131");
+        string csv = File.ReadAllText("Assets/Datas/InspectorEventData.csv").Replace(",0,1,8396", ",0,OncePerSession,8396");
         LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("InspectorEventData.csv"));
         Assert.Catch<Exception>(() => table.LoadData(csv));
         Assert.That(table.GetDataCount(), Is.Zero);

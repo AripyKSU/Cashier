@@ -1081,16 +1081,17 @@ public sealed class GameSessionApiTests
         uiProgress(ui).OpenBusiness(); Assert.That(session.Economy.QueryService.IsDayOpen);
     }
 
-    /// <summary>3단계 조기 구매가 21일차 목표 공개를 앞당기지 않는지 검사한다.</summary>
+    /// <summary>같은 날 구매한2·3단계 확장 이벤트가 다음 날 순서대로 한 번 실행되는지 검사한다.</summary>
     [Test]
-    public void InspectorEarlyStagePurchaseDoesNotAdvanceDayTwentyOneEvent()
+    public void InspectorStageUpgradeEventsRunOnNextDay()
     {
-        // 날짜·구매 조건 검사에 필요한 자금만 준비한다. 무매출 21일의 경제 생존 검사가 아니다.
+        // 날짜·구매 조건 검사에 필요한 자금만 준비한다.
         session.Economy.FinanceService.AddIncome(4_000_000, FinanceChangeReason.Sale);
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); completeInspectors(progress);
         for(int i=0; i<2; i++) { completeInspectors(progress); closeProgressDay(progress); progress.CompleteSettlement(); }
         Assert.That(progress.CurrentDay, Is.EqualTo(3));
+        completeInspectors(progress);
         purchaseRegularFacilities(progress, 1);
         Assert.That(progress.TryPurchaseFacility(12008, out _));
         purchaseRegularFacilities(progress, 2);
@@ -1100,20 +1101,23 @@ public sealed class GameSessionApiTests
         reentry.Start(); Assert.That(reentry.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
         closeProgressDay(progress); progress.CompleteSettlement();
         Assert.That(progress.CurrentDay, Is.EqualTo(4));
-        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
-        while (progress.CurrentDay < 21)
-        {
-            completeInspectors(progress); closeProgressDay(progress); progress.CompleteSettlement();
-        }
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
-        Assert.That(session.InspectorEvents.Current.EventIdx, Is.EqualTo(15002));
+        Assert.That(session.InspectorEvents.Current.EventIdx, Is.EqualTo(15006));
         long balance=session.Economy.QueryService.CurrentBalance;
-        completeInspectors(progress); Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        while (session.InspectorEvents.Current.EventIdx == 15006)
+        {
+            var snapshot = session.InspectorEvents.Current;
+            if (snapshot.Phase == InspectorEventPhase.Dialogue) Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot));
+            else Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot));
+        }
+        Assert.That(session.InspectorEvents.Current.EventIdx, Is.EqualTo(15007));
+        completeInspectors(progress);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
         closeProgressDay(progress); progress.CompleteSettlement();
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
     }
 
-    /// <summary>2일차에는 방문이 없고 실제 10일차 두 페이지가 한 번씩 진행된 뒤 퇴장하는지 검사한다.</summary>
+    /// <summary>날짜 이벤트를 거쳐 실제 10일차 네 페이지가 한 번씩 진행된 뒤 퇴장하는지 검사한다.</summary>
     [Test]
     public void InspectorDayTenPagesAdvanceOnceWithoutFacilities()
     {
@@ -1129,25 +1133,29 @@ public sealed class GameSessionApiTests
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
         while (progress.CurrentDay < 10)
         {
+            completeInspectors(progress);
             closeProgressDay(progress); progress.CompleteSettlement();
         }
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
         var snapshot = session.InspectorEvents.Current;
         Assert.That(snapshot.EventIdx, Is.EqualTo(15003));
-        Assert.That(snapshot.TextIdx, Is.EqualTo(8181));
+        Assert.That(snapshot.TextIdx, Is.EqualTo(8405));
         Assert.That(snapshot.PortraitResourceIdx, Is.EqualTo(4256));
         var text = tables.GetDB<TextDataTable>(DataTableType.Text);
-        Assert.That(text.Rows[8180].Text, Is.EqualTo("10일차: 투자와 저축"));
+        Assert.That(text.Rows[8391].Text, Is.EqualTo("10일차: 딸과 시민권"));
         Assert.That(text.Rows[snapshot.TextIdx].Text.Count(character => character == '\n'), Is.EqualTo(2));
         long balance = session.Economy.QueryService.CurrentBalance;
         decimal morality = session.CurrentMorality;
         int reputation = session.CurrentReputation;
         Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
-        Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot));
-        Assert.That(progress.CurrentDayProgress.AdvanceInspector(snapshot), Is.False);
-        var secondPage = session.InspectorEvents.Current;
-        Assert.That(secondPage.LineIndex, Is.EqualTo(1)); Assert.That(secondPage.TextIdx, Is.EqualTo(8135));
-        Assert.That(progress.CurrentDayProgress.AdvanceInspector(secondPage));
+        uint[] expectedPages = { 8405, 8406, 8407, 8408 };
+        foreach (uint expectedTextIdx in expectedPages)
+        {
+            InspectorEventSnapshot page = session.InspectorEvents.Current;
+            Assert.That(page.TextIdx, Is.EqualTo(expectedTextIdx));
+            Assert.That(progress.CurrentDayProgress.AdvanceInspector(page));
+            Assert.That(progress.CurrentDayProgress.AdvanceInspector(page), Is.False);
+        }
         Assert.That(session.InspectorEvents.Current.Phase, Is.EqualTo(InspectorEventPhase.AwaitingExit));
         Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
         Assert.That(progress.CurrentDayProgress.CompleteInspectorExit(snapshot));

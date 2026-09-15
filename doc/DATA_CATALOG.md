@@ -74,7 +74,7 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 383 | 2 | 공용 표시 문자열과 성향·성별별 손님 대사 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 416 | 2 | 공용 표시 문자열과 성향·성별별 손님 대사 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 36 | 구매·MainScene 대기열·명성별 성향 및 성별 대사 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
@@ -83,11 +83,11 @@
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백·손님 생성 가중치 연결 |
 | [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 2 | 4 | 일일 지침 생성·거래 위반·정산 벌금 연결 |
 | [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
-| [InspectorEventData](../Assets/Datas/InspectorEventData.csv) | 3 | 9 | 영업 전 감독관 대화·조건·완료 이력 연결 |
+| [InspectorEventData](../Assets/Datas/InspectorEventData.csv) | 7 | 9 | 영업 전 감독관 대화·조건·완료 이력 연결 |
 
 ### InspectorEventData
 
-종류15, PK15001~15003. `idx`, `nameidx`, `day`, `required_facility_idx`, `min_store_stage`, `priority`, `repeat_mode`, `dialogue_text_idxs`, `portrait_resource_idx`의 9열이다. 첫날 20줄, 가게 3단계 구매 다음날 29줄, 2일차 등장 확인용 임시 대사 1줄이며 Resource4201을 재사용한다. 2일차 행의 임시 유지·교체 기준은 [감독관 명세 10절](INSPECTOR_SYSTEM_DRAFT.md#10-2일차-등장-확인-데이터-2026-09-11)을 따른다. 조건의 빈값·AND 판정, 반복 enum, FK와 로드 검증은 [감독관 명세 3절](INSPECTOR_SYSTEM_DRAFT.md#3-데이터-계약)을 단일 계약으로 따른다. 실제 금전·명성·도덕성을 변경하지 않는다. 전체 행은 아래 부록에 있다.
+종류15, PK15001~15007. `idx`, `nameidx`, `day`, `required_facility_idx`, `min_store_stage`, `priority`, `repeat_mode`, `dialogue_text_idxs`, `portrait_resource_idx`의 9열이다. 표시1·3·10·20·30일의 날짜 이벤트5개와2단계·3단계 확장 설비12008·12010의 구매 다음 날 이벤트2개이며 모두 Resource4256을 사용한다. 각 페이지는 TextData의 실제3줄 문자열이고, 날짜 이벤트와 겹친 설비 이벤트는 표시 없이 세션에서 소비한다. 조건의 빈값·AND 판정, 반복 enum, FK와 로드 검증은 [감독관 명세 3절](INSPECTOR_SYSTEM_DRAFT.md#3-데이터-계약)을 단일 계약으로 따른다. 실제 금전·명성·도덕성을 변경하지 않는다.
 
 ### ReputationBalanceData
 
@@ -1105,11 +1105,15 @@ idx,min_reputation,max_reputation,normal_weight,wealthy_weight,hasty_weight,spec
 
 ### Assets/Datas/InspectorEventData.csv
 
-데이터 3행, 9컬럼. SHA-256: `19C7439DD26DA864D41750937F9E989F14352154DB9A0A7F247DBA066608B0FA`.
+데이터 7행, 9컬럼. SHA-256: `78D8473162F3240753721CA703992BF5762FAFA979EEC244C3B5824365EDB3A5`.
 
 ```csv
 idx,nameidx,day,required_facility_idx,min_store_stage,priority,repeat_mode,dialogue_text_idxs,portrait_resource_idx
-15001,8129,1,,,0,1,8131_8132_8133_8134_8135_8136_8137_8138_8139_8140_8141_8142_8143_8144_8145_8146_8147_8148_8149_8150,4201
-15002,8130,,,3,1,1,8151_8152_8153_8154_8155_8156_8157_8158_8159_8160_8161_8162_8163_8164_8165_8166_8167_8168_8169_8170_8171_8172_8173_8174_8175_8176_8177_8178_8179,4201
-15003,8180,2,,,0,1,8181,4201
+15001,8389,1,,,0,1,8396_8397_8398_8399,4256
+15002,8390,3,,,0,1,8400_8401_8402_8403_8404,4256
+15003,8391,10,,,0,1,8405_8406_8407_8408,4256
+15004,8392,20,,,0,1,8409_8410_8411_8412,4256
+15005,8393,30,,,0,1,8413_8414_8415,4256
+15006,8394,,12008,,0,1,8416_8417,4256
+15007,8395,,12010,,0,1,8418_8419_8420_8421,4256
 ```
