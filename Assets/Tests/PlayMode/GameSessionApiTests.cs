@@ -295,19 +295,17 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
     }
 
-    /// <summary>지침 누적 한계도 세션의 도덕성 변경 전에 거부한다.</summary>
-    /// <param name="countOverflow">건수 또는 벌금 누적 한계를 선택한다.</param>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void GuidelineOverflowPreventsSessionMutation(bool countOverflow)
+    /// <summary>지침 위반 건수 누적 한계도 세션의 도덕성 변경 전에 거부한다.</summary>
+    [Test]
+    public void GuidelineOverflowPreventsSessionMutation()
     {
         session.EnsureDailyPrices(); session.BeginTradingDay();
         var aggregation = session.Economy.DailyAggregationService;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-        typeof(DailyAggregationService).GetField(countOverflow ? "dailyGuidelineViolationCount" : "dailyGuidelinePenaltyAmount", flags)
-            .SetValue(aggregation, countOverflow ? (object)int.MaxValue : long.MaxValue);
+        typeof(DailyAggregationService).GetField("dailyGuidelineViolationCount", flags)
+            .SetValue(aggregation, int.MaxValue);
         var attributes = CustomerAttributes.Male | CustomerAttributes.Adult | CustomerAttributes.Normal;
-        var guideline = new DailyGuideline(13001, DailyGuidelineRuleType.SaleProhibited, CustomerAttributes.None, 1001, 0, 500);
+        var guideline = new DailyGuideline(13001, DailyGuidelineRuleType.SaleProhibited, CustomerAttributes.None, 1001, 0);
         var result = (TransactionResult)typeof(TransactionResult).GetConstructors(flags).Single().Invoke(new object[] {
             CustomerTradeOutcome.RegularSale, 100L, Array.Empty<SoldItem>(), false,
             Array.Empty<SaleRestrictionViolation>(), CustomerDispositionType.Normal, attributes, true,
@@ -320,8 +318,7 @@ public sealed class GameSessionApiTests
         Assert.That(aggregation.DailyTransactionCount, Is.Zero);
         Assert.That(aggregation.DailySaleIncome, Is.Zero);
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
-        Assert.That(aggregation.DailyGuidelineViolationCount, Is.EqualTo(countOverflow ? int.MaxValue : 0));
-        Assert.That(aggregation.DailyGuidelinePenaltyAmount, Is.EqualTo(countOverflow ? 0 : long.MaxValue));
+        Assert.That(aggregation.DailyGuidelineViolationCount, Is.EqualTo(int.MaxValue));
     }
 
     /// <summary>정산 뒤 딸 대사 준비 실패가 경제 정산을 재실행하거나 완료 상태로 우회하지 못하게 한다.</summary>

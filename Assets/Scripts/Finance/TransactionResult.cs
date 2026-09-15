@@ -37,8 +37,6 @@ public readonly struct TransactionResult
         dailyGuidelineViolations ?? Array.Empty<DailyGuidelineViolation>();
     /// <summary>한 거래에서 위반한 정식 일일지침 수입니다.</summary>
     public int DailyGuidelineViolationCount => DailyGuidelineViolations.Count;
-    /// <summary>한 거래의 지침별 고정 벌금을 합산한 예정 벌금입니다. 이 값 자체는 잔액을 차감하지 않습니다.</summary>
-    public long DailyGuidelinePenaltyAmount { get; }
     /// <summary>완료된 거래의 판매 수입.</summary>
     public long SaleIncome { get; }
     /// <summary>완료된 거래의 명성 변화량. 지침 위반으로 자동 계산하지 않는다.</summary>
@@ -93,20 +91,14 @@ public readonly struct TransactionResult
         if (WereDailyGuidelinesEvaluated)
         {
             var guidelineViolationCopy = new List<DailyGuidelineViolation>(dailyGuidelineViolations);
-            long guidelinePenaltyAmount = 0;
             foreach (DailyGuidelineViolation violation in guidelineViolationCopy)
-            {
                 violation.Guideline.Validate();
-                guidelinePenaltyAmount = checked(guidelinePenaltyAmount + violation.PenaltyAmount);
-            }
 
             this.dailyGuidelineViolations = guidelineViolationCopy.AsReadOnly();
-            this.DailyGuidelinePenaltyAmount = guidelinePenaltyAmount;
         }
         else
         {
             this.dailyGuidelineViolations = Array.Empty<DailyGuidelineViolation>();
-            this.DailyGuidelinePenaltyAmount = 0;
         }
     }
 
@@ -138,7 +130,6 @@ public readonly struct TransactionResult
         restrictionViolations = Array.Empty<SaleRestrictionViolation>();
         WereDailyGuidelinesEvaluated = false;
         dailyGuidelineViolations = Array.Empty<DailyGuidelineViolation>();
-        DailyGuidelinePenaltyAmount = 0;
         soldItems = Array.Empty<SoldItem>(); // 재정 단독 검사 호환. 상세 상품·판정을 만들어내지 않는다.
     }
 }

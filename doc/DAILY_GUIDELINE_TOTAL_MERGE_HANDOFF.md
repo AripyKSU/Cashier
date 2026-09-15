@@ -57,14 +57,14 @@
 `DailyGuidelineData.csv`는 예전의 고정 일차·문구·대상 상품 스키마를 사용하지 않는다. 최종 스키마는 다음과 같다.
 
 ```text
-idx,rule_type,allowed_quantity,penalty_amount
-13001,1,0,500
-13002,2,1,500
+idx,rule_type,allowed_quantity
+13001,1,0
+13002,2,1
 ```
 
-- `13001`: `SaleProhibited`, 거래당 허용 수량 `0`, 위반 1건 벌금 `500`
-- `13002`: `QuantityLimited`, 거래당 허용 수량 `1`, 위반 1건 벌금 `500`
-- 두 규칙 유형은 모두 존재해야 하며, `DailyGuidelineDataTable`이 중복 유형·누락 유형·잘못된 수량·비양수 벌금을 거부한다.
+- `13001`: `SaleProhibited`, 거래당 허용 수량 `0`
+- `13002`: `QuantityLimited`, 거래당 허용 수량 `1`
+- 두 규칙 유형은 모두 존재해야 하며, `DailyGuidelineDataTable`이 중복 유형·누락 유형·잘못된 수량을 거부한다.
 - 표시 일차별 지침 수는 경과일 기준으로 1~9일차 0개, 10~19일차 1개, 20일차 이후 2개다.
 - 생성 대상 상품은 그 날짜의 `DailyPriceState.Prices.Keys`만 사용한다. 지침 대상 상품이 당일 등장 상품 밖으로 나가면 생성과 UI snapshot을 실패시킨다.
 - 상품 충돌 방지 규칙은 지침의 손님 속성이나 규칙 유형과 무관하게 `TargetProductIdx`가 같으면 충돌로 본다. 20일차 이후 지침 2개는 서로 다른 상품을 대상으로 해야 한다.
@@ -86,13 +86,13 @@ idx,rule_type,allowed_quantity,penalty_amount
 - `GameSessionManager.DailyGuidelines`가 하루 동안 유지되는 지침 snapshot의 권위다. UI 재진입이나 손님 생성 때 다시 추첨하지 않는다.
 - `DayProgress.createCustomer()`는 현재 가격과 동일한 세션의 지침 snapshot을 `CustomerGenerator`에 callback으로 전달한다.
 - `CustomerVisit.SubmitOffer()`는 최종 판매 목록을 기준으로 지침을 평가한다.
-  - 결제가 거절된 거래는 지침을 평가하지 않으며 벌금도 없다.
+  - 결제가 거절된 거래는 지침을 평가하지 않으며 위반 횟수에도 포함하지 않는다.
   - 수락된 거래에서 조건과 상품 수량이 맞으면 지침별로 위반을 기록한다.
   - 한 거래에서 두 지침을 동시에 어기면 위반 2건으로 보존한다.
   - 정상 거래가 지침을 어겨도 거래 수락 자체를 취소하지 않는다.
   - `GetGuidelineAllowedExclusionQuantity()`는 판매 금지 또는 1개 제한에 맞춰 정상적인 상품 제외량을 계산한다.
-- `TransactionResult`는 거래 결과와 함께 `WereDailyGuidelinesEvaluated`, `DailyGuidelineViolations`, `DailyGuidelinePenaltyAmount`를 보존한다. 벌금은 이 단계에서 잔액을 직접 차감하지 않는다.
-- `DailyAggregationService`는 성립 거래에서 지침 위반 건수·상세·벌금 예정액을 누적하고, `DailyAggregationResult`에서 지침별 요약을 만든다.
+- `TransactionResult`는 거래 결과와 함께 `WereDailyGuidelinesEvaluated`, `DailyGuidelineViolations`를 보존한다. 거래별 고정 벌금은 계산하지 않는다.
+- `DailyAggregationService`는 성립 거래에서 지침 위반 건수와 상세를 누적한다. 하루 종료 시 총 판매 금액의 `min(위반 횟수, 20) × 5%`를 지침 벌금으로 확정하며 1원 미만은 버리고 최대 총 판매 금액의 100%로 제한한다.
 
 주요 코드:
 
@@ -110,6 +110,7 @@ idx,rule_type,allowed_quantity,penalty_amount
 ```text
 오늘 지불액 = 오늘 유지비 + 오늘 지침 벌금
 총 납부 필요액 = 기존 미납액 + 오늘 지불액
+오늘 지침 벌금 = floor(오늘 총 판매 금액 × min(위반 횟수, 20) × 5 / 100)
 ```
 
 - `GameSessionManager.EndTradingDay()`가 위 금액을 계산하고 `MaintenanceService.TryPaySettlement()`로 전액 자동 납부를 시도한다.
@@ -171,7 +172,7 @@ idx,rule_type,allowed_quantity,penalty_amount
 `SettlementPanel.prefab`과 `DailySettlementPresenter`는 정산 snapshot의 필드를 모두 표시할 수 있어야 한다.
 
 - 판매 수입, 총 지출, 순이익, 정산 후 잔액, 명성 변화, 성공·거절·이탈 통계
-- 오늘 유지비, 오늘 지침 벌금, 지침별 위반 횟수·벌금 상세
+- 오늘 유지비, 오늘 지침 벌금, 지침별 위반 횟수와 총 적용 비율
 - 기존 미납액, 총 납부 필요액, 실제 납부액, 남은 미납액
 - 유예 종료일·남은 유예일 또는 납부 완료·게임오버 조건 문구
 
@@ -238,7 +239,7 @@ idx,rule_type,allowed_quantity,penalty_amount
 
 ### 6.2 CSV·DataTable·Addressables
 
-- [ ] `DailyGuidelineData.csv` 헤더가 `idx,rule_type,allowed_quantity,penalty_amount`임
+- [ ] `DailyGuidelineData.csv` 헤더가 `idx,rule_type,allowed_quantity`임
 - [ ] PK `13001`, `13002`가 중복 없이 존재하고 두 규칙 유형·허용 수량·벌금 `500`이 맞음
 - [ ] `DailyGuidelineDataTable`이 두 행을 로드하고 두 rule type 조회에 성공함
 - [ ] Reputation/CustomerDisposition 헤더와 DTO mapping이 일치하고 가중치 합·FK 검증이 통과함

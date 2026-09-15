@@ -176,8 +176,7 @@ public sealed class ProgressViewDataFactory
             }
             violations.Add(new SettlementGuidelineViolationViewData(
                 this.formatGuideline(summary.Guideline, this.getProductName(product)),
-                summary.ViolationCount,
-                summary.PenaltyAmount));
+                summary.ViolationCount));
         }
 
         return new DailySettlementViewData(
@@ -190,6 +189,7 @@ public sealed class ProgressViewDataFactory
             refusedCustomers,
             departedCustomers,
             settlement.MaintenanceAmount,
+            settlement.Aggregation.DailyGuidelineViolationCount,
             settlement.GuidelinePenaltyAmount,
             violations,
             settlement.PreviousUnpaidAmount,

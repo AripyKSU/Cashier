@@ -42,10 +42,6 @@ public sealed class DailyGuidelineData
     [Name("allowed_quantity")]
     public int AllowedQuantity { get; set; }
 
-    /// <summary>해당 지침을 한 거래에서 위반했을 때의 양수 벌금.</summary>
-    [Name("penalty_amount")]
-    public long PenaltyAmount { get; set; }
-
     /// <summary>행 내부의 필수값과 데이터 유효성을 검사합니다.</summary>
     /// <exception cref="ArgumentException">필수값이 누락되었거나 범위를 벗어난 경우 발생합니다.</exception>
     public void Validate()
@@ -58,8 +54,6 @@ public sealed class DailyGuidelineData
         int expectedQuantity = RuleType == DailyGuidelineRuleType.SaleProhibited ? 0 : 1;
         if (AllowedQuantity != expectedQuantity)
             throw new ArgumentException($"DailyGuideline PK={Idx}: allowed_quantity는 {expectedQuantity}이어야 합니다.");
-        if (PenaltyAmount <= 0)
-            throw new ArgumentException($"DailyGuideline PK={Idx}: penalty_amount는 양수여야 합니다.");
     }
 
     /// <summary>런타임 대상 조건과 물품을 결합해 불변 일일지침을 생성한다.</summary>
@@ -69,6 +63,6 @@ public sealed class DailyGuidelineData
     public DailyGuideline CreateGuideline(CustomerAttributes requiredAttributes, uint targetProductIdx)
     {
         Validate();
-        return new DailyGuideline(Idx, RuleType, requiredAttributes, targetProductIdx, AllowedQuantity, PenaltyAmount);
+        return new DailyGuideline(Idx, RuleType, requiredAttributes, targetProductIdx, AllowedQuantity);
     }
 }

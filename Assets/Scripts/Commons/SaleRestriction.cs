@@ -11,7 +11,7 @@ public enum DailyGuidelineRuleType : uint
     DailyGuidelineRuleType_End
 }
 
-/// <summary>하루 동안 고정되는 손님 조건·상품·판매 제한과 벌금의 불변 계약.</summary>
+/// <summary>하루 동안 고정되는 손님 조건·상품과 판매 제한의 불변 계약.</summary>
 public readonly struct DailyGuideline
 {
     private const CustomerAttributes SupportedTargetAttributes = CustomerAttributes.Male |
@@ -28,33 +28,26 @@ public readonly struct DailyGuideline
     public uint TargetProductIdx { get; }
     /// <summary>거래당 판매 허용 수량. 판매 금지는 0이다.</summary>
     public int AllowedQuantity { get; }
-    /// <summary>이 지침을 한 거래에서 위반했을 때의 벌금.</summary>
-    public long PenaltyAmount { get; }
-
     /// <summary>검증된 템플릿과 런타임 대상 조건으로 하루 지침을 생성한다.</summary>
     /// <param name="idx">DailyGuidelineData PK.</param>
     /// <param name="ruleType">지침 제한 종류.</param>
     /// <param name="requiredAttributes">성별·연령 AND 조건. None은 전체.</param>
     /// <param name="targetProductIdx">ProductData PK.</param>
     /// <param name="allowedQuantity">거래당 허용 수량.</param>
-    /// <param name="penaltyAmount">위반 1건의 양수 벌금.</param>
     /// <exception cref="ArgumentException">식별자, 규칙, 대상 조건 또는 수량 계약 오류.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">벌금이 양수가 아님.</exception>
     public DailyGuideline(uint idx, DailyGuidelineRuleType ruleType, CustomerAttributes requiredAttributes,
-        uint targetProductIdx, int allowedQuantity, long penaltyAmount)
+        uint targetProductIdx, int allowedQuantity)
     {
         Idx = idx;
         RuleType = ruleType;
         RequiredAttributes = requiredAttributes;
         TargetProductIdx = targetProductIdx;
         AllowedQuantity = allowedQuantity;
-        PenaltyAmount = penaltyAmount;
         Validate();
     }
 
     /// <summary>default struct를 포함해 일일지침 계약 전체를 검증한다.</summary>
     /// <exception cref="ArgumentException">식별자, 규칙, 대상 조건 또는 수량 계약 오류.</exception>
-    /// <exception cref="ArgumentOutOfRangeException">벌금이 양수가 아님.</exception>
     public void Validate()
     {
         if (Util.GetDataTableType(Idx) != DataTableType.DailyGuideline || Idx % 1000 == 0)
@@ -70,11 +63,10 @@ public readonly struct DailyGuideline
         int expectedQuantity = RuleType == DailyGuidelineRuleType.SaleProhibited ? 0 : 1;
         if (AllowedQuantity != expectedQuantity)
             throw new ArgumentException($"일일지침 idx={Idx}: {RuleType} 허용 수량은 {expectedQuantity}이어야 합니다.");
-        if (PenaltyAmount <= 0) throw new ArgumentOutOfRangeException(nameof(PenaltyAmount));
     }
 }
 
-/// <summary>성립한 한 거래에서 지침 하나를 위반한 사실과 벌금의 불변 기록.</summary>
+/// <summary>성립한 한 거래에서 지침 하나를 위반한 사실의 불변 기록.</summary>
 public readonly struct DailyGuidelineViolation
 {
     /// <summary>위반한 일일지침.</summary>
@@ -83,9 +75,6 @@ public readonly struct DailyGuidelineViolation
     public CustomerAttributes CustomerAttributes { get; }
     /// <summary>최종 판매 목록의 대상 상품 수량.</summary>
     public int SoldQuantity { get; }
-    /// <summary>해당 위반에 부과할 지침 고정 벌금.</summary>
-    public long PenaltyAmount => Guideline.PenaltyAmount;
-
     /// <summary>검증된 지침 위반 결과를 생성한다.</summary>
     /// <param name="guideline">위반한 지침.</param>
     /// <param name="customerAttributes">판정한 손님의 완전한 속성.</param>

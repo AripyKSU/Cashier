@@ -61,7 +61,13 @@ public static class DailySettlementLedgerFormatter
         builder.AppendLine();
         builder.Append("명성 변화  ").AppendLine(formatSignedNumber(viewData.ReputationDelta));
         builder.AppendLine();
-        appendAmount(builder, "지침 위반 합계", viewData.GuidelinePenaltyAmount, false, true);
+        int chargedViolationCount = System.Math.Min(
+            viewData.GuidelineViolationCount,
+            DailyGuidelinePenaltyCalculator.MaximumChargedViolationCount);
+        int penaltyPercent = chargedViolationCount * DailyGuidelinePenaltyCalculator.PercentPerViolation;
+        builder.Append("지침 위반  ").Append(viewData.GuidelineViolationCount).Append("회 · ")
+            .Append(penaltyPercent).AppendLine("%");
+        appendAmount(builder, "지침 벌금 합계", viewData.GuidelinePenaltyAmount, false, true);
         builder.AppendLine();
         appendPaymentStatus(builder, viewData);
         return builder.ToString().TrimEnd();
