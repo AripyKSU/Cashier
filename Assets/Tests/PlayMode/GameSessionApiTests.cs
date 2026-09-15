@@ -89,7 +89,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total));
         Assert.That(session.EndTradingDay(), Is.EqualTo(total));
         Assert.That(session.Economy.DailyAggregationService.TryApplyTransaction(visit.Result.Value), Is.False);
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total - 200));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total - 2000));
         session.CompleteDay(0); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
     }
 
@@ -479,7 +479,7 @@ public sealed class GameSessionApiTests
             DataTableType.MaintenanceBalance).GetMaintenanceAmounts();
         Assert.That(maintenanceAmounts.Length, Is.EqualTo(31));
         for (int day = 1; day <= maintenanceAmounts.Length; day++)
-            Assert.That(maintenanceAmounts[day - 1], Is.EqualTo(200 + ((day - 1) * 100)));
+            Assert.That(maintenanceAmounts[day - 1], Is.EqualTo(2000 + ((day - 1) * 1000)));
 
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start();
@@ -487,9 +487,9 @@ public sealed class GameSessionApiTests
         long previousBalance = session.Economy.QueryService.CurrentBalance;
         closeProgressDay(progress);
         var closed = progress.CurrentDayProgress;
-        Assert.That(closed.AggregationResult.Value.Expenses, Is.EqualTo(200));
-        Assert.That(closed.AggregationResult.Value.NetProfit, Is.EqualTo(-200));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previousBalance - 200));
+        Assert.That(closed.AggregationResult.Value.Expenses, Is.EqualTo(2000));
+        Assert.That(closed.AggregationResult.Value.NetProfit, Is.EqualTo(-2000));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previousBalance - 2000));
         progress.CompleteSettlement();
         Assert.Throws<InvalidOperationException>(() => closed.CompleteSettlement());
         Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
@@ -517,11 +517,11 @@ public sealed class GameSessionApiTests
         Assert.That(progress.SubmitOffer(long.MaxValue,
             day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
         LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(
-            @"\[Settlement\] DAY 1 .*200 G.*0 G"));
+            @"\[Settlement\] DAY 1 .*2000 G.*0 G"));
         progress.CompleteTransactionResult();
         Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(day.SettlementResult.Value.PaidAmount, Is.Zero);
-        Assert.That(day.SettlementResult.Value.UnpaidAmount, Is.EqualTo(200));
+        Assert.That(day.SettlementResult.Value.UnpaidAmount, Is.EqualTo(2000));
         Assert.That(day.SettlementResult.Value.GracePeriodEndDay, Is.EqualTo(4));
         Assert.That(session.ElapsedDays, Is.Zero);
         Assert.That(session.Economy.MaintenanceService.LastPaidDay, Is.Zero);
@@ -534,7 +534,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void FacilityAndReputationShareCompletedDayBoundary()
     {
-        session.Economy.FinanceService.AddIncome(100000, FinanceChangeReason.Sale); // 구매 경계 검사용 자금. 시작금 CSV는 유지한다.
+        session.Economy.FinanceService.AddIncome(1000000, FinanceChangeReason.Sale); // 구매 경계 검사용 자금. 시작금 CSV는 유지한다.
         var progress = new GameProgress(session, tables.Customers,
             tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); progress.OpenBusiness();
@@ -766,7 +766,7 @@ public sealed class GameSessionApiTests
     [Test]
     public void FacilityPurchaseUnlocksOnlyNextDayAcrossProgressInstances()
     {
-        session.Economy.FinanceService.AddIncome(400000, FinanceChangeReason.Sale); // 단계별 일반 설비·확장·핵보호 설비 구매를 검증할 자금.
+        session.Economy.FinanceService.AddIncome(4000000, FinanceChangeReason.Sale); // 단계별 일반 설비·확장·핵보호 설비 구매를 검증할 자금.
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12005, out _));
         progress.Start();
@@ -823,7 +823,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator NewSessionClearsFacilityOwnership()
     {
-        session.Economy.FinanceService.AddIncome(20000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1)); progress.Start();
         Assert.That(progress.TryPurchaseFacility(12001, out _));
         UnityEngine.Object.Destroy(session); yield return null;
@@ -1107,7 +1107,7 @@ public sealed class GameSessionApiTests
     public void InspectorEarlyStagePurchaseDoesNotAdvanceDayTwentyOneEvent()
     {
         // 날짜·구매 조건 검사에 필요한 자금만 준비한다. 무매출 21일의 경제 생존 검사가 아니다.
-        session.Economy.FinanceService.AddIncome(400_000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(4_000_000, FinanceChangeReason.Sale);
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); completeInspectors(progress);
         for(int i=0; i<2; i++) { completeInspectors(progress); closeProgressDay(progress); progress.CompleteSettlement(); }
@@ -1139,7 +1139,7 @@ public sealed class GameSessionApiTests
     public void InspectorDayTenPagesAdvanceOnceWithoutFacilities()
     {
         // 시작금 초안과 무관하게 무매출 날짜 진행 중 유지비를 납부할 수 있게 한다.
-        session.Economy.FinanceService.AddIncome(100_000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(1_000_000, FinanceChangeReason.Sale);
         var progress = new GameProgress(session, tables.Customers,
             tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start(); completeInspectors(progress);
@@ -1402,7 +1402,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityPresenterRequestsAndLongValues()
     {
-        session.Economy.FinanceService.AddIncome(20000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
         var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab");
         var panel = UnityEngine.Object.Instantiate(asset, root.transform).GetComponent<FacilityShopPresenter>();
         var factory = new ProgressViewDataFactory(tables.Customers, tables.GetDB<TextDataTable>(DataTableType.Text),
@@ -1460,7 +1460,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerPurchaseAndModalBoundaries()
     {
-        session.Economy.FinanceService.AddIncome(20000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
         long openingBalance = session.Economy.QueryService.CurrentBalance;
         long purchasePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12001].PurchasePrice;
         var ui = createGameUi(); yield return waitForGameUi(ui); configureFastSettlement(ui);
@@ -1474,9 +1474,9 @@ public sealed class GameSessionApiTests
         var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
         var ledger = uiReference<DailySettlementLedgerView>(settlement, "ledgerView");
         var leftPage = uiReference<TMPro.TextMeshProUGUI>(ledger, "leftPageText");
-        Assert.That(leftPage.text, Does.Contain("총지출  -200원"));
-        Assert.That(leftPage.text, Does.Contain("순이익  -200원"));
-        Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 200:N0}원"));
+        Assert.That(leftPage.text, Does.Contain("총지출  -2000원"));
+        Assert.That(leftPage.text, Does.Contain("순이익  -2000원"));
+        Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 2000:N0}원"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
         Assert.That(next.IsInteractable(), Is.False);
         UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
@@ -1508,7 +1508,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerNotificationFailurePreservesPurchase()
     {
-        session.Economy.FinanceService.AddIncome(20000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
         long openingBalance = session.Economy.QueryService.CurrentBalance;
         long purchasePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12001].PurchasePrice;
         var ui = createGameUi(); yield return waitForGameUi(ui); configureFastSettlement(ui);
@@ -1523,7 +1523,7 @@ public sealed class GameSessionApiTests
         uiReference<UnityEngine.UI.Button>(row, "purchaseButton").onClick.Invoke();
         session.Economy.FinanceService.BalanceChanged -= fail;
         Assert.That(session.FacilityActivationDays.ContainsKey(12001));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(openingBalance - 200 - purchasePrice));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(openingBalance - 2000 - purchasePrice));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(row, "statusText").text, Does.Contain("적용 대기"));
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
         Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
@@ -1624,7 +1624,7 @@ public sealed class GameSessionApiTests
     {
         var progress = endingProgress(day);
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _));
-        session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
         settleEndingDay(progress);
         Assert.That(progress.TryPurchaseFacility(12012, out var locked), Is.False);
         Assert.That(locked.Status, Is.EqualTo(FacilityPurchaseStatus.StageLocked));
@@ -1633,7 +1633,7 @@ public sealed class GameSessionApiTests
         typeof(GameSessionManager).GetField("currentMorality",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(session, (decimal)morality);
         var finance = session.Economy.FinanceService;
-        finance.TrySpend(finance.CurrentBalance - 999_999, FinanceChangeReason.Sale, out _);
+        finance.TrySpend(finance.CurrentBalance - 9_999_999, FinanceChangeReason.Sale, out _);
         Assert.That(progress.TryPurchaseFacility(12012, out var insufficient), Is.False);
         Assert.That(insufficient.Status, Is.EqualTo(FacilityPurchaseStatus.InsufficientFunds));
         finance.AddIncome(1, FinanceChangeReason.Sale);
@@ -1662,7 +1662,7 @@ public sealed class GameSessionApiTests
     public void CitizenshipNotificationFailureStillFinalizesOnce()
     {
         var progress = endingProgress(5);
-        session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
         settleEndingDay(progress);
         buyCitizenshipPrerequisites(progress);
         typeof(GameSessionManager).GetField("currentMorality",
@@ -1736,7 +1736,7 @@ public sealed class GameSessionApiTests
         {
             session.ResetSession(); session.InitializeNewGame(tables);
             var progress = endingProgress(31);
-            session.Economy.FinanceService.AddIncome(2_000_000, FinanceChangeReason.Sale);
+            session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
             settleEndingDay(progress);
             if (expectedKind != EndingKind.Bad)
             {
@@ -1909,7 +1909,7 @@ public sealed class GameSessionApiTests
         progress.CompleteTransactionResult();
         Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(day.AggregationResult.Value.SaleIncome, Is.Zero);
-        Assert.That(day.AggregationResult.Value.Expenses, Is.EqualTo(200 + ((day.Day - 1) * 100)));
+        Assert.That(day.AggregationResult.Value.Expenses, Is.EqualTo(2000 + ((day.Day - 1) * 1000)));
     }
 
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>

@@ -66,14 +66,9 @@ public class PriceInputPresenter : MonoBehaviour
     {
         if (this.priceDisplayText != null)
         {
-            if (viewData.InputAmount.HasValue)
-            {
-                this.priceDisplayText.text = $"{viewData.InputAmount.Value:N0} G";
-            }
-            else
-            {
-                this.priceDisplayText.text = "0 G";
-            }
+            this.priceDisplayText.text = viewData.InputAmount.HasValue
+                ? TextDataTable.FormatCurrency(viewData.InputAmount.Value)
+                : TextDataTable.FormatCurrency(0);
         }
 
         if (this.validationMessageText != null)
@@ -139,7 +134,7 @@ public class PriceInputPresenter : MonoBehaviour
         {
             if (this.validationMessageText != null)
             {
-                this.validationMessageText.text = "판매 가격은 1 G 이상 입력해야 합니다.";
+                this.validationMessageText.text = $"판매 가격은 {TextDataTable.FormatCurrency(1)} 이상 입력해야 합니다.";
             }
             return;
         }
