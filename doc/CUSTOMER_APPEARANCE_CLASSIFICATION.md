@@ -4,9 +4,9 @@
 
 의복의 낡음, 표정, 부유함·가난함·절박함 등 거래 성향은 분류하거나 이름에 넣지 않았다. FemaleCustomer_15는 아이를 안은 성인 여성 본인을 기준으로 분류했다. 원본 파일명·이미지·PK·이름 FK·이미지 FK를 유지하고 기존 TextData의 외형 이름45개만 교체했다.
 
-성별·연령은 표시 이름을 정리할 때 참고한 인상이며, 외형의 고정 설정이나 데이터 검증 기준이 아니다. 추가했던 `gender,age` 컬럼·DTO 필드·로더 검증·분류 테스트는 사용자 지시에 따라 제거했다. CSV는 기존 `idx,nameidx,image_resource_idx` 3열을 사용한다.
+성별·연령은 현재 외형 선택에 사용하는 고정 분류 초안이다. `CustomerAppearanceData.csv`의 필수 `gender,age` 컬럼에 아래 표를 반영하며, 실제 플레이 확인 뒤 분류값을 수정할 수 있다. 성별은 Male=1/Female=2, 연령은 Child=4/Elderly=8/Adult=16의 기존 `CustomerAttributes` 숫자값을 사용한다.
 
-현재 생성기는 성별·연령과 외형을 독립적으로 추첨한다. 이 참고표를 바탕으로 생성 조건을 고정하거나 일치를 강제하지 않는다.
+현재 생성기는 성향을 먼저 선택하고 성별 교대·연령 균등 규칙으로 속성을 정한 뒤, 두 축이 일치하는 외형 후보에서 PK 정렬 후 균등 추첨한다. 성향 타입과 Normal 속성은 외형 필터에 사용하지 않는다.
 
 | 성별 | 아동 | 성인 | 노년 | 합계 |
 |---|---:|---:|---:|---:|
@@ -63,8 +63,15 @@
 | 5044 | 노년 남성 29 | [MaleCustomer_29](../Assets/Textures/Customer/Dystopia/MaleCustomer_29.png) | 초안 |
 | 5045 | 성인 남성 00 | [MaleCustomer0](../Assets/Textures/Customer/Dystopia/MaleCustomer0.png) | 초안 |
 
-## 컬럼 제거 검증
+## 현재 데이터·검증 계약
 
-- 기존45행의 PK·nameidx·image_resource_idx를 유지했다. TextData의 정리한 이름, 이미지 파일·GUID·Addressables는 이번 컬럼 제거에서 수정하지 않았다.
-- 성별·연령을 고정하는 테스트12건을 제거했으며, 기존 CSV·PK/FK 테스트로 3열 데이터 로딩을 확인한다.
-- 컬럼 제거 후 Unity 컴파일 완료, EditMode249/249 통과(실패·skip·미완료0). 증거: `Temp/TestResults/appearance-columns-removed-01/EditMode.xml`. `git diff --check` 통과. 이번 변경의 PlayMode·화면 검증과 커밋·푸시는 수행하지 않았다.
+- 기존45행의 PK·nameidx·image_resource_idx와 이미지·GUID·Addressables를 유지하고 `gender,age` 두 필수 열만 추가한다.
+- loader는 각 축의 단일 허용값을 검사하고 catalog는 Male/Female × Child/Elderly/Adult 여섯 조합이 모두 존재해야 공개한다.
+- 선택 후 일치 후보가 없으면 설정 오류로 예외를 발생시키며 성별을 다시 뽑거나 이전 성별 상태를 갱신하지 않는다.
+- 이 문서의 「연령 검토」 표시는 분류 재검토 후보이며 현재 runtime 값은 표의 분류를 따른다.
+
+## 이전 컬럼 제거 기록 (2026-09-13)
+
+- 당시에는 45행의 PK·nameidx·image_resource_idx를 유지하고 성별·연령 컬럼과 분류 테스트12건을 제거했다. TextData 이름·이미지·GUID·Addressables 변경은 없었다.
+- 당시 Unity 컴파일과 EditMode249/249가 통과했다(실패·skip·미완료0). 증거: `Temp/TestResults/appearance-columns-removed-01/EditMode.xml`. PlayMode·화면 검증은 미실행이었다.
+- 이 기록은 과거 결정이며, 2026-09-15 승인으로 컬럼과 외형 필터를 다시 적용했다. 현재 검증은 [생성 통합 명세](CUSTOMER_SPAWN_INTEGRATION.md)의 외형 필터 검증 절을 따른다.

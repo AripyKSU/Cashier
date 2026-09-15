@@ -44,7 +44,7 @@ public sealed class CustomerCompositionTests
             RejectTextIdxs = new uint[] { 5 }
         };
         visit = new CustomerGenerator(new Random(1)).Generate(
-            new uint[] { 5001 },
+            CustomerAppearanceFixtures.Create(),
             new[] { disposition },
             products,
             getCurrentPrices: () => prices);
@@ -56,7 +56,7 @@ public sealed class CustomerCompositionTests
     {
         var items = visit.Items.ToList();
         var availableProductIds = new List<uint> { 1, 2 };
-        CustomerComposition composition = createComposition(items, availableProductIds, attributes: visit.Attributes);
+        CustomerComposition composition = createComposition(items, availableProductIds, appearanceIdx: visit.AppearanceIdx, attributes: visit.Attributes);
 
         items.Clear();
         availableProductIds.Clear();

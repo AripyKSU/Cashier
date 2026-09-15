@@ -8,8 +8,7 @@ using System.Linq;
 /// </summary>
 /// <remarks>
 /// 명성 가중치로 성향 구성군을 고른 뒤 해당 군의 타입과 행을 선택합니다.
-/// 외형은 아직 성별별 이미지 자산에 연결하지 않으며, 선택된 성별은 구성 snapshot의
-/// <see cref="CustomerAttributes"/>로만 전달합니다.
+/// 선택한 성별·연령과 일치하는 검증된 외형만 구성 snapshot에 사용합니다.
 /// </remarks>
 public sealed class CustomerCompositionSelector
 {
@@ -42,7 +41,7 @@ public sealed class CustomerCompositionSelector
     /// <summary>
     /// 하루 시작 명성 구간과 현재 설비 상태를 사용해 다음 손님 구성을 확정합니다.
     /// </summary>
-    /// <param name="appearanceIds">외형 후보 PK입니다.</param>
+    /// <param name="appearances">검증된 외형 PK → 데이터 사전입니다.</param>
     /// <param name="dispositions">검증된 성향 행 후보입니다.</param>
     /// <param name="products">상품 PK → 상품 데이터 사전입니다.</param>
     /// <param name="reputationBalance">하루 시작 명성에 대응하는 구성 가중치입니다.</param>
@@ -54,7 +53,7 @@ public sealed class CustomerCompositionSelector
     /// <exception cref="ArgumentException">후보 PK·상품 FK·현재가·행 설정이 잘못된 경우 발생합니다.</exception>
     /// <exception cref="InvalidDataException">가중치 또는 구성군 데이터가 일관되지 않는 경우 발생합니다.</exception>
     public CustomerComposition SelectComposition(
-        IReadOnlyList<uint> appearanceIds,
+        IReadOnlyDictionary<uint, CustomerAppearanceData> appearances,
         IReadOnlyList<CustomerDispositionData> dispositions,
         IReadOnlyDictionary<uint, ProductData> products,
         ReputationBalanceData reputationBalance,
@@ -64,12 +63,12 @@ public sealed class CustomerCompositionSelector
     {
         if (reputationBalance == null)
             throw new ArgumentNullException(nameof(reputationBalance));
-        return this.selectComposition(appearanceIds, dispositions, products, currentPrices,
+        return this.selectComposition(appearances, dispositions, products, currentPrices,
             reputationBalance, elapsedDays, isFacilityActive);
     }
 
     /// <summary>명성 데이터가 아직 연결되지 않은 호환 호출을 위해 타입을 균등 선택합니다.</summary>
-    /// <param name="appearanceIds">외형 후보 PK입니다.</param>
+    /// <param name="appearances">검증된 외형 PK → 데이터 사전입니다.</param>
     /// <param name="dispositions">검증된 성향 행 후보입니다.</param>
     /// <param name="products">상품 PK → 상품 데이터 사전입니다.</param>
     /// <param name="currentPrices">구성 시점의 상품 현재가 snapshot입니다.</param>
@@ -79,20 +78,20 @@ public sealed class CustomerCompositionSelector
     /// <exception cref="ArgumentNullException">필수 입력이 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentException">후보·상품·행 설정이 잘못된 경우 발생합니다.</exception>
     public CustomerComposition SelectCompositionUniform(
-        IReadOnlyList<uint> appearanceIds,
+        IReadOnlyDictionary<uint, CustomerAppearanceData> appearances,
         IReadOnlyList<CustomerDispositionData> dispositions,
         IReadOnlyDictionary<uint, ProductData> products,
         IReadOnlyDictionary<uint, uint> currentPrices,
         uint elapsedDays = 0,
         Func<uint, bool> isFacilityActive = null)
     {
-        return this.selectComposition(appearanceIds, dispositions, products, currentPrices,
+        return this.selectComposition(appearances, dispositions, products, currentPrices,
             null, elapsedDays, isFacilityActive);
     }
 
     /// <summary>입력 후보를 검증하고 실제 구성 snapshot을 만드는 내부 흐름입니다.</summary>
     private CustomerComposition selectComposition(
-        IReadOnlyList<uint> appearanceIds,
+        IReadOnlyDictionary<uint, CustomerAppearanceData> appearances,
         IReadOnlyList<CustomerDispositionData> dispositions,
         IReadOnlyDictionary<uint, ProductData> products,
         IReadOnlyDictionary<uint, uint> currentPrices,
@@ -100,8 +99,8 @@ public sealed class CustomerCompositionSelector
         uint elapsedDays,
         Func<uint, bool> isFacilityActive)
     {
-        if (appearanceIds == null || appearanceIds.Count == 0)
-            throw new ArgumentException("외형 후보가 필요합니다.", nameof(appearanceIds));
+        if (appearances == null || appearances.Count == 0)
+            throw new ArgumentException("외형 후보가 필요합니다.", nameof(appearances));
         if (dispositions == null || dispositions.Count == 0)
             throw new ArgumentException("성향 후보가 필요합니다.", nameof(dispositions));
         if (products == null)
@@ -109,7 +108,7 @@ public sealed class CustomerCompositionSelector
         if (currentPrices == null)
             throw new ArgumentNullException(nameof(currentPrices));
 
-        List<uint> sortedAppearanceIds = validateAppearanceIds(appearanceIds);
+        List<CustomerAppearanceData> sortedAppearances = validateAppearances(appearances);
         List<CustomerDispositionData> sortedDispositions = validateDispositions(dispositions, products);
         Dictionary<uint, ProductData> availableProducts = validateAndFilterProducts(products, currentPrices,
             elapsedDays, isFacilityActive);
@@ -121,7 +120,11 @@ public sealed class CustomerCompositionSelector
             : selectWeightedDisposition(sortedDispositions, reputationBalance, elapsedDays);
         CustomerAttributes selectedGender;
         CustomerAttributes attributes = this.selectAttributes(out selectedGender);
-        uint appearanceIdx = sortedAppearanceIds[this.random.Next(sortedAppearanceIds.Count)];
+        List<CustomerAppearanceData> matchingAppearances = sortedAppearances.Where(appearance =>
+            appearance.Gender == selectedGender && (attributes & appearance.Age) != 0).ToList();
+        if (matchingAppearances.Count == 0)
+            throw new InvalidDataException($"gender={selectedGender}, age={attributes & (CustomerAttributes.Child | CustomerAttributes.Elderly | CustomerAttributes.Adult)} 외형 후보 누락");
+        uint appearanceIdx = matchingAppearances[this.random.Next(matchingAppearances.Count)].Idx;
         List<CustomerOrderItem> items = selectItems(disposition, availableProducts, currentPrices);
         CustomerComposition composition = new CustomerComposition(
             appearanceIdx,
@@ -145,19 +148,19 @@ public sealed class CustomerCompositionSelector
         return composition;
     }
 
-    /// <summary>외형 PK를 정렬하고 중복·0을 거부합니다.</summary>
-    private static List<uint> validateAppearanceIds(IReadOnlyList<uint> appearanceIds)
+    /// <summary>외형 사전의 키·PK·분류를 검사하고 PK 순으로 정렬합니다.</summary>
+    private static List<CustomerAppearanceData> validateAppearances(IReadOnlyDictionary<uint, CustomerAppearanceData> appearances)
     {
-        HashSet<uint> seen = new HashSet<uint>();
-        List<uint> result = new List<uint>(appearanceIds.Count);
-        foreach (uint id in appearanceIds)
+        List<CustomerAppearanceData> result = new List<CustomerAppearanceData>(appearances.Count);
+        foreach (KeyValuePair<uint, CustomerAppearanceData> pair in appearances)
         {
-            if (id == 0 || !seen.Add(id))
-                throw new ArgumentException("외형 ID는 0이 아니며 고유해야 합니다.", nameof(appearanceIds));
-            result.Add(id);
+            if (pair.Key == 0 || pair.Value == null || pair.Key != pair.Value.Idx)
+                throw new ArgumentException("외형 사전 키와 PK가 일치해야 합니다.", nameof(appearances));
+            pair.Value.ValidateClassification();
+            result.Add(pair.Value);
         }
 
-        result.Sort();
+        result.Sort((left, right) => left.Idx.CompareTo(right.Idx));
         return result;
     }
 

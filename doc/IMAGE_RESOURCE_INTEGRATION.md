@@ -35,11 +35,11 @@
 
 사본 16개는 원본과 PNG 해시가 같고 GUID 중복이 없으며 각각 Sprite 1개로 로드된다. 주소·GUID·기존 그룹·라벨 없음도 16/16 확인했다. 기존 Resource 56행을 보존했다. 최종 Unity는 컴파일 오류 없음·Play 종료·InitScene dirty=False·runInBackground=False다. 확인 기록: `Temp/ProductImageFinalValidation.txt`. Console Error 5건은 테스트의 구매 알림 실패·감독관 참조 누락·ResourcePool 실패 주입이며 신규 상품 로딩 오류는 확인되지 않았다. MainScene·공용 prefab·원본 Dystopia 자산·ProjectSettings의 내용 변경은 없다. 화면 배치·이미지 가독성은 사용자 수동 확인 대상이다. 사용자 승인으로 상품 데이터·이미지·테스트·UI 수정과 관련 문서를 함께 커밋·푸시한다. 병합 시 Resource 4276~4291와 이미지 16개·metadata·주소 등록을 함께 반영한다.
 
-## 외형 성별·연령 분류 (2026-09-13)
+## 외형 성별·연령 분류 (2026-09-15)
 
-외형45종의 성별·연령은 이미지 분류와 표시 이름 정리를 위한 참고 기준이다. 사용자 지시에 따라 추가했던 `gender,age` 컬럼과 관련 검증을 제거했으며, 현재 header는 기존 `idx,nameidx,image_resource_idx` 3열이다. 성별·연령을 외형의 고정 데이터나 생성 조건으로 사용하지 않는다.
+외형 45종의 성별·연령은 `CustomerAppearanceData.csv`의 `gender,age` 고정 분류다. 생성 시 선택된 성별·연령과 일치하는 외형만 후보로 사용한다.
 
-외형 PK·nameidx·Sprite FK·원본 파일명·GUID는 유지하고 TextData의 외형 이름45개를 정리했다. 파일 번호를 유지한 `성인 여성 01`, `노년 여성 02`, `여자아이 17` 방식이다. 성향·재산·절박함은 분류하지 않았다. [이름 정리 참고표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)는 런타임 검증 규칙이 아니다. 기존 생성기의 속성과 외형 독립 추첨은 유지한다.
+외형 PK·nameidx·Sprite FK·원본 파일명·GUID는 유지하고 TextData의 외형 이름45개를 정리했다. 파일 번호를 유지한 `성인 여성 01`, `노년 여성 02`, `여자아이 17` 방식이다. 성향·재산·절박함은 분류하지 않았다. [외형 분류 초안](CUSTOMER_APPEARANCE_CLASSIFICATION.md)의 성별·연령을 CSV에 반영했으며, 생성은 표시 이름이 아닌 CSV 분류값을 참조한다. 연령 초안은 플레이 테스트에서 수정할 수 있다.
 
 아래 날짜별 스냅샷의 예전 표시 이름은 당시 기록이다.
 
@@ -67,7 +67,7 @@
 - ProductData: 기존 `image_resource_idx:uint?`는 기본 UI·계산대 이미지다. 마지막 열에 `top_view_image_resource_idx:uint?`를 추가했다. 기존 컬럼 순서는 유지한다.
 - 두 값이 모두 빈 경우만 이미지 미준비로 허용하고 기존 흰색 runtime Sprite를 사용한다. Placeholder FK를 넣지 않는다. 한쪽만 빈값, 0, 잘못된 Resource 대역·FK는 로그와 예외로 거부한다.
 - 기본 이미지가 있고 탑뷰 원본이 없으면 기본 FK를 탑뷰 열에 **명시적으로** 복제한다. runtime에서 누락된 FK·로드 오류를 기본 이미지로 숨기지 않는다.
-- CustomerAppearanceData: `idx,nameidx,image_resource_idx`. RGBA 네 열을 제거했다. 필수 `image_resource_idx:uint`는 ResourceData FK이며 한 행은 한 Sprite다. 성별·연령·성향으로 이미지를 다시 선택하지 않는다.
+- CustomerAppearanceData: `idx,nameidx,image_resource_idx,gender,age`. 필수 `image_resource_idx:uint`는 ResourceData FK이며 한 행은 한 Sprite다. 성향은 외형 필터가 아니며, 성별·연령이 일치하는 후보에서 선택한다.
 - 외형 5001~5004를 보존하고 5045까지 확장했다. 사용용 Female 18개, Male 27개(MaleCustomer0 포함), Inspector·NormalMap 제외. 각 외형 이름은 '여성 외형 01' 등 명시적인 TextData 참조다. 기존8001~8004는 외형 이외 소비자가 없어 이름을 변경하고8071~8111을 추가했다.
 - Resource4201~4254를 추가했다. 기존 Resource72행·path는 보존하며 새 종류 ID를 배정하지 않았다. 상세 asset/GUID/address는 [등록표](data/IMAGE_RESOURCE_REGISTRATION.csv)를 따른다.
 

@@ -54,6 +54,9 @@ if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
 if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 243) throw new Exception("Unexpected sample counts");
+foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
+foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
+    Assert.That(valid.Appearances.Rows.Values.Any(row => row.Gender == gender && row.Age == age), Is.True, $"{gender}/{age}");
 Assert.That(textTables[valid].GetCurrencyUnit(), Is.EqualTo("원"));
 Assert.That(textTables[valid].GetCurrencyFormat(), Is.EqualTo("{0:N0} 원"));
 var expectedProductIds = new uint[] { 1001, 1004, 1005, 1006, 1007, 1010, 1013, 1014, 1015, 1016, 1018, 1019, 1020, 1021, 1022, 1023 };
@@ -102,6 +105,9 @@ Assert.That(priceSensitive.All(x => x.EntryTextIdxs.SequenceEqual(new uint[] { 8
     [TestCase("quantity")]
     [TestCase("product nameidx")]
     [TestCase("appearance nameidx")]
+    [TestCase("appearance gender")]
+    [TestCase("appearance age")]
+    [TestCase("appearance combination")]
     [TestCase("disposition nameidx")]
     [TestCase("category nameidx")]
     [TestCase("empty text")]
@@ -180,6 +186,9 @@ case "boolean": mutate=()=>c.Products.LoadData(product.Replace("1001,8012,1,1", 
 case "quantity": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",900,1,3,1,3", ",900,1,3,0,3")); break;
 case "product nameidx": mutate=()=>c.Products.LoadData(product.Replace("1001,8012", "1001,8999")); break;
 case "appearance nameidx": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001", "5001,8999")); break;
+case "appearance gender": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,2,16", "5001,8001,4201,3,16")); break;
+case "appearance age": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,2,16", "5001,8001,4201,2,12")); break;
+case "appearance combination": mutate=()=>c.Appearances.LoadData(appearance.Replace(",2,4", ",2,16")); break;
 case "disposition nameidx": mutate=()=>c.Dispositions.LoadData(disposition.Replace("6001,8005", "6001,0")); break;
 case "category nameidx": mutate=()=>c.Categories.LoadData(category.Replace("7001,8008", "7001,8999")); break;
 case "empty text": mutate=()=>textTables[c].LoadData(texts.Replace("8012,물", "8012,")); break;
@@ -188,10 +197,10 @@ case "missing text table": mutate=()=>textTables[c].Release(); break;
 case "enum string": mutate=()=>c.Products.LoadData(product.Replace("1001,8012,1,", "1001,8012,Water,")); break;
 case "duplicate category type": mutate=()=>c.Categories.LoadData(category.Replace("7002,8009,2", "7002,8009,1")); break;
 case "missing category display": mutate=()=>c.Categories.LoadData(category.Replace("7004,8011,4", "")); break;
-case "base price": mutate=()=>c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,0,0,")); break;
-case "negative day": mutate=()=>c.Products.LoadData(product.Replace("1,1,100,0,", "1,1,100,-1,")); break;
-case "zero image": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,0,50")); break;
-case "image FK": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,4999,50")); break;
+case "base price": mutate=()=>c.Products.LoadData(product.Replace("1,1,1000,0,", "1,1,0,0,")); break;
+case "negative day": mutate=()=>c.Products.LoadData(product.Replace("1,1,1000,0,", "1,1,1000,-1,")); break;
+case "zero image": mutate=()=>c.Products.LoadData(product.Replace("1000,0,4276,500", "1000,0,0,500")); break;
+case "image FK": mutate=()=>c.Products.LoadData(product.Replace("1000,0,4276,500", "1000,0,4999,500")); break;
 case "entry dialog FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8999")); break;
 case "empty entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "")); break;
 case "duplicate entry": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8024_8025", "8024_8024")); break;
@@ -206,7 +215,7 @@ case "queue warning FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace(
 case "queue leave FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("12,8050,8051", "12,8050,8999")); break;
 case "queue header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("queue_patience_seconds", "missing_queue_patience")); break;
 case "cost header": mutate=()=>c.Products.LoadData(product.Replace("cost_price", "missing_cost")); break;
-case "zero cost": mutate=()=>c.Products.LoadData(product.Replace("100,0,4276,50", "100,0,4276,0")); break;
+case "zero cost": mutate=()=>c.Products.LoadData(product.Replace("1000,0,4276,500", "1000,0,4276,0")); break;
 case "type header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("disposition_type", "missing_type")); break;
 case "product preference header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("preferred_product_idxs", "missing_products")); break;
 case "regular min header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("regular_price_min_rate","missing_min")); break;

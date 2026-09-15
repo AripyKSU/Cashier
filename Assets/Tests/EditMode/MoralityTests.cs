@@ -104,7 +104,7 @@ public sealed class MoralityTests
             foreach (long offeredTotal in new long[] { 999, 1000, expectedTolerance, expectedTolerance + 1 }.Distinct())
             {
                 CustomerComposition composition = new CustomerCompositionSelector(new Random(17)).SelectCompositionUniform(
-                    new uint[] { 5001 }, new[] { row }, products, prices);
+                    CustomerAppearanceFixtures.Create(), new[] { row }, products, prices);
                 CustomerVisit visit = new CustomerGenerator().Generate(composition, products, () => prices,
                     moralityCalculator: calculator);
                 visit.BeginOffer();
@@ -150,7 +150,7 @@ public sealed class MoralityTests
         {
             CustomerDispositionData row = dispositionRows.Values.First(x => x.DispositionType == item.type);
             CustomerComposition selected = new CustomerCompositionSelector(new Random(17)).SelectCompositionUniform(
-                new uint[] { 5001 }, new[] { row }, products, prices);
+                CustomerAppearanceFixtures.Create(), new[] { row }, products, prices);
             var composition = new CustomerComposition(5001, row.Idx, item.type,
                 CustomerAttributes.Male | CustomerAttributes.Adult | CustomerAttributes.Normal,
                 selected.Items, row.EntryTextIdxs[0], row.RegularSaleTextIdxs[0],

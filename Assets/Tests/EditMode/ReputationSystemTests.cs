@@ -317,7 +317,7 @@ public sealed class ReputationSystemTests
             }
         };
         Dictionary<uint, uint> prices = new Dictionary<uint, uint> { [1] = 100 };
-        CustomerVisit visit = new CustomerGenerator(new System.Random(17)).Generate(new uint[] { 1 },
+        CustomerVisit visit = new CustomerGenerator(new System.Random(17)).Generate(CustomerAppearanceFixtures.Create(),
             new[] { disposition }, products, getCurrentPrices: () => prices);
         visit.BeginOffer();
         visit.SubmitOffer(offeredTotal, new[] { new SaleItem(1, 1) });

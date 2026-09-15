@@ -14,7 +14,7 @@
 
 > 2026-09-14 최종 상품 16종 반영: 사용자 확정에 따라 [물품 기획서](https://docs.google.com/document/d/1lCzaQRmFRWrxfIhWr2UZy64-7A8v1N9fAvlOorMF77E/edit?tab=t.mxsfe4eewdaq)의 16종안을 적용한다. 1009·1011·1017·1024·1025를 제외하고 1005는 군용식량, 1013은 약통으로 개명한다. 1022 방사능 측정기는 설비 12006 해금으로 이동한다. 남은 16종의 가격·원가·ID는 유지하며 모두 기본/탑뷰 이미지를 연결했다(Resource 4276~4291, 사운드 포함 전체 91행). 아래 과거 원문 스냅샷보다 [현재 이미지 매핑](IMAGE_RESOURCE_INTEGRATION.md#디스토피아-상품-이미지-연결-2026-09-14)과 실제 CSV를 우선한다. 문서의 검토안 표기는 사용자의 최종 확정으로 대체한다.
 
-> 2026-09-13 손님 외형 이름 정리: 성별·연령은 이름을 정리하는 참고 기준이며 고정 데이터가 아니다. 추가했던 컬럼과 검증을 제거해 CustomerAppearanceData는 기존3열을 유지한다. 기존 외형 이름45개는 정리한 이름을 유지한다. [현재 스키마](IMAGE_RESOURCE_INTEGRATION.md#외형-성별연령-분류-2026-09-13)와 [이름 정리 참고표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)를 참고한다. 아래 예전 표시 이름은 과거 스냅샷이다.
+> 2026-09-15 손님 외형 분류 적용: CustomerAppearanceData에 기존 `CustomerAttributes` 숫자값을 사용하는 필수 `gender,age` 열을 추가했다. 45개 분류는 [외형 분류표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)를 따르며 플레이 확인 뒤 수정할 수 있다.
 
 > 2026-09-13 감독관 전용 이미지 연결: Resource4256 → `Inspector` 추가로 Resource는56행이다. 1·10·21일 감독관 이벤트가 이 이미지를 참조한다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)를 참고한다.
 
@@ -75,7 +75,7 @@
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
 | [TextData](../Assets/Datas/TextData.csv) | 178 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
-| [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
+| [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 5 | 성별·연령 일치 외형 선택 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 22 | 구매·MainScene 대기열·명성별 성향 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
@@ -194,7 +194,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### CustomerAppearanceData
 
-현재 연결. 생성기는 외형 PK를 방문마다 선정한다. GameUIController가 필수 Resource FK를 로드하고 ProgressViewDataFactory는 Sprite를 전달한다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 성별·연령·성향과 외형 선정은 독립이다.
+현재 연결. 생성기는 먼저 확정한 성별·연령과 일치하는 외형 PK를 방문마다 선정한다. GameUIController가 필수 Resource FK를 로드하고 ProgressViewDataFactory는 Sprite를 전달한다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 성향과 Normal 속성은 외형 선정 조건이 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/CustomerAppearanceData.csv), [DTO](../Assets/Scripts/Customer/Data/CustomerAppearanceData.cs), [DataTable](../Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs).
 
@@ -203,6 +203,8 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001~5045 |
 | 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001~8004,8082~8100,8107~8128 |
 | 3. `image_resource_idx` | ImageResourceIdx · uint | 외형 Sprite | 필수; 0·빈값·Resource 대역·존재 검사 | ResourceData.idx → path → Sprite | 4201~4245 |
+| 4. `gender` | Gender · CustomerAttributes | 외형 성별 | 필수; Male=1 또는 Female=2 | 방문 Attributes 성별 | 1,2 |
+| 5. `age` | Age · CustomerAttributes | 외형 연령 | 필수; Child=4, Elderly=8 또는 Adult=16 | 방문 Attributes 연령 | 4,8,16 |
 
 ### CustomerDispositionData
 
@@ -314,7 +316,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 - 명성 출현은 하루 시작 명성의 `ReputationBalanceData` 가중치로 Normal, PriceSensitive, Wealthy, Hasty, Poor를 각각 선택한 뒤 같은 타입의 성향 행을 날짜별 상품군 가중치로 선택한다. 표시일1~9일은 저가·중가·고가=1.6·1.0·0.45, 10~19일은1.0·1.6·1.0, 20일 이후는1.0·1.2·1.8이다. 저가는 Water~DailyNecessities, 중가는 Tools·ElectricalEquipment, 고가는 ProtectiveEquipment이며 복수 선호 타입 행은 가중치 산술평균을 쓴다. 이 값은 현재 `CustomerCompositionSelector` 상수이고 CSV 열은 없다. 일반은 모든 명성 구간에서 최다, 가격 민감은5% 고정, 부자는 고명성 상승, Hasty(성급함)는 저명성 상승, Poor(가난)는10% 고정이다. 명성 정산은 같은 타입의 여러 행 중 선호·대사와 무관하게 가격 규칙만 대표값으로 사용하며, 같은 타입 행의 가격 규칙이 다르면 데이터 오류로 거부한다.
 - 6004~6006은 Normal, 6008~6009는 PriceSensitive, 6010~6011은 Wealthy, 6012~6015는 Poor의 추가 선호 행이다. 타입을 먼저 선택하므로 날짜별 선호 행 가중치는 명성별 타입 출현율을 바꾸지 않는다. 같은 타입에 행이 하나뿐이면 선택 결과도 바뀌지 않는다.
 - 손님 선호는 `ProductType`와 개별 `preferred_product_idxs`의 OR이며 날짜·활성·설비 필터 이후의 상품 후보에만 적용한다. 설비 상품은 Tools/ElectricalEquipment/ProtectiveEquipment로 분류되어 해당 타입 선호 손님이 설비 활성 뒤에만 해당 상품을 고를 수 있다.
-- 성별2종과 연령3종은 독립 균등이며 외형·성향과 별개다. 성인은Adult=16, 특수 속성은 현재Normal=32 하나뿐이며 전체2×3×1=6조합이다. Normal만을 위해 난수를 추가 소비하지 않는다.
+- 성별2종은 방문마다 교대하고 연령3종은 균등 선택한다. 성인은Adult=16, 특수 속성은 현재Normal=32 하나뿐이며 전체2×3×1=6조합이다. 선택한 성별·연령과 일치하는 외형만 균등 추첨하며 Normal과 성향은 필터하지 않는다.
 - 현재 같은 성향의 기준가·저가·착취 대사 목록이 동일하다. 판정이 달라도 문구가 같을 수 있다. 결제 거부는 별도 목록이다.
 - 재촉 시점은 `queue_patience_seconds - 6`이다. 모든 성향이3초에 재촉하는 것이 아니라 가장 급한 성향이3초이며 다른 성향은 비례 조정된 값이다. 대기열은 독립 API이므로 현재 UI에서 위 시간이 흐른다는 보장은 없다.
 
@@ -915,55 +917,55 @@ idx,text
 
 ### Assets/Datas/Customer/CustomerAppearanceData.csv
 
-데이터 45행, 3컬럼. SHA-256: `1156FEBFCA6C43296613378DFD14B61CCE0753AD72C378C96CA3B14B76AE304E`.
+데이터 45행, 5컬럼. SHA-256: `E21822D228C58466C6AB9A3DBF8686C92CCFFD240FC956837D75FFED52BE7B0C`.
 
 ```csv
-idx,nameidx,image_resource_idx
-5001,8001,4201
-5002,8002,4202
-5003,8003,4203
-5004,8004,4204
-5005,8112,4205
-5006,8113,4206
-5007,8114,4207
-5008,8115,4208
-5009,8116,4209
-5010,8117,4210
-5011,8118,4211
-5012,8119,4212
-5013,8120,4213
-5014,8121,4214
-5015,8122,4215
-5016,8082,4216
-5017,8083,4217
-5018,8084,4218
-5019,8085,4219
-5020,8086,4220
-5021,8087,4221
-5022,8088,4222
-5023,8089,4223
-5024,8090,4224
-5025,8091,4225
-5026,8092,4226
-5027,8093,4227
-5028,8094,4228
-5029,8095,4229
-5030,8096,4230
-5031,8097,4231
-5032,8098,4232
-5033,8099,4233
-5034,8100,4234
-5035,8123,4235
-5036,8124,4236
-5037,8125,4237
-5038,8126,4238
-5039,8127,4239
-5040,8128,4240
-5041,8107,4241
-5042,8108,4242
-5043,8109,4243
-5044,8110,4244
-5045,8111,4245
+idx,nameidx,image_resource_idx,gender,age
+5001,8001,4201,2,16
+5002,8002,4202,2,8
+5003,8003,4203,2,16
+5004,8004,4204,2,16
+5005,8112,4205,2,16
+5006,8113,4206,2,16
+5007,8114,4207,2,16
+5008,8115,4208,2,16
+5009,8116,4209,2,16
+5010,8117,4210,2,8
+5011,8118,4211,2,16
+5012,8119,4212,2,16
+5013,8120,4213,2,16
+5014,8121,4214,2,8
+5015,8122,4215,2,4
+5016,8082,4216,2,4
+5017,8083,4217,2,8
+5018,8084,4218,2,8
+5019,8085,4219,1,16
+5020,8086,4220,1,16
+5021,8087,4221,1,16
+5022,8088,4222,1,16
+5023,8089,4223,1,16
+5024,8090,4224,1,16
+5025,8091,4225,1,16
+5026,8092,4226,1,16
+5027,8093,4227,1,16
+5028,8094,4228,1,16
+5029,8095,4229,1,16
+5030,8096,4230,1,16
+5031,8097,4231,1,16
+5032,8098,4232,1,16
+5033,8099,4233,1,16
+5034,8100,4234,1,16
+5035,8123,4235,1,16
+5036,8124,4236,1,16
+5037,8125,4237,1,16
+5038,8126,4238,1,16
+5039,8127,4239,1,16
+5040,8128,4240,1,8
+5041,8107,4241,1,4
+5042,8108,4242,1,4
+5043,8109,4243,1,8
+5044,8110,4244,1,8
+5045,8111,4245,1,16
 ```
 
 ### Assets/Datas/Customer/CustomerDispositionData.csv

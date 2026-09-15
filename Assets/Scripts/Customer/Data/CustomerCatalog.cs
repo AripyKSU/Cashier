@@ -44,10 +44,15 @@ public sealed class CustomerCatalog
                 throw new InvalidDataException("손님 CSV 4종과 TextData.csv가 필요합니다. Datas 라벨과 로더 등록을 확인하세요.");
             foreach (var row in Appearances.PendingRows.Values)
             {
+                row.ValidateClassification();
                 validateNameReference(texts, "CustomerAppearanceData.csv", row.Idx, row.NameIdx);
                 if (resources == null || !resources.TryGetResource(row.ImageResourceIdx, out _))
                     throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
             }
+            foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
+            foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
+                if (!Appearances.PendingRows.Values.Any(row => row.Gender == gender && row.Age == age))
+                    throw new InvalidDataException($"CustomerAppearanceData.csv: gender={gender}, age={age} 외형 조합 누락");
             foreach (var row in Dispositions.PendingRows.Values)
                 validateNameReference(texts, "CustomerDispositionData.csv", row.Idx, row.NameIdx);
             foreach (var row in Categories.PendingRows.Values)
