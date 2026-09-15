@@ -272,7 +272,7 @@ public sealed class FacilityTests
             MinQuantity = 1, MaxQuantity = 1, EntryTextIdxs = new uint[] { 1 }, RegularSaleTextIdxs = new uint[] { 1 },
             DiscountSaleTextIdxs = new uint[] { 1 }, ExploitativeSaleTextIdxs = new uint[] { 1 }, RejectTextIdxs = new uint[] { 1 } };
         var generator = new CustomerGenerator(new System.Random(1));
-        Func<CustomerVisit> generate = () => generator.Generate(new uint[] { 5001 }, new[] { config }, products, day,
+        Func<CustomerVisit> generate = () => generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, day,
             () => CustomerProductAvailability.GetAvailableProducts(products, day, service.IsActive).ToDictionary(x => x.Idx, x => x.BasePrice), isFacilityActive: service.IsActive);
         service.TryPurchase(12001, out _);
         var before = generate(); Assert.That(before.Items.Select(x => x.ProductIdx), Is.EqualTo(new uint[] { 1001 }));
@@ -315,7 +315,7 @@ public sealed class FacilityTests
         };
         var generator = new CustomerGenerator(new System.Random(1));
         Func<CustomerVisit> generate = () => generator.Generate(
-            new uint[] { 5001 },
+            CustomerAppearanceFixtures.Create(),
             new[] { config },
             products,
             day,

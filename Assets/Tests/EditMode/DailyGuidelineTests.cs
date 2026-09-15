@@ -52,7 +52,7 @@ public sealed class DailyGuidelineTests
         {
             Assert.DoesNotThrow(row.Validate);
             Assert.That(Util.GetDataTableType(row.Idx), Is.EqualTo(DataTableType.DailyGuideline));
-            Assert.That(row.PenaltyAmount, Is.EqualTo(500));
+            Assert.That(row.PenaltyAmount, Is.EqualTo(5000));
         }
     }
 
@@ -71,7 +71,19 @@ public sealed class DailyGuidelineTests
         Assert.That(guidelineTable.TryGetByRuleType(DailyGuidelineRuleType.QuantityLimited, out DailyGuidelineData data), Is.True);
         DailyGuideline guideline = data.CreateGuideline(CustomerAttributes.Female | CustomerAttributes.Adult, 1001);
         Assert.That(guideline.AllowedQuantity, Is.EqualTo(1));
-        Assert.That(guideline.PenaltyAmount, Is.EqualTo(500));
+        Assert.That(guideline.PenaltyAmount, Is.EqualTo(5000));
+    }
+
+    [TestCase(0u, 0)]
+    [TestCase(1u, 0)]
+    [TestCase(2u, 1)]
+    [TestCase(9u, 1)]
+    [TestCase(18u, 1)]
+    [TestCase(19u, 2)]
+    [TestCase(30u, 2)]
+    public void DailyGuidelineGenerator_GetGuidelineCount_FollowsDayThresholds(uint elapsedDays, int expectedCount)
+    {
+        Assert.That(DailyGuidelineGenerator.GetGuidelineCount(elapsedDays), Is.EqualTo(expectedCount));
     }
 
     /// <summary>생성 대상이 모든 손님 또는 성별·연령 단일 속성으로만 구성되고 모든 손님이 우세한지 검사합니다.</summary>

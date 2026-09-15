@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 
@@ -30,7 +31,7 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         CustomerCompositionSelector selector = new CustomerCompositionSelector(new FixedRandom(sample));
 
         CustomerComposition composition = selector.SelectComposition(
-            new uint[] { 5001 }, dispositions, products, balance, prices, elapsedDays);
+            CustomerAppearanceFixtures.Create(), dispositions, products, balance, prices, elapsedDays);
 
         Assert.That(composition.DispositionIdx, Is.EqualTo(expectedDispositionId));
     }
@@ -55,7 +56,7 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         CustomerCompositionSelector selector = new CustomerCompositionSelector(new FixedRandom(0.65d));
 
         CustomerComposition composition = selector.SelectComposition(
-            new uint[] { 5001 }, dispositions, products, normalOnlyBalance(), prices, elapsedDays: 0);
+            CustomerAppearanceFixtures.Create(), dispositions, products, normalOnlyBalance(), prices, elapsedDays: 0);
 
         Assert.That(composition.DispositionIdx, Is.EqualTo(6001u));
     }
@@ -95,7 +96,7 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         for (int i = 0; i < 10000; i++)
         {
             CustomerComposition composition = selector.SelectComposition(
-                new uint[] { 5001, 5002 }, dispositions, products, balance, prices);
+                CustomerAppearanceFixtures.Create(), dispositions, products, balance, prices);
             counts.TryGetValue(composition.DispositionType, out int count);
             counts[composition.DispositionType] = count + 1;
         }
@@ -129,15 +130,72 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         Dictionary<uint, uint> prices = products.ToDictionary(pair => pair.Key, pair => pair.Value.BasePrice);
         CustomerCompositionSelector selector = new CustomerCompositionSelector(new Random(7));
 
-        CustomerComposition before = selector.SelectComposition(new uint[] { 5001 }, new[] { normalDisposition },
+        CustomerComposition before = selector.SelectComposition(CustomerAppearanceFixtures.Create(), new[] { normalDisposition },
             products, balance, new Dictionary<uint, uint> { [1] = prices[1] }, isFacilityActive: _ => false);
-        CustomerComposition after = selector.SelectComposition(new uint[] { 5001 }, new[] { normalDisposition },
+        CustomerComposition after = selector.SelectComposition(CustomerAppearanceFixtures.Create(), new[] { normalDisposition },
             products, balance, prices, isFacilityActive: _ => true);
 
         Assert.That(before.Items.Single().ProductIdx, Is.EqualTo(1));
         Assert.That(after.Items.Single().ProductIdx, Is.EqualTo(2));
         Assert.That(before.AvailableProductIds, Is.EqualTo(new uint[] { 1 }));
         Assert.That(after.AvailableProductIds, Is.EqualTo(new uint[] { 1, 2 }));
+    }
+
+    /// <summary>선택된 여섯 속성 조합이 외형 분류와 일치하고 동일 seed가 후보 선택까지 재현됩니다.</summary>
+    [Test]
+    public void AppearanceMatchesSelectedGenderAndAge()
+    {
+        IReadOnlyDictionary<uint, CustomerAppearanceData> appearances = CustomerAppearanceFixtures.Create();
+        Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData> { [1] = product(1, ProductType.Water) };
+        Dictionary<uint, uint> prices = new Dictionary<uint, uint> { [1] = 100 };
+        CustomerDispositionData[] dispositions = { disposition(6001, CustomerDispositionType.Normal, ProductType.Water) };
+        var left = new CustomerCompositionSelector(new Random(29));
+        var right = new CustomerCompositionSelector(new Random(29));
+        var combinations = new HashSet<CustomerAttributes>();
+        var selectedAppearanceIds = new HashSet<uint>();
+
+        for (int i = 0; i < 600; i++)
+        {
+            CustomerComposition first = left.SelectComposition(appearances, dispositions, products, normalOnlyBalance(), prices);
+            CustomerComposition second = right.SelectComposition(appearances, dispositions, products, normalOnlyBalance(), prices);
+            CustomerAppearanceData appearance = appearances[first.AppearanceIdx];
+            CustomerAttributes gender = first.Attributes & (CustomerAttributes.Male | CustomerAttributes.Female);
+            CustomerAttributes age = first.Attributes & (CustomerAttributes.Child | CustomerAttributes.Elderly | CustomerAttributes.Adult);
+            Assert.That((appearance.Gender, appearance.Age), Is.EqualTo((gender, age)));
+            Assert.That(second.AppearanceIdx, Is.EqualTo(first.AppearanceIdx));
+            combinations.Add(gender | age);
+            selectedAppearanceIds.Add(first.AppearanceIdx);
+        }
+
+        Assert.That(combinations.Count, Is.EqualTo(6));
+        Assert.That(selectedAppearanceIds.Count, Is.EqualTo(appearances.Count));
+    }
+
+    /// <summary>무상품 null과 외형 설정 실패는 다음 방문의 성별 교대 상태를 소비하지 않습니다.</summary>
+    [Test]
+    public void FailedCompositionPreservesGenderState()
+    {
+        IReadOnlyDictionary<uint, CustomerAppearanceData> appearances = CustomerAppearanceFixtures.Create();
+        Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData> { [1] = product(1, ProductType.Water) };
+        Dictionary<uint, uint> prices = new Dictionary<uint, uint> { [1] = 100 };
+        CustomerDispositionData[] dispositions = { disposition(6001, CustomerDispositionType.Normal, ProductType.Water) };
+        var selector = new CustomerCompositionSelector(new Random(31));
+        CustomerComposition first = selector.SelectComposition(appearances, dispositions, products, normalOnlyBalance(), prices);
+        CustomerAttributes firstGender = first.Attributes & (CustomerAttributes.Male | CustomerAttributes.Female);
+
+        ProductData unavailable = product(1, ProductType.Water);
+        unavailable.IsAvailable = false;
+        Assert.That(selector.SelectComposition(appearances, dispositions,
+            new Dictionary<uint, ProductData> { [1] = unavailable }, normalOnlyBalance(),
+            new Dictionary<uint, uint>()), Is.Null);
+
+        var wrongGenderAppearances = appearances.Values.Where(row => row.Gender == firstGender).ToDictionary(row => row.Idx);
+        Assert.Throws<InvalidDataException>(() => selector.SelectComposition(
+            wrongGenderAppearances, dispositions, products, normalOnlyBalance(), prices));
+
+        CustomerComposition next = selector.SelectComposition(appearances, dispositions, products, normalOnlyBalance(), prices);
+        CustomerAttributes nextGender = next.Attributes & (CustomerAttributes.Male | CustomerAttributes.Female);
+        Assert.That(nextGender, Is.EqualTo(firstGender == CustomerAttributes.Male ? CustomerAttributes.Female : CustomerAttributes.Male));
     }
 
     /// <summary>테스트용 상품을 만듭니다.</summary>

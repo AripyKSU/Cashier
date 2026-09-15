@@ -17,9 +17,9 @@ public sealed class CustomerQueueView : MonoBehaviour
     [SerializeField] private RectTransform[] slots;
     /// <summary>신규 방문의 시작 위치.</summary>
     [SerializeField] private RectTransform entrance;
-    /// <summary>임의 좌우 퇴장 위치.</summary>
+    /// <summary>기존 prefab 직렬화 호환용 왼쪽 퇴장 위치.</summary>
     [SerializeField] private RectTransform leftExit;
-    /// <summary>임의 좌우 퇴장 위치.</summary>
+    /// <summary>모든 손님이 사용하는 오른쪽 퇴장 위치.</summary>
     [SerializeField] private RectTransform rightExit;
     /// <summary>기존 한국어 TMP 폰트.</summary>
     [SerializeField] private TMP_FontAsset font;
@@ -31,7 +31,6 @@ public sealed class CustomerQueueView : MonoBehaviour
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
     private readonly HashSet<CustomerVisit> seen = new HashSet<CustomerVisit>();
     private readonly List<CustomerVisit> remove = new List<CustomerVisit>();
-    private readonly System.Random exitRandom = new System.Random();
     private DayProgress day;
     private bool originalImageEnabled;
     private bool isBound;
@@ -40,7 +39,7 @@ public sealed class CustomerQueueView : MonoBehaviour
     private void Awake()
     {
         if (controller == null || visualRoot == null || counterAppearance == null || entrance == null ||
-            leftExit == null || rightExit == null || font == null || slots == null || slots.Length != CustomerQueue.Capacity ||
+            rightExit == null || font == null || slots == null || slots.Length != CustomerQueue.Capacity ||
             Array.Exists(slots, x => x == null) || !isPositive(moveSeconds) ||
             float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0)
         {
@@ -134,7 +133,7 @@ public sealed class CustomerQueueView : MonoBehaviour
         beginExit(getVisual(visit, counterAppearance.rectTransform.position), false);
     }
 
-    /// <summary>현재 위치에서 임의 exit로 한 번 이동하며 불만 표시 수명을 따로 확보한다.</summary>
+    /// <summary>현재 위치에서 오른쪽 출구로 한 번 이동하며 불만 표시 수명을 따로 확보한다.</summary>
     /// <param name="visual">방문별 단일 외형.</param><param name="abandoned">대기 만료 여부.</param>
     private void beginExit(Visual visual, bool abandoned)
     {
@@ -142,7 +141,7 @@ public sealed class CustomerQueueView : MonoBehaviour
         visual.Leaving = true;
         visual.Abandoned = abandoned;
         visual.ExitColor = visual.Image.color;
-        retarget(visual, exitRandom.Next(2) == 0 ? leftExit : rightExit, visual.Rect.sizeDelta);
+        retarget(visual, rightExit, visual.Rect.sizeDelta);
     }
 
     /// <summary>실제 외형 CSV를 읽어 방문 하나에 시각 객체 하나만 생성한다.</summary>

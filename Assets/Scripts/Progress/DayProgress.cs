@@ -45,7 +45,7 @@ public sealed class DayProgress
     private readonly CustomerCompositionSelector customerCompositionSelector;
 
     // 검증된 외형 후보를 하루 동안 재사용합니다.
-    private readonly IReadOnlyList<uint> appearanceIds;
+    private readonly IReadOnlyDictionary<uint, CustomerAppearanceData> appearances;
 
     // 검증된 성향 후보를 하루 동안 재사용합니다.
     private readonly IReadOnlyList<CustomerDispositionData> dispositions;
@@ -238,10 +238,9 @@ public sealed class DayProgress
         this.customerGenerator = new CustomerGenerator();
         this.businessDurationSeconds = businessDurationSeconds;
 
-        var appearanceIds = new List<uint>(this.customerCatalog.Appearances.Rows.Keys);
         var dispositions = new List<CustomerDispositionData>(this.customerCatalog.Dispositions.Rows.Values);
         dispositions.Sort((left, right) => left.Idx.CompareTo(right.Idx));
-        this.appearanceIds = appearanceIds.AsReadOnly();
+        this.appearances = this.customerCatalog.Appearances.Rows;
         this.dispositions = dispositions.AsReadOnly();
         if (useCustomerQueue) this.queue = new CustomerQueue(this.createCustomer, customerCatalog.Dispositions.Rows);
         this.State = DayProgressState.Initializing;
@@ -485,7 +484,7 @@ public sealed class DayProgress
             throw new InvalidOperationException("하루 진행 날짜와 세션 날짜가 다릅니다.");
         DailyPriceState dailyPrices = this.session.EnsureDailyPrices();
         CustomerComposition composition = this.customerCompositionSelector.SelectComposition(
-            this.appearanceIds,
+            this.appearances,
             this.dispositions,
             this.customerCatalog.Products.Rows,
             this.reputationBalance,

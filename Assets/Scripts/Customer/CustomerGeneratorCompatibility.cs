@@ -12,7 +12,7 @@ public static class CustomerGeneratorCompatibility
 {
     /// <summary>이전의 명성 미연결 생성 시그니처를 구성 선택과 방문 생성으로 변환합니다.</summary>
     /// <param name="generator">호환 생성기 인스턴스입니다.</param>
-    /// <param name="appearanceIds">외형 후보 PK입니다.</param>
+    /// <param name="appearances">검증된 외형 PK → 데이터 사전입니다.</param>
     /// <param name="dispositions">성향 후보입니다.</param>
     /// <param name="products">상품 사전입니다.</param>
     /// <param name="elapsedDays">경과 일수입니다.</param>
@@ -24,7 +24,7 @@ public static class CustomerGeneratorCompatibility
     [Obsolete("CustomerCompositionSelector와 CustomerGenerator.Generate(composition, ...)를 사용하세요.")]
     public static CustomerVisit Generate(
         this CustomerGenerator generator,
-        IReadOnlyList<uint> appearanceIds,
+        IReadOnlyDictionary<uint, CustomerAppearanceData> appearances,
         IReadOnlyList<CustomerDispositionData> dispositions,
         IReadOnlyDictionary<uint, ProductData> products,
         uint elapsedDays = 0,
@@ -43,7 +43,7 @@ public static class CustomerGeneratorCompatibility
         IReadOnlyDictionary<uint, uint> currentPrices =
             getCurrentPrices() ?? throw new InvalidOperationException("현재가 조회 실패");
         CustomerComposition composition = selector.SelectCompositionUniform(
-            appearanceIds,
+            appearances,
             dispositions,
             products,
             currentPrices,

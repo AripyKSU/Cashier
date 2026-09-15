@@ -35,7 +35,7 @@
 - `disposition_type`은 필수 uint 숫자로 읽고 검증한 enum을 `DispositionType`으로 제공한다. 빈값·문자열·None·종료값·미정의 값은 거부한다. `preferred_product_idxs`는 필수 header, 빈 셀은 선호 없음이며 기존 `UIntArrayConverter`의 `_` 구분 uint 배열을 사용한다. 0·중복·null과 ProductData.idx FK 누락은 거부한다. 기존 세 행은 빈 셀이다.
 - 추첨은 실제 후보 타입을 정렬해 균등 선택한 뒤 그 타입의 설정을 Idx 순으로 정렬해 균등 선택한다. 따라서 타입별 행 개수는 타입 출현율을 바꾸지 않는다. 같은 seed·외형 후보 순서·후보 집합에서 재현되며 데이터·추첨 방식 변경 전 버전과의 난수열 호환은 보장하지 않는다.
 - 선호 풀은 품목 `preferred_product_types` **OR** 개별 `preferred_product_idxs`다. 둘 다 해당해도 상품은 한 번만 포함된다. 비활성·미등장 상품 제외, 기존 0~1000 선호 확률과 한쪽 풀 소진 시 fallback은 유지한다.
-- `CustomerAttributes`는 Male=1/Female=2와 Adult=16/Child=4/Elderly=8을 각 축에서 독립 균등 추첨하고, 현재 유일한 특수 속성 Normal=32를 붙인 2×3×1=6조합이다. 성인·일반은0이 아닌 명시 비트다. 외형·성향과 독립이며 속성 Wealthy/Poor는 구현하지 않는다. 기존 성향 타입 Wealthy=4와 자동 연결하거나 가격·대기 수치를 보정하지 않는다.
+- `CustomerAttributes`는 Male=1/Female=2를 방문마다 교대하고 Adult=16/Child=4/Elderly=8을 균등 추첨하며, 현재 유일한 특수 속성 Normal=32를 붙인 2×3×1=6조합이다. 성인·일반은0이 아닌 명시 비트다. 외형은 성별·연령이 일치해야 하며 성향과 Normal은 외형 조건이 아니다. 속성 Wealthy/Poor는 구현하지 않는다.
 - `ValidateAttributes`는 None 및 축이 생략된 부분조건을 허용하되 미정의 비트·같은 축의 중복 선택은 거부한다. `CustomerVisit`은 `ValidateCompleteAttributes`로 세 축에서 각각 정확히 하나를 요구한다. `SaleRestriction`은 기존대로 None을 거부하며 Adult 단독, Normal 단독, Female|Elderly|Normal 등의 AND 조건을 허용한다.
 - 이번 속성 변경은 기존 Male/Female/Child/Elderly 비트값을 유지하지만 생성 프로필에는 Adult/Normal 비트를 명시한다. 이전 성인값1/2 또는 Normal 없는 값은 완전한 방문으로 복원할 수 없다. 현재 방문 속성의 저장·복원 경로가 없어 자동 migration을 추가하지 않았다. 외부 저장을 도입할 때 별도 버전 규칙이 필요하다. 기존 CSV·성향 정책·외형·UI는 변경하지 않는다.
 - 방문의 getter-only `DispositionType`·`Attributes`는 생성 시 값 복사이며 원본 DTO 변경에 영향받지 않는다. 타입·속성으로 가격 허용도·대기 시간을 자동 보정하지 않는다. 기존 UI는 PK 표시를 유지하며 새 정보는 공개 API로 조회한다.
@@ -93,9 +93,9 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 | `DataTableManager.Instance.Customers` | 대기 성공 후 사용하는 manager 소유 `CustomerCatalog`. |
 | `catalog.Appearances/Dispositions/Categories/Products.Rows` | uint PK로 조회하는 읽기 전용 사전. DTO 자체는 불변 객체가 아니므로 소비자가 수정하지 않는다. |
 | `new CustomerCompositionSelector(System.Random random)` | 영업일 동안 재사용할 난수원과 성별 교대 상태를 소유한다. `DayProgress`가 영업일마다 새 인스턴스를 만든다. |
-| `SelectComposition(appearanceIds, dispositions, products, reputationBalance, currentPrices, elapsedDays = 0, isFacilityActive = null)` | 하루 시작 명성 가중치로 구성군을 선택하고, 날짜·설비 필터 뒤 선호 타입/개별 상품을 적용한다. 결과는 불변 `CustomerComposition` snapshot이며 판매 가능 상품이 없으면 null이다. |
+| `SelectComposition(appearances, dispositions, products, reputationBalance, currentPrices, elapsedDays = 0, isFacilityActive = null)` | 하루 시작 명성 가중치로 구성군과 속성을 선택하고, 성별·연령 일치 외형 및 날짜·설비 상품을 적용한다. 결과는 불변 `CustomerComposition` snapshot이며 판매 가능 상품이 없으면 null이다. |
 | `new CustomerGenerator()` / `Generate(composition, products, getCurrentPrices, getSaleRestrictions = null)` | 선택된 snapshot을 `CustomerVisit`으로만 변환한다. 현재가 공급은 `() => GameSessionManager.Instance.EnsureDailyPrices().Prices`이며 지침 공급자는 제출 시 선택적으로 조회한다. |
-| `CustomerGenerator.Generate(appearanceIds, dispositions, products, ...)` (Obsolete) | 기존 테스트·도구 호환용 확장 경로다. 제품 영업 흐름에서는 selector → composition → generator 순서를 사용한다. |
+| `CustomerGenerator.Generate(appearances, dispositions, products, ...)` (Obsolete) | 검증된 외형 데이터 사전을 받는 기존 테스트·도구 호환용 확장 경로다. 제품 영업 흐름에서는 selector → composition → generator 순서를 사용한다. |
 | `CustomerVisit.BeginOffer()` | `Entering`에서만 `AwaitingOffer`로 전환. 입장 표시·연출이 준비된 시점에 한 번 호출한다. |
 | `CustomerVisit.SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)` | 최종 목록과 양의 정수 총액. 최초 희망 목록과 달라도 허용한다. `AwaitingOffer`에서 한 번만 판정하고 bool 수락 여부를 반환한다. 0·음수는 예외이며 기회를 소모하지 않는다. 재제안·잘못된 상태는 예외. |
 | `CustomerVisit.Depart()` | `Accepted` 또는 `Rejected`에서만 `Departed`로 전환. 결과 확인·후속 처리 후 호출한다. 실제 GameObject 이동·파괴는 하지 않는다. |

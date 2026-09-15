@@ -9,7 +9,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
 {
     /// <summary>카메라 정렬과 준비된 Controller를 제공하는 같은 프리팹의 표시 소유자.</summary>
     [SerializeField] private WorldSceneView world;
-    /// <summary>좌상단 기준 픽셀 authoring 공간의 방문 루트와 입장·계산대·퇴장 anchors.</summary>
+    /// <summary>좌상단 기준 픽셀 authoring 공간의 방문 루트와 입장·계산대·퇴장 anchors. leftExit는 기존 prefab 직렬화 호환용이다.</summary>
     [SerializeField] private Transform visualRoot, counter, entrance, leftExit, rightExit;
     /// <summary>FIFO 순서 10개 위치. 원근 크기 변화는 적용하지 않는다.</summary>
     [SerializeField] private Transform[] slots;
@@ -22,7 +22,6 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
     private readonly HashSet<CustomerVisit> seen = new HashSet<CustomerVisit>();
     private readonly List<CustomerVisit> remove = new List<CustomerVisit>();
-    private readonly System.Random exitRandom = new System.Random();
     private DayProgress day;
 
     /// <summary>소유 중인 방문별 표시 객체 수.</summary>
@@ -31,7 +30,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     /// <summary>필수 연결·시간을 검사한다.</summary>
     private void Start()
     {
-        if (world == null || visualRoot == null || counter == null || entrance == null || leftExit == null || rightExit == null ||
+        if (world == null || visualRoot == null || counter == null || entrance == null || rightExit == null ||
             font == null || spriteMaterial == null || slots == null || slots.Length != CustomerQueue.Capacity ||
             Array.Exists(slots, x => x == null) || tradeReactionSprites == null || tradeReactionSprites.Length != 4 ||
             Array.Exists(tradeReactionSprites, x => x == null) || !isPositive(heightPixels) || !isPositive(moveSeconds) ||
@@ -120,8 +119,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             // 환경색과 퇴장 alpha는 같은 경로에서 합성한다.
             visual.Body.color = ComposeColor(world.PeopleTint, visual.Leaving ? t : 0, visual.Alpha, world.Opacity);
             visual.Speech.color = new Color(1, 1, 1, world.Opacity * (visual.Abandoned ? 1 : visual.Alpha));
-            // 불만은 이탈 당시 위치에 남겨 이미지의 .45초 퇴장과 모델의 3초 대사를 분리한다.
-            visual.Speech.transform.localPosition = (visual.Abandoned ? visual.SpeechPosition : position) + new Vector3(0, heightPixels + 4, 0);
+            // 불만은 외형 퇴장 alpha와 독립된 3초 수명을 유지하되 손님의 현재 위치를 따른다.
+            visual.Speech.transform.localPosition = position + new Vector3(0, heightPixels + 4, 0);
             updateReaction(visual, reactionDelta);
             if (visual.Leaving && visual.Elapsed >= duration && (!visual.Abandoned || !seen.Contains(pair.Key))) remove.Add(pair.Key);
         }
@@ -156,7 +155,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     /// <param name="visit">반납된 방문.</param>
     private void handleDeparture(CustomerVisit visit) => beginExit(getVisual(visit, counter), false);
 
-    /// <summary>퇴장 목표와 불만 위치를 한 번만 확정한다.</summary>
+    /// <summary>퇴장 목표를 화면 오른쪽 출구로 한 번만 확정한다.</summary>
     /// <param name="visual">외형.</param><param name="abandoned">대기 만료.</param>
     private void beginExit(Visual visual, bool abandoned)
     {
@@ -164,8 +163,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         visual.Leaving = true;
         visual.Reaction.gameObject.SetActive(false);
         visual.Abandoned = abandoned;
-        visual.SpeechPosition = visual.Root.localPosition;
-        retarget(visual, exitRandom.Next(2) == 0 ? leftExit : rightExit);
+        retarget(visual, rightExit);
     }
 
     /// <summary>준비된 Sprite를 빌려 방문별 월드 객체를 만든다. 독립 로딩·해제는 하지 않는다.</summary>
@@ -291,7 +289,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         public Transform Root, Target;
         public SpriteRenderer Body, Reaction;
         public TextMeshPro Speech;
-        public Vector3 Start, SpeechPosition;
+        public Vector3 Start;
         public float Alpha, Elapsed, IdleSeconds, Phase, BreathPeriod, ReactionElapsed;
         public bool Leaving, Abandoned, ReactionShown;
         public uint SpeechIdx;

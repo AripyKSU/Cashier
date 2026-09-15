@@ -97,8 +97,12 @@ public sealed class CustomerContractTests
     [Test]
     public void InvalidGenerationInputs()
     {
-        Assert.Throws<ArgumentException>(() => generator.Generate(new uint[] { 1, 1 }, new[] { config }, products, getCurrentPrices: () => prices));
-        Assert.Throws<ArgumentNullException>(() => generator.Generate(new uint[] { 1 }, new[] { config }, products));
+        var invalidAppearances = new Dictionary<uint, CustomerAppearanceData>
+        {
+            [5001] = new CustomerAppearanceData { Idx = 5002, Gender = CustomerAttributes.Male, Age = CustomerAttributes.Adult }
+        };
+        Assert.Throws<ArgumentException>(() => generator.Generate(invalidAppearances, new[] { config }, products, getCurrentPrices: () => prices));
+        Assert.Throws<ArgumentNullException>(() => generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products));
     }
 
     /// <summary>행 개수와 독립인 타입 균등성·정렬 seed·명시된 세 축의6조합을 검사한다.</summary>
@@ -112,8 +116,8 @@ public sealed class CustomerContractTests
         var combinations = new HashSet<(uint, CustomerDispositionType, CustomerAttributes)>();
         for (int i = 0; i < 12000; i++)
         {
-            var a = left.Generate(new uint[] { 1, 2 }, rows, products, getCurrentPrices: () => prices);
-            var b = right.Generate(new uint[] { 1, 2 }, rows.Reverse().ToArray(), products, getCurrentPrices: () => prices);
+            var a = left.Generate(CustomerAppearanceFixtures.Create(), rows, products, getCurrentPrices: () => prices);
+            var b = right.Generate(CustomerAppearanceFixtures.Create(), rows.Reverse().ToArray(), products, getCurrentPrices: () => prices);
             Assert.That((a.DispositionIdx, a.Attributes, a.Items[0].ProductIdx), Is.EqualTo((b.DispositionIdx, b.Attributes, b.Items[0].ProductIdx)));
             Assert.That(a.Items.Single().ProductIdx, Is.EqualTo(rows.Single(x => x.Idx == a.DispositionIdx).PreferredProductIdxs.Single()));
             Assert.That(a.DispositionType, Is.EqualTo(CustomerDispositionType.Normal).Or.EqualTo(CustomerDispositionType.Hasty));
@@ -127,7 +131,7 @@ public sealed class CustomerContractTests
         Assert.That(attributes.Count, Is.EqualTo(6)); Assert.That(attributes.ContainsKey(CustomerAttributes.None), Is.False);
         Assert.That(attributes.Values.All(x => x >= 1750 && x <= 2250));
         Assert.That(attributes.Keys.Select(x => (int)x), Is.EquivalentTo(new[] { 37, 38, 41, 42, 49, 50 }));
-        Assert.That(combinations.Count, Is.EqualTo(24)); // 외형2 × 성향타입2 × 속성6 모두 도달한다.
+        Assert.That(combinations.Count, Is.EqualTo(24)); // 속성별 외형2 × 성향타입2 × 속성6 모두 도달한다.
     }
 
     /// <summary>동일 seed가 외형·상품·수량·속성 전체를 재현한다.</summary>
@@ -138,8 +142,8 @@ public sealed class CustomerContractTests
         var left = new CustomerGenerator(new Random(5)); var right = new CustomerGenerator(new Random(5));
         for (int i = 0; i < 20; i++)
         {
-            var a = left.Generate(new uint[] { 1, 2 }, new[] { config }, products, getCurrentPrices: () => prices);
-            var b = right.Generate(new uint[] { 1, 2 }, new[] { config }, products, getCurrentPrices: () => prices);
+            var a = left.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, getCurrentPrices: () => prices);
+            var b = right.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, getCurrentPrices: () => prices);
             Assert.That((a.AppearanceIdx, a.DispositionIdx, a.Attributes), Is.EqualTo((b.AppearanceIdx, b.DispositionIdx, b.Attributes)));
             Assert.That(a.Items.Select(x => (x.ProductIdx, x.Quantity, x.UnitPrice)), Is.EqualTo(b.Items.Select(x => (x.ProductIdx, x.Quantity, x.UnitPrice))));
         }
@@ -209,7 +213,7 @@ public sealed class CustomerContractTests
     [Test]
     public void SubmissionPricesAndQuantitiesAreImmutable()
     {
-        int reads = 0; var visit = generator.Generate(new uint[] { 1 }, new[] { config }, products, getCurrentPrices: () => { reads++; return prices; });
+        int reads = 0; var visit = generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, getCurrentPrices: () => { reads++; return prices; });
         Assert.That(visit.Result, Is.Null); Assert.That(visit.AllowedTotal, Is.Null); var original = visit.Items;
         prices[1] = 200; var input = new List<SaleItem> { new SaleItem(1, 1), new SaleItem(1, 2) }; visit.BeginOffer();
         visit.SubmitOffer(600, input); Assert.That(reads, Is.EqualTo(2)); input.Clear(); prices[1] = 999; products[1].CostPrice = 999;
@@ -264,7 +268,7 @@ public sealed class CustomerContractTests
     public void InvalidSubmissionIsAtomic(string kind)
     {
         bool lookupFails = false; config.PriceTolerance = kind == "allowed-overflow" ? int.MaxValue : 1000;
-        var visit = generator.Generate(new uint[] { 1 }, new[] { config }, products, getCurrentPrices: () => lookupFails ? throw new InvalidOperationException("lookup") : prices);
+        var visit = generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, getCurrentPrices: () => lookupFails ? throw new InvalidOperationException("lookup") : prices);
         visit.BeginOffer(); long offer = 1; IReadOnlyList<SaleItem> input = new[] { new SaleItem(1, 1) };
         switch (kind)
         {
@@ -387,7 +391,7 @@ public sealed class CustomerContractTests
 
     /// <summary>현재 사례의 공개 생성 API를 호출한다.</summary>
     /// <param name="rules">선택 지침 공급자.</param><returns>생성 방문 또는 null.</returns>
-    private CustomerVisit generate(Func<IReadOnlyList<SaleRestriction>> rules = null) => generator.Generate(new uint[] { 1 }, new[] { config }, products,
+    private CustomerVisit generate(Func<IReadOnlyList<SaleRestriction>> rules = null) => generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products,
         getCurrentPrices: () => CustomerProductAvailability.GetAvailableProducts(products, 0).ToDictionary(x => x.Idx, x => prices[x.Idx]), getSaleRestrictions: rules);
 
     /// <summary>오류 이후 판정값이 하나도 공개되지 않았음을 검사한다.</summary>

@@ -162,6 +162,10 @@ public sealed class GameSessionApiTests
 
         CustomerAttributes gender = progress.CurrentDayProgress.CurrentVisit.Attributes &
             (CustomerAttributes.Male | CustomerAttributes.Female);
+        CustomerAttributes age = progress.CurrentDayProgress.CurrentVisit.Attributes &
+            (CustomerAttributes.Child | CustomerAttributes.Elderly | CustomerAttributes.Adult);
+        CustomerAppearanceData appearance = tables.Customers.Appearances.Rows[progress.CurrentDayProgress.CurrentVisit.AppearanceIdx];
+        Assert.That((appearance.Gender, appearance.Age), Is.EqualTo((gender, age)));
         for (int i = 0; i < 3; i++)
         {
             CustomerVisit visit = progress.CurrentDayProgress.CurrentVisit;
@@ -173,6 +177,10 @@ public sealed class GameSessionApiTests
             progress.BeginCustomerSorting();
             CustomerAttributes nextGender = progress.CurrentDayProgress.CurrentVisit.Attributes &
                 (CustomerAttributes.Male | CustomerAttributes.Female);
+            CustomerAttributes nextAge = progress.CurrentDayProgress.CurrentVisit.Attributes &
+                (CustomerAttributes.Child | CustomerAttributes.Elderly | CustomerAttributes.Adult);
+            appearance = tables.Customers.Appearances.Rows[progress.CurrentDayProgress.CurrentVisit.AppearanceIdx];
+            Assert.That((appearance.Gender, appearance.Age), Is.EqualTo((nextGender, nextAge)));
             Assert.That(nextGender, Is.Not.EqualTo(gender));
             gender = nextGender;
         }
@@ -415,7 +423,7 @@ public sealed class GameSessionApiTests
         System.Collections.Generic.IReadOnlyList<SaleRestriction> rules = null;
         var catalog = tables.Customers;
         var visit = new CustomerGenerator(new System.Random(1)).Generate(
-            catalog.Appearances.Rows.Keys.ToArray(), catalog.Dispositions.Rows.Values.ToArray(),
+            catalog.Appearances.Rows, catalog.Dispositions.Rows.Values.ToArray(),
             catalog.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, () => rules);
         var product = catalog.Products.Rows[visit.Items[0].ProductIdx];
         rules = new[] { new SaleRestriction(visit.Attributes, product.ProductType) };
@@ -854,6 +862,7 @@ public sealed class GameSessionApiTests
         var states = (IDictionary)typeof(CustomerWorldQueueView).GetField("visuals", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(queue);
         var visual = states[waiting];
         var type = visual.GetType();
+        var rootTransform = (Transform)type.GetField("Root").GetValue(visual);
         var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
         var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
         yield return new WaitForSeconds(.8f);
@@ -861,12 +870,18 @@ public sealed class GameSessionApiTests
         progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
         yield return null;
         Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);
-        Vector3 speechPosition = speech.transform.localPosition;
-        yield return new WaitForSeconds(.55f);
+        var rightExit = (Transform)new UnityEditor.SerializedObject(queue).FindProperty("rightExit").objectReferenceValue;
+        Assert.That(type.GetField("Target").GetValue(visual), Is.SameAs(rightExit));
+        float exitStartX = rootTransform.localPosition.x;
+        Vector3 speechOffset = speech.transform.localPosition - rootTransform.localPosition;
+        yield return new WaitForSeconds(.2f);
+        Assert.That(rootTransform.localPosition.x, Is.GreaterThan(exitStartX));
+        Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(speechOffset));
+        yield return new WaitForSeconds(.35f);
         Assert.That(body.color.a, Is.Zero.Within(.001f));
         Assert.That(speech.color.a, Is.EqualTo(1).Within(.001f));
         Assert.That(speech.text, Is.Not.Empty);
-        Assert.That(speech.transform.localPosition, Is.EqualTo(speechPosition));
+        Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(speechOffset));
         ui.FrontView.gameObject.SetActive(false);
         yield return null;
         Assert.That(world.RenderRoot.gameObject.activeSelf, Is.False);
@@ -919,6 +934,7 @@ public sealed class GameSessionApiTests
         // 표시가 남은 상태에서도 실제 거래 완료 이벤트가 즉시 정리하는지 확인한다.
         reaction.gameObject.SetActive(true);
         progress.CompleteTransactionResult();
+        Assert.That(type.GetField("Target").GetValue(visual), Is.SameAs(rightExit));
         yield return null;
         Assert.That(reaction.gameObject.activeSelf, Is.False);
     }
@@ -1888,7 +1904,7 @@ public sealed class GameSessionApiTests
 
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>
     /// <returns>현재일 방문.</returns>
-    private CustomerVisit generate() => new CustomerGenerator(new System.Random(1)).Generate(tables.Customers.Appearances.Rows.Keys.ToArray(), tables.Customers.Dispositions.Rows.Values.ToArray(), tables.Customers.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, isFacilityActive: session.IsFacilityActive);
+    private CustomerVisit generate() => new CustomerGenerator(new System.Random(1)).Generate(tables.Customers.Appearances.Rows, tables.Customers.Dispositions.Rows.Values.ToArray(), tables.Customers.Products.Rows, session.ElapsedDays, () => session.EnsureDailyPrices().Prices, isFacilityActive: session.IsFacilityActive);
 
     /// <summary>가격 민감 성향만 정확한 현재가를 사용하고 나머지는 기존 최소 제안을 유지한다.</summary>
     /// <param name="visit">현재 방문.</param><param name="items">최종 판매 목록.</param>
@@ -1909,7 +1925,7 @@ public sealed class GameSessionApiTests
         for (int seed = seedOffset; seed < seedOffset + 100; seed++)
         {
             CustomerVisit visit = new CustomerGenerator(new System.Random(seed)).Generate(
-                tables.Customers.Appearances.Rows.Keys.ToArray(), dispositions, tables.Customers.Products.Rows,
+                tables.Customers.Appearances.Rows, dispositions, tables.Customers.Products.Rows,
                 session.ElapsedDays, () => session.EnsureDailyPrices().Prices,
                 isFacilityActive: session.IsFacilityActive, moralityCalculator: morality);
             if ((visit.Attributes & CustomerAttributes.Adult) != 0) return visit;

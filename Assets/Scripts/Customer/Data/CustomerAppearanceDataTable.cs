@@ -46,6 +46,7 @@ public sealed class CustomerAppearanceDataTable : IDataLoad
                     throw new InvalidDataException($"column=idx, PK={item.Idx}: 대역 위반 또는 중복");
                 if (item.ImageResourceIdx % 1000 == 0 || Util.GetDataTableType(item.ImageResourceIdx) != DataTableType.Resource)
                     throw new InvalidDataException($"PK={item.Idx}, column=image_resource_idx: Resource FK 대역 오류");
+                item.ValidateClassification();
                 parsed.Add(item.Idx, item);
             }
             if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");
