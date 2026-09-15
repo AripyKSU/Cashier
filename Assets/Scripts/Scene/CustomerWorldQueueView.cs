@@ -85,8 +85,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             setSpeech(visual, 0);
             showReaction(visual, day.CurrentVisit.Outcome);
         }
-        float delta = controller.IsPresentationPaused ? 0 : Time.deltaTime;
-        float reactionDelta = controller.IsPresentationPaused || world.Opacity <= 0 ||
+        float delta = controller.IsPresentationBlocked ? 0 : Time.deltaTime;
+        float reactionDelta = controller.IsPresentationBlocked || world.Opacity <= 0 ||
             !world.RenderRoot.gameObject.activeInHierarchy ? 0 : Time.deltaTime;
         remove.Clear();
         foreach (var pair in visuals)
@@ -238,8 +238,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         visual.Reaction.gameObject.SetActive(true);
     }
 
-    /// <summary>1초 pop·상승·후반 fade를 기존 표시 일시정지와 함께 진행합니다.</summary>
-    /// <param name="visual">진행할 방문 표시.</param><param name="delta">pause·전면 숨김을 제외한 표현 시간.</param>
+    /// <summary>1초 pop·상승·후반 fade를 표시 가능한 동안 진행합니다.</summary>
+    /// <param name="visual">진행할 방문 표시.</param><param name="delta">표현 차단·전면 숨김을 제외한 표현 시간.</param>
     private void updateReaction(Visual visual, float delta)
     {
         if (!visual.Reaction.gameObject.activeSelf) return;

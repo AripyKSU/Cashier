@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using NUnit.Framework;
 
-/// <summary>실제 CSV로 대기열 시간·소유권·일시정지 계약을 검사한다.</summary>
+/// <summary>실제 CSV로 대기열 시간과 소유권 계약을 검사한다.</summary>
 public sealed class CustomerQueueTests
 {
     private CustomerQueue queue;
@@ -27,23 +27,22 @@ public sealed class CustomerQueueTests
     [Test]
     public void WarningExpiryAndComplaintLifetime()
     {
-        var first = queue.Waiting[0]; queue.Advance(200, true);
-        Assert.That(queue.Waiting.Count, Is.EqualTo(1)); queue.Advance(2, false); Assert.That(queue.GetSpeech(first), Is.Zero);
-        queue.Advance(1, false); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueWarningTextIdx));
-        queue.Advance(3, false); Assert.That(queue.GetSpeech(first), Is.Zero);
-        queue.Advance(3, false); Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned)); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueLeaveTextIdx));
-        queue.Advance(3, false); Assert.That(queue.Leaving.Contains(first), Is.False);
+        var first = queue.Waiting[0]; queue.Advance(2); Assert.That(queue.GetSpeech(first), Is.Zero);
+        queue.Advance(1); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueWarningTextIdx));
+        queue.Advance(3); Assert.That(queue.GetSpeech(first), Is.Zero);
+        queue.Advance(3); Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned)); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueLeaveTextIdx));
+        queue.Advance(3); Assert.That(queue.Leaving.Contains(first), Is.False);
     }
 
     /// <summary>입장 주기·상한·FIFO·가격 snapshot과 계산대 제외를 검사한다.</summary>
     [Test]
     public void CapacityFifoAndCounterOwnership()
     {
-        queue.Advance(4, false); Assert.That(created, Is.EqualTo(1)); queue.Advance(1, false); Assert.That(created, Is.EqualTo(2));
+        queue.Advance(4); Assert.That(created, Is.EqualTo(1)); queue.Advance(1); Assert.That(created, Is.EqualTo(2));
         while (queue.TryAdd()) { }
         Assert.That(created, Is.EqualTo(10)); Assert.That(queue.TryAdd(), Is.False);
         var first = queue.Waiting[0].Visit; price = 999;
-        Assert.That(queue.TakeNext(), Is.SameAs(first)); first.BeginOffer(); queue.Advance(200, false);
+        Assert.That(queue.TakeNext(), Is.SameAs(first)); first.BeginOffer(); queue.Advance(200);
         Assert.That(first.State, Is.EqualTo(CustomerState.AwaitingOffer)); Assert.That(first.Items.All(x => x.UnitPrice == 100));
         Assert.That(queue.Waiting.Any(x => x.Visit.Items.All(y => y.UnitPrice == 999)));
         var remaining = queue.Waiting.Select(x => x.Visit).ToArray(); queue.Stop();
@@ -54,7 +53,7 @@ public sealed class CustomerQueueTests
     [Test]
     public void HitchPrioritizesExpiry()
     {
-        var first = queue.Waiting[0]; queue.Advance(9, false);
+        var first = queue.Waiting[0]; queue.Advance(9);
         Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned)); Assert.That(queue.GetSpeech(first), Is.EqualTo(config.QueueLeaveTextIdx));
     }
 }

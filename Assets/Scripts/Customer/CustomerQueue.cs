@@ -73,15 +73,14 @@ public sealed class CustomerQueue
         return entry.Visit;
     }
 
-    /// <summary>일시정지를 제외한 경과 시간을 처리한다. 프레임 내 입장은 5초 경계 순서로 처리한다.</summary>
+    /// <summary>경과 시간을 처리한다. 프레임 내 입장은 5초 경계 순서로 처리한다.</summary>
     /// <param name="deltaSeconds">프레임 경과 초.</param>
-    /// <param name="paused">일시정지 여부.</param>
     /// <exception cref="ArgumentOutOfRangeException">음수·비유한 시간.</exception>
-    public void Advance(double deltaSeconds, bool paused)
+    public void Advance(double deltaSeconds)
     {
         if (double.IsNaN(deltaSeconds) || double.IsInfinity(deltaSeconds) || deltaSeconds < 0)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
-        if (!running || paused) return;
+        if (!running) return;
         double end = now + deltaSeconds;
         while (nextArrival <= end)
         {

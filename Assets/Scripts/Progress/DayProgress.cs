@@ -69,9 +69,6 @@ public sealed class DayProgress
     // 현재 영업에 남은 시간(초)입니다.
     private float remainingSeconds;
 
-    // 일시정지 여부입니다. Closing 이후에는 항상 false입니다.
-    private bool isPaused;
-
     // 현재 날짜의 성공 거래 수입니다.
     private int successfulSales;
 
@@ -104,9 +101,6 @@ public sealed class DayProgress
 
     /// <summary>하루의 전체 영업시간(초)입니다.</summary>
     public float BusinessDurationSeconds => this.businessDurationSeconds;
-
-    /// <summary>영업시간이 일시정지됐는지 나타냅니다.</summary>
-    public bool IsPaused => this.isPaused;
 
     /// <summary>제한시간이 만료됐는지 나타냅니다.</summary>
     public bool IsBusinessTimeExpired => this.remainingSeconds <= 0f
@@ -317,7 +311,6 @@ public sealed class DayProgress
         try { this.session.BeginTradingDay(); }
         catch { this.queue?.Stop(); throw; }
         this.remainingSeconds = this.businessDurationSeconds;
-        this.isPaused = false;
         this.currentVisit = firstVisit;
         this.currentVisit.BeginOffer();
         this.changeState(DayProgressState.Operating);
@@ -342,18 +335,17 @@ public sealed class DayProgress
                 "경과 시간은 유한한 0 이상 값이어야 합니다.");
         }
 
-        if (this.isPaused
-            || (this.State != DayProgressState.Operating
+        if (this.State != DayProgressState.Operating
                 && this.State != DayProgressState.Sorting
-                && this.State != DayProgressState.TransactionResult))
+                && this.State != DayProgressState.TransactionResult)
         {
             return;
         }
 
         // 긴 프레임도 실제 남은 영업시간만 방송 시계에 전달합니다. Closing에는 진행하지 않습니다.
         float tradingSeconds = Math.Min(deltaSeconds, this.remainingSeconds);
-        this.session.AdvanceTradingTime(tradingSeconds, false);
-        this.queue?.Advance(tradingSeconds, false);
+        this.session.AdvanceTradingTime(tradingSeconds);
+        this.queue?.Advance(tradingSeconds);
         this.remainingSeconds = Math.Max(0f, this.remainingSeconds - tradingSeconds);
         if (this.remainingSeconds <= 0f)
         {
@@ -453,42 +445,6 @@ public sealed class DayProgress
     }
 
     /// <summary>
-    /// 영업시간을 일시정지합니다.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">현재 영업을 일시정지할 수 없는 경우 발생합니다.</exception>
-    public void Pause()
-    {
-        this.requireTransactionHealthy();
-        if (this.isPaused
-            || (this.State != DayProgressState.Operating
-                && this.State != DayProgressState.Sorting
-                && this.State != DayProgressState.TransactionResult))
-        {
-            throw new InvalidOperationException("현재 상태에서는 영업을 일시정지할 수 없습니다.");
-        }
-
-        this.isPaused = true;
-    }
-
-    /// <summary>
-    /// 일시정지한 영업시간을 다시 진행합니다.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">재개할 수 없는 상태인 경우 발생합니다.</exception>
-    public void Resume()
-    {
-        this.requireTransactionHealthy();
-        if (!this.isPaused || this.remainingSeconds <= 0f
-            || (this.State != DayProgressState.Operating
-                && this.State != DayProgressState.Sorting
-                && this.State != DayProgressState.TransactionResult))
-        {
-            throw new InvalidOperationException("현재 상태에서는 영업을 재개할 수 없습니다.");
-        }
-
-        this.isPaused = false;
-    }
-
-    /// <summary>
     /// 일일 정산 화면 확인을 완료하고 하루를 종료합니다.
     /// </summary>
     /// <exception cref="InvalidOperationException">정산 상태가 아닌 경우 발생합니다.</exception>
@@ -570,7 +526,6 @@ public sealed class DayProgress
         }
 
         this.remainingSeconds = 0f;
-        this.isPaused = false;
         this.queue?.Stop();
         this.changeState(DayProgressState.Closing);
         this.tryBeginSettlement();

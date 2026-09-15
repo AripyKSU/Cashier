@@ -395,17 +395,16 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         }
     }
 
-    /// <summary>활성 게임 화면 한 곳에서 프레임당 한 번 호출한다. 영업 중이며 일시정지가 아닐 때만 방송 시간을 진행한다.</summary>
+    /// <summary>활성 게임 화면 한 곳에서 프레임당 한 번 호출해 영업 중 방송 시간을 진행한다.</summary>
     /// <param name="deltaSeconds">시간 배율을 적용하지 않은 프레임 경과 초.</param>
-    /// <param name="isPaused">게임 일시정지 여부.</param>
     /// <returns>이번 호출에서 방송·가격 교체를 완료했는지 여부.</returns>
     /// <exception cref="ArgumentOutOfRangeException">경과 시간이 음수 또는 비유한 값.</exception>
     /// <exception cref="Exception">가격 계산 또는 텍스트 참조 실패. 재시도 없이 취소한다.</exception>
-    public bool AdvanceTradingTime(float deltaSeconds, bool isPaused)
+    public bool AdvanceTradingTime(float deltaSeconds)
     {
         if (float.IsNaN(deltaSeconds) || float.IsInfinity(deltaSeconds) || deltaSeconds < 0)
             throw new ArgumentOutOfRangeException(nameof(deltaSeconds));
-        if (!IsInitialized || !radioPending || !economy.QueryService.IsDayOpen || isPaused || deltaSeconds == 0) return false;
+        if (!IsInitialized || !radioPending || !economy.QueryService.IsDayOpen || deltaSeconds == 0) return false;
         radioRemainingSeconds -= deltaSeconds;
         if (radioRemainingSeconds > 0) return false;
         radioPending = false; // 실패도 반복 방송·반복 오류로 바꾸지 않는다.
