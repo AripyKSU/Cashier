@@ -1058,12 +1058,23 @@ public sealed class GameSessionApiTests
         long balance = session.Economy.QueryService.CurrentBalance;
         var ui = createGameUi();
         var cover = uiReference<CanvasGroup>(ui, "startupCover");
+        cover.gameObject.SetActive(false);
+        typeof(GameUIController).GetMethod("Awake", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+            .Invoke(ui, null);
         Assert.That(cover.gameObject.activeInHierarchy); Assert.That(cover.alpha, Is.EqualTo(1)); Assert.That(cover.blocksRaycasts);
         Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled, Is.False);
         yield return waitForGameUi(ui);
         var progress = uiProgress(ui);
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
-        Assert.That(cover.gameObject.activeSelf, Is.False); Assert.That(cover.blocksRaycasts, Is.False);
+        Assert.That(cover.gameObject.activeSelf); Assert.That(cover.blocksRaycasts);
+        Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
+        Transform progressRoot = cover.transform.parent.Find("Root");
+        Assert.That(progressRoot.GetSiblingIndex(), Is.GreaterThan(cover.transform.GetSiblingIndex()));
+        Transform legacyBackground = progressRoot.Find("Background");
+        Assert.That(legacyBackground == null || !legacyBackground.gameObject.activeSelf, Is.True);
+        Assert.That(progressRoot.Find("OperatingPanel").gameObject.activeSelf, Is.False);
+        Assert.That(progressRoot.GetComponentsInChildren<UnityEngine.UI.Selectable>(false).All(control => !control.interactable),
+            Is.True, "Inspector 중 Root/CommonHUD는 입력을 받지 않아야 합니다.");
         Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
         progress.Tick(60); Assert.That(session.Economy.QueryService.IsDayOpen, Is.False);
@@ -1092,9 +1103,15 @@ public sealed class GameSessionApiTests
         yield return new WaitForSeconds(.5f);
         Assert.That(ui.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
         Assert.That(session.InspectorEvents.HasPending, Is.False);
+        cover = uiReference<CanvasGroup>(ui, "startupCover");
+        Assert.That(cover.gameObject.activeSelf); Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
+        var openButton = uiReference<GameObject>(ui, "preOpenPanel")
+            .GetComponentInChildren<PreOpenPanelPresenter>(true).OpenBusinessButton;
+        Assert.That(openButton.interactable);
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
         Assert.That(session.CurrentMorality, Is.Zero); Assert.That(session.CurrentReputation, Is.Zero);
-        uiProgress(ui).OpenBusiness(); Assert.That(session.Economy.QueryService.IsDayOpen);
+        openButton.onClick.Invoke(); Assert.That(session.Economy.QueryService.IsDayOpen);
+        Assert.That(cover.gameObject.activeSelf, Is.False); Assert.That(cover.blocksRaycasts, Is.False);
     }
 
     /// <summary>3단계 조기 구매가 21일차 목표 공개를 앞당기지 않는지 검사한다.</summary>
@@ -1527,9 +1544,11 @@ public sealed class GameSessionApiTests
     private static IEnumerator waitForGameUi(GameUIController ui)
     {
         float deadline = Time.realtimeSinceStartup + 20;
-        while ((uiProgress(ui) == null || uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf) && Time.realtimeSinceStartup < deadline) yield return null;
+        var readyField = typeof(GameUIController).GetField("presentationReady",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        while ((uiProgress(ui) == null || !(bool)readyField.GetValue(ui)) && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.That(uiProgress(ui), Is.Not.Null, "GameUI image loading/initialization timed out");
-        Assert.That(uiReference<CanvasGroup>(ui, "startupCover").gameObject.activeSelf, Is.False, "GameUI first binding/layout did not finish");
+        Assert.That((bool)readyField.GetValue(ui), Is.True, "GameUI first binding/layout did not finish");
     }
 
     /// <summary>제품 완료 이벤트를 우회하지 않고 정산 연출 시간만 테스트용으로 줄인다.</summary>

@@ -1822,7 +1822,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 72, y: 72}
+  m_SizeDelta: {x: 144, y: 144}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4401599438478320973
 CanvasRenderer:
@@ -2711,7 +2711,7 @@ MonoBehaviour:
   calculatorPanel: {fileID: 596079421786810970}
   calculatorSlideSeconds: 1
   itemPrefab: {fileID: 5382513797417203345}
-  itemSizePixels: 72
+  itemSizePixels: 144
   transitionSeconds: 1
   customerArrivalSeconds: 0.8
   pourSeconds: 0.65

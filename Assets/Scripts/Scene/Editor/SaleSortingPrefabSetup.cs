@@ -97,7 +97,7 @@ public static class SaleSortingPrefabSetup
             stretch(sortingtRoot: itemRoot);
             itemRoot.SetAsLastSibling();
 
-            RectTransform itemTemplate = createRect("ItemTemplate", itemRoot, Vector2.zero, new Vector2(72f, 72f));
+            RectTransform itemTemplate = createRect("ItemTemplate", itemRoot, Vector2.zero, new Vector2(144f, 144f));
             Image itemImage = itemTemplate.gameObject.AddComponent<Image>();
             itemImage.color = Color.white;
             itemImage.raycastTarget = false;

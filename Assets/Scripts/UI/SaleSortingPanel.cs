@@ -56,7 +56,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     [Header("Items")]
     [SerializeField] private SaleSortingItemView itemPrefab;
-    [SerializeField, Min(24f)] private float itemSizePixels = 72f;
+    [SerializeField, Min(24f)] private float itemSizePixels = 144f;
 
     [Header("Flow")]
     [SerializeField, Min(0f)] private float transitionSeconds = 0.25f;
