@@ -8,10 +8,15 @@ using UnityEngine.UI;
 /// <summary>전용 Scene의 독립 Sprite 화면, 실제 버튼 입력 및 런 수명을 관리합니다.</summary>
 public sealed partial class DystopiaScreen : MonoBehaviour
 {
-    /// <summary>얼굴·손 위주인 어린이 원화를 성인 상반신 영역에 표시할 때의 상대 크기입니다.</summary>
-    private const float ChildPortraitScale = .4f;
+    /// <summary>얼굴·손 위주인 어린이 원화를 성인 상반신 영역에 표시할 때의 상대 크기입니다. 원화 구도가 바뀌면 Inspector에서 맞춥니다.</summary>
+    [Header("어린이 손님 표시")]
+    [SerializeField, Range(.15f, 1f), InspectorName("어린이 크기")] private float childPortraitScale = .4f;
+    /// <summary>어린이 손의 하단이 가판 뒤로 살짝 겹치도록 기존 손님 기준점에서 올리는 상대 높이입니다.</summary>
+    [SerializeField, Range(0, .6f), InspectorName("어린이 높이")] private float childPortraitRise = .18f;
+    /// <summary>현재 Inspector에 설정된 어린이 표시 배율입니다.</summary>
+    private float ChildPortraitScale => childPortraitScale;
     /// <summary>어린이 손의 하단이 가판 뒤로 살짝 겹치도록 기존 손님 기준점에서 올리는 상대 위치입니다.</summary>
-    private Vector2 ChildPortraitOrigin => idleOrigins[2] + Vector2.up * (idlePeople[2].rect.height * placedPeopleScales[2].y * .18f);
+    private Vector2 ChildPortraitOrigin => idleOrigins[2] + Vector2.up * (idlePeople[2].rect.height * placedPeopleScales[2].y * childPortraitRise);
     /// <summary>외형별 호흡 연출 분류입니다. 게임 능력이나 건강 판정에는 사용하지 않습니다.</summary>
     private enum BreathStyle { Normal, Heavy, Elderly }
     /// <summary>남성 Sprite 배열과 같은 순서의 호흡 분류입니다.</summary>
@@ -195,11 +200,11 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (maleCustomers == null || maleCustomers.Length != DystopiaSession.MaleAppearanceCount)
             Array.Resize(ref maleCustomers, DystopiaSession.MaleAppearanceCount);
         for (int i = 0; i < maleCustomers.Length; i++)
-            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/Checkout/Characters/Customers/MaleCustomer_{i + 1:00}.png");
+            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Male/" + DystopiaSession.AppearanceFileName(true, i) + ".png");
         if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)
             Array.Resize(ref femaleCustomers, DystopiaSession.FemaleAppearanceCount);
         for (int i = 0; i < femaleCustomers.Length; i++)
-            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_{i + 1:00}.png");
+            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Female/" + DystopiaSession.AppearanceFileName(false, i) + ".png");
     }
 #endif
 

@@ -16,6 +16,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         /// <summary>이 Sprite가 표시될 때만 사용하는 RGB tangent-space 노멀맵입니다.</summary>
         public Sprite normalSprite;
         public Texture2D normalMap;
+        /// <summary>손님처럼 Sprite가 교체되는 레이어에서 현재 Sprite에 맞는 노멀맵을 찾는 대응표입니다. 비어 있으면 위의 단일 연결만 사용합니다.</summary>
+        public NormalVariant[] normalVariants = Array.Empty<NormalVariant>();
         /// <summary>원본 텍스처 좌우 끝에서 숨길 UV 폭입니다. 0이면 원본 전체를 표시합니다.</summary>
         public Vector2 textureEdgeTrim;
         /// <summary>실내 표면의 넓은 반사광 반응입니다. 기존 직접광 값은 보존합니다.</summary>
@@ -47,6 +49,26 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         [NonSerialized] internal Sprite footprintSprite;
         [NonSerialized] internal uint footprintTextureVersion;
         [NonSerialized] internal float footprintY;
+
+        /// <summary>현재 표시 중인 Sprite에 대응하는 노멀맵을 반환합니다.</summary>
+        /// <param name="sprite">이 레이어가 지금 그리고 있는 Sprite입니다.</param>
+        /// <returns>대응표 또는 단일 연결에서 찾은 노멀맵이며, 없으면 null입니다.</returns>
+        internal Texture2D NormalFor(Sprite sprite)
+        {
+            if (sprite == null) return null;
+            for (int i = 0; i < normalVariants.Length; i++)
+                if (normalVariants[i] != null && normalVariants[i].sprite == sprite) return normalVariants[i].map;
+            return sprite == normalSprite ? normalMap : null;
+        }
+    }
+
+    /// <summary>한 Sprite와 그 Sprite에만 사용할 노멀맵의 짝입니다.</summary>
+    [Serializable] public sealed class NormalVariant
+    {
+        /// <summary>레이어가 이 Sprite를 표시할 때만 아래 노멀맵을 사용합니다.</summary>
+        public Sprite sprite;
+        /// <summary>해당 Sprite의 UV에 맞춰 만든 tangent-space 노멀맵입니다.</summary>
+        public Texture2D map;
     }
 
     /// <summary>정면 장면이 숨겨지면 렌더도 정지합니다.</summary>
@@ -317,8 +339,9 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         block.SetFloat("_SpecularResponse", layer.specularResponse);
         block.SetFloat("_Emission", layer.emission * Mathf.Lerp(.2f,1,nightWeight));
         var image = source as Image;
-        bool mapped = relightingTrial && useCustomerNormalMap && layer.normalMap != null && image != null && image.sprite == layer.normalSprite;
-        if (mapped) block.SetTexture("_NormalMap", layer.normalMap);
+        Texture2D normal = image != null ? layer.NormalFor(image.sprite) : null;
+        bool mapped = relightingTrial && useCustomerNormalMap && normal != null;
+        if (mapped) block.SetTexture("_NormalMap", normal);
         // 소품과 인물은 각자 Inspector에 저장된 노멀 강도를 사용합니다.
         block.SetFloat("_NormalStrength", mapped ? (layer.surface == Surface.Metal ? propNormalStrength : evaluatedNormalStrength) * layer.normalResponse : 0);
         block.SetFloat("_PropFill", mapped && layer.surface == Surface.Metal ? propNightFill * Mathf.Max(nightWeight, sunsetWeight * .35f) : 0);
@@ -326,7 +349,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         block.SetFloat("_RoomBounce", relightingTrial ? roomLightStrength * layer.roomResponse * Mathf.Lerp(.2f, 1, nightWeight) : 0);
         block.SetFloat("_SpotResponse", layer.surface == Surface.Person || mapped || layer.roomResponse > 0 ? 1 : 0);
         block.SetFloat("_ReceiveCustomerShadow", dayNight != null && dayNight.clock != null && (source.name == "Counter" || source.name == "Stage3Counter") ? 1 : 0);
-        if (layer.surface == Surface.Person && layer.normalSprite != null && image != null)
+        // 상판 투영 그림자는 앞 손님 한 명만 만듭니다. 대기 손님도 노멀맵을 가지므로 연결이 아닌 이름으로 구분합니다.
+        if (layer.surface == Surface.Person && source.name == "Customer" && image != null)
         {
             // 앞 손님 슬롯의 현재 알파를 사용하므로 손님 교체와 크기 변화도 따라갑니다.
             material.SetTexture("_CustomerSilhouette", source.mainTexture);

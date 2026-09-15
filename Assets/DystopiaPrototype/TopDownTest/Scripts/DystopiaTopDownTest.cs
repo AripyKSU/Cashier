@@ -349,9 +349,9 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)
             Array.Resize(ref femaleCustomers, DystopiaSession.FemaleAppearanceCount);
         for (int i = 0; i < maleCustomers.Length; i++)
-            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/Checkout/Characters/Customers/MaleCustomer_{i + 1:00}.png");
+            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Male/" + DystopiaSession.AppearanceFileName(true, i) + ".png");
         for (int i = 0; i < femaleCustomers.Length; i++)
-            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/Checkout/Characters/Customers/FemaleCustomer_{i + 1:00}.png");
+            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Female/" + DystopiaSession.AppearanceFileName(false, i) + ".png");
         uiFont = uiFont != null ? uiFont : UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Checkout/Mulmaru.otf");
 #endif
     }

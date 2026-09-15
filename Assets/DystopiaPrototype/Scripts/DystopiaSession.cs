@@ -167,6 +167,25 @@ public sealed class DystopiaBasketLine
     }
 }
 
+/// <summary>손님 외형의 행동 분류입니다. 외형 배열 구간과 Sprite 파일 이름이 이 순서를 따릅니다.</summary>
+public enum DystopiaCustomerClass
+{
+    /// <summary>일반</summary>
+    Normal,
+    /// <summary>절박</summary>
+    Hasty,
+    /// <summary>민감</summary>
+    PriceSensitive,
+    /// <summary>부자</summary>
+    Wealthy,
+    /// <summary>가난</summary>
+    Poor,
+    /// <summary>아이</summary>
+    Child,
+    /// <summary>노인</summary>
+    Elder
+}
+
 /// <summary>등록된 외형과 연속 등장 제한에 사용하는 손님 분류입니다.</summary>
 public enum DystopiaCustomerType
 {
@@ -186,6 +205,8 @@ public sealed class DystopiaCustomer
     public readonly List<DystopiaBasketLine> basket = new List<DystopiaBasketLine>();
     public int total, budget, tolerancePercent, appearance;
     public bool isPoor;
+    /// <summary>선택된 외형의 행동 분류입니다. 현재는 표시와 검증에만 사용하며 거래 수치는 바꾸지 않습니다.</summary>
+    public DystopiaCustomerClass Class => DystopiaSession.AppearanceClass(appearance);
     /// <summary>선택된 남성·여성 외형 묶음과 성별 판매 지침 판정이 함께 사용하는 값입니다.</summary>
     internal bool IsMale { get; set; }
     /// <summary>생성 시 정한 외형 타입입니다. 노인·어린이의 성별은 IsMale과 별도로 구분합니다.</summary>
@@ -200,14 +221,20 @@ public sealed class DystopiaSession
 
     /// <summary>마지막 거래 판정에서 확정된 반응이며 Result 단계에서만 표시합니다.</summary>
     internal TradeReaction LastReaction { get; private set; }
-    /// <summary>남성 외형 순서: 성인 24종, 남자아이 2종, 할아버지 3종입니다.</summary>
-    internal const int MaleAppearanceCount = 29;
-    /// <summary>여성 외형 순서: 성인 16종, 여자아이 2종, 할머니 2종입니다.</summary>
-    internal const int FemaleAppearanceCount = 20;
+    /// <summary>분류 순서대로의 외형 수입니다. 남녀 배열과 Sprite 파일 이름이 모두 이 구간 구조를 따르는 단일 권위입니다.</summary>
+    private static readonly int[] ClassAppearanceCounts = { 12, 3, 3, 3, 3, 3, 3 };
+    /// <summary>남성 외형 수이며 분류별 수의 합입니다. Editor 등록 도구도 이 값을 권위로 사용합니다.</summary>
+    public static readonly int MaleAppearanceCount = TotalAppearanceCount();
+    /// <summary>여성 외형 수이며 남성과 같은 구간 구조를 사용합니다.</summary>
+    public static readonly int FemaleAppearanceCount = MaleAppearanceCount;
     private readonly DystopiaSettings settings;
     private readonly System.Random random;
     // 당일 방문 순서를 보존해 화면의 대기 손님과 실제 거래 손님을 일치시킵니다.
     private readonly List<DystopiaCustomer> waitingCustomers = new List<DystopiaCustomer>();
+    /// <summary>성별마다 최근에 쓴 외형 번호이며 같은 얼굴이 화면에 겹쳐 보이는 것을 막습니다.</summary>
+    private readonly List<int> recentMaleAppearances = new List<int>(), recentFemaleAppearances = new List<int>();
+    /// <summary>성별별로 기억할 최근 외형 수입니다. 성별이 교대하므로 이 값의 두 배만큼 연속 중복이 사라집니다.</summary>
+    private const int RecentAppearanceMemory = 3;
     /// <summary>현재 손님 뒤의 실제 대기 순서입니다.</summary>
     public IReadOnlyList<DystopiaCustomer> WaitingCustomers => waitingCustomers;
     private DystopiaProduct[] activeProducts;
@@ -517,20 +544,23 @@ public sealed class DystopiaSession
         // 실제 대기 순서의 바로 앞 손님과 성별을 교대해 같은 이미지 연속 등장도 막습니다.
         customer.IsMale = previous == null ? random.Next(2) == 0 : !previous.IsMale;
         int appearanceCount = customer.IsMale ? MaleAppearanceCount : FemaleAppearanceCount;
+        // 성별이 교대하므로 앞 손님의 타입 제외만으로는 같은 성별인 두 칸 앞 손님과 겹칠 수 있습니다.
+        List<int> recent = customer.IsMale ? recentMaleAppearances : recentFemaleAppearances;
         // 유효 후보만 세어 선택하므로 남녀 어린이도 연속하지 않으며 재추첨 루프가 없습니다.
         int eligibleCount = 0;
         for (int i = 0; i < appearanceCount; i++)
-            if (previous == null || AppearanceType(customer.IsMale, i) != previous.Type) eligibleCount++;
+            if (IsEligibleAppearance(customer.IsMale, i, previous, recent)) eligibleCount++;
         int selected = random.Next(eligibleCount);
         for (int i = 0; i < appearanceCount; i++)
         {
-            DystopiaCustomerType type = AppearanceType(customer.IsMale, i);
-            if (previous != null && type == previous.Type) continue;
+            if (!IsEligibleAppearance(customer.IsMale, i, previous, recent)) continue;
             if (selected-- != 0) continue;
             customer.appearance = i;
-            customer.Type = type;
+            customer.Type = AppearanceType(customer.IsMale, i);
             break;
         }
+        recent.Add(customer.appearance);
+        if (recent.Count > RecentAppearanceMemory) recent.RemoveAt(0);
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
         int count = random.Next(1, Math.Min(available.Count, Day < 3 ? 2 : 3) + 1);
@@ -553,16 +583,76 @@ public sealed class DystopiaSession
         return customer;
     }
 
+    /// <summary>앞 손님의 연령 타입과 같은 성별의 최근 외형을 함께 제외합니다.</summary>
+    /// <param name="isMale">생성 중인 손님이 남성이면 true입니다.</param>
+    /// <param name="appearance">검사할 외형 번호입니다.</param>
+    /// <param name="previous">대기 순서에서 바로 앞 손님이며 첫 생성에는 null입니다.</param>
+    /// <param name="recent">같은 성별에서 최근에 사용한 외형 번호입니다.</param>
+    /// <returns>이번 손님에게 사용할 수 있으면 true입니다.</returns>
+    private static bool IsEligibleAppearance(bool isMale, int appearance, DystopiaCustomer previous, List<int> recent)
+    {
+        if (previous != null && AppearanceType(isMale, appearance) == previous.Type) return false;
+        return !recent.Contains(appearance);
+    }
+
     /// <summary>직렬화된 남녀 Sprite 배열의 순서에 대응하는 연령 타입을 반환합니다.</summary>
     /// <param name="isMale">남성 외형 배열이면 true입니다.</param>
     /// <param name="appearance">해당 배열의 0부터 시작하는 유효 외형 번호입니다.</param>
     /// <returns>성인 남녀, 어린이 또는 노인 분류입니다.</returns>
     internal static DystopiaCustomerType AppearanceType(bool isMale, int appearance)
     {
-        if (appearance >= (isMale ? 26 : 18)) return DystopiaCustomerType.Elderly;
-        if (appearance >= (isMale ? 24 : 16)) return DystopiaCustomerType.Child;
-        return isMale ? DystopiaCustomerType.AdultMale : DystopiaCustomerType.AdultFemale;
+        switch (AppearanceClass(appearance))
+        {
+            case DystopiaCustomerClass.Elder: return DystopiaCustomerType.Elderly;
+            case DystopiaCustomerClass.Child: return DystopiaCustomerType.Child;
+            default: return isMale ? DystopiaCustomerType.AdultMale : DystopiaCustomerType.AdultFemale;
+        }
     }
+
+    /// <summary>분류별 외형 수를 모두 더합니다.</summary>
+    /// <returns>한 성별의 전체 외형 수입니다.</returns>
+    private static int TotalAppearanceCount()
+    {
+        int total = 0;
+        foreach (int count in ClassAppearanceCounts) total += count;
+        return total;
+    }
+
+    /// <summary>외형 번호가 속한 행동 분류를 반환합니다.</summary>
+    /// <param name="appearance">0부터 시작하는 외형 번호입니다.</param>
+    /// <returns>해당 번호의 분류입니다.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">등록 범위를 벗어난 번호입니다.</exception>
+    public static DystopiaCustomerClass AppearanceClass(int appearance)
+    {
+        int start = 0;
+        for (int i = 0; i < ClassAppearanceCounts.Length; i++)
+        {
+            if (appearance >= start && appearance < start + ClassAppearanceCounts[i]) return (DystopiaCustomerClass)i;
+            start += ClassAppearanceCounts[i];
+        }
+        throw new ArgumentOutOfRangeException(nameof(appearance), appearance, "등록된 외형 번호가 아닙니다.");
+    }
+
+    /// <summary>분류 안에서 1부터 시작하는 순번을 반환합니다.</summary>
+    /// <param name="appearance">0부터 시작하는 외형 번호입니다.</param>
+    /// <returns>파일 이름에 사용하는 분류 내 순번입니다.</returns>
+    public static int AppearanceNumberInClass(int appearance)
+    {
+        int start = 0;
+        for (int i = 0; i < ClassAppearanceCounts.Length; i++)
+        {
+            if (appearance >= start && appearance < start + ClassAppearanceCounts[i]) return appearance - start + 1;
+            start += ClassAppearanceCounts[i];
+        }
+        throw new ArgumentOutOfRangeException(nameof(appearance), appearance, "등록된 외형 번호가 아닙니다.");
+    }
+
+    /// <summary>외형 번호에 대응하는 Sprite 파일 이름을 반환합니다. 확장자는 포함하지 않습니다.</summary>
+    /// <param name="isMale">남성 외형이면 true입니다.</param>
+    /// <param name="appearance">0부터 시작하는 외형 번호입니다.</param>
+    /// <returns>예: MaleNormal_01, FemaleElder_03.</returns>
+    public static string AppearanceFileName(bool isMale, int appearance) =>
+        (isMale ? "Male" : "Female") + AppearanceClass(appearance) + "_" + AppearanceNumberInClass(appearance).ToString("00");
 
     /// <summary>단계·설비 조건을 만족하고 가격·이미지가 설정된 상품만 주문에 포함합니다.</summary>
     /// <param name="settings">Scene이 소유한 상품·해금 설정입니다.</param>
