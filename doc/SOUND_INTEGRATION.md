@@ -1,6 +1,6 @@
 # Cashier 사운드 통합 명세
 
-2026-09-14 거래 화면 병합: 사운드 ID `4257~4275`와 19개 주소는 유지한다. 충돌한 상품 Sprite만 `4276~4291`로 이관하여 ResourceData는 총 91행이다. [통합 계약](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 따른다.
+2026-09-15 손님 도착 연출 사운드를 추가했다. 기존 사운드 ID `4257~4275`와 주소는 유지하고 `CustomerBoxDrop`을 `4295`에 추가하여 ResourceData는 총 102행이다. 충돌한 상품 Sprite는 `4276~4291`을 사용하고, 매장 2단계 World 리소스는 `4297`로 이동했다. [통합 계약](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 따른다.
 
 기준: `SoundKeys`, `ResourceData.csv`, Addressables `Default Local Group`, `SoundManager`와 `Assets/Sounds` 에셋.
 영문 파일명·address 변경 내역은 [SOUND_ASSET_NAME_MIGRATION.md](SOUND_ASSET_NAME_MIGRATION.md)에 기록한다.
@@ -35,6 +35,7 @@
 | ItemPlace | 4265 | ItemPlace | Assets/Sounds/SFX/ItemPlace.wav |
 | ItemRemove | 4266 | ItemRemove | Assets/Sounds/SFX/ItemRemove.wav |
 | BoxItemDrop | 4267 | BoxItemDrop | Assets/Sounds/SFX/BoxItemDrop.wav |
+| CustomerBoxDrop | 4295 | CustomerBoxDrop | Assets/Sounds/SFX/CustomerBoxDrop.wav |
 | Vacuum | 4268 | VacuumLoop | Assets/Sounds/SFX/VacuumLoop.wav |
 | FacilityUpgrade | 4269 | FacilityUpgrade | Assets/Sounds/SFX/FacilityUpgrade.wav |
 | DailyGuideline | 4270 | DailyGuideline | Assets/Sounds/SFX/DailyGuideline.wav |
@@ -48,7 +49,7 @@
 
 ## 재생 호출
 
-- BGM: `PlayBgm(uint resourceIdx)`, 같은 클립이 재생 중이면 위치를 유지한다.
+- BGM: `PlayBgm(uint resourceIdx, float volumeScale = 1f)`, 같은 클립이 재생 중이면 위치를 유지하고 0~2 배율을 적용한다.
 - 일반 SFX: `PlaySfx(uint resourceIdx, float volumeScale = 1f)`.
 - 짧은 전용 SFX: `PlaySfxForDuration(uint resourceIdx, float durationSeconds, float volumeScale = 1f)`와 `StopSfxForDuration(uint resourceIdx)`를 사용한다. 딸 대화 음성은 0.35초로 제한하고 도장 연출 시작 전에 정지한다.
 - 반복 SFX: `PlayLoopSfx(uint resourceIdx, float volumeScale = 1f)` 후 `StopLoopSfx(uint resourceIdx)`.
@@ -72,6 +73,6 @@
 
 ## 검증
 
-- 정적: 19개 ResourceData path, Addressables address, 실제 파일 GUID의 일치 여부와 후보 미등록 여부.
-- EditMode: SoundKeys 19개 고유성, Resource 대역, 실제 CSV 19개 path 매핑.
-- PlayMode: 19개 실제 AudioClip 로드, 동시·반복 초기화, 호출자 취소, 누락/잘못된 address 실패·재시도, BGM/SFX/loop 재생·정지.
+- 정적: 20개 ResourceData path, Addressables address, 실제 파일 GUID의 일치 여부와 후보 미등록 여부.
+- EditMode: SoundKeys 20개 고유성, Resource 대역, 실제 CSV 20개 path 매핑.
+- PlayMode: 20개 실제 AudioClip 로드, 동시·반복 초기화, 호출자 취소, 누락/잘못된 address 실패·재시도, BGM/SFX/loop 재생·정지.

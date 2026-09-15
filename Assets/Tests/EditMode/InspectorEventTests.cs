@@ -33,7 +33,7 @@ public sealed class InspectorEventTests
         Assert.That(rows.All(x => !x.RequiredFacilityIdx.HasValue && !x.MinStoreStage.HasValue &&
             x.Priority == 0 && x.RepeatMode == InspectorRepeatMode.OncePerSession), Is.True);
         Assert.That(rows.All(x => x.PortraitResourceIdx == 4256));
-        Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(19));
+        Assert.That((uint)DataTableType.DataTableType_End, Is.EqualTo(20));
 
         var texts = new TextDataTable();
         texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));

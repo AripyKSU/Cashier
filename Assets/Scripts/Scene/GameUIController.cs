@@ -14,6 +14,10 @@ using UnityEngine.InputSystem;
 /// </summary>
 public sealed class GameUIController : MonoBehaviour
 {
+    private const float SettlementBgmVolumeScale = 1.5f;
+    private const float DayEndSfxVolumeScale = 0.65f;
+    private const float TransactionSuccessSfxVolumeScale = 1.35f;
+
     private GameProgress gameProgress;
     private DayProgress subscribedDay;
     private EconomyRuntime economy;
@@ -38,6 +42,8 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private PreOpenPanelPresenter preOpenPresenter;
     /// <summary>진행 시각을 표시할 시계. 자체 시간은 사용하지 않는다.</summary>
     [SerializeField] private BusinessClockController businessClock;
+    /// <summary>본편에 연결한 단계별 장식. 독립 UI 테스트 프리팹은 생략 가능하다.</summary>
+    [SerializeField] private StoreStagePresentation stagePresentation;
     /// <summary>세션 감독관 대사와 연출을 표시하는 독립 패널.</summary>
     [SerializeField] private InspectorPresenter inspectorPresenter;
     /// <summary>직렬화 상태부터 활성·불투명한 전체 화면 초기화 덮개.</summary>
@@ -170,6 +176,7 @@ public sealed class GameUIController : MonoBehaviour
                 this.customerCatalog,
                 DataTableManager.Instance.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance),
                 new System.Random(), useCustomerQueue: this.useCustomerQueue);
+            if (stagePresentation != null) await stagePresentation.PrepareAsync(this.GetCancellationTokenOnDestroy());
             this.subscribeProgress();
             this.gameProgress.Start();
             this.isReady = true;
@@ -573,7 +580,7 @@ public sealed class GameUIController : MonoBehaviour
         else if (state == DayProgressState.Closing)
         {
             // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다.
-            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd);
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd, DayEndSfxVolumeScale);
         }
         this.refreshAllViews();
     }
@@ -606,8 +613,10 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.saleSortingPanel.ShowTransactionResult();
         this.customerPresenter.UpdateView(this.viewDataFactory.CreateCustomerViewData(visit));
+        bool wasAccepted = visit.WasAccepted == true;
         SoundManager.Instance?.PlaySfx(
-            visit.WasAccepted == true ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail);
+            wasAccepted ? SoundKeys.TransactionSuccess : SoundKeys.TransactionFail,
+            wasAccepted ? TransactionSuccessSfxVolumeScale : 1f);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = visit.WasAccepted == true
             ? "ACCEPTED · income applied"
@@ -620,13 +629,15 @@ public sealed class GameUIController : MonoBehaviour
     private void handleSettlementStarted(DailySettlementResult result)
     {
         if (this.gameProgress.State == GameProgressState.Failed) return;
+        // SettlementStarted may wait for the local queue exit. Stop gameplay ambience immediately
+        // so it cannot leak into the settlement screen while the presentation is pending.
+        SoundManager.Instance?.StopBgm();
         if (this.useCustomerQueue && this.queueExitRemaining > 0)
         {
             this.isSettlementPresentationPending = true;
             this.refreshAllViews();
             return;
         }
-        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm);
         this.settlementPanel.SetActive(true);
         this.operatingPanel.SetActive(false);
         this.beginSettlementFlow(result);
@@ -645,6 +656,7 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
+        SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
         this.dailySettlementPresenter.ConfigureEnding(
             this.subscribedDay.Day == 31,
             this.gameProgress.HasCitizenship);
@@ -780,6 +792,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>설비와 경제 표시를 새로 읽되 정산 매출·비용은 확정 결과를 그대로 표시한다.</summary>
     private void refreshFacilityShop()
     {
+        if (stagePresentation != null) stagePresentation.Apply(gameProgress.CurrentStoreStage);
         var session = GameSessionManager.Instance;
         this.facilityShopPresenter.UpdateView(this.viewDataFactory.CreateFacilityShopViewData(
             DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
@@ -1037,6 +1050,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>현재 진행 스냅샷을 모든 Presenter에 전달합니다.</summary>
     private void refreshAllViews()
     {
+        if (stagePresentation != null && gameProgress != null) stagePresentation.Apply(gameProgress.CurrentStoreStage);
         if (!this.isReady || this.gameProgress == null || this.subscribedDay == null)
         {
             return;

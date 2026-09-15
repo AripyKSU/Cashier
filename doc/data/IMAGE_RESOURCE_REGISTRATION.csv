@@ -69,3 +69,6 @@ idx,asset,guid,address,group
 4289,Assets/Textures/Products/Dystopia/ProtectiveSuit.png,0b7abd40c5a3d4b408c65dea6e77c1bd,ProtectiveSuit,Default Local Group
 4290,Assets/Textures/Products/Dystopia/RadiationDetector.png,5ce5e2c16d103ed449913e369d3aed24,RadiationDetector,Default Local Group
 4291,Assets/Textures/Products/Dystopia/ThermalCamera.png,d75c10a1c25fc484291deec6259b0436,ThermalCamera,Default Local Group
+4300,Assets/Textures/UI/Dystopia/Stage1Clock.png,61e262088f04317468be542fecbcd00d,Stage1Clock,Default Local Group
+4301,Assets/Textures/UI/Dystopia/Stage2Clock.png,272990375374eaf4b8c2d2a2f4526e50,Stage2Clock,Default Local Group
+4302,Assets/Textures/UI/Dystopia/Stage3Clock.png,e0fe256b222410646ba0eae5306f07db,Stage3Clock,Default Local Group

@@ -66,7 +66,7 @@ if (textTables[valid].Rows[valid.Products.Rows[1005].NameIdx].Text != "군용식
     valid.Products.Rows[1022].RequiredFacilityIdx != 12006) throw new Exception("Final product routing failed");
 if (textTables[valid].Rows[valid.Products.Rows[1001].NameIdx].Text != "물") throw new Exception("nameidx lookup failed");
 if (Util.GetDataTableType(1001) != DataTableType.Product || Util.GetDataTableType(2001) != DataTableType.EconomyBalance || Util.GetDataTableType(3001) != DataTableType.MaintenanceBalance || Util.GetDataTableType(4001) != DataTableType.Resource || Util.GetDataTableType(8001) != DataTableType.Text) throw new Exception("Routing failed");
-if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.EndingPage + 1) throw new Exception("End marker must follow the last table");
+if ((uint)DataTableType.DataTableType_End != (uint)DataTableType.StoreStage + 1) throw new Exception("End marker must follow the last table");
 if (valid.Dispositions.Rows.Values.Any(x => x.PreferredSelectionChance != 900)) throw new Exception("Probability migration failed");
 
 Assert.That(valid.Dispositions.Rows.Values.All(x=>x.RegularPriceMinRate==1000 && x.RegularPriceMaxRate==1000));
@@ -276,7 +276,7 @@ Assert.That(resources.GetDataCount(),Is.EqualTo(count));
     private static ResourceDataTable loadResources()
     {
         var table = new ResourceDataTable();
-        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\] 총 91개의 리소스 경로 데이터 로드 완료\."));
+        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\] 총 \d+개의 리소스 경로 데이터 로드 완료\."));
         table.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
         return table;
     }

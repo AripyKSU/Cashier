@@ -1,13 +1,34 @@
 # MainScene 진행·세션 API 통합
 
+## 원격 청소기 작업과 시계·리소스 통합 (2026-09-15)
+
+- 사용자 fetch·commit·push 요청에 따라 현재 시계/Textures 작업을 `62d48b4`로 커밋하고, 최신 `origin/total_merge d9bdd9a`를 병합한다. 원격에는 `08e3a2b`(청소기 구현)와 이를 통합한 `d9bdd9a`가 추가되어 있었다. 공통 조상은 `b3abf98`이다. 소스 이력을 유지하며 `GameUI.prefab` 자동 병합 후 기존 Textures 참조 GUID와 청소기 신규 연결이 모두 남는지 확인했다.
+- 청소기 본체 1.9배·Visual/GripArea/Nozzle/SuctionVfxRoot·원본 바람 재질, 손 커서 160×160, 흡입 가속도 2800과 상품별 흡입/보관/순차 배출을 반영한다. 배출 중 확인/자동 정렬/다른 조작을 막고, 정상 배출은 Panel이 개별 분류하며 화면 종료·설비 OFF는 잔여 상품을 복원한다. 원격 구현 명세는 [청소기 작업 계획과 결과](work/astra-vacuum-ui-integration-plan.md)를 따른다.
+- 로컬의 StoreStage/시계 FK 4300~4302와 `Stage1Clock`/`Stage2Clock`/`Stage3Clock`, 기존 Textures 매핑은 유지한다. 청소기 작업의 원본 이미지·재질 참조는 원격 계약 그대로 반영하므로 아래 과거의 MainScene 전체 prototype 의존성 0 기록을 현재 전체 의존성으로 해석하지 않는다. 가게 단계 프리팹의 Textures 정책은 유지된다.
+- 읽기 전용 교차 리뷰에서 병합을 막는 코드 문제를 발견하지 못했다. 원격의 `.idea` 변경과 원본 Vacuum import/재질 변경도 해당 커밋의 내용으로 보존한다. 기존 사용자 TMP fallback 폰트 변경·stash 2개는 병합/커밋에서 제외한다. 실제 통합 checkout의 검증 결과는 아래에 별도로 기록한다.
+- 최종 통합 검증: EditMode **272/272**, PlayMode **60/60**, 실패·skip·미완료 0. `Temp/TestResults/20260915-103054-d04784b55cd1457baa71b2245a9e1fee/{EditMode,PlayMode}.xml` 및 `.log`. 원격이 추가한 청소기 import/프리팹 연결 검사 2개도 포함한다. 원격 작업 문서의 과거 PARTIAL 기록을 이 실행 증거와 구분한다.
+- Init→Hub 새 게임→Main→감독관→영업 진입 후 시계 1→2→3→1의 Textures 주소 로드를 확인했다. 실제 Panel 상품 2개를 노즐 위치에 놓고 내부 흡입 콜백으로 준비한 뒤 정상 배출 API에서 저장 2→1→0, Panel 인수 1회, 상품 수·활성 상태 보존을 확인했다. 다시 흡입 후 `SetVacuumAvailable(false)`에서 저장 0·위치/활성/Idle 복원을 확인했다. 검사 후 상품 상태는 복원했다. 이는 콜백/API를 통한 최소 실행이며 실제 마우스 흡입 감각·전체 UX·Player build 검증은 아니다.
+- 증거: `Temp/VacuumMergeRuntime.txt`, `Temp/VacuumMergeConsole.json`. Main missing script 0, 제품 Console 오류 0, Play 종료·InitScene dirty=False·compile idle·runInBackground=False. Main prototype 의존성은 원격 청소기의 `Vacuum.png`, `VacuumWind.mat` 2개이며 기존 가게/시계 Textures 연결은 보존됐다. 기존 폰트 dirty 사본 해시도 작업 전과 일치한다.
+
+## 판매창 색감·가게 단계 아트 통합 (2026-09-15)
+
+- 대상 `total_merge b3abf98`에 `codex/sales-window-lighting 4457091`을 병합한다. 대상이 소스의 조상이므로 코드·데이터 충돌은 없었다. 소스의 MainScene/OperatingPanel 직렬화 연결과 단계 외형 프리팹을 함께 반영한다. 사용자 미커밋 TMP fallback 폰트와 기존 stash는 제외·보존한다.
+- StoreStage 종류 19, PK 19001~19003, Resource 4292/4293/4294/4296/4297/4298/4299를 사용한다. 현재 ResourceData는 총 102행이며 기존 Addressables 등록을 유지한다. 세 단계는 탑뷰 외형 4294를 명시적으로 공유한다. CSV·loader·7개 프리팹·Addressables·MainScene 연결을 한 묶음으로 병합한다.
+- 초기 준비 덮개 아래에서 외형을 모두 로드·검증하고, 기존 가게 단계에 따라 슬롯의 Sprite/배치를 갱신한다. 시계·입력·상품·계산기 객체와 게임 판정은 유지한다. 정면 비가시 상태에서도 작업대의 시간대 RGB 색감을 갱신한다. 픽셀 단위 노멀 조명·반사까지 구현한 것은 아니다.
+- 필수 수명·호출·데이터 계약 읽기 전용 교차 검토에서 병합 차단 문제를 발견하지 못했다. 상세 구현과 소스 검증은 [작업 명세](work/sales-window-lighting.md#승인-후-구현-가게-단계-데이터와-기본-색감)를 따른다. 이번 통합 검증은 아래에 별도로 기록한다. 새 YAML 줄의 후행 공백 290곳만 정리했으며 직렬화 값·GUID는 유지했다. 원격 push는 별도 요청 범위다.
+- 통합 checkout에서 EditMode **268/268**, PlayMode **60/60**, 실패·skip·미완료 0. 증거: `Temp/TestResults/20260915-092537-ed03be1777914e6aae146bb8ed780e21/`의 `EditMode.xml/.log`, `PlayMode.xml/.log`. Resource PK/FK·GUID·Addressables 중복 없음, 기존 주소 연결 보존, staged whitespace 검사 통과.
+- Init→Hub 새 게임→Main→감독관→영업 진입 후 표시 API로 1→2→3→1→3→3단계 전환, 시계와 하위 객체 ID 보존, 미준비 4단계 거부·기존 3단계 유지 확인. 정면을 숨긴 상태에서도 작업대 CanvasRenderer 색은 09시 `(1,.9,.8)`, 12/15시 `(1,1,1)`, 18시 `(1,.72,.49)`, 21시 `(.38,.43,.56)`로 갱신되며 alpha 1·raycast false를 유지했다. Image.color 자체는 흰색을 유지하고 실제 색감은 CanvasRenderer에 적용한다.
+- Main missing script 0, 단계 프리팹 7개 Validate 성공, ResourceManager/SoundManager 각 1개. 정면 1단계 아침·3단계 밤과 탑뷰 밤 표시를 확인했다. 증거: `Temp/LightingMergeSmoke.txt`, `LightingMerge-FrontMorning.png`, `LightingMerge-FrontNight.png`, `LightingMerge-TopNight.png`. 단계/시간 미리보기와 화면 전환 API를 사용한 최소 실행이며, 실제 구매부터 표시까지의 수동 전체 UX·다른 해상도·Player build 검증은 아니다. 기존 정산 도장 기본 참조에 대한 아래 거래 화면 통합 기록은 유지한다.
+- 최종 제품 Console 오류 0 (`Temp/LightingMergeConsole.json`), compile idle, Play 종료·InitScene dirty=False·runInBackground=False. 기존 미커밋 TMP fallback 폰트는 작업 전 SHA256과 일치하고 stash 2개를 보존했다. 기능 API 검증은 PASS, 전체 사용자 시각 검수는 별도다.
+
 ## 거래 화면·상품 16종 통합 (2026-09-14)
 
 - 대상 `total_merge ff05c1f`(사운드·설비 단계별 UI 포함)에 `codex/customer-trade-presentation 2779de4`를 병합한다. 소스의 계산기 자동 표시·1초 출입, 대기열 보행·거래 표정, 상품 16종과 이미지, 탑뷰 임시 이름 제거·시계 정렬을 함께 반영한다. 대상의 사운드·설비 단계 UI·시민권 판정은 유지한다.
-- Resource ID 충돌은 대상 사운드 `4257~4275`를 유지하고 상품 이미지 16개의 소스 ID `4257~4272`를 `4276~4291`로 이관한다. ProductData의 두 이미지 FK와 이미지 등록표를 함께 변경한다. 총 91행, 상품·손님 고유 Sprite 61개, 사운드 19개다. 주소·GUID·원본 이미지는 그대로이며 추가 Addressables 등록은 없다.
+- Resource ID 충돌은 대상 사운드 `4257~4275`를 유지하고 상품 이미지 16개의 소스 ID `4257~4272`를 `4276~4291`로 이관한다. ProductData의 두 이미지 FK와 이미지 등록표를 함께 변경한다. 현재 총 102행, 상품·손님 고유 Sprite 61개, 사운드 20개다. 기존 주소·GUID는 유지하며 `CustomerBoxDrop` 1개를 기존 Default Local Group에 추가한다.
 - GameUIController의 계산기 알림은 입력만 갱신하는 수명 수정과 열림 효과음을 결합한다. 최신 단계별 설비 UI 계약을 기준으로 최종 상품 이름·해금 목록 테스트를 합친다. MainScene 파일 변경 없이 GameUI와 CustomerWorld의 공유 프리팹 수정을 상속한다.
 - 기존 인계는 소스 커밋 본문과 [사운드 통합](SOUND_INTEGRATION.md), [상품 이미지](IMAGE_RESOURCE_INTEGRATION.md), [판매 화면](SALE_ITEM_LAYOUT_RULES.md), [대기열](CUSTOMER_QUEUE_INTEGRATION.md)을 따른다. 원격 푸시는 이번 요청 범위에 포함하지 않는다.
-- 통합 검증: EditMode **262/262**, PlayMode **60/60**, 실패·skip·미완료 0. `Temp/TestResults/20260914-173926-716a6d15daca422ba6a3268c68ef09a1/`의 `EditMode.xml/.log`, `PlayMode.xml/.log`. Sprite 61개와 AudioClip 19개 실제 로드·사운드 수명, 단계별 설비 조건, 계산기 분류·출입·종료 및 거래 경계를 포함한다.
-- Init→Hub 새 게임→Main→감독관→영업→상품 4개 드래그 콜백 분류→계산기 자동 열림→숫자/확인 콜백으로 800G 수락→이모지→결과 확인 API로 퇴장 시작을 확인했다. 상품명 TMP 0개, ResourceManager/SoundManager 각 1개, 사운드 캐시 19개, 대기열 시각 객체 5개, 시계 120×90/숫자 (-1,-7). 증거: `Temp/TradeMergeSmoke.txt`, `TradeMergeSorting.png`, `TradeMergeCalculator.png`, `TradeMergeResult.png`. API·콜백을 사용한 최소 실행이며 실제 마우스 전체 UX나 음향 청취 품질·다른 해상도·Player build 검증은 아니다.
+- 통합 검증: EditMode **262/262**, PlayMode **60/60**, 실패·skip·미완료 0. `Temp/TestResults/20260914-173926-716a6d15daca422ba6a3268c68ef09a1/`의 `EditMode.xml/.log`, `PlayMode.xml/.log`. Sprite 61개와 당시 AudioClip 19개 실제 로드·사운드 수명, 단계별 설비 조건, 계산기 분류·출입·종료 및 거래 경계를 포함한다. 이후 `CustomerBoxDrop` 1개가 추가되었다.
+- Init→Hub 새 게임→Main→감독관→영업→상품 4개 드래그 콜백 분류→계산기 자동 열림→숫자/확인 콜백으로 800G 수락→이모지→결과 확인 API로 퇴장 시작을 확인했다. 상품명 TMP 0개, ResourceManager/SoundManager 각 1개, 당시 사운드 캐시 19개, 대기열 시각 객체 5개, 시계 120×90/숫자 (-1,-7). 증거: `Temp/TradeMergeSmoke.txt`, `TradeMergeSorting.png`, `TradeMergeCalculator.png`, `TradeMergeResult.png`. API·콜백을 사용한 최소 실행이며 실제 마우스 전체 UX나 음향 청취 품질·다른 해상도·Player build 검증은 아니다.
 - 원본 sound 75행과 상품 ID·가격·원가 보존, Resource 91개 PK/path와 Addressables 중복 없음, 신규 상품 GUID 16개 고유, Sprite/주소 등록 16/16 확인. Main missing script 0. 기존 `SettlementPanel.prefab/ReputationStamp Image.m_Sprite`의 누락 참조 1개는 target과 동일한 자산에 있으며 `ReputationStampPresenter`가 표시 시 유효한 등급별 Sprite로 교체한다. 이번 병합에서 이 기존 기본 참조는 수정하지 않았다. 참조 상세: `Temp/TradeMergeReferences.txt`.
 - 최종 제품 Console 오류 0 (`Temp/TradeMergeConsole.json`), 컴파일 실패 없음, Play 종료·InitScene dirty=False·runInBackground=False. MainScene·사운드/설비/딸 프리팹의 target 내용과 기존 stash 2개를 보존했다. 기능 API 검증은 PASS이며 전체 시각 검수와 기존 기본 도장 참조 정리는 별도 후속이다.
 

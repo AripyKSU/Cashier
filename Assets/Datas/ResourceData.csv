@@ -90,3 +90,14 @@ idx,path
 4289,ProtectiveSuit
 4290,RadiationDetector
 4291,ThermalCamera
+4292,StoreStage1World
+4293,StoreStage1Front
+4294,StoreStage1TopView
+4295,CustomerBoxDrop
+4296,StoreStage2Front
+4297,StoreStage2World
+4298,StoreStage3World
+4299,StoreStage3Front
+4300,Stage1Clock
+4301,Stage2Clock
+4302,Stage3Clock

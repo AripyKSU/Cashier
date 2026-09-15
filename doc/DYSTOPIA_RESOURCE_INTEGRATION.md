@@ -4,6 +4,15 @@
 
 ## 기준과 사용 위치
 
+### 2026-09-15 가게 단계·시계와 본편 이미지 연결
+
+- [9월 14일 인계](2026-09-14-prototype-handoff.md)의 Stage1/2/3Reference를 외형·배치 기준으로 사용한다. 런타임 이미지는 `Assets/Textures` 사본을 참조한다. 기준 씬은 Editor 추출용으로만 읽으며 프로토타입 코드·원본 PNG·meta는 수정하지 않았다.
+- 단계 프리팹 7개와 MainScene의 이미지 의존성 37종을 대조했다. 없는 이미지 10개를 복사하고, 기존 사본 중 PNG가 달라진 9개를 최신화했다. 나머지 18개는 기존 사본을 유지했다. 기존 GUID와 Sprite fileID를 보존했으며 신규 사본은 독립 GUID를 사용한다. 3단계 시계의 Sprite 영역은 원본의 `(12,26,104,78)`로 갱신했다. 전체 매핑·SHA256은 [대응표](data/DYSTOPIA_RESOURCE_MAP.csv)에 기록한다.
+- 가게 단계/시계뿐 아니라 MainScene에서 직접 참조하던 작업대·손 커서·지침·배경 등도 기존 대응표에 따라 이관했다. 공유 프리팹 11개만 참조를 수정했고 MainScene 파일과 개인 씬은 변경하지 않았다. MainScene과 단계 프리팹의 `AssetDatabase.GetDependencies`에서 `Assets/DystopiaPrototype/` 의존성 0개를 확인했다. 프로젝트 전체의 미사용/개인/프로토타입 씬을 정리했다는 뜻은 아니다.
+- `StoreStageData.clock_resource_idx`가 시계 Sprite 선택을 소유한다. 1/2/3단계는 Resource 4300/4301/4302 → `Stage1Clock`/`Stage2Clock`/`Stage3Clock` 주소를 사용한다. 원본 이름 `Stage1BasicClock.png`/`Stage2Clock.png`/`시계.png`는 유지하고 본편 사본 이름만 통일했다. 사용자 승인으로 기존 Default Local Group에 이미지 3개를 등록했다. 그룹·라벨 추가는 없다. 등록 상세: [이미지 등록표](data/IMAGE_RESOURCE_REGISTRATION.csv).
+- 기존 World/Front/TopView Resource FK와 숫자·시계 배치는 유지한다. Front 프리팹의 시계 Sprite는 비워 이중 선택을 제거하고, 초기 준비 때 CSV의 시계 Sprite까지 모두 로드한 뒤 적용한다. 재생성 도구도 Textures 사본이 없거나 모호하면 실패하며 프로토타입 이미지로 대체하지 않는다.
+- 변경 전 파일 백업: `Temp/StageTextureBackup/`. Git 기준점 `b25031f`. 복구할 경우 CSV/DTO/소비자/프리팹/주소 등록을 함께 되돌려야 하며 기존 세이브의 가게 단계 값은 변경하지 않는다. 본편 최소 실행·테스트 결과는 [판매창 작업 기록](work/sales-window-lighting.md)의 2026-09-15 후속 검증을 따른다.
+
 ### 2026-09-14 상품 16종 데이터 활성화
 
 - [인계 문서](2026-09-14-prototype-handoff.md)의 생존 아이템16종을 기존 상품 데이터에 연결한다. 원본 `Assets/DystopiaPrototype/Art/Products/`의 PNG16개를 동일 파일명으로 `Assets/Textures/Products/Dystopia/`에 복사하고 원본 PNG·meta·프로토타입 코드/씬은 보존했다.

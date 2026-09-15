@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 8b33f272d3e835b4b830c65a3bf5d1cb
   m_SerializeEntries:
+  - m_GUID: 005e6b59baa405a4a9fa5736fb4fb2a0
+    m_Address: BoxItemDrop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 08f0c731a7dae194bbcd7d944e8f879b
     m_Address: InspectorEventData
     m_ReadOnly: 0
@@ -41,8 +46,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 180b6635cf7b733489885b12b9f31141
+    m_Address: VacuumLoop
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1a651144da99c104bbb613cf8d4504b1
     m_Address: Radio
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 22f7b683ef8aa214baf60729c1fe44cc
+    m_Address: StoreStage3Front
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -56,6 +71,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 272990375374eaf4b8c2d2a2f4526e50
+    m_Address: Stage2Clock
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 28616b2c53126ac4b8fcc9db974d02ce
     m_Address: Battery
     m_ReadOnly: 0
@@ -66,6 +86,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a0808ef24574614bbbb1fa96229b553
+    m_Address: TransactionFail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2b3da9ff31cbe414aaeeb3fb15969045
     m_Address: TopDownWater
     m_ReadOnly: 0
@@ -73,6 +98,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2b5c4a08acc9fe9418891b5d0a638589
     m_Address: MaleCustomer_19
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2c878157162490b4c94e59b47904d6f8
+    m_Address: StoreStage3World
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -129,6 +159,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 447bd3f056867424383e73e02bdbfdb8
+    m_Address: FacilityUpgrade
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 45b01cb8246d5894db02d4d6d7cd229b
     m_Address: BadEndingScene
     m_ReadOnly: 0
@@ -160,6 +195,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4af57aef445c7f84287a898feaadd6ee
+    m_Address: StoreStage2World
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4b3d547fed813ee498a9c48c5b782173
+    m_Address: ItemPlace
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4e149cc37bfff9644a44babe05b7b88c
     m_Address: FemaleCustomer_05
     m_ReadOnly: 0
@@ -180,13 +225,28 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57c4ab2ad4881f84b820bb67f42852e7
+    m_Address: DayStart
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5950e40d5846fe14db1bd09e65bad894
     m_Address: MaleCustomer_23
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b6743295cd63b04386484a2ee47255a
+    m_Address: StoreStage1TopView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5ce5e2c16d103ed449913e369d3aed24
     m_Address: RadiationDetector
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5e04f4aaf51d3aa44921880522769947
+    m_Address: ReputationStamp
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -201,8 +261,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61e262088f04317468be542fecbcd00d
+    m_Address: Stage1Clock
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 66b72b5b3f7a5db419b44c2f084e12a5
     m_Address: TopDownCrackers
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 67645d37e9482db43a161674a3347c22
+    m_Address: SettlementBgm
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -236,6 +306,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7d4c46f56cff67a449028810264060dc
+    m_Address: StoreStage1World
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7e9bd439e754f4e4da12609d421d8857
     m_Address: Bandage
@@ -291,6 +366,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98660c3250ae62e4cb950ac185400271
+    m_Address: SupervisorBgm
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9930d448619de9644a5ea559eb930d94
     m_Address: FemaleCustomer_01
     m_ReadOnly: 0
@@ -303,6 +383,16 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9a7d774076c12a4438200579ff68dc14
     m_Address: FemaleCustomer_19
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9aafb16350c0a9d4baa0bfac2a0edf8d
+    m_Address: TransactionSuccess
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c0ae127698ef0848b3736042f0fe396
+    m_Address: StoreStage1Front
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -326,8 +416,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a87f1ff0ef8aa0c4c81ae840b0131cec
+    m_Address: ItemRemove
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a8bd4b822856da54d9be2f54f3d89539
     m_Address: MaleCustomer_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a8d8112b1355f744395b4545061646a0
+    m_Address: LedgerWriteLoop
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -367,6 +467,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b8b752556b746404f874242a17b437e6
+    m_Address: StoreStageData
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Datas
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b94fda2fc2292d44383663c1dfa366dd
     m_Address: PriceEventScheduleData
     m_ReadOnly: 0
@@ -403,6 +509,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c80a010a2128a554682496f5fa7dc4e1
+    m_Address: CalculatorOpen
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: cbfac51892a5b7a45877137ebaa2f8c6
     m_Address: CannedFood
     m_ReadOnly: 0
@@ -415,6 +526,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d0ad7ff789440a543a0f1b1ef3ebb927
     m_Address: NutritionBar
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d4f6cd107f006ec48bc9ef6b566462bc
+    m_Address: StoreStage2Front
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -439,6 +555,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e0fe256b222410646ba0eae5306f07db
+    m_Address: Stage3Clock
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e10861ad08b6aad4eb546bf10f237645
     m_Address: MaleCustomer_02
     m_ReadOnly: 0
@@ -449,11 +570,26 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2a26f4d59dcaee4e9425e380add956b
+    m_Address: DialogueVoice
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e2c8d56a4b1f47f29a0c6d38f7512b4e
     m_Address: EconomyBalanceData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e4d2a25b057115d43b0afe45dbc48244
+    m_Address: DailyGuideline
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e8aa084471675174186ed94eb2cada32
+    m_Address: CalculatorButton
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e8ce579ccb334dd49943b3ef6e5082ce
     m_Address: FemaleCustomer_11
@@ -487,6 +623,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef481d13a0d6b9e4c8ecc941d649e5c2
+    m_Address: GameplayAmbience
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f336d01037b164f44a3997f22992a283
     m_Address: FemaleCustomer_02
     m_ReadOnly: 0
@@ -497,109 +638,29 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f55c9083d523ef74d895e7bbf3c94806
+    m_Address: ItemPickup
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f5c532c1dc724e488affb0dcff598900
     m_Address: DaughterAppearanceData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: fdc08423a1c800041aaa79d87cc96653
-    m_Address: FemaleCustomer_10
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 98660c3250ae62e4cb950ac185400271
-    m_Address: SupervisorBgm
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ef481d13a0d6b9e4c8ecc941d649e5c2
-    m_Address: GameplayAmbience
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 67645d37e9482db43a161674a3347c22
-    m_Address: SettlementBgm
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9aafb16350c0a9d4baa0bfac2a0edf8d
-    m_Address: TransactionSuccess
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2a0808ef24574614bbbb1fa96229b553
-    m_Address: TransactionFail
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c80a010a2128a554682496f5fa7dc4e1
-    m_Address: CalculatorOpen
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e8aa084471675174186ed94eb2cada32
-    m_Address: CalculatorButton
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f55c9083d523ef74d895e7bbf3c94806
-    m_Address: ItemPickup
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4b3d547fed813ee498a9c48c5b782173
-    m_Address: ItemPlace
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a87f1ff0ef8aa0c4c81ae840b0131cec
-    m_Address: ItemRemove
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 005e6b59baa405a4a9fa5736fb4fb2a0
-    m_Address: BoxItemDrop
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 180b6635cf7b733489885b12b9f31141
-    m_Address: VacuumLoop
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 447bd3f056867424383e73e02bdbfdb8
-    m_Address: FacilityUpgrade
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e4d2a25b057115d43b0afe45dbc48244
-    m_Address: DailyGuideline
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 57c4ab2ad4881f84b820bb67f42852e7
-    m_Address: DayStart
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fd7bb774d0f115d46b6c0e266efa2f5d
     m_Address: DayEnd
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5e04f4aaf51d3aa44921880522769947
-    m_Address: ReputationStamp
+  - m_GUID: fdc08423a1c800041aaa79d87cc96653
+    m_Address: FemaleCustomer_10
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a8d8112b1355f744395b4545061646a0
-    m_Address: LedgerWriteLoop
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e2a26f4d59dcaee4e9425e380add956b
-    m_Address: DialogueVoice
+  - m_GUID: 4d16f0a995a8459f864b25c6782dcae2
+    m_Address: CustomerBoxDrop
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

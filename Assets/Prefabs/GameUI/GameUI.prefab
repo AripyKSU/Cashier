@@ -603,10 +603,10 @@ MonoBehaviour:
   cursorCanvas: {fileID: 4811969470572574076}
   cursorRect: {fileID: 2224852479392975003}
   cursorImage: {fileID: 3384499796441228470}
-  releasedSprite: {fileID: -133083151, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
-  holdingStillSprite: {fileID: -1689355269, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
-  holdingLeftSprite: {fileID: 1566540190, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
-  holdingRightSprite: {fileID: 462894044, guid: b960ea489f33e484fa62df90f24bf399, type: 3}
+  releasedSprite: {fileID: -133083151, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
+  holdingStillSprite: {fileID: -1689355269, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
+  holdingLeftSprite: {fileID: 1566540190, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
+  holdingRightSprite: {fileID: 462894044, guid: 4c62b0c6c75e03945bf37d26bee3b121, type: 3}
   directionThresholdPixelsPerSecond: 30
   velocitySmoothing: 20
 --- !u!1 &2409673214480401270
@@ -637,16 +637,19 @@ RectTransform:
   m_GameObject: {fileID: 2409673214480401270}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.9, y: 1.9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 7000000000000000002}
+  - {fileID: 7000000000000000012}
   - {fileID: 1313165435587868663}
+  - {fileID: 7000000000000000022}
   m_Father: {fileID: 1110603567946897577}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -330, y: 0}
-  m_SizeDelta: {x: 48, y: 480}
+  m_SizeDelta: {x: 128, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2950758486462152238
 CanvasRenderer:
@@ -663,13 +666,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2409673214480401270}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.72, g: 0.82, b: 0.88, a: 0.95}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -699,12 +702,167 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Cashier.Runtime::VacuumController
   vacuumRect: {fileID: 2494855863641936700}
-  vacuumImage: {fileID: 8456396074809949833}
-  suctionArea: {fileID: 1313165435587868663}
-  startOffsetX: -330
-  liftOffsetPixels: 18
-  attachedSpacingPixels: 10
-  positionFollowSpeed: 32
+  vacuumImage: {fileID: 7000000000000000004}
+  gripArea: {fileID: 7000000000000000012}
+  nozzle: {fileID: 1313165435587868663}
+  suctionVfxRoot: {fileID: 7000000000000000022}
+  windMaterial: {fileID: 2100000, guid: 0b4300acd2095ef4eb588a74156882bb, type: 2}
+  turnSmoothSeconds: 0.11
+  returnSmoothSeconds: 0.11
+  swallowSeconds: 0.16
+  spitIntervalSeconds: 0.07
+  suctionRadiusPixels: 150
+  captureRadiusPixels: 28
+  suctionAccelerationPixels: 2800
+  spitOffsetPixels: 12
+  spitSpeedPixels: 420
+  spitAngleDegrees: 7
+  spitSpeedVariation: 0.1
+--- !u!1 &7000000000000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7000000000000000002}
+  - component: {fileID: 7000000000000000003}
+  - component: {fileID: 7000000000000000004}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7000000000000000002
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000000000000000001}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2494855863641936700}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 120, y: 180}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &7000000000000000003
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000000000000000001}
+  m_CullTransparentMesh: 1
+--- !u!114 &7000000000000000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000000000000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: ''
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 8c5509423fa570745bc62cafae857f42, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7000000000000000011
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7000000000000000012}
+  m_Layer: 0
+  m_Name: GripArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7000000000000000012
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000000000000000011}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2494855863641936700}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 54}
+  m_SizeDelta: {x: 76, y: 54}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &7000000000000000021
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7000000000000000022}
+  m_Layer: 0
+  m_Name: SuctionVfxRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7000000000000000022
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7000000000000000021}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2494855863641936700}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -88}
+  m_SizeDelta: {x: 1, y: 1}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2620285506882029497
 GameObject:
   m_ObjectHideFlags: 0
@@ -771,7 +929,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5c4c5257f2ef8b646b0183430ca65218, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a365872f627ccc44fa5f605e50c48b63, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1314,7 +1472,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2a170e436543a5647a171a435e7ba07d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9cedd5aaac8572d4991b75c8b0b499e9, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1606,7 +1764,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6866e4272ad30b44c92d59358a3a12f6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6d6c5630015749d4c9448854e1d7cb7d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -2171,7 +2329,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 320, y: 320}
+  m_SizeDelta: {x: 160, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &439293044036518264
 CanvasRenderer:
@@ -2334,7 +2492,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1313165435587868663}
   m_Layer: 0
-  m_Name: SuctionArea
+  m_Name: Nozzle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2356,8 +2514,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -250}
-  m_SizeDelta: {x: 96, y: 64}
+  m_AnchoredPosition: {x: 0, y: -88}
+  m_SizeDelta: {x: 36, y: 24}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8974433115403086965
 GameObject:
@@ -3081,7 +3239,7 @@ PrefabInstance:
     - target: {fileID: 8099590994143925570, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: e4e4da47c41746288e9e526d48ba51cd, type: 3}
+      objectReference: {fileID: 21300000, guid: 9db7aca6ea25a55468c0cf1189125352, type: 3}
     - target: {fileID: 8319023581108526410, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_SizeDelta.x
       value: 120
@@ -3276,8 +3434,8 @@ MonoBehaviour:
   - {fileID: 6635209346887950167}
   transitionOverlay: {fileID: 0}
   containerImage: {fileID: 2750369601870479065}
-  tiltedContainerSprite: {fileID: 21300000, guid: 6866e4272ad30b44c92d59358a3a12f6, type: 3}
-  emptyContainerSprite: {fileID: 21300000, guid: 5058e7ded0fcdd049997cb7d4bef30f6, type: 3}
+  tiltedContainerSprite: {fileID: 21300000, guid: 6d6c5630015749d4c9448854e1d7cb7d, type: 3}
+  emptyContainerSprite: {fileID: 21300000, guid: 6955a94fee299c041b90e4b175985c99, type: 3}
   frontContainerButton: {fileID: 3583298790932689073}
   frontBasketRoot: {fileID: 3340005534182362982}
   landingDustEffect: {fileID: 9000000000000000001}
