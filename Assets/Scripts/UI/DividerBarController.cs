@@ -199,8 +199,9 @@ public sealed class DividerBarController : MonoBehaviour
         wasPressedThisFrame = Input.GetMouseButtonDown(0);
 #endif
 
-        // 1. 마우스가 눌려 있고 아직 잡지 않은 상태일 때 밀대 근처인지 검사 (Pickup)
-        if (isPressed && !this.isHolding)
+        // 다른 물품을 드래그한 채 막대 위를 지나갈 때 뒤늦게 막대까지 잡히지 않도록
+        // 막대 위에서 클릭을 시작한 프레임에만 잡기를 허용합니다.
+        if (isPressed && wasPressedThisFrame && !this.isHolding)
         {
             Vector2 barPos = this.barRect.anchoredPosition;
             float dx = Mathf.Abs(localPointer.x - barPos.x);
