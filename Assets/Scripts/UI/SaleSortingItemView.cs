@@ -31,7 +31,7 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         PlayerDragging,
         /// <summary>막대가 이동시키는 상태입니다.</summary>
         DividerMoving,
-        /// <summary>청소기에 붙어 이동하는 상태입니다.</summary>
+        /// <summary>청소기 흡입 연출 또는 내부 보관이 위치·표시를 소유하는 상태입니다.</summary>
         VacuumAttached,
         /// <summary>자동 정렬이 이동시키는 상태입니다.</summary>
         AutoSorting,

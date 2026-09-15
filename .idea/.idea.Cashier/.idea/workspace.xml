@@ -10,7 +10,17 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="" />
+    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingItemView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingItemView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/SaleSortingPanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/VacuumController.cs.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/BusinessClockAndSortingTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/BusinessClockAndSortingTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -186,7 +196,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "total__merge",
+    "git-widget-placeholder": "vacuum",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

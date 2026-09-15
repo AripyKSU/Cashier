@@ -188,6 +188,59 @@ public sealed class BusinessClockAndSortingTests
     }
 
     [Test]
+    public void VacuumAsset_UsesAstraImportContract()
+    {
+        const string path = "Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png";
+        TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+        Assert.That(importer, Is.Not.Null);
+        Assert.That(AssetDatabase.AssetPathToGUID(path), Is.EqualTo("8c5509423fa570745bc62cafae857f42"));
+        Assert.That(importer.textureType, Is.EqualTo(TextureImporterType.Sprite));
+        Assert.That(importer.spriteImportMode, Is.EqualTo(SpriteImportMode.Single));
+        Assert.That(importer.spritePixelsPerUnit, Is.EqualTo(40));
+        Assert.That(importer.filterMode, Is.EqualTo(FilterMode.Point));
+        Assert.That(importer.mipmapEnabled, Is.False);
+        Assert.That(importer.textureCompression, Is.EqualTo(TextureImporterCompression.Uncompressed));
+        Assert.That(importer.alphaIsTransparency, Is.True);
+    }
+
+    [Test]
+    public void Vacuum_GameUiPrefab_HasAstraVisualAndNozzleBindings()
+    {
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab");
+        Assert.That(prefab, Is.Not.Null);
+
+        VacuumController controller = prefab.GetComponentInChildren<VacuumController>(true);
+        Assert.That(controller, Is.Not.Null);
+        SerializedObject controllerObject = new SerializedObject(controller);
+        RectTransform vacuumRect = controllerObject.FindProperty("vacuumRect").objectReferenceValue as RectTransform;
+        UnityEngine.UI.Image vacuumImage = controllerObject.FindProperty("vacuumImage").objectReferenceValue as UnityEngine.UI.Image;
+        RectTransform gripArea = controllerObject.FindProperty("gripArea").objectReferenceValue as RectTransform;
+        RectTransform nozzle = controllerObject.FindProperty("nozzle").objectReferenceValue as RectTransform;
+        RectTransform suctionVfxRoot = controllerObject.FindProperty("suctionVfxRoot").objectReferenceValue as RectTransform;
+        Material windMaterial = controllerObject.FindProperty("windMaterial").objectReferenceValue as Material;
+
+        Assert.That(vacuumRect, Is.SameAs(controller.transform));
+        Assert.That(vacuumRect.localScale.x, Is.EqualTo(1.9f).Within(0.001f));
+        Assert.That(vacuumRect.localScale.y, Is.EqualTo(1.9f).Within(0.001f));
+        Assert.That(vacuumImage, Is.Not.Null);
+        Assert.That(vacuumImage.sprite, Is.Not.Null);
+        Assert.That(vacuumImage.sprite.texture.name, Is.EqualTo("Vacuum"));
+        Assert.That(vacuumImage.preserveAspect, Is.True);
+        Assert.That(vacuumImage.raycastTarget, Is.False);
+        Assert.That(gripArea, Is.SameAs(controller.transform.Find("GripArea")));
+        Assert.That(nozzle, Is.SameAs(controller.transform.Find("Nozzle")));
+        Assert.That(suctionVfxRoot, Is.SameAs(controller.transform.Find("SuctionVfxRoot")));
+        Assert.That(windMaterial, Is.SameAs(AssetDatabase.LoadAssetAtPath<Material>(
+            "Assets/DystopiaPrototype/TopDownTest/Art/VacuumWind.mat")));
+        Assert.That(controllerObject.FindProperty("suctionAccelerationPixels").floatValue,
+            Is.EqualTo(2800f).Within(0.001f));
+
+        RectTransform handRect = prefab.transform.Find("HandCursorCanvas/HandCursorImage") as RectTransform;
+        Assert.That(handRect, Is.Not.Null);
+        Assert.That(handRect.sizeDelta, Is.EqualTo(new Vector2(160f, 160f)));
+    }
+
+    [Test]
     public void TimeOfDayUIController_EditorPreview_DoesNotChangeBusinessClock()
     {
         var clockGo = new GameObject("ClockGo");
