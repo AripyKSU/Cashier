@@ -16,6 +16,7 @@
 
 | 문서 | 읽는 조건 | 내용 |
 |---|---|---|
+| [uGUI 규격화 계획](work/ugui-layout-standard.md) | 기준 해상도·Canvas·RectTransform 작성 규칙을 검토할 때 | 현재 설정 조사와 미확정 규칙 초안. 구현 전 계획 |
 | [WORK_RULES.md](WORK_RULES.md) | 모든 작업에서 필수 | 공통 절차·승인·보호·Git·검증·역할 경계 |
 | [CODING_RULES.md](CODING_RULES.md) | 코드 수정에서 필수. 자산·경로·설정 변경은 7·8절, CSV enum·식별자 변경은 관련 9절 | 프로그래머 규칙·기술 기준·폴더·C# 규격 |
 | [INDEX.md](INDEX.md) | 작업 시작·범위 변경 | 현재 체크아웃의 문서 색인과 이동 대응 |
