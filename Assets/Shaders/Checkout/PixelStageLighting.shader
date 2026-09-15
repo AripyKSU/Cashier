@@ -13,6 +13,10 @@ Shader "Cashier/PixelStageLighting"
  #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
  #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
  TEXTURE2D(_MainTex); TEXTURE2D(_NormalMap); TEXTURE2D(_CustomerSilhouette);
+ // 원본 색은 텍스처의 Filter Mode를 따릅니다. 고정 Point 샘플러를 쓰면 임포트 설정이 무시되어
+ // 렌더 해상도를 올려도 대각선 경계에 계단이 남습니다. 외곽광과 그림자 판정은 이웃 텍셀을
+ // 정확히 집어야 하므로 아래에서 계속 sampler_PointClamp를 사용합니다.
+ SAMPLER(sampler_MainTex);
  float4 _ShadowBody;
  float _ReceiveCustomerShadow, _CustomerShadowOpacity;
  float4 _SunShadowOrigin;
@@ -25,6 +29,7 @@ Shader "Cashier/PixelStageLighting"
  float _BottomShade, _ContactShadow, _PropFill;
  float _HighlightResponse, _SpecularResponse, _Emission;
  float4 _ContactAnchor, _ContactSpriteUV;
+ float4 _ContactFootprint;
  float _ContainerFinish;
  float4 _TowerOrigins;
  float _TowerPower;
@@ -32,8 +37,11 @@ Shader "Cashier/PixelStageLighting"
  float2 _TextureEdgeTrim;
  float _UseNeutralRegion, _NeutralBrightness;
  float _AmbientSeconds;
+ float4 _SkyRect;
  // Small opaque silhouettes live in the sky layer, behind the separately drawn skyline and shop.
  float SkyBirds(float2 world){
+  // Work in the authored sky's original coordinates so an inset scales birds too.
+  world=(world-_SkyRect.xy)/max(_SkyRect.zw,float2(1,1))*float2(1280,720);
   float mask=0;
   [unroll] for(int bird=0;bird<5;bird++){
    float seconds=_AmbientSeconds;
@@ -87,6 +95,24 @@ Shader "Cashier/PixelStageLighting"
     clip(.12-depth);
     return half4(0,0,0,_Tint.a);
    }
+   if(_ContactShadow>2.5){
+    // Find each column's real lower contour, excluding transparent padding and baked near-black shadows.
+    float u=(i.uv.x-_ContactAnchor.x)/max(.01,_ContactAnchor.z)+.5;
+    clip(min(u,1-u));
+    float foot=2;
+    [loop] for(int row=0;row<96;row++){
+     float v=(row+.5)/96;
+     half4 sample=SAMPLE_TEXTURE2D_LOD(_MainTex,sampler_PointClamp,lerp(_ContactSpriteUV.xy,_ContactSpriteUV.zw,float2(u,v)),0);
+     if(sample.a>.5 && max(sample.r,max(sample.g,sample.b))>.094){foot=v;break;}
+    }
+    clip(1-foot);
+    float below=(_ContactAnchor.y-i.uv.y)*_ContactFootprint.y+foot-_ContactFootprint.x;
+    // Two design pixels overlap the original base so rasterization cannot open a visible gap.
+    clip(below+_ContactFootprint.z);
+    clip(.055-below);
+    float opacity=1-smoothstep(.018,.055,max(0,below));
+    return half4(_Tint.rgb,_Tint.a*opacity);
+   }
    if(_ContactShadow>1.5){
     // Point-sampled silhouette with a short, hard-edged projection from the base.
     float depth=(_ContactAnchor.y-i.uv.y)*2;
@@ -111,7 +137,7 @@ Shader "Cashier/PixelStageLighting"
    return half4(_Tint.rgb,_Tint.a*opacity);
   }
   clip(min(i.uv.x-_TextureEdgeTrim.x,1-_TextureEdgeTrim.y-i.uv.x));
-  half4 c=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,i.uv);
+  half4 c=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,i.uv);
   if(_ContainerFinish>.5){
    // Compress bright metal highlights without tinting dark outlines.
    float peak=max(c.r,max(c.g,c.b));

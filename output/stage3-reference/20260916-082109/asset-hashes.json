@@ -1,0 +1,270 @@
+[
+  {
+    "path": "Assets\\DystopiaPrototype\\Scenes\\DystopiaVerticalSlice.unity",
+    "sha256": "81e5310e02768f78a5b4f041f0d589b90a654c947d69dc9d84c587f4deadba93"
+  },
+  {
+    "path": "Assets\\DystopiaPrototype\\Editor\\References\\Stage3Reference.unity",
+    "sha256": "81e5310e02768f78a5b4f041f0d589b90a654c947d69dc9d84c587f4deadba93"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop.meta",
+    "sha256": "b5a6103dcf0ec0c8cdca30974f616e85efacc6cb592541a76ff86ddf99777c59"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate.meta",
+    "sha256": "00dfd94f761eba077c03aa3a77c51f9dfad1b331912c06e00041696de1cdae33"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Frame.meta",
+    "sha256": "ad0aea0ed3640c25c9daf00d3ef489adb22987d3f413022473e4a55b8566a979"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props.meta",
+    "sha256": "3685801dae85e3b17974c86a6f1fd40b38ddc4bc178a450e265f3a17f4f42401"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench.meta",
+    "sha256": "b5e194f58c88199f599009b2271cab121dc877d02405616b119df684b30eaefd"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage1CounterTop.png",
+    "sha256": "0a556ce01d87cd80c89a53975190286c9cbbe43cce010000031c31c3b08c1a9c"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage1CounterTop.png.meta",
+    "sha256": "00359fe6da7dfff96d9bdb71ca49983d28ca883f3055c7e0181aca6f36ed6de8"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage2CounterTop.png",
+    "sha256": "9734b1ac521e5f91d3d5c1f25cd01fbc5a4adc92972fda07b76a364cfc2b5a7b"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage2CounterTop.png.meta",
+    "sha256": "36673b8e69093d30ec66701b61a3a2cef393c70f865b157f06c76658df7d490d"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage3CounterTop.png",
+    "sha256": "c2aa243eafe922f8bb0349f531b3953b22efcd7369900945bcc531504cdd2088"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage3CounterTop.png.meta",
+    "sha256": "113368335cae592fac40d79cff5dfb82a0edbcab478ad2b2cec04f97de5e007b"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage1CrateClosed.png",
+    "sha256": "e5ff8d48cec698a3c0ca06fe2bbfdeb07cf561a8074cbf7aae0c997bc087c690"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage1CrateClosed.png.meta",
+    "sha256": "17e7ab4954c5145df4ea21ea2d28d79462bf7167b14684bc4c700b6647fc4e9b"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage1CrateOpen.png",
+    "sha256": "78fa1c16725ae512f2c958385936b749224e9627774e4550148c60cedc78ffe4"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage1CrateOpen.png.meta",
+    "sha256": "de687f733e1fbfc726ad318e83fa1056381f67448aef697bcea37baec2f4b4fe"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2CrateClosed.png",
+    "sha256": "38e53be4c0dc66fa23b95a3dff676ed81239c8274f103acabd2ed58739aa9b29"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2CrateClosed.png.meta",
+    "sha256": "ed2ddf8ad27820eede2a8d1708ffdbe8457452c943632b5beb89f85cc53550c6"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2CrateOpen.png",
+    "sha256": "96b5151e6fd985befa29bd857964725acc1475b9516460dbfc9d9d8b3fe20019"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2CrateOpen.png.meta",
+    "sha256": "279762b5d378c5e3ba8c41d11a9bba3f694af831af2e05a9ea83689ad01b0c55"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2RustedCrateClosed.png",
+    "sha256": "2262348fe1ab73a583d1d87baaed376f0ff8c6c7ffe2a60d46b2fcf7f517b302"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2RustedCrateClosed.png.meta",
+    "sha256": "5bacba533926177707ad1d76a467d70e8865c0f7941a103142aed63d37f49bea"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2RustedCrateOpen.png",
+    "sha256": "4215326ecb0fe6ce3d0967217509cf37a8e4897c0d5c70fe5a6e2e431fb74b57"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage2RustedCrateOpen.png.meta",
+    "sha256": "0903648a65fd9226d775b8d6828d45968ade29094c246f682a1400e1369cadf3"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage3CrateClosed.png",
+    "sha256": "c9557d0121bd3d2c20d10f43f8db2b255718f6cd4a0b57077e7edc4904cdbfe0"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage3CrateClosed.png.meta",
+    "sha256": "1c8b82d073ee892da4c0f6db46351060af665b3dcf8124d52fc8f4c840e0e8fc"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage3CrateOpen.png",
+    "sha256": "ada1aabef7d4fb5218dda8316849657bd8a2c7ce5174cf83b97e36554c3783e2"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Crate\\Stage3CrateOpen.png.meta",
+    "sha256": "e895f7cd3aceaf31cf7275a051113874807bae7b459b9cbbf745b8aeb31fafd7"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Frame\\Stage2RustedClock.png",
+    "sha256": "71d092b24be75a62c7195bc5de9e2ea141b8cc25392b941c6f100d99dcc5fafb"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Frame\\Stage2RustedClock.png.meta",
+    "sha256": "f162e2c6cfb505b7a35b7f51b9721c3b58461e9766faf629120aa546cf9adcdf"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Frame\\Stage2RustedFrame.png",
+    "sha256": "c01ea33065997f7b9870744127414585d1f56ed9ac551e393f987a03bd561355"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Frame\\Stage2RustedFrame.png.meta",
+    "sha256": "8f18070df115ee967091a193876f5fc2d782eecc18eeb286f50b0ea60aa08fd3"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage1FoodShelf.png",
+    "sha256": "52242ec0aa00a8b9359ebf4d6de1fd88448ae504a3ea2e00401d6aebe1dde376"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage1FoodShelf.png.meta",
+    "sha256": "d2e11879782c5e8be7fea7e89e1e9c4425622379ea981fc611459ae8ad5d06b2"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage1MedicineCabinet.png",
+    "sha256": "122b561a9a232a94f4b0f9fb1b9412d2cf556f229c18c4d9478f4a8dce791ff1"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage1MedicineCabinet.png.meta",
+    "sha256": "a7e2150a67e56a2e09289328a492505dfd3833089555fb7c4b88348e43f151fe"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2FoodShelf.png",
+    "sha256": "358c5f1a965148be542077f8ce09fed89d62d6cdd89d76116fba3f8e07871954"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2FoodShelf.png.meta",
+    "sha256": "41c838777c967199fe0d85910bba3f7d60a45d83b9917b33a385696996a5915b"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2MedicineCabinet.png",
+    "sha256": "541560586b6876a123458e1b3b43be8224740dad750c133126810ef4f127f071"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2MedicineCabinet.png.meta",
+    "sha256": "33170c9153a4769b7b54035ee849c18a1ab1430736274279b2b7e9f30b619f44"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2PowerCommunications.png",
+    "sha256": "a5b1930d78f16f93eb8516654c7453233c7d7a4fafd8b419011a039ef4f5a8dc"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2PowerCommunications.png.meta",
+    "sha256": "885524b04304edfe4bd51dba201cfc0389ade4d6d7c19bc1ac3450c7c3013e98"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2ToolBench.png",
+    "sha256": "28b6786661e86fbbcaa2c491af2baca25b02b5f326cb8851d892b790342c30f2"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage2ToolBench.png.meta",
+    "sha256": "080ef305b134c2c4afba68d347ed8b15d9d05ba8f1a098213f5f44afec25b4b6"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3FoodShelf.png",
+    "sha256": "4ebb521f99bbbccc080131a272e050b8e1e3287a09a6c340db7d8fa544e06607"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3FoodShelf.png.meta",
+    "sha256": "5632262613c24a4b5d0f47a051c0a47f233d3d8748c3f423af0c1092f5cb615d"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3MedicineCabinet.png",
+    "sha256": "61ed78d84dc12e9f42456fefae5a3ca998947381d89db2be1f46668b773402ae"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3MedicineCabinet.png.meta",
+    "sha256": "4265d2c27cca2ee96db873b892acba5206ce151b2311e758eecb51c9f9354f2b"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3NuclearProtection.png",
+    "sha256": "8e67bcc7263b79eb5445daa283bcb16d3cbbf92490edc44dd1046168e822e223"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3NuclearProtection.png.meta",
+    "sha256": "b4649f38be914a9d12ed9fb4befbc95c87a465ee33048459512d1b8ebd4073a1"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3PowerCommunications.png",
+    "sha256": "1bb96ebf64095380403bb6045d32c8b7c0699abb45e0f76b087aeb22808778d0"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3PowerCommunications.png.meta",
+    "sha256": "d7b3584b0c2613bb7f4a8b20eff12aa4642663e6ac4dd31b9e0a7c9d505730e3"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3PrecisionElectronics.png",
+    "sha256": "039f1ccdd0d3f1eb755c896d7157f4011554499d323310c331bd936e914d4614"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3PrecisionElectronics.png.meta",
+    "sha256": "7de290c0ffd65362d658dfe97a7a5a987d1f6d90f7f49bb6eeb38989861dfa37"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3ToolBench.png",
+    "sha256": "d9d26a6101e5778937e590b98f376fc0eba91f211e97dea7a6776dbb90a2f18f"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Props\\Stage3ToolBench.png.meta",
+    "sha256": "064707467130ba6fcdb092a62ebee6cf8ef94ed38ba3be7dd71a652a39fdbafc"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench\\Stage1TopDownWorkbench.png",
+    "sha256": "28504c7bf54c480df94bda7c8dd7a963f07a7ecd330f017db441cf8a2c0d15ee"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench\\Stage1TopDownWorkbench.png.meta",
+    "sha256": "a137c1700dfa013a4cd8438da595da0e42657374301a0dd6338f9c8ded8b60dd"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench\\Stage2TopDownWorkbench.png",
+    "sha256": "9f2373fce090efef35d72f85610290bd2c8d173bae0ee54975e08073e16579ec"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench\\Stage2TopDownWorkbench.png.meta",
+    "sha256": "a7ebe93017cec2ce8358ab9e5ed609ebe334355c2082e1b499a4fc3ab040e7bf"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench\\Stage3TopDownWorkbench.png",
+    "sha256": "2ba5e62caaaa81684fbe40f2e5a7d86e9c16fe60856018e1bec65acb172c4399"
+  },
+  {
+    "path": "Assets\\Textures\\art\\Facility\\Workbench\\Stage3TopDownWorkbench.png.meta",
+    "sha256": "0898f82166e1730d9be12dd122d1c60975b5821c34e247a641edcd9c738f65eb"
+  },
+  {
+    "path": "Assets\\DystopiaPrototype\\Scripts\\DystopiaPixelStage.cs",
+    "sha256": "f5ecde46a6c6e81b2ba0022d2321cafe512ecab7135ed84adae78f96c262b68b"
+  },
+  {
+    "path": "Assets\\Shaders\\Checkout\\PixelStageLighting.shader",
+    "sha256": "fdea02fd0fae5ab3745f9688e3dcfb1aa3b8462ed4168950bf80183e2607a446"
+  },
+  {
+    "path": "Assets\\Textures\\Checkout\\Shop\\Stage3Clock.png",
+    "sha256": "62afcb534375e77a5591dbdc0e4400f25a8e499a2985c6fd09eb6504ae4d2696"
+  },
+  {
+    "path": "Assets\\Textures\\Checkout\\Shop\\Stage3Clock.png.meta",
+    "sha256": "857614bebff2b11222b10995fd23ef78a32bc6817d4f20a05994f8041cf763e7"
+  }
+]

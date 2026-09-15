@@ -1,0 +1,58 @@
+[
+  {
+    "name": "Stage3CrateClosed",
+    "folder": "Crate",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-d6936b27-32f2-4c39-8ae3-677d691f402e.png",
+    "prompt": "Use case: lighting-weather. Edit image 1 only, a production transparent Unity pixel-art sprite. Image 2 is material reference ONLY: original brushed-steel countertop. Correct the dull flat clay-like metal into this original luminous brushed metal: fine horizontal machining grain, broad broken silver reflection bands, bright thin worn bevels, darker metallic side faces, sparse brown rust. Restore rich local contrast and reflective metal highlights, NOT uniform global brightening, not polished chrome, not gray painted plastic. Preserve EXACT image 1 object design, position, silhouette size, angle/perspective, proportions, framing, transparent canvas size, all equipment, colors, small details and original pixel resolution style. Do NOT rotate, mirror, redesign or add props. Strong ambient occlusion at joints, beneath protrusions and at base. Ground it with a short, dark, semi-transparent contact shadow directly touching the feet/base and extending only a few pixels below/right, no gap, no long cast shadow, no oval halo. Keep object at original pixel coordinates and leave generous surrounding genuine alpha transparency. Shadow is painted into transparent sprite, NO floor plane or backdrop. Return just one isolated edited asset, no text or watermark.\nMaintain the existing steep downward camera with broad lid and foreshortened front. Two latches unchanged. Add central broken brushed silver vertical reflection across front and lid, matching countertop. Shadow thin and dark.",
+    "correction": null
+  },
+  {
+    "name": "Stage3CrateOpen",
+    "folder": "Crate",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-9583f178-22a1-4e24-a357-5516b47ed4f5.png",
+    "prompt": "Use case: lighting-weather. Edit image 1, the OPEN crate, to have the identical luminous brushed steel finish of image 2, the CLOSED crate. Image 2 is finish reference only. Preserve image 1's exact open shape, empty inner cavity, high downward viewpoint, two latches, corners, framing, image dimensions and pixel coordinates. Front panel receives a broken bright silver vertical reflection band, fine horizontal machining grain, thin bright metal edge glints. Interior stays darker with convincing ambient occlusion. Restore metal reflection not plastic gray. Keep pixel-art scale, rust and scratches. Background genuinely transparent. This open box is used while pouring, so NO external floor shadow, NO table or floor or any other object. Deliver only the open crate transparent sprite, no lid, no contents.",
+    "correction": null
+  },
+  {
+    "name": "Stage3FoodShelf",
+    "folder": "Props",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-694bee7a-1fcb-4d86-bb18-08afd31b4954.png",
+    "prompt": "Use case: lighting-weather. Edit image 1 only, a production transparent Unity pixel-art sprite. Image 2 is material reference ONLY: original brushed-steel countertop. Correct the dull flat clay-like metal into this original luminous brushed metal: fine horizontal machining grain, broad broken silver reflection bands, bright thin worn bevels, darker metallic side faces, sparse brown rust. Restore rich local contrast and reflective metal highlights, NOT uniform global brightening, not polished chrome, not gray painted plastic. Preserve EXACT image 1 object design, position, silhouette size, angle/perspective, proportions, framing, transparent canvas size, all equipment, colors, small details and original pixel resolution style. Do NOT rotate, mirror, redesign or add props. Strong ambient occlusion at joints, beneath protrusions and at base. Ground it with a short, dark, semi-transparent contact shadow directly touching the feet/base and extending only a few pixels below/right, no gap, no long cast shadow, no oval halo. Keep object at original pixel coordinates and leave generous surrounding genuine alpha transparency. Shadow is painted into transparent sprite, NO floor plane or backdrop. Return just one isolated edited asset, no text or watermark.\nKeep tall cabinet on left and ration trays on right, perspective recedes upper right. Ration colors and labels unchanged.",
+    "correction": null
+  },
+  {
+    "name": "Stage3MedicineCabinet",
+    "folder": "Props",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-e5d66489-2fb9-4fd4-986c-f25f60e13e0a.png",
+    "prompt": "Use case: lighting-weather. Edit image 1 only, a production transparent Unity pixel-art sprite. Image 2 is material reference ONLY: original brushed-steel countertop. Correct the dull flat clay-like metal into this original luminous brushed metal: fine horizontal machining grain, broad broken silver reflection bands, bright thin worn bevels, darker metallic side faces, sparse brown rust. Restore rich local contrast and reflective metal highlights, NOT uniform global brightening, not polished chrome, not gray painted plastic. Preserve EXACT image 1 object design, position, silhouette size, angle/perspective, proportions, framing, transparent canvas size, all equipment, colors, small details and original pixel resolution style. Do NOT rotate, mirror, redesign or add props. Strong ambient occlusion at joints, beneath protrusions and at base. Ground it with a short, dark, semi-transparent contact shadow directly touching the feet/base and extending only a few pixels below/right, no gap, no long cast shadow, no oval halo. Keep object at original pixel coordinates and leave generous surrounding genuine alpha transparency. Shadow is painted into transparent sprite, NO floor plane or backdrop. Return just one isolated edited asset, no text or watermark.\nKeep cabinet on right and medicine trays on left, perspective recedes upper left. Preserve red crosses, medicines, bottles.",
+    "correction": null
+  },
+  {
+    "name": "Stage3NuclearProtection",
+    "folder": "Props",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-d71e2455-b47e-4eee-8c44-f3eedd23f656.png",
+    "prompt": "undefined\nPreserve green gas mask and yellow hood fabric, gauge faces, canisters, pipes. Reflection on metal housing and piping only; fabric remains fabric.",
+    "correction": "Use case: background-extraction. EDIT ONLY THIS ONE IMAGE. Extract the equipment assembly unchanged onto genuine alpha transparency. Completely REMOVE the entire tabletop/countertop, all hazard-striped rails, vents, foreground metal floor and all background. Keep ONLY the equipment assembly, exactly same metallic highlights, pixel details, colors, perspective and proportions. The equipment is NOT attached to the broad table and the table is NOT part of the asset. No floor, no platform, no tabletop whatsoever. Keep tiny dense near-black contact shadow within 8 pixels directly under the equipment's actual feet, fading to zero alpha; otherwise background fully transparent. Fit the complete equipment uncropped with transparent margins. Do not recolor or simplify equipment. Deliver single isolated transparent PNG game sprite."
+  },
+  {
+    "name": "Stage3PowerCommunications",
+    "folder": "Props",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-da94468a-5631-4fa8-9942-d1fba249961d.png",
+    "prompt": "undefined\nPreserve corrected upper-left receding perspective, left-facing side planes; tower left, two radios and three battery chargers right. Restore brushed reflections and base contact shadows without changing orientation.",
+    "correction": "Use case: background-extraction. EDIT ONLY THIS ONE IMAGE. Extract the equipment assembly unchanged onto genuine alpha transparency. Completely REMOVE the entire tabletop/countertop, all hazard-striped rails, vents, foreground metal floor and all background. Keep ONLY the equipment assembly, exactly same metallic highlights, pixel details, colors, perspective and proportions. The equipment is NOT attached to the broad table and the table is NOT part of the asset. No floor, no platform, no tabletop whatsoever. Keep tiny dense near-black contact shadow within 8 pixels directly under the equipment's actual feet, fading to zero alpha; otherwise background fully transparent. Fit the complete equipment uncropped with transparent margins. Do not recolor or simplify equipment. Deliver single isolated transparent PNG game sprite."
+  },
+  {
+    "name": "Stage3PrecisionElectronics",
+    "folder": "Props",
+    "path": "C:\\Users\\imsoh\\.codex\\generated_images\\01a0a651-5a43-7873-8380-4709213205d2\\exec-3961ff5b-b3c5-430d-a36a-e6ddad0ff504.png",
+    "prompt": "undefined\nKeep all screen graphics, radiation marks, gauge, detectors, piping, and right tower exact. Brushed silver metallic highlights on case panels, maintain colored screens. Ground all feet with tight contact shadows.",
+    "correction": "Use case: background-extraction. EDIT ONLY THIS ONE IMAGE. Extract the equipment assembly unchanged onto genuine alpha transparency. Completely REMOVE the entire tabletop/countertop, all hazard-striped rails, vents, foreground metal floor and all background. Keep ONLY the equipment assembly, exactly same metallic highlights, pixel details, colors, perspective and proportions. The equipment is NOT attached to the broad table and the table is NOT part of the asset. No floor, no platform, no tabletop whatsoever. Keep tiny dense near-black contact shadow within 8 pixels directly under the equipment's actual feet, fading to zero alpha; otherwise background fully transparent. Fit the complete equipment uncropped with transparent margins. Do not recolor or simplify equipment. Deliver single isolated transparent PNG game sprite."
+  },
+  {
+    "name": "Stage3ToolBench",
+    "folder": "Props",
+    "path": "C:/Users/imsoh/.codex/generated_images/01a0a651-5a43-7873-8380-4709213205d2/exec-97d15275-745f-472d-b571-e31297dcf8df.png",
+    "prompt": "undefined\nKeep vise left, hanging tools, cup right, two drawers and all proportions. Put brushed silver highlights on large panels and top bench, strong AO behind hanging tools and under vise and bench, short base contact shadow.",
+    "correction": "Extract the exact bench onto genuine alpha transparency. Remove black backdrop and gray floor halo. Preserve brushed metal and all equipment. Keep only a short near-black contact strip directly under drawers, no floor plane."
+  }
+]

@@ -931,7 +931,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             yield break;
         }
         amount = "";
-        pouringContainerImage.sprite = tiltedContainer;
+        if (!hasPlacedUi) pouringContainerImage.sprite = tiltedContainer;
         flowRoutine = StartCoroutine(CustomerFlow());
     }
 

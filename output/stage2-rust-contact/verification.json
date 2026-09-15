@@ -1,0 +1,18 @@
+{
+  "changedBlocks": [
+    "650016387",
+    "1891603583",
+    "2105069905",
+    "2356696958130715506",
+    "4352078219768184196"
+  ],
+  "assets": [
+    "Assets\\Textures\\art\\Facility\\Crate\\Stage2RustedCrateClosed.png",
+    "Assets\\Textures\\art\\Facility\\Crate\\Stage2RustedCrateOpen.png",
+    "Assets\\Textures\\art\\Facility\\Frame\\Stage2RustedClock.png",
+    "Assets\\Textures\\art\\Facility\\Frame\\Stage2RustedFrame.png"
+  ],
+  "sceneSaved": false,
+  "editorPreview": "output/facility-preview/front-20260916-072704.png",
+  "playTest": false
+}

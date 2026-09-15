@@ -29,7 +29,7 @@ public static class DystopiaTools
 
     /// <summary>경비 추출에 사용한 원본 픽셀 영역을 현재 배경의 실제 Transform으로 변환합니다.</summary>
     /// <param name="stage">사용자가 명시적으로 배치를 적용하는 현재 가판입니다.</param>
-    private static void AlignRearGuardRects(DystopiaPixelStage stage)
+    internal static void AlignRearGuardRects(DystopiaPixelStage stage)
     {
         var background = (UnityEngine.UI.Image)stage.layers.Single(layer => layer.source != null && layer.source.name == "MidBackground").source;
         var names = new[] { "LeftWatchGuard", "RightWatchGuard" };
@@ -956,7 +956,7 @@ public static class DystopiaTools
 
     /// <summary>指定段階の承認済みシーンから店舗と背景の設定を適用します。</summary>
     /// <param name="stageNumber">保存済みの段階番号です。</param>
-    private static void ApplyApprovedStageReference(int stageNumber)
+    internal static void ApplyApprovedStageReference(int stageNumber)
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
@@ -968,15 +968,18 @@ public static class DystopiaTools
         try
         {
             var saved=preview.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<DystopiaPixelStage>(true)).Single();
-            var names=new[] { "Counter","Stage3Counter","Canopy","Stage3Ceiling","Stage3LeftPillar","Stage3RightPillar","Stage3CeilingLamp","FrontContainer","CounterClock","FarBackground","DawnBackground","EveningBackground","SunsetBackground","CityLights","MidBackground","LeftChimneySmoke","RightChimneySmoke" };
+            var names=new[] { "Counter","Stage3Counter","Canopy","Stage3Ceiling","Stage3LeftPillar","Stage3RightPillar","Stage3CeilingLamp","FrontContainer","CounterClock","FarBackground","DawnBackground","EveningBackground","SunsetBackground","CityLights","MidBackground","LeftChimneySmoke","RightChimneySmoke","Fog_Back","Fog_Mid","Fog_Front","LeftWatchGuard","RightWatchGuard","LeftSearchlight","RightSearchlight","CrowdRow0","CrowdRow1","CrowdRow2","Barricade","FacilityFoodShelf","FacilityMedicineCabinet","FacilityToolBench","FacilityPowerCommunications","FacilityNuclearProtection","FacilityPrecisionElectronics" };
             // 승인된 참조에서 대상 레이어만 복사하며 현재 씬과 게임 상태는 교체하지 않습니다.
-            var pairs=stage.layers.Where(l=>l.source!=null && names.Contains(l.source.name)).Select(l=>new { target=l, reference=saved.layers.Single(s=>s.source!=null && s.source.name==l.source.name) }).ToArray();
+            var pairs=stage.layers.Where(l=>l.source!=null && names.Contains(l.source.name)).Select(l=>new { target=l, reference=saved.layers.SingleOrDefault(s=>s.source!=null && s.source.name==l.source.name) }).ToArray();
             Undo.RecordObject(stage,"Apply approved stage 2");
             foreach(var pair in pairs)
             {
                 var image=pair.target.source as UnityEngine.UI.Image;
+                if(image==null) throw new InvalidOperationException("Expected Image layer.");
+                // 설비가 없던 이전 기준에서는 해당 설비를 숨기고 나머지 배치만 적용합니다.
+                if(pair.reference==null) { Undo.RecordObject(image.gameObject,"Hide facility"); image.gameObject.SetActive(false); EditorUtility.SetDirty(image.gameObject); continue; }
                 var reference=pair.reference.source as UnityEngine.UI.Image;
-                if(image==null || reference==null) throw new InvalidOperationException("Expected Image layer.");
+                if(reference==null) throw new InvalidOperationException("Expected Image layer.");
                 CopyStageReferenceRect(image.rectTransform,reference.rectTransform);
                 Undo.RecordObject(image,"Apply approved stage 2 sprite");
                 Undo.RecordObject(image.gameObject,"Apply stage visibility"); image.gameObject.SetActive(reference.gameObject.activeSelf); image.sprite=reference.sprite; image.color=reference.color; image.preserveAspect=reference.preserveAspect; image.enabled=reference.enabled;
@@ -996,6 +999,7 @@ public static class DystopiaTools
                     }
                 }
             }
+            DystopiaFacilityTools.RestoreCounterExtensions(stage,saved);
             // 참조에 없는 별도 하부장이 다른 단계에 남지 않도록 표시 상태를 함께 복원합니다.
             var cabinet=stage.layers.FirstOrDefault(l=>l.source!=null && l.source.name=="Stage2Cabinet")?.source;
             if(cabinet!=null)
@@ -1005,9 +1009,24 @@ public static class DystopiaTools
                 cabinet.enabled=savedCabinet!=null && savedCabinet.enabled && savedCabinet.gameObject.activeSelf;
                 EditorUtility.SetDirty(cabinet);
             }
+            // 쏟는 상자와 탑다운 작업대는 픽셀 레이어가 아니므로 경로로 찾아 단계 그림과 배치를 복사합니다.
+            var pouring=DystopiaFacilityTools.FindInScene(stage.gameObject.scene,"TopDownCheckout/TopDownTestCanvas/WorkViewUI/PouringContainer").GetComponent<UnityEngine.UI.Image>();
+            var savedPouring=DystopiaFacilityTools.FindInScene(preview,"TopDownCheckout/TopDownTestCanvas/WorkViewUI/PouringContainer").GetComponent<UnityEngine.UI.Image>();
+            CopyStageReferenceRect(pouring.rectTransform,savedPouring.rectTransform);
+            Undo.RecordObject(pouring,"Apply stage open crate");
+            pouring.sprite=savedPouring.sprite; pouring.color=savedPouring.color; pouring.preserveAspect=savedPouring.preserveAspect;
+            EditorUtility.SetDirty(pouring); PrefabUtility.RecordPrefabInstancePropertyModifications(pouring);
+            var bench=DystopiaFacilityTools.FindInScene(stage.gameObject.scene,"TopDownCheckout/TopDownWorkbench");
+            var savedBench=DystopiaFacilityTools.FindInScene(preview,"TopDownCheckout/TopDownWorkbench");
+            var benchRenderer=bench.GetComponent<SpriteRenderer>();
+            Undo.RecordObjects(new UnityEngine.Object[] { benchRenderer,bench.transform },"Apply stage workbench");
+            benchRenderer.sprite=savedBench.GetComponent<SpriteRenderer>().sprite;
+            bench.transform.localScale=savedBench.transform.localScale;
+            EditorUtility.SetDirty(benchRenderer); EditorUtility.SetDirty(bench.transform);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(benchRenderer); PrefabUtility.RecordPrefabInstancePropertyModifications(bench.transform);
+            stage.shadowTableY=saved.shadowTableY;
             if(stageNumber==3)
             {
-                SetStage3Container(stage.layers.Single(l=>l.source!=null && l.source.name=="FrontContainer"));
                 // 분리 제작한 Stage 2 하부장은 Stage 3 원본 하부장을 가리지 않아야 합니다.
                 var stage2Cabinet=stage.layers.FirstOrDefault(l=>l.source!=null && l.source.name=="Stage2Cabinet")?.source;
                 if(stage2Cabinet!=null)
@@ -1017,22 +1036,12 @@ public static class DystopiaTools
                     EditorUtility.SetDirty(stage2Cabinet);
                     PrefabUtility.RecordPrefabInstancePropertyModifications(stage2Cabinet);
                 }
-                // Stage 3의 옛 원본 크기 대신 승인된 철제 가게의 배경 여백을 사용합니다.
-                var backgroundPreview=EditorSceneManager.OpenPreviewScene(Root+"Editor/References/Stage2Reference.unity");
-                try
-                {
-                    var backgroundStage=backgroundPreview.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<DystopiaPixelStage>(true)).Single();
-                    var backgroundNames=new[] { "FarBackground","DawnBackground","EveningBackground","SunsetBackground","CityLights","MidBackground" };
-                    foreach(string name in backgroundNames)
-                        CopyStageReferenceRect(stage.layers.Single(l=>l.source!=null && l.source.name==name).source.rectTransform,backgroundStage.layers.Single(l=>l.source!=null && l.source.name==name).source.rectTransform);
-                }
-                finally { EditorSceneManager.ClosePreviewScene(backgroundPreview); }
             }
             stage.ceilingLamp=stage.layers.FirstOrDefault(l=>l.source!=null && l.source.name=="Stage3CeilingLamp")?.source as UnityEngine.UI.Image;
             stage.lampPosition=saved.lampPosition; stage.lampHeight=saved.lampHeight; stage.lampRadius=saved.lampRadius; stage.lampIntensity=saved.lampIntensity; stage.lampColor=saved.lampColor;
             EnsureCanopyBehindCounter(stage);
             RemoveFrontTowerLayers(stage);
-            AlignRearGuardRects(stage);
+            // Keep authored guard positions from the approved reference without recalculation.
             SetProductShopStage(stageNumber);
             EditorUtility.SetDirty(stage);
             EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
@@ -1045,7 +1054,7 @@ public static class DystopiaTools
     /// <summary>사용자가 승인한 참조의 배치만 명시적 Stage 적용 시 복사합니다.</summary>
     /// <param name="target">현재 씬의 대상입니다.</param>
     /// <param name="reference">저장된 기준 배치입니다.</param>
-    private static void CopyStageReferenceRect(RectTransform target,RectTransform reference)
+    internal static void CopyStageReferenceRect(RectTransform target,RectTransform reference)
     {
         Undo.RecordObject(target,"Apply stage reference layout");
         target.anchorMin=reference.anchorMin; target.anchorMax=reference.anchorMax; target.pivot=reference.pivot;
