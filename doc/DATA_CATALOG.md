@@ -74,9 +74,9 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 178 | 2 | 감독관 이름·대사와 2일차 확인 문구 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 383 | 2 | 공용 표시 문자열과 성향·성별별 손님 대사 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 3 | 현재 데이터 경로 연결 |
-| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 22 | 구매·MainScene 대기열·명성별 성향 선택 연결 |
+| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 36 | 구매·MainScene 대기열·명성별 성향 및 성별 대사 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 12 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
@@ -183,14 +183,14 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### TextData
 
-현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 182개 실제 문자열은 부록에 전부 보존한다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
+현재 연결. 게임 전체 텍스트 원본이며 손님 전용 Text가 아니다. NameIdx·뉴스·대사 FK로 조회한다. 실제 문자열의 권위 원본은 CSV이며 아래 부록은 작성 시점 참고 자료다. 모든 UI 문구가 이미 TextData로 이전된 상태는 아니다.
 
 근거: [CSV](../Assets/Datas/TextData.csv), [DTO](../Assets/Scripts/Commons/Data/TextData.cs), [DataTable](../Assets/Scripts/Commons/Data/TextDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 표시 문구 PK | 필수; 종류 대역·고유 | 다른 CSV의 Text FK 대상 | 128개: 부록 |
-| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 전체128문구: 부록 |
+| 2. `text` | Text · string | 실제 이름·대사·뉴스 문구 | 필수; null/빈값/공백만 금지; 문자열 명시 허용 | 표시 소비자 | 현재 383문구: CSV 권위 |
 
 ### CustomerAppearanceData
 
@@ -222,7 +222,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 8. `max_quantity` | MaxQuantity · int | 상품별 수량 최대(포함) | 필수; 최소 이상, int.MaxValue 미만 | 없음 | 3 |
 | 9. `price_tolerance` | PriceTolerance · int | 현재가 합계에 대한 결제 허용 상한, 1000=100% | 필수; 양수, 1000 초과 허용; 확률 아님 | 없음 | 1100, 1300, 1400, 1050 |
 | 10. `minimum_price_tolerance` | MinimumPriceTolerance · int | 현재가 합계에 대한 결제 허용 하한, 1000=100% | 필수; 0~1000; `minimum <= price_tolerance` | 없음 | 0, 1000 |
-| 10. `entry_text_idxs` | EntryTextIdxs · IReadOnlyList<uint> | 입장 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8024_8025, 8030_8031, 8036_8037 |
+| 10. `entry_text_idxs` | EntryTextIdxs · IReadOnlyList<uint> | 코드 생성 fixture 호환용 공용 입장 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8024_8025, 8030_8031, 8036_8037 |
 | 11. `regular_sale_text_idxs` | RegularSaleTextIdxs · IReadOnlyList<uint> | 기준가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 12. `discount_sale_text_idxs` | DiscountSaleTextIdxs · IReadOnlyList<uint> | 저가 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
 | 13. `exploitative_sale_text_idxs` | ExploitativeSaleTextIdxs · IReadOnlyList<uint> | 착취 판매 대사 후보 | 필수 비어 있지 않은 _배열; 0·중복 금지 | TextData.idx | 8026_8027, 8032_8033, 8038_8039 |
@@ -230,6 +230,8 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 15. `queue_patience_seconds` | QueuePatienceSeconds · uint | 줄 합류부터 이탈까지 초 | 필수; 현재 재촉 잔여6초보다 커야 함 | MainScene CustomerQueue | 12,9,18,15 |
 | 16. `queue_warning_textidx` | QueueWarningTextIdx · uint | 재촉 대사 1회 | 필수; 0 금지 | TextData.idx | 8050, 8052, 8054 |
 | 17. `queue_leave_textidx` | QueueLeaveTextIdx · uint | 이탈 불만 대사 1회 | 필수; 0 금지 | TextData.idx | 8051, 8053, 8055 |
+
+런타임 `CustomerDispositionData.csv`는 위 공용 열에 더해 남성/여성별 `entry`, `regular_sale`, `discount_sale`, `exploitative_sale`, `reject`, `queue_warning`, `queue_leave`의 `*_text_idxs` 배열 14개를 필수로 가진다. 방문 생성 시 확정된 `CustomerAttributes.Male/Female`에 맞는 판매 후보를 추첨하고, 줄 합류 시 같은 성별의 재촉·이탈 후보를 각각 추첨해 snapshot으로 유지한다. 모든 배열은 비어 있지 않아야 하고 0·중복을 금지하며 `TextData.idx` FK를 사용한다.
 | 18. `disposition_type` | DispositionTypeValue · uint → DispositionType | 성향 타입 선택 키 | 필수; 실제 enum 1~4, None/End/미정의 금지 | CustomerDispositionType | 1, 2, 3 |
 | 19. `preferred_product_idxs` | PreferredProductIdxs · IReadOnlyList<uint> | 개별 선호 상품; 분류 선호와 OR | 빈 배열 허용; 0·중복 금지, 각 행 존재 | ProductData.idx | 빈 셀 |
 | 21. `regular_price_min_rate` | RegularPriceMinRate · int | 기준가 판매 인정 하한 배율, 1000=100% | 필수; 0 < 값 ≤ 1000 | 없음 | 1000 |

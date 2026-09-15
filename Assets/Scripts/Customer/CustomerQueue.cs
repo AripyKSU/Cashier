@@ -12,6 +12,7 @@ public sealed class CustomerQueue
     public const double SpeechSeconds = 3;
     private readonly Func<CustomerVisit> createVisit;
     private readonly IReadOnlyDictionary<uint, CustomerDispositionData> dispositions;
+    private readonly Random random;
     private readonly List<Entry> waiting = new List<Entry>();
     private readonly List<Entry> leaving = new List<Entry>();
     private double now, nextArrival;
@@ -26,11 +27,14 @@ public sealed class CustomerQueue
     /// <summary>기존 생성기와 성향 catalog를 연결한다.</summary>
     /// <param name="createVisit">입장 시점 현재가로 방문을 생성한다. 상품 후보가 없으면 null.</param>
     /// <param name="dispositions">검증된 성향 원본.</param>
+    /// <param name="random">성별별 대기 대사 후보를 선택할 난수원. null이면 새 난수원을 사용한다.</param>
     /// <exception cref="ArgumentNullException">필수 의존성 누락.</exception>
-    public CustomerQueue(Func<CustomerVisit> createVisit, IReadOnlyDictionary<uint, CustomerDispositionData> dispositions)
+    public CustomerQueue(Func<CustomerVisit> createVisit, IReadOnlyDictionary<uint, CustomerDispositionData> dispositions,
+        Random random = null)
     {
         this.createVisit = createVisit ?? throw new ArgumentNullException(nameof(createVisit));
         this.dispositions = dispositions ?? throw new ArgumentNullException(nameof(dispositions));
+        this.random = random ?? new Random();
         Waiting = waiting.AsReadOnly();
         Leaving = leaving.AsReadOnly();
     }
@@ -57,7 +61,15 @@ public sealed class CustomerQueue
         var data = dispositions[visit.DispositionIdx];
         data.ValidateQueueSettings();
         visit.JoinQueue();
-        waiting.Add(new Entry(visit, now + data.QueuePatienceSeconds, data.QueueWarningTextIdx, data.QueueLeaveTextIdx));
+        bool isMale = (visit.Attributes & CustomerAttributes.Male) != 0;
+        IReadOnlyList<uint> warningCandidates = isMale ? data.MaleQueueWarningTextIdxs : data.FemaleQueueWarningTextIdxs;
+        IReadOnlyList<uint> leaveCandidates = isMale ? data.MaleQueueLeaveTextIdxs : data.FemaleQueueLeaveTextIdxs;
+        uint warningTextIdx = warningCandidates.Count > 0
+            ? warningCandidates[random.Next(warningCandidates.Count)] : data.QueueWarningTextIdx;
+        uint leaveTextIdx = leaveCandidates.Count > 0
+            ? leaveCandidates[random.Next(leaveCandidates.Count)] : data.QueueLeaveTextIdx;
+        waiting.Add(new Entry(visit, now + data.QueuePatienceSeconds,
+            warningTextIdx, leaveTextIdx));
         return true;
     }
 

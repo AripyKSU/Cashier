@@ -46,6 +46,7 @@ public sealed class CustomerDispositionDataTable : IDataLoad
                     throw new InvalidDataException($"column=idx, PK={item.Idx}: 대역 위반 또는 중복");
                 item.ValidatePurchaseSettings();
                 item.ValidateQueueSettings();
+                item.ValidateGenderDialoguesRequired();
                 parsed.Add(item.Idx, item);
             }
             if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");

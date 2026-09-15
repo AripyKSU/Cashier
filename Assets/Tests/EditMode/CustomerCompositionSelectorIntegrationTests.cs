@@ -140,6 +140,41 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         Assert.That(after.AvailableProductIds, Is.EqualTo(new uint[] { 1, 2 }));
     }
 
+    /// <summary>연속 방문의 남녀 성별에 맞는 판매 대사 후보만 선택합니다.</summary>
+    [Test]
+    public void DialogueCandidatesFollowSelectedGender()
+    {
+        CustomerDispositionData config = disposition(6001, CustomerDispositionType.Normal, ProductType.Water);
+        config.MaleEntryTextIdxs = new uint[] { 101 };
+        config.MaleRegularSaleTextIdxs = new uint[] { 102 };
+        config.MaleDiscountSaleTextIdxs = new uint[] { 103 };
+        config.MaleExploitativeSaleTextIdxs = new uint[] { 104 };
+        config.MaleRejectTextIdxs = new uint[] { 105 };
+        config.FemaleEntryTextIdxs = new uint[] { 201 };
+        config.FemaleRegularSaleTextIdxs = new uint[] { 202 };
+        config.FemaleDiscountSaleTextIdxs = new uint[] { 203 };
+        config.FemaleExploitativeSaleTextIdxs = new uint[] { 204 };
+        config.FemaleRejectTextIdxs = new uint[] { 205 };
+        Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData>
+        {
+            [1] = product(1, ProductType.Water)
+        };
+        Dictionary<uint, uint> prices = new Dictionary<uint, uint> { [1] = 100 };
+        CustomerCompositionSelector selector = new CustomerCompositionSelector(new FixedRandom(0));
+
+        CustomerComposition first = selector.SelectComposition(new uint[] { 5001 }, new[] { config }, products,
+            normalOnlyBalance(), prices);
+        CustomerComposition second = selector.SelectComposition(new uint[] { 5001 }, new[] { config }, products,
+            normalOnlyBalance(), prices);
+
+        Assert.That(first.Attributes & CustomerAttributes.Male, Is.EqualTo(CustomerAttributes.Male));
+        Assert.That((first.EntryTextIdx, first.RegularSaleTextIdx, first.DiscountSaleTextIdx,
+            first.ExploitativeSaleTextIdx, first.RejectTextIdx), Is.EqualTo((101u, 102u, 103u, 104u, 105u)));
+        Assert.That(second.Attributes & CustomerAttributes.Female, Is.EqualTo(CustomerAttributes.Female));
+        Assert.That((second.EntryTextIdx, second.RegularSaleTextIdx, second.DiscountSaleTextIdx,
+            second.ExploitativeSaleTextIdx, second.RejectTextIdx), Is.EqualTo((201u, 202u, 203u, 204u, 205u)));
+    }
+
     /// <summary>테스트용 상품을 만듭니다.</summary>
     private static ProductData product(uint id, ProductType type, uint? requiredFacilityIdx = null)
     {
