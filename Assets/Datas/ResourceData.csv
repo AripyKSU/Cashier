@@ -93,8 +93,9 @@ idx,path
 4292,StoreStage1World
 4293,StoreStage1Front
 4294,StoreStage1TopView
-4295,StoreStage2World
+4295,CustomerBoxDrop
 4296,StoreStage2Front
+4297,StoreStage2World
 4298,StoreStage3World
 4299,StoreStage3Front
 4300,Stage1Clock
