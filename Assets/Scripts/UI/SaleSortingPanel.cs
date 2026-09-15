@@ -111,7 +111,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     public RectTransform FrontView => this.frontView != null ? this.frontView.transform as RectTransform : null;
 
     /// <summary>현재 모든 상품이 판매 또는 제외 상태로 분류됐는지 나타냅니다.</summary>
-    public bool CanConfirm => this.state == ViewState.Sorting && this.getWorkingCount() == 0;
+    public bool CanConfirm => this.state == ViewState.Sorting &&
+        (this.vacuum == null || !this.vacuum.IsBusy) && this.getWorkingCount() == 0;
 
     /// <summary>현재 분류 화면이 조작 가능한 상태인지 나타냅니다.</summary>
     public bool IsSorting => this.state == ViewState.Sorting;
@@ -185,6 +186,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             if (this.vacuum != null && !available)
             {
+                this.cancelVacuumItems();
                 this.vacuum.SetVisible(false);
             }
 
@@ -194,7 +196,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.vacuumAvailable = available;
         if (!available)
         {
-            this.releaseVacuumItems();
+            this.cancelVacuumItems();
             if (this.vacuum != null)
             {
                 this.vacuum.ResetToStart();
@@ -253,14 +255,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.state != ViewState.Sorting || this.workArea == null || this.isPresentationPaused?.Invoke() == true)
         {
             this.stopAutoSorting();
-            bool wasVacuumHoldingOutsideSorting = this.vacuum != null && this.vacuum.IsHolding;
             if (this.vacuum != null)
             {
-                this.vacuum.UpdateMotion(false, Vector2.zero, Time.unscaledDeltaTime, this.items);
-            }
-            if (wasVacuumHoldingOutsideSorting)
-            {
-                this.releaseVacuumItems();
+                this.cancelVacuumItems();
             }
             if (this.dividerBar != null)
             {
@@ -278,31 +275,33 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         bool allowNewInteraction = !this.isPointerOverCalculator();
+        this.drainVacuumItems();
+        bool wasVacuumBusy = this.vacuum != null && this.vacuum.IsBusy;
         bool wasVacuumHolding = this.vacuum != null && this.vacuum.IsHolding;
+        bool wasDividerHolding = this.dividerBar != null && this.dividerBar.IsHolding;
         if (this.vacuum != null)
         {
             this.vacuum.UpdateMotion(
-                this.vacuumAvailable && (allowNewInteraction || wasVacuumHolding),
+                this.vacuumAvailable && (wasVacuumHolding ||
+                    (allowNewInteraction && this.draggedItem == null && !wasDividerHolding)),
                 this.getPointerScreenPosition(),
                 deltaSeconds,
                 this.items);
         }
 
         bool isVacuumHolding = this.vacuum != null && this.vacuum.IsHolding;
-        if (wasVacuumHolding && !isVacuumHolding)
-        {
-            this.releaseVacuumItems();
-        }
-        if (isVacuumHolding)
+        bool isVacuumBusy = this.vacuum != null && this.vacuum.IsBusy;
+        if (isVacuumBusy)
         {
             this.stopAutoSorting();
         }
 
-        bool wasHolding = this.dividerBar != null && this.dividerBar.IsHolding;
+        bool wasHolding = wasDividerHolding;
         if (this.dividerBar != null)
         {
             this.dividerBar.UpdateMotion(
-                this.dividerBarAvailable && (allowNewInteraction || wasHolding) && !isVacuumHolding,
+                this.dividerBarAvailable && !isVacuumBusy &&
+                    (allowNewInteraction || wasHolding) && !isVacuumHolding,
                 this.getPointerScreenPosition(),
                 deltaSeconds);
         }
@@ -324,7 +323,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             this.dividerBar.PushItems(this.items);
             this.trackDividerMovedItems();
         }
-        if (!isDividerHolding && !isVacuumHolding)
+        if (!isDividerHolding && !isVacuumHolding && !isVacuumBusy)
         {
             this.updatePlayerDrag(allowNewInteraction);
         }
@@ -332,6 +331,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
             this.draggedItem != null || isDividerHolding || isVacuumHolding,
             allowNewInteraction,
             deltaSeconds);
+        if (wasVacuumBusy && !isVacuumBusy)
+        {
+            this.requestAutoSort();
+        }
         this.refreshStatus();
     }
 
@@ -347,6 +350,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             this.frontContainerButton.onClick.RemoveListener(this.handleFrontContainerClicked);
         }
         if (this.handCursor != null) this.handCursor.Hide();
+        this.cancelVacuumItems();
     }
 
     /// <summary>새 손님의 주문을 개별 상품 오브젝트로 생성하고 Astra 순서의 화면 전환을 시작합니다.</summary>
@@ -354,7 +358,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     public void BeginCustomer(IReadOnlyList<CustomerBasketItemViewData> basket)
     {
         this.stopAutoSorting();
-        this.releaseVacuumItems();
+        this.cancelVacuumItems();
         if (this.vacuum != null)
         {
             this.vacuum.ResetToStart();
@@ -382,7 +386,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     public void ShowTransactionResult()
     {
         this.stopAutoSorting();
-        this.releaseVacuumItems();
+        this.cancelVacuumItems();
         this.state = ViewState.Locked;
         this.showFrontOnly();
     }
@@ -391,7 +395,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     public void ClearCustomer()
     {
         this.stopAutoSorting();
-        this.releaseVacuumItems();
+        this.cancelVacuumItems();
         if (this.transitionRoutine != null)
         {
             StopCoroutine(this.transitionRoutine);
@@ -753,23 +757,24 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
     }
 
-    /// <summary>청소기를 놓은 순간 붙어 있던 상품을 현재 위치로 분류합니다.</summary>
-    private void releaseVacuumItems()
+    /// <summary>정상 배출된 상품을 Panel 소유로 인수하고 현재 영역을 즉시 판정합니다.</summary>
+    private void drainVacuumItems()
     {
         if (this.vacuum == null)
         {
             return;
         }
 
-        IReadOnlyList<SaleSortingItemView> releasedItems = this.vacuum.ReleaseAttachedItems();
-        for (int index = 0; index < releasedItems.Count; index++)
+        IReadOnlyList<SaleSortingItemView> spatItems = this.vacuum.DrainSpatItems();
+        for (int index = 0; index < spatItems.Count; index++)
         {
-            SaleSortingItemView item = releasedItems[index];
-            if (item == null)
+            SaleSortingItemView item = spatItems[index];
+            if (item == null || !this.items.Contains(item))
             {
                 continue;
             }
 
+            item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
             SaleSortingItemView.SortingState previousState = item.State;
             this.classifyItem(item);
             SoundManager.Instance?.PlaySfx(
@@ -777,11 +782,18 @@ public sealed class SaleSortingPanel : MonoBehaviour
                     ? SoundKeys.ItemRemove
                     : SoundKeys.ItemPlace);
         }
+    }
 
-        if (releasedItems.Count > 0)
+    /// <summary>강제 취소 경로에서 내부 상품만 복원하고 배출 대기 이벤트는 폐기합니다.</summary>
+    private void cancelVacuumItems()
+    {
+        if (this.vacuum == null)
         {
-            this.requestAutoSort();
+            return;
         }
+
+        this.vacuum.CancelAndRestoreItems();
+        this.vacuum.DrainSpatItems();
     }
 
     /// <summary>현재 포인터 입력을 기준으로 상품 하나를 직접 드래그합니다.</summary>
@@ -1045,7 +1057,13 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <param name="item">판정할 상품.</param>
     private void classifyItem(SaleSortingItemView item)
     {
-        if (item == null || item.State == SaleSortingItemView.SortingState.Excluded) return;
+        if (item == null || !item.gameObject.activeInHierarchy ||
+            item.State == SaleSortingItemView.SortingState.Excluded ||
+            item.Manipulation == SaleSortingItemView.ManipulationState.VacuumAttached)
+        {
+            return;
+        }
+
         Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(null, item.transform.position);
         if (this.excludedZone != null && RectTransformUtility.RectangleContainsScreenPoint(this.excludedZone, screenPosition))
         {
@@ -1231,7 +1249,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.calculatorPanel != null) this.calculatorPanel.gameObject.SetActive(false);
         if (this.calculatorToggleButton != null) this.calculatorToggleButton.gameObject.SetActive(false);
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
-        if (this.vacuum != null) this.vacuum.SetVisible(false);
+        if (this.vacuum != null)
+        {
+            this.cancelVacuumItems();
+            this.vacuum.SetVisible(false);
+        }
         if (this.landingDustEffect != null) this.landingDustEffect.Stop();
         this.releaseDraggedItem();
     }
