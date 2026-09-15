@@ -91,6 +91,7 @@ public class DataTableManager : Singleton<DataTableManager>
         this.dataList[DataTableType.DaughterDialogue] = new DaughterDialogueDataTable();
         this.dataList[DataTableType.DaughterAppearance] = new DaughterAppearanceDataTable();
         this.dataList[DataTableType.EndingPage] = new EndingPageDataTable();
+        this.dataList[DataTableType.StoreStage] = new StoreStageDataTable();
 
         Customers = new CustomerCatalog(
             GetDB<CustomerAppearanceDataTable>(DataTableType.CustomerAppearance),
@@ -158,6 +159,8 @@ public class DataTableManager : Singleton<DataTableManager>
                 throw new InvalidDataException("시민권 설비 행이 정확히 하나 필요합니다.");
             endingPages.Validate(GetDB<TextDataTable>(DataTableType.Text).PendingRows,
                 GetDB<ResourceDataTable>(DataTableType.Resource));
+            StoreStageDataTable storeStages = GetDB<StoreStageDataTable>(DataTableType.StoreStage);
+            storeStages.Validate(GetDB<ResourceDataTable>(DataTableType.Resource), GetDB<FacilityDataTable>(DataTableType.Facility).PendingRows);
             Customers.ValidateAndCommit(GetDB<TextDataTable>(DataTableType.Text), GetDB<ResourceDataTable>(DataTableType.Resource),
                 GetDB<FacilityDataTable>(DataTableType.Facility));
             GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Commit();
@@ -168,6 +171,7 @@ public class DataTableManager : Singleton<DataTableManager>
             daughterDialogues.Commit();
             daughterAppearances.Commit();
             endingPages.Commit();
+            storeStages.Commit();
             this.isLoaded = true;
             this.loadCompletionSource.TrySetResult();
         }

@@ -111,6 +111,27 @@ public sealed class WorldSceneView : MonoBehaviour
     /// <summary>테스트 override를 해제하고 기존 표시 시계를 다시 따른다.</summary>
     public void FollowClock() { debugOverrideTime = false; RefreshPresentation(); }
 
+    /// <summary>장식만 시간대 색에 연결한다. 입력 표시와 상품에는 색을 중복 적용하지 않는다.</summary>
+    public void SetStageGraphics(Image[] front, Image workbench)
+    {
+        counterGraphics = new Graphic[front.Length + 1];
+        for (int i = 0; i < front.Length; i++) counterGraphics[i] = front[i];
+        counterGraphics[front.Length] = workbench;
+    }
+
+    /// <summary>연기 프레임과 시간을 유지하면서 단계 배경의 굴뚝 위치로 옮긴다.</summary>
+    public void SetStageSmoke(Transform[] anchors)
+    {
+        for (int i = 0; i < smoke.Length && i < anchors.Length; i++)
+        {
+            smoke[i].Origin = anchors[i].localPosition;
+            if (smoke[i].Renderer == null) continue;
+            smoke[i].Renderer.transform.localPosition = anchors[i].localPosition;
+            smoke[i].Renderer.transform.localScale = anchors[i].localScale;
+            smoke[i].Renderer.transform.localRotation = anchors[i].localRotation;
+        }
+    }
+
     /// <summary>실제 화면이 진행 가능한 시간만 원본 환경 연출에 누적한다. 수동 검사도 같은 경계를 사용한다.</summary>
     /// <param name="deltaSeconds">유한한 0 이상의 표현 경과 초.</param>
     /// <exception cref="ArgumentOutOfRangeException">유효하지 않은 경과 시간.</exception>
@@ -189,6 +210,11 @@ public sealed class WorldSceneView : MonoBehaviour
     public void RefreshPresentation()
     {
         if (renderRoot == null) return;
+        CurrentAppliedHour = debugOverrideTime ? debugHour : clock != null ? clock.CurrentBusinessMinutes / 60f : BusinessHours.OpenHour;
+        Vector3 weights = TimeOfDayUIController.GetBlendWeights(CurrentAppliedHour, dayStart, sunsetStart, eveningStart);
+        Color tint = TimeOfDayUIController.GetEnvironmentTint(weights, dawnTint, sunsetTint, nightTint);
+        // 탑뷰 동안 전면 월드가 숨겨져도 작업대 색은 같은 영업 시계를 따른다.
+        if (counterGraphics != null) foreach (var graphic in counterGraphics) if (graphic != null) graphic.canvasRenderer.SetColor(tint);
         bool visible = controller != null && frontView != null && worldCamera != null && worldCamera.orthographic &&
             (!Application.isPlaying || (controller.isActiveAndEnabled && controller.CurrentDayProgress != null && frontView.gameObject.activeInHierarchy));
         renderRoot.gameObject.SetActive(visible);
@@ -213,9 +239,6 @@ public sealed class WorldSceneView : MonoBehaviour
         if (frontView.rect.width <= 0 || frontView.rect.height <= 0) { renderRoot.gameObject.SetActive(false); Opacity = 0; return; }
         renderRoot.SetPositionAndRotation(origin, worldCamera.transform.rotation);
         renderRoot.localScale = new Vector3(localSize.x / frontView.rect.width, localSize.y / frontView.rect.height, 1);
-        CurrentAppliedHour = debugOverrideTime ? debugHour : clock != null ? clock.CurrentBusinessMinutes / 60f : BusinessHours.OpenHour;
-        Vector3 weights = TimeOfDayUIController.GetBlendWeights(CurrentAppliedHour, dayStart, sunsetStart, eveningStart);
-        Color tint = TimeOfDayUIController.GetEnvironmentTint(weights, dawnTint, sunsetTint, nightTint);
         PeopleTint = Color.Lerp(Color.white, new Color(peopleBrightness, peopleBrightness, peopleBrightness), weights.z);
         if (layers == null) return;
         foreach (var layer in layers)
@@ -228,7 +251,6 @@ public sealed class WorldSceneView : MonoBehaviour
             layer.Renderer.color = color;
         }
         if (counterLight != null) counterLight.canvasRenderer.SetColor(new Color(1, 1, 1, weights.z * counterIntensity));
-        if (counterGraphics != null) foreach (var graphic in counterGraphics) if (graphic != null) graphic.canvasRenderer.SetColor(tint);
     }
 
     /// <summary>카메라 pixelRect를 고려해 화면 지점을 고정 depth의 월드 지점으로 변환한다.</summary>

@@ -31,6 +31,7 @@ public enum DataTableType : uint
     DaughterDialogue = 16,
     DaughterAppearance = 17,
     EndingPage = 18,
+    StoreStage = 19,
     DataTableType_End
 }
 

@@ -1,5 +1,16 @@
 # MainScene 진행·세션 API 통합
 
+## 판매창 색감·가게 단계 아트 통합 (2026-09-15)
+
+- 대상 `total_merge b3abf98`에 `codex/sales-window-lighting 4457091`을 병합한다. 대상이 소스의 조상이므로 코드·데이터 충돌은 없었다. 소스의 MainScene/OperatingPanel 직렬화 연결과 단계 외형 프리팹을 함께 반영한다. 사용자 미커밋 TMP fallback 폰트와 기존 stash는 제외·보존한다.
+- StoreStage 종류 19, PK 19001~19003, Resource 4292/4293/4294/4295/4296/4298/4299를 사용한다. 총 Resource 98행이며 기존 91행·Addressables 등록을 유지한다. 세 단계는 탑뷰 외형 4294를 명시적으로 공유한다. CSV·loader·7개 프리팹·Addressables·MainScene 연결을 한 묶음으로 병합한다.
+- 초기 준비 덮개 아래에서 외형을 모두 로드·검증하고, 기존 가게 단계에 따라 슬롯의 Sprite/배치를 갱신한다. 시계·입력·상품·계산기 객체와 게임 판정은 유지한다. 정면 비가시 상태에서도 작업대의 시간대 RGB 색감을 갱신한다. 픽셀 단위 노멀 조명·반사까지 구현한 것은 아니다.
+- 필수 수명·호출·데이터 계약 읽기 전용 교차 검토에서 병합 차단 문제를 발견하지 못했다. 상세 구현과 소스 검증은 [작업 명세](work/sales-window-lighting.md#승인-후-구현-가게-단계-데이터와-기본-색감)를 따른다. 이번 통합 검증은 아래에 별도로 기록한다. 새 YAML 줄의 후행 공백 290곳만 정리했으며 직렬화 값·GUID는 유지했다. 원격 push는 별도 요청 범위다.
+- 통합 checkout에서 EditMode **268/268**, PlayMode **60/60**, 실패·skip·미완료 0. 증거: `Temp/TestResults/20260915-092537-ed03be1777914e6aae146bb8ed780e21/`의 `EditMode.xml/.log`, `PlayMode.xml/.log`. Resource PK/FK·GUID·Addressables 중복 없음, 기존 주소 연결 보존, staged whitespace 검사 통과.
+- Init→Hub 새 게임→Main→감독관→영업 진입 후 표시 API로 1→2→3→1→3→3단계 전환, 시계와 하위 객체 ID 보존, 미준비 4단계 거부·기존 3단계 유지 확인. 정면을 숨긴 상태에서도 작업대 CanvasRenderer 색은 09시 `(1,.9,.8)`, 12/15시 `(1,1,1)`, 18시 `(1,.72,.49)`, 21시 `(.38,.43,.56)`로 갱신되며 alpha 1·raycast false를 유지했다. Image.color 자체는 흰색을 유지하고 실제 색감은 CanvasRenderer에 적용한다.
+- Main missing script 0, 단계 프리팹 7개 Validate 성공, ResourceManager/SoundManager 각 1개. 정면 1단계 아침·3단계 밤과 탑뷰 밤 표시를 확인했다. 증거: `Temp/LightingMergeSmoke.txt`, `LightingMerge-FrontMorning.png`, `LightingMerge-FrontNight.png`, `LightingMerge-TopNight.png`. 단계/시간 미리보기와 화면 전환 API를 사용한 최소 실행이며, 실제 구매부터 표시까지의 수동 전체 UX·다른 해상도·Player build 검증은 아니다. 기존 정산 도장 기본 참조에 대한 아래 거래 화면 통합 기록은 유지한다.
+- 최종 제품 Console 오류 0 (`Temp/LightingMergeConsole.json`), compile idle, Play 종료·InitScene dirty=False·runInBackground=False. 기존 미커밋 TMP fallback 폰트는 작업 전 SHA256과 일치하고 stash 2개를 보존했다. 기능 API 검증은 PASS, 전체 사용자 시각 검수는 별도다.
+
 ## 거래 화면·상품 16종 통합 (2026-09-14)
 
 - 대상 `total_merge ff05c1f`(사운드·설비 단계별 UI 포함)에 `codex/customer-trade-presentation 2779de4`를 병합한다. 소스의 계산기 자동 표시·1초 출입, 대기열 보행·거래 표정, 상품 16종과 이미지, 탑뷰 임시 이름 제거·시계 정렬을 함께 반영한다. 대상의 사운드·설비 단계 UI·시민권 판정은 유지한다.
