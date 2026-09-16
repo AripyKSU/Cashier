@@ -52,7 +52,11 @@ header: `idx,start_day,resource_idx`
 현재 일차 이하인 start_day 중 가장 큰 행을 선택한다. 마지막 구간은 무기한 유지한다.
 최초 행이 1일부터 시작하고 값이 양수·고유하면 모든 이후 날짜가 포함된다.
 
-2026-09-16: 빈 `resource_idx`는 CsvHelper의 nullable 변환으로 읽고 `DaughterDialogueResult.ResourceIdx`에도 null로 유지한다. 빈 값은 Addressables 로드를 건너뛰고 GameUI가 소유한 기존 흰색 사각형 Sprite를 `CreateDaughterDialogueViewData`의 선택 인자 `placeholder`로 전달한다. Presenter는 선택된 Sprite를 실제 portrait Image에 적용한다. 지정된 FK 누락·잘못된 주소·대체 Sprite 미전달은 기존 오류 경로로 보고한다. 실제 CSV 값과 Addressables는 변경하지 않았으므로 기존 4201 주소 오류를 피하려면 해당 이미지 셀을 비우거나 유효한 FK로 연결해야 한다. PK `idx`와 날짜 `start_day`는 계속 필수다.
+2026-09-16: 빈 `resource_idx`는 CsvHelper의 nullable 변환으로 읽고 `DaughterDialogueResult.ResourceIdx`에도 null로 유지한다. 빈 값은 Addressables 로드를 건너뛰고 GameUI가 소유한 기존 흰색 사각형 Sprite를 `CreateDaughterDialogueViewData`의 선택 인자 `placeholder`로 전달한다. Presenter는 선택된 Sprite를 실제 portrait Image에 적용한다. 지정된 FK 누락·잘못된 주소·대체 Sprite 미전달은 기존 오류 경로로 보고한다. total_merge 통합 후 사용자 지정에 따라 실제 CSV의 1·11·21일 세 행은 모두 Resource 4392를 사용한다. ResourceData에 `4392,LedgerDaughter`를 추가했으며, 기존 Addressables 주소 `LedgerDaughter`와 `Assets/Textures/UI/Dystopia/Settlement/LedgerDaughter.png`를 재사용한다. 이전 임시 외형 Resource 4201은 다른 손님 참조를 위해 유지한다. 빈 값의 사각형 표시 기능은 유지한다. PK `idx`와 날짜 `start_day`는 계속 필수다.
+
+같은 날 CSV 복원 후 검증: 컴파일 오류0, `DaughterDialogueTests` 6/6, nullable 외형·설비 선로드 PlayMode 1/1(실패·skip0). 빈 값 테스트는 fixture에서만 ResourceIdx를 비운 뒤 복원하며 실제 CSV 값에 의존하지 않는다. 증거: `Temp/daughter-appearance-restore-edit.json`, `Temp/daughter-appearance-restore-preload.json`. 최종 정산 화면의 육안 확인은 미실행이다.
+
+후속 LedgerDaughter 연결 검증: Resource 4392와 세 외형 FK의 중복·참조 검사 통과, `DaughterDialogueTests` 6/6, 기존 Addressables 주소로 `LedgerDaughter_0` Sprite 로드 성공, 컴파일 오류0. 증거: `Temp/ledger-daughter-edit.json`, `Temp/ledger-daughter-load.txt`. 새 등록이나 importer 변경은 없으며 최종 정산 화면은 미확인이다.
 
 검증: 컴파일 통과, `DaughterDialogueTests` EditMode 6/6, `CustomerAppearancePlaceholderTests` PlayMode 2/2(실패·skip 0). 빈 CSV→날짜별 선택→표시 데이터→Presenter의 Image 적용 및 지정 FK 오류·공유 Sprite 수명을 확인했다. 증거: `Temp/daughter-placeholder-edit.json`, `Temp/daughter-placeholder-play.json`. 전체 게임 진입과 최종 화면 배치는 미검증이다.
 

@@ -508,6 +508,14 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: -0
       objectReference: {fileID: 0}
+    - target: {fileID: 9145111501058044279, guid: 612a35780068b7942bf70c3983610454, type: 3}
+      propertyPath: adultDownOffsetPixels
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 9145111501058044279, guid: 612a35780068b7942bf70c3983610454, type: 3}
+      propertyPath: elderlyDownOffsetPixels
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 9205264094788720121, guid: 612a35780068b7942bf70c3983610454, type: 3}
       propertyPath: m_Color.b
       value: 0.8

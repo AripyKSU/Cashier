@@ -81,12 +81,14 @@ public sealed class GameSessionApiTests
         var inspectorPortraits = tables.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent).Rows.Values.Select(x => x.PortraitResourceIdx).ToArray();
         var appearance = tables.Customers.Appearances.Rows.Values.First(x => x.ImageResourceIdx.HasValue && !inspectorPortraits.Contains(x.ImageResourceIdx.Value));
         uint? originalImage = appearance.ImageResourceIdx;
+        var daughterImages = tables.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance).Rows.Values
+            .Select(row => (Row: row, Resource: row.ResourceIdx)).ToArray();
         var method = typeof(GameSceneManager).GetMethod("PrepareMainSceneAssetsAsync",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         try
         {
             appearance.ImageResourceIdx = null;
-            Assert.That(tables.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance).Rows.Values.All(x => !x.ResourceIdx.HasValue), Is.True);
+            foreach (var daughter in daughterImages) daughter.Row.ResourceIdx = null;
             var task = ((UniTask)method.Invoke(manager, new object[] { loading, System.Threading.CancellationToken.None })).AsTask();
             float deadline = Time.realtimeSinceStartup + 60f;
             while (!task.IsCompleted && Time.realtimeSinceStartup < deadline) yield return null;
@@ -110,7 +112,11 @@ public sealed class GameSessionApiTests
             Assert.That(task.IsCompleted, Is.True);
             Assert.Throws<InvalidOperationException>(() => task.GetAwaiter().GetResult());
         }
-        finally { appearance.ImageResourceIdx = originalImage; }
+        finally
+        {
+            appearance.ImageResourceIdx = originalImage;
+            foreach (var daughter in daughterImages) daughter.Row.ResourceIdx = daughter.Resource;
+        }
     }
 
     /// <summary>라디오 스케줄이 없으면 영업 시간이 지나도 가격 snapshot을 교체하지 않는다.</summary>
