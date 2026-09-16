@@ -1110,6 +1110,7 @@ GameObject:
   - component: {fileID: 511438787}
   - component: {fileID: 511438785}
   - component: {fileID: 511438789}
+  - component: {fileID: 511438790}
   - component: {fileID: 511438786}
   m_Layer: 0
   m_Name: FacilityToolBench
@@ -1199,8 +1200,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 1}
-  m_EffectDistance: {x: 0, y: -2}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
+  m_UseGraphicAlpha: 1
+--- !u!114 &511438790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511438784}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.8}
+  m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
 --- !u!1 &524856335 stripped
 GameObject:
@@ -1324,13 +1340,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 559771571}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.008, a: 0.95}
-  m_EffectDistance: {x: 0, y: -6}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.4627451}
+  m_EffectDistance: {x: 4.6, y: -5.2}
   m_UseGraphicAlpha: 1
 --- !u!114 &578463040 stripped
 MonoBehaviour:
@@ -1471,6 +1487,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.InputActionReference
   m_Asset: {fileID: 203058901}
   m_ActionId: c95b2375-e6d9-4b88-9c4c-c5e76515df4b
+--- !u!114 &648729515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4352078219768184198}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.72}
+  m_EffectDistance: {x: 0, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &650016386
 GameObject:
   m_ObjectHideFlags: 0
@@ -2770,7 +2801,7 @@ Transform:
   m_GameObject: {fileID: 1111119867}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -161, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2790,6 +2821,7 @@ GameObject:
   - component: {fileID: 1125013249}
   - component: {fileID: 1125013247}
   - component: {fileID: 1125013251}
+  - component: {fileID: 1125013252}
   - component: {fileID: 1125013248}
   m_Layer: 0
   m_Name: FacilityFoodShelf
@@ -2879,8 +2911,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 1}
-  m_EffectDistance: {x: 0, y: -2}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
+  m_UseGraphicAlpha: 1
+--- !u!114 &1125013252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1125013246}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.8}
+  m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
 --- !u!114 &1132078629
 MonoBehaviour:
@@ -3073,7 +3120,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1114.9938, y: -240.45001}
+  m_AnchoredPosition: {x: 1159.7751, y: -234.81252}
   m_SizeDelta: {x: 1653.75, y: 336.875}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1257552085
@@ -3226,6 +3273,7 @@ GameObject:
   - component: {fileID: 1310137329}
   - component: {fileID: 1310137327}
   - component: {fileID: 1310137331}
+  - component: {fileID: 1310137332}
   - component: {fileID: 1310137328}
   m_Layer: 0
   m_Name: FacilityMedicineCabinet
@@ -3315,8 +3363,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 1}
-  m_EffectDistance: {x: 0, y: -2}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
+  m_UseGraphicAlpha: 1
+--- !u!114 &1310137332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310137326}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.8}
+  m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
 --- !u!114 &1320251384
 MonoBehaviour:
@@ -3546,6 +3609,8 @@ GameObject:
   - component: {fileID: 1506631118}
   - component: {fileID: 1506631117}
   - component: {fileID: 1506631115}
+  - component: {fileID: 1506631119}
+  - component: {fileID: 1506631120}
   - component: {fileID: 1506631116}
   m_Layer: 0
   m_Name: FacilityNuclearProtection
@@ -3623,6 +3688,36 @@ RectTransform:
   m_AnchoredPosition: {x: -7.8413086, y: -346}
   m_SizeDelta: {x: 399, y: 208.82243}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &1506631119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506631114}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.8}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
+--- !u!114 &1506631120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506631114}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 6, y: -8}
+  m_UseGraphicAlpha: 1
 --- !u!114 &1520615620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3708,7 +3803,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 557.47, y: -3}
+  m_AnchoredPosition: {x: 557.47, y: 6}
   m_SizeDelta: {x: 150.04785, y: 20.658873}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1595516233
@@ -3937,6 +4032,8 @@ GameObject:
   - component: {fileID: 1757765518}
   - component: {fileID: 1757765517}
   - component: {fileID: 1757765515}
+  - component: {fileID: 1757765519}
+  - component: {fileID: 1757765520}
   - component: {fileID: 1757765516}
   m_Layer: 0
   m_Name: FacilityPrecisionElectronics
@@ -4014,6 +4111,36 @@ RectTransform:
   m_AnchoredPosition: {x: 856, y: -354}
   m_SizeDelta: {x: 438, y: 244.39131}
   m_Pivot: {x: 0, y: 1}
+--- !u!114 &1757765519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757765514}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.8}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
+--- !u!114 &1757765520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1757765514}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 6, y: -8}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1808015287
 GameObject:
   m_ObjectHideFlags: 0
@@ -4026,6 +4153,7 @@ GameObject:
   - component: {fileID: 1808015290}
   - component: {fileID: 1808015288}
   - component: {fileID: 1808015292}
+  - component: {fileID: 1808015293}
   - component: {fileID: 1808015289}
   m_Layer: 0
   m_Name: FacilityPowerCommunications
@@ -4115,8 +4243,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 1}
-  m_EffectDistance: {x: 0, y: -2}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
+  m_UseGraphicAlpha: 1
+--- !u!114 &1808015293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1808015287}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.035, g: 0.03, b: 0.025, a: 0.8}
+  m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
 --- !u!114 &1842233973 stripped
 MonoBehaviour:
@@ -4561,7 +4704,7 @@ MonoBehaviour:
   - {fileID: 1091883700}
   - {fileID: 292542810}
   preview: 1
-  previewHour: 12.3
+  previewHour: 11.38
   dawnStart: 9
   dayStart: 12
   eveningStart: 18
@@ -4602,6 +4745,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 602416277}
     surface: 7
     normalSprite: {fileID: 0}
@@ -4618,6 +4763,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2008934278}
     surface: 7
     normalSprite: {fileID: 0}
@@ -4634,6 +4781,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1278554090}
     surface: 7
     normalSprite: {fileID: 0}
@@ -4650,6 +4799,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1238874758}
     surface: 4
     normalSprite: {fileID: 0}
@@ -4666,6 +4817,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2132357586}
     surface: 5
     normalSprite: {fileID: 0}
@@ -4682,6 +4835,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1636528321}
     surface: 5
     normalSprite: {fileID: 0}
@@ -4698,6 +4853,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 372208659}
     surface: 5
     normalSprite: {fileID: 0}
@@ -4714,6 +4871,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 166556295}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4730,6 +4889,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184231}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4746,6 +4907,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184230}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4762,6 +4925,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184229}
     surface: 2
     normalSprite: {fileID: 0}
@@ -4778,6 +4943,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184228}
     surface: 2
     normalSprite: {fileID: 0}
@@ -4794,6 +4961,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184225}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4810,6 +4979,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184224}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4826,6 +4997,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184223}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4842,6 +5015,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184222}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4858,6 +5033,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184221}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4874,6 +5051,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 4352078219768184220}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4890,6 +5069,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1901093217}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4906,6 +5087,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1257552086}
     surface: 0
     normalSprite: {fileID: 0}
@@ -4922,6 +5105,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 465611153}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4938,6 +5123,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 578463040}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4954,6 +5141,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1842233973}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4970,6 +5159,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 194660987}
     surface: 1
     normalSprite: {fileID: 0}
@@ -4986,6 +5177,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 292542810}
     surface: 2
     normalSprite: {fileID: 0}
@@ -5002,6 +5195,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1091883700}
     surface: 2
     normalSprite: {fileID: 0}
@@ -5018,6 +5213,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 17788076}
     surface: 2
     normalSprite: {fileID: 0}
@@ -5034,6 +5231,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1494773492}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5050,6 +5249,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2105069905}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5066,6 +5267,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 650016387}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5082,6 +5285,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 489771544}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5098,6 +5303,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2093221333}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5114,6 +5321,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 829171938}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5130,6 +5339,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1506631115}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5144,8 +5355,10 @@ MonoBehaviour:
     highlightResponse: 1
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1757765515}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5160,8 +5373,10 @@ MonoBehaviour:
     highlightResponse: 1
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 511438785}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5176,8 +5391,10 @@ MonoBehaviour:
     highlightResponse: 1
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1808015288}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5192,8 +5409,10 @@ MonoBehaviour:
     highlightResponse: 1
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1125013247}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5208,8 +5427,10 @@ MonoBehaviour:
     highlightResponse: 1
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1310137327}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5224,8 +5445,10 @@ MonoBehaviour:
     highlightResponse: 1
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1408947112}
     surface: 6
     normalSprite: {fileID: 0}
@@ -5242,6 +5465,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 1595516230}
     surface: 0
     normalSprite: {fileID: 852394788, guid: 20d1fc7e6767539498ac36a33edbc4a4, type: 3}
@@ -5258,6 +5483,8 @@ MonoBehaviour:
     emission: 1.5
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715518}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5274,6 +5501,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715517}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5290,6 +5519,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715516}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5306,6 +5537,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715515}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5322,6 +5555,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715514}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5338,6 +5573,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715513}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5354,6 +5591,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715512}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5370,6 +5609,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715511}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5386,6 +5627,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715510}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5402,6 +5645,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715509}
     surface: 1
     normalSprite: {fileID: 0}
@@ -5418,6 +5663,8 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715508}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5429,11 +5676,13 @@ MonoBehaviour:
     rimWidthPixels: 2
     rimResponse: 0
     normalResponse: 0
-    highlightResponse: 1
+    highlightResponse: 0.9
     specularResponse: 0.08
     emission: 0
-    bottomShade: 0
-    contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.26}
+    softContactShadow: 0
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715507}
     surface: 3
     normalSprite: {fileID: 0}
@@ -5450,9 +5699,11 @@ MonoBehaviour:
     emission: 0
     bottomShade: 0
     contactShadow: {x: 0, y: 0, z: 0, w: 0}
+    softContactShadow: 0
+    projectedContactShadow: 0
   lightingShader: {fileID: 4800000, guid: 4bb3a3480b9d7864ba03db51d2f31812, type: 3}
   width: 480
-  matchScreenResolution: 0
+  matchScreenResolution: 1
   previewInEditor: 1
   lampPosition: {x: 640, y: 64}
   ceilingLamp: {fileID: 1595516230}
@@ -5713,7 +5964,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 153.0625, y: -192.675}
+  m_AnchoredPosition: {x: 126.20337, y: -172.6695}
   m_SizeDelta: {x: 1653.75, y: 330.75}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1901093216
@@ -6446,6 +6697,10 @@ PrefabInstance:
       value: 0.36
       objectReference: {fileID: 0}
     - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
+      propertyPath: m_FontData.m_MinSize
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3934450365720295438, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_FontData.m_FontSize
       value: 24
       objectReference: {fileID: 0}
@@ -6619,7 +6874,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -529
+      value: -505
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7624,6 +7879,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5790637825009229522, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       insertIndex: -1
       addedObject: {fileID: 866372925}
+    - targetCorrespondingSourceObject: {fileID: 2463845261210630561, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 648729515}
     - targetCorrespondingSourceObject: {fileID: 2463845261210630561, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1520615620}

@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 48354a4746139104f8c430144e89b323
+guid: 67000a75fe52411aad9c7e2859600d3c
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -235054438108120059
-    second: Stage3MedicineCabinet_0
-  - first:
-      213: 1596982507665543972
-    second: Stage3MedicineCabinet_1
-  - first:
-      213: -184908759874041013
-    second: Stage3MedicineCabinet_2
-  - first:
-      213: 1826393038660884884
-    second: Stage3MedicineCabinet_3
+      213: 7229252181744332513
+    second: Stage1_LayoutCheck_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -84,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -97,7 +88,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -110,7 +101,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -122,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Stage3MedicineCabinet
+      name: Stage1_LayoutCheck_0
       rect:
         serializedVersion: 2
-        x: 249
-        y: 182
-        width: 960
-        height: 683
+        x: 0
+        y: 0
+        width: 1280
+        height: 720
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 50cbfa1eb3becbcf0800000000000000
-      internalID: -235054438108120059
+      spriteID: 1eea69c9e86735460800000000000000
+      internalID: 7229252181744332513
       vertices: []
       indices: 
       edges: []
@@ -147,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 282e6b0392960b04ab78eabb75370548
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -157,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Stage3MedicineCabinet: -235054438108120059
+      Stage1_LayoutCheck_0: 7229252181744332513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
