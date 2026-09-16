@@ -410,6 +410,37 @@ public static class DystopiaFacilityTools
         Debug.Log("Stage 1 facility shadows softened; FrontContainer and layout preserved.");
     }
 
+    /// <summary>현재 단계의 설비 6종과 정면 상자에 도트용 짧은 접지 그림자를 켭니다. 배치와 그림은 보존합니다.</summary>
+    [MenuItem("Dystopia/설비/Pixel Contact Shadows (Facilities + Crate, Current Stage)")]
+    public static void ApplySoftStage3Shadows()
+    {
+        var stage=FindStage();
+        // 현재 적용된 단계와 무관하게 설비 6종과 정면 상자에 같은 접지 그림자를 적용합니다. 단계 전환 후에도 유지하려면 Save Stage N Reference로 기준에 반영합니다.
+        string directory="output/stage-soft-shadows/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
+        Undo.RecordObject(stage,"Soft Stage 3 shadows");
+        foreach(var layer in stage.layers.Where(l=>l.source!=null && (l.source.name.StartsWith("Facility",StringComparison.Ordinal) || l.source.name=="FrontContainer")))
+        {
+            // 도트 화면에 맞춰 번짐 없는 짧은 접지 그림자(밑면 실루엣 투영)만 사용합니다.
+            layer.projectedContactShadow=false;
+            layer.softContactShadow=false;
+            layer.contactShadow=new Vector4(.5f,0,1.04f,.10f);
+            layer.bottomShade=.12f;
+            foreach(var shadow in layer.source.GetComponents<Shadow>().Where(s=>!(s is Outline)))
+            {
+                Undo.RecordObject(shadow,"Disable hard shadow");
+                shadow.enabled=false;
+                Dirty(shadow);
+            }
+            layer.source.SetVerticesDirty();
+        }
+        Dirty(stage);
+        typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        Debug.Log("Pixel contact shadows applied to facilities and crate; layout preserved. Scene left unsaved.");
+    }
+
     /// <summary>1단계 나무 지붕의 아래쪽에만 얇은 외곽선을 적용하며 배치를 보존합니다.</summary>
     [MenuItem("Dystopia/설비/Stage 1: Roof Bottom Outline")]
     public static void ApplyStage1RoofBottomOutline()

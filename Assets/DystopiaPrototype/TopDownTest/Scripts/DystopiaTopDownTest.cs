@@ -88,6 +88,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private GameObject hostBasketRoot;
     // 착지 순간에만 표시하는 저해상도 먼지 조각이며 정면 UI와 수명을 공유합니다.
     private readonly Image[] landingDust = new Image[10];
+    /// <summary>정면 상자가 착지 전에 떠 있는 시작 높이(1280×720 캔버스 단위)입니다. 2026-09-16 요청으로 38에서 2배로 올렸습니다.</summary>
+    private const float LandingDropHeight = 76f;
     private bool isEmbeddedInFrontScene;
     private Camera worldCamera;
     private Transform itemRoot;
@@ -455,7 +457,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             float scaleY = 1 - squash;
             box.localScale = Vector3.Scale(restScale, new Vector3(scaleX, scaleY, 1));
             box.anchoredPosition = rest + new Vector2(box.sizeDelta.x * (1 - scaleX) * .5f,
-                38 * (1 - drop * drop) - box.sizeDelta.y * (1 - scaleY));
+                LandingDropHeight * (1 - drop * drop) - box.sizeDelta.y * (1 - scaleY));
             lastPosition = box.anchoredPosition;
             lastScale = box.localScale;
             for (int i = 0; i < landingDust.Length; i++)
@@ -495,7 +497,9 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         box.localRotation = Quaternion.Euler(0, 0, hasPlacedUi ? placedPourAngle : -90);
         if (!hasPlacedUi) pouringContainerImage.sprite = tiltedContainer;
         pouringContainerImage.gameObject.SetActive(true);
-        cover.sprite = workbench;
+        // 전환 덮개는 옛 기본 작업대가 아니라 현재 단계에 배치된 작업대 그림을 사용해 도착 후 그림이 바뀌지 않게 합니다.
+        var stageWorkbench = workbenchObject != null ? workbenchObject.GetComponent<SpriteRenderer>() : null;
+        cover.sprite = stageWorkbench != null && stageWorkbench.sprite != null ? stageWorkbench.sprite : workbench;
         cover.color = Color.white;
         coverRect.anchoredPosition = new Vector2(-1280, 0);
         transitionBlock.SetActive(true);

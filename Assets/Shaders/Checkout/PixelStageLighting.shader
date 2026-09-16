@@ -26,7 +26,7 @@ Shader "Cashier/PixelStageLighting"
  float4 _SpotOrigin, _SpotDirection;
  float _SpotPower, _SpotHaze, _SpotResponse, _KeyContrast, _SpotSoftness;
  float _DaylightDetail, _DaylightFill;
- float _BottomShade, _ContactShadow, _PropFill;
+  float _BottomShade, _ContactShadow, _PropFill, _PropDepthBlend;
  float _HighlightResponse, _SpecularResponse, _Emission;
  float4 _ContactAnchor, _ContactSpriteUV;
  float4 _ContactFootprint;
@@ -152,8 +152,15 @@ Shader "Cashier/PixelStageLighting"
    return half4(_Tint.rgb,_Tint.a*opacity);
   }
   clip(min(i.uv.x-_TextureEdgeTrim.x,1-_TextureEdgeTrim.y-i.uv.x));
-  half4 c=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,i.uv);
-  if(_ContainerFinish>.5){
+   half4 c=SAMPLE_TEXTURE2D(_MainTex,sampler_MainTex,i.uv);
+   if(_PropDepthBlend>0){
+    float high=max(c.r,max(c.g,c.b));
+    float low=min(c.r,min(c.g,c.b));
+    float neutral=1-saturate((high-low)*5);
+    // 검은 선은 유지하고 흰 림과 중간 금속톤을 낮춰 전경 소품이 밝게 뜨지 않게 합니다.
+    c.rgb=lerp(c.rgb,c.rgb*.65+.015,_PropDepthBlend*neutral);
+   }
+   if(_ContainerFinish>.5){
    // Compress bright metal highlights without tinting dark outlines.
    float peak=max(c.r,max(c.g,c.b));
    c.rgb*=1-.3*smoothstep(.35,.75,peak);
