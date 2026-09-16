@@ -1,5 +1,9 @@
 # 설비 구매·상품 해금 인계
 
+## FacilityUI 통합 경로 (2026-09-16)
+
+팸플릿 이미지 8개는 `Assets/Textures/UI/Dystopia/FacilityUpgrade/`에 두고 원본 GUID를 유지한다. Presenter와 FacilityShopPanel의 직접 Sprite 참조를 재사용하므로 Addressables 추가는 없다. 최신 MainScene은 기존 GameUI 인스턴스를 통해 중앙 430×645 Window와 새 고정 슬롯 팸플릿을 상속한다. 다른 기능의 Scene override·전역 폰트는 기존 total_merge를 유지했다. FacilityUI의 가격·무료 확장 규칙과 기존 단계별 외형 FK 3열은 함께 사용한다.
+
 ## 단계별 설비 외형 (2026-09-16)
 
 - FacilityData의 필수 `uint` 컬럼 `stage1_resource_idx`, `stage2_resource_idx`, `stage3_resource_idx`는 ResourceData를 거쳐 **외형 Prefab**을 참조한다. 0은 해당 단계의 외형 없음이다. 같은 설비 PK가 단계별로 다른 Prefab을 사용한다.
@@ -28,7 +32,7 @@
 - 2·3단계 확장 `12008`, `12010`은 0원이다. 기존 확장 가격 230,000G와 1,430,000G는 각각 해당 단계 일반 설비 3개에 가깝게 분배하되 모든 가격을 1,000G 단위로 정리하고 단계별 총액을 보존했다.
 - 닫기 전용 X 버튼은 제거했다. 루트의 바깥 배경 버튼이 기존 `OnCloseRequested`를 보내고 팸플릿 Window가 내부 raycast를 가로채므로 페이지를 교체한 뒤에도 내부 구매 클릭과 바깥 닫기 클릭이 분리된다.
 
-## 현재 비용 초안 반영 (2026-09-13)
+## 과거 비용 초안 (2026-09-13; 현재 가격은 위 팸플릿 계약 적용)
 
 가게 단계에 맞춘 비용 조정안을 실제 FacilityData에 반영했다. 공구대23,000G·핵보호35,000G·2단계 확장23,000G·3단계 확장143,000G이며 다른 가격과 구매 조건은 유지한다. 현재 전체 가격은 [DATA_CATALOG](DATA_CATALOG.md#assetsdatasfacilitydatacsv), 계산 근거와 적용 검증은 [작업 기록](work/balancing-preparation.md)을 따른다. 아래2026-09-10 임시 가격·16상품 목록은 통합 당시 이력이다. 가게는1단계로 시작하며2→3단계 구매 조건과 상품 익일 활성은 바뀌지 않았다.
 

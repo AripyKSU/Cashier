@@ -81,4 +81,3 @@
 - commit: `a91a19900fc1f26f4f8f0b04b76477dc24e36176`으로 수행됨.
 - push: 확인되지 않음.
 - merge: 수행하지 않음. `total_merge`는 아직 `0006cee8`이며 이 문서 작성 시점의 현재 branch는 `FacilityUI`다.
-

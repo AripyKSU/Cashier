@@ -492,8 +492,8 @@ public sealed class FacilityTests
     {
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         string product = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
-        if (kind == "id") csv = csv.Replace("12001,", "11001,");
         string firstRow = csv.Split('\n').Single(line => line.StartsWith("12001,"));
+        if (kind == "id") csv = csv.Replace("12001,", "11001,");
         if (kind == "duplicate") csv += firstRow.TrimEnd('\r') + "\n";
         if (kind == "price") csv = csv.Replace("12001,8056," + firstRow.Split(',')[2], "12001,8056,0");
         if (kind == "name") csv = csv.Replace("8056,", "8999,");

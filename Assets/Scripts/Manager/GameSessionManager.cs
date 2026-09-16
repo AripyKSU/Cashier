@@ -338,7 +338,6 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
             CurrentMorality);
     }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>수동 UI 검증을 위해 영업 전 세션을 지정한 경과일로 이동하고 당일 콘텐츠 캐시를 폐기합니다.</summary>
     /// <param name="elapsedDays">표시 일차보다 1 작은 경과일입니다.</param>
     /// <exception cref="InvalidOperationException">세션이 초기화되지 않았거나 영업이 열린 경우 발생합니다.</exception>
@@ -358,7 +357,14 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         this.radioPending = false;
         this.radioRemainingSeconds = 0f;
     }
-#endif
+
+    /// <summary>개발/디버그 전용: 세션 도덕성을 직접 증감합니다.</summary>
+    /// <param name="delta">도덕성 증감량입니다.</param>
+    public void DebugAddMorality(decimal delta)
+    {
+        this.currentMorality += delta;
+        UnityEngine.Debug.Log($"[Debug] 도덕성 변경: {this.currentMorality} (변화량: {delta})");
+    }
 
     /// <summary>오늘 가격을 한 번만 확정한다. UI 재진입 시 동일 객체를 반환한다.</summary>
     /// <returns>신문·라디오·현재가 snapshot.</returns>

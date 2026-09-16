@@ -861,8 +861,9 @@ public sealed class GameSessionApiTests
             1014, 1015, 1016, 1018, 1019, 1020, 1021 };
         Assert.That(CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 1, session.IsFacilityActive).Select(x => x.Idx), Is.EquivalentTo(expected));
         for (int i = 0; i < 20; i++) Assert.That(generate().Items.All(x => expected.Contains(x.ProductIdx)));
-        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
         completeInspectors(progress);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
         progress.OpenBusiness(); progress.BeginCustomerSorting();
         var facilityItems = new[] { new SaleItem(session.DailyPrices.Prices.Keys.First(), 1) };
         Assert.That(progress.SubmitOffer(acceptedOffer(progress.CurrentDayProgress.CurrentVisit, facilityItems), facilityItems));
@@ -1581,8 +1582,8 @@ public sealed class GameSessionApiTests
         var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
         var ledger = uiReference<DailySettlementLedgerView>(settlement, "ledgerView");
         var leftPage = uiReference<TMPro.TextMeshProUGUI>(ledger, "leftPageText");
-        Assert.That(leftPage.text, Does.Contain("총지출  -2000원"));
-        Assert.That(leftPage.text, Does.Contain("순이익  -2000원"));
+        Assert.That(leftPage.text, Does.Contain("총지출  -2,000원"));
+        Assert.That(leftPage.text, Does.Contain("순이익  -2,000원"));
         Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 2000:N0}원"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
         Assert.That(next.IsInteractable(), Is.False);
@@ -1603,7 +1604,7 @@ public sealed class GameSessionApiTests
         Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled);
         next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
         Assert.That(open.gameObject.activeInHierarchy, Is.False);
-        session.Economy.FinanceService.AddIncome(1000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(3000, FinanceChangeReason.Sale); // 2일차 유지비를 전액 납부할 테스트 자금.
         completeInspectors(progress);
         closeProgressDay(progress); yield return waitForSettlementReady(ui); open.onClick.Invoke();
         Assert.That(uiReference<UnityEngine.UI.Image>(rows[0], "soldOutImage").gameObject.activeSelf);
@@ -1804,7 +1805,8 @@ public sealed class GameSessionApiTests
         session.Economy.FinanceService.BalanceChanged += failure;
         long before = session.Economy.QueryService.CurrentBalance;
         Assert.That(Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12012, out _)), Is.SameAs(expected));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(before - 1_000_000));
+        Assert.That(session.Economy.QueryService.CurrentBalance,
+            Is.EqualTo(before - tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12012].PurchasePrice));
         Assert.That(session.HasCitizenship);
         Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.Good));
         Assert.That(progress.State, Is.EqualTo(GameProgressState.Completed));

@@ -902,7 +902,6 @@ public sealed class GameUIController : MonoBehaviour
         }
     }
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>엔딩 수동 검증용 자금 버튼의 사용 가능 상태. 종료 결과 확정 후에는 지급하지 않는다.</summary>
     private bool CanGrantTestFunds => this.isReady && this.presentationReady && !this.hasError &&
         !this.isPurchasingFacility && this.economy != null &&
@@ -910,16 +909,9 @@ public sealed class GameUIController : MonoBehaviour
         GameSessionManager.Instance != null && !GameSessionManager.Instance.EndingResult.HasValue &&
         this.economy.FinanceService.CurrentBalance <= long.MaxValue - 100_000;
 
-    /// <summary>임시 플레이 테스트 버튼. 검증 종료 시 이 개발 전용 블록을 제거한다.</summary>
-    private void OnGUI()
-    {
-        if (!this.CanGrantTestFunds) return;
-        if (GUI.Button(new Rect(12, 6, 220, 32), "TEST +100,000 G"))
-            this.grantTestFunds();
-    }
 
     /// <summary>기존 잔액 API로 10만G를 지급한다. 거래 집계를 호출하지 않아 매출·명성·도덕성은 유지한다.</summary>
-    private void grantTestFunds()
+    public void GrantTestFunds()
     {
         if (!this.CanGrantTestFunds) return;
         if (this.IsFacilityShopOpen) this.facilityFeedback = "테스트 자금 100,000 G 지급";
@@ -930,22 +922,23 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshAllViews();
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>영업 전 수동 검증을 위해 10일차를 새로 준비합니다.</summary>
-    private void handleDebugDay10Clicked() => debugJumpToDay(10);
+    private void handleDebugDay10Clicked() => DebugJumpToDay(10);
 
     /// <summary>영업 전 수동 검증을 위해 20일차를 새로 준비합니다.</summary>
-    private void handleDebugDay20Clicked() => debugJumpToDay(20);
+    private void handleDebugDay20Clicked() => DebugJumpToDay(20);
 
     /// <summary>영업 전 수동 검증을 위해 엔딩 전날인 30일차를 새로 준비합니다.</summary>
-    private void handleDebugDay30Clicked() => debugJumpToDay(30);
+    private void handleDebugDay30Clicked() => DebugJumpToDay(30);
+#endif
 
     /// <summary>테스트 날짜 점프를 진행 경계에 전달하고 화면을 갱신합니다.</summary>
     /// <param name="displayDay">이동할 표시 일차입니다.</param>
-    private void debugJumpToDay(int displayDay)
+    public void DebugJumpToDay(int displayDay)
     {
         this.runProgressAction(() => this.gameProgress.DebugJumpToDay(displayDay));
     }
-#endif
 
     /// <summary>가격 입력 결과를 하루 진행에 전달합니다.</summary>
     /// <param name="offeredTotal">플레이어가 확정한 전체 판매 가격입니다.</param>

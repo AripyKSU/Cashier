@@ -97,7 +97,6 @@ public sealed class GameProgress
     /// <summary>새로운 하루가 시작된 뒤 발생합니다.</summary>
     public event Action<DayProgress> DayStarted;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
     /// <summary>수동 UI 검증을 위해 현재 영업 전 진행을 지정 일차의 새 진행으로 교체합니다.</summary>
     /// <param name="displayDay">이동할 1부터 시작하는 표시 일차입니다.</param>
     /// <exception cref="ArgumentOutOfRangeException">표시 일차가 1 미만인 경우 발생합니다.</exception>
@@ -115,7 +114,6 @@ public sealed class GameProgress
         this.session.DebugSetElapsedDays(checked((uint)(displayDay - 1)));
         startCurrentDay();
     }
-#endif
 
     /// <summary>
     /// 검증된 런타임 시스템을 사용하는 전체 진행을 생성합니다.

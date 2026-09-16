@@ -1,5 +1,18 @@
 # 기능 API 검증
 
+## total_merge FacilityUI·DV3 통합 (2026-09-16)
+
+- 기준 `total_merge 5edaba55`, 입력 `FacilityUI 45ca7765`, `DV3 d97ad4c5`. FacilityUI 인계서 `work/facility-pamphlet-merge-handoff.md`를 실제 diff와 대조했다. FacilityUI 로컬 병합은 `6963b28d`이며 DV3와 후속 테스트 보정을 함께 검증했다. 이번 작업은 원격 push를 포함하지 않는다.
+- 신규 팸플릿 UI·가격·무료 단계 확장 계약을 채택하면서 기존 FacilityData의 단계별 외형 FK 3열을 유지했다. 이미지 8개는 GUID를 보존해 `Textures/UI/Dystopia/FacilityUpgrade`로 옮겼다. 기존 MainScene·폰트·개인 IDE 상태를 유지하고, GameUI의 중앙 Window override와 SettlementPanel 변경을 통합했다. Addressables 추가는 없다.
+- 통합 컴파일 오류0. 전체 EditMode 최초 **319/324**, 실패5·skip0(`Temp/facility-dv3-edit.json`). 충돌 보정 과정의 invalid ID fixture 순서 문제를 수정한 후 **FacilityTests 35/35**(`Temp/facility-dv3-edit-fixed.json`). 전체를 다시 실행하지 않았으며 남은4건은 기존 청소기 구형 경로2·감독관 Text8397 폭1·가격 이벤트 overflow 기대1이다.
+- 전체 PlayMode 최초 **60/66**, 실패6·skip0(`Temp/facility-dv3-play.json`, `.xml`). 설비/시민권 관련 fixture를 보정했다: 현재 시민권 CSV 가격을 차감 기대값으로 사용, 가계부 천 단위 쉼표 반영, 단계 구매 다음 날 감독관 후 PreOpen 검사, 2일차 유지비3000을 충족할 테스트 자금. 제품 구매·경제 로직의 검증을 완화하지 않았다.
+- 보정 후 개별 PlayMode **3/3** 통과: `FacilityControllerPurchaseAndModalBoundaries`, `FacilityPurchaseUnlocksOnlyNextDayAcrossProgressInstances`, `CitizenshipNotificationFailureStillFinalizesOnce`. 증거는 `Temp/facility-dv3-modal-final.json`, `-unlock-final.json`, `-citizenship-final.json`. 최초 모달 재검사는 유지비 부족 fixture로0/1(`-modal-fixed.xml`); 이를 보정한 최종 결과와 구분한다. 접두어 필터의0건 실행은 통과 실적에서 제외했다.
+- 미해결 PlayMode3건: `DailyMaintenanceInsufficientBalanceDefersWholePayment`의 구형 G 로그 기대, `InspectorMainClockFollowsDayProgressAndPreviewCannotAdvanceBusiness`의15시/15.666667시 차이, `InspectorWorldEffectsPreserveSuspendedTimeAndFlashLifetime`의 시간 차이. 입력 인계서에도 해당 유형의 실패가 있었으며 이번 작업에서 제품 수정이나 전체 재실행은 하지 않았다.
+- 실제 Init→Hub 새 게임→Main에서 감독관 다음 버튼→PreOpen→영업/정산 API→팸플릿 버튼→구매 슬롯→무료 단계1→2→3→시민권 페이지를 확인했다. 일반 설비·확장11개 보유, 총차감5,245,000원, SoldOut 표시, 바깥 닫기 후 시민권 페이지 유지, 시민권10,000,000원 차감과 당일 종료 확정 후 BadEndingScene 진입을 확인했다. `Temp/facility-dv3-smoke.txt`.
+- DV3 인스턴스1개, 합성 Backquote+U+I 입력으로 메뉴 열림, 공개 API로 자금+100,000·도덕성±10(일일값 불변)·1→2일 날짜 변경을 확인했다. 실제 키보드 체감과 시간 배율 버튼의 사용자 조작은 미검증이다. 일반 빌드 포함 정책은 [DEV3_GUIDE.md](DEV3_GUIDE.md)에 기록했다.
+- 제품 Console error0, 신규/기존 자산 전체 GUID 중복0, 설비 FK 유효, 공유 Prefab missing script0. 기존 GameUI 하위 `FrontContainer.Image.m_Sprite`, `ReputationStamp.Image.m_Sprite`의 정적 missing reference2개는 기준5edaba55와 같은 참조다. 실행 시 단계/명성 이미지로 교체되는 경로는 통과했지만 원본 참조 정리는 별도 미완료다.
+- MainScene/meta·기존 폰트4개·개인 씬2개/meta2개 hash 보존(`Temp/facility-dv3-before.json`), stash3개 보존. Play 종료 후 InitScene clean·기존 개인 씬 선택·runInBackground=false를 복원했다. 최종 화면비·직접 마우스 UX·Player build는 미검증이다. **PARTIAL**: 요청 기능의 관련 검증과 실제 경로는 통과했으나 위 전체 suite 실패·기존 참조 정리가 남아 있다.
+
 ## total_merge Hub·가게 리소스 통합 (2026-09-16)
 
 - 입력: `total_merge 0006cee8` → `hubimage 6e92a4cb` → `codex/store-resource-exchange cb005fbe`. 로컬 병합 커밋은 `d585393b`, `cf15bd2b`이며 후속 호환 보정을 포함해 검증했다. 원격 push는 수행하지 않았다.
