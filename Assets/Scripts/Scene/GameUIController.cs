@@ -431,6 +431,7 @@ public sealed class GameUIController : MonoBehaviour
         this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
         this.saleSortingPanel.CalculatorVisibilityChanged += this.handleCalculatorVisibilityChanged;
         this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
+        this.saleSortingPanel.AllItemsDiscarded += this.handleAllItemsDiscarded;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (this.preOpenPanelPresenter.DebugDay10Button != null)
@@ -482,6 +483,7 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.saleSortingPanel.CalculatorVisibilityChanged -= this.handleCalculatorVisibilityChanged;
             this.saleSortingPanel.SortingStarted -= this.handleSortingStarted;
+            this.saleSortingPanel.AllItemsDiscarded -= this.handleAllItemsDiscarded;
         }
 
         if (this.openBusinessButton != null)
@@ -942,14 +944,24 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
-        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems)
-            || saleItems.Count == 0)
+        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems))
         {
-            Debug.LogWarning("[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.", this);
+            Debug.LogWarning("[GameUIController] 판매할 물품 목록을 조회할 수 없습니다.", this);
             return;
         }
 
         this.runProgressAction(() => this.submitSelectedOffer(offeredTotal, saleItems));
+    }
+
+    /// <summary>매대의 모든 물품이 폐기되었을 때 빈 판매 목록으로 거래 거부를 진행합니다.</summary>
+    private void handleAllItemsDiscarded()
+    {
+        if (this.subscribedDay == null || !this.subscribedDay.CanSubmitOffer)
+        {
+            return;
+        }
+
+        this.runProgressAction(() => this.submitSelectedOffer(0, Array.Empty<SaleItem>()));
     }
 
     /// <summary>가격 입력 취소 후 입력 ViewData를 갱신합니다.</summary>

@@ -112,9 +112,9 @@ public sealed class DailyGuidelineTests
         Assert.That(DailyGuidelineGenerator.GetGuidelineCount(elapsedDays), Is.EqualTo(expectedCount));
     }
 
-    /// <summary>생성 대상이 모든 손님 또는 성별·연령 단일 속성으로만 구성되고 모든 손님이 우세한지 검사합니다.</summary>
+    /// <summary>생성 대상이 모든 손님 또는 성별·연령 단일 속성으로만 구성되고 단일 속성이 우세(95%)한지 검사합니다.</summary>
     [Test]
-    public void DailyGuidelineGenerator_PrefersAllCustomersWithoutCombinedAttributes()
+    public void DailyGuidelineGenerator_PrefersSingleAttributesWithoutCombinedAttributes()
     {
         var generator = new DailyGuidelineGenerator(new System.Random(7));
         uint[] productIds = { 1001, 1004, 1005, 1006 };
@@ -138,8 +138,8 @@ public sealed class DailyGuidelineTests
             if (isSingleAttribute) singleAttributeCount++;
         }
 
-        Assert.That(allCustomerCount, Is.GreaterThanOrEqualTo(600));
-        Assert.That(singleAttributeCount, Is.GreaterThan(0));
+        Assert.That(allCustomerCount, Is.GreaterThan(10).And.LessThan(150));
+        Assert.That(singleAttributeCount, Is.GreaterThanOrEqualTo(850));
         Assert.That(allCustomerCount + singleAttributeCount, Is.EqualTo(1000));
     }
 }

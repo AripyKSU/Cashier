@@ -1370,23 +1370,11 @@ public sealed class GameSessionApiTests
             item.OnEndDrag(pointer);
         }
 
-        Assert.That(sorting.CanConfirm);
-        deadline = Time.realtimeSinceStartup + 3f;
-        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
-        Assert.That(sorting.IsCalculatorOpen);
-        Assert.That(sorting.TryGetSaleItems(out var saleItems));
-        Assert.That(saleItems, Is.Empty);
-        keypad.OnNumberButtonClick(1);
-        LogAssert.Expect(LogType.Warning, "[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.");
-        keypad.OnConfirmButtonClick();
-        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.Sorting));
-
-        sorting.LockSelection();
         Assert.That(sorting.IsCalculatorOpen, Is.False);
-        Assert.That(calculator.gameObject.activeSelf);
-        deadline = Time.realtimeSinceStartup + 3f;
-        while (calculator.gameObject.activeSelf && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.That(calculator.gameObject.activeSelf, Is.False);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.TransactionResult));
+        Assert.That(progress.CurrentDayProgress.CurrentVisit.Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
+        Assert.That(progress.CurrentDayProgress.CurrentVisit.State, Is.EqualTo(CustomerState.Rejected));
         var calculatorCorners = new Vector3[4];
         calculator.GetWorldCorners(calculatorCorners);
         Assert.That(calculatorCorners.Max(corner => calculatorBoundary.InverseTransformPoint(corner).y),
