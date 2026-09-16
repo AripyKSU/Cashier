@@ -347,7 +347,7 @@ public sealed class BusinessClockAndSortingTests
     }
 
     [Test]
-    public void LandingDustEffect_CalculatesContactPointAtBottomOfBox()
+    public void LandingDustEffect_UsesFixedContactPointRegardlessOfBox()
     {
         var root = new GameObject("Root", typeof(RectTransform));
         var boxGo = new GameObject("FrontContainer", typeof(RectTransform));
@@ -363,8 +363,16 @@ public sealed class BusinessClockAndSortingTests
         var dustEffect = dustGo.AddComponent<LandingDustEffect>();
 
         Vector2 contact = dustEffect.CalculateContactPoint(boxRect);
-        Assert.That(contact.x, Is.EqualTo(640f).Within(0.1f), "Center X should be 640");
-        Assert.That(contact.y, Is.EqualTo(-578.13f).Within(0.5f), "Bottom contact Y should be near -578");
+        Assert.That(contact, Is.EqualTo(new Vector2(640f, -578f)));
+
+        boxRect.anchoredPosition += new Vector2(100f, 180f);
+        boxRect.sizeDelta *= 2f;
+        Assert.That(dustEffect.CalculateContactPoint(boxRect), Is.EqualTo(contact));
+
+        dustEffect.BaseContactPoint = new Vector2(600f, -500f);
+        dustEffect.DustOffset = new Vector2(5f, -10f);
+        Assert.That(dustEffect.CalculateContactPoint(boxRect), Is.EqualTo(new Vector2(605f, -510f)));
+        Assert.That(dustEffect.CalculateContactPoint(null), Is.EqualTo(new Vector2(605f, -510f)));
 
         Object.DestroyImmediate(boxGo);
         Object.DestroyImmediate(dustGo);

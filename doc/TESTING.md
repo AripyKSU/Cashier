@@ -1,5 +1,12 @@
 # 기능 API 검증
 
+## total_merge DV3 착지 먼지 후속 통합 (2026-09-16)
+
+- 입력: `total_merge 9b074160` + `DV3 c7728927` (`상자 먼지 정상화`). 고정 접점 기본값 `(640, -578)`과 Inspector 오프셋을 채택하고, 기존 total_merge 폰트는 유지했다. MainScene·Prefab·CSV 변경은 없다.
+- 컴파일 오류0. 관련 EditMode **19/21**, 실패2·skip0: `Temp/dv3-dust-edit.xml`. 먼지 재생/중지 및 상자 위치·크기와 무관한 기준점/추가 오프셋/null 입력 검사는 통과했다. 실패는 앞선 통합에서 기록한 청소기 자산 경로 기대2건으로 이번 변경과 무관하다.
+- 실제 Init→Hub 새 게임→Main→감독관→PreOpen→Sorting 진행 후 실제 패널의 먼지 API로 입자10개·부모 연결·고정 접점·Stop 후 전체 투명화를 확인했다: `Temp/dv3-dust-smoke.txt`. UI callback/API 기반 검사이며 최종 시각적 착지 위치·사용자 체감·Player build는 미검증이다.
+- 초기 검사에서 감독관 표시 중 비활성 OperatingPanel의 먼지 API를 직접 호출해 coroutine 오류1개를 발생시켰다. 정상 영업 단계에서는 재생/중지 검사가 통과했으며 이를 제품 흐름 오류나 Console 무오류로 오인하지 않는다. Play 종료 후 InitScene clean·개인 씬 선택·runInBackground 원래 설정 복원. 전체 상태 **PARTIAL**(기존 테스트 실패2건 유지).
+
 ## total_merge FacilityUI·DV3 통합 (2026-09-16)
 
 - 기준 `total_merge 5edaba55`, 입력 `FacilityUI 45ca7765`, `DV3 d97ad4c5`. FacilityUI 인계서 `work/facility-pamphlet-merge-handoff.md`를 실제 diff와 대조했다. FacilityUI 로컬 병합은 `6963b28d`이며 DV3와 후속 테스트 보정을 함께 검증했다. 이번 작업은 원격 push를 포함하지 않는다.

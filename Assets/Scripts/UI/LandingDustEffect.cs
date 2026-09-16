@@ -24,10 +24,20 @@ public sealed class LandingDustEffect : MonoBehaviour
     [Tooltip("먼지 입자의 기본 색상 (프로토타입 기준 흙먼지 톤)")]
     [SerializeField] private Color dustColor = new Color(0.48f, 0.43f, 0.39f, 0.95f);
 
+    [Tooltip("마지막 단계 상자(카운터 중앙 착지면) 기준 하드코딩 기준 좌표 (X=640, Y=-578)")]
+    [SerializeField] private Vector2 baseContactPoint = new Vector2(640f, -578f);
+
     [Tooltip("먼지 발생 기준점의 추가 미세 조정 오프셋 (X, Y)")]
     [SerializeField] private Vector2 dustOffset = Vector2.zero;
 
     private Coroutine playRoutine;
+
+    /// <summary>마지막 단계 상자 기준 하드코딩 접점 좌표입니다.</summary>
+    public Vector2 BaseContactPoint
+    {
+        get => this.baseContactPoint;
+        set => this.baseContactPoint = value;
+    }
 
     /// <summary>먼지 발생 기준점 오프셋을 가져오거나 설정합니다.</summary>
     public Vector2 DustOffset
@@ -69,35 +79,19 @@ public sealed class LandingDustEffect : MonoBehaviour
     [ContextMenu("Test Play Dust")]
     public void TestPlay()
     {
-        Transform container = this.transform.Find("FrontContainer");
-        if (container != null && container is RectTransform rect)
-        {
-            this.Play(rect);
-        }
-        else
-        {
-            this.Play(new Vector2(640f, -578f) + this.dustOffset);
-        }
+        this.Play(this.baseContactPoint + this.dustOffset);
     }
 
-    /// <summary>상자 RectTransform의 중심 X 및 하단 카운터 접점 Y 좌표를 계산합니다.</summary>
+    /// <summary>
+    /// 마지막 단계 상자가 놓이는 카운터 상판의 기준 접점 좌표를 반환합니다.
+    /// 상자마다 크기나 낙하 타이밍이 달라 오차가 발생하는 것을 방지하기 위해,
+    /// 마지막 단계 상자를 기준으로 정렬된 하드코딩 좌표(BaseContactPoint + DustOffset)를 사용합니다.
+    /// </summary>
     /// <param name="box">카운터에 착지한 상자의 RectTransform입니다.</param>
     /// <returns>카운터 매대 접점의 로컬 좌표입니다.</returns>
     public Vector2 CalculateContactPoint(RectTransform box)
     {
-        if (box == null) return new Vector2(640f, -578f) + this.dustOffset;
-
-        float boxLeftX = box.anchoredPosition.x - box.pivot.x * box.sizeDelta.x;
-        float boxTopY = box.anchoredPosition.y + (1f - box.pivot.y) * box.sizeDelta.y;
-        float centerX = boxLeftX + box.sizeDelta.x * 0.5f;
-
-        // FrontContainer 스프라이트(1254x1254)는 preserveAspect 적용 시 240x240으로 표시되며,
-        // 스프라이트 내 상자 밑면은 Y=1192(1192/1254 = 95.06%)에 위치합니다.
-        // 따라서 상자 밑면의 실제 카운터 접점 Y는 상단에서 240 * 0.9506f 아래입니다.
-        float renderedHeight = Mathf.Min(box.sizeDelta.x, box.sizeDelta.y);
-        float visualBottomY = boxTopY - (renderedHeight * 0.9506f);
-
-        return new Vector2(centerX, visualBottomY) + this.dustOffset;
+        return this.baseContactPoint + this.dustOffset;
     }
 
     /// <summary>지정된 상자 RectTransform의 하단 카운터 접점 위치에서 착지 더스트 효과를 재생합니다.</summary>
@@ -106,7 +100,7 @@ public sealed class LandingDustEffect : MonoBehaviour
     {
         if (box == null)
         {
-            this.Play(new Vector2(640f, -578f) + this.dustOffset);
+            this.Play(this.baseContactPoint + this.dustOffset);
             return;
         }
 
