@@ -110,6 +110,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>쏟기 연출이 끝나 실제 물품 분류를 시작할 때 발생합니다.</summary>
     public event Action SortingStarted;
 
+    /// <summary>정면 상자를 현재 단계의 닫힌/열린 Sprite로 바꿔야 할 때 발생합니다.</summary>
+    public event Action<bool> ContainerOpenChanged;
+
     /// <summary>월드 정면 표시가 기존 슬라이드 전환과 같은 가시성·좌표를 관찰하는 영역.</summary>
     public RectTransform FrontView => this.frontView != null ? this.frontView.transform as RectTransform : null;
 
@@ -357,8 +360,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.cancelVacuumItems();
     }
 
-    /// <summary>비활성화 중 계산기 연출과 입력 상태를 남기지 않습니다.</summary>
-    private void OnDisable() => this.hideCalculatorImmediately();
+    /// <summary>비활성화 중 계산기 연출과 열린 상자 상태를 남기지 않습니다.</summary>
+    private void OnDisable()
+    {
+        this.hideCalculatorImmediately();
+        this.ContainerOpenChanged?.Invoke(false);
+    }
 
     /// <summary>새 손님의 주문을 개별 상품 오브젝트로 생성하고 Astra 순서의 화면 전환을 시작합니다.</summary>
     /// <param name="basket">상품 ID, 수량과 이미지가 포함된 장바구니 표시 데이터입니다.</param>
@@ -379,6 +386,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             throw new ArgumentNullException(nameof(basket));
         }
 
+        this.ContainerOpenChanged?.Invoke(false);
         this.pendingBasket = basket;
         if (this.frontBasketRoot != null) this.frontBasketRoot.SetActive(false);
 
@@ -413,6 +421,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
         this.clearItems();
         this.pendingBasket = Array.Empty<CustomerBasketItemViewData>();
+        this.ContainerOpenChanged?.Invoke(false);
         this.showFrontOnly();
     }
 
@@ -471,10 +480,23 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
     }
 
+    /// <summary>가게 단계의 상자 이미지를 이후 쏟기·퇴장 연출에 사용한다. 현재 연출 상태는 유지한다.</summary>
+    /// <param name="tilted">쏟는 동안의 이미지.</param>
+    /// <param name="empty">쏟은 뒤 퇴장 이미지.</param>
+    /// <exception cref="System.ArgumentNullException">단계 이미지 누락.</exception>
+    public void SetContainerSprites(Sprite tilted, Sprite empty)
+    {
+        if (tilted == null) throw new System.ArgumentNullException(nameof(tilted));
+        if (empty == null) throw new System.ArgumentNullException(nameof(empty));
+        this.tiltedContainerSprite = tilted;
+        this.emptyContainerSprite = empty;
+    }
+
     /// <summary>정면, 전환, 쏟기, 분류 순서로 새 손님 작업 화면을 엽니다.</summary>
     /// <returns>Unity 프레임에 걸쳐 진행되는 전환 열거자입니다.</returns>
     private IEnumerator playEntryFlow()
     {
+        this.ContainerOpenChanged?.Invoke(true);
         this.state = ViewState.Transition;
         if (this.frontView != null) this.frontView.SetActive(true);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);

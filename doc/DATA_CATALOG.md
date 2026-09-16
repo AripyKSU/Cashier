@@ -79,7 +79,7 @@
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 36 | 구매·MainScene 대기열·명성별 성향 및 성별 대사 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
-| [FacilityData](../Assets/Datas/FacilityData.csv) | 12 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
+| [FacilityData](../Assets/Datas/FacilityData.csv) | 12 | 10 | 세션 설비 업그레이드·단계별 외형 Prefab FK·정산 상점 입력 |
 | [ReputationBalanceData](../Assets/Datas/ReputationBalanceData.csv) | 5 | 12 | 거래 명성 계산·정산 피드백·손님 생성 가중치 연결 |
 | [DailyGuidelineData](../Assets/Datas/DailyGuidelineData.csv) | 2 | 3 | 일일 지침 생성·거래 위반·총매출 비율 정산 벌금 연결 |
 | [MoralityData](../Assets/Datas/MoralityData.csv) | 20 | 9 | 거래·현재/일일 도덕성 유지 |
@@ -114,6 +114,11 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 5. `required_store_stage` | RequiredStoreStage · uint | 구매 요구 가게 단계 | 필수; 1~3 | 단계 구매 조건 | 1,2,3 |
 | 6. `effect_type` | EffectType · ConvenienceEffectType | 편의성 효과 키 | 일반/단계 상승은 None(0); 편의성은 DividerBar·AutoSorting·Vacuum | 코드 효과 분기 | 0,1,2,3 |
 | 7. `target_store_stage` | TargetStoreStage · uint | 단계 상승 목표 | 일반 업그레이드는 0; 단계 상승은 2 또는 3 | 가게 단계 전환 목표 | 0,2,3 |
+| 8. `stage1_resource_idx` | Stage1ResourceIdx · uint | 1단계 설비 외형 Prefab | 필수; 0은 표시 없음, 비0 FK 검사 | ResourceData.idx → GameObject Prefab | 0,4380,4381 |
+| 9. `stage2_resource_idx` | Stage2ResourceIdx · uint | 2단계 설비 외형 Prefab | 필수; 0은 표시 없음, 비0 FK 검사 | ResourceData.idx → GameObject Prefab | 0,4382~4385 |
+| 10. `stage3_resource_idx` | Stage3ResourceIdx · uint | 3단계 설비 외형 Prefab | 필수; 0은 표시 없음, 비0 FK 검사 | ResourceData.idx → GameObject Prefab | 0,4386~4391 |
+
+설비 외형 FK는 Sprite 주소가 아닌 Prefab 주소다. Prefab이 이미지·위치·크기를 소유하고 StoreStagePresentation이 단계와 FacilityService 활성 상태에 따라 표시한다. 상세 연결과 검증 상태는 [가게 리소스 교체](work/store-resource-exchange.md#6-구현-계약-및-진행-기록-2026-09-16), 기능 계약은 [설비 인계](FACILITY_INTEGRATION.md)를 따른다.
 
 ### EconomyBalanceData
 
@@ -194,7 +199,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### CustomerAppearanceData
 
-현재 연결. 생성기는 먼저 확정한 성별·연령과 일치하는 외형 PK를 방문마다 선정한다. GameUIController가 필수 Resource FK를 로드하고 ProgressViewDataFactory는 Sprite를 전달한다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 성향과 Normal 속성은 외형 선정 조건이 아니다.
+현재 연결. 생성기는 먼저 확정한 성별·연령과 일치하는 외형 PK를 방문마다 선정한다. GameUIController가 지정된 Resource FK를 로드하며 이미지 셀이 빈 경우는 흰색 사각형 Sprite를 사용한다. NameIdx는 검증되지만 현재 손님 화면은 외형 이름을 표시하지 않는다. 성향과 Normal 속성은 외형 선정 조건이 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/CustomerAppearanceData.csv), [DTO](../Assets/Scripts/Customer/Data/CustomerAppearanceData.cs), [DataTable](../Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs).
 
@@ -202,7 +207,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 외형 PK; 영구 손님 ID 아님 | 필수; 종류 대역·고유 | 없음 | 5001~5045 |
 | 2. `nameidx` | NameIdx · uint | 외형 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8001~8004,8082~8100,8107~8128 |
-| 3. `image_resource_idx` | ImageResourceIdx · uint | 외형 Sprite | 필수; 0·빈값·Resource 대역·존재 검사 | ResourceData.idx → path → Sprite | 4201~4245 |
+| 3. `image_resource_idx` | ImageResourceIdx · uint? | 외형 Sprite, 빈칸은 사각형 표시 | 헤더 필수; 빈 셀 허용; 지정값은 0 금지·Resource 대역·존재 검사 | ResourceData.idx → path → Sprite | 4201~4245; 값 변경 없음 |
 | 4. `gender` | Gender · CustomerAttributes | 외형 성별 | 필수; Male=1 또는 Female=2 | 방문 Attributes 성별 | 1,2 |
 | 5. `age` | Age · CustomerAttributes | 외형 연령 | 필수; Child=4, Elderly=8 또는 Adult=16 | 방문 Attributes 연령 | 4,8,16 |
 

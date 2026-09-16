@@ -10,6 +10,47 @@ using UnityEngine.TestTools;
 /// <summary>실제 CSV parser와 FK 공개 경계를 각 음성 사례로 검사한다.</summary>
 public sealed class CustomerCsvTests
 {
+    /// <summary>빈 외형 이미지 FK만 허용하고 필수 헤더·잘못된 값·없는 참조는 거부한다.</summary>
+    /// <param name="value">첫 외형의 시험 값 또는 헤더 누락 표시.</param>
+    /// <param name="accepted">전체 카탈로그 공개 성공 여부.</param>
+    [TestCase("", true)]
+    [TestCase("0", false)]
+    [TestCase("3001", false)]
+    [TestCase("4999", false)]
+    [TestCase("invalid", false)]
+    [TestCase("missing-header", false)]
+    public void AppearanceImageAllowsOnlyBlankOrValidResource(string value, bool accepted)
+    {
+        var catalog = new CustomerCatalog(new CustomerAppearanceDataTable(), new CustomerDispositionDataTable(),
+            new ProductCategoryDataTable(), new ProductDataTable());
+        var texts = new TextDataTable();
+        var resources = loadResources();
+        var facilities = loadFacilities();
+        string source = File.ReadAllText("Assets/Datas/Customer/CustomerAppearanceData.csv");
+        string csv = value == "missing-header" ? source.Replace("image_resource_idx", "wrong_header") :
+            Regex.Replace(source, @"(?m)^(5001,[^,\r\n]*,)[^,\r\n]*", match => match.Groups[1].Value + value);
+        Action load = () =>
+        {
+            catalog.Appearances.LoadData(csv);
+            catalog.Dispositions.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
+            catalog.Categories.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductCategoryData.csv"));
+            catalog.Products.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductData.csv"));
+            texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
+            catalog.ValidateAndCommit(texts, resources, facilities: facilities);
+        };
+        if (accepted)
+        {
+            Assert.DoesNotThrow(() => load());
+            Assert.That(catalog.Appearances.Rows[5001].ImageResourceIdx, Is.Null);
+        }
+        else
+        {
+            LogAssert.Expect(LogType.Error, new Regex(@"^(CustomerAppearanceData\.csv|\[Customer CSV\])"));
+            Assert.Catch(() => load());
+            Assert.That(catalog.Appearances.GetDataCount(), Is.Zero);
+        }
+    }
+
     /// <summary>실제 경제 CSV의 시작금과 31일 유지비가 런타임 서비스까지 전달되는지 확인한다.</summary>
     [Test]
     public void EconomyCsvSupportsDayThirtyOneSettlement()

@@ -11,9 +11,9 @@ public sealed class CustomerAppearanceData
     /// <summary>외형 표시 이름의 TextData.idx FK.</summary>
     [Name("nameidx")]
     public uint NameIdx { get; set; }
-    /// <summary>필수 ResourceData.idx FK. 0·빈값은 허용하지 않는다.</summary>
+    /// <summary>선택적 ResourceData.idx FK. 빈값은 사각형 표시이며 0은 허용하지 않는다.</summary>
     [Name("image_resource_idx")]
-    public uint ImageResourceIdx { get; set; }
+    public uint? ImageResourceIdx { get; set; }
     /// <summary>외형의 고정 성별. Male 또는 Female만 허용한다.</summary>
     [Name("gender")]
     public CustomerAttributes Gender { get; set; }

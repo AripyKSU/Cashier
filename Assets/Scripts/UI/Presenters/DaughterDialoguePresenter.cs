@@ -49,6 +49,7 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     public void UpdateView(DaughterDialogueViewData viewData)
     {
         ValidateReferences();
+        portrait.sprite = viewData.Sprite;
         if (presentedDay == viewData.Day && hasCompleted)
         {
             dialogue.text = viewData.Text;

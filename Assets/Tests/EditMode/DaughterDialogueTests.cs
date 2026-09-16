@@ -26,7 +26,7 @@ public sealed class DaughterDialogueTests
         Assert.That(pending<DaughterDialogueDataTable, DaughterDialogueData>(dialogues).Values.SelectMany(row => row.TextIdxs),
             Is.EquivalentTo(Enumerable.Range(8183, 18).Select(value => (uint)value)));
         Assert.That(pending<DaughterAppearanceDataTable, DaughterAppearanceData>(appearances).Values.OrderBy(row => row.StartDay)
-            .Select(row => (row.StartDay, row.ResourceIdx)), Is.EqualTo(new[] { (1u, 4201u), (11u, 4201u), (21u, 4201u) }));
+            .Select(row => (row.StartDay, row.ResourceIdx)), Is.EqualTo(new[] { (1u, (uint?)4201u), (11u, (uint?)4201u), (21u, (uint?)4201u) }));
         var panel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab");
         var font = panel.GetComponentInChildren<TMPro.TextMeshProUGUI>(true).font;
@@ -100,7 +100,11 @@ public sealed class DaughterDialogueTests
         foreach (string csv in new[] {
             "idx,start_day,resource_idx\n17001,2,4201",
             "idx,start_day,resource_idx\n17001,1,4201\n17002,1,4201",
-            "idx,start_day,resource_idx\n17001,0,4201" })
+            "idx,start_day,resource_idx\n17001,0,4201",
+            "idx,start_day,resource_idx\n17001,1,0",
+            "idx,start_day,resource_idx\n17001,1,3001",
+            "idx,start_day,resource_idx\n17001,1,invalid",
+            "idx,start_day\n17001,1" })
         {
             LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("^DaughterAppearanceData.csv"));
             Assert.Catch<Exception>(() => new DaughterAppearanceDataTable().LoadData(csv));
@@ -110,6 +114,23 @@ public sealed class DaughterDialogueTests
         LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex("^\\[ResourceDataTable\\]"));
         resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
         Assert.Throws<InvalidDataException>(() => table.Validate(resources));
+    }
+
+    /// <summary>빈 이미지 FK를 검증·선택 후에도 0으로 변환하지 않고 유지한다.</summary>
+    [Test]
+    public void BlankAppearanceResourceSurvivesValidationAndSelection()
+    {
+        var table = loadAppearances("idx,start_day,resource_idx\n17001,1,\n17002,11,4201");
+        var resources = new ResourceDataTable();
+        LogAssert.Expect(LogType.Log, new System.Text.RegularExpressions.Regex("^\\[ResourceDataTable\\]"));
+        resources.LoadData(File.ReadAllText("Assets/Datas/ResourceData.csv"));
+        Assert.DoesNotThrow(() => table.Validate(resources));
+        var dialogues = loadDialogues(File.ReadAllText("Assets/Datas/DaughterDialogueData.csv"));
+        var service = new DaughterDialogueService(pending<DaughterDialogueDataTable, DaughterDialogueData>(dialogues).Values,
+            pending<DaughterAppearanceDataTable, DaughterAppearanceData>(table).Values, new System.Random(1));
+        Assert.That(service.Select(1, 0).ResourceIdx, Is.Null);
+        Assert.That(service.Select(10, 0).ResourceIdx, Is.Null);
+        Assert.That(service.Select(11, 0).ResourceIdx, Is.EqualTo(4201));
     }
 
     private static DaughterDialogueService actualService(int seed)

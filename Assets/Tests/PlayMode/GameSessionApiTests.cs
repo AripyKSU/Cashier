@@ -50,7 +50,7 @@ public sealed class GameSessionApiTests
     public IEnumerator ActualProductAndCustomerSpritesLoad()
     {
         var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
-        var ids = tables.Customers.Appearances.Rows.Values.Select(x => x.ImageResourceIdx)
+        var ids = tables.Customers.Appearances.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value)
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
         Assert.That(ids.Length, Is.EqualTo(61));

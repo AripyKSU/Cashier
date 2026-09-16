@@ -47,10 +47,14 @@ header: `idx,start_day,resource_idx`
 |---|---|---|
 | idx | uint | 필수 PK, 예약된 종류 ID 17 사용 |
 | start_day | uint | 양수, 중복 금지, 첫 구간은 1일, 사용자가 보는 일차 기준 |
-| resource_idx | uint | 필수 ResourceData FK, 기존 등록 Sprite 참조 |
+| resource_idx | uint? | 헤더 필수, 빈 셀은 사각형 표시. 지정 값은 유효한 ResourceData FK이며 0은 금지 |
 
 현재 일차 이하인 start_day 중 가장 큰 행을 선택한다. 마지막 구간은 무기한 유지한다.
 최초 행이 1일부터 시작하고 값이 양수·고유하면 모든 이후 날짜가 포함된다.
+
+2026-09-16: 빈 `resource_idx`는 CsvHelper의 nullable 변환으로 읽고 `DaughterDialogueResult.ResourceIdx`에도 null로 유지한다. 빈 값은 Addressables 로드를 건너뛰고 GameUI가 소유한 기존 흰색 사각형 Sprite를 `CreateDaughterDialogueViewData`의 선택 인자 `placeholder`로 전달한다. Presenter는 선택된 Sprite를 실제 portrait Image에 적용한다. 지정된 FK 누락·잘못된 주소·대체 Sprite 미전달은 기존 오류 경로로 보고한다. 실제 CSV 값과 Addressables는 변경하지 않았으므로 기존 4201 주소 오류를 피하려면 해당 이미지 셀을 비우거나 유효한 FK로 연결해야 한다. PK `idx`와 날짜 `start_day`는 계속 필수다.
+
+검증: 컴파일 통과, `DaughterDialogueTests` EditMode 6/6, `CustomerAppearancePlaceholderTests` PlayMode 2/2(실패·skip 0). 빈 CSV→날짜별 선택→표시 데이터→Presenter의 Image 적용 및 지정 FK 오류·공유 Sprite 수명을 확인했다. 증거: `Temp/daughter-placeholder-edit.json`, `Temp/daughter-placeholder-play.json`. 전체 게임 진입과 최종 화면 배치는 미검증이다.
 
 ## 선택과 상태 소유권
 

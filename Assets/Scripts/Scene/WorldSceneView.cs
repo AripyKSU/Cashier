@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -112,11 +113,15 @@ public sealed class WorldSceneView : MonoBehaviour
     public void FollowClock() { debugOverrideTime = false; RefreshPresentation(); }
 
     /// <summary>장식만 시간대 색에 연결한다. 입력 표시와 상품에는 색을 중복 적용하지 않는다.</summary>
-    public void SetStageGraphics(Image[] front, Image workbench)
+    public void SetStageGraphics(Image[] front, Image workbench, RawImage[] counterExtensions, IReadOnlyList<Graphic> facilities)
     {
-        counterGraphics = new Graphic[front.Length + 1];
+        int extensionCount = counterExtensions?.Length ?? 0;
+        int facilityCount = facilities?.Count ?? 0;
+        counterGraphics = new Graphic[front.Length + 1 + extensionCount + facilityCount];
         for (int i = 0; i < front.Length; i++) counterGraphics[i] = front[i];
         counterGraphics[front.Length] = workbench;
+        for (int i = 0; i < extensionCount; i++) counterGraphics[front.Length + 1 + i] = counterExtensions[i];
+        for (int i = 0; i < facilityCount; i++) counterGraphics[front.Length + 1 + extensionCount + i] = facilities[i];
     }
 
     /// <summary>연기 프레임과 시간을 유지하면서 단계 배경의 굴뚝 위치로 옮긴다.</summary>

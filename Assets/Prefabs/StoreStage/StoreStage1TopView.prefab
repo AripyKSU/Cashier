@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9cedd5aaac8572d4991b75c8b0b499e9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e93c313b8c781a2489ffe5574db83f91, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -129,4 +129,8 @@ MonoBehaviour:
   smokeAnchors: []
   images:
   - {fileID: 7368552223620683847}
+  openContainerSprite: {fileID: 0}
+  tiltedContainerSprite: {fileID: 2926268209059194014, guid: a9389d7673df07e428983bc53affde79, type: 3}
+  emptyContainerSprite: {fileID: 2926268209059194014, guid: a9389d7673df07e428983bc53affde79, type: 3}
+  counterExtensions: []
   clockDigits: {fileID: 0}
