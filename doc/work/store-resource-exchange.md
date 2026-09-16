@@ -1,5 +1,14 @@
 # 가게 리소스 교체·적용 작업 범위
 
+## astra-prototype 병합 (2026-09-16)
+
+- 입력: `codex/store-resource-exchange b878821` + fetch한 `origin/astra-prototype a43c1ae`. 시작 시 양쪽 대상/upstream 일치·작업 트리 clean, stash3개 보존. 최신 Stage1 기준 씬·아트·접촉 그림자·인계 문서와 프로토타입 경로 재편을 통합한다.
+- 같은 자산의 폴더 이동 충돌은 기존 게임 사용 경로/GUID를 보존하고 별도 프로토타입 자산은 새 art 경로에 두었다. Stage1CounterTop·Stage1CrateClosed/Open·Stage1FoodShelf·Stage1MedicineCabinet의 PNG5개는 최신 입력과 해시가 일치한다. 기존 시계 Stage2RustedClock/Stage3GunmetalClock은 `Assets/Textures/UI/Dystopia/`를 유지한다. Editor 도구의 경로도 병합 결과에 맞췄다.
+- 본편 `Assets/Scripts`, `Datas`, `Prefabs`, 공유/Local 씬, Addressables, Packages/ProjectSettings는 변경하지 않았다. 대기열550/340/240·설비 외형 FK·단계별 시계/상자 연결을 보존한다. 원본 Stage1Reference와 프로토타입 전용 shader는 입력 브랜치 변경을 반영했다.
+- 컴파일/셰이더 오류0, 변경 이미지100개 로드 성공, GUID 중복0·meta 누락0. EditMode 대기열4/4·StoreStageData10/10, 실패/skip0. 증거: `Temp/astra-merge-static.json`, `Temp/astra-merge-unity-assets.json`, `Temp/astra-merge-queue-edit.json`, `Temp/astra-merge-store-edit.json`.
+- Stage1Reference의250개 객체 검사에서 기존 끊긴 참조4개가 남는다: FrontCounter.daughter, InstructionProduct0/1/2.m_Sprite. 딸 FK는 양쪽 입력에서 동일하며 지침 상품 참조를 가진 FrontView.prefab은 이번 병합에서 변경되지 않았다. 본편 MainScene의 새 결함으로 해석하지 않는다. 프로토타입 표시 전체는 PARTIAL이며 이번에 임의 이미지를 연결하지 않았다. PlayMode·전체 suite·최종 화면/UX는 재검증하지 않았다.
+- 원격 push는 이번 요청 범위 밖이다. 원본 아트 인계 문서는 보존하며 아래 경로 보정은 `doc/CHECKOUT_ASSET_LAYOUT.md`에 함께 기록한다.
+
 ## total_merge 동기화 (2026-09-16)
 
 - 대상 `codex/store-resource-exchange 9c66aa9`, 입력 `origin/total_merge 5c4d46d`(fetch 확인). 작업 트리는 시작 시 clean이었고 기존 stash 3개와 Local 씬을 보존했다. 원격 push는 요청 범위에 포함하지 않는다.

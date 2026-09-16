@@ -124,7 +124,7 @@ public static class DystopiaTools
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage==null || stage.gameObject.scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        const string path="Assets/Textures/Checkout/Shop/Stage3Container.png";
+        const string path="Assets/Textures/art/Facility/Crate/Stage3Container.png";
         AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
@@ -149,11 +149,11 @@ public static class DystopiaTools
     private static void SetStage3Container(DystopiaPixelStage.Layer layer)
     {
         var image=(UnityEngine.UI.Image)layer.source;
-        var sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Shop/Stage3Container.png").OfType<Sprite>().Single();
+        var sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/art/Facility/Crate/Stage3Container.png").OfType<Sprite>().Single();
         Undo.RecordObject(image,"Replace stage 3 container sprite");
         image.sprite=sprite; image.color=new Color(.62f,.66f,.70f,1);
         layer.normalSprite=sprite;
-        layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Shop/Stage3ContainerNormal.png");
+        layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/Facility/Crate/Stage3ContainerNormal.png");
         layer.normalResponse=.45f;
         layer.highlightResponse=.8f;
         // 얇은 검은 외곽선을 추가 테두리 조명으로 밝히지 않습니다.
@@ -299,7 +299,7 @@ public static class DystopiaTools
         Undo.RecordObject(stage,"Apply stage 2 props");
         for (int i=0;i<2;i++)
         {
-            string path="Assets/Textures/Checkout/Shop/"+(i==0 ? "Stage2Container" : "Stage2Clock")+".png";
+            string path=(i==0 ? "Assets/Textures/art/Facility/Crate/Stage2Container" : "Assets/Textures/art/Facility/Clock/Stage2Clock")+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
@@ -398,7 +398,7 @@ public static class DystopiaTools
         var sprites=new Sprite[2];
         for(int i=0;i<2;i++)
         {
-            string path="Assets/Textures/Checkout/Characters/RearWatchGuard"+i+".png";
+            string path="Assets/Textures/art/Characters/Guard/RearWatchGuard"+i+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
@@ -406,7 +406,7 @@ public static class DystopiaTools
             importer.textureCompression=TextureImporterCompression.Uncompressed; importer.npotScale=TextureImporterNPOTScale.None;
             importer.SaveAndReimport(); sprites[i]=AssetDatabase.LoadAssetAtPath<Sprite>(path);
         }
-        AssetDatabase.ImportAsset("Assets/Textures/Checkout/Background/MidBackground.png",ImportAssetOptions.ForceSynchronousImport);
+        AssetDatabase.ImportAsset("Assets/Textures/art/Background/MidBackground.png",ImportAssetOptions.ForceSynchronousImport);
         var names=new[] { "LeftWatchGuard", "RightWatchGuard" };
         var layers=names.Select(name=>stage.layers.Single(layer=>layer.source.name==name)).ToArray();
         string directory="output/shop-stage-switch/rear-guard-animation/applied/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
@@ -676,7 +676,7 @@ public static class DystopiaTools
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up current layout.");
         SliceStage2AlongSeams();
-        var sprites=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Shop/Stage2Shop.png").OfType<Sprite>().ToArray();
+        var sprites=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/art/Facility/Frame/Stage2Shop.png").OfType<Sprite>().ToArray();
         Undo.RecordObject(stage,"Connect stage 2 seam parts");
         var cabinet=stage.layers.SingleOrDefault(l=>l.source!=null && l.source.name=="Stage2Cabinet");
         if(cabinet==null)
@@ -717,7 +717,7 @@ public static class DystopiaTools
             var layer=targets[i]; var image=(UnityEngine.UI.Image)layer.source;
             image.sprite=sprites.Single(s=>s.name==names[i]); image.useSpriteMesh=true; image.preserveAspect=false;
             image.gameObject.SetActive(true); layer.normalSprite=image.sprite;
-            layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Shop/Stage2ShopNormal.png");
+            layer.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/Facility/Frame/Stage2ShopNormal.png");
             foreach(var obj in new UnityEngine.Object[] { image,image.rectTransform,image.gameObject }) PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
         }
         // 상판이 기둥 밑동을 덮는 원본 순서를 유지하고 다른 배경 레이어 순서는 보존합니다.
@@ -744,7 +744,7 @@ public static class DystopiaTools
 
     public static void SliceStage2AlongSeams()
     {
-        const string path="Assets/Textures/Checkout/Shop/Stage2Shop.png";
+        const string path="Assets/Textures/art/Facility/Frame/Stage2Shop.png";
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         var settings=new TextureImporterSettings(); importer.ReadTextureSettings(settings);
         settings.spriteMeshType=SpriteMeshType.Tight; importer.SetTextureSettings(settings);
@@ -873,8 +873,8 @@ public static class DystopiaTools
         {
             if(!(layer.source is UnityEngine.UI.Image image) || image.sprite == null) continue;
             string path=AssetDatabase.GetAssetPath(image.sprite);
-            if(path=="Assets/Textures/Checkout/Background/LeftWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(108f/1672,0) : Vector2.zero;
-            else if(path=="Assets/Textures/Checkout/Background/RightWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(0,98f/1672) : Vector2.zero;
+            if(path=="Assets/Textures/art/Background/LeftWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(108f/1672,0) : Vector2.zero;
+            else if(path=="Assets/Textures/art/Background/RightWatchTower.png") layer.textureEdgeTrim=hide ? new Vector2(0,98f/1672) : Vector2.zero;
         }
     }
 
@@ -887,7 +887,7 @@ public static class DystopiaTools
     {
         foreach(string name in new[] { "ProtectiveSuit","RadiationDetector","GasMask","ThermalCamera" })
         {
-            string path="Assets/Textures/Checkout/Products/"+name+".png";
+            string path="Assets/Textures/art/Products/"+name+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             var factory=new SpriteDataProviderFactories(); factory.Init();
@@ -983,6 +983,7 @@ public static class DystopiaTools
                 CopyStageReferenceRect(image.rectTransform,reference.rectTransform);
                 Undo.RecordObject(image,"Apply approved stage 2 sprite");
                 Undo.RecordObject(image.gameObject,"Apply stage visibility"); image.gameObject.SetActive(reference.gameObject.activeSelf); image.sprite=reference.sprite; image.color=reference.color; image.preserveAspect=reference.preserveAspect; image.enabled=reference.enabled;
+                CopyStageReferenceEffects(image,reference);
                 foreach(var field in typeof(DystopiaPixelStage.Layer).GetFields(System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.Instance))
                     if(field.Name!="source" && !field.IsNotSerialized) field.SetValue(pair.target,field.GetValue(pair.reference));
                 EditorUtility.SetDirty(image);
@@ -1039,6 +1040,9 @@ public static class DystopiaTools
             }
             stage.ceilingLamp=stage.layers.FirstOrDefault(l=>l.source!=null && l.source.name=="Stage3CeilingLamp")?.source as UnityEngine.UI.Image;
             stage.lampPosition=saved.lampPosition; stage.lampHeight=saved.lampHeight; stage.lampRadius=saved.lampRadius; stage.lampIntensity=saved.lampIntensity; stage.lampColor=saved.lampColor;
+            // 3단계의 고밀도 금속 소품은 480px 축소·확대를 거치지 않고 화면 해상도에 1:1로 렌더합니다.
+            stage.width=480;
+            stage.matchScreenResolution=stageNumber==3;
             EnsureCanopyBehindCounter(stage);
             RemoveFrontTowerLayers(stage);
             // Keep authored guard positions from the approved reference without recalculation.
@@ -1063,6 +1067,36 @@ public static class DystopiaTools
         EditorUtility.SetDirty(target);
         PrefabUtility.RecordPrefabInstancePropertyModifications(target);
     }
+
+    /// <summary>단계 기준에 저장된 UI 그림자와 외곽선의 활성 상태와 표현값을 현재 이미지에 복사합니다.</summary>
+    /// <param name="target">현재 씬의 이미지입니다.</param>
+    /// <param name="reference">단계 기준 씬의 이미지입니다.</param>
+    private static void CopyStageReferenceEffects(UnityEngine.UI.Graphic target,UnityEngine.UI.Graphic reference)
+    {
+        var referenceEffects=reference.GetComponents<UnityEngine.UI.Shadow>();
+        var targetEffects=target.GetComponents<UnityEngine.UI.Shadow>().ToList();
+        var used=new HashSet<UnityEngine.UI.Shadow>();
+        foreach(var referenceEffect in referenceEffects)
+        {
+            var targetEffect=targetEffects.FirstOrDefault(effect=>!used.Contains(effect) && effect.GetType()==referenceEffect.GetType());
+            if(targetEffect==null) targetEffect=(UnityEngine.UI.Shadow)Undo.AddComponent(target.gameObject,referenceEffect.GetType());
+            used.Add(targetEffect);
+            Undo.RecordObject(targetEffect,"Apply stage graphic effect");
+            targetEffect.enabled=referenceEffect.enabled;
+            targetEffect.effectColor=referenceEffect.effectColor;
+            targetEffect.effectDistance=referenceEffect.effectDistance;
+            targetEffect.useGraphicAlpha=referenceEffect.useGraphicAlpha;
+            EditorUtility.SetDirty(targetEffect);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(targetEffect);
+        }
+        foreach(var extra in targetEffects.Where(effect=>!used.Contains(effect)))
+        {
+            Undo.RecordObject(extra,"Disable stage graphic effect");
+            extra.enabled=false;
+            EditorUtility.SetDirty(extra);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(extra);
+        }
+    }
     /// <summary>작업 씬을 변경하지 않고 16종의 자동 생성 충돌 외곽선을 검증합니다.</summary>
     [MenuItem("Dystopia/Validate Survival Product Colliders")]
     public static void ValidateSurvivalProductColliders()
@@ -1073,7 +1107,7 @@ public static class DystopiaTools
         {
             foreach(string name in SurvivalProductArt)
             {
-                var sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Products/"+name+".png").OfType<Sprite>().Single();
+                var sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/art/Products/"+name+".png").OfType<Sprite>().Single();
                 var instance=new GameObject(name);
                 UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(instance,preview);
                 instance.AddComponent<SpriteRenderer>().sprite=sprite;
@@ -1104,7 +1138,7 @@ public static class DystopiaTools
         for(int i=0;i<16;i++)
         {
             var product=settings.products[i];
-            if(product.id != (DystopiaProductId)(i+1) || product.sprite == null || AssetDatabase.GetAssetPath(product.sprite) != "Assets/Textures/Checkout/Products/"+SurvivalProductArt[i]+".png") throw new InvalidOperationException("Wrong product sprite: "+product.name);
+            if(product.id != (DystopiaProductId)(i+1) || product.sprite == null || AssetDatabase.GetAssetPath(product.sprite) != "Assets/Textures/art/Products/"+SurvivalProductArt[i]+".png") throw new InvalidOperationException("Wrong product sprite: "+product.name);
             product.price=100;
         }
         int scenarios=0;
@@ -1155,7 +1189,7 @@ public static class DystopiaTools
         var catalog=new DystopiaSettings().products;
         for(int i=0;i<catalog.Length;i++)
         {
-            string path="Assets/Textures/Checkout/Products/"+SurvivalProductArt[i]+".png";
+            string path="Assets/Textures/art/Products/"+SurvivalProductArt[i]+".png";
             AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite;
@@ -1225,7 +1259,7 @@ public static class DystopiaTools
         var sheet=screen.transform.Find("DystopiaCanvas/DailyInstruction/Sheet").GetComponent<UnityEngine.UI.Image>();
         var content=(RectTransform)sheet.transform.Find("PrintedContent");
         const string source="output/instruction-update/DailyInstruction-source.png";
-        const string target="Assets/Textures/Checkout/UI/DailyInstruction.png";
+        const string target="Assets/Textures/art/UI/DailyInstruction.png";
         if(!File.Exists(source)) throw new FileNotFoundException("Daily instruction source is missing.",source);
         string backup="output/instruction-update/Live-before-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".unity";
         if(!EditorSceneManager.SaveScene(screen.gameObject.scene,backup,true)) throw new IOException("Could not back up live scene.");
@@ -1305,10 +1339,10 @@ public static class DystopiaTools
     [MenuItem("Dystopia/Assets/Import Pending Artwork Only")]
     public static void ImportPendingArtworkOnly()
     {
-        const string handsPath = "Assets/Textures/Checkout/UI/Hands.png";
-        const string boxPath = "Assets/Textures/Checkout/Workbench/FrontContainerMale.png";
-        const string normalPath = "Assets/Textures/Checkout/Workbench/FrontContainerNormal.png";
-        const string instructionPath = "Assets/Textures/Checkout/UI/DailyInstruction.png";
+        const string handsPath = "Assets/Textures/art/UI/Hands.png";
+        const string boxPath = "Assets/Textures/art/Facility/Crate/FrontContainerMale.png";
+        const string normalPath = "Assets/Textures/art/Facility/Crate/FrontContainerNormal.png";
+        const string instructionPath = "Assets/Textures/art/UI/DailyInstruction.png";
         foreach (string path in new[] { handsPath, boxPath, instructionPath })
         {
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
@@ -1400,7 +1434,7 @@ public static class DystopiaTools
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
         var screen = UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>();
         if (screen == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        const string path = "Assets/Textures/Checkout/UI/LedgerSpeechBubble.png";
+        const string path = "Assets/Textures/art/UI/LedgerSpeechBubble.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Multiple;
@@ -1495,7 +1529,7 @@ public static class DystopiaTools
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up scene.");
         string[] names={ "Counter","FrontContainer","CounterClock" };
-        string[] paths={ "Assets/Textures/Checkout/Shop/Stage1WoodCounter.png","Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png","Assets/Textures/Checkout/Shop/Stage1BasicClock.png" };
+        string[] paths={ "Assets/Textures/art/Facility/CounterTop/Stage1WoodCounter.png","Assets/Textures/art/Facility/Crate/Stage1WoodContainerCompact.png","Assets/Textures/art/Facility/Clock/Stage1BasicClock.png" };
         Undo.RecordObject(stage,"Apply stage 1 artwork");
         for(int i=0;i<paths.Length;i++)
         {
@@ -1579,7 +1613,7 @@ public static class DystopiaTools
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage == null || stage.gameObject.scene.path != "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         var layer=stage.layers.Single(x => x.source != null && x.source.name == "FrontContainer");
-        if(AssetDatabase.GetAssetPath(((UnityEngine.UI.Image)layer.source).sprite) != "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png") throw new InvalidOperationException("Apply stage 1 box first.");
+        if(AssetDatabase.GetAssetPath(((UnityEngine.UI.Image)layer.source).sprite) != "Assets/Textures/art/Facility/Crate/Stage1WoodContainerCompact.png") throw new InvalidOperationException("Apply stage 1 box first.");
         string directory="output/shop-stage-switch/box-rim-"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Could not back up scene.");
@@ -1621,7 +1655,7 @@ public static class DystopiaTools
         var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if(stage == null || stage.gameObject.scene.path != "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         string[] names={ "FrontContainer","CounterClock" };
-        string[] paths={ "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png","Assets/Textures/Checkout/Shop/Stage1BasicClock.png" };
+        string[] paths={ "Assets/Textures/art/Facility/Crate/Stage1WoodContainerCompact.png","Assets/Textures/art/Facility/Clock/Stage1BasicClock.png" };
         var layers=names.Select(name => stage.layers.Single(x => x.source != null && x.source.name == name)).ToArray();
         for(int i=0;i<2;i++)
             if(AssetDatabase.GetAssetPath(((UnityEngine.UI.Image)layers[i].source).sprite) != paths[i]) throw new InvalidOperationException("Apply current stage 1 artwork first.");
@@ -1659,8 +1693,8 @@ public static class DystopiaTools
             throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         var image=(UnityEngine.UI.Image)stage.layers.Single(x => x.source != null && x.source.name == "CounterClock").source;
         string spritePath=AssetDatabase.GetAssetPath(image.sprite);
-        bool stage3=spritePath == "Assets/Textures/Checkout/Shop/Stage3Clock.png";
-        if(image.sprite == null || !stage3 && spritePath != "Assets/Textures/Checkout/Shop/Stage1BasicClock.png")
+        bool stage3=spritePath == "Assets/Textures/art/Facility/Clock/Stage3Clock.png";
+        if(image.sprite == null || !stage3 && spritePath != "Assets/Textures/art/Facility/Clock/Stage1BasicClock.png")
             throw new InvalidOperationException("Unsupported clock artwork.");
         var text=image.transform.Find("BusinessClock").GetComponent<UnityEngine.UI.Text>();
         var rect=text.rectTransform;
@@ -1693,10 +1727,10 @@ public static class DystopiaTools
     private static void ApplyShopProps(DystopiaPixelStage stage,bool stage1)
     {
         string[] names={ "FrontContainer","CounterClock" };
-        string[] paths=stage1 ? new[] { "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompact.png","Assets/Textures/Checkout/Shop/Stage1BasicClock.png" }
-            : new[] { "Assets/Textures/Checkout/Workbench/FrontContainerMale.png","Assets/Textures/Checkout/Shop/Stage3Clock.png" };
-        string[] normals=stage1 ? new[] { "Assets/Textures/Checkout/Shop/Stage1WoodContainerCompactNormal.png","Assets/Textures/Checkout/Shop/Stage1BasicClockNormal.png" }
-            : new[] { "Assets/Textures/Checkout/Workbench/FrontContainerNormal.png","Assets/Textures/Checkout/Shop/Stage3ClockNormal.png" };
+        string[] paths=stage1 ? new[] { "Assets/Textures/art/Facility/Crate/Stage1WoodContainerCompact.png","Assets/Textures/art/Facility/Clock/Stage1BasicClock.png" }
+            : new[] { "Assets/Textures/art/Facility/Crate/FrontContainerMale.png","Assets/Textures/art/Facility/Clock/Stage3Clock.png" };
+        string[] normals=stage1 ? new[] { "Assets/Textures/art/Facility/Crate/Stage1WoodContainerCompactNormal.png","Assets/Textures/art/Facility/Clock/Stage1BasicClockNormal.png" }
+            : new[] { "Assets/Textures/art/Facility/Crate/FrontContainerNormal.png","Assets/Textures/art/Facility/Clock/Stage3ClockNormal.png" };
         for(int i=0;i<2;i++)
         {
             if(stage1)
@@ -1740,7 +1774,7 @@ public static class DystopiaTools
     {
         var stage = UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
         if (stage == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
-        var normal = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Shop/Stage3ShopNormal.png");
+        var normal = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/Facility/Frame/Stage3ShopNormal.png");
         Selection.objects = stage.layers.Where(x => x.source != null && (normal != null && x.normalMap == normal || x.source == stage.ceilingLamp))
             .Select(x => (UnityEngine.Object)x.source.gameObject).ToArray();
     }
@@ -1754,7 +1788,7 @@ public static class DystopiaTools
         if (screen == null) throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
         var portrait = screen.transform.Find("DystopiaCanvas/Customer");
         if (portrait == null) throw new InvalidOperationException("Customer portrait is missing.");
-        const string path = "Assets/Textures/Checkout/UI/TradeReactions.png";
+        const string path = "Assets/Textures/art/UI/TradeReactions.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType = TextureImporterType.Sprite;
@@ -1837,7 +1871,7 @@ public static class DystopiaTools
     public static void ApplyDialogueFrame()
     {
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
-        const string path = "Assets/Textures/Checkout/UI/DialogueFrame.png";
+        const string path = "Assets/Textures/art/UI/DialogueFrame.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType = TextureImporterType.Sprite;
@@ -1930,7 +1964,9 @@ public static class DystopiaTools
     private static void ImportArt()
     {
         AssetDatabase.Refresh();
-        foreach(string path in Directory.GetFiles("Assets/Textures/Checkout", "*.png", SearchOption.AllDirectories))
+        // 2026-09-16 폴더 재편: 옛 Checkout 자산 중 단일 Sprite 폴더만 대상으로 한다. Facility 하위는 잘라낸 Sprite가 섞여 있어 제외한다.
+        string[] singleSpriteFolders={ "Assets/Textures/art/Background","Assets/Textures/art/Effects","Assets/Textures/art/Characters","Assets/Textures/art/Products","Assets/Textures/art/UI","Assets/Textures/art/Workbench","Assets/Textures/art/Customer/Legacy" };
+        foreach(string path in singleSpriteFolders.Where(Directory.Exists).SelectMany(folder=>Directory.GetFiles(folder, "*.png", SearchOption.AllDirectories)))
         {
             var importer=(TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType=TextureImporterType.Sprite;
@@ -1984,7 +2020,7 @@ public static class DystopiaTools
             var entry=products.GetArrayElementAtIndex(i);
             int id=entry.FindPropertyRelative("id").intValue;
             if(id > 0 && id <= SurvivalProductArt.Length)
-                entry.FindPropertyRelative("sprite").objectReferenceValue=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Products/"+SurvivalProductArt[id-1]+".png").OfType<Sprite>().SingleOrDefault();
+                entry.FindPropertyRelative("sprite").objectReferenceValue=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/art/Products/"+SurvivalProductArt[id-1]+".png").OfType<Sprite>().SingleOrDefault();
             else if(i < Products.Length) entry.FindPropertyRelative("sprite").objectReferenceValue=Art(Products[i]);
         }
         serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -1996,7 +2032,7 @@ public static class DystopiaTools
     private static string FindCheckoutArtwork(string name)
     {
         // Editor 전용 기존 이름 조회입니다. 이동된 폴더에서 정확히 같은 파일 하나만 허용합니다.
-        return Directory.GetFiles("Assets/Textures/Checkout", name + ".png", SearchOption.AllDirectories).SingleOrDefault()?.Replace('\\', '/');
+        return Directory.GetFiles("Assets/Textures/art", name + ".png", SearchOption.AllDirectories).SingleOrDefault()?.Replace('\\', '/');
     }
 
     /// <summary>정리된 이미지 폴더에서 기존 아트 이름의 Sprite를 읽습니다.</summary>
@@ -2109,16 +2145,16 @@ public class DystopiaLayoutInspector : Editor
         showClock = GUILayout.Toolbar(showClock ? 1 : 0, new[] { "탑다운 계산기", "정면 시계" }) == 1;
         Rect area = GUILayoutUtility.GetAspectRect(1280f / 720f);
         EditorGUI.DrawRect(area, new Color(.08f,.08f,.08f));
-        Texture2D background = AssetDatabase.LoadAssetAtPath<Texture2D>(showClock ? "Assets/Textures/Checkout/Shop/BoothCounter.png" : "Assets/Textures/Checkout/Workbench/TopDownWorkbench.png");
+        Texture2D background = AssetDatabase.LoadAssetAtPath<Texture2D>(showClock ? "Assets/Textures/art/Facility/CounterTop/BoothCounter.png" : "Assets/Textures/art/Facility/Workbench/TopDownWorkbench.png");
         if (background != null) GUI.DrawTexture(area, background, ScaleMode.StretchToFill);
         GUI.BeginClip(area);
         float scale = area.width / 1280;
         if (showClock)
-            DrawArtwork(layoutObject, "counterClockLayout", "CounterClock", scale, new Rect(0,0,1,1));
+            DrawArtwork(layoutObject, "counterClockLayout", "Facility/Clock/CounterClock", scale, new Rect(0,0,1,1));
         else
         {
-            DrawArtwork(layoutObject, "calculatorLayout", "Calculator", scale, new Rect(0,0,1,1));
-            DrawArtwork(layoutObject, "calculatorToggleLayout", "CalculatorToggle", scale, new Rect(343f/1254,296f/1254,552f/1254,601f/1254));
+            DrawArtwork(layoutObject, "calculatorLayout", "Workbench/Calculator", scale, new Rect(0,0,1,1));
+            DrawArtwork(layoutObject, "calculatorToggleLayout", "Workbench/CalculatorToggle", scale, new Rect(343f/1254,296f/1254,552f/1254,601f/1254));
         }
         GUI.EndClip();
         EditorGUILayout.Space();
@@ -2130,14 +2166,14 @@ public class DystopiaLayoutInspector : Editor
     /// <summary>실제 UI와 같은 위치·크기 및 텍스처 영역을 표시합니다.</summary>
     /// <param name="data">배치 소유자의 직렬화 데이터입니다.</param>
     /// <param name="field">Rect 필드 이름입니다.</param>
-    /// <param name="asset">UI 이미지 이름입니다.</param>
+    /// <param name="asset">Assets/Textures/art/ 아래의 폴더를 포함한 이미지 이름입니다.</param>
     /// <param name="scale">미리보기의 기준 해상도 배율입니다.</param>
     /// <param name="uv">이미지에서 표시할 영역입니다.</param>
     private static void DrawArtwork(SerializedObject data, string field, string asset, float scale, Rect uv)
     {
         Rect layout = data.FindProperty(field).rectValue;
         Rect display = new Rect(layout.x*scale,layout.y*scale,Mathf.Max(1,layout.width)*scale,Mathf.Max(1,layout.height)*scale);
-        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Workbench/"+asset+".png");
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/"+asset+".png");
         if (texture != null) GUI.DrawTextureWithTexCoords(display,texture,uv);
     }
 }
