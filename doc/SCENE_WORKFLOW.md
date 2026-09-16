@@ -2,18 +2,20 @@
 
 ## 엔딩과 새 게임 (2026-09-13)
 
-정상 최종 정산 뒤에는 카메라가 포함된 `GoodEndingScene` 또는 `BadEndingScene`으로 전환한다. 종료 화면의 새 게임 버튼은 Hub 메뉴로 돌아간다. 메뉴의 새 게임을 선택하면 Build Settings의 `InitScene`을 일반 SceneManager로 로드하고, 부트·데이터 준비 성공 후 이전 세션을 초기화한 뒤 게임 씬으로 이동한다. Init을 Addressables에 중복 등록하지 않는다. 이어하기는 유효한 저장 데이터가 있을 때만 표시할 후속 사양이며 현재는 숨긴다. [시민권·엔딩 계약과 검증](CITIZENSHIP_ENDING.md)을 함께 확인한다.
+정상 최종 정산 뒤에는 카메라가 포함된 `GoodEndingScene` 또는 `BadEndingScene`으로 전환한다. 종료 화면의 새 게임 버튼은 Hub 메뉴로 돌아간다. 메뉴의 새 게임을 선택하면 이미 부트스트랩된 manager로 데이터·사운드 준비와 세션 초기화를 수행하고 LoadingScene을 거쳐 게임 씬으로 이동한다. Init을 Addressables에 중복 등록하지 않는다. 이어하기는 유효한 저장 데이터가 있을 때만 표시할 후속 사양이며 현재는 숨긴다. [시민권·엔딩 계약과 검증](CITIZENSHIP_ENDING.md)을 함께 확인한다.
 
 ## 실행 경로
 
 `InitScene (manager·데이터 부트스트랩) → LoadingScene → HubScene 메뉴`
 
-`Hub 새 게임 → LoadingScene → InitScene (새 세션) → LoadingScene → 게임 씬`
+`Hub 새 게임 → 기존 manager로 새 세션 준비 → LoadingScene → 게임 씬`
 
 Hub는 새 게임·끝내기 입력을 기다린다. 자동 게임 진입은 하지 않는다. 모든 전환은 `GameSceneManager`가 소유한다.
 Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있으면 선택한 개인 씬을 사용한다.
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
 MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인스턴스, Camera와 InputSystem EventSystem을 포함한다. 설비·명성 통합 경로와 사용법은 MAINSCENE_INTEGRATION.md를 따른다.
+
+Hub 배경은 `Assets/Textures/UI/Hub/hubscene.png`의 단일 2D Sprite를 직접 참조한다. PNG GUID는 유지하며 TextureImporter와 Scene의 Sprite fileID를 함께 관리한다.
 
 ### MainScene 4단계 선로드
 
@@ -22,7 +24,9 @@ MainScene 전환은 목적지 활성화 전에 LoadingScene에서 다음 네 단
 1. `Loading_00~01`: ResourceManager·DataTableManager 준비와 필수 테이블 확인
 2. `Loading_02~04`: 상품 기본/탑뷰와 손님 외형 Sprite 선로드
 3. `Loading_05~12`: 손님 Normal Texture와 감독관·딸 Sprite 선로드
-4. `Loading_13~18`: 가게 단계 Prefab·시계 Sprite 선로드와 StoreStageVisual 검증, MainScene 로드
+4. `Loading_13~18`: 가게 단계 Prefab·시계 Sprite·설비 단계별 외형 Prefab 선로드와 StoreStageVisual/설비 UI 구성 검증, MainScene 로드
+
+손님 `ImageResourceIdx`와 딸 `ResourceIdx`가 비어 있으면 해당 Sprite 선로드를 생략하고 기존 사각형 표시 경로를 사용한다. 지정된 잘못된 FK·주소는 오류로 처리하며 손님 Normal Texture는 필수다. 설비의 단계별 Resource FK 0은 표시 없음이며, 비영점 FK는 기존 ResourceManager 캐시로 로드한다.
 
 MainScene 선로드에서는 이미지를 0.2초 간격으로 재생하고 각 이미지 구간을 한 번 재생한 뒤 해당 구간의 마지막 이미지에서 작업 완료까지 멈춘다. MainScene 이외의 일반 전환은 단계 제어를 사용하지 않고 같은 0.2초 간격으로 `Loading_00~18` 전체 애니메이션을 재생하므로 InitScene 부트 후 HubScene으로 이동할 때도 전체 구간이 표시된다. 공유 자산의 소유권은 ResourceManager에 있고 LoadingScene은 직접 해제하지 않는다. MainScene의 GameUIController와 StoreStagePresentation은 직접 Scene 실행의 안전망을 위해 기존 로드 경로를 유지하며, 정상 전환에서는 준비된 캐시를 사용해 Scene 오브젝트 적용만 수행한다. 선로드 또는 검증 실패 시 MainScene을 활성화하지 않고 LoadingScene의 새 게임 재시도 UI를 표시한다.
 

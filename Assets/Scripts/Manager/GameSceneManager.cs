@@ -290,7 +290,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
             await LoadRequiredResourceAsync<Sprite>(product.TopViewImageResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
         }
         foreach (CustomerAppearanceData appearance in catalog.Appearances.Rows.Values)
-            await LoadRequiredResourceAsync<Sprite>(appearance.ImageResourceIdx, resources, loadedSpriteIds, cancellationToken);
+            if (appearance.ImageResourceIdx.HasValue)
+                await LoadRequiredResourceAsync<Sprite>(appearance.ImageResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
         await loading.WaitForCurrentPhaseCycleAsync();
 
         loading.SetLoadingPhase(2);
@@ -305,13 +306,15 @@ public class GameSceneManager : Singleton<GameSceneManager>
         foreach (InspectorEventData inspector in inspectors.Rows.Values)
             await LoadRequiredResourceAsync<Sprite>(inspector.PortraitResourceIdx, resources, loadedSpriteIds, cancellationToken);
         foreach (DaughterAppearanceData daughter in daughters.Rows.Values)
-            await LoadRequiredResourceAsync<Sprite>(daughter.ResourceIdx, resources, loadedSpriteIds, cancellationToken);
+            if (daughter.ResourceIdx.HasValue)
+                await LoadRequiredResourceAsync<Sprite>(daughter.ResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
         await loading.WaitForCurrentPhaseCycleAsync();
 
         loading.SetLoadingPhase(3);
         StoreStageDataTable stages = tables.GetDB<StoreStageDataTable>(DataTableType.StoreStage);
-        if (stages == null)
-            throw new InvalidOperationException("MainScene 가게 단계 데이터가 없습니다.");
+        FacilityDataTable facilities = tables.GetDB<FacilityDataTable>(DataTableType.Facility);
+        if (stages == null || facilities == null)
+            throw new InvalidOperationException("MainScene 가게 단계 또는 설비 데이터가 없습니다.");
 
         var loadedPrefabIds = new HashSet<uint>();
         var loadedClockIds = new HashSet<uint>();
@@ -333,6 +336,14 @@ public class GameSceneManager : Singleton<GameSceneManager>
                 visual.Validate((StoreStageVisual.Region)index);
             }
             await LoadRequiredResourceAsync<Sprite>(stage.ClockResourceIdx, resources, loadedClockIds, cancellationToken);
+            foreach (FacilityData facility in facilities.Rows.Values)
+            {
+                uint resourceIdx = facility.GetStageResourceIdx(stage.StoreStage);
+                if (resourceIdx == 0) continue;
+                GameObject prefab = await LoadRequiredResourceAsync<GameObject>(resourceIdx, resources, loadedPrefabIds, cancellationToken);
+                if (prefab.GetComponent<RectTransform>() == null || prefab.GetComponentsInChildren<UnityEngine.UI.Graphic>(true).Length == 0)
+                    throw new InvalidOperationException($"Facility {facility.Idx}: Resource {resourceIdx} is not a visual prefab");
+            }
         }
         await loading.WaitForCurrentPhaseCycleAsync();
     }

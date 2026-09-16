@@ -63,6 +63,56 @@ public sealed class GameSessionApiTests
         }
     }
 
+    /// <summary>Main 선로드가 빈 외형을 건너뛰고 설비12개를 캐시하며 지정된 잘못된 FK는 거부한다.</summary>
+    /// <returns>실제 Addressables 선로드와 로딩 단계 대기.</returns>
+    [UnityTest]
+    public IEnumerator InspectorMainPreloadSupportsOptionalPortraitsAndFacilityPrefabs()
+    {
+        Assert.That(GameSceneManager.Instance, Is.Null);
+        var manager = root.AddComponent<GameSceneManager>();
+        var loadingRoot = new GameObject("Preload test loading", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup));
+        loadingRoot.SetActive(false);
+        loadingRoot.transform.SetParent(root.transform, false);
+        var loading = loadingRoot.AddComponent<LoadingScene>();
+        var settings = new UnityEditor.SerializedObject(loading);
+        settings.FindProperty("canvasGroup").objectReferenceValue = loadingRoot.GetComponent<CanvasGroup>();
+        settings.ApplyModifiedPropertiesWithoutUndo();
+        loadingRoot.SetActive(true);
+        var inspectorPortraits = tables.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent).Rows.Values.Select(x => x.PortraitResourceIdx).ToArray();
+        var appearance = tables.Customers.Appearances.Rows.Values.First(x => x.ImageResourceIdx.HasValue && !inspectorPortraits.Contains(x.ImageResourceIdx.Value));
+        uint? originalImage = appearance.ImageResourceIdx;
+        var method = typeof(GameSceneManager).GetMethod("PrepareMainSceneAssetsAsync",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        try
+        {
+            appearance.ImageResourceIdx = null;
+            Assert.That(tables.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance).Rows.Values.All(x => !x.ResourceIdx.HasValue), Is.True);
+            var task = ((UniTask)method.Invoke(manager, new object[] { loading, System.Threading.CancellationToken.None })).AsTask();
+            float deadline = Time.realtimeSinceStartup + 60f;
+            while (!task.IsCompleted && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.That(task.IsCompleted, Is.True, "Main asset preload timed out.");
+            task.GetAwaiter().GetResult();
+            var resourceRows = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+            var facilityIds = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values
+                .SelectMany(f => new[] { f.GetStageResourceIdx(1), f.GetStageResourceIdx(2), f.GetStageResourceIdx(3) })
+                .Where(id => id != 0).Distinct().ToArray();
+            Assert.That(facilityIds.Length, Is.EqualTo(12));
+            foreach (uint id in facilityIds)
+                Assert.That(ResourceManager.Instance.GetResource<GameObject>(resourceRows.GetResourcePath(id)), Is.Not.Null, $"Facility Resource {id}");
+            Assert.That(ResourceManager.Instance.GetResource<Sprite>(resourceRows.GetResourcePath(originalImage.Value)), Is.Null,
+                "The missing customer portrait must be skipped, not replaced by an arbitrary resource.");
+            Assert.That(ResourceManager.Instance.GetResource<Texture2D>(resourceRows.GetResourcePath(appearance.NormalResourceIdx)), Is.Not.Null);
+
+            appearance.ImageResourceIdx = uint.MaxValue;
+            task = ((UniTask)method.Invoke(manager, new object[] { loading, System.Threading.CancellationToken.None })).AsTask();
+            deadline = Time.realtimeSinceStartup + 10f;
+            while (!task.IsCompleted && Time.realtimeSinceStartup < deadline) yield return null;
+            Assert.That(task.IsCompleted, Is.True);
+            Assert.Throws<InvalidOperationException>(() => task.GetAwaiter().GetResult());
+        }
+        finally { appearance.ImageResourceIdx = originalImage; }
+    }
+
     /// <summary>라디오 스케줄이 없으면 영업 시간이 지나도 가격 snapshot을 교체하지 않는다.</summary>
     [Test]
     public void NoRadioScheduleKeepsDailyPricesStable()

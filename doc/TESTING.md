@@ -1,5 +1,19 @@
 # 기능 API 검증
 
+## total_merge Hub·가게 리소스 통합 (2026-09-16)
+
+- 입력: `total_merge 0006cee8` → `hubimage 6e92a4cb` → `codex/store-resource-exchange cb005fbe`. 로컬 병합 커밋은 `d585393b`, `cf15bd2b`이며 후속 호환 보정을 포함해 검증했다. 원격 push는 수행하지 않았다.
+- 충돌 해결: 최신 total_merge 폰트 자산·참조를 보존하면서 CustomerWorld의 원근 배율·연령별 오프셋을 통합했다. 개인 IDE workspace 변경은 제외했다. 최신 딸 UI에 맞지 않는 구형 너비 0 override는 제거했다.
+- 호환 보정: 손님·딸의 nullable 외형 FK는 빈 값일 때만 선로드를 건너뛰며 잘못 지정한 FK는 실패한다. 설비 단계별 외형 12개를 기존 선로드·캐시에 포함했다. Hub PNG는 GUID를 보존한 단일 2D Sprite로 import하고 Scene의 실제 Sprite fileID를 연결했다. 계약은 [SCENE_WORKFLOW.md](SCENE_WORKFLOW.md)를 따른다.
+- Unity 6000.3.18f1 통합 컴파일 오류 0. 전체 EditMode **320/324**, 실패4·skip0: `Temp/hub-store-merge-edit.json`. 전체 통과 상태는 아니다.
+  - 청소기 2건: 테스트가 이전 `DystopiaPrototype/TopDownTest/Art/Vacuum.png`, `VacuumWind.mat` 경로를 요구한다. 현재 자산은 `Textures/art/Workbench/Vacuum.png`, `Materials/Checkout/VacuumWind.mat`에 있다. 이번 통합에서는 테스트 계약을 임의 변경하지 않았다.
+  - 가격 이벤트 1건: `ReproducibleSelectionAndInvalidReferences`의 0일차 가중치 overflow 기대가 실패했다. 해당 테스트·스케줄·제품 구현은 통합 기준과 동일하다.
+  - 감독관 1건: `ActualCsvHasSevenEventsAndMultilinePages`에서 Text8397의 비개행 폭571.640015가571 제한을 초과했다. Text CSV·패널·테스트·유지한 폰트는 통합 기준과 동일하며 기획 문구나 폰트를 변경하지 않았다.
+- 관련 PlayMode **6/6**, 실패·skip0: 실제 선로드 정상/빈 FK/잘못된 FK 1건(`Temp/hub-store-merge-preload.json`), 가게 단계 표시4건(`Temp/hub-store-merge-store.xml`), 대기열·연령 오프셋·대사 수명1건(`Temp/hub-store-merge-queue.xml`). 가게·대기열 실행 뒤 CLI 연결이 끊겨 반환한 오류와 달리, 해당 실행 시각의 Unity Test Runner XML은 각각4/4·1/1 완료다. 재실행하지 않았다. 앞선 복합 필터 시도는0건으로 검증 실적에서 제외했다.
+- 실제 Init→Hub의 새 게임 버튼→Loading→Main→감독관 다음 버튼→PreOpen→영업 버튼→Sorting을 확인했다. 준비 완료·덮개 유지 후 영업 시 해제, manager/world/queue 각1개, Main missing script0, 제품 Console error0. `Temp/hub-store-merge-smoke.txt`. 버튼 listener 기반 경로 검사이며 전체 마우스 UX·가독성·Player 빌드는 미검증이다.
+- 등록 manifest16개와 Resource/Facility FK·자산/meta GUID 일치, Assets 전체 중복 GUID0. MainScene/meta·기존 폰트3개·개인 씬2개/meta2개는 사전 hash와 동일하다. `Temp/hub-store-merge-static.json`. 기존 stash3개는 보존했다.
+- Play 종료 후 InitScene clean, 개인 씬 선택·runInBackground=false·시작 씬 override 없음으로 복원했다. 병합 전용 인계서는 최종 승인·정리 전까지 유지한다. 상태는 **PARTIAL**: 요청 기능 경로 검증은 통과했지만 전체 EditMode 실패4건과 최종 사용자 화면 확인이 남아 있다.
+
 ## 2026-09-16 가게 리소스·설비 외형 Prefab
 
 - `codex/store-resource-exchange` 구현: 관련 EditMode45/45(StoreStageData10·Facility35), 신규 PlayMode3/3. 실제 Editor Addressables Prefab21·Sprite3 로드, 단계/동일 단계 활성 갱신·상자 상태·종료 소유권을 확인했다.
