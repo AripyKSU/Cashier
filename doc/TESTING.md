@@ -1,5 +1,15 @@
 # 기능 API 검증
 
+## ART_UPDATE_20260916 최종 기능 검증 (2026-09-16)
+
+- 기준: `codex/store-resource-exchange 01f5707f`, Unity6000.3.18f1/PID9716. 사용자가 마지막 단계로 미룬 1~4단계 검증을 실행했다. 전체 EditMode **319/323**, 전체 PlayMode **64/67**; 각각 skip/미완료0. 관련 EditMode(Facility35·StoreStageData10·WorldScene12·먼지2) **59/59**, 새 착지/먼지 수명 PlayMode1건과 기존 단계 표시/실제 자산 로드4건 모두 통과.
+- EditMode 실패4건(이전 통합과 동일): `BusinessClockAndSortingTests.Vacuum_GameUiPrefab_HasAstraVisualAndNozzleBindings`, `VacuumAsset_UsesAstraImportContract`는 옛 자산 경로 기대; `PriceEventTests.ReproducibleSelectionAndInvalidReferences`는 OverflowException 미발생; `InspectorEventTests.ActualCsvHasSevenEventsAndMultilinePages`는 Text8397 폭571.640015>571.
+- PlayMode 실패3건(이전 통합과 동일): `GameSessionApiTests.DailyMaintenanceInsufficientBalanceDefersWholePayment`는 예상 경고 문자열 미출력; `InspectorMainClockFollowsDayProgressAndPreviewCannotAdvanceBusiness`는15 vs15.666667; `InspectorWorldEffectsPreserveSuspendedTimeAndFlashLifetime`는39.39991 vs49.4087296. 제품을 테스트 기대에 맞춰 임의 변경하지 않았다. 전체 검증 **FAIL**, 요청 범위 종합 인계 상태는 미완료를 포함한 **PARTIAL**이다.
+- 전체 실행 증거: `Temp/TestResults/20260916-190700-cabc07f3d4414cbea371040f984a24f2/EditMode.xml`·`.log`, `Temp/TestResults/art-update-step5-play-20260916-a/PlayMode.xml`·`.log`. 첫 Play 셸 시도는 `no Unity instances running`으로 시작 전 거부됐다. 기존 Editor 연결을 확인하고 CashierTestRun.Start로 실행했으며 중복 job은 만들지 않았다.
+- 이후 신규 `StoreStagePresentationTests.PrepareRejectsInvalidFacilityOrderWithoutPublishingPartialState`만 **1/1** 실행: 중복·누락·미등록 설비 순서를 실제 PrepareAsync에서 거부, 이전 준비/표시 유지, 입력 복원 후 정상 준비·적용 확인. `Temp/art-update-step5/facility-order-test.json`. 테스트 추가 후 전체 suite를 반복하지 않았으므로 위67건과 추가1건을 구분한다. 자산 배열 변경은 일시적인 메모리 입력이며 finally 복원·파일 해시 보존을 확인했다.
+- 실제 Init→Hub 새 게임→Main→감독관4페이지→영업→Sorting 진입 확인. Main의 표시 API1→2→3→1로 상자/시계 Sprite 교체, 도장 UpdateView로 LedgerStampNeutral 할당 확인. 기존 누락 Sprite2개의 런타임 교체 경로만 확인한 것이며 원본 참조 정리나 전체 수동 UX 통과가 아니다. `Temp/art-update-step5/{main-runtime,inspector-runtime,sorting-runtime}.json`.
+- 최종 제품 Console error0·컴파일 실패 없음. Main/Local씬/meta·기존 제품 자산 보존; InitScene clean·Play 종료·시작 씬 override 없음·runInBackground=false 복원. `Temp/art-update-step5/{product-console-errors,preservation,editor-after}.json`. 최종 가독성·조작감·화면비·Player build는 미검증. [범위·병합 보존 사항](work/store-resource-exchange.md#art_update_20260916-5단계-누적-검증인계-2026-09-16).
+
 ## total_merge DV3 착지 먼지 후속 통합 (2026-09-16)
 
 - 입력: `total_merge 9b074160` + `DV3 c7728927` (`상자 먼지 정상화`). 고정 접점 기본값 `(640, -578)`과 Inspector 오프셋을 채택하고, 기존 total_merge 폰트는 유지했다. MainScene·Prefab·CSV 변경은 없다.

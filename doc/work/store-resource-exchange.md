@@ -1,5 +1,17 @@
 # 가게 리소스 교체·적용 작업 범위
 
+## ART_UPDATE_20260916 5단계: 누적 검증·인계 (2026-09-16)
+
+- 검증 기준은 `codex/store-resource-exchange 01f5707f` (`Align stage visuals and dust timing`). 시작 시 작업 트리는 clean이고 1~4단계가 이 커밋에 포함되어 있었다. 이번 단계에서는 제품 코드·자산·CSV·Addressables·Scene을 변경하지 않고 설비 준비 실패 회귀 테스트1개와 검증 문서를 추가했다. commit/push/merge는 수행하지 않았다.
+- 전체 EditMode **319/323**, 실패4·skip/미완료0. 관련 Facility35·StoreStageData10·WorldScene12·먼지2는 **59/59**. 전체 PlayMode **64/67**, 실패3·skip/미완료0. 실제 Prefab21·시계 Sprite3 로드, 단계 왕복/활성/쏟기/파괴, 새 착지·먼지의 차단/재시작/취소/복원 및 계산기 수명 검증은 통과했다. 전체 suite는 통과 상태가 아니다.
+- 추가 PlayMode `StoreStagePresentationTests.PrepareRejectsInvalidFacilityOrderWithoutPublishingPartialState` **1/1**. 실제 CSV·ResourceManager·PrepareAsync를 통해 3단계 순서의 중복·누락·미등록 ID를 거부하고 이전 준비 결과/적용 단계/상자 이미지를 유지하는지 확인했다. 정상 입력 복원 후 재준비·3단계 적용도 통과했다. 오류 입력은 로드 객체의 배열을 메모리에서만 변경하고 finally로 원복하며 자산을 저장하지 않는다. 추가 테스트 후 전체 suite는 반복하지 않았다.
+- 실제 Init→Hub 새 게임→Loading→Main→감독관 다음 버튼4회→PreOpen→OpenBusiness→Sorting 경로를 확인했다. Main의 실제 StoreStagePresentation에서 **표시 API**로1→2→3→1단계 상자·시계를 확인하고 세션의 설비 활성 판정으로 복원했다. 구매 흐름을 이 단계 전환으로 대체 검증한 것은 아니다. 제품 Console error0·compileFailed=false.
+- 기존 정적 누락 참조2개는 남는다: GameUI의 FrontContainer 초기 Sprite와 nested SettlementPanel의 ReputationStamp 초기 Sprite. Main에서 단계 Apply 후 상자 Sprite가 유효하고 ReputationStampPresenter.UpdateView(1,0) 후 LedgerStampNeutral이 연결됨을 확인했다. 기본 자산 참조 자체를 정리한 것은 아니며 원본 GameUI 단독 사용 시 단계 연결이 없는 경우는 별도 주의가 필요하다.
+- 이전 통합 기록과 같은 전체 suite 실패7개가 재현됐다. Edit: 청소기 옛 경로 기대2·가격 이벤트 overflow 기대1·Text8397 너비571.640015>571 1. Play: 유지비 경고 문자열 기대1·게임 시계15 vs15.666667 1·배경 표현 시간 보존1. 이번 범위 밖 사양/테스트 차이로 남겨두며 통과를 위해 제품 규칙을 바꾸지 않았다. 정확한 이름과 증거는 [TESTING.md](../TESTING.md#art_update_20260916-최종-기능-검증-2026-09-16)에 기록한다.
+- 증거: `Temp/TestResults/20260916-190700-cabc07f3d4414cbea371040f984a24f2/EditMode.xml`·`.log`, `Temp/TestResults/art-update-step5-play-20260916-a/PlayMode.xml`·`.log`, `Temp/art-update-step5/facility-order-test.json`, `main-runtime.json`, `inspector-runtime.json`, `sorting-runtime.json`, `product-console-errors.json`, `preservation.json`, `editor-after.json`. 첫 Play 셸 실행은 connector가 Editor를 찾지 못해 시작 전에 거부됐고, 기존 PID9716을 재확인한 뒤 같은 CashierTestRun으로 실행했다. 0건 시도는 테스트 실적에 포함하지 않는다.
+- MainScene·Local씬/meta 및 기존 제품 변경을 보존했고, Play 종료 후 InitScene clean·시작 씬 override 없음·runInBackground=false로 복원했다. MainScene과 StoreResourceSandbox는 공유 자산 변경을 상속한다. 구형 SpriteWorldSandbox에는 단계 표시 연결이 없어 이 검증의 대체 씬으로 쓰지 않는다.
+- 최종 상태 **PARTIAL**: 요청한 1~4단계의 관련 API·리소스·실제 Main 경로는 검증됐지만 전체 suite 실패7건·기존 초기 Sprite 참조2건·최종 화면/마우스 UX·다른 화면비·Player build가 남아 있다. 전용 PixelStage 조명/접촉 그림자/480×270 렌더링은 승인 범위 밖으로 유지한다. 병합 시 PNG3개·Point import14개·Front3/설비12 배치·World4 배치·facilityDrawOrder 계약·착지/먼지 코드와 GameUI 직렬화2값을 함께 반영하고 원본 art·폰트·고객 큐 연령 오프셋·Scene 개별 변경은 덮어쓰지 않는다.
+
 ## ART_UPDATE_20260916 4단계: 상자 착지·먼지·전환 (2026-09-16)
 
 - 기존 `SaleSortingPanel.playContainerArrival`을 76px 높이의 0.3초 가속 낙하와 0.55초 감쇠 눌림·복원으로 변경했다. 총0.85초 및 기존 손님 도착 대기·자동 전환 시간은 유지한다. Rect의 피벗·배율·회전으로 하단 중앙을 계산해 눌림 중 접점을 고정하고 착지 시 SFX와 먼지를 한 번 시작한다.

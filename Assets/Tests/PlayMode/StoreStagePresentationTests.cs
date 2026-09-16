@@ -200,6 +200,47 @@ public sealed class StoreStagePresentationTests
         Assert.That(clocks.Count, Is.EqualTo(3));
     }
 
+    /// <summary>실제 준비 API가 잘못된 설비 순서를 거부하고 이전 준비·표시 상태를 보존한다.</summary>
+    /// <returns>CSV와 실제 자산 준비 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator PrepareRejectsInvalidFacilityOrderWithoutPublishingPartialState()
+    {
+        resources = new GameObject("StoreResourceFixture").AddComponent<ResourceManager>();
+        yield return wait(resources.InitAsync().AsTask());
+        var tables = root.AddComponent<DataTableManager>();
+        yield return wait(tables.EnsureDataLoadedAsync().AsTask());
+        yield return wait(presentation.PrepareAsync(default).AsTask());
+        presentation.Apply(1, _ => true);
+        var field = typeof(StoreStagePresentation).GetField("prepared", BindingFlags.NonPublic | BindingFlags.Instance);
+        object published = field.GetValue(presentation);
+        Sprite box = front.images[5].sprite;
+        Assert.That(box, Is.Not.Null);
+        var source = resources.GetResource<GameObject>("StoreStage3Front").GetComponent<StoreStageVisual>();
+        uint[] original = source.facilityDrawOrder;
+        try
+        {
+            // 공유 로드 결과는 메모리에서만 잠시 바꾸고 반드시 복원한다. 자산 저장/dirty 처리는 하지 않는다.
+            foreach (uint[] invalid in new[] { new uint[] { 12005, 12005 }, new uint[] { 12005 }, new uint[] { uint.MaxValue } })
+            {
+                source.facilityDrawOrder = invalid;
+                Task task = presentation.PrepareAsync(default).AsTask();
+                float deadline = Time.realtimeSinceStartup + 30;
+                while (!task.IsCompleted && Time.realtimeSinceStartup < deadline) yield return null;
+                Assert.That(task.IsCompleted, Is.True, "Stage preparation timeout");
+                Assert.That(Assert.Throws<InvalidOperationException>(() => task.GetAwaiter().GetResult()).Message,
+                    Does.Contain("facility draw order"));
+                Assert.That(field.GetValue(presentation), Is.SameAs(published));
+                Assert.That(presentation.AppliedStage, Is.EqualTo(1));
+                Assert.That(front.images[5].sprite, Is.SameAs(box));
+            }
+        }
+        finally { source.facilityDrawOrder = original; }
+        yield return wait(presentation.PrepareAsync(default).AsTask());
+        Assert.That(field.GetValue(presentation), Is.Not.SameAs(published));
+        presentation.Apply(3, _ => true);
+        Assert.That(presentation.AppliedStage, Is.EqualTo(3));
+    }
+
     /// <summary>테스트 준비 상태만 주입하고 제품 API를 통해 동작을 검사한다.</summary>
     /// <param name="target">테스트 대상.</param><param name="name">필드 이름.</param><param name="value">준비 값.</param>
     private static void setField(object target, string name, object value) =>
