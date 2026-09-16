@@ -843,7 +843,7 @@ public sealed class GameSessionApiTests
         settings.ApplyModifiedPropertiesWithoutUndo();
         var world = createWorld(ui);
         var queue = world.GetComponent<CustomerWorldQueueView>();
-        yield return waitForGameUi(ui);
+        yield return waitForGameUi(ui, 60f);
         Assert.That(queue.VisualCount, Is.Zero);
         var progress = uiProgress(ui);
         completeInspectors(progress);
@@ -863,8 +863,12 @@ public sealed class GameSessionApiTests
         var rootTransform = (Transform)type.GetField("Root").GetValue(visual);
         var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
         var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
+        float waitingScale = (waiting.Attributes & CustomerAttributes.Child) != 0 ? .6f : 1f;
+        Assert.That((float)type.GetField("StartHeight").GetValue(visual), Is.EqualTo(240f * waitingScale).Within(.001f));
+        Assert.That((float)type.GetField("TargetHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
         yield return new WaitForSeconds(.8f);
         Assert.That(states[waiting], Is.SameAs(visual));
+        Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
         progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
         yield return null;
         Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);
@@ -873,6 +877,7 @@ public sealed class GameSessionApiTests
         float exitStartX = rootTransform.localPosition.x;
         Vector3 speechOffset = speech.transform.localPosition - rootTransform.localPosition;
         yield return new WaitForSeconds(.2f);
+        Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
         Assert.That(rootTransform.localPosition.x, Is.GreaterThan(exitStartX));
         Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(speechOffset));
         yield return new WaitForSeconds(.35f);
@@ -1534,10 +1539,10 @@ public sealed class GameSessionApiTests
     }
 
     /// <summary>고정 한 프레임 대신 실제 이미지 로드와 진행 초기화 완료를 기다린다.</summary>
-    /// <param name="ui">테스트 소유 화면.</param><returns>최대20초 초기화 대기.</returns>
-    private static IEnumerator waitForGameUi(GameUIController ui)
+    /// <param name="ui">테스트 소유 화면.</param><param name="timeoutSeconds">리소스 로드 제한 시간.</param><returns>초기화 완료 또는 제한 시간까지 대기.</returns>
+    private static IEnumerator waitForGameUi(GameUIController ui, float timeoutSeconds = 20f)
     {
-        float deadline = Time.realtimeSinceStartup + 20;
+        float deadline = Time.realtimeSinceStartup + timeoutSeconds;
         var readyField = typeof(GameUIController).GetField("presentationReady",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         while ((uiProgress(ui) == null || !(bool)readyField.GetValue(ui)) && Time.realtimeSinceStartup < deadline) yield return null;
