@@ -59,7 +59,7 @@ public sealed class DaughterAppearanceDataTable : IDataLoad
     {
         if (PendingRows == null || resources == null) throw new InvalidDataException("DaughterAppearance/Resource CSV 필요");
         foreach (DaughterAppearanceData row in PendingRows.Values)
-            if (!resources.TryGetResource(row.ResourceIdx, out _))
+            if (row.ResourceIdx.HasValue && !resources.TryGetResource(row.ResourceIdx.Value, out _))
                 throw new InvalidDataException($"DaughterAppearance PK={row.Idx}: Resource FK={row.ResourceIdx} 실패");
     }
 

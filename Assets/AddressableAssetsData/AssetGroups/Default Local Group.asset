@@ -20,6 +20,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 04f1309301b5064499ae25dedee84e26
+    m_Address: Stage2ToolBenchVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 08f0c731a7dae194bbcd7d944e8f879b
     m_Address: InspectorEventData
     m_ReadOnly: 0
@@ -41,6 +46,16 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1c1b82b215d452348a117a683839f5eb
+    m_Address: Stage2PowerCommunicationsVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2039bfd2cde9e6f419a316c48c2e0e8d
+    m_Address: Stage2MedicineCabinetVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 22f7b683ef8aa214baf60729c1fe44cc
     m_Address: StoreStage3Front
     m_ReadOnly: 0
@@ -58,6 +73,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2a0808ef24574614bbbb1fa96229b553
     m_Address: TransactionFail
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2ab2087055f53fa4f8dd3eea7283e27f
+    m_Address: Stage2RustedClock
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -82,11 +102,21 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2deca32039e9e1040ad4e1cc3d1412e4
+    m_Address: Stage2FoodShelfVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 35e159c73b078f6488db168c27ece572
     m_Address: EndingPageData
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3968060febf784542adb1ec326f7c901
+    m_Address: Stage3ToolBenchVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3ef29384ab73e7345830c6f4c6a558a0
     m_Address: MedicalBandage
@@ -124,6 +154,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 49813e555b5ca524eb7ee69f0f3b051e
+    m_Address: StoreStage3TopView
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4af57aef445c7f84287a898feaadd6ee
     m_Address: StoreStage2World
@@ -201,6 +236,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6faf682dc42b41f4e8d93c2a345dc83d
+    m_Address: Stage3GunmetalClock
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7d1a9c18bf088a4488c3515f0b019dea
     m_Address: ProductData
     m_ReadOnly: 0
@@ -261,6 +301,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97b99af5521d0464982dba51af90fcb3
+    m_Address: Stage1FoodShelfVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 98660c3250ae62e4cb950ac185400271
     m_Address: SupervisorBgm
     m_ReadOnly: 0
@@ -283,6 +328,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a01a09e0862e406448dec3d8749b8e31
     m_Address: DrinkingWater
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a7f601a12c49f3b45bfe4fd14e6ceda8
+    m_Address: Stage3MedicineCabinetVisual
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -334,8 +384,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c6997e23efad7d34285243aa5f548a79
+    m_Address: Stage3NuclearProtectionVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c80a010a2128a554682496f5fa7dc4e1
     m_Address: CalculatorOpen
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ca654b157b69eb446a16a79a0cf44985
+    m_Address: Stage3PowerCommunicationsVisual
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -351,6 +411,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d4f6cd107f006ec48bc9ef6b566462bc
     m_Address: StoreStage2Front
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d557451ab764d2848a9aa702067d1b7f
+    m_Address: Stage1MedicineCabinetVisual
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -377,6 +442,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e0fe256b222410646ba0eae5306f07db
     m_Address: Stage3Clock
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e127d6c146ae35041bfe00f2e205a88d
+    m_Address: Stage3PrecisionElectronicsVisual
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -418,8 +488,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ed134ec430a0b06459b03ba84b33ec3a
+    m_Address: Stage3FoodShelfVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ef481d13a0d6b9e4c8ecc941d649e5c2
     m_Address: GameplayAmbience
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f2d765680e48fb54285e1b5a7da6e5e1
+    m_Address: StoreStage2TopView
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

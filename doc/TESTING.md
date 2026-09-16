@@ -1,5 +1,12 @@
 # 기능 API 검증
 
+## 2026-09-16 가게 리소스·설비 외형 Prefab
+
+- `codex/store-resource-exchange` 구현: 관련 EditMode45/45(StoreStageData10·Facility35), 신규 PlayMode3/3. 실제 Editor Addressables Prefab21·Sprite3 로드, 단계/동일 단계 활성 갱신·상자 상태·종료 소유권을 확인했다.
+- 전체 EditMode293/297, 실패4·skip0. 청소기 자산 경로2·가격 이벤트 overflow 기대1·배경 참조1은 이번 범위 밖이며 전체 통과로 간주하지 않는다. 전체 PlayMode·Player 빌드·사용자 UI/UX는 미검증이다.
+- 증거: `Temp/TestResults/store-resource-edit-20260916-b/EditMode.xml`, `.log`, `Temp/store-play-tests-a.json`. 처음 Edit283/297에서 실패했던 설비 테스트10건은 옛 가격/행 문자열 의존을 보완했다.
+- 자산16개 등록 및 단계 Front/TopView6개 검사 통과. MainScene 직접 변경 없음. 기존 손님/딸 이미지 주소 누락은 전체 새 게임 진입의 별도 선행 작업이다. [계약·전체 검증 기록](work/store-resource-exchange.md#7-검증과-병합-전-확인).
+
 > 2026-09-13 현재 진입 경로: Init 부트 후 Hub 메뉴에서 새 게임을 선택해야 게임 씬으로 이동한다. 엔딩·실패 화면의 새 게임 버튼은 Hub 복귀이며 즉시 재시작하지 않는다. [현재 메뉴·이어하기 사양](CITIZENSHIP_ENDING.md#hub-메뉴와-카메라-2026-09-13)을 따른다. 아래 날짜별 검증의 자동 Hub→Main 경로는 당시 기록이다.
 
 ## total_merge 딸 대화 통합 (2026-09-11)

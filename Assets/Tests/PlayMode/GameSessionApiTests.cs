@@ -44,16 +44,16 @@ public sealed class GameSessionApiTests
         LogAssert.NoUnexpectedReceived();
     }
 
-    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 61개를 실제 ResourceManager로 로드한다.</summary>
+    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 76개를 실제 ResourceManager로 로드한다.</summary>
     /// <returns>Addressables 로드 완료 대기.</returns>
     [UnityTest]
     public IEnumerator ActualProductAndCustomerSpritesLoad()
     {
         var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
-        var ids = tables.Customers.Appearances.Rows.Values.Select(x => x.ImageResourceIdx)
+        var ids = tables.Customers.Appearances.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value)
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
-        Assert.That(ids.Length, Is.EqualTo(61));
+        Assert.That(ids.Length, Is.EqualTo(76));
         foreach (var id in ids)
         {
             var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(id)).AsTask();
@@ -371,7 +371,8 @@ public sealed class GameSessionApiTests
         DaughterDialogueResult first = firstDay.DaughterDialogueResult.Value;
         Assert.That(first.Day, Is.EqualTo(1));
         Assert.That(first.Morality, Is.EqualTo(moralityAtSettlement));
-        Assert.That(first.ResourceIdx, Is.EqualTo(4201));
+        Assert.That(first.ResourceIdx, Is.EqualTo(tables.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance)
+            .Rows.Values.Single(row => row.StartDay == 1).ResourceIdx));
         Assert.That(session.DailyMoralityDelta, Is.Zero);
         DaughterDialogueResult redisplayed = firstDay.DaughterDialogueResult.Value;
         Assert.That(redisplayed.TextIdx, Is.EqualTo(first.TextIdx));
@@ -842,7 +843,7 @@ public sealed class GameSessionApiTests
         settings.ApplyModifiedPropertiesWithoutUndo();
         var world = createWorld(ui);
         var queue = world.GetComponent<CustomerWorldQueueView>();
-        yield return waitForGameUi(ui);
+        yield return waitForGameUi(ui, 60f);
         Assert.That(queue.VisualCount, Is.Zero);
         var progress = uiProgress(ui);
         completeInspectors(progress);
@@ -862,8 +863,40 @@ public sealed class GameSessionApiTests
         var rootTransform = (Transform)type.GetField("Root").GetValue(visual);
         var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
         var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
+        float waitingScale = (waiting.Attributes & CustomerAttributes.Child) != 0 ? .6f : 1f;
+        Assert.That((float)type.GetField("StartHeight").GetValue(visual), Is.EqualTo(240f * waitingScale).Within(.001f));
+        Assert.That((float)type.GetField("TargetHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
         yield return new WaitForSeconds(.8f);
         Assert.That(states[waiting], Is.SameAs(visual));
+        Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
+        float baselineY = rootTransform.localPosition.y;
+        float baselineHeight = (float)type.GetField("DisplayHeight").GetValue(visual);
+        float baselineRise = (float)type.GetField("RisePixels").GetValue(visual);
+        Vector3 baselineSpeechOffset = speech.transform.localPosition - rootTransform.localPosition;
+        CustomerAttributes originalAttributes = (CustomerAttributes)type.GetField("Attributes").GetValue(visual);
+        var queueSettings = new UnityEditor.SerializedObject(queue);
+        var ageOffsets = new[]
+        {
+            ("adultDownOffsetPixels", CustomerAttributes.Adult, 11f),
+            ("elderlyDownOffsetPixels", CustomerAttributes.Elderly, 23f),
+            ("childDownOffsetPixels", CustomerAttributes.Child, 7f)
+        };
+        foreach (var entry in ageOffsets)
+        {
+            queueSettings.FindProperty(entry.Item1).floatValue = entry.Item3;
+            queueSettings.ApplyModifiedPropertiesWithoutUndo();
+            type.GetField("Attributes").SetValue(visual, entry.Item2);
+            yield return null;
+            Assert.That(rootTransform.localPosition.y, Is.EqualTo(baselineY - entry.Item3).Within(.001f));
+            Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(baselineHeight).Within(.001f));
+            Assert.That((float)type.GetField("RisePixels").GetValue(visual), Is.EqualTo(baselineRise).Within(.001f));
+            Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(baselineSpeechOffset));
+            queueSettings.FindProperty(entry.Item1).floatValue = 0;
+        }
+        queueSettings.ApplyModifiedPropertiesWithoutUndo();
+        type.GetField("Attributes").SetValue(visual, originalAttributes);
+        yield return null;
+        Assert.That(rootTransform.localPosition.y, Is.EqualTo(baselineY).Within(.001f));
         progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
         yield return null;
         Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);
@@ -872,6 +905,7 @@ public sealed class GameSessionApiTests
         float exitStartX = rootTransform.localPosition.x;
         Vector3 speechOffset = speech.transform.localPosition - rootTransform.localPosition;
         yield return new WaitForSeconds(.2f);
+        Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
         Assert.That(rootTransform.localPosition.x, Is.GreaterThan(exitStartX));
         Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(speechOffset));
         yield return new WaitForSeconds(.35f);
@@ -1533,10 +1567,10 @@ public sealed class GameSessionApiTests
     }
 
     /// <summary>고정 한 프레임 대신 실제 이미지 로드와 진행 초기화 완료를 기다린다.</summary>
-    /// <param name="ui">테스트 소유 화면.</param><returns>최대20초 초기화 대기.</returns>
-    private static IEnumerator waitForGameUi(GameUIController ui)
+    /// <param name="ui">테스트 소유 화면.</param><param name="timeoutSeconds">리소스 로드 제한 시간.</param><returns>초기화 완료 또는 제한 시간까지 대기.</returns>
+    private static IEnumerator waitForGameUi(GameUIController ui, float timeoutSeconds = 20f)
     {
-        float deadline = Time.realtimeSinceStartup + 20;
+        float deadline = Time.realtimeSinceStartup + timeoutSeconds;
         var readyField = typeof(GameUIController).GetField("presentationReady",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         while ((uiProgress(ui) == null || !(bool)readyField.GetValue(ui)) && Time.realtimeSinceStartup < deadline) yield return null;

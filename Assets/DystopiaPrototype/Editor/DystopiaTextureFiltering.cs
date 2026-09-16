@@ -9,10 +9,22 @@ public static class DystopiaTextureFiltering
     /// <summary>픽셀 스테이지가 거의 1:1로 그리는 정면 아트 폴더입니다. 탑다운 저해상도 아트는 제외합니다.</summary>
     private static readonly string[] ExistingFrontArtFolders =
     {
-        "Assets/Textures/Checkout/Background",
-        "Assets/Textures/Checkout/Characters",
-        "Assets/Textures/Checkout/Shop",
-        "Assets/Textures/Checkout/Effects"
+        "Assets/Textures/art/Facility/CounterTop",
+        "Assets/Textures/art/Facility/Crate",
+        "Assets/Textures/art/Facility/Props",
+        "Assets/Textures/art/Customer/Male",
+        "Assets/Textures/art/Customer/Female",
+        "Assets/Textures/art/Customer/NormalMap",
+        "Assets/Textures/art/Facility/Frame",
+        "Assets/Textures/art/Facility/Clock",
+        "Assets/Textures/art/Customer/Legacy",
+        "Assets/Textures/art/Background",
+        "Assets/Textures/art/Characters/Crowd",
+        "Assets/Textures/art/Characters/Guard",
+        "Assets/Textures/art/Characters/Inspector",
+        "Assets/Textures/art/Effects/TimeOfDay",
+        "Assets/Textures/art/Effects/Fog",
+        "Assets/Textures/art/Effects/Smoke"
     };
 
     /// <summary>원화를 부드럽게 확대합니다. 렌더 해상도를 화면 크기에 맞췄을 때 계단과 가장자리 떨림이 사라집니다.</summary>

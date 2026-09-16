@@ -99,7 +99,7 @@ public sealed class FacilityTests
     public void CitizenshipRequiresEveryStageThreeCatalogUpgrade(uint omittedFacilityIdx)
     {
         var (_, table) = loadShopData();
-        var richFinance = new FinanceService(2_000_000);
+        var richFinance = new FinanceService(table.Rows.Values.Sum(row => row.PurchasePrice));
         var catalogService = new FacilityService(richFinance, table.Rows, () => 0);
         for (uint stage = 1; stage <= 3; stage++)
         {
@@ -340,7 +340,7 @@ public sealed class FacilityTests
     {
         var (factory, table) = loadShopData();
         var owned = new Dictionary<uint, uint>();
-        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, 18000);
+        var before = factory.CreateFacilityShopViewData(table.Rows, owned, 1, 0, table.Rows[12001].PurchasePrice);
         Assert.That(before.RegularItems.Count, Is.EqualTo(3));
         Assert.That(before.ProgressionItem.Value.FacilityIdx, Is.EqualTo(12008));
         Assert.That(before.Items.Count, Is.EqualTo(4));
@@ -431,19 +431,29 @@ public sealed class FacilityTests
     public void CsvRejectsInvalidUpgradeStructure(string kind)
     {
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
+        // 수치 밸런싱과 추가 컬럼에 관계없이 의도한 필드만 손상시킨다.
+        var lines = csv.TrimEnd('\r', '\n').Split('\n').Select(line => line.TrimEnd('\r').Split(',')).ToList();
+        string[] header = lines[0];
+        Action<uint, string, string> change = (id, column, value) =>
+            lines.Single(row => row[0] == id.ToString())[Array.IndexOf(header, column)] = value;
         switch (kind)
         {
-            case "upgrade enum": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,99,1,0,0"); break;
-            case "effect enum": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,99,0"); break;
-            case "product target": csv = csv.Replace("12001,8056,18000,1,1,0,0", "12001,8056,18000,1,1,0,2"); break;
-            case "convenience target": csv = csv.Replace("12007,8077,800,2,1,1,0", "12007,8077,800,2,1,1,2"); break;
-            case "stage effect": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,1,1,2"); break;
-            case "stage requirement": csv = csv.Replace("12008,8078,23000,3,1,0,2", "12008,8078,23000,3,2,0,2"); break;
-            case "duplicate effect": csv += "12012,8077,800,2,1,1,0\n"; break;
-            case "duplicate target": csv += "12012,8078,1500,3,1,0,2\n"; break;
-            case "missing effect": csv = csv.Replace("12011,8081,1500,2,3,3,0\r\n", string.Empty).Replace("12011,8081,1500,2,3,3,0\n", string.Empty); break;
+            case "upgrade enum": change(12001, "upgrade_kind", "99"); break;
+            case "effect enum": change(12007, "effect_type", "99"); break;
+            case "product target": change(12001, "target_store_stage", "2"); break;
+            case "convenience target": change(12007, "target_store_stage", "2"); break;
+            case "stage effect": change(12008, "effect_type", "1"); break;
+            case "stage requirement": change(12008, "required_store_stage", "2"); break;
+            case "duplicate effect":
+            case "duplicate target":
+                var duplicate = (string[])lines.Single(row => row[0] == (kind == "duplicate effect" ? "12007" : "12008")).Clone();
+                duplicate[0] = "12991";
+                lines.Add(duplicate);
+                break;
+            case "missing effect": lines.RemoveAll(row => row[0] == "12011"); break;
             default: throw new ArgumentOutOfRangeException(nameof(kind));
         }
+        csv = string.Join("\n", lines.Select(row => string.Join(",", row))) + "\n";
 
         var table = new FacilityDataTable();
         LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("FacilityData"));
@@ -475,7 +485,7 @@ public sealed class FacilityTests
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         string product = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
         if (kind == "id") csv = csv.Replace("12001,", "11001,");
-        if (kind == "duplicate") csv += "12001,8056,18000,1,1,0,0\n";
+        if (kind == "duplicate") csv += "12001,8056,18000,1,1,0,0,0,0,0\n";
         if (kind == "price") csv = csv.Replace("8056,18000", "8056,0");
         if (kind == "name") csv = csv.Replace("8056,", "8999,");
         if (kind == "product") product = product.Replace(",12001", ",12999");

@@ -55,6 +55,7 @@
 | [MORALITY_INTEGRATION.md](MORALITY_INTEGRATION.md) | 거래 도덕성·정산 | 도덕성 거래 연동 |
 | [PRICE_EVENT_INTEGRATION.md](PRICE_EVENT_INTEGRATION.md) | 신문·라디오·현재가 이벤트 | 가격 변동 이벤트 계약 |
 | [FACILITY_INTEGRATION.md](FACILITY_INTEGRATION.md) | 설비 구매·해금·가게 단계 | 설비·상품 해금 인계 |
+| [work/store-resource-exchange.md](work/store-resource-exchange.md) | 최신 가게 아트·단계별 설비 외형 Prefab | CSV FK·주소·화면 배치·검증 및 통합 주의점 |
 | [FINANCE_SCENE_WORKFLOW.md](FINANCE_SCENE_WORKFLOW.md) | 경제 런타임·FinanceScene | 경제 구성과 작업 흐름 |
 | [RESOURCE_POOL_CONTRACT.md](RESOURCE_POOL_CONTRACT.md) | 리소스 비동기 로드·풀 수명 | ResourceManager·Pool 계약 |
 | [SALE_ITEM_LAYOUT_RULES.md](SALE_ITEM_LAYOUT_RULES.md) | 판매 상품 위치·레이아웃 | 판매 상품 배치 규칙 |

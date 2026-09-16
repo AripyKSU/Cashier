@@ -7,6 +7,81 @@ using UnityEngine.UI;
 /// <summary>실제 prefab 경계와 화면비·단일 색상 합성을 검증한다. UX 판정은 하지 않는다.</summary>
 public sealed class WorldSceneTests
 {
+    /// <summary>연령별 하향값은 기본 0이며 원근과 무관한 고정 authoring 픽셀로 선택된다.</summary>
+    [Test]
+    public void QueueAgeOffsetsDefaultToZeroAndSelectVisitAge()
+    {
+        var root = new GameObject("Age offset test");
+        try
+        {
+            var view = root.AddComponent<CustomerWorldQueueView>();
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var method = typeof(CustomerWorldQueueView).GetMethod("getDownOffset", flags);
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Adult }), Is.Zero);
+            typeof(CustomerWorldQueueView).GetField("adultDownOffsetPixels", flags).SetValue(view, 11f);
+            typeof(CustomerWorldQueueView).GetField("elderlyDownOffsetPixels", flags).SetValue(view, 22f);
+            typeof(CustomerWorldQueueView).GetField("childDownOffsetPixels", flags).SetValue(view, 33f);
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Adult }), Is.EqualTo(11f));
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Elderly }), Is.EqualTo(22f));
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Child }), Is.EqualTo(33f));
+        }
+        finally { UnityEngine.Object.DestroyImmediate(root); }
+    }
+
+    /// <summary>실제 월드 큐의 목표 갱신에서 고정 슬롯 비율·기준 높이 변경·Child·재진입·퇴장 크기를 검사한다.</summary>
+    /// <param name="baseHeight">계산대 기준 높이.</param><param name="child">Child 여부.</param>
+    [TestCase(550f, false)]
+    [TestCase(550f, true)]
+    [TestCase(1100f, false)]
+    [TestCase(1100f, true)]
+    public void QueuePerspectiveUsesFixedSlotsAndFreezesExit(float baseHeight, bool child)
+    {
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/World/CustomerWorld.prefab");
+        var root = UnityEngine.Object.Instantiate(prefab);
+        var portrait = new GameObject("Perspective test portrait");
+        try
+        {
+            root.SetActive(false);
+            var queue = root.GetComponent<CustomerWorldQueueView>();
+            var settings = new SerializedObject(queue);
+            Assert.That(settings.FindProperty("heightPixels").floatValue, Is.EqualTo(550f));
+            settings.FindProperty("heightPixels").floatValue = baseHeight;
+            settings.ApplyModifiedPropertiesWithoutUndo();
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var type = typeof(CustomerWorldQueueView).GetNestedType("Visual", System.Reflection.BindingFlags.NonPublic);
+            var visual = System.Activator.CreateInstance(type, true);
+            var retarget = typeof(CustomerWorldQueueView).GetMethod("retarget", flags);
+            var scale = typeof(CustomerWorldQueueView).GetMethod("getPerspectiveScale", flags);
+            type.GetField("Root").SetValue(visual, portrait.transform);
+            type.GetField("Attributes").SetValue(visual, CustomerAttributes.Male | (child ? CustomerAttributes.Child : CustomerAttributes.Adult));
+            float childScale = child ? .6f : 1f;
+            float[] expectedHeights = { 508, 466, 424, 382, 340, 320, 300, 280, 260, 240 };
+            for (int i = 0; i < expectedHeights.Length; i++)
+            {
+                var slot = settings.FindProperty("slots").GetArrayElementAtIndex(i).objectReferenceValue;
+                retarget.Invoke(queue, new object[] { visual, slot });
+                Assert.That((float)type.GetField("TargetHeight").GetValue(visual),
+                    Is.EqualTo(expectedHeights[i] * baseHeight / 550f * childScale).Within(.001f), $"Slot{i + 1}");
+            }
+            Assert.That((float)scale.Invoke(queue, new object[] { settings.FindProperty("entrance").objectReferenceValue }),
+                Is.EqualTo(240f / 550f).Within(.0001f));
+            type.GetField("DisplayHeight").SetValue(visual, 200f);
+            type.GetField("RisePixels").SetValue(visual, -7f);
+            var counter = settings.FindProperty("counter").objectReferenceValue;
+            retarget.Invoke(queue, new object[] { visual, counter });
+            Assert.That(type.GetField("StartHeight").GetValue(visual), Is.EqualTo(200f));
+            Assert.That((float)type.GetField("TargetHeight").GetValue(visual), Is.EqualTo(baseHeight * childScale).Within(.001f));
+            type.GetField("Elapsed").SetValue(visual, .3f);
+            retarget.Invoke(queue, new object[] { visual, counter });
+            Assert.That(type.GetField("Elapsed").GetValue(visual), Is.EqualTo(.3f), "Same target must not restart the transition.");
+            type.GetField("Leaving").SetValue(visual, true);
+            retarget.Invoke(queue, new object[] { visual, settings.FindProperty("rightExit").objectReferenceValue });
+            Assert.That(type.GetField("TargetHeight").GetValue(visual), Is.EqualTo(200f));
+            Assert.That(type.GetField("TargetRise").GetValue(visual), Is.EqualTo(-7f));
+        }
+        finally { UnityEngine.Object.DestroyImmediate(portrait); UnityEngine.Object.DestroyImmediate(root); }
+    }
+
     /// <summary>기존 Main의 직렬화 Image 계약과 새 월드 Transform 계약은 별도 타입으로 공존한다.</summary>
     [Test]
     public void LegacyAndWorldQueueKeepSeparateSerializedContracts()
@@ -119,8 +194,9 @@ public sealed class WorldSceneTests
             Assert.That(renderer.sprite.vertices.Length, Is.EqualTo(4));
             Assert.That(renderer.sprite.rect.size, Is.EqualTo(new Vector2(renderer.sprite.texture.width, renderer.sprite.texture.height)));
         }
-        var uiFog = AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/FogBack.mat");
+        var uiFog = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Dystopia/FogBack.mat");
+        Assert.That(uiFog, Is.Not.Null);
         Assert.That(uiFog.GetFloat("_UseUI"), Is.EqualTo(1));
-        Assert.That(uiFog.GetFloat("_UsePresentationTime"), Is.Zero);
+        Assert.That(uiFog.HasProperty("_UsePresentationTime"), Is.False, "Imported UI fog keeps its original shader; only world fog owns presentation time.");
     }
 }

@@ -11,8 +11,10 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     [SerializeField] private WorldSceneView world;
     /// <summary>좌상단 기준 픽셀 authoring 공간의 방문 루트와 입장·계산대·퇴장 anchors. leftExit는 기존 prefab 직렬화 호환용이다.</summary>
     [SerializeField] private Transform visualRoot, counter, entrance, leftExit, rightExit;
-    /// <summary>FIFO 순서 10개 위치. 원근 크기 변화는 적용하지 않는다.</summary>
+    /// <summary>FIFO 순서 10개 위치. 인원수와 무관하게 슬롯별 원근 배율을 적용한다.</summary>
     [SerializeField] private Transform[] slots;
+    /// <summary>계산대 높이 대비 Slot05·Slot10 배율. Stage2Reference의 550:340:240 기준.</summary>
+    [SerializeField] private float middleSlotScale = 340f / 550f, rearSlotScale = 240f / 550f;
     [SerializeField] private TMP_FontAsset font;
     /// <summary>노멀맵과 손님 표면 조명을 받는 body 전용 material.</summary>
     [SerializeField] private Material bodyMaterial;
@@ -20,14 +22,24 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     [SerializeField] private Material reactionMaterial;
     /// <summary>거래 결과 순서: Satisfied, Delighted, Reluctant, Refused.</summary>
     [SerializeField] private Sprite[] tradeReactionSprites;
-    /// <summary>전면 로컬 픽셀 기준 높이·하단 가림 보정과 이동 초. 원근 배율은 없다.</summary>
-    [SerializeField] private float heightPixels = 430, bottomCoverPixels = 12, moveSeconds = .65f;
+    /// <summary>계산대 성인 기준 높이·하단 가림 보정(전면 로컬 픽셀)과 이동 초.</summary>
+    [SerializeField] private float heightPixels = 550, bottomCoverPixels = 12, moveSeconds = .65f;
     /// <summary>Child 외형의 성인 기준 표시 배율.</summary>
     [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitScale, CustomerPortraitLayout.MaxChildPortraitScale)]
     private float childPortraitScale = CustomerPortraitLayout.DefaultChildPortraitScale;
     /// <summary>Child를 성인 기준 높이에서 위로 올리는 비율.</summary>
     [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitRise, CustomerPortraitLayout.MaxChildPortraitRise)]
     private float childPortraitRise = CustomerPortraitLayout.DefaultChildPortraitRise;
+    /// <summary>성인에게 추가할 하향량. 전면 로컬 픽셀 단위이며 0이면 기존 위치를 유지한다.</summary>
+    [Header("연령별 추가 하향 오프셋 (0 = 현재 위치)")]
+    [SerializeField, Min(0), Tooltip("성인 표시를 아래로 내릴 고정 픽셀 값")]
+    private float adultDownOffsetPixels;
+    /// <summary>노인에게 추가할 하향량. 크기·원근 배율과 독립된 전면 로컬 픽셀이다.</summary>
+    [SerializeField, Min(0), Tooltip("노인 표시를 아래로 내릴 고정 픽셀 값")]
+    private float elderlyDownOffsetPixels;
+    /// <summary>아이에게 기존 크기·상승·하단 보정에 더해 적용할 하향량. 0이면 현재 아이 위치를 유지한다.</summary>
+    [SerializeField, Min(0), Tooltip("아이 표시를 아래로 내릴 고정 픽셀 값")]
+    private float childDownOffsetPixels;
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
     private readonly HashSet<CustomerVisit> seen = new HashSet<CustomerVisit>();
     private readonly List<CustomerVisit> remove = new List<CustomerVisit>();
@@ -43,8 +55,11 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             font == null || bodyMaterial == null || reactionMaterial == null || slots == null || slots.Length != CustomerQueue.Capacity ||
             Array.Exists(slots, x => x == null) || tradeReactionSprites == null || tradeReactionSprites.Length != 4 ||
             Array.Exists(tradeReactionSprites, x => x == null) || !isPositive(heightPixels) ||
+            !isPositive(middleSlotScale) || middleSlotScale > 1 || !isPositive(rearSlotScale) || rearSlotScale > middleSlotScale ||
             !CustomerPortraitLayout.AreParametersValid(heightPixels, childPortraitScale, childPortraitRise) || !isPositive(moveSeconds) ||
-            float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0)
+            float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0 ||
+            !isNonNegativeFinite(adultDownOffsetPixels) || !isNonNegativeFinite(elderlyDownOffsetPixels) ||
+            !isNonNegativeFinite(childDownOffsetPixels))
         {
             Debug.LogError("[CustomerWorldQueueView] 월드·슬롯·폰트·시간·거래 이모지 연결을 확인하세요.", this);
             enabled = false;
@@ -107,6 +122,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             float duration = visual.Leaving ? controller.QueueExitSeconds : moveSeconds;
             visual.Alpha = Mathf.MoveTowards(visual.Alpha, visual.Leaving ? 0 : 1, delta / duration);
             float t = Mathf.SmoothStep(0, 1, Mathf.Clamp01(visual.Elapsed / duration));
+            visual.DisplayHeight = Mathf.Lerp(visual.StartHeight, visual.TargetHeight, t);
+            visual.RisePixels = Mathf.Lerp(visual.StartRise, visual.TargetRise, t);
             Vector3 target = visualRoot.InverseTransformPoint(visual.Target.position);
             Vector3 position = Vector3.Lerp(visual.Start, target, t);
             float envelope = Mathf.Sin(t * Mathf.PI);
@@ -115,7 +132,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
                 Mathf.Abs(Mathf.Cos(step)) * 15 * visual.DisplayHeight / 550f) * envelope;
             position.x += walk.x;
             position.y = visualRoot.InverseTransformPoint(counter.position).y - bottomCoverPixels -
-                3 * visual.DisplayHeight / 550f + walk.y + visual.RisePixels;
+                3 * visual.DisplayHeight / 550f + walk.y + visual.RisePixels - getDownOffset(visual.Attributes);
             visual.Root.localPosition = position;
             bool idle = !visual.Leaving && visual.Elapsed >= duration;
             float breath = idle ? (Mathf.Sin(visual.IdleSeconds * Mathf.PI * 2 / visual.BreathPeriod + visual.Phase) + 1) * .5f : 0;
@@ -185,7 +202,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         if (visuals.TryGetValue(visit, out var visual)) return visual;
         var sprite = world.Controller.GetCustomerAppearanceSprite(visit.AppearanceIdx);
         var normalTexture = world.Controller.GetCustomerAppearanceNormalTexture(visit.AppearanceIdx);
-        CustomerPortraitLayout layout = CustomerPortraitLayout.Calculate(visit.Attributes, heightPixels, childPortraitScale, childPortraitRise);
+        CustomerPortraitLayout layout = CustomerPortraitLayout.Calculate(visit.Attributes, heightPixels * getPerspectiveScale(start), childPortraitScale, childPortraitRise);
         var root = new GameObject("Visit " + visit.AppearanceIdx + "/" + visit.DispositionIdx).transform;
         root.SetParent(visualRoot, false);
         root.position = start.position;
@@ -219,20 +236,55 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         speech.renderer.sortingOrder = 300;
         float phase = visuals.Count * .37f + visit.AppearanceIdx * .618f;
         visual = new Visual { Root = root, Body = body, BodyProperties = bodyProperties, Reaction = reaction, Speech = speech, Phase = phase,
-            DisplayScale = layout.DisplayScale, DisplayHeight = layout.DisplayHeight, RisePixels = layout.RisePixels,
+            Attributes = visit.Attributes, DisplayHeight = layout.DisplayHeight, RisePixels = layout.RisePixels,
             BreathPeriod = 2.9f * Mathf.Lerp(.88f, 1.12f, Mathf.Repeat(phase, 1)) };
         visuals.Add(visit, visual);
         return visual;
     }
 
-    /// <summary>목표가 바뀔 때 현재 위치부터 이어간다.</summary>
+    /// <summary>목표가 바뀔 때 현재 위치·높이부터 이어간다. 퇴장 중에는 현재 크기를 고정한다.</summary>
     /// <param name="visual">표시.</param><param name="target">새 anchor.</param>
     private void retarget(Visual visual, Transform target)
     {
         if (visual.Target == target) return;
         visual.Start = visual.Root.localPosition;
+        visual.StartHeight = visual.TargetHeight = visual.DisplayHeight;
+        visual.StartRise = visual.TargetRise = visual.RisePixels;
+        if (!visual.Leaving)
+        {
+            var layout = CustomerPortraitLayout.Calculate(visual.Attributes, heightPixels * getPerspectiveScale(target), childPortraitScale, childPortraitRise);
+            visual.TargetHeight = layout.DisplayHeight;
+            visual.TargetRise = layout.RisePixels;
+        }
         visual.Target = target;
         visual.Elapsed = 0;
+    }
+
+    /// <summary>방문 시점의 연령 속성에 해당하는 고정 하향 오프셋을 반환한다.</summary>
+    /// <param name="attributes">방문의 성별·연령 속성.</param>
+    /// <returns>원근 배율을 적용하지 않는 authoring 픽셀 값.</returns>
+    private float getDownOffset(CustomerAttributes attributes)
+    {
+        if ((attributes & CustomerAttributes.Child) != 0) return childDownOffsetPixels;
+        if ((attributes & CustomerAttributes.Elderly) != 0) return elderlyDownOffsetPixels;
+        return adultDownOffsetPixels;
+    }
+
+    /// <summary>Inspector 조정값이 유한한 0 이상인지 확인한다.</summary>
+    /// <param name="value">하향 오프셋.</param><returns>유한한 0 이상이면 true.</returns>
+    private static bool isNonNegativeFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0;
+
+    /// <summary>계산대→Slot05→Slot10의 고정 배율을 슬롯 번호로 선형 보간한다. 입구는 마지막 배율을 사용한다.</summary>
+    /// <param name="anchor">계산대·대기 슬롯·입구.</param><returns>계산대 성인 높이 대비 배율.</returns>
+    private float getPerspectiveScale(Transform anchor)
+    {
+        if (anchor == counter) return 1f;
+        int slotNumber = Array.IndexOf(slots, anchor) + 1;
+        if (slotNumber == 0) return rearSlotScale;
+        int middle = CustomerQueue.Capacity / 2;
+        return slotNumber <= middle
+            ? Mathf.Lerp(1f, middleSlotScale, (float)slotNumber / middle)
+            : Mathf.Lerp(middleSlotScale, rearSlotScale, (float)(slotNumber - middle) / (CustomerQueue.Capacity - middle));
     }
 
     /// <summary>대사 FK가 바뀔 때만 기존 테이블을 조회한다.</summary>
@@ -316,7 +368,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         public TextMeshPro Speech;
         public Vector3 Start;
         public float Alpha, Elapsed, IdleSeconds, Phase, BreathPeriod, ReactionElapsed;
-        public float DisplayScale, DisplayHeight, RisePixels;
+        public float DisplayHeight, RisePixels, StartHeight, TargetHeight, StartRise, TargetRise;
+        public CustomerAttributes Attributes;
         public bool Leaving, Abandoned, ReactionShown;
         public uint SpeechIdx;
     }

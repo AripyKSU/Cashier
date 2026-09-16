@@ -264,7 +264,7 @@ public sealed class CustomerContractTests
 
     /// <summary>잘못된 최종 입력·가격·overflow는 방문 상태를 공개하지 않는다.</summary>
     /// <param name="kind">오류 경계.</param>
-    [TestCase("zero-offer"), TestCase("negative-offer"), TestCase("null"), TestCase("empty"), TestCase("unknown"), TestCase("zero-quantity"), TestCase("negative-quantity"), TestCase("quantity-overflow"), TestCase("missing-price"), TestCase("zero-price"), TestCase("reference-overflow"), TestCase("cost-overflow"), TestCase("allowed-overflow"), TestCase("lookup")]
+    [TestCase("zero-offer"), TestCase("negative-offer"), TestCase("unknown"), TestCase("zero-quantity"), TestCase("negative-quantity"), TestCase("quantity-overflow"), TestCase("missing-price"), TestCase("zero-price"), TestCase("reference-overflow"), TestCase("cost-overflow"), TestCase("allowed-overflow"), TestCase("lookup")]
     public void InvalidSubmissionIsAtomic(string kind)
     {
         bool lookupFails = false; config.PriceTolerance = kind == "allowed-overflow" ? int.MaxValue : 1000;
@@ -273,7 +273,6 @@ public sealed class CustomerContractTests
         switch (kind)
         {
             case "zero-offer": offer = 0; break; case "negative-offer": offer = -1; break;
-            case "null": input = null; break; case "empty": input = Array.Empty<SaleItem>(); break;
             case "unknown": input = new[] { new SaleItem(99, 1) }; break;
             case "zero-quantity": input = new[] { new SaleItem(1, 0) }; break; case "negative-quantity": input = new[] { new SaleItem(1, -1) }; break;
             case "quantity-overflow": input = new[] { new SaleItem(1, int.MaxValue), new SaleItem(1, 1) }; break;
@@ -286,6 +285,23 @@ public sealed class CustomerContractTests
         Assert.Catch(() => visit.SubmitOffer(offer, input)); assertUnpublished(visit);
         lookupFails = false; prices[1] = prices[2] = 101; products[1].CostPrice = products[2].CostPrice = 50;
         Assert.That(visit.SubmitOffer(101, new[] { new SaleItem(1, 1) }), Is.True);
+    }
+
+    /// <summary>통합된 전량 제외 계약은 null/빈 목록을 매출 없는 거부로 확정하며 재제출을 막는다.</summary>
+    /// <param name="isNull">null 목록 경계 여부.</param>
+    [TestCase(false), TestCase(true)]
+    public void EmptySubmissionCompletesAsRefusal(bool isNull)
+    {
+        var visit = generate();
+        visit.BeginOffer();
+        Assert.That(visit.SubmitOffer(0, isNull ? null : Array.Empty<SaleItem>()), Is.False);
+        Assert.That(visit.State, Is.EqualTo(CustomerState.Rejected));
+        Assert.That(visit.Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
+        Assert.That(visit.Result.HasValue, Is.True);
+        Assert.That(visit.Result.Value.SaleIncome, Is.Zero);
+        Assert.That(visit.Result.Value.CostTotal, Is.Zero);
+        Assert.That(visit.Result.Value.SoldItems, Is.Empty);
+        Assert.Throws<InvalidOperationException>(() => visit.SubmitOffer(101, new[] { new SaleItem(1, 1) }));
     }
 
     /// <summary>지침 AND·분류·합산수량은 최종 판매를 검사하며 위반은 결제를 막지 않는다.</summary>

@@ -204,14 +204,18 @@ public sealed class ProgressViewDataFactory
     /// <summary>이미 선택된 딸 결과의 FK를 표시값으로 변환한다.</summary>
     /// <param name="result">DayProgress가 확정한 결과.</param>
     /// <param name="sprites">ResourceData PK별로 로드한 Sprite.</param>
+    /// <param name="placeholder">이미지 FK가 빈칸일 때 사용할 화면 소유 사각형.</param>
     /// <returns>추가 선택 없이 표시할 대사와 이미지.</returns>
     /// <exception cref="InvalidOperationException">Text 또는 Sprite FK가 준비되지 않은 경우.</exception>
     public DaughterDialogueViewData CreateDaughterDialogueViewData(DaughterDialogueResult result,
-        IReadOnlyDictionary<uint, Sprite> sprites)
+        IReadOnlyDictionary<uint, Sprite> sprites, Sprite placeholder = null)
     {
         if (!textData.Rows.TryGetValue(result.TextIdx, out TextData text) || string.IsNullOrWhiteSpace(text.Text))
             throw new InvalidOperationException($"딸 대사 TextData FK={result.TextIdx} 참조 실패");
-        if (sprites == null || !sprites.TryGetValue(result.ResourceIdx, out Sprite sprite) || sprite == null)
+        Sprite sprite = placeholder;
+        if (result.ResourceIdx.HasValue && (sprites == null || !sprites.TryGetValue(result.ResourceIdx.Value, out sprite)))
+            throw new InvalidOperationException($"딸 이미지 ResourceData FK={result.ResourceIdx} 로드 실패");
+        if (sprite == null)
             throw new InvalidOperationException($"딸 이미지 ResourceData FK={result.ResourceIdx} 로드 실패");
         return new DaughterDialogueViewData(result.Day, text.Text, sprite);
     }

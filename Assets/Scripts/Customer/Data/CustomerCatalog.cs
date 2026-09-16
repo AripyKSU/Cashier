@@ -47,7 +47,7 @@ public sealed class CustomerCatalog
                 row.ValidateClassification();
                 row.ValidateDisposition();
                 validateNameReference(texts, "CustomerAppearanceData.csv", row.Idx, row.NameIdx);
-                if (resources == null || !resources.TryGetResource(row.ImageResourceIdx, out _))
+                if (row.ImageResourceIdx.HasValue && (resources == null || !resources.TryGetResource(row.ImageResourceIdx.Value, out _)))
                     throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
                 if (resources == null || !resources.TryGetResource(row.NormalResourceIdx, out _))
                     throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, normal_resource_idx={row.NormalResourceIdx}: Resource 참조 실패");
@@ -124,7 +124,12 @@ public sealed class CustomerCatalog
             {
                 if (facilities.PendingRows == null) throw new InvalidDataException("설비 데이터 로드가 필요합니다.");
                 foreach (var row in facilities.PendingRows.Values)
+                {
                     validateNameReference(texts, "FacilityData.csv", row.Idx, row.NameIdx);
+                    foreach (uint resourceIdx in new[] { row.Stage1ResourceIdx, row.Stage2ResourceIdx, row.Stage3ResourceIdx })
+                        if (resourceIdx != 0 && (resources == null || !resources.TryGetResource(resourceIdx, out _)))
+                            throw new InvalidDataException($"FacilityData.csv PK={row.Idx}: Resource FK={resourceIdx} 실패");
+                }
                 foreach (var facility in facilities.PendingRows.Values)
                 {
                     bool hasActiveProduct = Products.PendingRows.Values.Any(product =>

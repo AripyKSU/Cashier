@@ -83,6 +83,24 @@ public sealed class FacilityData
     public ConvenienceEffectType EffectType { get; set; }
     /// <summary>단계 상승의 목표 단계. 단계 상승이 아니면 0이며 실제 가게 단계 0을 뜻하지 않는다.</summary>
     [Name("target_store_stage")] public uint TargetStoreStage { get; set; }
+    /// <summary>1단계 외형 Prefab Resource FK. 0은 표시 없음이다.</summary>
+    [Name("stage1_resource_idx")] public uint Stage1ResourceIdx { get; set; }
+    /// <summary>2단계 외형 Prefab Resource FK. 0은 표시 없음이다.</summary>
+    [Name("stage2_resource_idx")] public uint Stage2ResourceIdx { get; set; }
+    /// <summary>3단계 외형 Prefab Resource FK. 0은 표시 없음이다.</summary>
+    [Name("stage3_resource_idx")] public uint Stage3ResourceIdx { get; set; }
+
+    /// <summary>가게 단계에 맞는 설비 외형 Prefab Resource FK를 반환한다. 0은 표시 없음이다.</summary>
+    /// <param name="stage">현재 가게 단계 1~3.</param>
+    /// <returns>해당 단계의 외형 Prefab FK 또는 0.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">단계가 1~3 범위를 벗어남.</exception>
+    public uint GetStageResourceIdx(uint stage) => stage switch
+    {
+        1 => Stage1ResourceIdx,
+        2 => Stage2ResourceIdx,
+        3 => Stage3ResourceIdx,
+        _ => throw new ArgumentOutOfRangeException(nameof(stage), stage, "Store stage must be 1-3.")
+    };
 
     /// <summary>행의 필수값과 업그레이드 종류별 단계·효과 조합을 검증한다.</summary>
     /// <exception cref="ArgumentException">PK·이름·가격·enum·단계·효과 조합이 유효하지 않음.</exception>

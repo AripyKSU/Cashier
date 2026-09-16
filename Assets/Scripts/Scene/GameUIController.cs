@@ -84,7 +84,7 @@ public sealed class GameUIController : MonoBehaviour
     private bool presentationReady;
     private bool hasError;
     private bool isOpeningBusiness;
-    private Sprite productPlaceholderSprite;
+    private Sprite placeholderSprite;
     private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Texture2D> appearanceNormalTextures = new Dictionary<uint, Texture2D>();
     private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
@@ -243,7 +243,7 @@ public sealed class GameUIController : MonoBehaviour
     }
 
     /// <summary>상품 기본·탑뷰와 손님 외형 Sprite를 Resource FK별로 한 번 로드한다.</summary>
-    /// <returns>상품 기본 Sprite 사전. 탑뷰·외형도 같은 화면 수명에 보관하며 상품의 두 FK가 빈 경우만 흰색을 사용한다.</returns>
+    /// <returns>상품 기본 Sprite 사전. 탑뷰·외형도 같은 화면 수명에 보관하며 상품의 두 FK 또는 외형 FK가 빈 경우 흰색을 사용한다.</returns>
     /// <exception cref="InvalidOperationException">리소스 시스템 또는 ResourceDataTable이 준비되지 않은 경우 발생합니다.</exception>
     private async UniTask<IReadOnlyDictionary<uint, Sprite>> loadDisplaySpritesAsync()
     {
@@ -267,8 +267,8 @@ public sealed class GameUIController : MonoBehaviour
             if (!product.ImageResourceIdx.HasValue)
             {
                 Debug.LogWarning($"[GameUIController] 상품 {product.Idx}의 기본·탑뷰 이미지가 비어 있어 임시 흰색 이미지를 사용합니다.", this);
-                spritesByProduct.Add(product.Idx, this.getProductPlaceholderSprite());
-                this.topViewSprites.Add(product.Idx, this.getProductPlaceholderSprite());
+                spritesByProduct.Add(product.Idx, this.getPlaceholderSprite());
+                this.topViewSprites.Add(product.Idx, this.getPlaceholderSprite());
                 continue;
             }
             spritesByProduct.Add(product.Idx, await this.loadSpriteAsync(product.ImageResourceIdx.Value, resources, spritesByResource));
@@ -276,7 +276,7 @@ public sealed class GameUIController : MonoBehaviour
         }
         foreach (CustomerAppearanceData appearance in this.customerCatalog.Appearances.Rows.Values)
         {
-            this.appearanceSprites.Add(appearance.Idx, await this.loadSpriteAsync(appearance.ImageResourceIdx, resources, spritesByResource));
+            this.appearanceSprites.Add(appearance.Idx, await this.loadAppearanceSpriteAsync(appearance, resources, spritesByResource));
             this.appearanceNormalTextures.Add(appearance.Idx,
                 await this.loadTextureAsync(appearance.NormalResourceIdx, resources, texturesByResource));
         }
@@ -284,12 +284,22 @@ public sealed class GameUIController : MonoBehaviour
             if (!inspectorSprites.ContainsKey(inspector.PortraitResourceIdx))
                 inspectorSprites.Add(inspector.PortraitResourceIdx, await loadSpriteAsync(inspector.PortraitResourceIdx, resources, spritesByResource));
         foreach (DaughterAppearanceData appearance in DataTableManager.Instance.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance).Rows.Values)
-            if (!daughterSprites.ContainsKey(appearance.ResourceIdx))
-                daughterSprites.Add(appearance.ResourceIdx, await loadSpriteAsync(appearance.ResourceIdx, resources, spritesByResource));
+            if (appearance.ResourceIdx.HasValue && !daughterSprites.ContainsKey(appearance.ResourceIdx.Value))
+                daughterSprites.Add(appearance.ResourceIdx.Value, await loadSpriteAsync(appearance.ResourceIdx.Value, resources, spritesByResource));
         return spritesByProduct;
     }
 
-    /// <summary>상품·외형의 필수 FK를 로드한다. 실제 로드 실패를 placeholder로 바꾸지 않는다.</summary>
+    /// <summary>외형 이미지가 빈칸인 경우만 공유 사각형을 사용하고 지정된 FK는 정상 로드한다.</summary>
+    /// <param name="appearance">선택적 이미지 FK를 가진 외형.</param>
+    /// <param name="resources">검증된 Resource 테이블.</param>
+    /// <param name="loaded">화면에서 공유하는 로드 캐시.</param>
+    /// <returns>사각형 또는 지정된 외형 Sprite.</returns>
+    private UniTask<Sprite> loadAppearanceSpriteAsync(CustomerAppearanceData appearance, ResourceDataTable resources, Dictionary<uint, Sprite> loaded)
+        => appearance.ImageResourceIdx.HasValue
+            ? this.loadSpriteAsync(appearance.ImageResourceIdx.Value, resources, loaded)
+            : UniTask.FromResult(this.getPlaceholderSprite());
+
+    /// <summary>상품·외형의 지정된 FK를 로드한다. 실제 로드 실패를 placeholder로 바꾸지 않는다.</summary>
     /// <param name="resourceIdx">Resource PK.</param><param name="resources">검증된 Resource 테이블.</param>
     /// <param name="loaded">이번 화면에서 이미 로드한 Sprite.</param><returns>로드 완료 Sprite.</returns>
     /// <exception cref="InvalidOperationException">FK 또는 로드 결과 누락.</exception>
@@ -319,22 +329,22 @@ public sealed class GameUIController : MonoBehaviour
         return texture;
     }
 
-    /// <summary>상품 이미지 누락 시 사용할 임시 흰색 Sprite를 생성하고 재사용합니다.</summary>
-    /// <returns>1x1 흰색 텍스처를 기반으로 한 임시 Sprite입니다.</returns>
-    private Sprite getProductPlaceholderSprite()
+    /// <summary>상품·손님 이미지가 명시적으로 빈칸일 때 사용할 사각형 Sprite를 생성하고 재사용합니다.</summary>
+    /// <returns>Unity 기본 흰색 텍스처를 기반으로 한 정사각형 Sprite입니다.</returns>
+    private Sprite getPlaceholderSprite()
     {
-        if (this.productPlaceholderSprite == null)
+        if (this.placeholderSprite == null)
         {
             Texture2D texture = Texture2D.whiteTexture;
-            this.productPlaceholderSprite = Sprite.Create(
+            this.placeholderSprite = Sprite.Create(
                 texture,
                 new Rect(0f, 0f, texture.width, texture.height),
                 new Vector2(0.5f, 0.5f),
                 100f);
-            this.productPlaceholderSprite.name = "TemporaryProductPlaceholder";
+            this.placeholderSprite.name = "TemporaryImagePlaceholder";
         }
 
-        return this.productPlaceholderSprite;
+        return this.placeholderSprite;
     }
 
     /// <summary>진행 이벤트와 UI 입력 이벤트를 해제합니다.</summary>
@@ -348,10 +358,10 @@ public sealed class GameUIController : MonoBehaviour
         if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
         this.unsubscribeUi();
-        if (this.productPlaceholderSprite != null)
+        if (this.placeholderSprite != null)
         {
-            Destroy(this.productPlaceholderSprite);
-            this.productPlaceholderSprite = null;
+            Destroy(this.placeholderSprite);
+            this.placeholderSprite = null;
         }
     }
 
@@ -431,6 +441,7 @@ public sealed class GameUIController : MonoBehaviour
         this.gameInputRouter.OnContinueRequested += this.handleTransactionContinueClicked;
         this.saleSortingPanel.CalculatorVisibilityChanged += this.handleCalculatorVisibilityChanged;
         this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
+        this.saleSortingPanel.ContainerOpenChanged += this.handleContainerOpenChanged;
         this.saleSortingPanel.AllItemsDiscarded += this.handleAllItemsDiscarded;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -483,6 +494,7 @@ public sealed class GameUIController : MonoBehaviour
         {
             this.saleSortingPanel.CalculatorVisibilityChanged -= this.handleCalculatorVisibilityChanged;
             this.saleSortingPanel.SortingStarted -= this.handleSortingStarted;
+            this.saleSortingPanel.ContainerOpenChanged -= this.handleContainerOpenChanged;
             this.saleSortingPanel.AllItemsDiscarded -= this.handleAllItemsDiscarded;
         }
 
@@ -694,7 +706,8 @@ public sealed class GameUIController : MonoBehaviour
             this.subscribedDay,
             this.createSettlementViewData(result),
             this.viewDataFactory.CreateDaughterDialogueViewData(
-                this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites),
+                this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites,
+                this.subscribedDay.DaughterDialogueResult.Value.ResourceIdx.HasValue ? null : this.getPlaceholderSprite()),
             this.gameProgress.CompleteSettlement);
     }
 
@@ -822,7 +835,7 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>설비와 경제 표시를 새로 읽되 정산 매출·비용은 확정 결과를 그대로 표시한다.</summary>
     private void refreshFacilityShop()
     {
-        if (stagePresentation != null) stagePresentation.Apply(gameProgress.CurrentStoreStage);
+        if (stagePresentation != null) stagePresentation.Apply(gameProgress.CurrentStoreStage, GameSessionManager.Instance.IsFacilityActive, this.saleSortingPanel);
         var session = GameSessionManager.Instance;
         this.facilityShopPresenter.UpdateView(this.viewDataFactory.CreateFacilityShopViewData(
             DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows,
@@ -1016,6 +1029,12 @@ public sealed class GameUIController : MonoBehaviour
         }
     }
 
+    /// <summary>거래 진입 상태에 맞춰 현재 단계의 상자 외형을 전환합니다.</summary>
+    private void handleContainerOpenChanged(bool open)
+    {
+        if (this.stagePresentation != null) this.stagePresentation.SetContainerOpen(open);
+    }
+
     /// <summary>선택한 판매 상품 목록과 가격을 제출하고 거래 결과 화면을 엽니다.</summary>
     /// <param name="offeredTotal">플레이어가 입력한 판매 가격입니다.</param>
     /// <param name="saleItems">판매 영역에서 상품 ID별로 집계한 수량입니다.</param>
@@ -1068,7 +1087,8 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>현재 진행 스냅샷을 모든 Presenter에 전달합니다.</summary>
     private void refreshAllViews()
     {
-        if (stagePresentation != null && gameProgress != null) stagePresentation.Apply(gameProgress.CurrentStoreStage);
+        if (stagePresentation != null && gameProgress != null)
+            stagePresentation.Apply(gameProgress.CurrentStoreStage, GameSessionManager.Instance.IsFacilityActive, this.saleSortingPanel);
         if (!this.isReady || this.gameProgress == null || this.subscribedDay == null)
         {
             return;

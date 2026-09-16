@@ -1,5 +1,13 @@
 # 상품·손님 이미지 연결
 
+## 손님 외형 이미지 빈값 (2026-09-16)
+
+- `CustomerAppearanceData.image_resource_idx`는 `uint?`다. 헤더는 필수이고 빈 셀만 null로 허용한다. 0·잘못된 Resource 대역·존재하지 않는 FK는 기존처럼 로드 검증에서 거부한다.
+- 빈 외형 이미지는 GameUIController의 공용 흰색 정사각형 Sprite로 표시한다. 같은 화면에서 재사용하고 화면 파괴 시 생성 Sprite만 해제한다. 전신 리소스가 없어도 대기열의 기존 높이·이동·페이드 표시 경로를 사용한다.
+- 지정된 FK의 Addressables 로딩 오류는 사각형으로 숨기지 않는다. `4201`이 남아 있으면 `FemaleCustomer_01`을 계속 로드한다. 빈칸 동작을 사용하려면 해당 외형 행의 이미지 셀을 비워야 한다.
+- 최초 변경은 손님 외형에 적용했고 같은 날 후속 요청으로 딸 `resource_idx`도 빈값 사각형을 지원한다. [딸 외형 계약](DAUGHTER_DIALOGUE_SYSTEM.md#daughterappearancedata)을 따른다. 감독관 계약과 실제 CSV 값·Addressables 등록은 유지했다. 지정된 4201 참조는 빈 셀로 바꾸거나 별도로 연결해야 한다.
+- 검증: 컴파일 통과, `CustomerCsvTests` EditMode 70/70 및 `CustomerAppearancePlaceholderTests` PlayMode 1/1 통과(실패·skip 0). 빈값 파싱·잘못된 ID 거부, 실제 GameUI 로드 분기의 사각형 재사용·지정 이미지 유지·화면 파괴 시 해제를 검사했다. 최초 PlayMode의 기본 흰색 텍스처 크기를 1×1로 가정한 테스트 오류를 정사각형 검사로 수정한 뒤 재실행했다. 결과는 `Temp/customer-placeholder-edit.json`, `Temp/customer-placeholder-play.json`. 전체 게임 실행·화면 UX는 미검증이며 기존 잘못된 주소 연결은 별도로 수정해야 한다.
+
 ## 디스토피아 상품 이미지 연결 (2026-09-14)
 
 `total_merge ff05c1f`의 사운드 ID와 충돌하여 소스 `2779de4`의 상품 Resource `4257~4272`를 `4276~4291`로 이관했다. 아래 표와 등록 CSV는 통합 후 ID다. 주소·GUID·상품 PK는 변경하지 않았다. 과거 72행 검증 기록은 소스 브랜치 증거이며 [통합 검증](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 별도로 따른다.
@@ -67,7 +75,7 @@
 - ProductData: 기존 `image_resource_idx:uint?`는 기본 UI·계산대 이미지다. 마지막 열에 `top_view_image_resource_idx:uint?`를 추가했다. 기존 컬럼 순서는 유지한다.
 - 두 값이 모두 빈 경우만 이미지 미준비로 허용하고 기존 흰색 runtime Sprite를 사용한다. Placeholder FK를 넣지 않는다. 한쪽만 빈값, 0, 잘못된 Resource 대역·FK는 로그와 예외로 거부한다.
 - 기본 이미지가 있고 탑뷰 원본이 없으면 기본 FK를 탑뷰 열에 **명시적으로** 복제한다. runtime에서 누락된 FK·로드 오류를 기본 이미지로 숨기지 않는다.
-- CustomerAppearanceData: `idx,nameidx,image_resource_idx,gender,age`. 필수 `image_resource_idx:uint`는 ResourceData FK이며 한 행은 한 Sprite다. 성향은 외형 필터가 아니며, 성별·연령이 일치하는 후보에서 선택한다.
+- CustomerAppearanceData: `idx,nameidx,image_resource_idx,gender,age`. `image_resource_idx:uint?`는 ResourceData FK이며 빈 셀은 사각형 표시다. 성향은 외형 필터가 아니며, 성별·연령이 일치하는 후보에서 선택한다.
 - 외형 5001~5004를 보존하고 5045까지 확장했다. 사용용 Female 18개, Male 27개(MaleCustomer0 포함), Inspector·NormalMap 제외. 각 외형 이름은 '여성 외형 01' 등 명시적인 TextData 참조다. 기존8001~8004는 외형 이외 소비자가 없어 이름을 변경하고8071~8111을 추가했다.
 - Resource4201~4254를 추가했다. 기존 Resource72행·path는 보존하며 새 종류 ID를 배정하지 않았다. 상세 asset/GUID/address는 [등록표](data/IMAGE_RESOURCE_REGISTRATION.csv)를 따른다.
 

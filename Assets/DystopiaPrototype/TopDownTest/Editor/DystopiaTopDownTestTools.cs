@@ -24,14 +24,15 @@ public static class DystopiaTopDownTestTools
         string backup="output/vacuum-work/Live-before-"+DateTime.Now.ToString("yyyyMMdd-HHmmss")+".unity";
         Directory.CreateDirectory("output/vacuum-work");
         if(!EditorSceneManager.SaveScene(checkout.gameObject.scene,backup,true)) throw new IOException("Could not preserve the current scene.");
-        const string art="Assets/Textures/Checkout/Workbench/";
+        const string art="Assets/Textures/art/Workbench/";
+        const string benchArt="Assets/Textures/art/Facility/Workbench/";
         AssetDatabase.ImportAsset(art+"Vacuum.png");
         var importer=(TextureImporter)AssetImporter.GetAtPath(art+"Vacuum.png");
         importer.textureType=TextureImporterType.Sprite; importer.spriteImportMode=SpriteImportMode.Single;
         importer.spritePixelsPerUnit=40; importer.filterMode=FilterMode.Point; importer.mipmapEnabled=false;
         importer.textureCompression=TextureImporterCompression.Uncompressed; importer.SaveAndReimport();
-        AssetDatabase.ImportAsset(art+"TopDownWorkbenchNormal.png");
-        var normal=(TextureImporter)AssetImporter.GetAtPath(art+"TopDownWorkbenchNormal.png");
+        AssetDatabase.ImportAsset(benchArt+"TopDownWorkbenchNormal.png");
+        var normal=(TextureImporter)AssetImporter.GetAtPath(benchArt+"TopDownWorkbenchNormal.png");
         normal.textureType=TextureImporterType.NormalMap; normal.convertToNormalmap=true; normal.heightmapScale=.035f;
         normal.normalmapFilter=TextureImporterNormalFilter.Standard; normal.filterMode=FilterMode.Point;
         normal.mipmapEnabled=false; normal.textureCompression=TextureImporterCompression.Uncompressed;
@@ -40,7 +41,7 @@ public static class DystopiaTopDownTestTools
         if(shader==null || ShaderUtil.ShaderHasError(shader)) throw new InvalidOperationException("Workbench lighting shader must compile first.");
         var mat=AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/WorkbenchLighting.mat");
         if(mat==null) { mat=new Material(shader); AssetDatabase.CreateAsset(mat,"Assets/Materials/Checkout/WorkbenchLighting.mat"); }
-        mat.SetTexture("_NormalMap",AssetDatabase.LoadAssetAtPath<Texture2D>(art+"TopDownWorkbenchNormal.png"));
+        mat.SetTexture("_NormalMap",AssetDatabase.LoadAssetAtPath<Texture2D>(benchArt+"TopDownWorkbenchNormal.png"));
         Undo.RecordObject(bench,"Connect workbench normal lighting"); bench.sharedMaterial=mat;
         var lighting=bench.GetComponent<DystopiaWorkbenchLighting>()??Undo.AddComponent<DystopiaWorkbenchLighting>(bench.gameObject);
         Undo.RecordObject(lighting,"Connect shared business time"); lighting.dayNight=checkout.GetComponent<DystopiaDayNight>();
@@ -92,7 +93,7 @@ public static class DystopiaTopDownTestTools
         if (EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode before connecting the saved divider.");
         var checkout = UnityEngine.Object.FindFirstObjectByType<DystopiaTopDownTest>(FindObjectsInactive.Include);
         if (checkout == null) throw new InvalidOperationException("Open the checkout scene first.");
-        const string path = "Assets/Textures/Checkout/Workbench/DividerBar.png";
+        const string path = "Assets/Textures/art/Workbench/DividerBar.png";
         AssetDatabase.ImportAsset(path);
         var importer = (TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType = TextureImporterType.Sprite;

@@ -15,6 +15,14 @@ public sealed class StoreStageVisual : MonoBehaviour
     public Transform[] smokeAnchors = Array.Empty<Transform>();
     /// <summary>Front: 계산대/천장/좌기둥/우기둥/천장등/상자/시계/하부장. TopView: 작업대.</summary>
     public Image[] images = Array.Empty<Image>();
+    /// <summary>Front의 작업대 진입 때 기존 닫힌 상자 슬롯에 표시할 열린 상자.</summary>
+    public Sprite openContainerSprite;
+    /// <summary>TopView에서 물품을 쏟는 동안 사용할 상자 이미지.</summary>
+    public Sprite tiltedContainerSprite;
+    /// <summary>TopView에서 쏟기를 마치고 퇴장할 때 사용할 상자 이미지.</summary>
+    public Sprite emptyContainerSprite;
+    /// <summary>Front 상판의 좌우 연장면. Left, Right 순서이며 Rect·Texture·UV를 전달한다.</summary>
+    public RawImage[] counterExtensions = Array.Empty<RawImage>();
     /// <summary>Front의 기존 시계 숫자가 따를 표시창 배치.</summary>
     public RectTransform clockDigits;
 
@@ -32,11 +40,19 @@ public sealed class StoreStageVisual : MonoBehaviour
         }
         else
         {
+            if (region == Region.TopView && (tiltedContainerSprite == null || emptyContainerSprite == null))
+                throw new InvalidOperationException($"{name}: pouring container sprites missing");
             if (images == null || images.Length != (region == Region.Front ? 8 : 1)) throw new InvalidOperationException($"{name}: image slots missing");
             for (int i = 0; i < images.Length; i++)
                 if (images[i] == null || (images[i].enabled && images[i].sprite == null && !(region == Region.Front && i == 6)))
                     throw new InvalidOperationException($"{name}: visible Sprite missing");
-            if (region == Region.Front && clockDigits == null) throw new InvalidOperationException($"{name}: clock anchor missing");
+            if (region == Region.Front && (clockDigits == null || openContainerSprite == null
+                || counterExtensions == null || (counterExtensions.Length != 0 && counterExtensions.Length != 2)))
+                throw new InvalidOperationException($"{name}: front container/extension slots missing");
+            if (region == Region.Front)
+                foreach (var extension in counterExtensions)
+                    if (extension == null || extension.texture == null)
+                        throw new InvalidOperationException($"{name}: counter extension missing");
         }
     }
 

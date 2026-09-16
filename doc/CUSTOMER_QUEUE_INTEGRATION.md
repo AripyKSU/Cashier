@@ -1,5 +1,21 @@
 # 손님 대기열 구현·병합 명세
 
+## 연령별 하향 오프셋 (2026-09-16)
+
+- `Assets/Prefabs/World/CustomerWorld.prefab`의 `CustomerWorldQueueView` Inspector에서 성인 `adultDownOffsetPixels`, 노인 `elderlyDownOffsetPixels`, 아이 `childDownOffsetPixels`를 각각 조정한다. 기본값은 모두0이며, 양수만큼 기존 위치에서 아래로 이동한다. 아이를 유지하려면 아이 값은0으로 둔다.
+- 단위는 전면 로컬 기준 픽셀이다(1280×720 authoring 공간). 원근 배율을 곱하지 않고 입장·모든 대기 슬롯·계산대·퇴장에 동일한 연령별 값을 적용한다. 실제 화면 픽셀은 월드 투영 배율에 따라 달라진다.
+- 연령은 `CustomerVisit.Attributes`로 판정한다. 기존 Child 크기0.6배·상승·하단8px 보정에 추가되는 오프셋이며, 손님 크기·원근·호흡·이동 시간은 유지한다. 대사와 거래 이모지도 변경된 손님 위치를 따른다.
+- Play 중 Inspector 변경은 표시 위치에 바로 반영된다. Play 중 수정값은 종료하면 복구되므로 영구 적용은 EditMode에서 프리팹에 저장한다. 이번 설정은 월드 표시 전용이며 구형 uGUI 경로·CSV·Addressables·공유/개인 씬은 변경하지 않는다.
+- 검증: Unity 컴파일 완료, EditMode `WorldSceneTests` **12/12**, PlayMode `InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime` **1/1**, 실패·skip0. 실제 표시 객체에서 성인11/노인23/아이7의 root Y 이동·높이/기존 상승/대사 상대 위치 불변·0 복귀를 검사했고 기존 입퇴장·이모지 수명 검증을 유지했다. 증거: `Temp/queue-age-offset-edit-pass.json`, `Temp/queue-age-offset-play.json`. 최종 화면의 적절한 하향량은 사용자 조정 대상이다.
+- 최초 EditMode 두 실행은 각각11/12였다. 기존 환경 검사에서 이관 전 `DystopiaPrototype/Art/FogBack.mat` 경로와 원본 shader에 없는 `_UsePresentationTime` 조회를 발견해, 현재 `Materials/Dystopia` 경로 및 원본/월드 shader의 분리 계약으로 테스트만 갱신했다. 제품 배경 로직은 변경하지 않았다.
+
+## 2026-09-16 고정 슬롯 원근 검증
+
+- `codex/store-resource-exchange`에서 `CustomerWorldQueueView`와 공유 `CustomerWorld.prefab`에 아래 고정 슬롯 계약을 반영했다. MainScene·Local 씬·CSV·Addressables는 수정하지 않았으며 기존 GameUI prefab의 사용자 변경을 보존했다.
+- 컴파일 통과, EditMode `QueuePerspectiveUsesFixedSlotsAndFreezesExit` **4/4**, PlayMode `InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime` **1/1**, 최종 실패·skip0. 550/1100 기준 높이, 성인/아이, 10개 슬롯 목표, 동일 목표 재진입, 입장 크기 전환, 퇴장 크기 유지·대사 추종·이모지 수명을 검사했다. 증거: `Temp/queue-perspective-edit.json`, `Temp/queue-perspective-play-result-b.json`.
+- 최초 PlayMode 실행은 GameUI 초기화20초 timeout으로 **0/1**이었다(`Temp/queue-perspective-play-result.json`). 해당 검사만 초기화 대기를60초로 늘린 후 통과했다. 제품 오류 로그는 없었으며 게임 로딩 로직을 변경하지 않았다. CLI의 도메인 재로드 연결 끊김 후에는 동일 실행의 완료 파일에서 테스트명·결과를 회수했다.
+- 공유 prefab missing script0, Console error0, 종료 시 InitScene clean·Play/compile 실패 없음·background=false·시작 씬 설정 복원. 테스트 생성 TMP fallback atlas만 원복했다. 전체 suite·최종 원근감/가림/사용감·다른 화면비·Player build는 미검증이며 commit/push는 수행하지 않았다.
+
 ## 현재 구현 상태 (2026-09-15)
 
 - `codex/customer-talk-ui`의 오른쪽 출구 고정·대기 불만 대사 추종과 성별·연령별 외형 선택을 `total_merge`에 병합했다(2026-09-15, `bec03a9 → d3e4784`, fast-forward). 퇴장 연출은 기존 씬·프리팹 연결을 사용하고, 외형 CSV·생성 API 변경은 [생성 통합 계약](CUSTOMER_SPAWN_INTEGRATION.md)을 따른다.
@@ -17,7 +33,9 @@ GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연
 - 마지막 거래의 정산 모델은 즉시 확정하지만 `queueExitSeconds`(기본 0.45초) 동안 정산 화면을 지연한다. 공유 렌더러 퇴장도 같은 값을 사용한다. 일시정지는 큐와 UI 연출을 함께 정지한다.
 - 아래 Dev3 버튼·3초 자동 결과 인계 설명은 이전 화면의 계약이다. 현재 GameUI의 거래 결과 완료 경로와 혼동하지 않는다. UI/UX는 사용자 확인 대상이다.
 
-- 모든 손님은 같은 크기를 사용하며 원근 배율은 적용하지 않는다. 계산대 하단 가림선에 호흡 최대 상승량을 보정한다. 퇴장 이미지는 검정 틴트와 alpha 페이드를 적용한다.
+- 월드 손님은 고정 슬롯 기준 원근 배율을 사용한다(2026-09-16). 계산대 성인 기준 높이는 `heightPixels=550`, Slot05는 `middleSlotScale=340/550`, Slot10은 `rearSlotScale=240/550`이다. 계산대→Slot05→Slot10 사이를 슬롯 번호로 선형 보간하며 실제 대기 인원수에 따라 비율을 재배분하지 않는다. 기준 높이를 바꾸면 모든 슬롯 높이가 같은 비율로 바뀐다.
+- 높이550 기준 Slot01~10의 성인 높이는 508/466/424/382/340/320/300/280/260/240이다. 입구는 마지막 슬롯 배율로 시작하며 이동과 같은 0.65초 보간으로 목적지 크기에 도달한다. Child는 각 위치의 성인 높이에 기존0.6배를 적용하고 기존 상승·하단8px 보정은 유지한다. 퇴장은 이탈 순간 크기로 고정하며 검정 틴트·alpha 페이드를 유지한다.
+- 계산대 하단 가림선에 호흡 최대 상승량을 보정한다. Sprite 하단 정렬·대사 추종·거래 이모지의 높이 기준도 보간된 외형 높이를 사용한다. 가로 위치·대기 인원·게임 판정은 유지하며 이 계약은 공유 `CustomerWorld.prefab`에 적용한다. 구형 uGUI `CustomerQueueView`는 이번 변경 대상이 아니다.
 - 월드 손님의 이동은 0.65초 동안 개별 위상의 좌우 흔들림·상하 발걸음·미세 squash를 적용하되 양 끝 오프셋은 0이다. 거래 완료와 대기 이탈은 모두 오른쪽 출구와 같은 보행·검정 fade 시간을 사용한다.
 - 현재 방문의 확정 `CustomerTradeOutcome`은 방문당 한 번 4개 직렬화 Sprite(Satisfied, Delighted, Reluctant, Refused)로 표시한다. 1초 pop·상승·fade는 pause와 전면 숨김에서 멈추고 퇴장·날짜 교체·비활성화 때 정리한다.
 - CustomerWorldQueueView의 월드 TMP는 불만의 모델 수명 3초를 보존하도록 외형과 별도 객체지만, 매 프레임 퇴장 중인 외형의 현재 위치를 따라간다. 외형의 0.45초 퇴장 alpha는 적용하지 않으며 표현 차단·전면 숨김·날짜 교체·비활성 정리 계약을 유지한다. 최종 가독성은 사용자 확인 대상이다.
@@ -26,14 +44,14 @@ GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연
 
 - 공유 MainScene과 개인 SpriteWorldSandbox의 독립 `Assets/Prefabs/World/CustomerWorld.prefab` 인스턴스에 WorldSceneView와 CustomerWorldQueueView를 함께 연결한다. Canvas 부모 아래에 두지 않는다.
 - RenderRoot는 전면 UI의 화면 사각형만 카메라 viewport에 대응시킨다. 자식은 좌상단 기준 일반 Transform 좌표이며 UI Image를 실시간 복제하지 않는다. CounterAnchor·Entrance·RightExit·Slot01~10을 Scene/Prefab에서 편집한다. 기존 LeftExit 직렬화 참조는 prefab 호환용으로만 보존하며 필수 연결이 아니다.
-- 동일 Visit 객체를 표시 키로 쓰므로 같은 외형 PK의 손님도 별개이며 대기→현재 전환에는 같은 SpriteRenderer를 재사용한다. 현재·대기 높이430px, 이동0.65초, 하단12px+최대 bob 보정을 유지한다.
+- 동일 Visit 객체를 표시 키로 쓰므로 같은 외형 PK의 손님도 별개이며 대기→현재 전환에는 같은 SpriteRenderer를 재사용한다. 높이·원근 배율은 위 현재 연결 계약을 따르며 이동0.65초, 하단12px+최대 bob 보정을 유지한다.
 - 정렬은 배경0~11→대기100~91→현재200→거래 이모지220→캐노피250→탐조등273~274→대사300이다. 매대/매대 조명은 Canvas UI가 월드를 가린다.
 - GameUIController의 기존 외형 preload와 `GetCustomerAppearanceSprite`를 사용한다. queue는 Sprite handle을 로드·해제하지 않는다. 시간대 인물 tint와 퇴장 검정/alpha는 `ComposeColor` 한 곳에서 합성한다.
 - 개인 씬은 GameUI·OperatingPanel 루트만 native unpack하여 UI 이관 상태를 보존했다. 향후 공유 통합은 [MainScene 조립 지침](MAINSCENE_INTEGRATION.md)을 따른다. 구형 Sale Sorting 설치기는 원본이며 월드 prefab 존재만으로 차단하지 않는다. 월드 개인 씬에 구형 UI 전체 재설치를 실행하지 않는다.
 
 ## 2026-09-14 프로토타입 보행·이모지 반영
 
-- `DystopiaScreen.AdvanceQueueVisual`의 보행 위상·좌우/상하 흔들림·미세 squash를 현재 월드 이동에 이식했다. 원본의 원근 축소·자동 거래 완료는 현재 계약에 적용하지 않는다.
+- `DystopiaScreen.AdvanceQueueVisual`의 보행 위상·좌우/상하 흔들림·미세 squash를 현재 월드 이동에 이식했다. 당시 원본의 원근 축소·자동 거래 완료는 가져오지 않았으며, 원근 크기는 이후 위 고정 슬롯 계약으로 추가했다. 자동 거래 완료는 적용하지 않는다.
 - 이모지는 새 가격/도덕성 판정 없이 기존 확정 `CustomerTradeOutcome`을 사용한다. `GetReactionIndex`는 `None`/그 외 값=-1, `RegularSale`=0(Satisfied), `DiscountSale`=1(Delighted), `ExploitativeSale`=2(Reluctant), `PaymentRefused`=3(Refused)를 반환한다.
 - `tradeReactionSprites`는 위 순서의 필수 참조 4개다. 새 시트 사본과 GUID·영역·연결은 [리소스 이관 기록](DYSTOPIA_RESOURCE_INTEGRATION.md#2026-09-14-손님-보행거래-표정-이관)을 따른다. 외형 객체를 소유하는 기존 Visual이 64px 이모지의 생성·정리를 함께 맡는다.
 - MainScene 파일을 저장하거나 교체하지 않고 이미 참조 중인 `CustomerWorld.prefab`을 갱신했다. 프로토타입 원본·CSV·Addressables·가격 판정·퇴장 입력은 변경하지 않았다.

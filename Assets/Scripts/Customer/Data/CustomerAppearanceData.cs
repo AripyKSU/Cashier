@@ -11,9 +11,9 @@ public sealed class CustomerAppearanceData
     /// <summary>외형 표시 이름의 TextData.idx FK.</summary>
     [Name("nameidx")]
     public uint NameIdx { get; set; }
-    /// <summary>필수 ResourceData.idx FK. 0·빈값은 허용하지 않는다.</summary>
+    /// <summary>선택적 ResourceData.idx FK. 빈값은 사각형 표시이며 0은 허용하지 않는다.</summary>
     [Name("image_resource_idx")]
-    public uint ImageResourceIdx { get; set; }
+    public uint? ImageResourceIdx { get; set; }
     /// <summary>필수 ResourceData.idx FK. 컬러 외형과 짝을 이루는 raw RGB 노멀맵입니다.</summary>
     [Name("normal_resource_idx")]
     public uint NormalResourceIdx { get; set; }

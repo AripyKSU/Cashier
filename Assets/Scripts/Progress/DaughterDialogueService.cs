@@ -13,10 +13,10 @@ public readonly struct DaughterDialogueResult
     public uint DialogueIdx { get; }
     /// <summary>선택된 TextData FK.</summary>
     public uint TextIdx { get; }
-    /// <summary>선택된 ResourceData FK.</summary>
-    public uint ResourceIdx { get; }
+    /// <summary>선택된 ResourceData FK. null이면 화면에서 사각형을 표시한다.</summary>
+    public uint? ResourceIdx { get; }
 
-    internal DaughterDialogueResult(uint day, decimal morality, uint dialogueIdx, uint textIdx, uint resourceIdx)
+    internal DaughterDialogueResult(uint day, decimal morality, uint dialogueIdx, uint textIdx, uint? resourceIdx)
     {
         Day = day;
         Morality = morality;

@@ -21,7 +21,7 @@ public sealed class DystopiaInspectorPortrait : MonoBehaviour
     private void OnEnable()
     {
 #if UNITY_EDITOR
-        if (portraitTexture == null) portraitTexture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/Characters/Inspector.png");
+        if (portraitTexture == null) portraitTexture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/Characters/Inspector/Inspector.png");
 #endif
         if (head != null) head.gameObject.SetActive(false);
         if (bodyImage != null)

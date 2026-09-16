@@ -666,6 +666,8 @@ MonoBehaviour:
   - {fileID: 2380737013719619631}
   - {fileID: 4568109078236969059}
   - {fileID: 8277630240922037447}
+  middleSlotScale: 0.6181818
+  rearSlotScale: 0.43636364
   font: {fileID: 11400000, guid: 21967ff2222e4b449974e277bfa779ed, type: 2}
   bodyMaterial: {fileID: 2100000, guid: 819f3c753f3f4524b8bff9451fd345f0, type: 2}
   reactionMaterial: {fileID: 2100000, guid: cc7bbc5199031f64392025ac7ded5fdd, type: 2}
@@ -674,11 +676,14 @@ MonoBehaviour:
   - {fileID: -1103762195, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
   - {fileID: -472334716, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
   - {fileID: 2021129492, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
-  heightPixels: 430
+  heightPixels: 550
   bottomCoverPixels: 12
   moveSeconds: 0.65
   childPortraitScale: 0.6
   childPortraitRise: 0.001090909
+  adultDownOffsetPixels: 0
+  elderlyDownOffsetPixels: 0
+  childDownOffsetPixels: 0
 --- !u!1 &825493237426990043
 GameObject:
   m_ObjectHideFlags: 0

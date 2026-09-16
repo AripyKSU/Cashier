@@ -1,5 +1,16 @@
 # 설비 구매·상품 해금 인계
 
+## 단계별 설비 외형 (2026-09-16)
+
+- FacilityData의 필수 `uint` 컬럼 `stage1_resource_idx`, `stage2_resource_idx`, `stage3_resource_idx`는 ResourceData를 거쳐 **외형 Prefab**을 참조한다. 0은 해당 단계의 외형 없음이다. 같은 설비 PK가 단계별로 다른 Prefab을 사용한다.
+- `GetStageResourceIdx(uint stage)`는 1~3단계 FK를 반환하고 범위 밖 값은 거부한다. CustomerCatalog는 공개 전에 비0 Resource FK를 검사한다.
+- StoreStagePresentation은 PrepareAsync에서 단계별 Prefab을 ResourceManager로 로드하고 RectTransform·Graphic 존재를 검사한 뒤 준비 결과를 공개한다. Prefab은 이미지·배치·크기를 소유하고 구매 상태·비용·세이브를 소유하지 않는다.
+- `Apply(stage, isFacilityActive)`는 단계 교체 시 해당 Prefab을 교체하고, 같은 단계에서는 기존 인스턴스의 활성 여부를 다시 반영한다. 콜백은 GameSessionManager.IsFacilityActive를 사용하며 상품 설비 구매 당일에는 숨기고 다음 영업일부터 표시한다.
+- 생성한 설비의 Graphic은 raycast를 받지 않으며 기존 WorldSceneView의 시간대 색을 따른다. GameUI/StoreStageVisual에 설비 이미지·배치 슬롯을 중복 등록하지 않는다.
+- 닫힌/열린 상자는 StoreStageVisual의 기존 images[5]와 openContainerSprite로 분리한다. SaleSortingPanel.ContainerOpenChanged → GameUIController → StoreStagePresentation.SetContainerOpen 경로를 사용하며 새 방문·초기화·비활성화 때 닫힘으로 복원한다.
+- 기존 7열 CSV는 신규 필수 열 3개를 추가해야 한다. 기존 12개 설비 PK, 가격·해금 조건·세이브 데이터는 변경하지 않는다. 이미지가 없는 편의·진행 설비의 신규 열은 모두 0이다.
+- 실제 ID·자산 목록과 실행 검증 상태: [가게 리소스 교체 작업](work/store-resource-exchange.md).
+
 ## 시민권 추가 (2026-09-13)
 
 기존 종류 값을 유지하고 `Citizenship=4`, 시민권12012를 추가했다. 결제 즉시 보유하며 최종31일 정산의 확인 전까지 구매할 수 있다. 시민권은 **3단계 일반 설비를 모두 구매하고 3단계인 상태**에서만 구매할 수 있다. 기존 일반 설비의 익일 활성 규칙과 31일 정산·엔딩 날짜 정책은 유지한다. 시민권 가격·보유·정산 구매 조건의 단일 계약은 [시민권·엔딩 명세](CITIZENSHIP_ENDING.md)를 따른다.
