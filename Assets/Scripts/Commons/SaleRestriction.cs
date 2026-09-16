@@ -183,12 +183,12 @@ public static class DailyGuidelineExclusionAllowance
 
 /// <summary>
 /// 일차와 당일 등장 상품을 기준으로 서로 충돌하지 않는 일일지침을 무작위 생성합니다.
-/// 대상 손님은 모든 손님을 70%로, 성별·연령 단일 속성을 각각 6%로 선택합니다.
+/// 대상 손님은 모든 손님을 5%로, 성별·연령 단일 속성을 각각 19%로 선택합니다.
 /// </summary>
 public sealed class DailyGuidelineGenerator
 {
-    private const int AllCustomerTargetWeight = 70;
-    private const int SingleAttributeTargetWeight = 6;
+    private const int AllCustomerTargetWeight = 5;
+    private const int SingleAttributeTargetWeight = 19;
 
     /// <summary>속성 후보와 상대 선택 가중치를 묶은 생성 전용 값입니다.</summary>
     private readonly struct TargetAttributeOption
