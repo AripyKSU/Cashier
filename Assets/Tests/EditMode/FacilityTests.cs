@@ -34,9 +34,9 @@ public sealed class FacilityTests
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 2 },
             [12009] = new FacilityData { Idx = 12009, NameIdx = 8079, PurchasePrice = 1,
                 UpgradeKind = FacilityUpgradeKind.Convenience, RequiredStoreStage = 2, EffectType = ConvenienceEffectType.AutoSorting },
-            [12008] = new FacilityData { Idx = 12008, NameIdx = 8078, PurchasePrice = 5,
+            [12008] = new FacilityData { Idx = 12008, NameIdx = 8078, PurchasePrice = 0,
                 UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 1, TargetStoreStage = 2 },
-            [12010] = new FacilityData { Idx = 12010, NameIdx = 8080, PurchasePrice = 5,
+            [12010] = new FacilityData { Idx = 12010, NameIdx = 8080, PurchasePrice = 0,
                 UpgradeKind = FacilityUpgradeKind.StoreStage, RequiredStoreStage = 2, TargetStoreStage = 3 },
             [12005] = new FacilityData { Idx = 12005, NameIdx = 8060, PurchasePrice = 80,
                 UpgradeKind = FacilityUpgradeKind.ProductUnlock, RequiredStoreStage = 3 },
@@ -85,7 +85,7 @@ public sealed class FacilityTests
         Assert.That(service.HasCitizenship);
         Assert.That(service.TryPurchase(12900, out result), Is.False);
         Assert.That(result.Status, Is.EqualTo(FacilityPurchaseStatus.AlreadyOwned));
-        Assert.That(finance.CurrentBalance, Is.EqualTo(854));
+        Assert.That(finance.CurrentBalance, Is.EqualTo(864));
 
         facilities[12901] = new FacilityData { Idx = 12901, NameIdx = 8998, PurchasePrice = 1,
             UpgradeKind = FacilityUpgradeKind.Citizenship, RequiredStoreStage = 3 };
@@ -229,14 +229,14 @@ public sealed class FacilityTests
         finance.AddIncome(120, FinanceChangeReason.Sale);
         purchaseRegularUpgrades(1);
         long balanceBeforeStage = finance.CurrentBalance;
-        Action<FinanceChangeResult> handler = payment =>
+        Action<FacilityPurchaseEvent> handler = purchase =>
         {
             Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
             throw new InvalidOperationException("stage notification failure");
         };
-        finance.BalanceChanged += handler;
+        service.PurchaseCompleted += handler;
         Assert.Throws<InvalidOperationException>(() => service.TryPurchase(12008, out _));
-        finance.BalanceChanged -= handler;
+        service.PurchaseCompleted -= handler;
         Assert.That(service.CurrentStoreStage, Is.EqualTo(2));
         Assert.That(service.IsOwned(12008), Is.True);
         Assert.That(finance.CurrentBalance, Is.EqualTo(balanceBeforeStage - facilities[12008].PurchasePrice));
@@ -353,7 +353,7 @@ public sealed class FacilityTests
         Assert.That(before.CompletedRegularCount, Is.Zero);
         Assert.That(before.RequiredRegularCount, Is.EqualTo(3));
         Assert.That(before.ProgressionItem.Value.State, Is.EqualTo(FacilityDisplayState.PrerequisiteLocked));
-        var stage3 = factory.CreateFacilityShopViewData(table.Rows, new Dictionary<uint, uint> { [12005] = 0 }, 3, 0, 18000);
+        var stage3 = factory.CreateFacilityShopViewData(table.Rows, new Dictionary<uint, uint> { [12005] = 0 }, 3, 0, 350000);
         Assert.That(stage3.RegularItems[0].State, Is.EqualTo(FacilityDisplayState.Active));
         Assert.That(stage3.RegularItems[0].UnlockProducts, Is.EqualTo("방독면, 방호복"));
         Assert.That(stage3.RegularItems[1].UnlockProducts, Is.EqualTo("방사능 측정기, 열화상 카메라"));
@@ -406,8 +406,16 @@ public sealed class FacilityTests
         Assert.That(table.Rows.Values.Count(x => x.UpgradeKind == FacilityUpgradeKind.StoreStage), Is.EqualTo(2));
         Assert.That(table.Rows[12008].RequiredStoreStage, Is.EqualTo(1));
         Assert.That(table.Rows[12008].TargetStoreStage, Is.EqualTo(2));
+        Assert.That(table.Rows[12008].PurchasePrice, Is.Zero);
         Assert.That(table.Rows[12010].RequiredStoreStage, Is.EqualTo(2));
         Assert.That(table.Rows[12010].TargetStoreStage, Is.EqualTo(3));
+        Assert.That(table.Rows[12010].PurchasePrice, Is.Zero);
+        Assert.That(table.Rows.Values.Where(x => x.RequiredStoreStage == 1 &&
+            (x.UpgradeKind == FacilityUpgradeKind.ProductUnlock || x.UpgradeKind == FacilityUpgradeKind.Convenience))
+            .Sum(x => x.PurchasePrice), Is.EqualTo(808000));
+        Assert.That(table.Rows.Values.Where(x => x.RequiredStoreStage == 2 &&
+            (x.UpgradeKind == FacilityUpgradeKind.ProductUnlock || x.UpgradeKind == FacilityUpgradeKind.Convenience))
+            .Sum(x => x.PurchasePrice), Is.EqualTo(2092000));
         Assert.That(table.Rows[12012].RequiredStoreStage, Is.EqualTo(3));
         Assert.That(table.Rows[12007].EffectType, Is.EqualTo(ConvenienceEffectType.DividerBar));
         Assert.That(table.Rows[12009].EffectType, Is.EqualTo(ConvenienceEffectType.AutoSorting));
@@ -485,8 +493,9 @@ public sealed class FacilityTests
         string csv = File.ReadAllText("Assets/Datas/FacilityData.csv");
         string product = File.ReadAllText("Assets/Datas/Customer/ProductData.csv");
         if (kind == "id") csv = csv.Replace("12001,", "11001,");
-        if (kind == "duplicate") csv += "12001,8056,18000,1,1,0,0,0,0,0\n";
-        if (kind == "price") csv = csv.Replace("8056,18000", "8056,0");
+        string firstRow = csv.Split('\n').Single(line => line.StartsWith("12001,"));
+        if (kind == "duplicate") csv += firstRow.TrimEnd('\r') + "\n";
+        if (kind == "price") csv = csv.Replace("12001,8056," + firstRow.Split(',')[2], "12001,8056,0");
         if (kind == "name") csv = csv.Replace("8056,", "8999,");
         if (kind == "product") product = product.Replace(",12001", ",12999");
         if (kind == "zero-product") product = product.Replace(",12001", ",0");

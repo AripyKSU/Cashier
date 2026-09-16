@@ -156,6 +156,7 @@ public sealed class FacilityService
         }
         uint purchaseElapsedDay = getElapsedDays();
         FacilityUpgradeKind upgradeKind = upgradeKinds[facilityIdx];
+        bool isFreeStageUpgrade = upgradeKind == FacilityUpgradeKind.StoreStage && price == 0;
         uint requiredStoreStage = requiredStoreStages[facilityIdx];
         uint targetStoreStage = targetStoreStages[facilityIdx];
         if (CurrentStoreStage < requiredStoreStage ||
@@ -175,7 +176,7 @@ public sealed class FacilityService
         uint activationDay = upgradeKind == FacilityUpgradeKind.StoreStage || upgradeKind == FacilityUpgradeKind.Citizenship
             ? purchaseElapsedDay
             : checked(purchaseElapsedDay + 1);
-        if (!finance.CanAfford(price))
+        if (!isFreeStageUpgrade && !finance.CanAfford(price))
         {
             result = new FacilityPurchaseResult(FacilityPurchaseStatus.InsufficientFunds, facilityIdx, 0, null);
             return false;
@@ -193,7 +194,7 @@ public sealed class FacilityService
             {
                 CurrentStoreStage = targetStoreStage;
             }
-            if (!finance.TrySpend(price, FinanceChangeReason.FacilityPurchase, out payment))
+            if (!isFreeStageUpgrade && !finance.TrySpend(price, FinanceChangeReason.FacilityPurchase, out payment))
             {
                 activationDays.Remove(facilityIdx);
                 CurrentStoreStage = previousStoreStage;
@@ -213,7 +214,7 @@ public sealed class FacilityService
         catch
         {
             // TrySpend는 결과·잔액을 확정한 뒤 알림을 호출한다. 후속 이벤트의 잔액 변화와 비교하지 않는다.
-            bool wasPaid = payment.Reason == FinanceChangeReason.FacilityPurchase &&
+            bool wasPaid = isFreeStageUpgrade || payment.Reason == FinanceChangeReason.FacilityPurchase &&
                 payment.BalanceDelta == -price && payment.PreviousBalance == previousBalance &&
                 payment.CurrentBalance == previousBalance - price;
             if (!wasPaid)

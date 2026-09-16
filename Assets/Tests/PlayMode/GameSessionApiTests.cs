@@ -877,7 +877,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator NewSessionClearsFacilityOwnership()
     {
-        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(2000000, FinanceChangeReason.Sale);
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1)); progress.Start();
         Assert.That(progress.TryPurchaseFacility(12001, out _));
         UnityEngine.Object.Destroy(session); yield return null;
@@ -1493,7 +1493,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityPresenterRequestsAndLongValues()
     {
-        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(2000000, FinanceChangeReason.Sale);
         var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab");
         var panel = UnityEngine.Object.Instantiate(asset, root.transform).GetComponent<FacilityShopPresenter>();
         var factory = new ProgressViewDataFactory(tables.Customers, tables.GetDB<TextDataTable>(DataTableType.Text),
@@ -1510,11 +1510,11 @@ public sealed class GameSessionApiTests
             Assert.That(purchases, Is.Zero); panel.gameObject.SetActive(false);
         }
         panel.gameObject.SetActive(true); panel.UpdateView(view, ""); yield return null;
-        var rows = panel.GetComponentsInChildren<FacilityItemView>(); Assert.That(rows.Length, Is.EqualTo(4));
+        var rows = uiReferenceArray<FacilityPamphletSlotView>(panel, "stage1Slots"); Assert.That(rows.Length, Is.EqualTo(3));
         var button = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
         button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1)); Assert.That(requested, Is.EqualTo(12001u));
         panel.SetInteractionEnabled(false); button.onClick.Invoke(); Assert.That(purchases, Is.EqualTo(1));
-        uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke(); Assert.That(closes, Is.EqualTo(1));
+        uiReference<UnityEngine.UI.Button>(panel, "outsideCloseButton").onClick.Invoke(); Assert.That(closes, Is.EqualTo(1));
         rows[0].UpdateView(new FacilityItemViewData(12001, new string('가', 30), long.MaxValue,
             "방독면, 방호복, 방사능 측정기", FacilityDisplayState.Purchasable, 4294967297UL), true);
         Canvas.ForceUpdateCanvases();
@@ -1531,19 +1531,35 @@ public sealed class GameSessionApiTests
         Assert.That(uiReference<GameObject>(panel, "stage1Panel").activeSelf, Is.False);
         Assert.That(uiReference<GameObject>(panel, "stage2Panel").activeSelf, Is.True);
         Assert.That(uiReference<GameObject>(panel, "stage3Panel").activeSelf, Is.False);
-        var stage2Rows = panel.GetComponentsInChildren<FacilityItemView>();
-        Assert.That(stage2Rows.Length, Is.EqualTo(4));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(stage2Rows[0], "nameText").text, Is.EqualTo("공구대"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(stage2Rows[3], "nameText").text, Is.EqualTo("3단계 확장"));
+        var stage2Rows = uiReferenceArray<FacilityPamphletSlotView>(panel, "stage2Slots");
+        Assert.That(stage2Rows.Length, Is.EqualTo(3));
+        Assert.That(uiReference<TMPro.TextMeshProUGUI>(stage2Rows[0], "priceText").text,
+            Is.EqualTo(stage2.RegularItems[0].PurchasePrice.ToString("N0")));
 
         var stage3 = factory.CreateFacilityShopViewData(facilities, emptyOwnership, 3, 0, long.MaxValue);
         panel.UpdateView(stage3, ""); yield return null;
         Assert.That(uiReference<GameObject>(panel, "stage1Panel").activeSelf, Is.False);
         Assert.That(uiReference<GameObject>(panel, "stage2Panel").activeSelf, Is.False);
         Assert.That(uiReference<GameObject>(panel, "stage3Panel").activeSelf, Is.True);
-        var stage3Rows = panel.GetComponentsInChildren<FacilityItemView>();
-        Assert.That(stage3Rows.Length, Is.EqualTo(4));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(stage3Rows[3], "nameText").text, Does.StartWith("시민권"));
+        var stage3Rows = uiReferenceArray<FacilityPamphletSlotView>(panel, "stage3Slots");
+        Assert.That(stage3Rows.Length, Is.EqualTo(3));
+        Assert.That(uiReference<GameObject>(panel, "citizenshipPanel").activeSelf, Is.False);
+
+        var allPrerequisites = facilities.Keys.Where(idx => idx != 12012u).ToDictionary(idx => idx, _ => 0u);
+        var citizenshipReady = factory.CreateFacilityShopViewData(facilities, allPrerequisites, 3, 0, long.MaxValue);
+        panel.SetInteractionEnabled(true);
+        panel.UpdateView(citizenshipReady, "");
+        uiReference<UnityEngine.UI.Button>(panel, "stage3ProgressionButton").onClick.Invoke();
+        Assert.That(uiReference<GameObject>(panel, "stage3Panel").activeSelf, Is.False);
+        Assert.That(uiReference<GameObject>(panel, "citizenshipPanel").activeSelf);
+        panel.gameObject.SetActive(false);
+        panel.gameObject.SetActive(true);
+        panel.UpdateView(citizenshipReady, "");
+        Assert.That(uiReference<GameObject>(panel, "citizenshipPanel").activeSelf,
+            "시민권 페이지는 팸플릿을 다시 열어도 유지되어야 합니다.");
+        var citizenshipSlot = uiReference<FacilityPamphletSlotView>(panel, "citizenshipSlot");
+        uiReference<UnityEngine.UI.Button>(citizenshipSlot, "purchaseButton").onClick.Invoke();
+        Assert.That(requested, Is.EqualTo(12012u));
     }
 
     /// <summary>실제 GameUI는 정산에서만 구매하고 뒤 Submit·중복 구매를 막으며 다음날을 해금한다.</summary>
@@ -1551,7 +1567,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerPurchaseAndModalBoundaries()
     {
-        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(2000000, FinanceChangeReason.Sale);
         long openingBalance = session.Economy.QueryService.CurrentBalance;
         long purchasePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12001].PurchasePrice;
         var ui = createGameUi(); yield return waitForGameUi(ui); configureFastSettlement(ui);
@@ -1573,17 +1589,16 @@ public sealed class GameSessionApiTests
         UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled, Is.False);
-        var rows = panel.GetComponentsInChildren<FacilityItemView>(); var buy = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
+        var rows = uiReferenceArray<FacilityPamphletSlotView>(panel, "stage1Slots"); var buy = uiReference<UnityEngine.UI.Button>(rows[0], "purchaseButton");
         long previous = session.Economy.QueryService.CurrentBalance;
         buy.onClick.Invoke(); buy.onClick.Invoke();
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previous - purchasePrice));
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001), Is.False);
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Does.Contain("적용 대기"));
+        Assert.That(uiReference<UnityEngine.UI.Image>(rows[0], "soldOutImage").gameObject.activeSelf);
         Assert.That(leftPage.text, Does.Contain($"현재 보유금  {previous - purchasePrice:N0}원"));
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Maintenance, out _);
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "balanceText").text, Does.Contain("0 G"));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[1], "statusText").text, Is.EqualTo("잔액 부족"));
-        uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke();
+        Assert.That(uiReference<UnityEngine.UI.Button>(rows[1], "purchaseButton").interactable, Is.False);
+        uiReference<UnityEngine.UI.Button>(panel, "outsideCloseButton").onClick.Invoke();
         Assert.That(session.ElapsedDays, Is.Zero); Assert.That(next.IsInteractable());
         Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled);
         next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
@@ -1591,7 +1606,7 @@ public sealed class GameSessionApiTests
         session.Economy.FinanceService.AddIncome(1000, FinanceChangeReason.Sale);
         completeInspectors(progress);
         closeProgressDay(progress); yield return waitForSettlementReady(ui); open.onClick.Invoke();
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(rows[0], "statusText").text, Is.EqualTo("사용 중"));
+        Assert.That(uiReference<UnityEngine.UI.Image>(rows[0], "soldOutImage").gameObject.activeSelf);
     }
 
     /// <summary>차감 후 알림 예외도 보유를 표시하고 자동 재결제 없이 기존 기술 오류 잠금을 따른다.</summary>
@@ -1599,7 +1614,7 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator FacilityControllerNotificationFailurePreservesPurchase()
     {
-        session.Economy.FinanceService.AddIncome(200000, FinanceChangeReason.Sale);
+        session.Economy.FinanceService.AddIncome(2000000, FinanceChangeReason.Sale);
         long openingBalance = session.Economy.QueryService.CurrentBalance;
         long purchasePrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12001].PurchasePrice;
         var ui = createGameUi(); yield return waitForGameUi(ui); configureFastSettlement(ui);
@@ -1607,7 +1622,7 @@ public sealed class GameSessionApiTests
         var interaction = uiReference<SettlementInteractionView>(ui, "settlementInteractionView");
         uiReference<UnityEngine.UI.Button>(interaction, "facilityPamphletButton").onClick.Invoke();
         var panel = uiReference<FacilityShopPresenter>(ui, "facilityShopPresenter");
-        var row = panel.GetComponentsInChildren<FacilityItemView>()[0];
+        var row = uiReferenceArray<FacilityPamphletSlotView>(panel, "stage1Slots")[0];
         Action<FinanceChangeResult> fail = _ => throw new InvalidOperationException("ui purchase notification");
         session.Economy.FinanceService.BalanceChanged += fail;
         LogAssert.Expect(LogType.Exception, new System.Text.RegularExpressions.Regex("ui purchase notification"));
@@ -1615,10 +1630,11 @@ public sealed class GameSessionApiTests
         session.Economy.FinanceService.BalanceChanged -= fail;
         Assert.That(session.FacilityActivationDays.ContainsKey(12001));
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(openingBalance - 2000 - purchasePrice));
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(row, "statusText").text, Does.Contain("적용 대기"));
+        Assert.That(uiReference<UnityEngine.UI.Image>(row, "soldOutImage").gameObject.activeSelf);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
-        Assert.That(panel.GetComponentsInChildren<FacilityItemView>().All(x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
-        uiReference<UnityEngine.UI.Button>(panel, "closeButton").onClick.Invoke();
+        Assert.That(uiReferenceArray<FacilityPamphletSlotView>(panel, "stage1Slots").All(
+            x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
+        uiReference<UnityEngine.UI.Button>(panel, "outsideCloseButton").onClick.Invoke();
         Assert.That(panel.gameObject.activeSelf, Is.False); Assert.That(uiReference<CanvasGroup>(ui, "settlementInputGroup").interactable, Is.False);
     }
 
@@ -1700,6 +1716,18 @@ public sealed class GameSessionApiTests
     /// <returns>연결된 객체.</returns>
     private static T uiReference<T>(UnityEngine.Object target, string field) where T : UnityEngine.Object =>
         (T)new UnityEditor.SerializedObject(target).FindProperty(field).objectReferenceValue;
+
+    /// <summary>테스트에서 실제 직렬화 객체 배열을 읽는다.</summary>
+    /// <typeparam name="T">예상 UI 컴포넌트.</typeparam><param name="target">연결 소유자.</param><param name="field">직렬화 배열 필드.</param>
+    /// <returns>연결된 객체 배열.</returns>
+    private static T[] uiReferenceArray<T>(UnityEngine.Object target, string field) where T : UnityEngine.Object
+    {
+        UnityEditor.SerializedProperty property = new UnityEditor.SerializedObject(target).FindProperty(field);
+        var values = new T[property.arraySize];
+        for (int index = 0; index < values.Length; index++)
+            values[index] = (T)property.GetArrayElementAtIndex(index).objectReferenceValue;
+        return values;
+    }
 
     /// <summary>제품 API를 늘리지 않고 테스트에서 실제 진행 인스턴스를 관찰한다.</summary>
     /// <param name="ui">테스트 Controller.</param><returns>Controller가 소유한 진행.</returns>
