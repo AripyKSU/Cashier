@@ -45,14 +45,22 @@ public sealed class CustomerCatalog
             foreach (var row in Appearances.PendingRows.Values)
             {
                 row.ValidateClassification();
+                row.ValidateDisposition();
                 validateNameReference(texts, "CustomerAppearanceData.csv", row.Idx, row.NameIdx);
                 if (resources == null || !resources.TryGetResource(row.ImageResourceIdx, out _))
                     throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, image_resource_idx={row.ImageResourceIdx}: Resource 참조 실패");
+                if (resources == null || !resources.TryGetResource(row.NormalResourceIdx, out _))
+                    throw new InvalidDataException($"CustomerAppearanceData.csv PK={row.Idx}, normal_resource_idx={row.NormalResourceIdx}: Resource 참조 실패");
             }
             foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
             foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
-                if (!Appearances.PendingRows.Values.Any(row => row.Gender == gender && row.Age == age))
-                    throw new InvalidDataException($"CustomerAppearanceData.csv: gender={gender}, age={age} 외형 조합 누락");
+                if (!Appearances.PendingRows.Values.Any(row => row.Gender == gender && row.Age == age && row.DispositionType == CustomerDispositionType.Normal))
+                    throw new InvalidDataException($"CustomerAppearanceData.csv: gender={gender}, disposition_type=Normal, age={age} 외형 조합 누락");
+            foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
+            foreach (CustomerDispositionType dispositionType in new[]
+                { CustomerDispositionType.Hasty, CustomerDispositionType.PriceSensitive, CustomerDispositionType.Wealthy, CustomerDispositionType.Poor })
+                if (!Appearances.PendingRows.Values.Any(row => row.Gender == gender && row.Age == CustomerAttributes.Adult && row.DispositionType == dispositionType))
+                    throw new InvalidDataException($"CustomerAppearanceData.csv: gender={gender}, disposition_type={dispositionType}, age=Adult 외형 조합 누락");
             foreach (var row in Dispositions.PendingRows.Values)
                 validateNameReference(texts, "CustomerDispositionData.csv", row.Idx, row.NameIdx);
             foreach (var row in Categories.PendingRows.Values)

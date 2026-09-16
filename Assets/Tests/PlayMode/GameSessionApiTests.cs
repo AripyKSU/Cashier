@@ -1598,8 +1598,6 @@ public sealed class GameSessionApiTests
         var presenter = ui.GetComponentInChildren<CustomerPresenter>(true);
         var presenterSettings = new UnityEditor.SerializedObject(presenter);
         var appearance = (UnityEngine.UI.Image)presenterSettings.FindProperty("appearanceImage").objectReferenceValue;
-        var label = (TMPro.TextMeshProUGUI)presenterSettings.FindProperty("temporaryGenderText").objectReferenceValue;
-        if (label != null && appearance != null && label.transform.IsChildOf(appearance.transform)) label.transform.SetParent(front, true);
         presenterSettings.FindProperty("appearanceImage").objectReferenceValue = null;
         presenterSettings.ApplyModifiedPropertiesWithoutUndo();
         if (appearance != null) UnityEngine.Object.DestroyImmediate(appearance.gameObject);

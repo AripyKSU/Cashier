@@ -24,6 +24,7 @@
 | [INSPECTOR_SYSTEM_DRAFT.md](INSPECTOR_SYSTEM_DRAFT.md) | 영업 전 감독관 이벤트 | 구현된 데이터·진행·UI 계약과 과거 검증 |
 | [DAUGHTER_DIALOGUE_SYSTEM.md](DAUGHTER_DIALOGUE_SYSTEM.md) | 정산 화면의 딸 대사·날짜별 이미지 | 구현 계약·상태 소유권, 임시 데이터·병합 연결과 검증 결과 |
 | [SETTLEMENT_UI_LAYOUT.md](SETTLEMENT_UI_LAYOUT.md) | 정산 화면 배치·이미지·폰트 조정 | 플레이어가 직접 편집할 Prefab 계층, 리소스와 유지할 참조 |
+| [TMP_FONT_INVENTORY.md](TMP_FONT_INVENTORY.md) | TMP 한글 폰트 교체 전 위치 전수조사 | 제작용 오브젝트·컴포넌트·런타임 생성·에디터 자동설정 위치와 교체 순서 |
 | [SETTLEMENT_TECHNICAL.md](SETTLEMENT_TECHNICAL.md) | 정산 코드·API·흐름 변경 | 클래스 책임, ViewData, 이벤트, 설비 왕복과 다음 날 연결 |
 | [FEATURE_CONTRACT_AUDIT.md](FEATURE_CONTRACT_AUDIT.md) | 담당 기능의 명세·구현 차이 확인 | 손님·설비·도덕성·대기열·감독관 대조와 미해결 항목 |
 | [work/inspector-events.md](work/inspector-events.md) | 감독관 작업 재개·통합 | 현재 브랜치·완료·후속 작업 |
@@ -49,6 +50,7 @@
 | [CUSTOMER_INTEGRATION.md](CUSTOMER_INTEGRATION.md) | 손님·상품 기능 연결 | MainScene 인계와 사용 계약 |
 | [CUSTOMER_SPAWN_INTEGRATION.md](CUSTOMER_SPAWN_INTEGRATION.md) | 손님 구성 선택·생성 | 생성 통합 계약 |
 | [CUSTOMER_QUEUE_INTEGRATION.md](CUSTOMER_QUEUE_INTEGRATION.md) | 대기열·이탈·표현 | 대기열 구현·병합 명세 |
+| [CUSTOMER_ARTWORK_INTEGRATION.md](CUSTOMER_ARTWORK_INTEGRATION.md) | 고객 원화 handoff 병합 | total_merge 클래스·데이터·표시·1600×900 연결 |
 | [REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md](REPUTATION_CUSTOMER_GENERATOR_HANDOFF.md) | 명성 기반 손님 생성 | 데이터 인계와 조건 |
 | [MORALITY_INTEGRATION.md](MORALITY_INTEGRATION.md) | 거래 도덕성·정산 | 도덕성 거래 연동 |
 | [PRICE_EVENT_INTEGRATION.md](PRICE_EVENT_INTEGRATION.md) | 신문·라디오·현재가 이벤트 | 가격 변동 이벤트 계약 |

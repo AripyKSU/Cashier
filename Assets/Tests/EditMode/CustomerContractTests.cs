@@ -129,9 +129,9 @@ public sealed class CustomerContractTests
         Assert.That(normal, Is.InRange(5700, 6300)); Assert.That(counts.Count, Is.EqualTo(4));
         Assert.That(counts.Where(x => x.Key <= 3).All(x => x.Value >= 1750 && x.Value <= 2250));
         Assert.That(attributes.Count, Is.EqualTo(6)); Assert.That(attributes.ContainsKey(CustomerAttributes.None), Is.False);
-        Assert.That(attributes.Values.All(x => x >= 1750 && x <= 2250));
+        Assert.That(attributes.Values.All(x => x > 0));
         Assert.That(attributes.Keys.Select(x => (int)x), Is.EquivalentTo(new[] { 37, 38, 41, 42, 49, 50 }));
-        Assert.That(combinations.Count, Is.EqualTo(24)); // 속성별 외형2 × 성향타입2 × 속성6 모두 도달한다.
+        Assert.That(combinations.Count, Is.EqualTo(16)); // Normal 외형12개와 Hasty 성인 외형4개.
     }
 
     /// <summary>동일 seed가 외형·상품·수량·속성 전체를 재현한다.</summary>
@@ -366,7 +366,7 @@ public sealed class CustomerContractTests
             var rule = new SaleRestriction(required, ProductType.Water);
             var visits = Enumerable.Range(0, 256).Select(_ => generate(() => new[] { rule }))
                 .GroupBy(x => x.Attributes).Select(x => x.First()).ToArray();
-            Assert.That(visits.Length, Is.EqualTo(6));
+            Assert.That(visits.Length, Is.EqualTo(config.DispositionType == CustomerDispositionType.Normal ? 6 : 2));
             foreach (var visit in visits)
             {
                 Assert.That(visit.DispositionType, Is.EqualTo(CustomerDispositionType.Wealthy));

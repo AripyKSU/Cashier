@@ -8,7 +8,7 @@ using System.Linq;
 /// </summary>
 /// <remarks>
 /// 명성 가중치로 성향 구성군을 고른 뒤 해당 군의 타입과 행을 선택합니다.
-/// 선택한 성별·연령과 일치하는 검증된 외형만 구성 snapshot에 사용합니다.
+/// 선택한 성별·연령·성향과 일치하는 검증된 외형만 구성 snapshot에 사용합니다.
 /// </remarks>
 public sealed class CustomerCompositionSelector
 {
@@ -118,12 +118,15 @@ public sealed class CustomerCompositionSelector
         CustomerDispositionData disposition = reputationBalance == null
             ? selectUniformDisposition(sortedDispositions, elapsedDays)
             : selectWeightedDisposition(sortedDispositions, reputationBalance, elapsedDays);
-        CustomerAttributes selectedGender;
-        CustomerAttributes attributes = this.selectAttributes(out selectedGender);
+        CustomerAttributes selectedGender = this.selectNextGender();
+        CustomerAttributes selectedAge = this.selectAge(sortedAppearances, selectedGender, disposition.DispositionType);
+        CustomerAttributes attributes = selectedGender | selectedAge | CustomerAttributes.Normal;
+        CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         List<CustomerAppearanceData> matchingAppearances = sortedAppearances.Where(appearance =>
-            appearance.Gender == selectedGender && (attributes & appearance.Age) != 0).ToList();
+            appearance.Gender == selectedGender && appearance.Age == selectedAge &&
+            appearance.DispositionType == disposition.DispositionType).ToList();
         if (matchingAppearances.Count == 0)
-            throw new InvalidDataException($"gender={selectedGender}, age={attributes & (CustomerAttributes.Child | CustomerAttributes.Elderly | CustomerAttributes.Adult)} 외형 후보 누락");
+            throw new InvalidDataException($"gender={selectedGender}, age={selectedAge}, disposition_type={disposition.DispositionType} 외형 후보 누락");
         uint appearanceIdx = matchingAppearances[this.random.Next(matchingAppearances.Count)].Idx;
         List<CustomerOrderItem> items = selectItems(disposition, availableProducts, currentPrices);
         CustomerComposition composition = new CustomerComposition(
@@ -157,6 +160,7 @@ public sealed class CustomerCompositionSelector
             if (pair.Key == 0 || pair.Value == null || pair.Key != pair.Value.Idx)
                 throw new ArgumentException("외형 사전 키와 PK가 일치해야 합니다.", nameof(appearances));
             pair.Value.ValidateClassification();
+            pair.Value.ValidateDisposition();
             result.Add(pair.Value);
         }
 
@@ -400,6 +404,31 @@ public sealed class CustomerCompositionSelector
         CustomerAttributes attributes = selectedGender | age | CustomerAttributes.Normal;
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         return attributes;
+    }
+
+    /// <summary>확정된 성별·성향의 실제 외형 수를 연령 가중치로 사용한다.</summary>
+    private CustomerAttributes selectAge(
+        IReadOnlyList<CustomerAppearanceData> appearances,
+        CustomerAttributes selectedGender,
+        CustomerDispositionType dispositionType)
+    {
+        var groups = appearances.Where(appearance => appearance.Gender == selectedGender &&
+                appearance.DispositionType == dispositionType)
+            .GroupBy(appearance => appearance.Age)
+            .OrderBy(group => group.Key)
+            .ToArray();
+        int total = groups.Sum(group => group.Count());
+        if (total == 0)
+            throw new InvalidDataException($"gender={selectedGender}, disposition_type={dispositionType} 외형 후보 누락");
+
+        int roll = this.random.Next(total);
+        foreach (var group in groups)
+        {
+            if (roll < group.Count()) return group.Key;
+            roll -= group.Count();
+        }
+
+        throw new InvalidDataException($"gender={selectedGender}, disposition_type={dispositionType} 연령 가중치 계산 실패");
     }
 
     /// <summary>첫 방문은 무작위로, 이후 방문은 직전 성별의 반대로 선택합니다.</summary>

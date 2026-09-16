@@ -44,9 +44,12 @@ public sealed class CustomerAppearanceDataTable : IDataLoad
                 var item = csv.GetRecord<CustomerAppearanceData>();
                 if (Util.GetDataTableType(item.Idx) != DataTableType.CustomerAppearance || item.Idx % 1000 == 0 || parsed.ContainsKey(item.Idx))
                     throw new InvalidDataException($"column=idx, PK={item.Idx}: 대역 위반 또는 중복");
-                if (item.ImageResourceIdx % 1000 == 0 || Util.GetDataTableType(item.ImageResourceIdx) != DataTableType.Resource)
+                if (item.ImageResourceIdx == 0 || item.ImageResourceIdx % 1000 == 0 || Util.GetDataTableType(item.ImageResourceIdx) != DataTableType.Resource)
                     throw new InvalidDataException($"PK={item.Idx}, column=image_resource_idx: Resource FK 대역 오류");
+                if (item.NormalResourceIdx == 0 || item.NormalResourceIdx % 1000 == 0 || Util.GetDataTableType(item.NormalResourceIdx) != DataTableType.Resource)
+                    throw new InvalidDataException($"PK={item.Idx}, column=normal_resource_idx: Resource FK 대역 오류");
                 item.ValidateClassification();
+                item.ValidateDisposition();
                 parsed.Add(item.Idx, item);
             }
             if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");

@@ -667,7 +667,8 @@ MonoBehaviour:
   - {fileID: 4568109078236969059}
   - {fileID: 8277630240922037447}
   font: {fileID: 11400000, guid: c0f9f8080e30dd3499d44ece2a336e14, type: 2}
-  spriteMaterial: {fileID: 2100000, guid: cc7bbc5199031f64392025ac7ded5fdd, type: 2}
+  bodyMaterial: {fileID: 2100000, guid: 819f3c753f3f4524b8bff9451fd345f0, type: 2}
+  reactionMaterial: {fileID: 2100000, guid: cc7bbc5199031f64392025ac7ded5fdd, type: 2}
   tradeReactionSprites:
   - {fileID: 1562827480, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
   - {fileID: -1103762195, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
@@ -676,6 +677,8 @@ MonoBehaviour:
   heightPixels: 430
   bottomCoverPixels: 12
   moveSeconds: 0.65
+  childPortraitScale: 0.6
+  childPortraitRise: 0.001090909
 --- !u!1 &825493237426990043
 GameObject:
   m_ObjectHideFlags: 0

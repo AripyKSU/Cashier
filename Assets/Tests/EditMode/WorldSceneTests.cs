@@ -18,7 +18,9 @@ public sealed class WorldSceneTests
         var ui = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab");
         var presenter = new SerializedObject(ui.GetComponentInChildren<CustomerPresenter>(true));
         Assert.That(presenter.FindProperty("appearanceImage").objectReferenceValue, Is.Null);
-        Assert.That(presenter.FindProperty("temporaryGenderText").objectReferenceValue, Is.Not.Null);
+        Assert.That(presenter.FindProperty("temporaryGenderText"), Is.Null);
+        var operatingPanel = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/OperatingPanel.prefab");
+        Assert.That(operatingPanel.transform.Find("AstraFrontView/Customer/Appearance/TemporaryGender"), Is.Null);
     }
 
     /// <summary>종횡비와 pixelRect 오프셋이 바뀌어도 viewport의 같은 점으로 대응한다.</summary>
@@ -74,6 +76,10 @@ public sealed class WorldSceneTests
         Assert.That(prefab.GetComponentsInChildren<SpriteRenderer>(true).Length, Is.EqualTo(29));
         var queue = new SerializedObject(prefab.GetComponent<CustomerWorldQueueView>());
         Assert.That(queue.FindProperty("slots").arraySize, Is.EqualTo(CustomerQueue.Capacity));
+        Assert.That(queue.FindProperty("childPortraitScale").floatValue, Is.EqualTo(CustomerPortraitLayout.DefaultChildPortraitScale).Within(.0001f));
+        Assert.That(queue.FindProperty("childPortraitRise").floatValue, Is.EqualTo(CustomerPortraitLayout.DefaultChildPortraitRise).Within(.0001f));
+        Assert.That(queue.FindProperty("bodyMaterial").objectReferenceValue, Is.Not.Null);
+        Assert.That(queue.FindProperty("reactionMaterial").objectReferenceValue, Is.Not.Null);
         for (int i = 0; i < CustomerQueue.Capacity; i++)
             Assert.That(queue.FindProperty("slots").GetArrayElementAtIndex(i).objectReferenceValue, Is.Not.Null);
         foreach (var renderer in prefab.GetComponentsInChildren<SpriteRenderer>(true))
