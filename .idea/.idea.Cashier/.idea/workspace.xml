@@ -11,29 +11,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Ending/EndingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Ending/EndingPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/CommonHUD.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/CommonHUD.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/ErrorPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/ErrorPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityItem.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityItem.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/FailurePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/FailurePanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/SettlementPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/SettlementPanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/TributePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/TributePanel.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/World/CustomerWorld.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/World/CustomerWorld.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/HubScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/HubScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/LoadingScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/LoadingScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/SaleSortingPrefabSetup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/SaleSortingPrefabSetup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DailySettlementLedgerFormatter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DailySettlementLedgerFormatter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerMale.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerMale.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Manager/GameSceneManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Manager/GameSceneManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/LoadingScene.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/LoadingScene.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Hub/hubscene.png" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Hub/hubscene.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/UI/Hub/hubscene.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/UI/Hub/hubscene.png.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/SCENE_WORKFLOW.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/SCENE_WORKFLOW.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,7 +193,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "total__merge",
+    "git-widget-placeholder": "hubimage",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

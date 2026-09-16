@@ -15,6 +15,17 @@ Editor 개인 설정이 없으면 `Assets/Scenes/MainScene.unity`, 설정이 있
 Player 빌드에는 개인 설정 분기가 포함되지 않으며 항상 MainScene으로 이동한다.
 MainScene은 통합·실행 검증용 공용 씬이다. 현재 GameUI.prefab 인스턴스, Camera와 InputSystem EventSystem을 포함한다. 설비·명성 통합 경로와 사용법은 MAINSCENE_INTEGRATION.md를 따른다.
 
+### MainScene 4단계 선로드
+
+MainScene 전환은 목적지 활성화 전에 LoadingScene에서 다음 네 단계를 수행한다.
+
+1. `Loading_00~01`: ResourceManager·DataTableManager 준비와 필수 테이블 확인
+2. `Loading_02~04`: 상품 기본/탑뷰와 손님 외형 Sprite 선로드
+3. `Loading_05~12`: 손님 Normal Texture와 감독관·딸 Sprite 선로드
+4. `Loading_13~18`: 가게 단계 Prefab·시계 Sprite 선로드와 StoreStageVisual 검증, MainScene 로드
+
+MainScene 선로드에서는 이미지를 0.2초 간격으로 재생하고 각 이미지 구간을 한 번 재생한 뒤 해당 구간의 마지막 이미지에서 작업 완료까지 멈춘다. MainScene 이외의 일반 전환은 단계 제어를 사용하지 않고 같은 0.2초 간격으로 `Loading_00~18` 전체 애니메이션을 재생하므로 InitScene 부트 후 HubScene으로 이동할 때도 전체 구간이 표시된다. 공유 자산의 소유권은 ResourceManager에 있고 LoadingScene은 직접 해제하지 않는다. MainScene의 GameUIController와 StoreStagePresentation은 직접 Scene 실행의 안전망을 위해 기존 로드 경로를 유지하며, 정상 전환에서는 준비된 캐시를 사용해 Scene 오브젝트 적용만 수행한다. 선로드 또는 검증 실패 시 MainScene을 활성화하지 않고 LoadingScene의 새 게임 재시도 UI를 표시한다.
+
 
 ## 개인 작업
 
