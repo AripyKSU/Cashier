@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -126,6 +126,15 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private int nextInstanceId = 1;
     private Coroutine flowRoutine;
 
+    /// <summary>생성·거절·거래 확정·초기화 직후의 테이블 수량 변경을 알립니다.</summary>
+    internal event Action TableContentsChanged;
+    /// <summary>오른쪽 체크아웃 영역의 정렬 가능한 물품 구성이 바뀌면 알립니다.</summary>
+    internal event Action CheckoutContentsChanged;
+    /// <summary>거래 확정 후 남은 연출 객체를 다음 손님 물품으로 집계하지 않습니다.</summary>
+    private bool tableTradeCompleted;
+    /// <summary>판매 후보와 흡입기 임시 보관품까지 포함하는 미처리 상태입니다.</summary>
+    internal bool HasCountableTableItems => Session != null && Session.Phase == DystopiaPhase.Trading && !tableTradeCompleted;
+
     public DystopiaSession Session { get; private set; }
     public IReadOnlyList<DystopiaTopDownItem> Items => items;
     public bool IsSorting => state == ViewState.Sorting;
@@ -167,7 +176,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
 #if UNITY_EDITOR
         BindEditorAssets();
-        if (handArtwork == null) handArtwork = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/Hands.png");
+        if (handArtwork == null) handArtwork = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/UI/Hands.png");
 #endif
         if (!isEmbeddedInFrontScene) DisableOtherScenesDuringPlay();
         if (isEmbeddedInFrontScene)
@@ -280,6 +289,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             foreach (Transform child in savedItems) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
         uiSlices.Clear();
         items.Clear();
+        checkoutContents.Clear();
         currentCursorContacts.Clear();
         ReleaseHeldItem();
         hasHandPointer = false;
@@ -323,26 +333,26 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private void BindEditorAssets()
     {
 #if UNITY_EDITOR
-        frontBackground = frontBackground != null ? frontBackground : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/FARBACKGROUND.png");
-        frontCounter = frontCounter != null ? frontCounter : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/Counter.png");
-        workbench = workbench != null ? workbench : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png");
-        frontContainerMale = frontContainerMale != null ? frontContainerMale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png");
-        frontContainerFemale = frontContainerFemale != null ? frontContainerFemale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerFemale.png");
-        tiltedContainer = tiltedContainer != null ? tiltedContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png");
-        emptyContainer = emptyContainer != null ? emptyContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png");
+        frontBackground = frontBackground != null ? frontBackground : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Background/FARBACKGROUND.png");
+        frontCounter = frontCounter != null ? frontCounter : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Shop/Counter.png");
+        workbench = workbench != null ? workbench : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/TopDownWorkbench.png");
+        frontContainerMale = frontContainerMale != null ? frontContainerMale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/FrontContainerMale.png");
+        frontContainerFemale = frontContainerFemale != null ? frontContainerFemale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/FrontContainerFemale.png");
+        tiltedContainer = tiltedContainer != null ? tiltedContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/TopDownContainerTilted.png");
+        emptyContainer = emptyContainer != null ? emptyContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/TopDownContainerEmpty.png");
         string[] productNames = { "TopDownWater", "TopDownCrackers", "TopDownCan", "TopDownRiceRound" };
         if (productSprites == null || productSprites.Length != productNames.Length) productSprites = new Sprite[productNames.Length];
         for (int i = 0; i < productSprites.Length; i++)
-            if (productSprites[i] == null) productSprites[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/TopDownTest/Art/{productNames[i]}.png");
+            if (productSprites[i] == null) productSprites[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/Checkout/Workbench/{productNames[i]}.png");
         if (maleCustomers == null || maleCustomers.Length != DystopiaSession.MaleAppearanceCount)
             Array.Resize(ref maleCustomers, DystopiaSession.MaleAppearanceCount);
         if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)
             Array.Resize(ref femaleCustomers, DystopiaSession.FemaleAppearanceCount);
         for (int i = 0; i < maleCustomers.Length; i++)
-            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/MaleCustomer_{i + 1:00}.png");
+            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Male/" + DystopiaSession.AppearanceFileName(true, i) + ".png");
         for (int i = 0; i < femaleCustomers.Length; i++)
-            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_{i + 1:00}.png");
-        uiFont = uiFont != null ? uiFont : UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/DystopiaPrototype/Art/Mulmaru.otf");
+            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Female/" + DystopiaSession.AppearanceFileName(false, i) + ".png");
+        uiFont = uiFont != null ? uiFont : UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Checkout/Mulmaru.otf");
 #endif
     }
 
@@ -589,7 +599,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
                 item.Body.linearDamping = Mathf.Min(item.RestingLinearDamping, 1f);
                 item.Body.linearVelocity = Vector2.ClampMagnitude(
                     (destination - item.Body.position) * (pourForce * .64f), maximumItemSpeed);
-                item.Body.angularVelocity = Mathf.Lerp(-65f, 65f, (float)random.NextDouble());
+                item.Body.angularVelocity = 0;
                 created++;
             }
         }
@@ -601,7 +611,6 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         // 중앙으로 흘러간 뒤에는 기존 조작용 마찰로 복귀해 물품이 계속 떠다니지 않게 합니다.
         pourTargets.Clear();
         foreach (DystopiaTopDownItem item in items) item.Body.linearDamping = item.RestingLinearDamping;
-
     }
 
     /// <summary>쏟기 단계에서만 중앙 도착을 보조하고 분류 중에는 자유 물리를 유지합니다.</summary>
@@ -609,7 +618,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     {
         if (heldItem != null && state == ViewState.Sorting && !isPaused && !Session.IsPaused)
         {
-            // 이동 경로를 먼저 검사해 다른 물품 안으로 순간 이동한 뒤 놓는 상황을 막습니다.
+            // 벽·도구에 대한 이동 경로를 검사합니다. 물품끼리는 이동을 막거나 밀어내지 않습니다.
             Vector2 grip = heldItem.transform.TransformPoint(heldLocalPoint);
             Vector2 movement = heldTarget - grip;
             float distance = movement.magnitude;
@@ -622,7 +631,10 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
                 int count = heldItem.Body.Cast(movement / distance, filter, heldCastHits, distance);
                 float allowedDistance = distance;
                 for (int i = 0; i < count; i++)
+                {
+                    if (heldCastHits[i].collider.GetComponentInParent<DystopiaTopDownItem>() != null) continue;
                     allowedDistance = Mathf.Min(allowedDistance, Mathf.Max(0, heldCastHits[i].distance - .01f));
+                }
                 heldItem.Body.MovePosition(heldItem.Body.position + movement / distance * allowedDistance);
             }
         }
@@ -652,7 +664,12 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
     }
 
-    /// <summary>한 장바구니 단위를 고유 ID와 실제 상품 ID를 가진 독립 물리 객체로 만듭니다.</summary>
+    /// <summary>한 장바구니 단위를 고유 ID와 활성 상품 인덱스를 가진 독립 물리 객체로 만듭니다.</summary>
+    /// <param name="productId">당일 활성 상품 배열의 인덱스입니다.</param>
+    /// <param name="lineIndex">장바구니 품목 행의 인덱스입니다.</param>
+    /// <param name="unitIndex">같은 품목 안의 개별 단위 인덱스입니다.</param>
+    /// <param name="position">물품 부모를 기준으로 한 최초 위치입니다.</param>
+    /// <returns>초기화하고 수량 변경을 알린 개별 물품입니다.</returns>
     private DystopiaTopDownItem CreateItem(int productId, int lineIndex, int unitIndex, Vector2 position)
     {
         var product = Session.ActiveProducts[productId];
@@ -685,6 +702,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         if (item == null) item = itemObject.AddComponent<DystopiaTopDownItem>();
         item.Initialize(nextInstanceId++, productId, lineIndex, unitIndex, body);
         items.Add(item);
+        TableContentsChanged?.Invoke();
         return item;
     }
 
@@ -727,8 +745,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             affected++;
             item.WasStirred = true;
             body.AddForce(away * speedToAdd * body.mass, ForceMode2D.Impulse);
-            float spinDirection = Vector2.SignedAngle(Vector2.right, away) < 0 ? -1 : 1;
-            body.angularVelocity = Mathf.Clamp(body.angularVelocity + spinDirection * 90, -180, 180);
+            body.angularVelocity = 0;
         }
         return affected;
     }
@@ -747,7 +764,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         {
             if (item.State == TopDownItemState.Excluded || item.IsBeingVacuumed) continue;
             item.Body.linearVelocity = Vector2.ClampMagnitude(item.Body.linearVelocity, maximumItemSpeed);
-            item.Body.angularVelocity = Mathf.Clamp(item.Body.angularVelocity, -180, 180);
+            item.Body.angularVelocity = 0;
             if (placedMovementZone != null) ClampPlacedItem(item);
             else
             {
@@ -768,9 +785,13 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             else if (ZoneContains(placedSaleZone, SaleZone, center)) item.State = TopDownItemState.ForSale;
             else item.State = TopDownItemState.Working;
         }
+        RefreshCheckoutContents();
     }
 
     /// <summary>분류 상태를 바꾸되 판매 영역 안에서도 물리 움직임을 유지합니다.</summary>
+    /// <param name="item">기존 장바구니에 연결된 물품입니다.</param>
+    /// <param name="target">판매 후보 또는 거절 확정 상태입니다.</param>
+    /// <returns>기존 세션의 처리 조건을 통과하면 true입니다.</returns>
     public bool TryClassify(DystopiaTopDownItem item, TopDownItemState target)
     {
         if (state != ViewState.Sorting || isPaused || item == null || item.State == TopDownItemState.Excluded) return false;
@@ -779,6 +800,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             if (!Session.ToggleBasketUnit(item.LineIndex, item.UnitIndex)) return false;
             item.State = target;
             item.gameObject.SetActive(false);
+            TableContentsChanged?.Invoke();
         }
         else if (target == TopDownItemState.ForSale)
         {
@@ -844,6 +866,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     }
 
     /// <summary>자동 검사에서도 실제 확정 경로를 동일하게 실행합니다.</summary>
+    /// <param name="input">플레이어가 직접 입력한 판매 금액입니다.</param>
+    /// <returns>기존 거래 확정에 성공하고 미처리 수량을 비웠으면 true입니다.</returns>
     public bool TryConfirm(string input)
     {
         if (state != ViewState.Sorting || isPaused) return false;
@@ -867,6 +891,8 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
         if (flowRoutine != null) StopCoroutine(flowRoutine);
         flowRoutine = StartCoroutine(ResultFlow());
+        tableTradeCompleted = true;
+        TableContentsChanged?.Invoke();
         return true;
     }
 
@@ -905,7 +931,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
             yield break;
         }
         amount = "";
-        pouringContainerImage.sprite = tiltedContainer;
+        if (!hasPlacedUi) pouringContainerImage.sprite = tiltedContainer;
         flowRoutine = StartCoroutine(CustomerFlow());
     }
 
@@ -931,9 +957,12 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     }
 
     /// <summary>현재 물품 Rigidbody2D의 시뮬레이션 여부를 일괄 적용합니다.</summary>
+    /// <param name="simulated">물품의 물리 이동을 활성화할지 여부입니다.</param>
     private void SetBodiesSimulated(bool simulated)
     {
         foreach (DystopiaTopDownItem item in items) if (item != null && item.Body != null) item.Body.simulated = simulated;
+        // 모든 본체를 복원한 다음 제외 쌍을 다시 연결해야 거래 입력 실패 후에도 밀림이 재발하지 않습니다.
+        if (simulated) foreach (var item in items) if (item != null) item.IgnoreItemCollisions();
     }
 
     /// <summary>뷰 전환·일시정지·포커스 복귀 때 이전 포인터 위치를 폐기합니다.</summary>
@@ -953,6 +982,9 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         ReleaseHeldItem();
         foreach (DystopiaTopDownItem item in items) if (item != null) Destroy(item.gameObject);
         items.Clear();
+        checkoutContents.Clear();
+        tableTradeCompleted = false;
+        TableContentsChanged?.Invoke();
         amount = "";
         noticeText.text = "";
     }

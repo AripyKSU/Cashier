@@ -1,0 +1,10 @@
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.DOTween\UniTask.DOTween.deps.json
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.DOTween\UniTask.DOTween.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.DOTween\UniTask.DOTween.pdb
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask.DOTween.csproj.AssemblyReference.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask.DOTween.GeneratedMSBuildEditorConfig.editorconfig
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask.DOTween.csproj.CoreCompileInputs.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask.DOTween.sourcelink.json
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask..D7B6A40C.Up2Date
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask.DOTween.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.DOTween\UniTask.DOTween.pdb

@@ -1,0 +1,11 @@
+--- 
++++ 
+@@ -6380,7 +6380,7 @@
+     - target: {fileID: 392475120117503245, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
+       propertyPath: m_Sprite
+       value: 
+-      objectReference: {fileID: 6177856681799310721, guid: ed2a86b7e120e1140912cd484db7cd6f, type: 3}
++      objectReference: {fileID: -2346741880582125813, guid: 6faf682dc42b41f4e8d93c2a345dc83d, type: 3}
+     - target: {fileID: 392475120117503245, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
+       propertyPath: m_Color.b
+       value: 1

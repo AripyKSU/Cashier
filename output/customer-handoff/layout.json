@@ -1,0 +1,399 @@
+{
+  "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity": {
+    "WaitingRear": {
+      "object": "2487186931037832784",
+      "components": [
+        "8441896698292047231",
+        "7792350358009988367",
+        "2765176776325453409"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 240, y: -580}",
+        "m_SizeDelta": "{x: 240, y: 240}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}",
+        "override.m_Sprite": "{fileID: 21300000, guid: ad8a5b86163973b43b643a9c77727172, type: 3}"
+      }
+    },
+    "Customer": {
+      "object": "5790637825009229522",
+      "components": [
+        "7644976337835443233",
+        "5138158532700342979",
+        "8378370673096319705"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 580, y: -632}",
+        "m_SizeDelta": "{x: 550, y: 550}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_SizeDelta.x": "550",
+        "override.m_SizeDelta.y": "550",
+        "override.m_AnchoredPosition.x": "640.13513",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}",
+        "override.m_Sprite": "{fileID: 21300000, guid: ad8a5b86163973b43b643a9c77727172, type: 3}"
+      }
+    },
+    "WaitingLeft": {
+      "object": "6175313496607097836",
+      "components": [
+        "8429248748414623539",
+        "5882217954491908523",
+        "6131985178820754655"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 385, y: -580}",
+        "m_SizeDelta": "{x: 340, y: 340}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}",
+        "override.m_Sprite": "{fileID: 21300000, guid: 5f9c7f83da89ded498ecef1664611641, type: 3}"
+      }
+    },
+    "FrontView": {
+      "object": "7164527546053456861",
+      "components": [
+        "1689006060938564199",
+        "4811440117262230101",
+        "8388412411312484068",
+        "1887673328830262781"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 0, y: 0}",
+        "m_SizeDelta": "{x: 0, y: 0}",
+        "m_LocalScale": "{x: 0, y: 0, z: 0}",
+        "m_AnchorMin": "{x: 0, y: 0}",
+        "m_AnchorMax": "{x: 0, y: 0}",
+        "m_Pivot": "{x: 0, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_Pivot.x": "0",
+        "override.m_Pivot.y": "0",
+        "override.m_AnchorMax.x": "0",
+        "override.m_AnchorMax.y": "0",
+        "override.m_AnchorMin.x": "0",
+        "override.m_AnchorMin.y": "0",
+        "override.m_SizeDelta.x": "0",
+        "override.m_SizeDelta.y": "0",
+        "override.m_LocalRotation.w": "1",
+        "override.m_LocalRotation.x": "0",
+        "override.m_LocalRotation.y": "0",
+        "override.m_LocalRotation.z": "0",
+        "override.m_AnchoredPosition.x": "0",
+        "override.m_AnchoredPosition.y": "0"
+      }
+    },
+    "childFields": {
+      "childPortraitScale": "0.4",
+      "childPortraitRise": "0.18",
+      "useCustomerNormalMap": "0",
+      "matchScreenResolution": "absent; code default"
+    }
+  },
+  "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity": {
+    "WaitingRear": {
+      "object": "2487186931037832784",
+      "components": [
+        "8441896698292047231",
+        "7792350358009988367",
+        "2765176776325453409"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 240, y: -580}",
+        "m_SizeDelta": "{x: 240, y: 240}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}"
+      }
+    },
+    "Customer": {
+      "object": "5790637825009229522",
+      "components": [
+        "7644976337835443233",
+        "5138158532700342979",
+        "8378370673096319705"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 580, y: -632}",
+        "m_SizeDelta": "{x: 550, y: 550}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_AnchoredPosition.x": "640.13513",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}"
+      }
+    },
+    "WaitingLeft": {
+      "object": "6175313496607097836",
+      "components": [
+        "8429248748414623539",
+        "5882217954491908523",
+        "6131985178820754655"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 385, y: -580}",
+        "m_SizeDelta": "{x: 340, y: 340}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}"
+      }
+    },
+    "FrontView": {
+      "object": "7164527546053456861",
+      "components": [
+        "1689006060938564199",
+        "4811440117262230101",
+        "8388412411312484068",
+        "1887673328830262781"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 0, y: 0}",
+        "m_SizeDelta": "{x: 0, y: 0}",
+        "m_LocalScale": "{x: 0, y: 0, z: 0}",
+        "m_AnchorMin": "{x: 0, y: 0}",
+        "m_AnchorMax": "{x: 0, y: 0}",
+        "m_Pivot": "{x: 0, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_Pivot.x": "0",
+        "override.m_Pivot.y": "0",
+        "override.m_AnchorMax.x": "0",
+        "override.m_AnchorMax.y": "0",
+        "override.m_AnchorMin.x": "0",
+        "override.m_AnchorMin.y": "0",
+        "override.m_SizeDelta.x": "0",
+        "override.m_SizeDelta.y": "0",
+        "override.m_LocalRotation.w": "1",
+        "override.m_LocalRotation.x": "0",
+        "override.m_LocalRotation.y": "0",
+        "override.m_LocalRotation.z": "0",
+        "override.m_AnchoredPosition.x": "0",
+        "override.m_AnchoredPosition.y": "0"
+      }
+    },
+    "childFields": {
+      "childPortraitScale": "absent; code default",
+      "childPortraitRise": "absent; code default",
+      "useCustomerNormalMap": "1",
+      "matchScreenResolution": "absent; code default"
+    }
+  },
+  "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity": {
+    "WaitingRear": {
+      "object": "2487186931037832784",
+      "components": [
+        "8441896698292047231",
+        "7792350358009988367",
+        "2765176776325453409"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 240, y: -580}",
+        "m_SizeDelta": "{x: 240, y: 240}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}"
+      }
+    },
+    "Customer": {
+      "object": "5790637825009229522",
+      "components": [
+        "7644976337835443233",
+        "5138158532700342979",
+        "8378370673096319705"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 580, y: -632}",
+        "m_SizeDelta": "{x: 550, y: 550}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_AnchoredPosition.x": "640.13513",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}"
+      }
+    },
+    "WaitingLeft": {
+      "object": "6175313496607097836",
+      "components": [
+        "8429248748414623539",
+        "5882217954491908523",
+        "6131985178820754655"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 385, y: -580}",
+        "m_SizeDelta": "{x: 340, y: 340}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}"
+      }
+    },
+    "FrontView": {
+      "object": "7164527546053456861",
+      "components": [
+        "1689006060938564199",
+        "4811440117262230101",
+        "8388412411312484068",
+        "1887673328830262781"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 0, y: 0}",
+        "m_SizeDelta": "{x: 0, y: 0}",
+        "m_LocalScale": "{x: 0, y: 0, z: 0}",
+        "m_AnchorMin": "{x: 0, y: 0}",
+        "m_AnchorMax": "{x: 0, y: 0}",
+        "m_Pivot": "{x: 0, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_Pivot.x": "0",
+        "override.m_Pivot.y": "0",
+        "override.m_AnchorMax.x": "0",
+        "override.m_AnchorMax.y": "0",
+        "override.m_AnchorMin.x": "0",
+        "override.m_AnchorMin.y": "0",
+        "override.m_SizeDelta.x": "0",
+        "override.m_SizeDelta.y": "0",
+        "override.m_LocalRotation.w": "1",
+        "override.m_LocalRotation.x": "0",
+        "override.m_LocalRotation.y": "0",
+        "override.m_LocalRotation.z": "0",
+        "override.m_AnchoredPosition.x": "0",
+        "override.m_AnchoredPosition.y": "0"
+      }
+    },
+    "childFields": {
+      "childPortraitScale": "absent; code default",
+      "childPortraitRise": "absent; code default",
+      "useCustomerNormalMap": "1",
+      "matchScreenResolution": "absent; code default"
+    }
+  },
+  "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity": {
+    "WaitingRear": {
+      "object": "2487186931037832784",
+      "components": [
+        "8441896698292047231",
+        "7792350358009988367",
+        "2765176776325453409"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 240, y: -580}",
+        "m_SizeDelta": "{x: 240, y: 240}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: a39df4d44a744b048d18bd43ec4e9665, type: 3}"
+      }
+    },
+    "Customer": {
+      "object": "5790637825009229522",
+      "components": [
+        "7644976337835443233",
+        "5138158532700342979",
+        "8378370673096319705"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 580, y: -632}",
+        "m_SizeDelta": "{x: 550, y: 550}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_AnchoredPosition.x": "640.13513",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 9850d0493f1e41a88751bc3be659ecd3, type: 3}"
+      }
+    },
+    "WaitingLeft": {
+      "object": "6175313496607097836",
+      "components": [
+        "8429248748414623539",
+        "5882217954491908523",
+        "6131985178820754655"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 385, y: -580}",
+        "m_SizeDelta": "{x: 340, y: 340}",
+        "m_LocalScale": "{x: 1, y: 1, z: 1}",
+        "m_AnchorMin": "{x: 0, y: 1}",
+        "m_AnchorMax": "{x: 0, y: 1}",
+        "m_Pivot": "{x: 0.5, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "m_PreserveAspect": "1",
+        "m_Sprite": "{fileID: 21300000, guid: 5b7521a416f54910a18cccb4dfd8f363, type: 3}"
+      }
+    },
+    "FrontView": {
+      "object": "7164527546053456861",
+      "components": [
+        "1689006060938564199",
+        "4811440117262230101",
+        "8388412411312484068",
+        "1887673328830262781"
+      ],
+      "values": {
+        "m_AnchoredPosition": "{x: 0, y: 0}",
+        "m_SizeDelta": "{x: 0, y: 0}",
+        "m_LocalScale": "{x: 0, y: 0, z: 0}",
+        "m_AnchorMin": "{x: 0, y: 0}",
+        "m_AnchorMax": "{x: 0, y: 0}",
+        "m_Pivot": "{x: 0, y: 0}",
+        "m_LocalRotation": "{x: 0, y: 0, z: 0, w: 1}",
+        "override.m_Pivot.x": "0",
+        "override.m_Pivot.y": "0",
+        "override.m_AnchorMax.x": "0",
+        "override.m_AnchorMax.y": "0",
+        "override.m_AnchorMin.x": "0",
+        "override.m_AnchorMin.y": "0",
+        "override.m_SizeDelta.x": "0",
+        "override.m_SizeDelta.y": "0",
+        "override.m_LocalRotation.w": "1",
+        "override.m_LocalRotation.x": "0",
+        "override.m_LocalRotation.y": "0",
+        "override.m_LocalRotation.z": "0",
+        "override.m_AnchoredPosition.x": "0",
+        "override.m_AnchoredPosition.y": "0"
+      }
+    },
+    "childFields": {
+      "childPortraitScale": "absent; code default",
+      "childPortraitRise": "absent; code default",
+      "useCustomerNormalMap": "1",
+      "matchScreenResolution": "absent; code default"
+    }
+  }
+}

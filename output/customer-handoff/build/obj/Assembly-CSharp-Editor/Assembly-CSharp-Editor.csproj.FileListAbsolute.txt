@@ -1,0 +1,10 @@
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\Assembly-CSharp-Editor\Assembly-CSharp-Editor.deps.json
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\Assembly-CSharp-Editor\Assembly-CSharp-Editor.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\Assembly-CSharp-Editor\Assembly-CSharp-Editor.pdb
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly-CSharp-Editor.csproj.AssemblyReference.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly-CSharp-Editor.GeneratedMSBuildEditorConfig.editorconfig
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly-CSharp-Editor.csproj.CoreCompileInputs.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly-CSharp-Editor.sourcelink.json
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly.1F1299F3.Up2Date
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly-CSharp-Editor.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\Assembly-CSharp-Editor\Assembly-CSharp-Editor.pdb

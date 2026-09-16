@@ -16,6 +16,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         /// <summary>이 Sprite가 표시될 때만 사용하는 RGB tangent-space 노멀맵입니다.</summary>
         public Sprite normalSprite;
         public Texture2D normalMap;
+        /// <summary>손님처럼 Sprite가 교체되는 레이어에서 현재 Sprite에 맞는 노멀맵을 찾는 대응표입니다. 비어 있으면 위의 단일 연결만 사용합니다.</summary>
+        public NormalVariant[] normalVariants = Array.Empty<NormalVariant>();
         /// <summary>원본 텍스처 좌우 끝에서 숨길 UV 폭입니다. 0이면 원본 전체를 표시합니다.</summary>
         public Vector2 textureEdgeTrim;
         /// <summary>실내 표면의 넓은 반사광 반응입니다. 기존 직접광 값은 보존합니다.</summary>
@@ -47,6 +49,26 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         [NonSerialized] internal Sprite footprintSprite;
         [NonSerialized] internal uint footprintTextureVersion;
         [NonSerialized] internal float footprintY;
+
+        /// <summary>현재 표시 중인 Sprite에 대응하는 노멀맵을 반환합니다.</summary>
+        /// <param name="sprite">이 레이어가 지금 그리고 있는 Sprite입니다.</param>
+        /// <returns>대응표 또는 단일 연결에서 찾은 노멀맵이며, 없으면 null입니다.</returns>
+        internal Texture2D NormalFor(Sprite sprite)
+        {
+            if (sprite == null) return null;
+            for (int i = 0; i < normalVariants.Length; i++)
+                if (normalVariants[i] != null && normalVariants[i].sprite == sprite) return normalVariants[i].map;
+            return sprite == normalSprite ? normalMap : null;
+        }
+    }
+
+    /// <summary>한 Sprite와 그 Sprite에만 사용할 노멀맵의 짝입니다.</summary>
+    [Serializable] public sealed class NormalVariant
+    {
+        /// <summary>레이어가 이 Sprite를 표시할 때만 아래 노멀맵을 사용합니다.</summary>
+        public Sprite sprite;
+        /// <summary>해당 Sprite의 UV에 맞춰 만든 tangent-space 노멀맵입니다.</summary>
+        public Texture2D map;
     }
 
     /// <summary>정면 장면이 숨겨지면 렌더도 정지합니다.</summary>
@@ -56,7 +78,11 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     /// <summary>픽셀 렌더용 셰이더이며 빌드 참조를 명시적으로 보존합니다.</summary>
     public Shader lightingShader;
     /// <summary>16:9 장면의 실제 렌더 너비입니다. 높이는 자동 계산합니다.</summary>
-    [Range(256, 640)] public int width = 480;
+    [Range(256, 1920)] public int width = 480;
+    /// <summary>켜면 렌더 너비를 현재 화면 너비에 맞춰 항상 1:1로 그립니다. 창 크기가 바뀌어도 선이 다시 계단지지 않습니다. 끄면 위의 고정 너비(도트 표현)를 사용합니다.</summary>
+    public bool matchScreenResolution;
+    /// <summary>이번 프레임에 실제로 사용할 렌더 너비입니다.</summary>
+    private int RenderWidth => matchScreenResolution ? Mathf.Max(256, Screen.width) : width;
     /// <summary>편집 중에도 시간대와 표면 반응을 확인합니다.</summary>
     public bool previewInEditor = true;
     /// <summary>1280×720 가판 화면 좌상단 기준 전등 위치, 높이와 영향 반경입니다.</summary>
@@ -164,7 +190,7 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     private void LateUpdate()
     {
         if (!IsRendering || frontCanvas == null) { Release(); return; }
-        if (texture != null && texture.width != width) Release();
+        if (texture != null && texture.width != RenderWidth) Release();
         if (renderRoot == null) Build();
         bool visible = frontCanvas.gameObject.activeInHierarchy;
         output.enabled = visible;
@@ -195,7 +221,9 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         renderCamera.orthographic = true; renderCamera.orthographicSize = 360; renderCamera.aspect = 16f / 9f;
         renderCamera.cullingMask = 1 << 31; renderCamera.clearFlags = CameraClearFlags.SolidColor;
         renderCamera.backgroundColor = Color.black; renderCamera.allowMSAA = false; renderCamera.allowHDR = false; renderCamera.depth = -100;
-        texture = new RenderTexture(width, Mathf.RoundToInt(width * 9f / 16f), 24) { name = "Pixel stage output", filterMode = FilterMode.Point, antiAliasing = 1, hideFlags = HideFlags.HideAndDontSave };
+        // 화면 해상도를 따라갈 때는 1:1이므로 잔여 배율이 생겨도 부드럽게 넘기고, 고정 너비의 도트 표현은 Point로 각지게 확대합니다.
+        int renderWidth = RenderWidth;
+        texture = new RenderTexture(renderWidth, Mathf.RoundToInt(renderWidth * 9f / 16f), 24) { name = "Pixel stage output", filterMode = matchScreenResolution ? FilterMode.Bilinear : FilterMode.Point, antiAliasing = 1, hideFlags = HideFlags.HideAndDontSave };
         texture.Create(); renderCamera.targetTexture = texture;
         outputRoot = new GameObject("PixelStage Output", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler)) { hideFlags = HideFlags.HideAndDontSave };
         var canvas = outputRoot.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = -100;
@@ -290,6 +318,13 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         var block = layer.properties; block.Clear();
         block.SetVector("_TextureEdgeTrim",layer.textureEdgeTrim);
         block.SetFloat("_ContactShadow", 0);
+        // 새의 경로와 크기도 사용자가 배치한 하늘 이미지 영역을 따릅니다.
+        if (layer.surface == Surface.Sky)
+        {
+            Rect sky = source.rectTransform.rect;
+            Vector2 topLeft = ScreenPoint(source, new Vector3(sky.xMin, sky.yMax));
+            block.SetVector("_SkyRect", new Vector4(topLeft.x, topLeft.y, sky.width * x.magnitude, sky.height * y.magnitude));
+        }
         // 새 Stage 3 상자에만 거친 철판 표현을 적용합니다.
         var containerImage=source as Image;
         block.SetFloat("_ContainerFinish",source.name=="FrontContainer" && containerImage!=null && containerImage.sprite!=null && containerImage.sprite.name=="Stage3Container" ? 1 : 0);
@@ -317,8 +352,9 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         block.SetFloat("_SpecularResponse", layer.specularResponse);
         block.SetFloat("_Emission", layer.emission * Mathf.Lerp(.2f,1,nightWeight));
         var image = source as Image;
-        bool mapped = relightingTrial && useCustomerNormalMap && layer.normalMap != null && image != null && image.sprite == layer.normalSprite;
-        if (mapped) block.SetTexture("_NormalMap", layer.normalMap);
+        Texture2D normal = image != null ? layer.NormalFor(image.sprite) : null;
+        bool mapped = relightingTrial && useCustomerNormalMap && normal != null;
+        if (mapped) block.SetTexture("_NormalMap", normal);
         // 소품과 인물은 각자 Inspector에 저장된 노멀 강도를 사용합니다.
         block.SetFloat("_NormalStrength", mapped ? (layer.surface == Surface.Metal ? propNormalStrength : evaluatedNormalStrength) * layer.normalResponse : 0);
         block.SetFloat("_PropFill", mapped && layer.surface == Surface.Metal ? propNightFill * Mathf.Max(nightWeight, sunsetWeight * .35f) : 0);
@@ -326,7 +362,8 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         block.SetFloat("_RoomBounce", relightingTrial ? roomLightStrength * layer.roomResponse * Mathf.Lerp(.2f, 1, nightWeight) : 0);
         block.SetFloat("_SpotResponse", layer.surface == Surface.Person || mapped || layer.roomResponse > 0 ? 1 : 0);
         block.SetFloat("_ReceiveCustomerShadow", dayNight != null && dayNight.clock != null && (source.name == "Counter" || source.name == "Stage3Counter") ? 1 : 0);
-        if (layer.surface == Surface.Person && layer.normalSprite != null && image != null)
+        // 상판 투영 그림자는 앞 손님 한 명만 만듭니다. 대기 손님도 노멀맵을 가지므로 연결이 아닌 이름으로 구분합니다.
+        if (layer.surface == Surface.Person && source.name == "Customer" && image != null)
         {
             // 앞 손님 슬롯의 현재 알파를 사용하므로 손님 교체와 크기 변화도 따라갑니다.
             material.SetTexture("_CustomerSilhouette", source.mainTexture);
@@ -377,15 +414,21 @@ public sealed class DystopiaPixelStage : MonoBehaviour
             shadowTransform.localRotation = Quaternion.identity;
             shadowTransform.localScale = new Vector3(drawing.width * x.magnitude * layer.contactShadow.z, drawing.height * y.magnitude * layer.contactShadow.w, 1);
             layer.contactRenderer.sortingOrder = order * 2 - 1;
-            bool hardPropShadow = image != null && image.sprite != null && (source.name == "FrontContainer" || source.name == "CounterClock");
-            block.SetFloat("_ContactShadow", hardPropShadow ? 2 : 1);
+            bool facility = source.name.StartsWith("Facility", StringComparison.Ordinal);
+            bool hardPropShadow = image != null && image.sprite != null && (source.name == "FrontContainer" || source.name == "CounterClock" || facility);
+            bool fittedContact = facility || source.name == "FrontContainer";
+            block.SetFloat("_ContactShadow", fittedContact ? 3 : hardPropShadow ? 2 : 1);
+            // 압축한 전체 실루엣 대신 각 열의 실제 밑면에서 그림자가 시작하도록 높이 기준을 전달합니다.
+            block.SetVector("_ContactFootprint", new Vector4(footY, layer.contactShadow.w, 2f / Mathf.Max(1, drawing.height * y.magnitude), 0));
             // 두 금속 소품은 흐린 타원 대신 원본 알파 윤곽을 상판에 투영합니다.
             if (hardPropShadow)
                 block.SetVector("_ContactSpriteUV", UnityEngine.Sprites.DataUtility.GetOuterUV(image.sprite));
             // 그림자 메시가 이동해도 가장 진한 접촉부는 원본 밑면 좌표에 고정합니다.
             float shadowWidth = drawing.width * x.magnitude * layer.contactShadow.z;
             float shear = drift * spread * .35f / Mathf.Max(1, shadowWidth);
-            block.SetVector("_ContactAnchor", new Vector4(.5f - shear, .72f, .9f / layer.contactShadow.z, shear));
+            // 상자와 설비는 원본 밑면 폭을 덮어 접점 양끝이 떠 보이지 않게 합니다.
+            float footprintWidth = source.name == "FrontContainer" ? 1.03f : facility ? 1f : .9f;
+            block.SetVector("_ContactAnchor", new Vector4(.5f - shear, .72f, footprintWidth / layer.contactShadow.z, shear));
             block.SetColor("_Tint", new Color(.035f, .025f, .018f, source.color.a * source.canvasRenderer.GetAlpha() * .95f));
             layer.contactRenderer.SetPropertyBlock(block);
         }

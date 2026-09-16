@@ -1,0 +1,2398 @@
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2280: trailing whitespace.
++  childPortraitScale: 0.4
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2281: trailing whitespace.
++  childPortraitRise: 0.18
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2282: trailing whitespace.
++  maleBreathing: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000100000001000000000000000000000000000000000000000000000000000000010000000100000001000000000000000000000000000000020000000200000002000000
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2283: trailing whitespace.
++  femaleBreathing: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000100000001000000000000000000000000000000000000000000000000000000010000000100000001000000000000000000000000000000020000000200000002000000
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2506: trailing whitespace.
++  - {fileID: 21300000, guid: b872187a3c6fd15479d47c52c33dd3ec, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2507: trailing whitespace.
++  - {fileID: 21300000, guid: 726a78dac2402c5409335d3e6b53a5c7, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2508: trailing whitespace.
++  - {fileID: 21300000, guid: d3ff24ae084dc3741b40269c39d206a5, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2509: trailing whitespace.
++  - {fileID: 21300000, guid: c4f62cbad85764c4d881f4392fcff3be, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2510: trailing whitespace.
++  - {fileID: 21300000, guid: 2d9a95f2a7541e34ebaa74e59d88fd3b, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2511: trailing whitespace.
++  - {fileID: 21300000, guid: 9f04867c6466020499e54f3c536a6939, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2512: trailing whitespace.
++  - {fileID: 21300000, guid: a0c5992e46f2d1d42a8a290b6609a8f9, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2513: trailing whitespace.
++  - {fileID: 21300000, guid: 39bec8fa39c04cc4d92905fb2825188d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2514: trailing whitespace.
++  - {fileID: 21300000, guid: 3ff4d9a67e54ec94695bd7852ce1e438, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2515: trailing whitespace.
++  - {fileID: 21300000, guid: 1c5cb739ccb924f438f666c5b07b20c1, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2516: trailing whitespace.
++  - {fileID: 21300000, guid: 83d51b01f314d024b8b7ff1904f62540, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2517: trailing whitespace.
++  - {fileID: 21300000, guid: 65f75d23988981243a9b6a1a8624f590, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2518: trailing whitespace.
++  - {fileID: 21300000, guid: 043abd62e9254a048bc9c5a1fbf8c8ed, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2519: trailing whitespace.
++  - {fileID: 21300000, guid: 071c8db916ef39746a4d9e9e02efc8d9, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2520: trailing whitespace.
++  - {fileID: 21300000, guid: 649cadc3f6da8c8448bf166f6f4fb12c, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2521: trailing whitespace.
++  - {fileID: 21300000, guid: ad8a5b86163973b43b643a9c77727172, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2522: trailing whitespace.
++  - {fileID: 21300000, guid: 64e2cf5ec61def34ca16f7a2f1273e3d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2523: trailing whitespace.
++  - {fileID: 21300000, guid: 208535dcfcd434c489e41ff42d2839f7, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2524: trailing whitespace.
++  - {fileID: 21300000, guid: 5f8faaf3cb1633c4593c73a04d3a3ab5, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2525: trailing whitespace.
++  - {fileID: 21300000, guid: 65fc5187a2f15e140bd2458cc4f16961, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2526: trailing whitespace.
++  - {fileID: 21300000, guid: 9171060c32a73d344837df1ee94dc4ad, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2527: trailing whitespace.
++  - {fileID: 21300000, guid: 82b46e377a44b0b42aa3d685f39f91c3, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2528: trailing whitespace.
++  - {fileID: 21300000, guid: 1673ec41fefc68248be8b2a042cf031e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2529: trailing whitespace.
++  - {fileID: 21300000, guid: 42b7858db365e0d4aa4c999e48f72986, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2530: trailing whitespace.
++  - {fileID: 21300000, guid: 984c8c0f6eaae6a47a9015fc317c63bc, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2531: trailing whitespace.
++  - {fileID: 21300000, guid: 99690a59f8968854db3ef070adb04953, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2532: trailing whitespace.
++  - {fileID: 21300000, guid: 12f66c2b6f0bd8749871d1945ef1aa90, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2533: trailing whitespace.
++  - {fileID: 21300000, guid: d7dcd96907457b54c8e5b04905c7e743, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2534: trailing whitespace.
++  - {fileID: 21300000, guid: 4bff2fba9e7655c49b6d72d3a80ac98b, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2535: trailing whitespace.
++  - {fileID: 21300000, guid: d7e365c7c6f28634fb1a1f55d322d96e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2537: trailing whitespace.
++  - {fileID: 21300000, guid: ea3a29c8680920d4a8a262cbae9548e8, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2538: trailing whitespace.
++  - {fileID: 21300000, guid: 52aab4e4bcb723b41be8d77414ea2013, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2539: trailing whitespace.
++  - {fileID: 21300000, guid: 8bdba0f732897db4aa9644766aba1cde, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2540: trailing whitespace.
++  - {fileID: 21300000, guid: 6d7191a8a46661b449e3946d9c1c01b2, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2541: trailing whitespace.
++  - {fileID: 21300000, guid: 50320d9b9c294a24893a7b18da21d27f, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2542: trailing whitespace.
++  - {fileID: 21300000, guid: 0fab33a33d325804f9b2858f044b0a59, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2543: trailing whitespace.
++  - {fileID: 21300000, guid: 2c2bf0c99f6a49044946f4fe5cafadc1, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2544: trailing whitespace.
++  - {fileID: 21300000, guid: 1743f0c476075e444b0d962a9c03d83d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2545: trailing whitespace.
++  - {fileID: 21300000, guid: 417e6bb9a1348ae42bcdf2b7dc148d6e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2546: trailing whitespace.
++  - {fileID: 21300000, guid: 9e0a709a2bac33d42a165bf0f71791a9, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2547: trailing whitespace.
++  - {fileID: 21300000, guid: af63428575396834ba3d6669b3216018, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2548: trailing whitespace.
++  - {fileID: 21300000, guid: fb402c376754a0b46b351a2bf0eab33e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2549: trailing whitespace.
++  - {fileID: 21300000, guid: 5e21aad58c1984a4a83466f2d8e5d28e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2550: trailing whitespace.
++  - {fileID: 21300000, guid: f31911dd43f506c4784814953c3fa76d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2551: trailing whitespace.
++  - {fileID: 21300000, guid: e97f16af821019047b79d8424f3e91cc, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2552: trailing whitespace.
++  - {fileID: 21300000, guid: 5f9c7f83da89ded498ecef1664611641, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2553: trailing whitespace.
++  - {fileID: 21300000, guid: 33714d2e5489a764d93de6789110b67d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2554: trailing whitespace.
++  - {fileID: 21300000, guid: b5e44c2f4866a524a9c3c6786816f80e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2555: trailing whitespace.
++  - {fileID: 21300000, guid: b83317e5439a0914ea32d9bf0d141c36, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2556: trailing whitespace.
++  - {fileID: 21300000, guid: 9ed0be4fe74e9bd4897c2aa13f18cdeb, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2557: trailing whitespace.
++  - {fileID: 21300000, guid: d44eb373a89c41a49986c7921ecfc182, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2558: trailing whitespace.
++  - {fileID: 21300000, guid: 3e3270d64c28bff4385263875d8df56f, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2559: trailing whitespace.
++  - {fileID: 21300000, guid: 5222a50ecf2a3da4089907b4d87643ad, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2560: trailing whitespace.
++  - {fileID: 21300000, guid: 8fb2aac44352f0d48abe38981f6fa7b0, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2561: trailing whitespace.
++  - {fileID: 21300000, guid: 4ef53298fa5e2e445877e6bbe8e8ac1e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2562: trailing whitespace.
++  - {fileID: 21300000, guid: 569adf108d89ed540ae2983c6436d37e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2563: trailing whitespace.
++  - {fileID: 21300000, guid: af60726775e7c164c8c7d8a0b1697bc0, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2564: trailing whitespace.
++  - {fileID: 21300000, guid: 3c0ad79631dbbe541a256c1d05466940, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2565: trailing whitespace.
++  - {fileID: 21300000, guid: cd76e44a98e83cc4c97d348280c73a1a, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:2566: trailing whitespace.
++  - {fileID: 21300000, guid: 91e98a30763e9364ba35d0b3caf5f531, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3729: trailing whitespace.
++  - {fileID: 21300000, guid: b872187a3c6fd15479d47c52c33dd3ec, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3730: trailing whitespace.
++  - {fileID: 21300000, guid: 726a78dac2402c5409335d3e6b53a5c7, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3731: trailing whitespace.
++  - {fileID: 21300000, guid: d3ff24ae084dc3741b40269c39d206a5, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3732: trailing whitespace.
++  - {fileID: 21300000, guid: c4f62cbad85764c4d881f4392fcff3be, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3733: trailing whitespace.
++  - {fileID: 21300000, guid: 2d9a95f2a7541e34ebaa74e59d88fd3b, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3734: trailing whitespace.
++  - {fileID: 21300000, guid: 9f04867c6466020499e54f3c536a6939, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3735: trailing whitespace.
++  - {fileID: 21300000, guid: a0c5992e46f2d1d42a8a290b6609a8f9, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3736: trailing whitespace.
++  - {fileID: 21300000, guid: 39bec8fa39c04cc4d92905fb2825188d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3737: trailing whitespace.
++  - {fileID: 21300000, guid: 3ff4d9a67e54ec94695bd7852ce1e438, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3738: trailing whitespace.
++  - {fileID: 21300000, guid: 1c5cb739ccb924f438f666c5b07b20c1, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3739: trailing whitespace.
++  - {fileID: 21300000, guid: 83d51b01f314d024b8b7ff1904f62540, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3740: trailing whitespace.
++  - {fileID: 21300000, guid: 65f75d23988981243a9b6a1a8624f590, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3741: trailing whitespace.
++  - {fileID: 21300000, guid: 043abd62e9254a048bc9c5a1fbf8c8ed, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3742: trailing whitespace.
++  - {fileID: 21300000, guid: 071c8db916ef39746a4d9e9e02efc8d9, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3743: trailing whitespace.
++  - {fileID: 21300000, guid: 649cadc3f6da8c8448bf166f6f4fb12c, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3744: trailing whitespace.
++  - {fileID: 21300000, guid: ad8a5b86163973b43b643a9c77727172, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3745: trailing whitespace.
++  - {fileID: 21300000, guid: 64e2cf5ec61def34ca16f7a2f1273e3d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3746: trailing whitespace.
++  - {fileID: 21300000, guid: 208535dcfcd434c489e41ff42d2839f7, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3747: trailing whitespace.
++  - {fileID: 21300000, guid: 5f8faaf3cb1633c4593c73a04d3a3ab5, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3748: trailing whitespace.
++  - {fileID: 21300000, guid: 65fc5187a2f15e140bd2458cc4f16961, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3749: trailing whitespace.
++  - {fileID: 21300000, guid: 9171060c32a73d344837df1ee94dc4ad, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3750: trailing whitespace.
++  - {fileID: 21300000, guid: 82b46e377a44b0b42aa3d685f39f91c3, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3751: trailing whitespace.
++  - {fileID: 21300000, guid: 1673ec41fefc68248be8b2a042cf031e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3752: trailing whitespace.
++  - {fileID: 21300000, guid: 42b7858db365e0d4aa4c999e48f72986, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3753: trailing whitespace.
++  - {fileID: 21300000, guid: 984c8c0f6eaae6a47a9015fc317c63bc, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3754: trailing whitespace.
++  - {fileID: 21300000, guid: 99690a59f8968854db3ef070adb04953, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3755: trailing whitespace.
++  - {fileID: 21300000, guid: 12f66c2b6f0bd8749871d1945ef1aa90, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3756: trailing whitespace.
++  - {fileID: 21300000, guid: d7dcd96907457b54c8e5b04905c7e743, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3757: trailing whitespace.
++  - {fileID: 21300000, guid: 4bff2fba9e7655c49b6d72d3a80ac98b, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3758: trailing whitespace.
++  - {fileID: 21300000, guid: d7e365c7c6f28634fb1a1f55d322d96e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3760: trailing whitespace.
++  - {fileID: 21300000, guid: ea3a29c8680920d4a8a262cbae9548e8, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3761: trailing whitespace.
++  - {fileID: 21300000, guid: 52aab4e4bcb723b41be8d77414ea2013, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3762: trailing whitespace.
++  - {fileID: 21300000, guid: 8bdba0f732897db4aa9644766aba1cde, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3763: trailing whitespace.
++  - {fileID: 21300000, guid: 6d7191a8a46661b449e3946d9c1c01b2, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3764: trailing whitespace.
++  - {fileID: 21300000, guid: 50320d9b9c294a24893a7b18da21d27f, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3765: trailing whitespace.
++  - {fileID: 21300000, guid: 0fab33a33d325804f9b2858f044b0a59, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3766: trailing whitespace.
++  - {fileID: 21300000, guid: 2c2bf0c99f6a49044946f4fe5cafadc1, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3767: trailing whitespace.
++  - {fileID: 21300000, guid: 1743f0c476075e444b0d962a9c03d83d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3768: trailing whitespace.
++  - {fileID: 21300000, guid: 417e6bb9a1348ae42bcdf2b7dc148d6e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3769: trailing whitespace.
++  - {fileID: 21300000, guid: 9e0a709a2bac33d42a165bf0f71791a9, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3770: trailing whitespace.
++  - {fileID: 21300000, guid: af63428575396834ba3d6669b3216018, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3771: trailing whitespace.
++  - {fileID: 21300000, guid: fb402c376754a0b46b351a2bf0eab33e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3772: trailing whitespace.
++  - {fileID: 21300000, guid: 5e21aad58c1984a4a83466f2d8e5d28e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3773: trailing whitespace.
++  - {fileID: 21300000, guid: f31911dd43f506c4784814953c3fa76d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3774: trailing whitespace.
++  - {fileID: 21300000, guid: e97f16af821019047b79d8424f3e91cc, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3775: trailing whitespace.
++  - {fileID: 21300000, guid: 5f9c7f83da89ded498ecef1664611641, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3776: trailing whitespace.
++  - {fileID: 21300000, guid: 33714d2e5489a764d93de6789110b67d, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3777: trailing whitespace.
++  - {fileID: 21300000, guid: b5e44c2f4866a524a9c3c6786816f80e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3778: trailing whitespace.
++  - {fileID: 21300000, guid: b83317e5439a0914ea32d9bf0d141c36, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3779: trailing whitespace.
++  - {fileID: 21300000, guid: 9ed0be4fe74e9bd4897c2aa13f18cdeb, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3780: trailing whitespace.
++  - {fileID: 21300000, guid: d44eb373a89c41a49986c7921ecfc182, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3781: trailing whitespace.
++  - {fileID: 21300000, guid: 3e3270d64c28bff4385263875d8df56f, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3782: trailing whitespace.
++  - {fileID: 21300000, guid: 5222a50ecf2a3da4089907b4d87643ad, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3783: trailing whitespace.
++  - {fileID: 21300000, guid: 8fb2aac44352f0d48abe38981f6fa7b0, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3784: trailing whitespace.
++  - {fileID: 21300000, guid: 4ef53298fa5e2e445877e6bbe8e8ac1e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3785: trailing whitespace.
++  - {fileID: 21300000, guid: 569adf108d89ed540ae2983c6436d37e, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3786: trailing whitespace.
++  - {fileID: 21300000, guid: af60726775e7c164c8c7d8a0b1697bc0, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3787: trailing whitespace.
++  - {fileID: 21300000, guid: 3c0ad79631dbbe541a256c1d05466940, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3788: trailing whitespace.
++  - {fileID: 21300000, guid: cd76e44a98e83cc4c97d348280c73a1a, type: 3}
+Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity:3789: trailing whitespace.
++  - {fileID: 21300000, guid: 91e98a30763e9364ba35d0b3caf5f531, type: 3}
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:19: trailing whitespace.
++        /// <summary>손님처럼 Sprite가 교체되는 레이어에서 현재 Sprite에 맞는 노멀맵을 찾는 대응표입니다. 비어 있으면 위의 단일 연결만 사용합니다.</summary>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:20: trailing whitespace.
++        public NormalVariant[] normalVariants = Array.Empty<NormalVariant>();
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:52: trailing whitespace.
++
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:53: trailing whitespace.
++        /// <summary>현재 표시 중인 Sprite에 대응하는 노멀맵을 반환합니다.</summary>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:54: trailing whitespace.
++        /// <param name="sprite">이 레이어가 지금 그리고 있는 Sprite입니다.</param>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:55: trailing whitespace.
++        /// <returns>대응표 또는 단일 연결에서 찾은 노멀맵이며, 없으면 null입니다.</returns>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:56: trailing whitespace.
++        internal Texture2D NormalFor(Sprite sprite)
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:57: trailing whitespace.
++        {
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:58: trailing whitespace.
++            if (sprite == null) return null;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:59: trailing whitespace.
++            for (int i = 0; i < normalVariants.Length; i++)
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:60: trailing whitespace.
++                if (normalVariants[i] != null && normalVariants[i].sprite == sprite) return normalVariants[i].map;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:61: trailing whitespace.
++            return sprite == normalSprite ? normalMap : null;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:62: trailing whitespace.
++        }
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:63: trailing whitespace.
++    }
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:64: trailing whitespace.
++
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:65: trailing whitespace.
++    /// <summary>한 Sprite와 그 Sprite에만 사용할 노멀맵의 짝입니다.</summary>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:66: trailing whitespace.
++    [Serializable] public sealed class NormalVariant
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:67: trailing whitespace.
++    {
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:68: trailing whitespace.
++        /// <summary>레이어가 이 Sprite를 표시할 때만 아래 노멀맵을 사용합니다.</summary>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:69: trailing whitespace.
++        public Sprite sprite;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:70: trailing whitespace.
++        /// <summary>해당 Sprite의 UV에 맞춰 만든 tangent-space 노멀맵입니다.</summary>
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:71: trailing whitespace.
++        public Texture2D map;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:342: trailing whitespace.
++        Texture2D normal = image != null ? layer.NormalFor(image.sprite) : null;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:343: trailing whitespace.
++        bool mapped = relightingTrial && useCustomerNormalMap && normal != null;
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:344: trailing whitespace.
++        if (mapped) block.SetTexture("_NormalMap", normal);
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:352: trailing whitespace.
++        // 상판 투영 그림자는 앞 손님 한 명만 만듭니다. 대기 손님도 노멀맵을 가지므로 연결이 아닌 이름으로 구분합니다.
+Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs:353: trailing whitespace.
++        if (layer.surface == Surface.Person && source.name == "Customer" && image != null)
+Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs:352: trailing whitespace.
++            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Male/" + DystopiaSession.AppearanceFileName(true, i) + ".png");
+Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs:354: trailing whitespace.
++            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Female/" + DystopiaSession.AppearanceFileName(false, i) + ".png");
+Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs:496: trailing whitespace.
++        pouringContainerImage.sprite = tiltedContainer;
+Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs:566: trailing whitespace.
++        pouringContainerImage.sprite = tiltedContainer;
+Assets/Textures/art/Customer.meta:6: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer.meta:7: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer.meta:8: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female.meta:6: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female.meta:7: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female.meta:8: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleChild_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleChild_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleChild_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleElder_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleElder_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleElder_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleHasty_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleHasty_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleHasty_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_04.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_05.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_06.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_07.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_08.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_09.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_10.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_11.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleNormal_12.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemalePoor_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemalePoor_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:132: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:140: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:154: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:162: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:176: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:184: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:188: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:194: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:204: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:206: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:207: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemalePoor_03.png.meta:208: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Female/FemaleWealthy_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male.meta:6: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male.meta:7: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male.meta:8: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleChild_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:135: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:143: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:157: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:165: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:179: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:187: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:201: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:209: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:213: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:219: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:230: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:232: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:233: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleChild_02.png.meta:234: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:129: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:137: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:151: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:159: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:163: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:169: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:178: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:180: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:181: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleChild_03.png.meta:182: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleElder_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleElder_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleElder_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleHasty_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleHasty_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleHasty_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_04.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_05.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_06.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_07.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_08.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_09.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_10.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_11.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleNormal_12.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MalePoor_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MalePoor_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MalePoor_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleWealthy_01.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleWealthy_02.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/Male/MaleWealthy_03.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap.meta:6: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap.meta:7: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap.meta:8: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleChild_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleElder_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleHasty_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_04_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_05_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_06_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_07_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_08_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_09_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_10_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_11_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleNormal_12_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemalePoor_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemalePriceSensitive_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/FemaleWealthy_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleChild_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleElder_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleHasty_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_04_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_05_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_06_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_07_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_08_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_09_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_10_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_11_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleNormal_12_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MalePoor_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MalePriceSensitive_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_01_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_02_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:126: trailing whitespace.
++      customData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:134: trailing whitespace.
++      indices: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:138: trailing whitespace.
++    customData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:141: trailing whitespace.
++    spriteID: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:144: trailing whitespace.
++    indices: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:152: trailing whitespace.
++  mipmapLimitGroupName: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:154: trailing whitespace.
++  userData: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:155: trailing whitespace.
++  assetBundleName: 
+Assets/Textures/art/Customer/NormalMap/MaleWealthy_03_Normal.png.meta:156: trailing whitespace.
++  assetBundleVariant: 

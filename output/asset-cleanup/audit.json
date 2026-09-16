@@ -1,0 +1,2085 @@
+[
+  {
+    "path": "Assets/DystopiaPrototype/Art/Bandage.png",
+    "guid": "ff2c923cbd38d8f408f1263c99b8ea2b",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Battery.png",
+    "guid": "a1890a0fe547b394496e7e56a7bc8f98",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/BoothBarricade.png",
+    "guid": "c10c73fc054ac19498fffbbacf16b031",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/BoothCanopy.png",
+    "guid": "6978fa40aee53b643836c083c2dd4d52",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/BoothCounter.png",
+    "guid": "dec0edb6a0a29eb4ba990f92dff08f2b",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Can.png",
+    "guid": "0bd04b7017c4fa84094c818943317338",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/ChimneySmoke0.png",
+    "guid": "8146c36afd06422a92ae965371323f2e",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/ChimneySmoke1.png",
+    "guid": "a732901af7a142c68d5ff1e17b15dc79",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/ChimneySmoke2.png",
+    "guid": "9ee90dc6331641169fb2748b57111bac",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/ChimneySmoke3.png",
+    "guid": "06504071d22a47b386d3a3a7053d2364",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Counter.png",
+    "guid": "b8b405d086908a542a68b296eb646229",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/CounterClock1.png",
+    "guid": "d1c438adc8214e744befbcca7268d723",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/CounterClockNormal.png",
+    "guid": "b5a11b12b4ba4fd49b86e1c6674c0793",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Crackers.png",
+    "guid": "80a3439022bd3054ab1d7a3a9a33cc0f",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Crowd.png",
+    "guid": "26d6bf1c76ce1984da914d8370314ac8",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/CrowdBack.png",
+    "guid": "7c746110a1d6bff44bb5e422328cb82c",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/CrowdFront.png",
+    "guid": "38fc8765ba9bcc14e9475d993dc60520",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/CrowdMiddle.png",
+    "guid": "27ea243b3280a6d48a50257d78565fb9",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/DailyInstruction.png",
+    "guid": "91cbf5fa51af4690bed80b78400fcbdb",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/DailyLedger.png",
+    "guid": "8d3c27e5fb984a4e979b295e18ee51b2",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/DialogueFrame.png",
+    "guid": "c098d249b6e102c46a26d2be06dbd308",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/ExtractedWatchTowers.png",
+    "guid": "64b2b5bd3eebcbd428518c7d4ba673f5",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FARBACKGROUND.png",
+    "guid": "8828d23a57ac09d4db48ac618820ad7b",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FogBack.mat",
+    "guid": "25184aa25fc6458993180d5b1b7fabeb",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FogBack.png",
+    "guid": "ef4c55532956466b9df1c26a4fd8fc4e",
+    "refs": [
+      "Assets/DystopiaPrototype/Art/FogBack.mat",
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FogFront.mat",
+    "guid": "df82a218fe354b8ead6163ea40ea1821",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FogFront.png",
+    "guid": "5f176efe93944680a2c22cc7bbc8ae11",
+    "refs": [
+      "Assets/DystopiaPrototype/Art/FogFront.mat",
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FogMid.mat",
+    "guid": "d48fa113cbdd44fe88d4786f7d954897",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/FogMid.png",
+    "guid": "224e6b0c3cfb4a32a560db7fbde73e52",
+    "refs": [
+      "Assets/DystopiaPrototype/Art/FogMid.mat",
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Fuel.png",
+    "guid": "2905dc05a8c11c54da21962a77406a8f",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/GuardNeutral.mat",
+    "guid": "5e537d872b1f4b928229e214b072484d",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Hands.png",
+    "guid": "b960ea489f33e484fa62df90f24bf399",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Inspector.png",
+    "guid": "5ec7b88773b5f754b9c36efbac851495",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaInspectorPortrait.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/InspectorBody.png",
+    "guid": "99eee00de85e12943b99e961469168fc",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/InspectorHead.png",
+    "guid": "a89154b1697d83943b3151e14c2e0e73",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/InspectorNormal.png",
+    "guid": "a4bd502b30586284aa433acaaafebf68",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/InspectorPortrait.shader",
+    "guid": "947b16e8967e32641b790f93eef147b5",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/InstructionStartStamp.png",
+    "guid": "92448e477998d824896a965dabe399bf",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/LedgerDaughter.png",
+    "guid": "1c6d94798c72c534b87845aed78eac43",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/LedgerDrawing.png",
+    "guid": "55949d20b4695ef4cb924f3ad2ff79e3",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/LedgerSpeechBubble.png",
+    "guid": "601df86b8c70d744a8eecf44ad013dd0",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat",
+    "guid": "fe2e76b0754f4f01a56673cb38ceaae2",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/LeftWatchTower.png",
+    "guid": "1ca5f6632c398c14ba179258cead1796",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/MaleCustomer0.png",
+    "guid": "475588eff93a49a1bb6368d7b6a6f2ae",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Mask.png",
+    "guid": "c7d8d31de3c856a4aa6cafdaba816dd5",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/MidBackground.png",
+    "guid": "0675361a18134594e9e942f04ff98660",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Mulmaru SDF.asset",
+    "guid": "d0489e42821d4094fbd0729a429f29d1",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Mulmaru.otf",
+    "guid": "b3f0a6c94e8e4fc3a1f40d741190c0e6",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab",
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Painkiller.png",
+    "guid": "76950be1f78988945ac0d3b21da802bb",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/RearWatchGuard0.png",
+    "guid": "1897b9bb37223784fa35352306877124",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/RearWatchGuard1.png",
+    "guid": "64674e1e1759fab4ca544acb15dd6927",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Rice.png",
+    "guid": "a6836116f5e94f448a0af82c6e258f8b",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/RightTowerNeutral.mat",
+    "guid": "19e943c669fd498b883e67c0e88be232",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/RightWatchTower.png",
+    "guid": "e00f255da7894164497dfd5df66938dd",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Seoul.png",
+    "guid": "2d245b103625d8f41a647418200e586e",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Soap.png",
+    "guid": "c10a44c1dcd91e54aa54a302156acdae",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage1BasicClock.png",
+    "guid": "2bffadd95cbce7b42bf7dbfef7806daa",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage1BasicClockNormal.png",
+    "guid": "1705f218bbf63bb4dac6c194585f7505",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage1Clock.png",
+    "guid": "a42a270b2e2672e4cb33b749cbc61c27",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage1ClockNormal.png",
+    "guid": "4ce137a21d489ba4594a595e5e542c77",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage1WoodCounter.png",
+    "guid": "2cb78cd1d4ca83d4ca2c81af670f5ccc",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2Clock.png",
+    "guid": "deabc873fc7f42e47a66349512710cdf",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2ClockNormal.png",
+    "guid": "dd37c9ae13d89784c8b32cd966818f02",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2Container.png",
+    "guid": "8164fafd187c45a42917c1594b42fe91",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2ContainerNormal.png",
+    "guid": "44cdeba4a972958468be0ec121357197",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2Shop.png",
+    "guid": "d8735ebfa501cee4cab883553043a457",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/Stage2ShopParts.prefab",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2ShopNormal.png",
+    "guid": "5483abef4a4d8994ba8bcf82666a5da9",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage2Table.png",
+    "guid": "f5ddcfb5ea7b4ddc8566eeb613c8baf6",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage3Container.png",
+    "guid": "ba80f4bbc4fb47b4caa16e46e22ab9cb",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage3ContainerNormal.png",
+    "guid": "aadbeaa232d6eca4080131483bbe4824",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage3Counter.png",
+    "guid": "64a348b48b216024bb1c780963051b77",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage3CounterNormal.png",
+    "guid": "8af3f16b0d77b824196f0aad2d649aa4",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage3Shop.png",
+    "guid": "20d1fc7e6767539498ac36a33edbc4a4",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Stage3ShopNormal.png",
+    "guid": "03508faaded067842bb96042a176d71d",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TradeReactions.png",
+    "guid": "330cb57e802eb214088fe60f7e5eb063",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaScreen.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/WatchGuard.png",
+    "guid": "72f801b7e9d8ad44c8b4fe24b01f89f4",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/WatchNeutral.shader",
+    "guid": "03b26e74212f4726ba6484795982af38",
+    "refs": [
+      "Assets/DystopiaPrototype/Art/GuardNeutral.mat",
+      "Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat",
+      "Assets/DystopiaPrototype/Art/RightTowerNeutral.mat"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Water.png",
+    "guid": "2ed767a5d47f8114088e0e9fae6c333f",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/스탬프1.png",
+    "guid": "f0cdeb5bb8b8fac4483d0120b1ae52ca",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/스탬프2.png",
+    "guid": "3b4b4969b2a720845b6058f82029b9a6",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/스탬프3.png",
+    "guid": "ffb00f19ad911d4488555abedb1975a8",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/스탬프4.png",
+    "guid": "0701f83b5ab19f5499a21bf0d14d2147",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/스탬프5.png",
+    "guid": "e8041633b718d3447b2f09436c11615a",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/시계.png",
+    "guid": "ed2a86b7e120e1140912cd484db7cd6f",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_01.png",
+    "guid": "90366358f6bc45a6813f739ae146ca26",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_02.png",
+    "guid": "df439d2a51564eefb00dc3379c3661fd",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_03.png",
+    "guid": "2e1eb00beed345d5b381d3e32d887fb9",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_04.png",
+    "guid": "222338f61b814f448937db8caf712c8d",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_05.png",
+    "guid": "4ce370668df34d858a1ba9c3f5e5ab33",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_06.png",
+    "guid": "9b4693fee3294febb4b612636bced872",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_08.png",
+    "guid": "c5735fdfa59442c3894e635b0535710d",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_09.png",
+    "guid": "d83f51561b00492eb419dfc2b554be0f",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_10.png",
+    "guid": "647096b5a8b94cb69e6b8372608e2f38",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_11.png",
+    "guid": "527e8afc2f794311b6c5bba647102995",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_12.png",
+    "guid": "e724a9fe5d1842e39c974a19d221ae47",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_14.png",
+    "guid": "f1582d42db204b9ab3ceafec5feb2472",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_15.png",
+    "guid": "5b7521a416f54910a18cccb4dfd8f363",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_16.png",
+    "guid": "a39df4d44a744b048d18bd43ec4e9665",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_17.png",
+    "guid": "77d39c5885813fa439da19bf99801e80",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_18.png",
+    "guid": "968baf30567de104fa8ebe65f28ed793",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_19.png",
+    "guid": "dc94dc6651ef29743bfe001a09c77f5e",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_20.png",
+    "guid": "6d35e6acfd47ef84da053f30ea02ba75",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_01.png",
+    "guid": "6e841d9c516348bcb5d8e1586b930ed2",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_02.png",
+    "guid": "2c86bb2bc6b94d9391c7762a0eec959f",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_03.png",
+    "guid": "ae8354988eb941af81600671205a7835",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_04.png",
+    "guid": "289007e448394ce9b4736854d48eba62",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_05.png",
+    "guid": "a3fa809f22224b4cb468e537a6a7b736",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_06.png",
+    "guid": "b8598a85ea3543b18f0149034de85678",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_07.png",
+    "guid": "ae577f9c7f1a47d0b2a465911a195fac",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_08.png",
+    "guid": "ce5c79aec70547d6ae3e5f21537f65c7",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_09.png",
+    "guid": "43aeb543528d415c87133e6a6f0420ef",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_10.png",
+    "guid": "6e1c58898c5f46b98f90b75fdcc0fee4",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_12.png",
+    "guid": "9c01654b40e2495abd4162a68fa1c4e4",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_13.png",
+    "guid": "62ad01edf58e444789e9940711a6eee4",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_14.png",
+    "guid": "f64bf6883d3947dbb3cd5a618f04b611",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_15.png",
+    "guid": "8dafdd046b2b4a53b5053a650c6a2418",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_16.png",
+    "guid": "33ab328bb0634a508c976b27e247a650",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_17.png",
+    "guid": "c6b9d5f5f31e464ba5c70e174f36032c",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18.png",
+    "guid": "9850d0493f1e41a88751bc3be659ecd3",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/FrontView.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_18_Normal.png",
+    "guid": "e458a6bab559136459f6873dd40adbca",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_19.png",
+    "guid": "34e65cf4c9364747858c7339ba7ab36d",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_21.png",
+    "guid": "8a98ffe319224ec5abf47adda8dd6e9f",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_22.png",
+    "guid": "2bc3731d37094be6a22363e65f4e2add",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_23.png",
+    "guid": "15da0f47beb54722ab963ee7a3406128",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_24.png",
+    "guid": "2907d7c6dbe24ec180ae767c1ad75cf9",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_25.png",
+    "guid": "0187854495a55ec44a6a958637d567d3",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_26.png",
+    "guid": "5a9f710fa1290dc4fb90548467a70033",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_28.png",
+    "guid": "570747e831c3bae4bb8595adc8398007",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Customers/MaleCustomer_29.png",
+    "guid": "f5694c6624c8daf488667ea27fdb0744",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/CannedFood.png",
+    "guid": "5de934797e6d0f04a9ef01fc3692fa97",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/DrinkingWater.png",
+    "guid": "57fd43ccaee8ecd4a8736fb5297b22df",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/DryBattery.png",
+    "guid": "6aaa838615306cf4d8ba25c85ead22d6",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/EmergencyInjection.png",
+    "guid": "9e219d8862ff7c54bb9a76b477f3838c",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/Flashlight.png",
+    "guid": "feaf852d7b25364469a2f4c7db58631f",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/FoldingShovel.png",
+    "guid": "23fc9344777e016438d26b8c7b9a8fc2",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/GasMask.png",
+    "guid": "4d7494db5f40d4a448a7b2acdb6d3cdc",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/MedicalBandage.png",
+    "guid": "cddff39dd9750b14593a5dfb0ddb772b",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/Medicine.png",
+    "guid": "303dc58656fbec341a80658cbda9b548",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/MilitaryRation.png",
+    "guid": "334584a1119da584ab0346d127869d09",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/NutritionBar.png",
+    "guid": "51da5fd132c97d54383f70be61cac3b1",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/PowerBattery.png",
+    "guid": "8b23b5ed8030f824abf68d908b57607e",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/ProtectiveSuit.png",
+    "guid": "b07599151bbd35f48bc6b995e34f3af1",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/RadiationDetector.png",
+    "guid": "a0a1efba266304b44814d2b8d7750bf2",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/Radio.png",
+    "guid": "0acb55395f9655a4d97c529d2b1d0288",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/Products/ThermalCamera.png",
+    "guid": "3a45fc018e0f0f74ea54d25b62394157",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat",
+    "guid": "e7d812b0b7597764caabcc59ae790973",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.png",
+    "guid": "d9322dd776712984fbbee219b96cc8ce",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.shader",
+    "guid": "52df7d4a0b3c4104c96cd7e96b8422c4",
+    "refs": [
+      "Assets/DystopiaPrototype/Art/TimeOfDay/CityLights.mat"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/CounterLight.png",
+    "guid": "2579725b5a01a4244a5914b55017c014",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/Dawn.png",
+    "guid": "7769da782da17f345a6e5a8141c2e56d",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/Evening.png",
+    "guid": "21ee1b35d9ae7b245b8dfeaba460a7b0",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/PixelStageLighting.shader",
+    "guid": "4bb3a3480b9d7864ba03db51d2f31812",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/Searchlight.png",
+    "guid": "27268933eeab74b41a932f1049dbab1a",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/Sunset.png",
+    "guid": "0eb464158f595d044bf13ce9dd951a90",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/Art/TimeOfDay/SunsetClouded.png",
+    "guid": "1a0433ce38e502b49a4f95fb6808d588",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Calculator.png",
+    "guid": "e4e4da47c41746288e9e526d48ba51cd",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice0.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice1.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice10.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice11.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice12.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice13.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice2.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice3.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice4.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice5.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice6.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice7.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice8.asset",
+      "Assets/DystopiaPrototype/Prefabs/UiSlice9.asset",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/CalculatorToggle.png",
+    "guid": "8b11ce334813452e934fcdfb82c8c277",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/UiSlice14.asset",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/CounterClock.png",
+    "guid": "594304eb42c84524a1909e1dd7546641",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaPixelStage.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/CounterClockUpdated.png",
+    "guid": "b1295ce4cbdf566438828d22fd3539e7",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png",
+    "guid": "5c4c5257f2ef8b646b0183430ca65218",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerFemale.png",
+    "guid": "c560433c0142a2e4596b7f7cbc13fb5a",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerMale.png",
+    "guid": "47c07e51f9acabe45b7dfb3fa9362df5",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/FrontContainerNormal.png",
+    "guid": "8a499c0e4e268f34fac0e7606018541a",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1Container.png",
+    "guid": "87a5d42045fe15642a57a21f05fe858c",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1ContainerNormal.png",
+    "guid": "f5cc27dbcbcdca54cb12888fa4f50f07",
+    "refs": [],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainer.png",
+    "guid": "44754281990b09849998cbbecb997b32",
+    "refs": [],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompact.png",
+    "guid": "bc98141fd87a2b84ea84e00c833a03ec",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Stage1WoodContainerCompactNormal.png",
+    "guid": "619f5b57acd62394daf77a09e2ad5715",
+    "refs": [
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity"
+    ],
+    "code": []
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownCan.png",
+    "guid": "ba5d7de8656dcad438db313d714cd6d1",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/Product2.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerEmpty.png",
+    "guid": "5058e7ded0fcdd049997cb7d4bef30f6",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownContainerTilted.png",
+    "guid": "6866e4272ad30b44c92d59358a3a12f6",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownCrackers.png",
+    "guid": "4050b76a7ca45de4ab139d77bfbfdd2b",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/Product1.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownRiceRound.png",
+    "guid": "b5572b8887a505448a991dbc0fe7aaa4",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/Product3.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWater.png",
+    "guid": "85116844fe2300d47a1e7ed17365fdbf",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/Product0.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbench.png",
+    "guid": "2a170e436543a5647a171a435e7ba07d",
+    "refs": [
+      "Assets/DystopiaPrototype/Prefabs/Workbench.prefab",
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity",
+      "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/Editor/DystopiaTools.cs",
+      "Assets/DystopiaPrototype/Scripts/DystopiaSceneBindings.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs",
+      "Assets/DystopiaPrototype/TopDownTest/Scripts/DystopiaTopDownTest.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/TopDownWorkbenchNormal.png",
+    "guid": "d5aacb9d7720a8d4a9d903ca4998e9f5",
+    "refs": [
+      "Assets/DystopiaPrototype/TopDownTest/Art/WorkbenchLighting.mat"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/Vacuum.png",
+    "guid": "8c5509423fa570745bc62cafae857f42",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/VacuumWind.mat",
+    "guid": "0b4300acd2095ef4eb588a74156882bb",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/WorkbenchLighting.mat",
+    "guid": "3f51cfaf56af6e74b91af19b25d559e0",
+    "refs": [
+      "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity"
+    ],
+    "code": [
+      "Assets/DystopiaPrototype/TopDownTest/Editor/DystopiaTopDownTestTools.cs"
+    ]
+  },
+  {
+    "path": "Assets/DystopiaPrototype/TopDownTest/Art/WorkbenchLighting.shader",
+    "guid": "bd543c809b02b6d4ab4020947c3be635",
+    "refs": [
+      "Assets/DystopiaPrototype/TopDownTest/Art/WorkbenchLighting.mat"
+    ],
+    "code": []
+  }
+]

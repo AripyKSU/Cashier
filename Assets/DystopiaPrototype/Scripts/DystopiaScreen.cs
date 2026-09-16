@@ -8,10 +8,15 @@ using UnityEngine.UI;
 /// <summary>전용 Scene의 독립 Sprite 화면, 실제 버튼 입력 및 런 수명을 관리합니다.</summary>
 public sealed partial class DystopiaScreen : MonoBehaviour
 {
-    /// <summary>얼굴·손 위주인 어린이 원화를 성인 상반신 영역에 표시할 때의 상대 크기입니다.</summary>
-    private const float ChildPortraitScale = .4f;
+    /// <summary>얼굴·손 위주인 어린이 원화를 성인 상반신 영역에 표시할 때의 상대 크기입니다. 원화 구도가 바뀌면 Inspector에서 맞춥니다.</summary>
+    [Header("어린이 손님 표시")]
+    [SerializeField, Range(.15f, 1f), InspectorName("어린이 크기")] private float childPortraitScale = .4f;
+    /// <summary>어린이 손의 하단이 가판 뒤로 살짝 겹치도록 기존 손님 기준점에서 올리는 상대 높이입니다.</summary>
+    [SerializeField, Range(0, .6f), InspectorName("어린이 높이")] private float childPortraitRise = .18f;
+    /// <summary>현재 Inspector에 설정된 어린이 표시 배율입니다.</summary>
+    private float ChildPortraitScale => childPortraitScale;
     /// <summary>어린이 손의 하단이 가판 뒤로 살짝 겹치도록 기존 손님 기준점에서 올리는 상대 위치입니다.</summary>
-    private Vector2 ChildPortraitOrigin => idleOrigins[2] + Vector2.up * (idlePeople[2].rect.height * placedPeopleScales[2].y * .18f);
+    private Vector2 ChildPortraitOrigin => idleOrigins[2] + Vector2.up * (idlePeople[2].rect.height * placedPeopleScales[2].y * childPortraitRise);
     /// <summary>외형별 호흡 연출 분류입니다. 게임 능력이나 건강 판정에는 사용하지 않습니다.</summary>
     private enum BreathStyle { Normal, Heavy, Elderly }
     /// <summary>남성 Sprite 배열과 같은 순서의 호흡 분류입니다.</summary>
@@ -183,7 +188,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         var frames = new Sprite[4];
         for (int i = 0; i < frames.Length; i++)
         {
-            frames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/ChimneySmoke" + i + ".png");
+            frames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Effects/ChimneySmoke" + i + ".png");
             if (frames[i] == null) return;
         }
         chimneySmokeFrames = frames;
@@ -195,11 +200,11 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (maleCustomers == null || maleCustomers.Length != DystopiaSession.MaleAppearanceCount)
             Array.Resize(ref maleCustomers, DystopiaSession.MaleAppearanceCount);
         for (int i = 0; i < maleCustomers.Length; i++)
-            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/MaleCustomer_{i + 1:00}.png");
+            if (maleCustomers[i] == null) maleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Male/" + DystopiaSession.AppearanceFileName(true, i) + ".png");
         if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)
             Array.Resize(ref femaleCustomers, DystopiaSession.FemaleAppearanceCount);
         for (int i = 0; i < femaleCustomers.Length; i++)
-            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/DystopiaPrototype/Art/Customers/FemaleCustomer_{i + 1:00}.png");
+            if (femaleCustomers[i] == null) femaleCustomers[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Customer/Female/" + DystopiaSession.AppearanceFileName(false, i) + ".png");
     }
 #endif
 
@@ -209,25 +214,20 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (Session != null) return;
 #if UNITY_EDITOR
         BindEditorSmokeFrames();
-        if (tradeReactionSheet == null) tradeReactionSheet = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/TradeReactions.png");
+        if (tradeReactionSheet == null) tradeReactionSheet = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/UI/TradeReactions.png");
         // 이미 열려 있던 씬의 신규 참조만 보완하며 Inspector의 기존 연결은 유지합니다.
-        if (guardTone == null) guardTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/GuardNeutral.mat");
-        if (leftTowerTone == null) leftTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/LeftTowerNeutral.mat");
-        if (rightTowerTone == null) rightTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/RightTowerNeutral.mat");
-        if (dailyLedger == null) dailyLedger = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/DailyLedger.png");
-        if (ledgerDaughter == null) ledgerDaughter = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/LedgerDaughter.png");
-        if (ledgerSpeechBubble == null) ledgerSpeechBubble = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/LedgerSpeechBubble.png");
-        if (ledgerDrawing == null) ledgerDrawing = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerDrawing.png");
-        if (ledgerStamp == null) ledgerStamp = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStamp.png");
-        if (ledgerStampPopular == null) ledgerStampPopular = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampPopular.png");
-        if (ledgerStampNeutral == null) ledgerStampNeutral = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampNeutral.png");
-        if (ledgerStampUnpopular == null) ledgerStampUnpopular = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampUnpopular.png");
-        if (ledgerStampNotorious == null) ledgerStampNotorious = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/DystopiaPrototype/Art/LedgerStampNotorious.png");
-        if (dailyInstruction == null) dailyInstruction = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/DailyInstruction.png");
-        if (instructionStartStamp == null) instructionStartStamp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/DystopiaPrototype/Art/InstructionStartStamp.png");
+        if (guardTone == null) guardTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/GuardNeutral.mat");
+        if (leftTowerTone == null) leftTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/LeftTowerNeutral.mat");
+        if (rightTowerTone == null) rightTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/RightTowerNeutral.mat");
+        if (dailyLedger == null) dailyLedger = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/DailyLedger.png");
+        if (ledgerDaughter == null) ledgerDaughter = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/LedgerDaughter.png");
+        if (ledgerSpeechBubble == null) ledgerSpeechBubble = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/LedgerSpeechBubble.png");
+        if (ledgerDrawing == null) ledgerDrawing = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/UI/LedgerDrawing.png");
+        if (dailyInstruction == null) dailyInstruction = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/DailyInstruction.png");
+        if (instructionStartStamp == null) instructionStartStamp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/InstructionStartStamp.png");
         BindEditorCustomers();
         if (inspectorPortraitPrefab == null) inspectorPortraitPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab");
-        if (uiFont == null) uiFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/DystopiaPrototype/Art/Mulmaru.otf");
+        if (uiFont == null) uiFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Checkout/Mulmaru.otf");
 #endif
         font = uiFont;
         if (font == null)
@@ -314,6 +314,19 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         }
     }
 
+    /// <summary>현재 출력 해상도의 세로 한 픽셀을 캐릭터 부모의 로컬 이동량으로 변환합니다.</summary>
+    /// <param name="person">원래 편집 배치를 유지할 캐릭터입니다.</param>
+    /// <returns>세로 한 렌더 픽셀에 해당하는 부모 로컬 거리입니다.</returns>
+    private float GetBreathingPixelStep(RectTransform person)
+    {
+        var stage = GetComponent<DystopiaPixelStage>();
+        float renderHeight = stage != null && stage.IsRendering ? Mathf.RoundToInt(stage.width * 9f / 16f) : Screen.height;
+        var canvas = person.GetComponentInParent<Canvas>();
+        Camera camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        Vector2 origin = RectTransformUtility.WorldToScreenPoint(camera, person.parent.TransformPoint(Vector3.zero));
+        Vector2 up = RectTransformUtility.WorldToScreenPoint(camera, person.parent.TransformPoint(Vector3.up));
+        return Screen.height / Mathf.Max(1, renderHeight) / Mathf.Max(.0001f, Vector2.Distance(origin, up));
+    }
     /// <summary>군중·손님의 대기 동작과 경비병의 좌우 경계·간헐적인 외곽 사격을 갱신합니다.</summary>
     internal void AnimatePeople()
     {
@@ -368,16 +381,12 @@ public sealed partial class DystopiaScreen : MonoBehaviour
             float cycle = Mathf.Repeat(idleSeconds / period + seed, 1);
             float inhale = style == BreathStyle.Elderly ? .25f : .38f;
             float breath = Mathf.SmoothStep(0, 1, cycle < inhale ? cycle / inhale : 1 - (cycle - inhale) / (1 - inhale));
-            // 노년형은 짧게 들이쉬고 길게 내려앉으며 호기 중 작은 떨림을 더합니다.
-            if (style == BreathStyle.Elderly) breath = Mathf.Clamp01(breath + Mathf.Sin(idleSeconds * 8f + seed) * .045f * (1 - breath));
-            float depth = style == BreathStyle.Elderly ? .035f : style == BreathStyle.Heavy ? .028f : .018f;
-            float width = style == BreathStyle.Heavy ? .022f : .007f;
-            float relativeSize = idlePeople[i].rect.height / 550f;
-            float sway = Mathf.Sin(idleSeconds / period * 2.1f + seed) * (style == BreathStyle.Elderly ? .7f : .3f);
             bool isChild = i == 2 && Session.Customer.Type == DystopiaCustomerType.Child;
             float portraitScale = isChild ? ChildPortraitScale : 1;
-            idlePeople[i].anchoredPosition = (isChild ? ChildPortraitOrigin : idleOrigins[i]) + new Vector2(sway, (breath - .5f) * (style == BreathStyle.Elderly ? 5f : 3f) * relativeSize) * portraitScale;
-            idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i], new Vector3((1 + (breath - .5f) * width) * portraitScale, (1 - (1 - breath) * depth) * portraitScale, 1));
+            // 이미지 크기는 고정하고 원래 배치에서 렌더 픽셀 한 칸만 오르내립니다.
+            idlePeople[i].anchoredPosition = (isChild ? ChildPortraitOrigin : idleOrigins[i])
+                + Vector2.up * (Mathf.Round(breath) * GetBreathingPixelStep(idlePeople[i]));
+            idlePeople[i].localScale = Vector3.Scale(placedPeopleScales[i], new Vector3(portraitScale, portraitScale, 1));
         }
     }
 

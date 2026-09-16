@@ -1,0 +1,10 @@
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.TextMeshPro\UniTask.TextMeshPro.deps.json
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.TextMeshPro\UniTask.TextMeshPro.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.TextMeshPro\UniTask.TextMeshPro.pdb
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask.TextMeshPro.csproj.AssemblyReference.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask.TextMeshPro.GeneratedMSBuildEditorConfig.editorconfig
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask.TextMeshPro.csproj.CoreCompileInputs.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask.TextMeshPro.sourcelink.json
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask..B9C0ED51.Up2Date
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask.TextMeshPro.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.TextMeshPro\UniTask.TextMeshPro.pdb

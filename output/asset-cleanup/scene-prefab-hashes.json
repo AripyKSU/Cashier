@@ -1,0 +1,20 @@
+{
+  "Assets/Scenes/HubScene.unity": "e931b8563772dea1a6039bb9a2a10ff72d5fba76017822afda1f25cdbd8dc5fd",
+  "Assets/Scenes/InitScene.unity": "e08a7c033205b0272863673f2398a86b02e85a1bed1d0b95657449cef6e3beec",
+  "Assets/Scenes/LoadingScene.unity": "76110efaf91f86a0fafb8f2092ce2a91e532b842df6a08a3d4a4fb0e634a59a7",
+  "Assets/Settings/Scenes/URP2DSceneTemplate.unity": "55e315e1a1075331a3d70941b870f39529b1ffe7a01534539dbf290f89a11aa3",
+  "Assets/DystopiaPrototype/Prefabs/CheckoutUI.prefab": "082d0ead54e291b7d78261c58a966d900a9afdb5a6d9d766da5f62abad6b9361",
+  "Assets/DystopiaPrototype/Prefabs/FrontView.prefab": "f1ebb561d32aa90d939a12293a638d191e180526336164f9f5fff2c5f440ab52",
+  "Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab": "e8cd992149e74114b03de71a61498d18d2855483408d8d8104f9a0d9d9695b74",
+  "Assets/DystopiaPrototype/Prefabs/Product0.prefab": "7a9c3ebde74644e2f1d6c224727d2fb10a8f63ca26e05450914e2f15c67c845d",
+  "Assets/DystopiaPrototype/Prefabs/Product1.prefab": "3cb8bd8ca548a75638b461d6dfec8919a8f1679286bcb6d284adfc0041cb22ec",
+  "Assets/DystopiaPrototype/Prefabs/Product2.prefab": "a7a452ba5d32ff5700629149ba3cb9886793e4b513efc8bdd24de4c381f06c3d",
+  "Assets/DystopiaPrototype/Prefabs/Product3.prefab": "d943139672512ffc694c70fd974b7056ab67d0f27b863e6c0cf0c36a12805f78",
+  "Assets/DystopiaPrototype/Prefabs/Stage2ShopParts.prefab": "567c0e5e6f7011f900ef68022c64876fb2471dd903058f581cdd0a99dd91705e",
+  "Assets/DystopiaPrototype/Prefabs/Workbench.prefab": "47f440072424a9ca7e1d48f5b2508a7ca706a692c76a5170454ee9b8ba6164ba",
+  "Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity": "7f1370e7deff58e64ac80b30b4db8b5e503aac8ae69eac5e43a7dab40c05ec23",
+  "Assets/DystopiaPrototype/TopDownTest/Scenes/DystopiaTopDownTest.unity": "289138b8bbede6a9ec844f2526f75c5a7cc30b8865fa8b105b60581efa07d941",
+  "Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity": "9939106729283d6b287b4782bd4fc413e0a2e401c6a8249fd7385efc8f984ab2",
+  "Assets/DystopiaPrototype/Editor/References/Stage2Reference.unity": "1aa8900d5c53fa358f871b5f0d2a3c2683ff316f0f792b28e56899343f23369b",
+  "Assets/DystopiaPrototype/Editor/References/Stage3Reference.unity": "73b612255a3776a39b1320ae01abba0cdde75b9ae8dff13183ecbb2c9efa66bd"
+}

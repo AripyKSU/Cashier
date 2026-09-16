@@ -1,0 +1,10 @@
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.Linq\UniTask.Linq.deps.json
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.Linq\UniTask.Linq.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask.Linq\UniTask.Linq.pdb
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask.Linq.csproj.AssemblyReference.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask.Linq.GeneratedMSBuildEditorConfig.editorconfig
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask.Linq.csproj.CoreCompileInputs.cache
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask.Linq.sourcelink.json
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask..E223475B.Up2Date
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask.Linq.dll
+F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask.Linq\UniTask.Linq.pdb
