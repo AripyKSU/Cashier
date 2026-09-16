@@ -30,7 +30,7 @@ public class CustomerPresenter : MonoBehaviour
     [Tooltip("말풍선 9-슬라이스 프레임 스프라이트 (DialogueFrame)")]
     [SerializeField] private Sprite dialogueFrameSprite;
 
-    [Tooltip("손님 대사 폰트 (Mabinogi_Classic_OTF SDF)")]
+    [Tooltip("손님 대사 폰트 (Mulmaru SDF)")]
     [SerializeField] private TMP_FontAsset dialogueFont;
 
     /// <summary>말풍선 루트 게임오브젝트</summary>
@@ -363,7 +363,7 @@ public class CustomerPresenter : MonoBehaviour
 #if UNITY_EDITOR
         if (this.dialogueFont == null)
         {
-            this.dialogueFont = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset");
+            this.dialogueFont = UnityEditor.AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset");
         }
 
         if (this.dialogueFrameSprite == null)

@@ -141,7 +141,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 273
+  m_SortingOrder: 173
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: f85fe24aaf7cacb4ba83f06c29b017cd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -470,7 +470,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdedf6de09763a84594f46ad607b9ce1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Cashier.Runtime::WorldSceneView
   controller: {fileID: 0}
   worldCamera: {fileID: 0}
@@ -647,7 +647,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1355f1a015356b64b973db96f397aaae, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Cashier.Runtime::CustomerWorldQueueView
   world: {fileID: 7325107921301501028}
   visualRoot: {fileID: 7974872721544835051}
@@ -666,7 +666,7 @@ MonoBehaviour:
   - {fileID: 2380737013719619631}
   - {fileID: 4568109078236969059}
   - {fileID: 8277630240922037447}
-  font: {fileID: 11400000, guid: c0f9f8080e30dd3499d44ece2a336e14, type: 2}
+  font: {fileID: 11400000, guid: 21967ff2222e4b449974e277bfa779ed, type: 2}
   bodyMaterial: {fileID: 2100000, guid: 819f3c753f3f4524b8bff9451fd345f0, type: 2}
   reactionMaterial: {fileID: 2100000, guid: cc7bbc5199031f64392025ac7ded5fdd, type: 2}
   tradeReactionSprites:
@@ -949,7 +949,7 @@ Transform:
   m_GameObject: {fileID: 2117270049079166311}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: 0.9984939, w: -0.054863}
-  m_LocalPosition: {x: 245.41788, y: -254.60469, z: 0}
+  m_LocalPosition: {x: 274, y: -331, z: 0}
   m_LocalScale: {x: 82.87294, y: 50.64504, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1002,7 +1002,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 274
+  m_SortingOrder: 174
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: f85fe24aaf7cacb4ba83f06c29b017cd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

@@ -39,7 +39,7 @@ public static class SaleSortingPrefabSetup
     private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
     private const string HandsPath = "Assets/DystopiaPrototype/Art/Hands.png";
     private const string DialogueFramePath = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
-    private const string MabinogiFontPath = "Assets/TextMesh Pro/Fonts/Mabinogi_Classic_OTF SDF.asset";
+    private const string MulmaruFontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]
@@ -874,11 +874,11 @@ public static class SaleSortingPrefabSetup
         textRect.offsetMin = new Vector2(18f, 10f);
         textRect.offsetMax = new Vector2(-18f, -10f);
 
-        TMP_FontAsset mabinogiFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(MabinogiFontPath);
-        if (mabinogiFont != null)
+        TMP_FontAsset mulmaruFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(MulmaruFontPath);
+        if (mulmaruFont != null)
         {
-            tmp.font = mabinogiFont;
-            tmp.fontSharedMaterial = mabinogiFont.material;
+            tmp.font = mulmaruFont;
+            tmp.fontSharedMaterial = mulmaruFont.material;
         }
 
         tmp.text = "...";
@@ -911,9 +911,9 @@ public static class SaleSortingPrefabSetup
             setObject(presenterObj, "speechBubbleRoot", panelGo);
             setObject(presenterObj, "dialogueText", tmp);
             setObject(presenterObj, "dialogueFrameSprite", frameSprite);
-            if (mabinogiFont != null)
+            if (mulmaruFont != null)
             {
-                setObject(presenterObj, "dialogueFont", mabinogiFont);
+                setObject(presenterObj, "dialogueFont", mulmaruFont);
             }
             presenterObj.ApplyModifiedPropertiesWithoutUndo();
         }
@@ -975,8 +975,8 @@ public static class SaleSortingPrefabSetup
                             setObject(presenterObj, "speechBubbleRoot", dialoguePanel.gameObject);
                             TextMeshProUGUI tmp = dialoguePanel.GetComponentInChildren<TextMeshProUGUI>(true);
                             if (tmp != null) setObject(presenterObj, "dialogueText", tmp);
-                            TMP_FontAsset mabinogiFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(MabinogiFontPath);
-                            if (mabinogiFont != null) setObject(presenterObj, "dialogueFont", mabinogiFont);
+                            TMP_FontAsset mulmaruFont = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(MulmaruFontPath);
+                            if (mulmaruFont != null) setObject(presenterObj, "dialogueFont", mulmaruFont);
                             presenterObj.ApplyModifiedPropertiesWithoutUndo();
                         }
                     }

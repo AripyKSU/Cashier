@@ -12,20 +12,28 @@
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerCompositionSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerCompositionSelector.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerAppearanceDataTable.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerWorldQueueView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerWorldQueueView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/GameUIController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/WorldSceneView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/WorldSceneView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Bandage.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Bandage.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Battery.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Battery.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Can.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Can.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Crackers.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Crackers.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Painkiller.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Painkiller.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Water.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Checkout/Products/Legacy/Water.png.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/INDEX.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/INDEX.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Ending/EndingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Ending/EndingPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/CommonHUD.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/CommonHUD.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/ErrorPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/ErrorPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityItem.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityItem.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/FailurePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/FailurePanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/GameUI.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/OperatingPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/PreOpenPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/SettlementPanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/SettlementPanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/GameUI/TributePanel.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/GameUI/TributePanel.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/World/CustomerWorld.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/World/CustomerWorld.prefab" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/HubScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/HubScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/LoadingScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/LoadingScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/MainScene.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/SaleSortingPrefabSetup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/Editor/SaleSortingPrefabSetup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/CustomerPresenter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DailySettlementLedgerFormatter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/Presenters/DailySettlementLedgerFormatter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerMale.png.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Textures/Environment/Dystopia/TopDown/FrontContainerMale.png.meta" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -203,7 +211,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "customer__fit",
+    "git-widget-placeholder": "total__merge",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

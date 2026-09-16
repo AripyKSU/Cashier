@@ -41,7 +41,7 @@ public static class DailySettlementLedgerFormatter
         appendAmount(builder, "유지비", viewData.MaintenanceAmount, false, true);
         appendAmount(builder, "지침 벌금", viewData.GuidelinePenaltyAmount, false, true);
         appendAmount(builder, "총지출", viewData.Expenses, false, true);
-        builder.AppendLine("────────────────");
+        builder.AppendLine("──────────");
         appendAmount(builder, "순이익", viewData.NetProfit, true);
         builder.AppendLine();
         appendAmount(builder, "현재 보유금", viewData.CurrentBalance);
@@ -57,9 +57,6 @@ public static class DailySettlementLedgerFormatter
         builder.AppendLine("손님 기록").AppendLine();
         builder.Append("판매 성공  ").Append(viewData.SuccessfulSales).AppendLine("명");
         builder.Append("판매 거절  ").Append(viewData.RefusedCustomers).AppendLine("명");
-        builder.Append("이탈       ").Append(viewData.DepartedCustomers).AppendLine("명");
-        builder.AppendLine();
-        builder.Append("명성 변화  ").AppendLine(formatSignedNumber(viewData.ReputationDelta));
         builder.AppendLine();
         int chargedViolationCount = System.Math.Min(
             viewData.GuidelineViolationCount,
@@ -67,8 +64,6 @@ public static class DailySettlementLedgerFormatter
         int penaltyPercent = chargedViolationCount * DailyGuidelinePenaltyCalculator.PercentPerViolation;
         builder.Append("지침 위반  ").Append(viewData.GuidelineViolationCount).Append("회 · ")
             .Append(penaltyPercent).AppendLine("%");
-        appendAmount(builder, "지침 벌금 합계", viewData.GuidelinePenaltyAmount, false, true);
-        builder.AppendLine();
         appendPaymentStatus(builder, viewData);
         return builder.ToString().TrimEnd();
     }
@@ -78,22 +73,8 @@ public static class DailySettlementLedgerFormatter
     /// <param name="viewData">확정된 정산 스냅샷입니다.</param>
     private static void appendPaymentStatus(StringBuilder builder, DailySettlementViewData viewData)
     {
-        builder.AppendLine("납부 기록");
         appendAmount(builder, "총 납부 필요액", viewData.TotalPaymentDue);
         appendAmount(builder, "납부액", viewData.PaidAmount);
-        builder.Append("납부 상태  ");
-
-        if (viewData.UnpaidAmount == 0)
-        {
-            builder.Append("납부 완료");
-            return;
-        }
-
-        if (viewData.IsGameOverConditionMet)
-        {
-            builder.Append("유예 종료 · 납부 기한 초과");
-            return;
-        }
 
         if (viewData.GracePeriodEndDay.HasValue)
         {
@@ -101,8 +82,6 @@ public static class DailySettlementLedgerFormatter
             builder.Append("남은 기간  ").Append(viewData.RemainingGraceDays).Append("일");
             return;
         }
-
-        builder.Append("미납 상태");
     }
 
     /// <summary>라벨과 금액을 가계부 한 줄로 추가합니다.</summary>
