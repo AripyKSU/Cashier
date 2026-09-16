@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
@@ -225,6 +226,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
                 return;
             }
 #endif
+            if (address is string targetKey && targetKey == "MainScene")
+                await PrepareMainSceneAssetsAsync(loading, this.GetCancellationTokenOnDestroy());
             await LoadAddressableSceneAsync(address, loading);
         }
         finally
@@ -251,6 +254,122 @@ public class GameSceneManager : Singleton<GameSceneManager>
 
         GameSessionManager.Instance.ResetSession();
         GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance);
+    }
+
+    /// <summary>MainScene 활성화 전에 표시 자산을 네 단계로 로드하고 데이터·Prefab 계약을 검증한다.</summary>
+    /// <param name="loading">현재 단계 이미지를 표시하는 로딩 화면.</param>
+    /// <param name="cancellationToken">전역 Scene manager 수명 토큰.</param>
+    /// <returns>필수 표시 자산이 ResourceManager 캐시에 준비되면 완료되는 작업.</returns>
+    /// <exception cref="InvalidOperationException">필수 manager, 데이터, FK 또는 자산 구성이 잘못된 경우.</exception>
+    private async UniTask PrepareMainSceneAssetsAsync(LoadingScene loading, CancellationToken cancellationToken)
+    {
+        loading.SetLoadingPhase(0);
+        if (ResourceManager.Instance == null || DataTableManager.Instance == null)
+            throw new InvalidOperationException("MainScene 자산 준비에 필요한 manager가 없습니다.");
+
+        await ResourceManager.Instance.InitAsync(null, cancellationToken);
+        await DataTableManager.Instance.EnsureDataLoadedAsync().AttachExternalCancellation(cancellationToken);
+
+        var tables = DataTableManager.Instance;
+        ResourceDataTable resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+        CustomerCatalog catalog = tables.Customers;
+        if (resources == null || catalog == null)
+            throw new InvalidOperationException("MainScene 자산 준비에 필요한 Resource 또는 Customer 데이터가 없습니다.");
+        await loading.WaitForCurrentPhaseCycleAsync();
+
+        loading.SetLoadingPhase(1);
+        var loadedSpriteIds = new HashSet<uint>();
+        foreach (ProductData product in catalog.Products.Rows.Values)
+        {
+            if (!product.ImageResourceIdx.HasValue)
+                continue;
+
+            await LoadRequiredResourceAsync<Sprite>(product.ImageResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
+            if (!product.TopViewImageResourceIdx.HasValue)
+                throw new InvalidOperationException($"Product {product.Idx}: top-view Resource FK가 없습니다.");
+            await LoadRequiredResourceAsync<Sprite>(product.TopViewImageResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
+        }
+        foreach (CustomerAppearanceData appearance in catalog.Appearances.Rows.Values)
+            await LoadRequiredResourceAsync<Sprite>(appearance.ImageResourceIdx, resources, loadedSpriteIds, cancellationToken);
+        await loading.WaitForCurrentPhaseCycleAsync();
+
+        loading.SetLoadingPhase(2);
+        var loadedTextureIds = new HashSet<uint>();
+        foreach (CustomerAppearanceData appearance in catalog.Appearances.Rows.Values)
+            await LoadRequiredResourceAsync<Texture2D>(appearance.NormalResourceIdx, resources, loadedTextureIds, cancellationToken);
+
+        InspectorEventDataTable inspectors = tables.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent);
+        DaughterAppearanceDataTable daughters = tables.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance);
+        if (inspectors == null || daughters == null)
+            throw new InvalidOperationException("MainScene 감독관 또는 딸 외형 데이터가 없습니다.");
+        foreach (InspectorEventData inspector in inspectors.Rows.Values)
+            await LoadRequiredResourceAsync<Sprite>(inspector.PortraitResourceIdx, resources, loadedSpriteIds, cancellationToken);
+        foreach (DaughterAppearanceData daughter in daughters.Rows.Values)
+            await LoadRequiredResourceAsync<Sprite>(daughter.ResourceIdx, resources, loadedSpriteIds, cancellationToken);
+        await loading.WaitForCurrentPhaseCycleAsync();
+
+        loading.SetLoadingPhase(3);
+        StoreStageDataTable stages = tables.GetDB<StoreStageDataTable>(DataTableType.StoreStage);
+        if (stages == null)
+            throw new InvalidOperationException("MainScene 가게 단계 데이터가 없습니다.");
+
+        var loadedPrefabIds = new HashSet<uint>();
+        var loadedClockIds = new HashSet<uint>();
+        foreach (StoreStageData stage in stages.Rows.Values)
+        {
+            uint[] prefabIds =
+            {
+                stage.WorldPrefabResourceIdx,
+                stage.FrontPrefabResourceIdx,
+                stage.TopViewPrefabResourceIdx
+            };
+            for (int index = 0; index < prefabIds.Length; index++)
+            {
+                GameObject prefab = await LoadRequiredResourceAsync<GameObject>(
+                    prefabIds[index], resources, loadedPrefabIds, cancellationToken);
+                StoreStageVisual visual = prefab.GetComponent<StoreStageVisual>();
+                if (visual == null)
+                    throw new InvalidOperationException($"StoreStage {stage.Idx}: Resource {prefabIds[index]}에 StoreStageVisual이 없습니다.");
+                visual.Validate((StoreStageVisual.Region)index);
+            }
+            await LoadRequiredResourceAsync<Sprite>(stage.ClockResourceIdx, resources, loadedClockIds, cancellationToken);
+        }
+        await loading.WaitForCurrentPhaseCycleAsync();
+    }
+
+    /// <summary>Resource FK를 한 번만 로드하고 요청 타입과 실제 결과를 검증한다.</summary>
+    /// <typeparam name="T">필수 Unity 자산 타입.</typeparam>
+    /// <param name="resourceIdx">ResourceData 기본 키.</param>
+    /// <param name="resources">검증된 Resource 데이터 테이블.</param>
+    /// <param name="loadedIds">현재 타입에서 이미 준비된 FK 집합.</param>
+    /// <param name="cancellationToken">Scene manager 수명 토큰.</param>
+    /// <returns>로드된 필수 자산.</returns>
+    /// <exception cref="InvalidOperationException">FK, 주소 또는 로드 결과가 누락된 경우.</exception>
+    private static async UniTask<T> LoadRequiredResourceAsync<T>(
+        uint resourceIdx,
+        ResourceDataTable resources,
+        HashSet<uint> loadedIds,
+        CancellationToken cancellationToken) where T : UnityEngine.Object
+    {
+        if (!resources.TryGetResource(resourceIdx, out ResourceData resource)
+            || resource == null
+            || string.IsNullOrWhiteSpace(resource.Path))
+        {
+            throw new InvalidOperationException($"Resource FK {resourceIdx}의 유효한 주소가 없습니다.");
+        }
+
+        if (!loadedIds.Add(resourceIdx))
+        {
+            T cached = ResourceManager.Instance.GetResource<T>(resource.Path);
+            if (cached == null)
+                throw new InvalidOperationException($"Resource {resourceIdx}, address={resource.Path}: 캐시 결과가 없습니다.");
+            return cached;
+        }
+
+        T asset = await ResourceManager.Instance.LoadAssetAsync<T>(resource.Path, cancellationToken);
+        if (asset == null)
+            throw new InvalidOperationException($"Resource {resourceIdx}, address={resource.Path}: {typeof(T).Name} 로드 결과가 없습니다.");
+        return asset;
     }
 
     /// <summary>Build Settings 씬을 준비하고 최소 표시 시간이 지난 뒤 활성화한다.</summary>
