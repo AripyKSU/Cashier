@@ -1,0 +1,20 @@
+dot=3.0
+stage1 Counter                      Stage1CounterTop.png               427x115 dots for 1280x325 canvas px
+stage1 FrontContainer               Stage1CrateClosed.png              88x52 dots for 263x156 canvas px
+stage1 PouringContainer             Stage1CrateOpen.png                150x89 dots for 450x267 canvas px
+stage1 FacilityFoodShelf            Stage1FoodShelf.png                71x61 dots for 213x183 canvas px
+stage1 FacilityMedicineCabinet      Stage1MedicineCabinet.png          86x61 dots for 259x185 canvas px
+stage1 Canopy                       BoothCanopy.png                    437x246 dots for 1310x720 canvas px
+stage1 CounterClock                 Stage1BasicClock.png               52x26 dots for 157x77 canvas px
+dot=3.0
+stage2 Counter                      Stage2CounterTop.png               351x113 dots for 1054x325 canvas px
+stage2 FrontContainer               Stage2RustedCrateClosed.png        88x56 dots for 263x168 canvas px
+stage2 PouringContainer             Stage2RustedCrateOpen.png          150x97 dots for 450x291 canvas px
+stage2 FacilityToolBench            Stage2ToolBench.png                118x53 dots for 354x159 canvas px
+stage2 FacilityPowerCommunications  Stage2PowerCommunications.png      68x74 dots for 204x222 canvas px
+stage2 FacilityFoodShelf            Stage2FoodShelf.png                68x59 dots for 204x176 canvas px
+stage2 FacilityMedicineCabinet      Stage2MedicineCabinet.png          74x53 dots for 221x158 canvas px
+stage2 Canopy                       Stage2RustedFrame.png              444x48 dots for 1331x96 canvas px
+stage2 Stage3LeftPillar             Stage2RustedFrame.png              49x112 dots for 146x447 canvas px
+stage2 Stage3RightPillar            Stage2RustedFrame.png              48x112 dots for 143x438 canvas px
+stage2 CounterClock                 Stage2RustedClock.png              52x25 dots for 157x77 canvas px

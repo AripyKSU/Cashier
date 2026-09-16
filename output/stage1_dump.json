@@ -180,7 +180,7 @@
       },
       "m_LocalPosition": {
        "x": 0,
-       "y": 0,
+       "y": -161,
        "z": 0
       },
       "m_LocalScale": {
@@ -2284,8 +2284,8 @@
            "y": 1
           },
           "m_AnchoredPosition": {
-           "x": 153.0625,
-           "y": -192.675
+           "x": 126.20337,
+           "y": -172.6695
           },
           "m_SizeDelta": {
            "x": 1653.75,
@@ -2396,8 +2396,8 @@
            "y": 1
           },
           "m_AnchoredPosition": {
-           "x": 1114.9938,
-           "y": -240.45001
+           "x": 1159.7751,
+           "y": -234.81252
           },
           "m_SizeDelta": {
            "x": 1653.75,
@@ -5252,7 +5252,7 @@
           },
           "m_AnchoredPosition": {
            "x": 0,
-           "y": -483
+           "y": -498
           },
           "m_SizeDelta": {
            "x": 1280,
@@ -5672,14 +5672,14 @@
          "fields": {
           "m_Enabled": 0,
           "m_EffectColor": {
-           "r": 0.015,
-           "g": 0.012,
+           "r": 0.02,
+           "g": 0.015,
            "b": 0.01,
-           "a": 0.85
+           "a": 0.8
           },
           "m_EffectDistance": {
-           "x": 4,
-           "y": -9
+           "x": 10,
+           "y": -12
           },
           "m_UseGraphicAlpha": 1
          }
@@ -5822,14 +5822,14 @@
          "fields": {
           "m_Enabled": 0,
           "m_EffectColor": {
-           "r": 0.015,
-           "g": 0.012,
+           "r": 0.02,
+           "g": 0.015,
            "b": 0.01,
-           "a": 0.85
+           "a": 0.8
           },
           "m_EffectDistance": {
-           "x": 4,
-           "y": -9
+           "x": 10,
+           "y": -12
           },
           "m_UseGraphicAlpha": 1
          }
@@ -5953,14 +5953,14 @@
          "fields": {
           "m_Enabled": 0,
           "m_EffectColor": {
-           "r": 0.015,
-           "g": 0.012,
+           "r": 0.02,
+           "g": 0.015,
            "b": 0.01,
-           "a": 0.85
+           "a": 0.8
           },
           "m_EffectDistance": {
-           "x": 4,
-           "y": -9
+           "x": 10,
+           "y": -12
           },
           "m_UseGraphicAlpha": 1
          }
@@ -6103,14 +6103,14 @@
          "fields": {
           "m_Enabled": 0,
           "m_EffectColor": {
-           "r": 0.015,
-           "g": 0.012,
+           "r": 0.02,
+           "g": 0.015,
            "b": 0.01,
-           "a": 0.85
+           "a": 0.8
           },
           "m_EffectDistance": {
-           "x": 4,
-           "y": -9
+           "x": 10,
+           "y": -12
           },
           "m_UseGraphicAlpha": 1
          }
@@ -6185,7 +6185,7 @@
           },
           "m_AnchoredPosition": {
            "x": 65,
-           "y": -454
+           "y": -467
           },
           "m_SizeDelta": {
            "x": 213,
@@ -6253,14 +6253,14 @@
          "fields": {
           "m_Enabled": 0,
           "m_EffectColor": {
-           "r": 0.015,
-           "g": 0.012,
+           "r": 0.02,
+           "g": 0.015,
            "b": 0.01,
-           "a": 0.85
+           "a": 0.8
           },
           "m_EffectDistance": {
-           "x": 4,
-           "y": -9
+           "x": 10,
+           "y": -12
           },
           "m_UseGraphicAlpha": 1
          }
@@ -6335,7 +6335,7 @@
           },
           "m_AnchoredPosition": {
            "x": 983.84,
-           "y": -451
+           "y": -466
           },
           "m_SizeDelta": {
            "x": 221,
@@ -6403,14 +6403,14 @@
          "fields": {
           "m_Enabled": 0,
           "m_EffectColor": {
-           "r": 0.015,
-           "g": 0.012,
+           "r": 0.02,
+           "g": 0.015,
            "b": 0.01,
-           "a": 0.85
+           "a": 0.8
           },
           "m_EffectDistance": {
-           "x": 4,
-           "y": -9
+           "x": 10,
+           "y": -12
           },
           "m_UseGraphicAlpha": 1
          }
@@ -22645,7 +22645,7 @@
         "refType": "Image"
        }
       ],
-      "preview": 1,
+      "preview": 0,
       "previewHour": 9,
       "dawnStart": 9,
       "dayStart": 12,
@@ -23767,14 +23767,14 @@
         "highlightResponse": 0.9,
         "specularResponse": 0.2,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1.12,
-         "w": 0.24
+         "z": 1.06,
+         "w": 0.22
         },
-        "softContactShadow": 1,
+        "softContactShadow": 0,
         "projectedContactShadow": 0
        },
        {
@@ -23798,14 +23798,14 @@
         "highlightResponse": 0.9,
         "specularResponse": 0.2,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1.12,
-         "w": 0.24
+         "z": 1.06,
+         "w": 0.22
         },
-        "softContactShadow": 1,
+        "softContactShadow": 0,
         "projectedContactShadow": 0
        },
        {
@@ -23829,14 +23829,14 @@
         "highlightResponse": 0.9,
         "specularResponse": 0.2,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1.12,
-         "w": 0.24
+         "z": 1.06,
+         "w": 0.22
         },
-        "softContactShadow": 1,
+        "softContactShadow": 0,
         "projectedContactShadow": 0
        },
        {
@@ -23860,14 +23860,14 @@
         "highlightResponse": 0.9,
         "specularResponse": 0.2,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1.12,
-         "w": 0.24
+         "z": 1.06,
+         "w": 0.22
         },
-        "softContactShadow": 1,
+        "softContactShadow": 0,
         "projectedContactShadow": 0
        },
        {
@@ -23891,14 +23891,14 @@
         "highlightResponse": 0.9,
         "specularResponse": 0.2,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1.12,
-         "w": 0.24
+         "z": 1.06,
+         "w": 0.22
         },
-        "softContactShadow": 1,
+        "softContactShadow": 0,
         "projectedContactShadow": 0
        },
        {
@@ -23922,14 +23922,14 @@
         "highlightResponse": 0.9,
         "specularResponse": 0.2,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1.12,
-         "w": 0.24
+         "z": 1.06,
+         "w": 0.22
         },
-        "softContactShadow": 1,
+        "softContactShadow": 0,
         "projectedContactShadow": 0
        },
        {
@@ -24321,22 +24321,22 @@
          "y": 0
         },
         "roomResponse": 0,
-        "lampResponse": 1,
+        "lampResponse": 0.65,
         "rimWidthPixels": 1,
         "rimResponse": 0,
         "normalResponse": 0.3,
-        "highlightResponse": 1,
+        "highlightResponse": 0.9,
         "specularResponse": 1,
         "emission": 0,
-        "bottomShade": 0.12,
+        "bottomShade": 0.3,
         "contactShadow": {
          "x": 0.5,
          "y": 0,
-         "z": 1,
-         "w": 0.7
+         "z": 1.06,
+         "w": 0.26
         },
         "softContactShadow": 0,
-        "projectedContactShadow": 1
+        "projectedContactShadow": 0
        },
        {
         "source": {
@@ -26819,9 +26819,9 @@
              "z": 0
             },
             "m_LocalScale": {
-             "x": 0.8110657,
-             "y": 0.7913987,
-             "z": 0.9891045
+             "x": 0.72995913,
+             "y": 0.72995913,
+             "z": 0.66766
             },
             "m_ConstrainProportionsScale": 0,
             "m_AnchorMin": {
@@ -26833,12 +26833,12 @@
              "y": 1
             },
             "m_AnchoredPosition": {
-             "x": 497,
-             "y": -498
+             "x": 522,
+             "y": -505
             },
             "m_SizeDelta": {
-             "x": 324,
-             "y": 228
+             "x": 360,
+             "y": 240
             },
             "m_Pivot": {
              "x": 0,
@@ -26902,14 +26902,14 @@
            "fields": {
             "m_Enabled": 0,
             "m_EffectColor": {
-             "r": 0.015,
-             "g": 0.012,
+             "r": 0.02,
+             "g": 0.015,
              "b": 0.01,
-             "a": 0.85
+             "a": 0.8
             },
             "m_EffectDistance": {
-             "x": 4,
-             "y": -9
+             "x": 10,
+             "y": -12
             },
             "m_UseGraphicAlpha": 1
            }
@@ -32042,7 +32042,7 @@
             },
             "m_AnchoredPosition": {
              "x": 85.25001,
-             "y": -49.166664
+             "y": -45
             },
             "m_SizeDelta": {
              "x": 122.76002,
@@ -43893,7 +43893,7 @@
    "platforms": {
     "null": {
      "maxTextureSize": 2048,
-     "textureCompression": 1,
+     "textureCompression": 0,
      "format": null,
      "compressionQuality": 50
     }
@@ -43965,7 +43965,7 @@
    "platforms": {
     "null": {
      "maxTextureSize": 2048,
-     "textureCompression": 1,
+     "textureCompression": 0,
      "format": null,
      "compressionQuality": 50
     }
@@ -43975,10 +43975,10 @@
      "name": "Stage3PrecisionElectronics",
      "rect": {
       "serializedVersion": 2,
-      "x": 12,
-      "y": 46,
-      "width": 1648,
-      "height": 886
+      "x": 2,
+      "y": 43,
+      "width": 1660,
+      "height": 892
      },
      "alignment": 0,
      "pivot": {
@@ -44006,8 +44006,8 @@
    "path": "Assets/Textures/art/Facility/Props/Stage3ToolBench.png",
    "guid": "b0eea89e97a6eaf4884fe3b1c53564b8",
    "pngSize": [
-    1844,
-    853
+    1448,
+    1086
    ],
    "textureType": 8,
    "spriteMode": 2,
@@ -44037,7 +44037,7 @@
    "platforms": {
     "null": {
      "maxTextureSize": 2048,
-     "textureCompression": 1,
+     "textureCompression": 0,
      "format": null,
      "compressionQuality": 50
     }
@@ -44047,10 +44047,10 @@
      "name": "Stage3ToolBench",
      "rect": {
       "serializedVersion": 2,
-      "x": 69,
-      "y": 39,
-      "width": 1708,
-      "height": 763
+      "x": 73,
+      "y": 164,
+      "width": 1313,
+      "height": 592
      },
      "alignment": 0,
      "pivot": {
@@ -44078,8 +44078,8 @@
    "path": "Assets/Textures/art/Facility/Props/Stage3PowerCommunications.png",
    "guid": "3f62e7b863807ad42bcba13f1e9b745f",
    "pngSize": [
-    1223,
-    1286
+    1448,
+    1086
    ],
    "textureType": 8,
    "spriteMode": 2,
@@ -44109,7 +44109,7 @@
    "platforms": {
     "null": {
      "maxTextureSize": 2048,
-     "textureCompression": 1,
+     "textureCompression": 0,
      "format": null,
      "compressionQuality": 50
     }
@@ -44119,10 +44119,10 @@
      "name": "Stage3PowerCommunications",
      "rect": {
       "serializedVersion": 2,
-      "x": 54,
-      "y": 181,
-      "width": 1094,
-      "height": 1050
+      "x": 246,
+      "y": 7,
+      "width": 887,
+      "height": 957
      },
      "alignment": 0,
      "pivot": {

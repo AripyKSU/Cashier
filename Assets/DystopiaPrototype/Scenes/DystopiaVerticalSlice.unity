@@ -1345,8 +1345,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.4627451}
-  m_EffectDistance: {x: 4.6, y: -5.2}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.54509807}
+  m_EffectDistance: {x: 0.88, y: -8.25}
   m_UseGraphicAlpha: 1
 --- !u!114 &578463040 stripped
 MonoBehaviour:
@@ -3803,7 +3803,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 557.47, y: 6}
+  m_AnchoredPosition: {x: 557.47, y: -3}
   m_SizeDelta: {x: 150.04785, y: 20.658873}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1595516233

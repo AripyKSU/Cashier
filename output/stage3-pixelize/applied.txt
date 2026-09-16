@@ -1,0 +1,6 @@
+dot=3.0 colors=48
+Canopy                       Stage3Shop.png                     1672x941 kept · 466x46 dots for 1398x96 canvas px
+Stage3LeftPillar             Stage3Shop.png                     1672x941 kept · 49x121 dots for 146x474 canvas px
+Stage3RightPillar            Stage3Shop.png                     1672x941 kept · 48x121 dots for 143x460 canvas px
+Stage3CeilingLamp            Stage3Shop.png                     1672x941 kept · 55x8 dots for 165x21 canvas px
+CounterClock                 Stage3GunmetalClock.png            1254x1254 kept · 52x20 dots for 157x62 canvas px
