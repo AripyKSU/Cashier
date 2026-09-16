@@ -176,7 +176,7 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
         }
 #if UNITY_EDITOR
         BindEditorAssets();
-        if (handArtwork == null) handArtwork = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/UI/Hands.png");
+        if (handArtwork == null) handArtwork = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/UI/Hands.png");
 #endif
         if (!isEmbeddedInFrontScene) DisableOtherScenesDuringPlay();
         if (isEmbeddedInFrontScene)
@@ -333,17 +333,17 @@ public sealed partial class DystopiaTopDownTest : MonoBehaviour
     private void BindEditorAssets()
     {
 #if UNITY_EDITOR
-        frontBackground = frontBackground != null ? frontBackground : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Background/FARBACKGROUND.png");
-        frontCounter = frontCounter != null ? frontCounter : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Shop/Counter.png");
-        workbench = workbench != null ? workbench : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/TopDownWorkbench.png");
-        frontContainerMale = frontContainerMale != null ? frontContainerMale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/FrontContainerMale.png");
-        frontContainerFemale = frontContainerFemale != null ? frontContainerFemale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/FrontContainerFemale.png");
-        tiltedContainer = tiltedContainer != null ? tiltedContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/TopDownContainerTilted.png");
-        emptyContainer = emptyContainer != null ? emptyContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Workbench/TopDownContainerEmpty.png");
+        frontBackground = frontBackground != null ? frontBackground : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Background/FARBACKGROUND.png");
+        frontCounter = frontCounter != null ? frontCounter : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Facility/CounterTop/Counter.png");
+        workbench = workbench != null ? workbench : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Facility/Workbench/TopDownWorkbench.png");
+        frontContainerMale = frontContainerMale != null ? frontContainerMale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Facility/Crate/FrontContainerMale.png");
+        frontContainerFemale = frontContainerFemale != null ? frontContainerFemale : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Facility/Crate/FrontContainerFemale.png");
+        tiltedContainer = tiltedContainer != null ? tiltedContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Workbench/TopDownContainerTilted.png");
+        emptyContainer = emptyContainer != null ? emptyContainer : UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Workbench/TopDownContainerEmpty.png");
         string[] productNames = { "TopDownWater", "TopDownCrackers", "TopDownCan", "TopDownRiceRound" };
         if (productSprites == null || productSprites.Length != productNames.Length) productSprites = new Sprite[productNames.Length];
         for (int i = 0; i < productSprites.Length; i++)
-            if (productSprites[i] == null) productSprites[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/Checkout/Workbench/{productNames[i]}.png");
+            if (productSprites[i] == null) productSprites[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Textures/art/Workbench/{productNames[i]}.png");
         if (maleCustomers == null || maleCustomers.Length != DystopiaSession.MaleAppearanceCount)
             Array.Resize(ref maleCustomers, DystopiaSession.MaleAppearanceCount);
         if (femaleCustomers == null || femaleCustomers.Length != DystopiaSession.FemaleAppearanceCount)

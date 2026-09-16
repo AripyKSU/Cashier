@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 6978fa40aee53b643836c083c2dd4d52
+guid: 3d2e20609173322428c271daace1cf49
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7534265127540975972
-    second: BoothCanopy_0
-  - first:
-      213: -3589057085940790276
-    second: BoothCanopy_1
+      213: 7229252181744332513
+    second: Stage1_LayoutCheck_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -78,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -116,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: BoothCanopy_0
+      name: Stage1_LayoutCheck_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 344
-        height: 941
+        width: 1280
+        height: 720
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,30 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c969e45e8c9e07790800000000000000
-      internalID: -7534265127540975972
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: BoothCanopy_1
-      rect:
-        serializedVersion: 2
-        x: 804
-        y: 0
-        width: 868
-        height: 941
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: cfb86e1989b113ec0800000000000000
-      internalID: -3589057085940790276
+      spriteID: 1eea69c9e86735460800000000000000
+      internalID: 7229252181744332513
       vertices: []
       indices: 
       edges: []
@@ -163,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -173,8 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      BoothCanopy_0: -7534265127540975972
-      BoothCanopy_1: -3589057085940790276
+      Stage1_LayoutCheck_0: 7229252181744332513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

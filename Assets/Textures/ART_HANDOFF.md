@@ -1,5 +1,6 @@
 # 이미지 개발자 인계 안내
 
+> **2026-09-16 폴더 재편:** 이 문서와 `ART_IMAGE_INVENTORY.md`의 `Checkout/...` 경로는 모두 `Assets/Textures/art/` 아래 종류별 폴더로 이동했다. 최신 경로와 Stage 1 전체 명세는 `Assets/Textures/art/STAGE1_HANDOFF.md`, 옛→새 경로 대응은 `doc/CHECKOUT_ASSET_LAYOUT.md`를 본다.
 ## 전달 범위
 
 이 대화에서 작업한 고객·단계별 상판·설비·상자·프레임·시계 최종 이미지는 모두 `Assets/Textures/` 아래에 있습니다. PNG와 같은 이름의 `.meta`를 함께 전달하세요. `.meta`에는 GUID, Sprite 자르기 영역, PPU와 pivot이 포함됩니다.

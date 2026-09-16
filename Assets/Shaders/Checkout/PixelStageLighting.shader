@@ -30,6 +30,7 @@ Shader "Cashier/PixelStageLighting"
  float _HighlightResponse, _SpecularResponse, _Emission;
  float4 _ContactAnchor, _ContactSpriteUV;
  float4 _ContactFootprint;
+ float4 _ShadowProjection;
  float _ContainerFinish;
  float4 _TowerOrigins;
  float _TowerPower;
@@ -81,11 +82,24 @@ Shader "Cashier/PixelStageLighting"
  }
  struct A {float4 vertex:POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;};
  struct V {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;float4 color:COLOR;float2 world:TEXCOORD1;};
- V vert(A i){V o;float3 w=TransformObjectToWorld(i.vertex.xyz);o.vertex=TransformWorldToHClip(w);o.world=w.xy-float2(10000,10000);o.uv=i.uv;o.color=i.color*_Tint;return o;}
+ V vert(A i){
+  V o;
+  if(_ContactShadow>3.5){
+   float height=max(0,i.vertex.y-_ShadowProjection.x);
+   i.vertex.x+=height*_ShadowProjection.y;
+   i.vertex.y=_ShadowProjection.x-height*_ShadowProjection.z;
+  }
+  float3 w=TransformObjectToWorld(i.vertex.xyz);o.vertex=TransformWorldToHClip(w);o.world=w.xy-float2(10000,10000);o.uv=i.uv;o.color=i.color*_Tint;return o;
+ }
  half4 frag(V i):SV_Target {
   if(_Surface>7.5)return half4(_LampColor.rgb,SpotCone(i.world)*_SpotHaze);
   clip(min(min(i.world.x-_ClipRect.x,_ClipRect.z-i.world.x),min(i.world.y-_ClipRect.y,_ClipRect.w-i.world.y)));
   if(_ContactShadow>.5){
+   if(_ContactShadow>3.5){
+    half4 projectedSample=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,i.uv);
+    clip(projectedSample.a-.5);
+    return half4(_Tint.rgb,_Tint.a);
+   }
    if(_ContainerFinish>.5){
     // A solid short strip overlaps the foot slightly, with no blur or alpha sampling.
     float depth=(_ContactAnchor.y-i.uv.y)*2;
@@ -116,24 +130,25 @@ Shader "Cashier/PixelStageLighting"
    if(_ContactShadow>1.5){
     // Point-sampled silhouette with a short, hard-edged projection from the base.
     float depth=(_ContactAnchor.y-i.uv.y)*2;
-    float2 projected=float2((i.uv.x-_ContactAnchor.x-depth*_ContactAnchor.w)/max(.01,_ContactAnchor.z)+.5,depth/.19);
+    float2 projected=float2((i.uv.x-_ContactAnchor.x-depth*_ContactAnchor.w)/max(.01,_ContactAnchor.z)+.5,depth/.32);
     clip(min(min(projected.x,1-projected.x),min(projected.y,1-projected.y)));
     float2 spriteUV=lerp(_ContactSpriteUV.xy,_ContactSpriteUV.zw,projected);
-    half alpha=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,spriteUV).a;
-    clip(alpha-.5);
-    return half4(_Tint.rgb,_Tint.a*.75);
+    half4 shadowSample=SAMPLE_TEXTURE2D(_MainTex,sampler_PointClamp,spriteUV);
+    clip(shadowSample.a-.5);
+    // Some prop PNGs keep an opaque near-black canvas; exclude it so the cast follows only the visible item.
+    clip(max(shadowSample.r,max(shadowSample.g,shadowSample.b))-.06);
+    return half4(_Tint.rgb,_Tint.a*.9);
    }
-   // Both terms start at the actual footprint; only the softer cast extends away.
+   // A short low-opacity ellipse spreads from the footprint without a hard dark strip.
    float2 contact=(i.uv-_ContactAnchor.xy)*2;
    float depth=max(0,-contact.y);
    float footprint=max(.1,_ContactAnchor.z);
-   // Keep a dark strip below the feet instead of hiding the narrow peak behind the sprite.
-   float core=.98*exp(-2*pow(abs(contact.x)/footprint,8)-45*pow(contact.y+.06,2));
    float castX=contact.x-depth*_ContactAnchor.w*2;
-   float soft=.9*exp(-2*pow(abs(castX)/(footprint*1.5),6)-1.3*depth);
+   float soft=exp(-2.4*pow(castX/(footprint*1.18),2)-6.5*pow(depth-.06,2));
+   soft+=.28*exp(-1.8*pow(castX/(footprint*1.35),2)-3.2*depth);
    soft*=1-smoothstep(0,.12,contact.y);
    float edge=smoothstep(0,.08,i.uv.x)*smoothstep(0,.08,1-i.uv.x)*smoothstep(0,.1,i.uv.y);
-   float opacity=(1-(1-core)*(1-soft))*edge;
+   float opacity=saturate(soft)*edge;
    return half4(_Tint.rgb,_Tint.a*opacity);
   }
   clip(min(i.uv.x-_TextureEdgeTrim.x,1-_TextureEdgeTrim.y-i.uv.x));
@@ -164,7 +179,22 @@ Shader "Cashier/PixelStageLighting"
    c.rgb=lerp(c.rgb,birdColor,SkyBirds(i.world));
    return c;
   }
-  if(_Surface>3.5){float chroma=max(c.r,max(c.g,c.b))-min(c.r,min(c.g,c.b));c.a*=step(.18,chroma);return c;}
+   if(_Surface>3.5){
+    float redMask=step(c.g*1.35,c.r)*step(c.b*1.35,c.r)*step(.35,c.r);
+    float blinkPhase=floor(i.uv.x*12)*1.37+floor(i.uv.y*8)*.91;
+    float warningBlink=lerp(.22,1,step(.08,sin(_AmbientSeconds*3.2+blinkPhase)));
+    c.a*=lerp(1,warningBlink,redMask);
+    // FARBACKGROUND의 남산타워 첨탑 좌표에 빠진 항공 경고등을 픽셀 단위로 보충합니다.
+    float2 beaconPixel=(i.uv-float2(.1465,.9532))*_MainTex_TexelSize.zw;
+    float beaconCore=step(max(abs(beaconPixel.x),abs(beaconPixel.y)),1.35);
+    float beaconHalo=step(length(beaconPixel),3.1)*.28;
+    float beaconAlpha=saturate(beaconCore+beaconHalo)*i.color.a*warningBlink;
+    c.rgb=lerp(c.rgb,float3(1,.045,.018),saturate(beaconAlpha));
+    c.a=max(c.a,beaconAlpha);
+    float chroma=max(c.r,max(c.g,c.b))-min(c.r,min(c.g,c.b));
+    c.a*=step(.18,chroma);
+    return c;
+   }
   if(_Surface<.5)return half4(c.rgb*(1+_Emission),c.a);
   // Compress baked bright flecks before lighting; retain dark seams and rust color.
   float albedoLuma=dot(c.rgb,float3(.2126,.7152,.0722));

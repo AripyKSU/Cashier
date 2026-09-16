@@ -11,6 +11,47 @@ using UnityEngine.UI;
 /// <summary>단계별 상판·설비·상자·작업대 그림을 임포트하고 승인 기준 씬에 배치합니다. 배치는 기준 씬이 소유합니다.</summary>
 public static class DystopiaFacilityTools
 {
+    /// <summary>요청한 Stage 1 기준을 저장 없이 검사하고 격리된 렌더를 캡처합니다. 검증 후 제거합니다.</summary>
+    [MenuItem("Dystopia/설비/Verify Requested Stage 1")]
+    public static void VerifyRequestedStage1()
+    {
+        const string directory="output/stage1-scale-match-20260916";
+        var preview=EditorSceneManager.OpenPreviewScene("Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity");
+        DystopiaPixelStage stage=null;
+        var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+        try
+        {
+            stage=preview.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<DystopiaPixelStage>(true)).Single();
+            var report=new System.Text.StringBuilder();
+            foreach(var layer in stage.layers.Where(l=>l.source!=null))
+            {
+                var rect=layer.source.rectTransform; var image=layer.source as Image;
+                if(image!=null && image.sprite==null && image.gameObject.activeInHierarchy) report.AppendLine("EMPTY SPRITE: "+image.name);
+                report.AppendLine(rect.name+" pos="+rect.anchoredPosition+" size="+rect.sizeDelta+" scale="+rect.localScale+" sprite="+(image!=null && image.sprite!=null ? image.sprite.name : "none"));
+            }
+            File.WriteAllText(directory+"/unity-verification.txt",report.ToString());
+            // 미리보기 메쉬를 열린 씬의 임시 렌더 위치와 분리해 캡처하고 즉시 해제합니다.
+            typeof(DystopiaPixelStage).GetMethod("Build",flags).Invoke(stage,null);
+            var renderRoot=(GameObject)typeof(DystopiaPixelStage).GetField("renderRoot",flags).GetValue(stage);
+            renderRoot.transform.position=new Vector3(20000,20000,0);
+            typeof(DystopiaPixelStage).GetMethod("LateUpdate",flags).Invoke(stage,null);
+            var texture=(RenderTexture)typeof(DystopiaPixelStage).GetField("texture",flags).GetValue(stage);
+            if(texture==null) throw new InvalidOperationException("Preview render unavailable.");
+            var previous=RenderTexture.active; var pixels=new Texture2D(texture.width,texture.height,TextureFormat.RGBA32,false);
+            try
+            {
+                RenderTexture.active=texture; pixels.ReadPixels(new Rect(0,0,texture.width,texture.height),0,0); pixels.Apply();
+                File.WriteAllBytes(directory+"/stage1-preview.png",pixels.EncodeToPNG());
+            }
+            finally { RenderTexture.active=previous; UnityEngine.Object.DestroyImmediate(pixels); }
+        }
+        finally
+        {
+            if(stage!=null) typeof(DystopiaPixelStage).GetMethod("Release",flags).Invoke(stage,null);
+            EditorSceneManager.ClosePreviewScene(preview);
+        }
+    }
+
     private const string Root="Assets/DystopiaPrototype/";
     /// <summary>2026-09-15 이후 단계별 아트의 권위 폴더입니다. 기존 Checkout 자산은 그대로 둡니다.</summary>
     private const string Art="Assets/Textures/art/";
@@ -107,6 +148,48 @@ public static class DystopiaFacilityTools
     [MenuItem("Dystopia/설비/Save Stage 2 Reference")] public static void Save2() => SaveReference(2);
     [MenuItem("Dystopia/설비/Save Stage 3 Reference")] public static void Save3() => SaveReference(3);
 
+    /// <summary>현재 1단계 편집 상태를 메인 씬과 단계 기준에 함께 저장하고 2·3·1단계 전환 뒤 동일성을 검증합니다.</summary>
+    [MenuItem("Dystopia/설비/Save And Verify Current Stage 1")]
+    public static void SaveAndVerifyCurrentStage1()
+    {
+        var stage=FindStage();
+        var counter=stage.layers.Single(l=>l.source!=null && l.source.name=="Counter");
+        if(((Image)counter.source).sprite.name!="Stage1CounterTop") throw new InvalidOperationException("Stage 1 only.");
+        var scene=stage.gameObject.scene;
+        string directory="output/stage1-persistence/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        string mainPath=Root+"Scenes/DystopiaVerticalSlice.unity";
+        string referencePath=Root+"Editor/References/Stage1Reference.unity";
+        File.Copy(mainPath,directory+"/previous-main.unity");
+        File.Copy(referencePath,directory+"/previous-reference.unity");
+        if(!EditorSceneManager.SaveScene(scene,directory+"/live-before-save.unity",true)) throw new IOException("Live Stage 1 backup failed.");
+        string before=Stage1PersistenceState(stage);
+        File.WriteAllText(directory+"/before.txt",before);
+
+        SaveReference(1);
+        if(!EditorSceneManager.SaveScene(scene)) throw new IOException("Main scene save failed.");
+        AssetDatabase.SaveAssets();
+
+        DystopiaTools.ApplyApprovedStageReference(2);
+        DystopiaTools.ApplyApprovedStageReference(3);
+        DystopiaTools.ApplyApprovedStageReference(1);
+        stage=FindStage();
+        string after=Stage1PersistenceState(stage);
+        File.WriteAllText(directory+"/after.txt",after);
+        if(!String.Equals(before,after,StringComparison.Ordinal))
+        {
+            File.WriteAllText(directory+"/FAILED.txt","Stage 1 state changed during 1→2→3→1 verification.");
+            EditorSceneManager.OpenScene(mainPath,OpenSceneMode.Single);
+            throw new InvalidOperationException("Stage 1 persistence verification failed. The saved pre-test scene was reloaded. See "+directory);
+        }
+
+        if(!EditorSceneManager.SaveScene(stage.gameObject.scene)) throw new IOException("Verified Stage 1 scene save failed.");
+        AssetDatabase.SaveAssets();
+        File.WriteAllText(directory+"/VERIFIED.txt","Main scene and Stage1Reference saved. 1→2→3→1 state comparison passed.\n"+DateTime.Now.ToString("O"));
+        File.WriteAllText("output/stage1-persistence/latest.txt",directory);
+        Debug.Log("Stage 1 main scene and reference saved; 1→2→3→1 persistence verified: "+directory);
+    }
+
     /// <summary>현재 단계의 배경·연기 배치를 1단계 기준(화면 전체)으로 맞추고 캐노피와 양옆 기둥을 숨깁니다. 천장등은 건드리지 않습니다.</summary>
     [MenuItem("Dystopia/설비/Fill Background Like Stage 1")]
     public static void FillBackgroundLikeStage1()
@@ -150,13 +233,204 @@ public static class DystopiaFacilityTools
         layer.contactShadow=Vector4.zero;
         layer.bottomShade=0;
         // uGUI Shadow 효과가 붙어 있으면 그것도 그림자로 보이므로 함께 끕니다.
-        var uiShadow=layer.source.GetComponent<UnityEngine.UI.Shadow>();
-        if(uiShadow!=null && uiShadow.enabled) { Undo.RecordObject(uiShadow,"Disable clock UI shadow"); uiShadow.enabled=false; Dirty(uiShadow); }
+        var uiShadows=layer.source.GetComponents<UnityEngine.UI.Shadow>();
+        foreach(var uiShadow in uiShadows)
+        {
+            Undo.RecordObject(uiShadow,"Disable clock UI shadow");
+            uiShadow.enabled=false;
+            Dirty(uiShadow);
+        }
         Dirty(stage);
         // 접촉 그림자 렌더러는 최초 생성 때 만들어지므로 임시 렌더를 다시 만들어 즉시 사라지게 합니다.
         typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
         EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
-        Debug.Log("CounterClock shadow removed (contactShadow, bottomShade"+(uiShadow!=null ? ", UI Shadow" : "")+").");
+        Debug.Log("CounterClock shadow removed (contactShadow, bottomShade"+(uiShadows.Length>0 ? ", all UI Shadows" : "")+").");
+    }
+
+    /// <summary>마지막으로 저장된 어두운 1단계 시계 표현을 복구하고 시계의 접촉 그림자를 현재 설비와 상자에 옮깁니다. 배치는 변경하지 않습니다.</summary>
+    [MenuItem("Dystopia/설비/Stage 1: Restore Dark Clock And Transfer Shadow")]
+    public static void RestoreDarkClockAndTransferShadow()
+    {
+        var stage=FindStage();
+        var counter=stage.layers.Single(l=>l.source!=null && l.source.name=="Counter");
+        if(((Image)counter.source).sprite.name!="Stage1CounterTop") throw new InvalidOperationException("Stage 1 only.");
+        string directory="output/stage1-clock-shadow-fix/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
+
+        var clock=stage.layers.Single(l=>l.source!=null && l.source.name=="CounterClock");
+        var image=(Image)clock.source;
+        const string clockPath="Assets/Textures/art/Facility/Clock/Stage1BasicClock.png";
+        AssetDatabase.ImportAsset(clockPath);
+        Undo.RecordObjects(new UnityEngine.Object[]{stage,image},"Restore dark clock and soft prop shadows");
+        image.sprite=AssetDatabase.LoadAllAssetsAtPath(clockPath).OfType<Sprite>().Single();
+        image.color=Color.white;
+        image.preserveAspect=true;
+        clock.normalSprite=image.sprite;
+        clock.normalMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/Facility/Clock/Stage1BasicClockNormal.png");
+        var digits=image.GetComponentInChildren<Text>(true);
+        if(digits!=null)
+        {
+            Undo.RecordObject(digits,"Restore dark clock digits");
+            digits.color=new Color(.36f,.49f,.35f,1);
+            Dirty(digits);
+        }
+        Dirty(image);
+
+        foreach(var layer in stage.layers.Where(l=>l.source!=null && l.source.gameObject.activeInHierarchy && (l.source.name.StartsWith("Facility",StringComparison.Ordinal) || l.source.name=="FrontContainer")))
+        {
+            layer.softContactShadow=false;
+            layer.projectedContactShadow=true;
+            layer.contactShadow=new Vector4(.5f,0,1f,.7f);
+            layer.bottomShade=.12f;
+            foreach(var shadow in layer.source.GetComponents<Shadow>().Where(s=>!(s is Outline)))
+            {
+                Undo.RecordObject(shadow,"Use soft prop shadow");
+                shadow.enabled=false;
+                Dirty(shadow);
+            }
+            layer.source.SetVerticesDirty();
+        }
+
+        clock.softContactShadow=false;
+        clock.projectedContactShadow=false;
+        clock.contactShadow=Vector4.zero;
+        clock.bottomShade=0;
+        foreach(var shadow in clock.source.GetComponents<Shadow>())
+        {
+            Undo.RecordObject(shadow,"Remove clock shadow");
+            shadow.enabled=false;
+            Dirty(shadow);
+        }
+        clock.source.SetVerticesDirty();
+        Dirty(stage);
+        typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        Debug.Log("Dark Stage 1 clock restored; short soft shadows applied to visible facilities and FrontContainer. Layout preserved; scene left unsaved.");
+    }
+
+    /// <summary>현재 1단계 설비의 얇은 윤곽과 설비·상자의 접촉 그림자만 적용합니다. 배치를 보존합니다.</summary>
+    [MenuItem("Dystopia/설비/Stage 1: Equipment Outlines And Shadows")]
+    public static void ApplyStage1EquipmentOutlinesAndShadows()
+    {
+        var stage=FindStage();
+        var counter=stage.layers.Single(l=>l.source!=null && l.source.name=="Counter");
+        if(((Image)counter.source).sprite.name!="Stage1CounterTop") throw new InvalidOperationException("Stage 1 only.");
+        string directory="output/stage1-equipment-shadows/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
+        Undo.RecordObject(stage,"Stage 1 equipment contact shadows");
+        foreach(var layer in stage.layers.Where(l=>l.source!=null && (l.source.name.StartsWith("Facility",StringComparison.Ordinal) || l.source.name=="FrontContainer")))
+        {
+            layer.contactShadow=new Vector4(.5f,0,1.1f,.22f);
+            layer.bottomShade=.22f;
+            if(layer.source.name.StartsWith("Facility",StringComparison.Ordinal))
+            {
+                var outline=layer.source.GetComponent<Outline>();
+                if(outline==null) outline=Undo.AddComponent<Outline>(layer.source.gameObject);
+                Undo.RecordObject(outline,"Thin equipment outline");
+                outline.enabled=true;
+                outline.effectColor=new Color(.035f,.03f,.025f,.8f);
+                outline.effectDistance=new Vector2(1,-1);
+                outline.useGraphicAlpha=true;
+                // 캡처보다 먼저 윤곽을 계산하여 픽셀 렌더에 포함합니다.
+                var capture=layer.source.GetComponent<DystopiaPixelSource>();
+                while(capture!=null && Array.IndexOf(layer.source.GetComponents<Component>(),outline)>Array.IndexOf(layer.source.GetComponents<Component>(),capture))
+                    if(!UnityEditorInternal.ComponentUtility.MoveComponentUp(outline)) break;
+                Dirty(outline);
+            }
+            layer.source.SetVerticesDirty();
+        }
+        Dirty(stage);
+        typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        Debug.Log("Stage 1 equipment outlines and crate/contact shadows applied; transforms preserved.");
+    }
+
+    /// <summary>현재 1단계 상자와 설비의 밑면에 진한 그림자를 추가하며 기존 배치와 윤곽은 유지합니다.</summary>
+    [MenuItem("Dystopia/설비/Stage 1: Visible Prop Shadows")]
+    public static void ApplyVisibleStage1PropShadows()
+    {
+        var stage=FindStage();
+        var counter=stage.layers.Single(l=>l.source!=null && l.source.name=="Counter");
+        if(((Image)counter.source).sprite.name!="Stage1CounterTop") throw new InvalidOperationException("Stage 1 only.");
+        string directory="output/stage1-visible-shadows/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
+        Undo.RecordObject(stage,"Visible prop shadows");
+        foreach(var layer in stage.layers.Where(l=>l.source!=null && (l.source.name.StartsWith("Facility",StringComparison.Ordinal) || l.source.name=="FrontContainer")))
+        {
+            var shadow=layer.source.GetComponents<Shadow>().FirstOrDefault(s=>!(s is Outline));
+            if(shadow!=null)
+            {
+                Undo.RecordObject(shadow,"Remove hard offset shadow");
+                shadow.enabled=false;
+                Dirty(shadow);
+            }
+            // 원본 알파 실루엣을 광원 반대 방향으로 투영하여 물품 형태를 따르는 하드 엣지 그림자로 교체합니다.
+            layer.softContactShadow=false;
+            layer.projectedContactShadow=true;
+            layer.contactShadow=new Vector4(.5f,0,1f,.7f);
+            layer.bottomShade=.12f;
+            layer.source.SetVerticesDirty();
+        }
+        Dirty(stage);
+        typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+    }
+
+    /// <summary>현재 1단계 설비의 강한 투영 그림자만 제거하고 상자처럼 옅은 바닥 그림자를 적용합니다. 상자와 배치는 유지합니다.</summary>
+    [MenuItem("Dystopia/설비/Stage 1: Soft Facility Shadows Like Container")]
+    public static void ApplySoftStage1FacilityShadows()
+    {
+        var stage=FindStage();
+        var counter=stage.layers.Single(l=>l.source!=null && l.source.name=="Counter");
+        if(((Image)counter.source).sprite.name!="Stage1CounterTop") throw new InvalidOperationException("Stage 1 only.");
+        string directory="output/stage1-facility-soft-shadows/"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
+        Directory.CreateDirectory(directory);
+        if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
+        Undo.RecordObject(stage,"Soft Stage 1 facility shadows");
+        foreach(var layer in stage.layers.Where(l=>l.source!=null && l.source.name.StartsWith("Facility",StringComparison.Ordinal)))
+        {
+            layer.projectedContactShadow=false;
+            layer.softContactShadow=true;
+            layer.contactShadow=new Vector4(.5f,0,1.12f,.24f);
+            layer.bottomShade=.12f;
+            foreach(var shadow in layer.source.GetComponents<Shadow>().Where(s=>!(s is Outline)))
+            {
+                Undo.RecordObject(shadow,"Disable hard facility shadow");
+                shadow.enabled=false;
+                Dirty(shadow);
+            }
+            layer.source.SetVerticesDirty();
+        }
+        Dirty(stage);
+        typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
+        Debug.Log("Stage 1 facility shadows softened; FrontContainer and layout preserved.");
+    }
+
+    /// <summary>1단계 나무 지붕의 아래쪽에만 얇은 외곽선을 적용하며 배치를 보존합니다.</summary>
+    [MenuItem("Dystopia/설비/Stage 1: Roof Bottom Outline")]
+    public static void ApplyStage1RoofBottomOutline()
+    {
+        var stage=FindStage();
+        var counter=stage.layers.Single(l=>l.source!=null && l.source.name=="Counter");
+        if(((Image)counter.source).sprite.name!="Stage1CounterTop") throw new InvalidOperationException("Stage 1 only.");
+        var canopy=stage.layers.Single(l=>l.source!=null && l.source.name=="Canopy").source;
+        var shadow=canopy.GetComponent<Shadow>();
+        if(shadow==null) shadow=Undo.AddComponent<Shadow>(canopy.gameObject);
+        Undo.RecordObject(shadow,"Roof bottom outline");
+        shadow.enabled=true;
+        shadow.effectColor=new Color(.035f,.03f,.025f,.72f);
+        shadow.effectDistance=new Vector2(0,-1);
+        shadow.useGraphicAlpha=true;
+        var capture=canopy.GetComponent<DystopiaPixelSource>();
+        while(capture!=null && Array.IndexOf(canopy.GetComponents<Component>(),shadow)>Array.IndexOf(canopy.GetComponents<Component>(),capture))
+            if(!UnityEditorInternal.ComponentUtility.MoveComponentUp(shadow)) break;
+        Dirty(shadow); canopy.SetVerticesDirty(); Dirty(stage);
+        typeof(DystopiaPixelStage).GetMethod("Release",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(stage,null);
+        EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
     }
 
     /// <summary>시계 Image의 색 틴트를 흰색으로 되돌려 원본 색 그대로 보이게 합니다.</summary>
@@ -307,6 +581,48 @@ public static class DystopiaFacilityTools
         AssetDatabase.ImportAsset(reference,ImportAssetOptions.ForceSynchronousImport);
         File.WriteAllText("output/stage"+stageNumber+"-reference/latest.txt",directory+"/Stage"+stageNumber+".unity");
         Debug.Log("Stage "+stageNumber+" reference saved: "+directory);
+    }
+
+    /// <summary>1단계 버튼 전환 전후에 보존해야 하는 배치·그림·레이어·그림자 상태를 결정적인 문자열로 만듭니다.</summary>
+    /// <param name="stage">현재 픽셀 스테이지입니다.</param>
+    /// <returns>비교 가능한 1단계 상태 문자열입니다.</returns>
+    private static string Stage1PersistenceState(DystopiaPixelStage stage)
+    {
+        string[] names={"Counter","Canopy","Stage3Ceiling","Stage3LeftPillar","Stage3RightPillar","FrontContainer","CounterClock","FacilityFoodShelf","FacilityMedicineCabinet","FacilityToolBench","FacilityPowerCommunications","FacilityNuclearProtection","FacilityPrecisionElectronics"};
+        var report=new System.Text.StringBuilder();
+        foreach(var layer in stage.layers.Where(l=>l.source!=null && names.Contains(l.source.name)).OrderBy(l=>l.source.name,StringComparer.Ordinal))
+        {
+            var image=layer.source as Image;
+            var rect=layer.source.rectTransform;
+            report.Append(layer.source.name).Append("|order=").Append(Array.IndexOf(stage.layers,layer));
+            report.Append("|parent=").Append(TransformPath(rect.parent)).Append("|sibling=").Append(rect.GetSiblingIndex());
+            report.Append("|anchor=").Append(rect.anchorMin).Append('/').Append(rect.anchorMax).Append("|pivot=").Append(rect.pivot);
+            report.Append("|pos=").Append(rect.anchoredPosition3D).Append("|size=").Append(rect.sizeDelta).Append("|scale=").Append(rect.localScale).Append("|rot=").Append(rect.localRotation);
+            report.Append("|active=").Append(layer.source.gameObject.activeSelf).Append("|enabled=").Append(layer.source.enabled).Append("|color=").Append(layer.source.color);
+            if(image!=null) report.Append("|sprite=").Append(AssetDatabase.GetAssetPath(image.sprite)).Append(':').Append(image.sprite!=null ? image.sprite.name : "null").Append("|aspect=").Append(image.preserveAspect);
+            report.Append("|surface=").Append(layer.surface).Append("|normal=").Append(AssetDatabase.GetAssetPath(layer.normalMap)).Append(':').Append(AssetDatabase.GetAssetPath(layer.normalSprite));
+            report.Append("|light=").Append(layer.roomResponse).Append(',').Append(layer.lampResponse).Append(',').Append(layer.rimWidthPixels).Append(',').Append(layer.rimResponse).Append(',').Append(layer.normalResponse).Append(',').Append(layer.highlightResponse).Append(',').Append(layer.specularResponse).Append(',').Append(layer.emission);
+            report.Append("|shadow=").Append(layer.bottomShade).Append(',').Append(layer.contactShadow).Append(',').Append(layer.softContactShadow).Append(',').Append(layer.projectedContactShadow);
+            foreach(var effect in layer.source.GetComponents<Shadow>())
+                report.Append("|effect=").Append(effect.GetType().FullName).Append(',').Append(effect.enabled).Append(',').Append(effect.effectColor).Append(',').Append(effect.effectDistance).Append(',').Append(effect.useGraphicAlpha);
+            if(layer.source.name=="CounterClock")
+            {
+                var digits=layer.source.GetComponentInChildren<Text>(true);
+                if(digits!=null) report.Append("|digits=").Append(digits.rectTransform.anchoredPosition3D).Append(',').Append(digits.rectTransform.sizeDelta).Append(',').Append(digits.fontSize).Append(',').Append(digits.color).Append(',').Append(digits.alignment);
+            }
+            report.AppendLine();
+        }
+        report.Append("layer-order=").Append(String.Join(",",stage.layers.Where(l=>l.source!=null).Select(l=>l.source.name)));
+        return report.ToString();
+    }
+
+    /// <summary>부모 관계 검증을 위해 루트부터 현재 Transform까지의 이름 경로를 만듭니다.</summary>
+    /// <param name="transform">검사할 Transform입니다.</param>
+    /// <returns>슬래시로 구분한 계층 경로입니다.</returns>
+    private static string TransformPath(Transform transform)
+    {
+        if(transform==null) return String.Empty;
+        return transform.parent==null ? transform.name : TransformPath(transform.parent)+"/"+transform.name;
     }
 
     private static string FacilityFile(DystopiaFacility facility) => facility switch
@@ -537,9 +853,9 @@ public static class DystopiaFacilityTools
         if(((Image)counter.source).sprite.name!="Stage2CounterTop") throw new InvalidOperationException("Current scene must be Stage 2.");
         string directory="output/stage2-rust-contact/"+DateTime.Now.ToString("yyyyMMdd-HHmmss"); Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
-        string framePath=Art+"Facility/Frame/Stage2RustedFrame.png",clockPath=Art+"Facility/Frame/Stage2RustedClock.png";
-        ImportMatchingSheet("Assets/Textures/Checkout/Shop/Stage2Shop.png",framePath);
-        ImportMatchingSheet("Assets/Textures/Checkout/Shop/Stage2Clock.png",clockPath);
+        string framePath=Art+"Facility/Frame/Stage2RustedFrame.png",clockPath=Art+"Facility/Clock/Stage2RustedClock.png";
+        ImportMatchingSheet("Assets/Textures/art/Facility/Frame/Stage2Shop.png",framePath);
+        ImportMatchingSheet("Assets/Textures/art/Facility/Clock/Stage2Clock.png",clockPath);
         ImportSprite(Crates+"Stage2RustedCrateClosed.png",true); ImportSprite(Crates+"Stage2RustedCrateOpen.png",true);
         Undo.RecordObject(stage,"Stage 2 rusted textures");
         foreach(var layer in stage.layers.Where(l=>l.source!=null && new[]{"Canopy","Stage3LeftPillar","Stage3RightPillar","CounterClock","FrontContainer"}.Contains(l.source.name)))
@@ -584,7 +900,7 @@ public static class DystopiaFacilityTools
                 CopyAuthoredRect(image.rectTransform,source.rectTransform);
                 Undo.RecordObject(image,"Match approved metal");
                 if(name=="CounterClock") image.sprite=source.sprite;
-                else if(name!="Counter") image.sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Shop/Stage3Shop.png").OfType<Sprite>().Single(s=>s.name==(name=="Canopy" ? "Stage3Ceiling" : name));
+                else if(name!="Counter") image.sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/art/Facility/Frame/Stage3Shop.png").OfType<Sprite>().Single(s=>s.name==(name=="Canopy" ? "Stage3Ceiling" : name));
                 image.color=source.color; image.enabled=source.enabled; image.gameObject.SetActive(source.gameObject.activeSelf);
                 foreach(var field in typeof(DystopiaPixelStage.Layer).GetFields(System.Reflection.BindingFlags.Public|System.Reflection.BindingFlags.Instance))
                     if(field.Name!="source" && !field.IsNotSerialized) field.SetValue(target,field.GetValue(reference));
@@ -729,7 +1045,7 @@ public static class DystopiaFacilityTools
         foreach(var layer in stage.layers.Where(l=>l.source!=null && l.source.name.StartsWith("Counter",StringComparison.Ordinal) && l.source is RawImage)) layer.highlightResponse=1;
         var clock=stage.layers.Single(l=>l.source!=null && l.source.name=="CounterClock");
         var clockImage=(Image)clock.source; Undo.RecordObject(clockImage,"Restore Stage 3 clock artwork");
-        clockImage.sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/Checkout/Shop/Stage3Clock.png").OfType<Sprite>().Single();
+        clockImage.sprite=AssetDatabase.LoadAllAssetsAtPath("Assets/Textures/art/Facility/Clock/Stage3Clock.png").OfType<Sprite>().Single();
         clockImage.color=Color.white; clock.contactShadow=Vector4.zero; clock.bottomShade=0; clock.highlightResponse=1;
         foreach(var shadow in clockImage.GetComponents<Shadow>()) { Undo.RecordObject(shadow,"Remove clock shadow"); shadow.enabled=false; Dirty(shadow); }
         Dirty(clockImage); Dirty(stage);
@@ -745,7 +1061,7 @@ public static class DystopiaFacilityTools
         var stage=FindStage();
         var layer=stage.layers.Single(l=>l.source!=null && l.source.name=="CounterClock");
         var image=(Image)layer.source;
-        if(AssetDatabase.GetAssetPath(image.sprite)!="Assets/Textures/Checkout/Shop/Stage3Clock.png") throw new InvalidOperationException("Stage 3 clock required.");
+        if(AssetDatabase.GetAssetPath(image.sprite)!="Assets/Textures/art/Facility/Clock/Stage3Clock.png") throw new InvalidOperationException("Stage 3 clock required.");
         string directory="output/stage3-clock-fit/"+DateTime.Now.ToString("yyyyMMdd-HHmmss"); Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
         var rect=image.rectTransform; var digits=image.GetComponentInChildren<Text>(true);
@@ -770,7 +1086,7 @@ public static class DystopiaFacilityTools
     {
         var stage=FindStage();
         var image=(Image)stage.layers.Single(l=>l.source!=null && l.source.name=="CounterClock").source;
-        string path=Art+"Facility/Frame/Stage3GunmetalClock.png";
+        string path=Art+"Facility/Clock/Stage3GunmetalClock.png";
         ImportSprite(path,true);
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         var factory=new SpriteDataProviderFactories(); factory.Init();

@@ -188,7 +188,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         var frames = new Sprite[4];
         for (int i = 0; i < frames.Length; i++)
         {
-            frames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/Effects/ChimneySmoke" + i + ".png");
+            frames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/Effects/Smoke/ChimneySmoke" + i + ".png");
             if (frames[i] == null) return;
         }
         chimneySmokeFrames = frames;
@@ -214,17 +214,17 @@ public sealed partial class DystopiaScreen : MonoBehaviour
         if (Session != null) return;
 #if UNITY_EDITOR
         BindEditorSmokeFrames();
-        if (tradeReactionSheet == null) tradeReactionSheet = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/UI/TradeReactions.png");
+        if (tradeReactionSheet == null) tradeReactionSheet = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/UI/TradeReactions.png");
         // 이미 열려 있던 씬의 신규 참조만 보완하며 Inspector의 기존 연결은 유지합니다.
         if (guardTone == null) guardTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/GuardNeutral.mat");
         if (leftTowerTone == null) leftTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/LeftTowerNeutral.mat");
         if (rightTowerTone == null) rightTowerTone = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Checkout/RightTowerNeutral.mat");
-        if (dailyLedger == null) dailyLedger = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/DailyLedger.png");
-        if (ledgerDaughter == null) ledgerDaughter = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/LedgerDaughter.png");
-        if (ledgerSpeechBubble == null) ledgerSpeechBubble = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/LedgerSpeechBubble.png");
-        if (ledgerDrawing == null) ledgerDrawing = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/Checkout/UI/LedgerDrawing.png");
-        if (dailyInstruction == null) dailyInstruction = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/DailyInstruction.png");
-        if (instructionStartStamp == null) instructionStartStamp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/Checkout/UI/InstructionStartStamp.png");
+        if (dailyLedger == null) dailyLedger = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/UI/DailyLedger.png");
+        if (ledgerDaughter == null) ledgerDaughter = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/UI/LedgerDaughter.png");
+        if (ledgerSpeechBubble == null) ledgerSpeechBubble = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/UI/LedgerSpeechBubble.png");
+        if (ledgerDrawing == null) ledgerDrawing = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Textures/art/UI/LedgerDrawing.png");
+        if (dailyInstruction == null) dailyInstruction = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/UI/DailyInstruction.png");
+        if (instructionStartStamp == null) instructionStartStamp = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Textures/art/UI/InstructionStartStamp.png");
         BindEditorCustomers();
         if (inspectorPortraitPrefab == null) inspectorPortraitPrefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/DystopiaPrototype/Prefabs/InspectorPortrait.prefab");
         if (uiFont == null) uiFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Checkout/Mulmaru.otf");
@@ -320,7 +320,7 @@ public sealed partial class DystopiaScreen : MonoBehaviour
     private float GetBreathingPixelStep(RectTransform person)
     {
         var stage = GetComponent<DystopiaPixelStage>();
-        float renderHeight = stage != null && stage.IsRendering ? Mathf.RoundToInt(stage.width * 9f / 16f) : Screen.height;
+        float renderHeight = stage != null && stage.IsRendering ? stage.RenderHeight : Screen.height;
         var canvas = person.GetComponentInParent<Canvas>();
         Camera camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
         Vector2 origin = RectTransformUtility.WorldToScreenPoint(camera, person.parent.TransformPoint(Vector3.zero));

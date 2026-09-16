@@ -39,6 +39,10 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         [Range(0, 1)] public float bottomShade;
         /// <summary>원본 Sprite의 정규화된 접점 X/Y와 그림자 폭/높이입니다. 높이 0은 미사용입니다.</summary>
         public Vector4 contactShadow;
+        /// <summary>밑면에서 바깥으로 부드럽게 퍼지는 접촉 그림자를 사용합니다.</summary>
+        public bool softContactShadow;
+        /// <summary>원본 물품의 알파 실루엣을 광원 반대 방향으로 투영하는 하드 엣지 그림자를 사용합니다.</summary>
+        public bool projectedContactShadow;
         [NonSerialized] internal MeshRenderer contactRenderer;
         [NonSerialized] internal DystopiaPixelSource capture;
         [NonSerialized] internal MeshRenderer renderer;
@@ -81,8 +85,12 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     [Range(256, 1920)] public int width = 480;
     /// <summary>켜면 렌더 너비를 현재 화면 너비에 맞춰 항상 1:1로 그립니다. 창 크기가 바뀌어도 선이 다시 계단지지 않습니다. 끄면 위의 고정 너비(도트 표현)를 사용합니다.</summary>
     public bool matchScreenResolution;
+    /// <summary>3단계는 저장된 예전 설정과 관계없이 원본 화면 해상도로 렌더합니다.</summary>
+    private bool UseScreenResolution => matchScreenResolution || (ceilingLamp != null && ceilingLamp.name == "Stage3CeilingLamp");
     /// <summary>이번 프레임에 실제로 사용할 렌더 너비입니다.</summary>
-    private int RenderWidth => matchScreenResolution ? Mathf.Max(256, Screen.width) : width;
+    private int RenderWidth => UseScreenResolution ? Mathf.Max(256, Screen.width) : width;
+    /// <summary>현재 출력 모드의 16:9 렌더 높이입니다.</summary>
+    public int RenderHeight => Mathf.RoundToInt(RenderWidth * 9f / 16f);
     /// <summary>편집 중에도 시간대와 표면 반응을 확인합니다.</summary>
     public bool previewInEditor = true;
     /// <summary>1280×720 가판 화면 좌상단 기준 전등 위치, 높이와 영향 반경입니다.</summary>
@@ -223,7 +231,7 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         renderCamera.backgroundColor = Color.black; renderCamera.allowMSAA = false; renderCamera.allowHDR = false; renderCamera.depth = -100;
         // 화면 해상도를 따라갈 때는 1:1이므로 잔여 배율이 생겨도 부드럽게 넘기고, 고정 너비의 도트 표현은 Point로 각지게 확대합니다.
         int renderWidth = RenderWidth;
-        texture = new RenderTexture(renderWidth, Mathf.RoundToInt(renderWidth * 9f / 16f), 24) { name = "Pixel stage output", filterMode = matchScreenResolution ? FilterMode.Bilinear : FilterMode.Point, antiAliasing = 1, hideFlags = HideFlags.HideAndDontSave };
+        texture = new RenderTexture(renderWidth, RenderHeight, 24) { name = "Pixel stage output", filterMode = FilterMode.Point, antiAliasing = 1, hideFlags = HideFlags.HideAndDontSave };
         texture.Create(); renderCamera.targetTexture = texture;
         outputRoot = new GameObject("PixelStage Output", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler)) { hideFlags = HideFlags.HideAndDontSave };
         var canvas = outputRoot.GetComponent<Canvas>(); canvas.renderMode = RenderMode.ScreenSpaceOverlay; canvas.sortingOrder = -100;
@@ -401,23 +409,40 @@ public sealed class DystopiaPixelStage : MonoBehaviour
                     drawing.width = width;
                 }
             }
-            float footY = image != null && image.sprite != null && layer.surface == Surface.Metal
+            float footY = image != null && image.sprite != null && (layer.surface == Surface.Metal || layer.softContactShadow)
                 ? MeasureFootprintY(layer,image.sprite) : layer.contactShadow.y;
             Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * layer.contactShadow.x, drawing.y + drawing.height * footY, 0));
             // 밑면에 겹친 상태로 광원 반대쪽 상판으로 퍼지며 원본 Transform은 변경하지 않습니다.
             float spread = drawing.height * y.magnitude * layer.contactShadow.w;
             Vector4 lightOrigin = material.GetVector(nightWeight > .5f ? "_SpotOrigin" : "_SunShadowOrigin");
             float drift = Mathf.Clamp((center.x - lightOrigin.x) / Mathf.Max(100, lightOrigin.y - center.y), -1, 1);
-            center += new Vector2(drift * spread * .35f, -spread * .22f);
             var shadowTransform = layer.contactRenderer.transform;
+            layer.contactRenderer.sortingOrder = order * 2 - 1;
+            if(layer.projectedContactShadow)
+            {
+                float horizontalPosition=center.x/Mathf.Max(1,width);
+                float projection=horizontalPosition<.42f ? .42f : horizontalPosition>.58f ? -.42f : .3f;
+                layer.contactRenderer.GetComponent<MeshFilter>().sharedMesh=layer.capture.CapturedMesh;
+                shadowTransform.localPosition=t.localPosition;
+                shadowTransform.localRotation=t.localRotation;
+                shadowTransform.localScale=t.localScale;
+                block.SetFloat("_ContactShadow",4);
+                block.SetVector("_ShadowProjection",new Vector4(drawing.y+drawing.height*footY,projection,.22f,0));
+                block.SetColor("_Tint",new Color(.025f,.018f,.012f,source.color.a*source.canvasRenderer.GetAlpha()*.58f));
+                layer.contactRenderer.SetPropertyBlock(block);
+                return;
+            }
+            float horizontalCast = .35f;
+            float verticalCast = .22f;
+            center += new Vector2(drift * spread * horizontalCast, -spread * verticalCast);
+            layer.contactRenderer.GetComponent<MeshFilter>().sharedMesh=contactMesh;
             shadowTransform.localPosition = center;
             shadowTransform.localRotation = Quaternion.identity;
             shadowTransform.localScale = new Vector3(drawing.width * x.magnitude * layer.contactShadow.z, drawing.height * y.magnitude * layer.contactShadow.w, 1);
-            layer.contactRenderer.sortingOrder = order * 2 - 1;
             bool facility = source.name.StartsWith("Facility", StringComparison.Ordinal);
             bool hardPropShadow = image != null && image.sprite != null && (source.name == "FrontContainer" || source.name == "CounterClock" || facility);
             bool fittedContact = facility || source.name == "FrontContainer";
-            block.SetFloat("_ContactShadow", fittedContact ? 3 : hardPropShadow ? 2 : 1);
+            block.SetFloat("_ContactShadow", layer.softContactShadow ? 1 : layer.projectedContactShadow ? 2 : fittedContact ? 3 : hardPropShadow ? 2 : 1);
             // 압축한 전체 실루엣 대신 각 열의 실제 밑면에서 그림자가 시작하도록 높이 기준을 전달합니다.
             block.SetVector("_ContactFootprint", new Vector4(footY, layer.contactShadow.w, 2f / Mathf.Max(1, drawing.height * y.magnitude), 0));
             // 두 금속 소품은 흐린 타원 대신 원본 알파 윤곽을 상판에 투영합니다.
@@ -425,11 +450,12 @@ public sealed class DystopiaPixelStage : MonoBehaviour
                 block.SetVector("_ContactSpriteUV", UnityEngine.Sprites.DataUtility.GetOuterUV(image.sprite));
             // 그림자 메시가 이동해도 가장 진한 접촉부는 원본 밑면 좌표에 고정합니다.
             float shadowWidth = drawing.width * x.magnitude * layer.contactShadow.z;
-            float shear = drift * spread * .35f / Mathf.Max(1, shadowWidth);
+            float shear = drift * spread * horizontalCast / Mathf.Max(1, shadowWidth);
             // 상자와 설비는 원본 밑면 폭을 덮어 접점 양끝이 떠 보이지 않게 합니다.
             float footprintWidth = source.name == "FrontContainer" ? 1.03f : facility ? 1f : .9f;
             block.SetVector("_ContactAnchor", new Vector4(.5f - shear, .72f, footprintWidth / layer.contactShadow.z, shear));
-            block.SetColor("_Tint", new Color(.035f, .025f, .018f, source.color.a * source.canvasRenderer.GetAlpha() * .95f));
+            float contactOpacity = layer.softContactShadow ? .46f : layer.projectedContactShadow ? .65f : .95f;
+            block.SetColor("_Tint", new Color(.035f, .025f, .018f, source.color.a * source.canvasRenderer.GetAlpha() * contactOpacity));
             layer.contactRenderer.SetPropertyBlock(block);
         }
     }
