@@ -40,7 +40,7 @@ public class HubScene : MonoBehaviour
         }
     }
 
-    /// <summary>중복 입력을 막고 Init의 기존 초기화 경로로 새 세션을 시작한다.</summary>
+    /// <summary>중복 입력을 막고 준비된 런타임으로 새 세션을 만든 뒤 Gameplay 씬으로 이동한다.</summary>
     private async void startNewGame()
     {
         if (!newGameButton.interactable) return;

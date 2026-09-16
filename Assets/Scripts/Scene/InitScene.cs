@@ -4,7 +4,7 @@ using System.Threading;
 
 /// <summary>
 /// InitScene – 게임 실행 시 가장 먼저 로드되는 Boot 씬.
-/// 부트를 마치면 Hub 메뉴로 이동하며 메뉴의 새 게임 요청일 때만 게임 씬에 진입합니다.
+/// 부트를 마치면 Hub 메뉴로 이동합니다. Hub의 새 게임은 준비된 런타임으로 Gameplay 씬에 직접 진입합니다.
 /// </summary>
 public class InitScene : MonoBehaviour
 {
@@ -60,7 +60,7 @@ public class InitScene : MonoBehaviour
 
         Debug.Log($"<color=green><b>[InitScene] 부팅 프로세스 완료! {nextScene} 씬으로 전환합니다.</b></color>");
 
-        // 4. 최초 실행은 Hub 메뉴, 메뉴에서 요청한 새 게임은 선택된 게임 씬으로 전환한다.
+        // 최초 실행은 항상 Hub 메뉴로 전환한다. Hub의 새 게임은 InitScene을 재진입하지 않는다.
         await GameSceneManager.Instance.TransitionAfterBootAsync(nextScene);
     }
 

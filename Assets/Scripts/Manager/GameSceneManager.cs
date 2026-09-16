@@ -13,8 +13,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
 
     // 이전 씬이 파괴돼도 manager가 목적지 활성화까지 재진입을 차단한다.
     private bool isTransitioning;
-    // Hub에서 새 게임을 선택했을 때만 다음 Init 부트 후 게임으로 바로 진입한다.
-    private bool startGameplayAfterBoot;
+    // Hub에서 새 게임 세션을 준비하는 동안 다른 전환 요청을 차단한다.
+    private bool isPreparingNewGame;
 
 #if UNITY_EDITOR
     /// <summary>개인 씬과 metadata를 Git에서 제외하는 개발 전용 경로.</summary>
@@ -83,19 +83,39 @@ public class GameSceneManager : Singleton<GameSceneManager>
         }
     }
 
-    /// <summary>기존 부트 씬으로 새 게임을 시작하고 로딩 중 실패하면 재시도를 제공한다.</summary>
-    /// <returns>부트 전환 또는 재시도 안내 완료.</returns>
+    /// <summary>이미 부트스트랩된 런타임으로 새 세션을 만들고 Gameplay 씬으로 직접 진입한다.</summary>
+    /// <returns>Gameplay 전환 또는 재시도 안내 완료.</returns>
     public async UniTask RestartGameAsync()
     {
-        if (isTransitioning) throw new InvalidOperationException("A scene transition is already running.");
-        startGameplayAfterBoot = true;
-        try { await TransitionTo(SceneName.Init); }
+        if (isTransitioning || isPreparingNewGame)
+            throw new InvalidOperationException("A scene transition is already running.");
+
+        isPreparingNewGame = true;
+        bool sessionPrepared = false;
+        try
+        {
+            await PrepareNewGameSessionAsync();
+            sessionPrepared = true;
+            // TransitionAsync가 전환 lock을 소유하므로 준비 단계에서만 별도 lock을 사용한다.
+            isPreparingNewGame = false;
+            await TransitionToGameplayAsync();
+        }
         catch (Exception exception)
         {
             var loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            if (loading == null && sessionPrepared)
+            {
+                // 목적지 사전 검사 실패도 LoadingScene에서 동일한 새 게임 재시도를 제공한다.
+                await LoadAddressableSceneAsync(LoadingScene);
+                loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            }
             if (loading == null) throw;
             Debug.LogError($"새 게임 씬 전환 실패: {exception}");
             loading.ShowNewGameRetry();
+        }
+        finally
+        {
+            isPreparingNewGame = false;
         }
     }
 
@@ -113,17 +133,14 @@ public class GameSceneManager : Singleton<GameSceneManager>
         }
     }
 
-    /// <summary>최초 부트는 메뉴로, 메뉴에서 요청한 새 게임 부트는 선택된 게임 씬으로 보낸다.</summary>
+    /// <summary>최초 부트를 마친 뒤 기본 목적지인 Hub 메뉴로 이동한다.</summary>
     /// <param name="defaultDestination">Init Inspector에 지정된 최초 부트 목적지.</param>
     /// <returns>부트 이후 씬 전환 완료.</returns>
     public async UniTask TransitionAfterBootAsync(SceneName defaultDestination)
     {
         // Init의 Start가 이전 Single 전환의 완료보다 먼저 실행되는 경우를 분리한다.
         await UniTask.NextFrame(this.GetCancellationTokenOnDestroy());
-        bool enterGameplay = startGameplayAfterBoot;
-        startGameplayAfterBoot = false;
-        if (enterGameplay) await TransitionToGameplayAsync();
-        else await TransitionTo(defaultDestination);
+        await TransitionTo(defaultDestination);
     }
 
     /// <summary>Hub에서 개인 설정을 읽어 개발 씬 또는 MainScene으로 이동한다. 빌드는 Main만 사용한다.</summary>
@@ -158,7 +175,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
         return TransitionAsync(sceneRef.RuntimeKey, null, cancellationToken);
     }
 
-    /// <summary>전환을 직렬화하고 목적지를 미리 검사한다. Single 로드 시작 후에는 활성화까지 완료한다.</summary>
+    /// <summary>전환을 직렬화하고 목적지를 미리 검사한 뒤 최소 표시 후 목적지를 활성화한다.</summary>
     /// <param name="address">공유 씬 키. 개인 씬이면 null.</param>
     /// <param name="localPath">Editor 개인 씬 경로. 공유 씬이면 null.</param>
     /// <param name="cancellationToken">시작 전 취소 요청. 씬 로드 자체는 중간 취소하지 않는다.</param>
@@ -167,7 +184,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
     private async UniTask TransitionAsync(object address, string localPath, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        if (isTransitioning) throw new InvalidOperationException("A scene transition is already running.");
+        if (isTransitioning || isPreparingNewGame)
+            throw new InvalidOperationException("A scene transition is already running.");
         isTransitioning = true;
         try
         {
@@ -191,28 +209,93 @@ public class GameSceneManager : Singleton<GameSceneManager>
             }
             cancellationToken.ThrowIfCancellationRequested();
             await LoadAddressableSceneAsync(LoadingScene);
-            await UniTask.Delay(TimeSpan.FromSeconds(0.3), ignoreTimeScale: true,
-                cancellationToken: this.GetCancellationTokenOnDestroy());
+            var loading = UnityEngine.Object.FindFirstObjectByType<LoadingScene>();
+            if (loading == null)
+                throw new InvalidOperationException("LoadingScene component is missing.");
             if (isBoot)
             {
-                await SceneManager.LoadSceneAsync("InitScene", LoadSceneMode.Single);
+                await LoadBuildSceneAsync("InitScene", loading);
                 return;
             }
 #if UNITY_EDITOR
             if (localPath != null)
             {
                 // 개인 씬은 Build Settings와 Addressables를 수정하지 않고 Editor에서만 로드한다.
-                await UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
-                    localPath, new LoadSceneParameters(LoadSceneMode.Single));
+                await LoadEditorSceneAsync(localPath, loading);
                 return;
             }
 #endif
-            await LoadAddressableSceneAsync(address);
+            await LoadAddressableSceneAsync(address, loading);
         }
         finally
         {
             isTransitioning = false;
         }
+    }
+
+    /// <summary>이미 부트스트랩된 공용 런타임으로 새 게임 세션을 준비한다.</summary>
+    /// <returns>Addressables·CSV·사운드 준비 및 새 세션 초기화 완료.</returns>
+    private async UniTask PrepareNewGameSessionAsync()
+    {
+        if (ResourceManager.Instance == null || DataTableManager.Instance == null
+            || SoundManager.Instance == null || GameSessionManager.Instance == null)
+        {
+            throw new InvalidOperationException("InitScene 부트스트랩이 완료된 뒤 새 게임을 시작해야 합니다.");
+        }
+
+        var cancellationToken = this.GetCancellationTokenOnDestroy();
+        await ResourceManager.Instance.InitAsync(null, cancellationToken);
+        await DataTableManager.Instance.EnsureDataLoadedAsync()
+            .AttachExternalCancellation(cancellationToken);
+        await SoundManager.Instance.InitializeAsync(DataTableManager.Instance, cancellationToken);
+
+        GameSessionManager.Instance.ResetSession();
+        GameSessionManager.Instance.InitializeNewGame(DataTableManager.Instance);
+    }
+
+    /// <summary>Build Settings 씬을 준비하고 최소 표시 시간이 지난 뒤 활성화한다.</summary>
+    /// <param name="sceneName">Build Settings에 등록된 씬 이름.</param>
+    /// <param name="loading">현재 활성화된 로딩 화면.</param>
+    /// <returns>씬 활성화 완료.</returns>
+    private async UniTask LoadBuildSceneAsync(string sceneName, LoadingScene loading)
+    {
+        var operation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        if (operation == null)
+            throw new InvalidOperationException($"씬을 비동기로 로드할 수 없습니다: {sceneName}");
+
+        operation.allowSceneActivation = false;
+        await ActivateWhenReadyAsync(operation, loading.WaitForMinimumDisplayAsync());
+    }
+
+#if UNITY_EDITOR
+    /// <summary>Editor 개인 씬을 준비하고 최소 표시 시간이 지난 뒤 활성화한다.</summary>
+    /// <param name="scenePath">허용된 Local 개인 씬 경로.</param>
+    /// <param name="loading">현재 활성화된 로딩 화면.</param>
+    /// <returns>씬 활성화 완료.</returns>
+    private async UniTask LoadEditorSceneAsync(string scenePath, LoadingScene loading)
+    {
+        var operation = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+            scenePath, new LoadSceneParameters(LoadSceneMode.Single));
+        if (operation == null)
+            throw new InvalidOperationException($"개인 씬을 비동기로 로드할 수 없습니다: {scenePath}");
+
+        operation.allowSceneActivation = false;
+        await ActivateWhenReadyAsync(operation, loading.WaitForMinimumDisplayAsync());
+    }
+#endif
+
+    /// <summary>AsyncOperation이 준비되고 로딩 화면 최소 시간이 지난 뒤 씬을 활성화한다.</summary>
+    /// <param name="operation">activation 보류 상태의 씬 로드 작업.</param>
+    /// <param name="minimumDisplayTask">로딩 화면 최소 표시 작업.</param>
+    /// <returns>씬 활성화 완료.</returns>
+    private async UniTask ActivateWhenReadyAsync(AsyncOperation operation, UniTask minimumDisplayTask)
+    {
+        // Unity SceneManager는 allowSceneActivation=false일 때 progress 0.9에서 대기한다.
+        await UniTask.WaitUntil(() => operation.isDone || operation.progress >= 0.9f,
+            cancellationToken: this.GetCancellationTokenOnDestroy());
+        await minimumDisplayTask;
+        operation.allowSceneActivation = true;
+        await operation.ToUniTask();
     }
 
     /// <summary>실패 handle을 해제하고 성공한 씬 수명은 Addressables에 맡긴다.</summary>
@@ -227,6 +310,29 @@ public class GameSceneManager : Singleton<GameSceneManager>
         }
         catch
         {
+            if (handle.IsValid()) Addressables.Release(handle);
+            throw;
+        }
+    }
+
+    /// <summary>Addressable 씬을 준비하고 최소 표시 시간이 지난 뒤 활성화한다.</summary>
+    /// <param name="address">로드할 씬 address.</param>
+    /// <param name="loading">현재 활성화된 로딩 화면.</param>
+    /// <returns>씬 활성화 완료.</returns>
+    private async UniTask LoadAddressableSceneAsync(object address, LoadingScene loading)
+    {
+        // Addressables SceneProvider는 activation 보류 시 준비 완료를 0.9 지점에서 핸들에 알린다.
+        var handle = Addressables.LoadSceneAsync(address, LoadSceneMode.Single, activateOnLoad: false);
+        try
+        {
+            var minimumDisplayTask = loading.WaitForMinimumDisplayAsync();
+            await handle.ToUniTask();
+            await minimumDisplayTask;
+            await handle.Result.ActivateAsync().ToUniTask();
+        }
+        catch
+        {
+            // 실패한 handle만 해제하고 성공한 씬의 기존 수명 정책은 유지한다.
             if (handle.IsValid()) Addressables.Release(handle);
             throw;
         }
