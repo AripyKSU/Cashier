@@ -1,9 +1,0 @@
-F:\UnityProject\Cashier\output\customer-handoff\build\bin\McpUnity.Editor\McpUnity.Editor.deps.json
-F:\UnityProject\Cashier\output\customer-handoff\build\bin\McpUnity.Editor\McpUnity.Editor.dll
-F:\UnityProject\Cashier\output\customer-handoff\build\bin\McpUnity.Editor\McpUnity.Editor.pdb
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\McpUnity.Editor\McpUnity.Editor.csproj.AssemblyReference.cache
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\McpUnity.Editor\McpUnity.Editor.GeneratedMSBuildEditorConfig.editorconfig
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\McpUnity.Editor\McpUnity.Editor.csproj.CoreCompileInputs.cache
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\McpUnity.Editor\McpUnity.Editor.sourcelink.json
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\McpUnity.Editor\McpUnity.Editor.dll
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\McpUnity.Editor\McpUnity.Editor.pdb

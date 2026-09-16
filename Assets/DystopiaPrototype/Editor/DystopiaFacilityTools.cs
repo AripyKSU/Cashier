@@ -12,12 +12,13 @@ using UnityEngine.UI;
 public static class DystopiaFacilityTools
 {
     private const string Root="Assets/DystopiaPrototype/";
-    /// <summary>2026-09-15 이후 단계별 아트의 권위 폴더입니다. 기존 Checkout 자산은 그대로 둡니다.</summary>
-    private const string Art="Assets/Textures/art/";
-    private const string Shop=Art+"Facility/CounterTop/";
-    private const string Crates=Art+"Facility/Crate/";
-    private const string Facilities=Art+"Facility/Props/";
-    private const string Workbench=Art+"Facility/Workbench/";
+    /// <summary>단계별 아트의 용도별 권위 폴더입니다. 기존 Checkout 자산은 그대로 둡니다.</summary>
+    private const string Environment="Assets/Textures/Environment/Dystopia/";
+    private const string Ui="Assets/Textures/UI/Dystopia/";
+    private const string Shop=Environment;
+    private const string Crates=Ui;
+    private const string Facilities=Environment;
+    private const string Workbench=Environment+"TopDown/";
     /// <summary>1280×720 화면 기준 상판 윗면이 시작하는 Y입니다. 아래쪽 하부장 일부는 화면 밖으로 잘립니다.</summary>
     private const float CounterTopY=380;
     /// <summary>기존 탑다운 작업대의 월드 폭입니다. 새 그림도 같은 폭으로 맞춥니다.</summary>
@@ -537,7 +538,7 @@ public static class DystopiaFacilityTools
         if(((Image)counter.source).sprite.name!="Stage2CounterTop") throw new InvalidOperationException("Current scene must be Stage 2.");
         string directory="output/stage2-rust-contact/"+DateTime.Now.ToString("yyyyMMdd-HHmmss"); Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
-        string framePath=Art+"Facility/Frame/Stage2RustedFrame.png",clockPath=Art+"Facility/Frame/Stage2RustedClock.png";
+        string framePath=Environment+"Stage2RustedFrame.png",clockPath=Ui+"Stage2RustedClock.png";
         ImportMatchingSheet("Assets/Textures/Checkout/Shop/Stage2Shop.png",framePath);
         ImportMatchingSheet("Assets/Textures/Checkout/Shop/Stage2Clock.png",clockPath);
         ImportSprite(Crates+"Stage2RustedCrateClosed.png",true); ImportSprite(Crates+"Stage2RustedCrateOpen.png",true);
@@ -770,7 +771,7 @@ public static class DystopiaFacilityTools
     {
         var stage=FindStage();
         var image=(Image)stage.layers.Single(l=>l.source!=null && l.source.name=="CounterClock").source;
-        string path=Art+"Facility/Frame/Stage3GunmetalClock.png";
+        string path=Ui+"Stage3GunmetalClock.png";
         ImportSprite(path,true);
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         var factory=new SpriteDataProviderFactories(); factory.Init();

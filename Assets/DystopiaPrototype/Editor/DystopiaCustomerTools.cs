@@ -12,9 +12,10 @@ using UnityEngine.UI;
 public static class DystopiaCustomerTools
 {
     private const string Root="Assets/DystopiaPrototype/";
-    private const string Male="Assets/Textures/art/Customer/Male/";
-    private const string Female="Assets/Textures/art/Customer/Female/";
-    private const string Normals="Assets/Textures/art/Customer/NormalMap/";
+    private const string Customer="Assets/Textures/Customer/Dystopia/";
+    private const string Male=Customer;
+    private const string Female=Customer;
+    private const string Normals=Customer+"NormalMaps/";
     /// <summary>손님 임포트 해상도 상한입니다. 픽셀 스테이지 해상도를 올릴 때 여기서 병목이 생기지 않도록 원본을 보존합니다.</summary>
     private const int DisplayMaxSize=2048;
     /// <summary>노멀맵 계산에 사용하는 최대 변 길이입니다. Sprite와 같은 UV를 공유합니다.</summary>

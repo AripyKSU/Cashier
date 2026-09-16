@@ -30,13 +30,13 @@ CounterLeftExtension/CounterRightExtension은 Counter의 자식 RawImage이다. 
 ## Stage 3 프레임 수정
 처음 Stage 2 프레임을 공유한 것은 잘못된 적용이었고 수정했다. 현재 Stage 3의 Canopy는 Stage3Shop의 Stage3Ceiling, 양쪽 기둥은 Stage3LeftPillar/Stage3RightPillar Sprite를 사용한다. Stage 3 고유 트러스·기계식 구조를 유지한다. 여섯 설비 위치와 Stage 3 상판 그림은 유지했다. 설비 금속 반응은 상판과 맞추고 접촉 그림자는 (0.5,0,1.15,0.75)로 적용했다.
 
-Stage 2 프레임 안쪽 검은 테두리는 image_gen으로 얇게 편집했다. `Assets/Textures/art/Facility/Frame/Stage2RustedFrame.png`를 교체했으며 1672×941 RGBA와 기존 meta/GUID를 유지한다. 이전 PNG는 output/stage-frame-correction에 보존했다.
+Stage 2 프레임 안쪽 검은 테두리는 image_gen으로 얇게 편집했다. 당시 `Assets/Textures/art/Facility/Frame/Stage2RustedFrame.png`를 교체했으며 1672×941 RGBA와 기존 meta/GUID를 유지했다. 현재 경로는 `Assets/Textures/Environment/Dystopia/Stage2RustedFrame.png`이며 이전 PNG는 output/stage-frame-correction에 보존했다.
 
 ## 검증 한계
 Unity 컴파일 오류 0, Console 오류 없음 확인. Editor 렌더 확인. Play Mode와 실제 업그레이드 구매는 미검증이다. 최종 Editor 미리보기는 output/facility-preview/front-20260916-080019.png이며 Play Mode 검증은 미실행이다. 이번 작업은 Git commit/push하지 않았다.
 
 ## 최신 Stage 3 건메탈 수정 (2026-09-16 08:00)
-상판·닫힌/열린 상자·설비 6개, 총 9 PNG를 기존 Assets/Textures/art/Facility 경로에 반영했다. 밝은 넓은 반사광을 줄이고 건메탈 바탕, 패널 이음새, 볼트, 마모 도색을 추가했다. Stage3Shop 원본 기둥/캐노피 구조는 유지했다. 모든 GUID와 Sprite ID를 유지했다. 생성 해상도 차이: CounterTop 1447→1446px 폭(기존 crop 폭만 1px 축소), PowerCommunications 1322×1190→1320×1191(기존 crop 유지). Canvas 크기는 변하지 않는다.
+상판·닫힌/열린 상자·설비 6개, 총 9 PNG를 당시 `Assets/Textures/art/Facility` 경로에 반영했다. 현재 상판·설비는 `Assets/Textures/Environment/Dystopia/`, 상자는 `Assets/Textures/UI/Dystopia/`에 있다. 밝은 넓은 반사광을 줄이고 건메탈 바탕, 패널 이음새, 볼트, 마모 도색을 추가했다. Stage3Shop 원본 기둥/캐노피 구조는 유지했다. 모든 GUID와 Sprite ID를 유지했다. 생성 해상도 차이: CounterTop 1447→1446px 폭(기존 crop 폭만 1px 축소), PowerCommunications 1322×1190→1320×1191(기존 crop 유지). Canvas 크기는 변하지 않는다.
 
 배경 오류: 도시·철조망은 원래 1280폭인데 군중·안개·바리케이드는 축소된 배치로 혼재했다. Stage 2 승인 기준의 배경 RectTransform을 함께 적용했다. FarBackground=(52,-42), size=(1176,661.5), MidBackground=(52,0.26), size=(1176,529.2). 군중과 철조망을 같은 배경 기준으로 복원했다. 단계 적용 코드에도 fog/crowd/barricade/guard/searchlight를 포함했고 저장 경비 위치를 다시 계산하는 호출은 제거했다.
 
@@ -59,4 +59,4 @@ Stage3CrateOpen.png만 coarse pixel art로 수정하고 내부 벽·바닥을 �
 
 ## 전체 상태 보존 및 건메탈 시계 — 2026-09-16 08:23
 사용자 요청으로 Stage3 전체 현재 상태를 output/stage3-reference/20260916-082109/Stage3.unity에 저장했다. composition.txt와 asset-hashes.json도 기록했다. 시계 건메탈 적용 후 최종 기준은 output/stage3-reference/20260916-082340/Stage3.unity이다.
-새 시계: Assets/Textures/art/Facility/Frame/Stage3GunmetalClock.png, GUID 6faf682dc42b41f4e8d93c2a345dc83d. 짙은 청회색 건메탈, Point/256 임포트, 기존94:37 표시 비율 유지. 사용자 현재 시계 위치(1055,6)를 포함해 모든 배치·숫자·조명 설정은 유지했다. 전후 씬 diff는 CounterClock m_Sprite 참조 1개뿐이며 다른 직렬화 값은 동일하다. Unity Console 오류 없음, PlayMode 미검증.
+새 시계의 당시 경로는 `Assets/Textures/art/Facility/Frame/Stage3GunmetalClock.png`였고, 현재 경로는 `Assets/Textures/UI/Dystopia/Stage3GunmetalClock.png`다. GUID `6faf682dc42b41f4e8d93c2a345dc83d`, 원본 크기 1254×1254다. 짙은 청회색 건메탈, Point/256 임포트, 기존94:37 표시 비율 유지. 사용자 현재 시계 위치(1055,6)를 포함해 모든 배치·숫자·조명 설정은 유지했다. 전후 씬 diff는 CounterClock m_Sprite 참조 1개뿐이며 다른 직렬화 값은 동일하다. Unity Console 오류 없음, PlayMode 미검증.

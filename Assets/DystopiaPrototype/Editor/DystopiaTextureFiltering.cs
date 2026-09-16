@@ -7,14 +7,8 @@ using UnityEngine;
 public static class DystopiaTextureFiltering
 {
     /// <summary>픽셀 스테이지가 거의 1:1로 그리는 정면 아트 폴더입니다. 탑다운 저해상도 아트는 제외합니다.</summary>
-    private static readonly string[] FrontArtFolders =
+    private static readonly string[] ExistingFrontArtFolders =
     {
-        "Assets/Textures/art/Facility/CounterTop",
-        "Assets/Textures/art/Facility/Crate",
-        "Assets/Textures/art/Facility/Props",
-        "Assets/Textures/art/Customer/Male",
-        "Assets/Textures/art/Customer/Female",
-        "Assets/Textures/art/Customer/NormalMap",
         "Assets/Textures/Checkout/Background",
         "Assets/Textures/Checkout/Characters",
         "Assets/Textures/Checkout/Shop",
@@ -37,22 +31,58 @@ public static class DystopiaTextureFiltering
         try
         {
             AssetDatabase.StartAssetEditing();
-            foreach (string folder in FrontArtFolders)
+            foreach (string path in movedFrontArtPaths()) apply(path, mode, changed);
+            foreach (string folder in ExistingFrontArtFolders)
             {
                 if (!Directory.Exists(folder)) continue;
                 foreach (string path in Directory.GetFiles(folder, "*.png", SearchOption.TopDirectoryOnly))
                 {
-                    string assetPath = path.Replace('\\', '/');
-                    if (AssetImporter.GetAtPath(assetPath) is not TextureImporter importer) continue;
-                    if (importer.filterMode == mode) continue;
-                    importer.filterMode = mode;
-                    importer.SaveAndReimport();
-                    changed.Add(assetPath);
+                    apply(path.Replace('\\', '/'), mode, changed);
                 }
             }
         }
         finally { AssetDatabase.StopAssetEditing(); }
         AssetDatabase.Refresh();
         Debug.Log($"텍스처 필터를 {mode}로 변경: {changed.Count}장. 탑다운 작업대와 상품 아트는 그대로 둡니다.");
+    }
+
+    /// <summary>더 큰 목적 폴더의 다른 자산을 건드리지 않고 이관된 정면 아트만 열거합니다.</summary>
+    private static IEnumerable<string> movedFrontArtPaths()
+    {
+        const string customer = "Assets/Textures/Customer/Dystopia/";
+        string[] classes = { "Normal", "Hasty", "PriceSensitive", "Wealthy", "Poor", "Child", "Elder" };
+        int[] counts = { 12, 3, 3, 3, 3, 3, 3 };
+        foreach (string gender in new[] { "Male", "Female" })
+        for (int classIndex = 0; classIndex < classes.Length; classIndex++)
+        for (int number = 1; number <= counts[classIndex]; number++)
+        {
+            string name = $"{gender}{classes[classIndex]}_{number:00}";
+            yield return customer + name + ".png";
+            yield return customer + "NormalMaps/" + name + "_Normal.png";
+        }
+
+        const string environment = "Assets/Textures/Environment/Dystopia/";
+        foreach (string name in new[]
+        {
+            "Stage1CounterTop", "Stage2CounterTop", "Stage3CounterTop",
+            "Stage1FoodShelf", "Stage1MedicineCabinet", "Stage2FoodShelf", "Stage2MedicineCabinet",
+            "Stage2PowerCommunications", "Stage2ToolBench", "Stage3FoodShelf", "Stage3MedicineCabinet",
+            "Stage3NuclearProtection", "Stage3PowerCommunications", "Stage3PrecisionElectronics", "Stage3ToolBench"
+        }) yield return environment + name + ".png";
+
+        const string ui = "Assets/Textures/UI/Dystopia/";
+        foreach (string name in new[]
+        {
+            "Stage1CrateClosed", "Stage1CrateOpen", "Stage2CrateClosed", "Stage2CrateOpen",
+            "Stage2RustedCrateClosed", "Stage2RustedCrateOpen", "Stage3CrateClosed", "Stage3CrateOpen"
+        }) yield return ui + name + ".png";
+    }
+
+    private static void apply(string path, FilterMode mode, ICollection<string> changed)
+    {
+        if (AssetImporter.GetAtPath(path) is not TextureImporter importer || importer.filterMode == mode) return;
+        importer.filterMode = mode;
+        importer.SaveAndReimport();
+        changed.Add(path);
     }
 }

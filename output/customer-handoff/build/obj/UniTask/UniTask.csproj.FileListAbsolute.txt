@@ -1,9 +1,0 @@
-F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask\UniTask.deps.json
-F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask\UniTask.dll
-F:\UnityProject\Cashier\output\customer-handoff\build\bin\UniTask\UniTask.pdb
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask\UniTask.csproj.AssemblyReference.cache
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask\UniTask.GeneratedMSBuildEditorConfig.editorconfig
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask\UniTask.csproj.CoreCompileInputs.cache
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask\UniTask.sourcelink.json
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask\UniTask.dll
-F:\UnityProject\Cashier\output\customer-handoff\build\obj\UniTask\UniTask.pdb

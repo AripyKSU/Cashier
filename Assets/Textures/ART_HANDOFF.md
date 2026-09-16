@@ -6,22 +6,19 @@
 
 | 폴더 | 내용 | PNG 수 |
 |---|---|---:|
-| `art/Customer/Female` | 고객 원화 또는 노멀맵 | 30 |
-| `art/Customer/Male` | 고객 원화 또는 노멀맵 | 30 |
-| `art/Customer/NormalMap` | 고객 원화 또는 노멀맵 | 60 |
-| `art/Facility/CounterTop` | 단계별 가판 이미지 | 3 |
-| `art/Facility/Crate` | 단계별 가판 이미지 | 8 |
-| `art/Facility/Frame` | 단계별 가판 이미지 | 2 |
-| `art/Facility/Props` | 단계별 가판 이미지 | 12 |
-| `art/Facility/Workbench` | 단계별 가판 이미지 | 3 |
+| `Customer/Dystopia` | 고객 원화 | 60 |
+| `Customer/Dystopia/NormalMaps` | 고객 노멀맵 | 60 |
+| `Environment/Dystopia` | 단계별 상판·설비·Stage 2 프레임 | 16 |
+| `Environment/Dystopia/TopDown` | 탑다운 작업대 | 3 |
+| `UI/Dystopia` | 단계별 상자·시계 | 10 |
 
 ## 현재 Stage 2에서 사용하는 수정본
 
-- 기둥·천장: `art/Facility/Frame/Stage2RustedFrame.png` (Sprite sheet) 앵글과 조각은 기존 Stage2Shop 기준.
-- 시계: `art/Facility/Frame/Stage2RustedClock.png` (숫자는 별도 UI).
-- 닫힌 상자: `art/Facility/Crate/Stage2RustedCrateClosed.png`.
-- 열린 상자: `art/Facility/Crate/Stage2RustedCrateOpen.png`.
-- 상판: `art/Facility/CounterTop/Stage2CounterTop.png`.
+- 기둥·천장: `Environment/Dystopia/Stage2RustedFrame.png` (Sprite sheet) 앵글과 조각은 기존 Stage2Shop 기준.
+- 시계: `UI/Dystopia/Stage2RustedClock.png` (숫자는 별도 UI).
+- 닫힌 상자: `UI/Dystopia/Stage2RustedCrateClosed.png`.
+- 열린 상자: `UI/Dystopia/Stage2RustedCrateOpen.png`.
+- 상판: `Environment/Dystopia/Stage2CounterTop.png`.
 - 기존 Stage2CrateClosed/Open은 보존본이며 이번 수정본은 Rusted 이름을 사용합니다.
 
 ## 개발 시 유의 사항
@@ -38,10 +35,16 @@
 ## 검증
 
 - 전체 목록: `ART_IMAGE_INVENTORY.md`.
-- 이 목록의 PNG 148개와 `.meta` 짝을 확인했습니다.
+- 이 목록의 PNG 149개와 `.meta` 짝은 이관 검증에서 확인합니다.
 - 이번 폴더 정리에서는 이미지 내용, GUID, 씬과 배치를 변경하지 않았습니다.
+
+## 2026-09-16 용도별 경로 이관
+
+기존 `Assets/Textures/art/` 아래 149개 PNG와 `.meta`를 고객·환경·UI 용도별 폴더로 이동했다. 파일명과 GUID는 유지했다. 원본→목적지, SHA-256과 GUID의 권위 목록은 [`doc/data/ART_RESOURCE_MOVE_MAP.json`](../../doc/data/ART_RESOURCE_MOVE_MAP.json)이다. 아래 과거 작업 기록의 `art/...` 표기는 당시 경로다.
+
+이번 완료 범위는 파일 이관과 경로 정리다. 자산·`.meta` 쌍 및 GUID 보존 검증과 Editor 도구 경로 갱신은 포함하지만, 게임 데이터·Addressables·Prefab·Scene·실제 화면 연결은 수행하지 않았으며 후속 작업에서 별도로 검증한다.
 
 ## 2026-09-16 녹 표현 수정
 
-Stage2RustedFrame/Clock 및 CrateClosed/Open의 잔녹과 X 모양 녹을 줄이고 이음새·모서리에서 퍼지는 큰 녹으로 변경했습니다. 파일 경로와 GUID는 유지했습니다. 열린 상자는 생성 해상도가 1px 달라 Sprite 사각형 크기는 유지하고 시작 Y만 34→33px로 보정했습니다. image_gen 사용, 요청 프롬프트와 원본 백업은 `output/stage2-seam-rust/`에 있습니다.
+Stage2RustedFrame/Clock 및 CrateClosed/Open의 잔녹과 X 모양 녹을 줄이고 이음새·모서리에서 퍼지는 큰 녹으로 변경했습니다. 당시 파일 경로와 GUID를 유지했으며, 현재 경로는 위 용도별 이관 절을 따릅니다. 열린 상자는 생성 해상도가 1px 달라 Sprite 사각형 크기는 유지하고 시작 Y만 34→33px로 보정했습니다. image_gen 사용, 요청 프롬프트와 원본 백업은 `output/stage2-seam-rust/`에 있습니다.
 

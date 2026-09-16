@@ -19,20 +19,19 @@
 ## 2. 파일 위치와 이름
 
 ```text
-Assets/Textures/art/Customer/
-├── Male/       # 남성 원화 30 PNG + 각 .meta
-├── Female/     # 여성 원화 30 PNG + 각 .meta
-└── NormalMap/  # 남녀 각 원화의 대응 노멀맵 60 PNG + 각 .meta
+Assets/Textures/Customer/Dystopia/
+├── Male*.png / Female*.png  # 남녀 원화 각 30 PNG + 각 .meta
+└── NormalMaps/              # 남녀 각 원화의 대응 노멀맵 60 PNG + 각 .meta
 ```
 
 원화 이름은 `{Male|Female}{Class}_{분류내번호:00}.png`, 노멀맵은 `{원화이름}_Normal.png`다.
 
 예:
 
-- `Male/MaleNormal_01.png`
-- `Female/FemalePriceSensitive_02.png`
-- `Male/MaleChild_03.png`
-- `NormalMap/MaleChild_03_Normal.png`
+- `MaleNormal_01.png`
+- `FemalePriceSensitive_02.png`
+- `MaleChild_03.png`
+- `NormalMaps/MaleChild_03_Normal.png`
 
 `NormalMap`의 Normal은 표면 법선이라는 뜻이다. 고객 분류의 `Normal`(일반 손님)과 별개다. Inspector의 오래된 sub-sprite 이름이 .meta 내부에 남아 있어도 파일명만 보고 GUID나 내부 ID를 다시 만들지 않는다.
 
@@ -300,63 +299,63 @@ Unity MCP 연결이 직전 작업부터 시간 초과 상태여서, 본 문서�
 
 | 성별/원화 | 원본 W×H | bbox 시작 X,Y | bbox W×H |
 |---|---|---|---|
-| [MaleNormal_01](../Assets/Textures/art/Customer/Male/MaleNormal_01.png) | 1018×1544 | 15,52 | 981×1492 |
-| [MaleNormal_02](../Assets/Textures/art/Customer/Male/MaleNormal_02.png) | 1019×1544 | 25,24 | 977×1520 |
-| [MaleNormal_03](../Assets/Textures/art/Customer/Male/MaleNormal_03.png) | 1018×1544 | 42,43 | 954×1501 |
-| [MaleNormal_04](../Assets/Textures/art/Customer/Male/MaleNormal_04.png) | 610×925 | 50,25 | 525×900 |
-| [MaleNormal_05](../Assets/Textures/art/Customer/Male/MaleNormal_05.png) | 610×925 | 130,30 | 455×895 |
-| [MaleNormal_06](../Assets/Textures/art/Customer/Male/MaleNormal_06.png) | 610×925 | 65,45 | 460×880 |
-| [MaleNormal_07](../Assets/Textures/art/Customer/Male/MaleNormal_07.png) | 610×925 | 15,25 | 580×900 |
-| [MaleNormal_08](../Assets/Textures/art/Customer/Male/MaleNormal_08.png) | 610×925 | 70,15 | 500×910 |
-| [MaleNormal_09](../Assets/Textures/art/Customer/Male/MaleNormal_09.png) | 610×925 | 50,35 | 545×890 |
-| [MaleNormal_10](../Assets/Textures/art/Customer/Male/MaleNormal_10.png) | 610×925 | 25,25 | 580×900 |
-| [MaleNormal_11](../Assets/Textures/art/Customer/Male/MaleNormal_11.png) | 610×925 | 65,55 | 490×870 |
-| [MaleNormal_12](../Assets/Textures/art/Customer/Male/MaleNormal_12.png) | 610×925 | 95,30 | 460×895 |
-| [MaleHasty_01](../Assets/Textures/art/Customer/Male/MaleHasty_01.png) | 816×996 | 84,24 | 660×972 |
-| [MaleHasty_02](../Assets/Textures/art/Customer/Male/MaleHasty_02.png) | 816×996 | 72,42 | 708×954 |
-| [MaleHasty_03](../Assets/Textures/art/Customer/Male/MaleHasty_03.png) | 816×996 | 186,24 | 492×972 |
-| [MalePriceSensitive_01](../Assets/Textures/art/Customer/Male/MalePriceSensitive_01.png) | 732×1110 | 42,12 | 648×1098 |
-| [MalePriceSensitive_02](../Assets/Textures/art/Customer/Male/MalePriceSensitive_02.png) | 659×1000 | 87,33 | 524×966 |
-| [MalePriceSensitive_03](../Assets/Textures/art/Customer/Male/MalePriceSensitive_03.png) | 710×1075 | 30,10 | 680×1065 |
-| [MaleWealthy_01](../Assets/Textures/art/Customer/Male/MaleWealthy_01.png) | 815×945 | 35,10 | 745×935 |
-| [MaleWealthy_02](../Assets/Textures/art/Customer/Male/MaleWealthy_02.png) | 930×1080 | 30,20 | 880×1055 |
-| [MaleWealthy_03](../Assets/Textures/art/Customer/Male/MaleWealthy_03.png) | 1116×1296 | 150,48 | 828×1248 |
-| [MalePoor_01](../Assets/Textures/art/Customer/Male/MalePoor_01.png) | 762×1062 | 42,6 | 702×1056 |
-| [MalePoor_02](../Assets/Textures/art/Customer/Male/MalePoor_02.png) | 816×996 | 48,6 | 720×990 |
-| [MalePoor_03](../Assets/Textures/art/Customer/Male/MalePoor_03.png) | 858×948 | 54,6 | 750×942 |
-| [MaleChild_01](../Assets/Textures/art/Customer/Male/MaleChild_01.png) | 1254×1254 | 81,227 | 1103×959 |
-| [MaleChild_02](../Assets/Textures/art/Customer/Male/MaleChild_02.png) | 1254×1254 | 113,133 | 1072×1088 |
-| [MaleChild_03](../Assets/Textures/art/Customer/Male/MaleChild_03.png) | 1254×1254 | 59,186 | 1135×985 |
-| [MaleElder_01](../Assets/Textures/art/Customer/Male/MaleElder_01.png) | 810×1235 | 60,25 | 685×1210 |
-| [MaleElder_02](../Assets/Textures/art/Customer/Male/MaleElder_02.png) | 915×1095 | 100,35 | 750×1060 |
-| [MaleElder_03](../Assets/Textures/art/Customer/Male/MaleElder_03.png) | 915×1095 | 90,90 | 805×1005 |
-| [FemaleNormal_01](../Assets/Textures/art/Customer/Female/FemaleNormal_01.png) | 930×1080 | 115,40 | 705×1040 |
-| [FemaleNormal_02](../Assets/Textures/art/Customer/Female/FemaleNormal_02.png) | 1164×1351 | 256,35 | 652×1316 |
-| [FemaleNormal_03](../Assets/Textures/art/Customer/Female/FemaleNormal_03.png) | 1164×1351 | 228,24 | 752×1327 |
-| [FemaleNormal_04](../Assets/Textures/art/Customer/Female/FemaleNormal_04.png) | 1164×1351 | 217,53 | 696×1298 |
-| [FemaleNormal_05](../Assets/Textures/art/Customer/Female/FemaleNormal_05.png) | 1164×1351 | 227,34 | 723×1317 |
-| [FemaleNormal_06](../Assets/Textures/art/Customer/Female/FemaleNormal_06.png) | 1164×1351 | 249,32 | 702×1319 |
-| [FemaleNormal_07](../Assets/Textures/art/Customer/Female/FemaleNormal_07.png) | 1164×1351 | 263,17 | 656×1334 |
-| [FemaleNormal_08](../Assets/Textures/art/Customer/Female/FemaleNormal_08.png) | 1164×1351 | 275,23 | 626×1328 |
-| [FemaleNormal_09](../Assets/Textures/art/Customer/Female/FemaleNormal_09.png) | 1164×1351 | 217,14 | 754×1337 |
-| [FemaleNormal_10](../Assets/Textures/art/Customer/Female/FemaleNormal_10.png) | 1164×1351 | 271,24 | 618×1327 |
-| [FemaleNormal_11](../Assets/Textures/art/Customer/Female/FemaleNormal_11.png) | 930×1080 | 115,30 | 745×1045 |
-| [FemaleNormal_12](../Assets/Textures/art/Customer/Female/FemaleNormal_12.png) | 1147×1372 | 26,20 | 1080×1326 |
-| [FemaleHasty_01](../Assets/Textures/art/Customer/Female/FemaleHasty_01.png) | 930×1080 | 120,30 | 710×1030 |
-| [FemaleHasty_02](../Assets/Textures/art/Customer/Female/FemaleHasty_02.png) | 186×216 | 20,4 | 149×211 |
-| [FemaleHasty_03](../Assets/Textures/art/Customer/Female/FemaleHasty_03.png) | 186×216 | 21,1 | 162×214 |
-| [FemalePriceSensitive_01](../Assets/Textures/art/Customer/Female/FemalePriceSensitive_01.png) | 1002×1164 | 138,30 | 702×1134 |
-| [FemalePriceSensitive_02](../Assets/Textures/art/Customer/Female/FemalePriceSensitive_02.png) | 1150×1770 | 60,100 | 1060×1670 |
-| [FemalePriceSensitive_03](../Assets/Textures/art/Customer/Female/FemalePriceSensitive_03.png) | 744×1086 | 42,78 | 654×1008 |
-| [FemaleWealthy_01](../Assets/Textures/art/Customer/Female/FemaleWealthy_01.png) | 1165×1350 | 25,17 | 1123×1305 |
-| [FemaleWealthy_02](../Assets/Textures/art/Customer/Female/FemaleWealthy_02.png) | 972×1134 | 36,18 | 912×1116 |
-| [FemaleWealthy_03](../Assets/Textures/art/Customer/Female/FemaleWealthy_03.png) | 1128×1280 | 88,24 | 1000×1232 |
-| [FemalePoor_01](../Assets/Textures/art/Customer/Female/FemalePoor_01.png) | 1044×1386 | 156,48 | 732×1338 |
-| [FemalePoor_02](../Assets/Textures/art/Customer/Female/FemalePoor_02.png) | 870×1155 | 100,20 | 685×1135 |
-| [FemalePoor_03](../Assets/Textures/art/Customer/Female/FemalePoor_03.png) | 912×1212 | 120,36 | 690×1176 |
-| [FemaleChild_01](../Assets/Textures/art/Customer/Female/FemaleChild_01.png) | 1000×1000 | 120,125 | 765×810 |
-| [FemaleChild_02](../Assets/Textures/art/Customer/Female/FemaleChild_02.png) | 1000×1000 | 95,110 | 815×860 |
-| [FemaleChild_03](../Assets/Textures/art/Customer/Female/FemaleChild_03.png) | 1000×1000 | 135,65 | 770×895 |
-| [FemaleElder_01](../Assets/Textures/art/Customer/Female/FemaleElder_01.png) | 865×1155 | 100,40 | 665×1115 |
-| [FemaleElder_02](../Assets/Textures/art/Customer/Female/FemaleElder_02.png) | 815×1225 | 85,50 | 690×1175 |
-| [FemaleElder_03](../Assets/Textures/art/Customer/Female/FemaleElder_03.png) | 650×865 | 30,65 | 565×800 |
+| [MaleNormal_01](../Assets/Textures/Customer/Dystopia/MaleNormal_01.png) | 1018×1544 | 15,52 | 981×1492 |
+| [MaleNormal_02](../Assets/Textures/Customer/Dystopia/MaleNormal_02.png) | 1019×1544 | 25,24 | 977×1520 |
+| [MaleNormal_03](../Assets/Textures/Customer/Dystopia/MaleNormal_03.png) | 1018×1544 | 42,43 | 954×1501 |
+| [MaleNormal_04](../Assets/Textures/Customer/Dystopia/MaleNormal_04.png) | 610×925 | 50,25 | 525×900 |
+| [MaleNormal_05](../Assets/Textures/Customer/Dystopia/MaleNormal_05.png) | 610×925 | 130,30 | 455×895 |
+| [MaleNormal_06](../Assets/Textures/Customer/Dystopia/MaleNormal_06.png) | 610×925 | 65,45 | 460×880 |
+| [MaleNormal_07](../Assets/Textures/Customer/Dystopia/MaleNormal_07.png) | 610×925 | 15,25 | 580×900 |
+| [MaleNormal_08](../Assets/Textures/Customer/Dystopia/MaleNormal_08.png) | 610×925 | 70,15 | 500×910 |
+| [MaleNormal_09](../Assets/Textures/Customer/Dystopia/MaleNormal_09.png) | 610×925 | 50,35 | 545×890 |
+| [MaleNormal_10](../Assets/Textures/Customer/Dystopia/MaleNormal_10.png) | 610×925 | 25,25 | 580×900 |
+| [MaleNormal_11](../Assets/Textures/Customer/Dystopia/MaleNormal_11.png) | 610×925 | 65,55 | 490×870 |
+| [MaleNormal_12](../Assets/Textures/Customer/Dystopia/MaleNormal_12.png) | 610×925 | 95,30 | 460×895 |
+| [MaleHasty_01](../Assets/Textures/Customer/Dystopia/MaleHasty_01.png) | 816×996 | 84,24 | 660×972 |
+| [MaleHasty_02](../Assets/Textures/Customer/Dystopia/MaleHasty_02.png) | 816×996 | 72,42 | 708×954 |
+| [MaleHasty_03](../Assets/Textures/Customer/Dystopia/MaleHasty_03.png) | 816×996 | 186,24 | 492×972 |
+| [MalePriceSensitive_01](../Assets/Textures/Customer/Dystopia/MalePriceSensitive_01.png) | 732×1110 | 42,12 | 648×1098 |
+| [MalePriceSensitive_02](../Assets/Textures/Customer/Dystopia/MalePriceSensitive_02.png) | 659×1000 | 87,33 | 524×966 |
+| [MalePriceSensitive_03](../Assets/Textures/Customer/Dystopia/MalePriceSensitive_03.png) | 710×1075 | 30,10 | 680×1065 |
+| [MaleWealthy_01](../Assets/Textures/Customer/Dystopia/MaleWealthy_01.png) | 815×945 | 35,10 | 745×935 |
+| [MaleWealthy_02](../Assets/Textures/Customer/Dystopia/MaleWealthy_02.png) | 930×1080 | 30,20 | 880×1055 |
+| [MaleWealthy_03](../Assets/Textures/Customer/Dystopia/MaleWealthy_03.png) | 1116×1296 | 150,48 | 828×1248 |
+| [MalePoor_01](../Assets/Textures/Customer/Dystopia/MalePoor_01.png) | 762×1062 | 42,6 | 702×1056 |
+| [MalePoor_02](../Assets/Textures/Customer/Dystopia/MalePoor_02.png) | 816×996 | 48,6 | 720×990 |
+| [MalePoor_03](../Assets/Textures/Customer/Dystopia/MalePoor_03.png) | 858×948 | 54,6 | 750×942 |
+| [MaleChild_01](../Assets/Textures/Customer/Dystopia/MaleChild_01.png) | 1254×1254 | 81,227 | 1103×959 |
+| [MaleChild_02](../Assets/Textures/Customer/Dystopia/MaleChild_02.png) | 1254×1254 | 113,133 | 1072×1088 |
+| [MaleChild_03](../Assets/Textures/Customer/Dystopia/MaleChild_03.png) | 1254×1254 | 59,186 | 1135×985 |
+| [MaleElder_01](../Assets/Textures/Customer/Dystopia/MaleElder_01.png) | 810×1235 | 60,25 | 685×1210 |
+| [MaleElder_02](../Assets/Textures/Customer/Dystopia/MaleElder_02.png) | 915×1095 | 100,35 | 750×1060 |
+| [MaleElder_03](../Assets/Textures/Customer/Dystopia/MaleElder_03.png) | 915×1095 | 90,90 | 805×1005 |
+| [FemaleNormal_01](../Assets/Textures/Customer/Dystopia/FemaleNormal_01.png) | 930×1080 | 115,40 | 705×1040 |
+| [FemaleNormal_02](../Assets/Textures/Customer/Dystopia/FemaleNormal_02.png) | 1164×1351 | 256,35 | 652×1316 |
+| [FemaleNormal_03](../Assets/Textures/Customer/Dystopia/FemaleNormal_03.png) | 1164×1351 | 228,24 | 752×1327 |
+| [FemaleNormal_04](../Assets/Textures/Customer/Dystopia/FemaleNormal_04.png) | 1164×1351 | 217,53 | 696×1298 |
+| [FemaleNormal_05](../Assets/Textures/Customer/Dystopia/FemaleNormal_05.png) | 1164×1351 | 227,34 | 723×1317 |
+| [FemaleNormal_06](../Assets/Textures/Customer/Dystopia/FemaleNormal_06.png) | 1164×1351 | 249,32 | 702×1319 |
+| [FemaleNormal_07](../Assets/Textures/Customer/Dystopia/FemaleNormal_07.png) | 1164×1351 | 263,17 | 656×1334 |
+| [FemaleNormal_08](../Assets/Textures/Customer/Dystopia/FemaleNormal_08.png) | 1164×1351 | 275,23 | 626×1328 |
+| [FemaleNormal_09](../Assets/Textures/Customer/Dystopia/FemaleNormal_09.png) | 1164×1351 | 217,14 | 754×1337 |
+| [FemaleNormal_10](../Assets/Textures/Customer/Dystopia/FemaleNormal_10.png) | 1164×1351 | 271,24 | 618×1327 |
+| [FemaleNormal_11](../Assets/Textures/Customer/Dystopia/FemaleNormal_11.png) | 930×1080 | 115,30 | 745×1045 |
+| [FemaleNormal_12](../Assets/Textures/Customer/Dystopia/FemaleNormal_12.png) | 1147×1372 | 26,20 | 1080×1326 |
+| [FemaleHasty_01](../Assets/Textures/Customer/Dystopia/FemaleHasty_01.png) | 930×1080 | 120,30 | 710×1030 |
+| [FemaleHasty_02](../Assets/Textures/Customer/Dystopia/FemaleHasty_02.png) | 186×216 | 20,4 | 149×211 |
+| [FemaleHasty_03](../Assets/Textures/Customer/Dystopia/FemaleHasty_03.png) | 186×216 | 21,1 | 162×214 |
+| [FemalePriceSensitive_01](../Assets/Textures/Customer/Dystopia/FemalePriceSensitive_01.png) | 1002×1164 | 138,30 | 702×1134 |
+| [FemalePriceSensitive_02](../Assets/Textures/Customer/Dystopia/FemalePriceSensitive_02.png) | 1150×1770 | 60,100 | 1060×1670 |
+| [FemalePriceSensitive_03](../Assets/Textures/Customer/Dystopia/FemalePriceSensitive_03.png) | 744×1086 | 42,78 | 654×1008 |
+| [FemaleWealthy_01](../Assets/Textures/Customer/Dystopia/FemaleWealthy_01.png) | 1165×1350 | 25,17 | 1123×1305 |
+| [FemaleWealthy_02](../Assets/Textures/Customer/Dystopia/FemaleWealthy_02.png) | 972×1134 | 36,18 | 912×1116 |
+| [FemaleWealthy_03](../Assets/Textures/Customer/Dystopia/FemaleWealthy_03.png) | 1128×1280 | 88,24 | 1000×1232 |
+| [FemalePoor_01](../Assets/Textures/Customer/Dystopia/FemalePoor_01.png) | 1044×1386 | 156,48 | 732×1338 |
+| [FemalePoor_02](../Assets/Textures/Customer/Dystopia/FemalePoor_02.png) | 870×1155 | 100,20 | 685×1135 |
+| [FemalePoor_03](../Assets/Textures/Customer/Dystopia/FemalePoor_03.png) | 912×1212 | 120,36 | 690×1176 |
+| [FemaleChild_01](../Assets/Textures/Customer/Dystopia/FemaleChild_01.png) | 1000×1000 | 120,125 | 765×810 |
+| [FemaleChild_02](../Assets/Textures/Customer/Dystopia/FemaleChild_02.png) | 1000×1000 | 95,110 | 815×860 |
+| [FemaleChild_03](../Assets/Textures/Customer/Dystopia/FemaleChild_03.png) | 1000×1000 | 135,65 | 770×895 |
+| [FemaleElder_01](../Assets/Textures/Customer/Dystopia/FemaleElder_01.png) | 865×1155 | 100,40 | 665×1115 |
+| [FemaleElder_02](../Assets/Textures/Customer/Dystopia/FemaleElder_02.png) | 815×1225 | 85,50 | 690×1175 |
+| [FemaleElder_03](../Assets/Textures/Customer/Dystopia/FemaleElder_03.png) | 650×865 | 30,65 | 565×800 |
