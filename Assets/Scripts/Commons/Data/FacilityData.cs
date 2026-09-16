@@ -71,7 +71,7 @@ public sealed class FacilityData
     [Name("idx")] public uint Idx { get; set; }
     /// <summary>설비 표시 이름의 TextData FK.</summary>
     [Name("nameidx")] public uint NameIdx { get; set; }
-    /// <summary>일회 구매 가격. 양수 정수 통화 단위.</summary>
+    /// <summary>일회 구매 가격. 단계 확장은 0, 그 밖에는 양수 정수 통화 단위.</summary>
     [Name("purchase_price")] public long PurchasePrice { get; set; }
     /// <summary>상품 해금·편의성·가게 단계 상승 중 하나인 업그레이드 종류.</summary>
     [Name("upgrade_kind"), TypeConverter(typeof(FacilityUpgradeKindConverter))]
@@ -88,8 +88,8 @@ public sealed class FacilityData
     /// <exception cref="ArgumentException">PK·이름·가격·enum·단계·효과 조합이 유효하지 않음.</exception>
     public void Validate()
     {
-        if (Idx == 0 || NameIdx == 0 || PurchasePrice <= 0)
-            throw new ArgumentException($"Facility PK={Idx}: idx/nameidx 및 양수 purchase_price가 필요합니다.");
+        if (Idx == 0 || NameIdx == 0 || PurchasePrice < 0)
+            throw new ArgumentException($"Facility PK={Idx}: idx/nameidx 및 0 이상의 purchase_price가 필요합니다.");
         if (UpgradeKind == FacilityUpgradeKind.None || UpgradeKind == FacilityUpgradeKind.FacilityUpgradeKind_End ||
             !Enum.IsDefined(typeof(FacilityUpgradeKind), UpgradeKind))
             throw new ArgumentException($"Facility PK={Idx}: upgrade_kind가 유효하지 않습니다.");
@@ -98,6 +98,8 @@ public sealed class FacilityData
         if (EffectType == ConvenienceEffectType.ConvenienceEffectType_End ||
             !Enum.IsDefined(typeof(ConvenienceEffectType), EffectType))
             throw new ArgumentException($"Facility PK={Idx}: effect_type이 유효하지 않습니다.");
+        if (PurchasePrice == 0 && UpgradeKind != FacilityUpgradeKind.StoreStage)
+            throw new ArgumentException($"Facility PK={Idx}: 0원 가격은 가게 단계 확장에만 허용됩니다.");
 
         switch (UpgradeKind)
         {

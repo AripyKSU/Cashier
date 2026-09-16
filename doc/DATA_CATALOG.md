@@ -97,7 +97,7 @@
 
 ### FacilityData
 
-`idx:uint`는 종류12의 12001~12012, `nameidx:uint`는 TextData FK, `purchase_price:long`은 양수 통화다. `upgrade_kind`는 상품 해금·편의성·가게 단계 상승·시민권을 구분하는 숫자 enum이고, `required_store_stage`는 실제 구매 요구 단계인 1~3이다. 시민권12012는 3단계 일반 설비 완료가 추가 선행 조건이다. `target_store_stage=0`은 실제 가게 단계 0이 아니라 단계 상승 대상이 없다는 sentinel이며, 단계 상승 행만 2 또는 3을 사용한다. `effect_type`은 편의성 효과의 숫자 enum이고 일반 업그레이드·시민권은 None(0)이다.
+`idx:uint`는 종류12의 12001~12012, `nameidx:uint`는 TextData FK, `purchase_price:long`은 단계 상승만 0이고 나머지는 양수 통화다. `upgrade_kind`는 상품 해금·편의성·가게 단계 상승·시민권을 구분하는 숫자 enum이고, `required_store_stage`는 실제 구매 요구 단계인 1~3이다. 시민권12012는 3단계 일반 설비 완료가 추가 선행 조건이다. `target_store_stage=0`은 실제 가게 단계 0이 아니라 단계 상승 대상이 없다는 sentinel이며, 단계 상승 행만 2 또는 3을 사용한다. `effect_type`은 편의성 효과의 숫자 enum이고 일반 업그레이드·시민권은 None(0)이다.
 
 header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 공개한다. 편의성 효과별 설비와 단계 상승 목표별 설비는 하나씩만 존재해야 한다. `CustomerCatalog`는 상품 해금 설비가 활성 상품의 `required_facility_idx`로 참조되는지, 편의성·단계 상승 설비가 상품 FK로 사용되지 않는지 추가 검사한다. 통합 로더에는 ReputationBalance11과 Facility12가 모두 등록된다.
 
@@ -109,8 +109,8 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 |---|---|---|---|---|---|
 | 1. `idx` | Idx · uint | 설비 PK | 필수; 종류12·내부번호1~999·고유 | 상품 RequiredFacilityIdx 참조 대상 | 12001~12012 |
 | 2. `nameidx` | NameIdx · uint | 설비 표시 이름 | 필수; 0·빈값·미존재 거부 | TextData.idx | 8056~8060,8076~8081 |
-| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 필수; 양수 | 재정 차감 | 800~198000 |
-| 4. `upgrade_kind` | UpgradeKind · FacilityUpgradeKind | 업그레이드 기능 분류 | 필수; ProductUnlock·Convenience·StoreStage만 허용 | 코드 분기 키 | 1,2,3 |
+| 3. `purchase_price` | PurchasePrice · long | 1회 구매 가격 G | 단계 상승은 0; 그 밖에는 양수 | 양수일 때 재정 차감 | 0~10000000 |
+| 4. `upgrade_kind` | UpgradeKind · FacilityUpgradeKind | 업그레이드 기능 분류 | 필수; ProductUnlock·Convenience·StoreStage·Citizenship만 허용 | 코드 분기 키 | 1,2,3,4 |
 | 5. `required_store_stage` | RequiredStoreStage · uint | 구매 요구 가게 단계 | 필수; 1~3 | 단계 구매 조건 | 1,2,3 |
 | 6. `effect_type` | EffectType · ConvenienceEffectType | 편의성 효과 키 | 일반/단계 상승은 None(0); 편의성은 DividerBar·AutoSorting·Vacuum | 코드 효과 분기 | 0,1,2,3 |
 | 7. `target_store_stage` | TargetStoreStage · uint | 단계 상승 목표 | 일반 업그레이드는 0; 단계 상승은 2 또는 3 | 가게 단계 전환 목표 | 0,2,3 |
@@ -1034,21 +1034,22 @@ idx,nameidx,product_type,is_available,base_price,available_day,image_resource_id
 
 ### Assets/Datas/FacilityData.csv
 
-데이터 11행, 7컬럼. 2026-09-13 가게 단계 비용 초안 반영. SHA-256: `D9CFF3674E35EC235FAA5BF21A9679F0166DAF13E66F2EF85183A72247417416`.
+데이터 12행, 7컬럼. 2026-09-16 무료 단계 확장과 단계별 일반 설비 가격 재분배 반영.
 
 ```csv
 idx,nameidx,purchase_price,upgrade_kind,required_store_stage,effect_type,target_store_stage
-12001,8056,18000,1,1,0,0
-12002,8057,39000,1,1,0,0
-12003,8058,23000,1,2,0,0
-12004,8059,42000,1,2,0,0
-12005,8060,35000,1,3,0,0
-12006,8076,198000,1,3,0,0
-12007,8077,800,2,1,1,0
-12008,8078,23000,3,1,0,2
-12009,8079,1200,2,2,2,0
-12010,8080,143000,3,2,0,3
-12011,8081,1500,2,3,3,0
+12001,8056,257000,1,1,0,0
+12002,8057,467000,1,1,0,0
+12003,8058,707000,1,2,0,0
+12004,8059,897000,1,2,0,0
+12005,8060,350000,1,3,0,0
+12006,8076,1980000,1,3,0,0
+12007,8077,84000,2,1,1,0
+12008,8078,0,3,1,0,2
+12009,8079,488000,2,2,2,0
+12010,8080,0,3,2,0,3
+12011,8081,15000,2,3,3,0
+12012,8231,10000000,4,3,0,0
 ```
 
 ### Assets/Datas/DailyGuidelineData.csv
