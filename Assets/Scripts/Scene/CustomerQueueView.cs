@@ -27,6 +27,12 @@ public sealed class CustomerQueueView : MonoBehaviour
     [SerializeField, Min(0.01f)] private float moveSeconds = 0.65f;
     /// <summary>visualRoot 로컬 픽셀. 현재45외형 최대 투명 여백(430높이·1.018배 호흡에서9.435px 미만)의 올림+2px. 외형/최대높이 변경 시 재검증한다.</summary>
     [SerializeField, Min(0)] private float bottomCoverPixels = 12f;
+    /// <summary>Child 외형의 성인 기준 표시 배율.</summary>
+    [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitScale, CustomerPortraitLayout.MaxChildPortraitScale)]
+    private float childPortraitScale = CustomerPortraitLayout.DefaultChildPortraitScale;
+    /// <summary>Child를 성인 기준 높이에서 위로 올리는 비율.</summary>
+    [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitRise, CustomerPortraitLayout.MaxChildPortraitRise)]
+    private float childPortraitRise = CustomerPortraitLayout.DefaultChildPortraitRise;
 
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
     private readonly HashSet<CustomerVisit> seen = new HashSet<CustomerVisit>();
@@ -40,7 +46,8 @@ public sealed class CustomerQueueView : MonoBehaviour
     {
         if (controller == null || visualRoot == null || counterAppearance == null || entrance == null ||
             rightExit == null || font == null || slots == null || slots.Length != CustomerQueue.Capacity ||
-            Array.Exists(slots, x => x == null) || !isPositive(moveSeconds) ||
+            Array.Exists(slots, x => x == null) || !CustomerPortraitLayout.AreParametersValid(counterSize().y, childPortraitScale, childPortraitRise) ||
+            !isPositive(moveSeconds) ||
             float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0)
         {
             Debug.LogError("[CustomerQueueView] 슬롯/anchor/폰트/양수 시간을 확인하세요.", this);
@@ -114,12 +121,15 @@ public sealed class CustomerQueueView : MonoBehaviour
             if (visual.Leaving) visual.Image.color = Color.Lerp(visual.ExitColor, Color.black, t);
             Vector3 target = visual.Target.TransformPoint(new Vector3(visual.Target.rect.center.x, visual.Target.rect.yMin, 0));
             visual.Rect.sizeDelta = Vector2.Lerp(visual.StartSize, visual.TargetSize, t);
-            visual.Rect.position = coveredBottom(Vector3.Lerp(visual.Start, target, t), visual.Rect.rect.height);
+            visual.DisplayHeight = Mathf.Lerp(visual.StartDisplayHeight, visual.TargetDisplayHeight, t);
+            visual.RisePixels = Mathf.Lerp(visual.StartRisePixels, visual.TargetRisePixels, t);
+            visual.Rect.position = coveredBottom(Vector3.Lerp(visual.Start, target, t), visual.DisplayHeight, visual.RisePixels);
             // 이미지 child는 기존 호흡을 유지하며 root는 최대 상승폭만큼 가림선 아래에 둔다.
             bool idle = !visual.Leaving && visual.Elapsed >= duration;
             float breath = idle ? (Mathf.Sin(visual.IdleSeconds * Mathf.PI * 2 / visual.BreathPeriod + visual.Phase) + 1) * .5f : 0;
             visual.Body.localScale = new Vector3(1 + breath * .007f, 1 + breath * .018f, 1);
-            visual.Body.anchoredPosition = idle ? new Vector2(Mathf.Sin(visual.IdleSeconds * 2.1f / visual.BreathPeriod + visual.Phase) * .3f, breath * 3 * visual.Rect.rect.height / 550f) : Vector2.zero;
+            visual.Body.anchoredPosition = idle ? new Vector2(Mathf.Sin(visual.IdleSeconds * 2.1f / visual.BreathPeriod + visual.Phase) * .3f, breath * 3 * visual.DisplayHeight / 550f) : Vector2.zero;
+            visual.Speech.rectTransform.anchoredPosition = new Vector2(0, visual.DisplayHeight + 4);
             if (visual.Leaving && visual.Elapsed >= duration && (!visual.Abandoned || !seen.Contains(pair.Key))) remove.Add(pair.Key);
         }
         foreach (var visit in remove) removeVisual(visit);
@@ -141,7 +151,8 @@ public sealed class CustomerQueueView : MonoBehaviour
         visual.Leaving = true;
         visual.Abandoned = abandoned;
         visual.ExitColor = visual.Image.color;
-        retarget(visual, rightExit, visual.Rect.sizeDelta);
+        float adultHeight = visual.DisplayHeight / visual.DisplayScale;
+        retarget(visual, rightExit, new Vector2(adultHeight * visual.Aspect, adultHeight));
     }
 
     /// <summary>실제 외형 CSV를 읽어 방문 하나에 시각 객체 하나만 생성한다.</summary>
@@ -161,9 +172,9 @@ public sealed class CustomerQueueView : MonoBehaviour
         rect.SetParent(visualRoot, false);
         rect.pivot = new Vector2(.5f, 0);
         float aspect = sprite.rect.width / sprite.rect.height;
-        float height = counterSize().y;
-        rect.sizeDelta = new Vector2(height * aspect, height);
-        rect.position = coveredBottom(start, rect.sizeDelta.y);
+        CustomerPortraitLayout layout = CustomerPortraitLayout.Calculate(visit.Attributes, counterSize().y, childPortraitScale, childPortraitRise);
+        rect.sizeDelta = new Vector2(layout.DisplayHeight * aspect, layout.DisplayHeight);
+        rect.position = coveredBottom(start, layout.DisplayHeight, layout.RisePixels);
         var bodyRect = (RectTransform)body.transform;
         bodyRect.SetParent(rect, false);
         bodyRect.anchorMin = Vector2.zero; bodyRect.anchorMax = Vector2.one;
@@ -180,13 +191,14 @@ public sealed class CustomerQueueView : MonoBehaviour
         speech.fontSize = 16;
         speech.alignment = TextAlignmentOptions.Center;
         speech.raycastTarget = false;
-        speech.rectTransform.anchorMin = speech.rectTransform.anchorMax = new Vector2(0.5f, 1);
+        speech.rectTransform.anchorMin = speech.rectTransform.anchorMax = new Vector2(0.5f, 0);
         speech.rectTransform.pivot = new Vector2(0.5f, 0);
-        speech.rectTransform.anchoredPosition = new Vector2(0, 4);
+        speech.rectTransform.anchoredPosition = new Vector2(0, layout.DisplayHeight + 4);
         speech.rectTransform.sizeDelta = new Vector2(220, 48);
         float phase = visuals.Count * .37f + visit.AppearanceIdx * .618f;
         visual = new Visual { Rect = rect, Body = bodyRect, Image = image, Speech = speech, Fade = fade,
-            Aspect = aspect,
+            Aspect = aspect, Attributes = visit.Attributes, DisplayScale = layout.DisplayScale,
+            DisplayHeight = layout.DisplayHeight, RisePixels = layout.RisePixels,
             Phase = phase, BreathPeriod = 2.9f * Mathf.Lerp(.88f, 1.12f, Mathf.Repeat(phase, 1)) };
         visuals.Add(visit, visual);
         return visual;
@@ -196,12 +208,19 @@ public sealed class CustomerQueueView : MonoBehaviour
     /// <param name="visual">외형.</param><param name="target">새 목표.</param><param name="size">도착 크기.</param>
     private void retarget(Visual visual, RectTransform target, Vector2 size)
     {
-        size.x = size.y * visual.Aspect;
-        if (visual.Target == target && visual.TargetSize == size) return;
+        CustomerPortraitLayout targetLayout = CustomerPortraitLayout.Calculate(visual.Attributes, size.y, childPortraitScale, childPortraitRise);
+        Vector2 targetSize = new Vector2(targetLayout.DisplayHeight * visual.Aspect, targetLayout.DisplayHeight);
+        if (visual.Target == target && visual.TargetSize == targetSize &&
+            Mathf.Approximately(visual.TargetDisplayHeight, targetLayout.DisplayHeight) &&
+            Mathf.Approximately(visual.TargetRisePixels, targetLayout.RisePixels)) return;
         visual.Start = visual.Rect.position;
         visual.StartSize = visual.Rect.sizeDelta;
+        visual.StartDisplayHeight = visual.DisplayHeight;
+        visual.StartRisePixels = visual.RisePixels;
         visual.Target = target;
-        visual.TargetSize = size;
+        visual.TargetSize = targetSize;
+        visual.TargetDisplayHeight = targetLayout.DisplayHeight;
+        visual.TargetRisePixels = targetLayout.RisePixels;
         visual.Elapsed = 0;
     }
 
@@ -217,12 +236,12 @@ public sealed class CustomerQueueView : MonoBehaviour
     /// <summary>좌우 경로는 유지하고 보간 중인 높이의 최대 bob을 고려해 잘린 하단을 계산대 뒤에 고정한다.</summary>
     /// <param name="position">좌우 이동의 world 위치.</param><param name="height">현재 visualRoot 로컬 높이.</param>
     /// <returns>Canvas 배율을 보존한 world 하단 위치.</returns>
-    private Vector3 coveredBottom(Vector3 position, float height)
+    private Vector3 coveredBottom(Vector3 position, float height, float risePixels)
     {
         var anchor = counterAppearance.rectTransform;
         var cutoff = visualRoot.InverseTransformPoint(anchor.TransformPoint(new Vector3(anchor.rect.center.x, anchor.rect.yMin, 0)));
         var local = visualRoot.InverseTransformPoint(position);
-        local.y = cutoff.y - 3f * height / 550f - bottomCoverPixels;
+        local.y = cutoff.y - 3f * height / 550f - bottomCoverPixels + risePixels;
         return visualRoot.TransformPoint(local);
     }
 
@@ -286,6 +305,9 @@ public sealed class CustomerQueueView : MonoBehaviour
         public CanvasGroup Fade;
         public Vector3 Start;
         public Vector2 StartSize, TargetSize;
+        public CustomerAttributes Attributes;
+        public float DisplayScale, DisplayHeight, RisePixels;
+        public float StartDisplayHeight, TargetDisplayHeight, StartRisePixels, TargetRisePixels;
         public float Elapsed;
         public bool Leaving, Abandoned;
         public uint SpeechIdx;

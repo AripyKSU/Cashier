@@ -112,6 +112,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     /// <summary>정면 상자를 현재 단계의 닫힌/열린 Sprite로 바꿔야 할 때 발생합니다.</summary>
     public event Action<bool> ContainerOpenChanged;
+    /// <summary>매대의 모든 물품이 폐기 구역으로 이동되어 판매 물품이 0개일 때 발생합니다.</summary>
+    public event Action AllItemsDiscarded;
 
     /// <summary>월드 정면 표시가 기존 슬라이드 전환과 같은 가시성·좌표를 관찰하는 영역.</summary>
     public RectTransform FrontView => this.frontView != null ? this.frontView.transform as RectTransform : null;
@@ -435,7 +437,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.state = ViewState.Locked;
-        this.setCalculatorVisible(false);
+        this.hideCalculatorImmediately();
         this.SaleItemsConfirmed?.Invoke(saleItems);
         return true;
     }
@@ -476,7 +478,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.state == ViewState.Sorting)
         {
             this.state = ViewState.Locked;
-            this.setCalculatorVisible(false);
+            this.hideCalculatorImmediately();
         }
     }
 
@@ -1187,8 +1189,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>현재 분류 개수를 안내 텍스트에 표시합니다.</summary>
     private void refreshStatus()
     {
-        this.setCalculatorVisible(this.CanConfirm);
-        if (this.sortingStatusText == null) return;
+        if (this.state != ViewState.Sorting) return;
+
         int working = 0;
         int forSale = 0;
         int excluded = 0;
@@ -1199,7 +1201,18 @@ public sealed class SaleSortingPanel : MonoBehaviour
             else excluded++;
         }
 
-        this.sortingStatusText.text = $"미분류 {working} · 판매 {forSale} · 판매 안함 {excluded}";
+        this.setCalculatorVisible(this.CanConfirm && forSale > 0);
+        if (this.sortingStatusText != null)
+        {
+            this.sortingStatusText.text = $"미분류 {working} · 판매 {forSale} · 판매 안함 {excluded}";
+        }
+
+        if (this.CanConfirm && forSale == 0 && excluded > 0)
+        {
+            this.state = ViewState.Locked;
+            this.hideCalculatorImmediately();
+            this.AllItemsDiscarded?.Invoke();
+        }
     }
 
     /// <summary>기존 개별 상품 오브젝트를 제거합니다.</summary>
@@ -1258,7 +1271,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (this.sortingView != null) this.sortingView.SetActive(false);
         if (this.transitionOverlay != null) this.transitionOverlay.SetActive(false);
         if (this.frontContainerButton != null) this.frontContainerButton.gameObject.SetActive(false);
-        this.setCalculatorVisible(false);
+        this.hideCalculatorImmediately();
         if (this.dividerBar != null) this.dividerBar.SetVisible(false);
         if (this.vacuum != null)
         {

@@ -44,7 +44,7 @@ public sealed class GameSessionApiTests
         LogAssert.NoUnexpectedReceived();
     }
 
-    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 61개를 실제 ResourceManager로 로드한다.</summary>
+    /// <summary>현재 상품·손님이 참조하는 고유 Sprite 76개를 실제 ResourceManager로 로드한다.</summary>
     /// <returns>Addressables 로드 완료 대기.</returns>
     [UnityTest]
     public IEnumerator ActualProductAndCustomerSpritesLoad()
@@ -53,7 +53,7 @@ public sealed class GameSessionApiTests
         var ids = tables.Customers.Appearances.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value)
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.ImageResourceIdx.HasValue).Select(x => x.ImageResourceIdx.Value))
             .Concat(tables.Customers.Products.Rows.Values.Where(x => x.TopViewImageResourceIdx.HasValue).Select(x => x.TopViewImageResourceIdx.Value)).Distinct().ToArray();
-        Assert.That(ids.Length, Is.EqualTo(61));
+        Assert.That(ids.Length, Is.EqualTo(76));
         foreach (var id in ids)
         {
             var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resources.GetResourcePath(id)).AsTask();
@@ -371,7 +371,8 @@ public sealed class GameSessionApiTests
         DaughterDialogueResult first = firstDay.DaughterDialogueResult.Value;
         Assert.That(first.Day, Is.EqualTo(1));
         Assert.That(first.Morality, Is.EqualTo(moralityAtSettlement));
-        Assert.That(first.ResourceIdx, Is.EqualTo(4201));
+        Assert.That(first.ResourceIdx, Is.EqualTo(tables.GetDB<DaughterAppearanceDataTable>(DataTableType.DaughterAppearance)
+            .Rows.Values.Single(row => row.StartDay == 1).ResourceIdx));
         Assert.That(session.DailyMoralityDelta, Is.Zero);
         DaughterDialogueResult redisplayed = firstDay.DaughterDialogueResult.Value;
         Assert.That(redisplayed.TextIdx, Is.EqualTo(first.TextIdx));
@@ -1370,23 +1371,11 @@ public sealed class GameSessionApiTests
             item.OnEndDrag(pointer);
         }
 
-        Assert.That(sorting.CanConfirm);
-        deadline = Time.realtimeSinceStartup + 3f;
-        while (!sorting.IsCalculatorOpen && Time.realtimeSinceStartup < deadline) yield return null;
-        Assert.That(sorting.IsCalculatorOpen);
-        Assert.That(sorting.TryGetSaleItems(out var saleItems));
-        Assert.That(saleItems, Is.Empty);
-        keypad.OnNumberButtonClick(1);
-        LogAssert.Expect(LogType.Warning, "[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.");
-        keypad.OnConfirmButtonClick();
-        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.Sorting));
-
-        sorting.LockSelection();
         Assert.That(sorting.IsCalculatorOpen, Is.False);
-        Assert.That(calculator.gameObject.activeSelf);
-        deadline = Time.realtimeSinceStartup + 3f;
-        while (calculator.gameObject.activeSelf && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.That(calculator.gameObject.activeSelf, Is.False);
+        Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.TransactionResult));
+        Assert.That(progress.CurrentDayProgress.CurrentVisit.Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
+        Assert.That(progress.CurrentDayProgress.CurrentVisit.State, Is.EqualTo(CustomerState.Rejected));
         var calculatorCorners = new Vector3[4];
         calculator.GetWorldCorners(calculatorCorners);
         Assert.That(calculatorCorners.Max(corner => calculatorBoundary.InverseTransformPoint(corner).y),
@@ -1598,8 +1587,6 @@ public sealed class GameSessionApiTests
         var presenter = ui.GetComponentInChildren<CustomerPresenter>(true);
         var presenterSettings = new UnityEditor.SerializedObject(presenter);
         var appearance = (UnityEngine.UI.Image)presenterSettings.FindProperty("appearanceImage").objectReferenceValue;
-        var label = (TMPro.TextMeshProUGUI)presenterSettings.FindProperty("temporaryGenderText").objectReferenceValue;
-        if (label != null && appearance != null && label.transform.IsChildOf(appearance.transform)) label.transform.SetParent(front, true);
         presenterSettings.FindProperty("appearanceImage").objectReferenceValue = null;
         presenterSettings.ApplyModifiedPropertiesWithoutUndo();
         if (appearance != null) UnityEngine.Object.DestroyImmediate(appearance.gameObject);

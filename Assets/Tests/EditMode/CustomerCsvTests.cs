@@ -94,10 +94,17 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 45 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 416) throw new Exception("Unexpected sample counts");
+if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 416) throw new Exception("Unexpected sample counts");
 foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
 foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
-    Assert.That(valid.Appearances.Rows.Values.Any(row => row.Gender == gender && row.Age == age), Is.True, $"{gender}/{age}");
+    Assert.That(valid.Appearances.Rows.Values.Any(row => row.Gender == gender && row.Age == age && row.DispositionType == CustomerDispositionType.Normal), Is.True, $"{gender}/{age}");
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.Gender == CustomerAttributes.Male), Is.EqualTo(30));
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.Gender == CustomerAttributes.Female), Is.EqualTo(30));
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Adult), Is.EqualTo(24));
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Child), Is.EqualTo(6));
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Elderly), Is.EqualTo(6));
+foreach (CustomerDispositionType type in new[] { CustomerDispositionType.Hasty, CustomerDispositionType.PriceSensitive, CustomerDispositionType.Wealthy, CustomerDispositionType.Poor })
+    Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == type && row.Age == CustomerAttributes.Adult), Is.EqualTo(6), type.ToString());
 Assert.That(textTables[valid].GetCurrencyUnit(), Is.EqualTo("원"));
 Assert.That(textTables[valid].GetCurrencyFormat(), Is.EqualTo("{0:N0} 원"));
 var expectedProductIds = new uint[] { 1001, 1004, 1005, 1006, 1007, 1010, 1013, 1014, 1015, 1016, 1018, 1019, 1020, 1021, 1022, 1023 };
@@ -152,6 +159,8 @@ Assert.That(priceSensitive.All(x => x.EntryTextIdxs.SequenceEqual(new uint[] { 8
     [TestCase("appearance nameidx")]
     [TestCase("appearance gender")]
     [TestCase("appearance age")]
+    [TestCase("appearance disposition")]
+    [TestCase("appearance normal FK")]
     [TestCase("appearance combination")]
     [TestCase("disposition nameidx")]
     [TestCase("category nameidx")]
@@ -231,9 +240,11 @@ case "boolean": mutate=()=>c.Products.LoadData(product.Replace("1001,8012,1,1", 
 case "quantity": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",900,1,3,1,3", ",900,1,3,0,3")); break;
 case "product nameidx": mutate=()=>c.Products.LoadData(product.Replace("1001,8012", "1001,8999")); break;
 case "appearance nameidx": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001", "5001,8999")); break;
-case "appearance gender": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,2,16", "5001,8001,4201,3,16")); break;
-case "appearance age": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,2,16", "5001,8001,4201,2,12")); break;
-case "appearance combination": mutate=()=>c.Appearances.LoadData(appearance.Replace(",2,4", ",2,16")); break;
+case "appearance gender": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,4318,2,16,1", "5001,8001,4201,4318,3,16,1")); break;
+case "appearance age": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,4318,2,16,1", "5001,8001,4201,4318,2,12,1")); break;
+case "appearance disposition": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,4318,2,16,1", "5001,8001,4201,4318,2,16,99")); break;
+case "appearance normal FK": mutate=()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,4318", "5001,8001,4201,0")); break;
+case "appearance combination": mutate=()=>c.Appearances.LoadData(appearance.Replace(",2,4,1", ",2,16,1")); break;
 case "disposition nameidx": mutate=()=>c.Dispositions.LoadData(disposition.Replace("6001,8005", "6001,0")); break;
 case "category nameidx": mutate=()=>c.Categories.LoadData(category.Replace("7001,8008", "7001,8999")); break;
 case "empty text": mutate=()=>textTables[c].LoadData(texts.Replace("8012,물", "8012,")); break;
@@ -312,17 +323,17 @@ Func<CustomerCatalog> load = () => {
 
 var c=load();c.ValidateAndCommit(textTables[c], loadResources(), facilities: loadFacilities());
 LogAssert.Expect(LogType.Error,new Regex(@"^CustomerAppearanceData\.csv"));
-Assert.Catch(()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201","5001,8001,0")));
-Assert.That(c.Appearances.GetDataCount(),Is.EqualTo(45));
+Assert.Catch(()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,4318","5001,8001,0,4318")));
+Assert.That(c.Appearances.GetDataCount(),Is.EqualTo(60));
     }
     /// <summary>리소스 대역 검증 실패는 이전 공개 리소스를 보존한다.</summary>
     [Test]
     public void InvalidResourcePreservesPublishedRows()
     {
 var resources=new ResourceDataTable(); string csv=File.ReadAllText("Assets/Datas/ResourceData.csv"); resources.LoadData(csv); int count=resources.GetDataCount();
-Assert.That(resources.GetResourcePath(4201),Is.EqualTo("FemaleCustomer_01")); Assert.That(resources.TryGetResource(3001,out _),Is.False);
+Assert.That(resources.GetResourcePath(4201),Is.EqualTo("FemaleNormal_01")); Assert.That(resources.TryGetResource(3001,out _),Is.False);
 LogAssert.Expect(LogType.Error,new Regex(@"ResourceData\.csv"));
-Assert.Catch(()=>resources.LoadData(csv.Replace("4201,FemaleCustomer_01","3001,FemaleCustomer_01")));
+Assert.Catch(()=>resources.LoadData(csv.Replace("4201,FemaleNormal_01","3001,FemaleNormal_01")));
 Assert.That(resources.GetDataCount(),Is.EqualTo(count));
     }
     /// <summary>실제 리소스 FK를 검증하는 기존 테이블을 읽는다.</summary>

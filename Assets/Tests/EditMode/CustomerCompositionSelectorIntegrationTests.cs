@@ -168,7 +168,7 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         }
 
         Assert.That(combinations.Count, Is.EqualTo(6));
-        Assert.That(selectedAppearanceIds.Count, Is.EqualTo(appearances.Count));
+        Assert.That(selectedAppearanceIds.Count, Is.EqualTo(appearances.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal)));
     }
 
     /// <summary>무상품 null과 외형 설정 실패는 다음 방문의 성별 교대 상태를 소비하지 않습니다.</summary>

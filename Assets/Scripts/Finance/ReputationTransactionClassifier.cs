@@ -25,18 +25,24 @@ public static class ReputationTransactionClassifier
             dispositionData.MinimumPriceTolerance < 0 || dispositionData.MinimumPriceTolerance > 1000 ||
             dispositionData.MinimumPriceTolerance > dispositionData.PriceTolerance)
             throw new ArgumentException("성향 가격 규칙의 범위가 잘못되었습니다.", nameof(dispositionData));
-        if (!transactionResult.OfferedTotal.HasValue || !transactionResult.ReferenceTotal.HasValue ||
-            transactionResult.OfferedTotal.Value <= 0 || transactionResult.ReferenceTotal.Value <= 0)
-            throw new InvalidOperationException("가격 합계가 없는 거래 결과는 명성 등급을 판정할 수 없습니다.");
-
         if (transactionResult.Outcome == CustomerTradeOutcome.PaymentRefused)
         {
+            // 전량 폐기 등으로 판매 물품이 없어 거절된 거래 (기준가가 0 이하인 경우)
+            if (!transactionResult.ReferenceTotal.HasValue || transactionResult.ReferenceTotal.Value <= 0)
+            {
+                return ReputationTransactionGrade.ExtremeMarkup;
+            }
+
             // 가격 민감 손님의 하한 미달 거절은 판매자의 폭리와 무관하므로 중립 점수로 기록합니다.
-            if ((decimal)transactionResult.OfferedTotal.Value * 1000m <
+            if (transactionResult.OfferedTotal.HasValue && (decimal)transactionResult.OfferedTotal.Value * 1000m <
                 (decimal)transactionResult.ReferenceTotal.Value * dispositionData.MinimumPriceTolerance)
                 return ReputationTransactionGrade.Regular;
             return ReputationTransactionGrade.ExtremeMarkup;
         }
+
+        if (!transactionResult.OfferedTotal.HasValue || !transactionResult.ReferenceTotal.HasValue ||
+            transactionResult.OfferedTotal.Value <= 0 || transactionResult.ReferenceTotal.Value <= 0)
+            throw new InvalidOperationException("가격 합계가 없는 거래 결과는 명성 등급을 판정할 수 없습니다.");
 
         long offeredTotal = transactionResult.OfferedTotal.Value;
         long referenceTotal = transactionResult.ReferenceTotal.Value;

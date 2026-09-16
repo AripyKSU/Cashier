@@ -86,6 +86,7 @@ public sealed class GameUIController : MonoBehaviour
     private bool isOpeningBusiness;
     private Sprite placeholderSprite;
     private readonly Dictionary<uint, Sprite> appearanceSprites = new Dictionary<uint, Sprite>();
+    private readonly Dictionary<uint, Texture2D> appearanceNormalTextures = new Dictionary<uint, Texture2D>();
     private readonly Dictionary<uint, Sprite> topViewSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Sprite> inspectorSprites = new Dictionary<uint, Sprite>();
     private readonly Dictionary<uint, Sprite> daughterSprites = new Dictionary<uint, Sprite>();
@@ -258,6 +259,7 @@ public sealed class GameUIController : MonoBehaviour
         }
 
         var spritesByResource = new Dictionary<uint, Sprite>();
+        var texturesByResource = new Dictionary<uint, Texture2D>();
         var spritesByProduct = new Dictionary<uint, Sprite>();
         // 공용 manager가 핸들을 소유하고 이 화면은 동일 Resource FK의 로드 결과만 재사용한다.
         foreach (ProductData product in this.customerCatalog.Products.Rows.Values)
@@ -273,7 +275,11 @@ public sealed class GameUIController : MonoBehaviour
             this.topViewSprites.Add(product.Idx, await this.loadSpriteAsync(product.TopViewImageResourceIdx.Value, resources, spritesByResource));
         }
         foreach (CustomerAppearanceData appearance in this.customerCatalog.Appearances.Rows.Values)
+        {
             this.appearanceSprites.Add(appearance.Idx, await this.loadAppearanceSpriteAsync(appearance, resources, spritesByResource));
+            this.appearanceNormalTextures.Add(appearance.Idx,
+                await this.loadTextureAsync(appearance.NormalResourceIdx, resources, texturesByResource));
+        }
         foreach (InspectorEventData inspector in DataTableManager.Instance.GetDB<InspectorEventDataTable>(DataTableType.InspectorEvent).Rows.Values)
             if (!inspectorSprites.ContainsKey(inspector.PortraitResourceIdx))
                 inspectorSprites.Add(inspector.PortraitResourceIdx, await loadSpriteAsync(inspector.PortraitResourceIdx, resources, spritesByResource));
@@ -306,6 +312,21 @@ public sealed class GameUIController : MonoBehaviour
         if (sprite == null) throw new InvalidOperationException($"Resource {resourceIdx}, address={address}: Sprite 로드 결과가 없습니다.");
         loaded.Add(resourceIdx, sprite);
         return sprite;
+    }
+
+    /// <summary>노멀맵 Resource FK를 화면 수명 동안 Texture2D로 한 번 로드한다.</summary>
+    /// <param name="resourceIdx">Resource PK.</param><param name="resources">검증된 Resource 테이블.</param>
+    /// <param name="loaded">이번 화면에서 이미 로드한 Texture2D.</param><returns>로드 완료 raw RGB 텍스처.</returns>
+    /// <exception cref="InvalidOperationException">FK 또는 로드 결과 누락.</exception>
+    private async UniTask<Texture2D> loadTextureAsync(uint resourceIdx, ResourceDataTable resources, Dictionary<uint, Texture2D> loaded)
+    {
+        if (loaded.TryGetValue(resourceIdx, out var texture)) return texture;
+        string address = resources.GetResourcePath(resourceIdx);
+        if (string.IsNullOrWhiteSpace(address)) throw new InvalidOperationException($"Resource FK {resourceIdx}가 없습니다.");
+        texture = await ResourceManager.Instance.LoadAssetAsync<Texture2D>(address, this.GetCancellationTokenOnDestroy());
+        if (texture == null) throw new InvalidOperationException($"Resource {resourceIdx}, address={address}: Texture2D 로드 결과가 없습니다.");
+        loaded.Add(resourceIdx, texture);
+        return texture;
     }
 
     /// <summary>상품·손님 이미지가 명시적으로 빈칸일 때 사용할 사각형 Sprite를 생성하고 재사용합니다.</summary>
@@ -352,6 +373,16 @@ public sealed class GameUIController : MonoBehaviour
         if (!this.appearanceSprites.TryGetValue(appearanceIdx, out var sprite) || sprite == null)
             throw new InvalidOperationException($"외형 {appearanceIdx}의 Sprite가 준비되지 않았습니다.");
         return sprite;
+    }
+
+    /// <summary>개인 대기열이 컬러와 같은 외형 PK의 노멀맵을 조회한다.</summary>
+    /// <param name="appearanceIdx">외형 PK.</param><returns>준비된 raw RGB 노멀 텍스처.</returns>
+    /// <exception cref="InvalidOperationException">초기화 전 또는 잘못된 외형 PK.</exception>
+    public Texture2D GetCustomerAppearanceNormalTexture(uint appearanceIdx)
+    {
+        if (!this.appearanceNormalTextures.TryGetValue(appearanceIdx, out var texture) || texture == null)
+            throw new InvalidOperationException($"외형 {appearanceIdx}의 노멀맵이 준비되지 않았습니다.");
+        return texture;
     }
 
     /// <summary>씬에 직렬화된 Presenter와 진행 필수 UI 참조가 연결됐는지 확인합니다.</summary>
@@ -411,6 +442,7 @@ public sealed class GameUIController : MonoBehaviour
         this.saleSortingPanel.CalculatorVisibilityChanged += this.handleCalculatorVisibilityChanged;
         this.saleSortingPanel.SortingStarted += this.handleSortingStarted;
         this.saleSortingPanel.ContainerOpenChanged += this.handleContainerOpenChanged;
+        this.saleSortingPanel.AllItemsDiscarded += this.handleAllItemsDiscarded;
         this.openBusinessButton.onClick.AddListener(this.handleOpenBusinessClicked);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (this.preOpenPanelPresenter.DebugDay10Button != null)
@@ -463,6 +495,7 @@ public sealed class GameUIController : MonoBehaviour
             this.saleSortingPanel.CalculatorVisibilityChanged -= this.handleCalculatorVisibilityChanged;
             this.saleSortingPanel.SortingStarted -= this.handleSortingStarted;
             this.saleSortingPanel.ContainerOpenChanged -= this.handleContainerOpenChanged;
+            this.saleSortingPanel.AllItemsDiscarded -= this.handleAllItemsDiscarded;
         }
 
         if (this.openBusinessButton != null)
@@ -924,14 +957,24 @@ public sealed class GameUIController : MonoBehaviour
             return;
         }
 
-        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems)
-            || saleItems.Count == 0)
+        if (!this.saleSortingPanel.TryGetSaleItems(out IReadOnlyList<SaleItem> saleItems))
         {
-            Debug.LogWarning("[GameUIController] 판매할 물품을 하나 이상 선택해야 합니다.", this);
+            Debug.LogWarning("[GameUIController] 판매할 물품 목록을 조회할 수 없습니다.", this);
             return;
         }
 
         this.runProgressAction(() => this.submitSelectedOffer(offeredTotal, saleItems));
+    }
+
+    /// <summary>매대의 모든 물품이 폐기되었을 때 빈 판매 목록으로 거래 거부를 진행합니다.</summary>
+    private void handleAllItemsDiscarded()
+    {
+        if (this.subscribedDay == null || !this.subscribedDay.CanSubmitOffer)
+        {
+            return;
+        }
+
+        this.runProgressAction(() => this.submitSelectedOffer(0, Array.Empty<SaleItem>()));
     }
 
     /// <summary>가격 입력 취소 후 입력 ViewData를 갱신합니다.</summary>

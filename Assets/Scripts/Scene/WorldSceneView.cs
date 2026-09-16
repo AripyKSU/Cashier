@@ -56,6 +56,33 @@ public sealed class WorldSceneView : MonoBehaviour
     /// <summary>실제로 적용한 시각. 게임 시간을 바꾸지 않는다.</summary>
     public float CurrentAppliedHour { get; private set; } = BusinessHours.OpenHour;
 
+    /// <summary>월드 시계·인물 틴트 권위에서 손님 body의 stage-lighting 입력을 채운다.</summary>
+    /// <param name="block">방문 body 전용 MaterialPropertyBlock.</param>
+    /// <exception cref="ArgumentNullException">block이 null인 경우.</exception>
+    public void ApplyCustomerLighting(MaterialPropertyBlock block)
+    {
+        if (block == null) throw new ArgumentNullException(nameof(block));
+        float night = Mathf.InverseLerp(eveningStart, BusinessHours.CloseHour, CurrentAppliedHour);
+        Color ambient = Color.Lerp(new Color(.78f, .80f, .84f), new Color(.36f, .43f, .58f), night);
+        Color sun = Color.Lerp(new Color(1.05f, .98f, .90f), new Color(.30f, .38f, .58f), night);
+        block.SetColor("_Tint", Color.white);
+        block.SetColor("_Ambient", ambient);
+        block.SetColor("_Sun", sun);
+        block.SetColor("_LampColor", new Color(1f, .76f, .46f));
+        // CustomerWorld is aligned to the front UI rather than the PixelStage's 10000-origin camera.
+        block.SetVector("_ClipRect", new Vector4(-100000f, -100000f, 100000f, 100000f));
+        block.SetVector("_LampPosition", new Vector4(700f, -290f, 240f, 520f));
+        block.SetVector("_SunDirection", new Vector4(.15f, .65f, .3f, 0f));
+        block.SetFloat("_LampStrength", Mathf.Lerp(.45f, 1.25f, night));
+        block.SetFloat("_RimStrength", .35f);
+        block.SetFloat("_Steps", 6f);
+        block.SetFloat("_DaylightDetail", 1f - night);
+        block.SetFloat("_DaylightFill", Mathf.Lerp(.16f, 0f, night));
+        block.SetFloat("_KeyContrast", Mathf.Lerp(.15f, .45f, night));
+        block.SetFloat("_SpotResponse", 0f);
+        block.SetFloat("_RoomBounce", .12f);
+    }
+
     /// <summary>첫 프레임의 미연결 표시를 차단한다.</summary>
     private void Awake()
     {

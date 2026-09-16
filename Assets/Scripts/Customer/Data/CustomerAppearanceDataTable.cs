@@ -47,7 +47,10 @@ public sealed class CustomerAppearanceDataTable : IDataLoad
                 if (item.ImageResourceIdx.HasValue && (item.ImageResourceIdx.Value % 1000 == 0 ||
                     Util.GetDataTableType(item.ImageResourceIdx.Value) != DataTableType.Resource))
                     throw new InvalidDataException($"PK={item.Idx}, column=image_resource_idx: Resource FK 대역 오류");
+                if (item.NormalResourceIdx == 0 || item.NormalResourceIdx % 1000 == 0 || Util.GetDataTableType(item.NormalResourceIdx) != DataTableType.Resource)
+                    throw new InvalidDataException($"PK={item.Idx}, column=normal_resource_idx: Resource FK 대역 오류");
                 item.ValidateClassification();
+                item.ValidateDisposition();
                 parsed.Add(item.Idx, item);
             }
             if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");

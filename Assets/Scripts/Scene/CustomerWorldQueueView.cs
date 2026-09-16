@@ -14,11 +14,20 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     /// <summary>FIFO 순서 10개 위치. 원근 크기 변화는 적용하지 않는다.</summary>
     [SerializeField] private Transform[] slots;
     [SerializeField] private TMP_FontAsset font;
-    [SerializeField] private Material spriteMaterial;
+    /// <summary>노멀맵과 손님 표면 조명을 받는 body 전용 material.</summary>
+    [SerializeField] private Material bodyMaterial;
+    /// <summary>거래 반응 전용 일반 Sprite material.</summary>
+    [SerializeField] private Material reactionMaterial;
     /// <summary>거래 결과 순서: Satisfied, Delighted, Reluctant, Refused.</summary>
     [SerializeField] private Sprite[] tradeReactionSprites;
     /// <summary>전면 로컬 픽셀 기준 높이·하단 가림 보정과 이동 초. 원근 배율은 없다.</summary>
     [SerializeField] private float heightPixels = 430, bottomCoverPixels = 12, moveSeconds = .65f;
+    /// <summary>Child 외형의 성인 기준 표시 배율.</summary>
+    [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitScale, CustomerPortraitLayout.MaxChildPortraitScale)]
+    private float childPortraitScale = CustomerPortraitLayout.DefaultChildPortraitScale;
+    /// <summary>Child를 성인 기준 높이에서 위로 올리는 비율.</summary>
+    [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitRise, CustomerPortraitLayout.MaxChildPortraitRise)]
+    private float childPortraitRise = CustomerPortraitLayout.DefaultChildPortraitRise;
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
     private readonly HashSet<CustomerVisit> seen = new HashSet<CustomerVisit>();
     private readonly List<CustomerVisit> remove = new List<CustomerVisit>();
@@ -31,9 +40,10 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     private void Start()
     {
         if (world == null || visualRoot == null || counter == null || entrance == null || rightExit == null ||
-            font == null || spriteMaterial == null || slots == null || slots.Length != CustomerQueue.Capacity ||
+            font == null || bodyMaterial == null || reactionMaterial == null || slots == null || slots.Length != CustomerQueue.Capacity ||
             Array.Exists(slots, x => x == null) || tradeReactionSprites == null || tradeReactionSprites.Length != 4 ||
-            Array.Exists(tradeReactionSprites, x => x == null) || !isPositive(heightPixels) || !isPositive(moveSeconds) ||
+            Array.Exists(tradeReactionSprites, x => x == null) || !isPositive(heightPixels) ||
+            !CustomerPortraitLayout.AreParametersValid(heightPixels, childPortraitScale, childPortraitRise) || !isPositive(moveSeconds) ||
             float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0)
         {
             Debug.LogError("[CustomerWorldQueueView] 월드·슬롯·폰트·시간·거래 이모지 연결을 확인하세요.", this);
@@ -102,25 +112,27 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             float envelope = Mathf.Sin(t * Mathf.PI);
             float step = visual.Elapsed * Mathf.PI * 10 + visual.Phase;
             Vector2 walk = new Vector2(Mathf.Sin(step) * 9,
-                Mathf.Abs(Mathf.Cos(step)) * 15 * heightPixels / 550f) * envelope;
+                Mathf.Abs(Mathf.Cos(step)) * 15 * visual.DisplayHeight / 550f) * envelope;
             position.x += walk.x;
             position.y = visualRoot.InverseTransformPoint(counter.position).y - bottomCoverPixels -
-                3 * heightPixels / 550f + walk.y;
+                3 * visual.DisplayHeight / 550f + walk.y + visual.RisePixels;
             visual.Root.localPosition = position;
             bool idle = !visual.Leaving && visual.Elapsed >= duration;
             float breath = idle ? (Mathf.Sin(visual.IdleSeconds * Mathf.PI * 2 / visual.BreathPeriod + visual.Phase) + 1) * .5f : 0;
-            float scale = heightPixels / visual.Body.sprite.bounds.size.y;
+            float scale = visual.DisplayHeight / visual.Body.sprite.bounds.size.y;
             float stride = Mathf.Sin(step * 2) * .025f * envelope;
             visual.Body.transform.localScale = new Vector3(scale * (1 + breath * .007f) * (1 - stride),
                 scale * (1 + breath * .018f) * (1 + stride), 1);
             var bounds = visual.Body.sprite.bounds;
             Vector3 bottom = Vector3.Scale(new Vector3(bounds.center.x, bounds.min.y, 0), visual.Body.transform.localScale);
-            visual.Body.transform.localPosition = -bottom + new Vector3(idle ? Mathf.Sin(visual.IdleSeconds * 2.1f / visual.BreathPeriod + visual.Phase) * .3f : 0, breath * 3 * heightPixels / 550f, 0);
+            visual.Body.transform.localPosition = -bottom + new Vector3(idle ? Mathf.Sin(visual.IdleSeconds * 2.1f / visual.BreathPeriod + visual.Phase) * .3f : 0, breath * 3 * visual.DisplayHeight / 550f, 0);
             // 환경색과 퇴장 alpha는 같은 경로에서 합성한다.
+            world.ApplyCustomerLighting(visual.BodyProperties);
+            visual.Body.SetPropertyBlock(visual.BodyProperties);
             visual.Body.color = ComposeColor(world.PeopleTint, visual.Leaving ? t : 0, visual.Alpha, world.Opacity);
             visual.Speech.color = new Color(1, 1, 1, world.Opacity * (visual.Abandoned ? 1 : visual.Alpha));
             // 불만은 외형 퇴장 alpha와 독립된 3초 수명을 유지하되 손님의 현재 위치를 따른다.
-            visual.Speech.transform.localPosition = position + new Vector3(0, heightPixels + 4, 0);
+            visual.Speech.transform.localPosition = position + new Vector3(0, visual.DisplayHeight + 4, 0);
             updateReaction(visual, reactionDelta);
             if (visual.Leaving && visual.Elapsed >= duration && (!visual.Abandoned || !seen.Contains(pair.Key))) remove.Add(pair.Key);
         }
@@ -172,17 +184,28 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     {
         if (visuals.TryGetValue(visit, out var visual)) return visual;
         var sprite = world.Controller.GetCustomerAppearanceSprite(visit.AppearanceIdx);
+        var normalTexture = world.Controller.GetCustomerAppearanceNormalTexture(visit.AppearanceIdx);
+        CustomerPortraitLayout layout = CustomerPortraitLayout.Calculate(visit.Attributes, heightPixels, childPortraitScale, childPortraitRise);
         var root = new GameObject("Visit " + visit.AppearanceIdx + "/" + visit.DispositionIdx).transform;
         root.SetParent(visualRoot, false);
         root.position = start.position;
         var body = new GameObject("Appearance", typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
         body.transform.SetParent(root, false);
         body.sprite = sprite;
-        body.sharedMaterial = spriteMaterial;
+        body.sharedMaterial = bodyMaterial;
+        body.transform.localScale = Vector3.one * (layout.DisplayHeight / sprite.bounds.size.y);
+        Vector3 bodyBounds = sprite.bounds.min;
+        body.transform.localPosition = -Vector3.Scale(new Vector3(sprite.bounds.center.x, bodyBounds.y, 0), body.transform.localScale);
+        var bodyProperties = new MaterialPropertyBlock();
+        world.ApplyCustomerLighting(bodyProperties);
+        bodyProperties.SetTexture("_NormalMap", normalTexture);
+        bodyProperties.SetFloat("_NormalStrength", 1f);
+        bodyProperties.SetFloat("_Surface", 2f);
+        body.SetPropertyBlock(bodyProperties);
         body.color = Color.clear;
         var reaction = new GameObject("Trade Reaction", typeof(SpriteRenderer)).GetComponent<SpriteRenderer>();
         reaction.transform.SetParent(root, false);
-        reaction.sharedMaterial = spriteMaterial;
+        reaction.sharedMaterial = reactionMaterial;
         reaction.sortingOrder = 220;
         reaction.gameObject.SetActive(false);
         var speech = new GameObject("Queue Speech", typeof(TextMeshPro)).GetComponent<TextMeshPro>();
@@ -195,7 +218,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         speech.text = string.Empty;
         speech.renderer.sortingOrder = 300;
         float phase = visuals.Count * .37f + visit.AppearanceIdx * .618f;
-        visual = new Visual { Root = root, Body = body, Reaction = reaction, Speech = speech, Phase = phase,
+        visual = new Visual { Root = root, Body = body, BodyProperties = bodyProperties, Reaction = reaction, Speech = speech, Phase = phase,
+            DisplayScale = layout.DisplayScale, DisplayHeight = layout.DisplayHeight, RisePixels = layout.RisePixels,
             BreathPeriod = 2.9f * Mathf.Lerp(.88f, 1.12f, Mathf.Repeat(phase, 1)) };
         visuals.Add(visit, visual);
         return visual;
@@ -230,7 +254,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         visual.ReactionElapsed = 0;
         visual.Reaction.sprite = this.tradeReactionSprites[index];
         float scale = 64f / visual.Reaction.sprite.bounds.size.y;
-        visual.Reaction.transform.localPosition = new Vector3(90, this.heightPixels * .82f, 0);
+        visual.Reaction.transform.localPosition = new Vector3(90, visual.DisplayHeight * .82f, 0);
         visual.Reaction.transform.localScale = Vector3.one * scale * .55f;
         visual.Reaction.color = new Color(1, 1, 1, this.world.Opacity);
         visual.Reaction.gameObject.SetActive(true);
@@ -246,7 +270,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         float pop = t < .2f ? Mathf.Lerp(.55f, 1.15f, t / .2f) : Mathf.Lerp(1.15f, 1, Mathf.Clamp01((t - .2f) / .2f));
         float scale = 64f / visual.Reaction.sprite.bounds.size.y;
         visual.Reaction.transform.localScale = Vector3.one * scale * pop;
-        visual.Reaction.transform.localPosition = new Vector3(90, this.heightPixels * .82f + 40 * Mathf.SmoothStep(0, 1, t), 0);
+        visual.Reaction.transform.localPosition = new Vector3(90, visual.DisplayHeight * .82f + 40 * Mathf.SmoothStep(0, 1, t), 0);
         visual.Reaction.color = new Color(1, 1, 1, this.world.Opacity * (1 - Mathf.Clamp01((t - .55f) / .45f)));
         if (t >= 1) visual.Reaction.gameObject.SetActive(false);
     }
@@ -288,9 +312,11 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     {
         public Transform Root, Target;
         public SpriteRenderer Body, Reaction;
+        public MaterialPropertyBlock BodyProperties;
         public TextMeshPro Speech;
         public Vector3 Start;
         public float Alpha, Elapsed, IdleSeconds, Phase, BreathPeriod, ReactionElapsed;
+        public float DisplayScale, DisplayHeight, RisePixels;
         public bool Leaving, Abandoned, ReactionShown;
         public uint SpeechIdx;
     }

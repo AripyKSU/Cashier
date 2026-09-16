@@ -1,5 +1,15 @@
 # 가게 리소스 교체·적용 작업 범위
 
+## total_merge 동기화 (2026-09-16)
+
+- 대상 `codex/store-resource-exchange 9c66aa9`, 입력 `origin/total_merge 5c4d46d`(fetch 확인). 작업 트리는 시작 시 clean이었고 기존 stash 3개와 Local 씬을 보존했다. 원격 push는 요청 범위에 포함하지 않는다.
+- 새 손님 외형 60행, 컬러/노멀 120개 주소, 성향·성별·연령 선택과 어린이 배치, 전량 제외 시 거래 거부·계산기 즉시 닫기·지침 확률 변경을 반영했다. 기존 가게 단계/설비/PouringContainer와 손님·딸의 빈 이미지 허용은 유지했다. 손님 노멀 FK는 새 데이터의 필수 계약을 따른다.
+- Resource4201~4245는 새 손님 주소로 갱신하고 4303~4377을 추가했다. 기존 가게용 4301/4302와 4378~4391을 유지하여 Resource191행의 ID 중복0을 확인했다. Addressables217개 주소/entry 중복0, 손님 FK와 실제 Sprite/Texture 자산120개 검사 통과. 가게 등록16개·단계 외형6개와 GameUI/OperatingPanel/CustomerWorld의 script·material 검사 통과.
+- 구형 상품 metadata6개의 GUID 충돌은 양쪽 GUID의 사용 참조가 없음을 확인하고 total_merge 기준으로 통일했다. MainScene 파일은 변경하지 않았다. UI/자산 전체 ours/theirs 선택은 하지 않았다.
+- 컴파일 통과. 전체 EditMode 307/313, 실패6·skip0. 이 중 전량 제외 계약과 달랐던 테스트2개를 거부 확정·매출0·재제출 금지 검사로 갱신하고 CustomerContractTests **57/57** 재검증 통과했다(`Temp/store-total-merge-contracts.json`). 손님 외형60종 변경에 따라 Sprite 로드 기대61→76과 딸 이미지의 고정4201 기대도 현 데이터 계약에 맞췄다.
+- 기존 실패4개는 유지: `BusinessClockAndSortingTests.Vacuum_GameUiPrefab_HasAstraVisualAndNozzleBindings`, `VacuumAsset_UsesAstraImportContract`, `PriceEventTests.ReproducibleSelectionAndInvalidReferences`, `WorldSceneTests.EffectsKeepSpriteTimeAndSourceBoundaries`. 이전 가게 리소스 검증에서도 확인된 범위 밖 문제이며 전체 테스트 PASS로 보고하지 않는다. 전체 suite 재실행은 하지 않았다.
+- 자산 검사 증거: `Temp/store-total-merge-assets.json`, `Temp/store-asset-verification.json`. 이 병합에서는 손님 아트 작업의 검증 경계를 따라 PlayMode·게임 실행·화면 UX·Player 빌드를 수행하지 않았다. 기술 통합 검증은 정적 검사/컴파일/EditMode이며 시각 검증은 별도다.
+
 ## PouringContainer 단계 연결 (2026-09-16 후속)
 
 - CSV 컬럼 추가 없이 기존 `StoreStageData.top_view_prefab_resource_idx → StoreStageVisual`을 사용한다. TopView 프리팹의 `tiltedContainerSprite`와 `emptyContainerSprite`가 기존 `SaleSortingPanel.SetContainerSprites`로 전달된다.

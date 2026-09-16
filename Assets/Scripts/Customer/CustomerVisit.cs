@@ -222,8 +222,33 @@ public sealed class CustomerVisit
     public bool SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
         if (State != CustomerState.AwaitingOffer || isSubmitting) throw new InvalidOperationException("가격을 다시 제안할 수 없습니다.");
+        if (saleItems == null || saleItems.Count == 0)
+        {
+            isSubmitting = true;
+            try
+            {
+                var emptyResult = new TransactionResult(
+                    CustomerTradeOutcome.PaymentRefused,
+                    offeredTotal: 0,
+                    items: Array.Empty<SoldItem>(),
+                    wereRestrictionsEvaluated: false,
+                    violations: Array.Empty<SaleRestrictionViolation>(),
+                    dispositionType: DispositionType,
+                    customerAttributes: Attributes,
+                    wereDailyGuidelinesEvaluated: false,
+                    dailyGuidelineViolations: Array.Empty<DailyGuidelineViolation>(),
+                    moralityEvaluation: null);
+                Result = emptyResult;
+                AllowedTotal = 0;
+                OfferedTotal = 0;
+                Outcome = CustomerTradeOutcome.PaymentRefused;
+                State = CustomerState.Rejected;
+                return false;
+            }
+            finally { isSubmitting = false; }
+        }
+
         if (offeredTotal <= 0) throw new ArgumentOutOfRangeException(nameof(offeredTotal));
-        if (saleItems == null || saleItems.Count == 0) throw new ArgumentException("최종 판매 목록이 필요합니다.", nameof(saleItems));
         isSubmitting = true;
         try
         {

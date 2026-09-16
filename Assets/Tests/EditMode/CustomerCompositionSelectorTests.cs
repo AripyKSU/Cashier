@@ -85,17 +85,22 @@ public sealed class CustomerCompositionSelectorTests
 /// <summary>구성 선택 테스트가 공유하는 성별·연령별 외형 후보입니다.</summary>
 internal static class CustomerAppearanceFixtures
 {
-    /// <summary>6개 조합마다 PK가 다른 후보 두 개를 반환합니다.</summary>
+    /// <summary>성향별 허용 연령 조합마다 PK가 다른 후보 두 개를 반환합니다.</summary>
     /// <returns>키와 PK가 일치하는 검증 가능 외형 사전.</returns>
     public static IReadOnlyDictionary<uint, CustomerAppearanceData> Create()
     {
         var result = new Dictionary<uint, CustomerAppearanceData>();
         uint idx = 5001;
         foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
-        foreach (CustomerAttributes age in new[] { CustomerAttributes.Adult, CustomerAttributes.Child, CustomerAttributes.Elderly })
+        foreach (CustomerDispositionType dispositionType in new[]
+            { CustomerDispositionType.Normal, CustomerDispositionType.Hasty, CustomerDispositionType.PriceSensitive,
+              CustomerDispositionType.Wealthy, CustomerDispositionType.Poor })
+        foreach (CustomerAttributes age in dispositionType == CustomerDispositionType.Normal
+            ? new[] { CustomerAttributes.Adult, CustomerAttributes.Child, CustomerAttributes.Elderly }
+            : new[] { CustomerAttributes.Adult })
         for (int i = 0; i < 2; i++)
         {
-            result.Add(idx, new CustomerAppearanceData { Idx = idx, Gender = gender, Age = age });
+            result.Add(idx, new CustomerAppearanceData { Idx = idx, Gender = gender, Age = age, DispositionType = dispositionType });
             idx++;
         }
         return result;
