@@ -1,0 +1,2 @@
+Final built-in ImageGen source: C:\Users\PC\.codex\generated_images\01a0a79e-2544-7921-b083-e554591ff654\exec-f79673e9-969a-48b3-ba73-f55135c8fb04.png
+Radios LEFT; cabinet RIGHT at radio BODY height; LEFT side faces visible; horizontal front edges. Sprite padding preserves previous aspect without changing scene placement. Nuclear protection matched to precision equipment texture. Runtime not tested.

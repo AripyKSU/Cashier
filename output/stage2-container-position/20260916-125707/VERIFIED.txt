@@ -1,0 +1,4 @@
+Main scene saved. Stage2Reference FrontContainer position saved and reopened successfully.
+position=(508.00, -494.00, 0.00)
+2026-09-16T12:57:07.6681301+09:00
+Reference diff limited to FrontContainer m_AnchoredPosition.y: -462 -> -494.

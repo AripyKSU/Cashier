@@ -1,0 +1,1 @@
+Built-in ImageGen: widened side pillars and continuous top canopy cloth. Existing scene placement and metadata preserved. Source: C:\Users\PC\.codex\generated_images\01a0a79e-2544-7921-b083-e554591ff654\exec-3503ed00-0435-4a70-8226-316dac82b4e6.png

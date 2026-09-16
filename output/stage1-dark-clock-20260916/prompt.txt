@@ -1,0 +1,3 @@
+Built-in ImageGen edit.
+
+Recolor only the wooden clock housing to match the current booth frame's cold, desaturated charcoal grey-brown. Keep clock midtones equal to or slightly darker than the frame. Preserve the exact canvas, alpha, black empty display, top controls, nails, grain, silhouette and flat bottom. Add no digits, feet, external shadow, objects or geometry changes.
