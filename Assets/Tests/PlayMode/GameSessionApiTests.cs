@@ -869,6 +869,34 @@ public sealed class GameSessionApiTests
         yield return new WaitForSeconds(.8f);
         Assert.That(states[waiting], Is.SameAs(visual));
         Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
+        float baselineY = rootTransform.localPosition.y;
+        float baselineHeight = (float)type.GetField("DisplayHeight").GetValue(visual);
+        float baselineRise = (float)type.GetField("RisePixels").GetValue(visual);
+        Vector3 baselineSpeechOffset = speech.transform.localPosition - rootTransform.localPosition;
+        CustomerAttributes originalAttributes = (CustomerAttributes)type.GetField("Attributes").GetValue(visual);
+        var queueSettings = new UnityEditor.SerializedObject(queue);
+        var ageOffsets = new[]
+        {
+            ("adultDownOffsetPixels", CustomerAttributes.Adult, 11f),
+            ("elderlyDownOffsetPixels", CustomerAttributes.Elderly, 23f),
+            ("childDownOffsetPixels", CustomerAttributes.Child, 7f)
+        };
+        foreach (var entry in ageOffsets)
+        {
+            queueSettings.FindProperty(entry.Item1).floatValue = entry.Item3;
+            queueSettings.ApplyModifiedPropertiesWithoutUndo();
+            type.GetField("Attributes").SetValue(visual, entry.Item2);
+            yield return null;
+            Assert.That(rootTransform.localPosition.y, Is.EqualTo(baselineY - entry.Item3).Within(.001f));
+            Assert.That((float)type.GetField("DisplayHeight").GetValue(visual), Is.EqualTo(baselineHeight).Within(.001f));
+            Assert.That((float)type.GetField("RisePixels").GetValue(visual), Is.EqualTo(baselineRise).Within(.001f));
+            Assert.That(speech.transform.localPosition - rootTransform.localPosition, Is.EqualTo(baselineSpeechOffset));
+            queueSettings.FindProperty(entry.Item1).floatValue = 0;
+        }
+        queueSettings.ApplyModifiedPropertiesWithoutUndo();
+        type.GetField("Attributes").SetValue(visual, originalAttributes);
+        yield return null;
+        Assert.That(rootTransform.localPosition.y, Is.EqualTo(baselineY).Within(.001f));
         progress.Tick(tables.Customers.Dispositions.Rows[waiting.DispositionIdx].QueuePatienceSeconds);
         yield return null;
         Assert.That(day.LeavingCustomers.Any(x => ReferenceEquals(x.Visit, waiting)), Is.True);

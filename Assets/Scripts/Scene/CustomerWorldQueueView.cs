@@ -30,6 +30,16 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     /// <summary>Child를 성인 기준 높이에서 위로 올리는 비율.</summary>
     [SerializeField, Range(CustomerPortraitLayout.MinChildPortraitRise, CustomerPortraitLayout.MaxChildPortraitRise)]
     private float childPortraitRise = CustomerPortraitLayout.DefaultChildPortraitRise;
+    /// <summary>성인에게 추가할 하향량. 전면 로컬 픽셀 단위이며 0이면 기존 위치를 유지한다.</summary>
+    [Header("연령별 추가 하향 오프셋 (0 = 현재 위치)")]
+    [SerializeField, Min(0), Tooltip("성인 표시를 아래로 내릴 고정 픽셀 값")]
+    private float adultDownOffsetPixels;
+    /// <summary>노인에게 추가할 하향량. 크기·원근 배율과 독립된 전면 로컬 픽셀이다.</summary>
+    [SerializeField, Min(0), Tooltip("노인 표시를 아래로 내릴 고정 픽셀 값")]
+    private float elderlyDownOffsetPixels;
+    /// <summary>아이에게 기존 크기·상승·하단 보정에 더해 적용할 하향량. 0이면 현재 아이 위치를 유지한다.</summary>
+    [SerializeField, Min(0), Tooltip("아이 표시를 아래로 내릴 고정 픽셀 값")]
+    private float childDownOffsetPixels;
     private readonly Dictionary<CustomerVisit, Visual> visuals = new Dictionary<CustomerVisit, Visual>();
     private readonly HashSet<CustomerVisit> seen = new HashSet<CustomerVisit>();
     private readonly List<CustomerVisit> remove = new List<CustomerVisit>();
@@ -47,7 +57,9 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             Array.Exists(tradeReactionSprites, x => x == null) || !isPositive(heightPixels) ||
             !isPositive(middleSlotScale) || middleSlotScale > 1 || !isPositive(rearSlotScale) || rearSlotScale > middleSlotScale ||
             !CustomerPortraitLayout.AreParametersValid(heightPixels, childPortraitScale, childPortraitRise) || !isPositive(moveSeconds) ||
-            float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0)
+            float.IsNaN(bottomCoverPixels) || float.IsInfinity(bottomCoverPixels) || bottomCoverPixels < 0 ||
+            !isNonNegativeFinite(adultDownOffsetPixels) || !isNonNegativeFinite(elderlyDownOffsetPixels) ||
+            !isNonNegativeFinite(childDownOffsetPixels))
         {
             Debug.LogError("[CustomerWorldQueueView] 월드·슬롯·폰트·시간·거래 이모지 연결을 확인하세요.", this);
             enabled = false;
@@ -120,7 +132,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
                 Mathf.Abs(Mathf.Cos(step)) * 15 * visual.DisplayHeight / 550f) * envelope;
             position.x += walk.x;
             position.y = visualRoot.InverseTransformPoint(counter.position).y - bottomCoverPixels -
-                3 * visual.DisplayHeight / 550f + walk.y + visual.RisePixels;
+                3 * visual.DisplayHeight / 550f + walk.y + visual.RisePixels - getDownOffset(visual.Attributes);
             visual.Root.localPosition = position;
             bool idle = !visual.Leaving && visual.Elapsed >= duration;
             float breath = idle ? (Mathf.Sin(visual.IdleSeconds * Mathf.PI * 2 / visual.BreathPeriod + visual.Phase) + 1) * .5f : 0;
@@ -247,6 +259,20 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         visual.Target = target;
         visual.Elapsed = 0;
     }
+
+    /// <summary>방문 시점의 연령 속성에 해당하는 고정 하향 오프셋을 반환한다.</summary>
+    /// <param name="attributes">방문의 성별·연령 속성.</param>
+    /// <returns>원근 배율을 적용하지 않는 authoring 픽셀 값.</returns>
+    private float getDownOffset(CustomerAttributes attributes)
+    {
+        if ((attributes & CustomerAttributes.Child) != 0) return childDownOffsetPixels;
+        if ((attributes & CustomerAttributes.Elderly) != 0) return elderlyDownOffsetPixels;
+        return adultDownOffsetPixels;
+    }
+
+    /// <summary>Inspector 조정값이 유한한 0 이상인지 확인한다.</summary>
+    /// <param name="value">하향 오프셋.</param><returns>유한한 0 이상이면 true.</returns>
+    private static bool isNonNegativeFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0;
 
     /// <summary>계산대→Slot05→Slot10의 고정 배율을 슬롯 번호로 선형 보간한다. 입구는 마지막 배율을 사용한다.</summary>
     /// <param name="anchor">계산대·대기 슬롯·입구.</param><returns>계산대 성인 높이 대비 배율.</returns>

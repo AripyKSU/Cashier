@@ -7,6 +7,27 @@ using UnityEngine.UI;
 /// <summary>실제 prefab 경계와 화면비·단일 색상 합성을 검증한다. UX 판정은 하지 않는다.</summary>
 public sealed class WorldSceneTests
 {
+    /// <summary>연령별 하향값은 기본 0이며 원근과 무관한 고정 authoring 픽셀로 선택된다.</summary>
+    [Test]
+    public void QueueAgeOffsetsDefaultToZeroAndSelectVisitAge()
+    {
+        var root = new GameObject("Age offset test");
+        try
+        {
+            var view = root.AddComponent<CustomerWorldQueueView>();
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            var method = typeof(CustomerWorldQueueView).GetMethod("getDownOffset", flags);
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Adult }), Is.Zero);
+            typeof(CustomerWorldQueueView).GetField("adultDownOffsetPixels", flags).SetValue(view, 11f);
+            typeof(CustomerWorldQueueView).GetField("elderlyDownOffsetPixels", flags).SetValue(view, 22f);
+            typeof(CustomerWorldQueueView).GetField("childDownOffsetPixels", flags).SetValue(view, 33f);
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Adult }), Is.EqualTo(11f));
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Elderly }), Is.EqualTo(22f));
+            Assert.That((float)method.Invoke(view, new object[] { CustomerAttributes.Child }), Is.EqualTo(33f));
+        }
+        finally { UnityEngine.Object.DestroyImmediate(root); }
+    }
+
     /// <summary>실제 월드 큐의 목표 갱신에서 고정 슬롯 비율·기준 높이 변경·Child·재진입·퇴장 크기를 검사한다.</summary>
     /// <param name="baseHeight">계산대 기준 높이.</param><param name="child">Child 여부.</param>
     [TestCase(550f, false)]
@@ -173,8 +194,9 @@ public sealed class WorldSceneTests
             Assert.That(renderer.sprite.vertices.Length, Is.EqualTo(4));
             Assert.That(renderer.sprite.rect.size, Is.EqualTo(new Vector2(renderer.sprite.texture.width, renderer.sprite.texture.height)));
         }
-        var uiFog = AssetDatabase.LoadAssetAtPath<Material>("Assets/DystopiaPrototype/Art/FogBack.mat");
+        var uiFog = AssetDatabase.LoadAssetAtPath<Material>("Assets/Materials/Dystopia/FogBack.mat");
+        Assert.That(uiFog, Is.Not.Null);
         Assert.That(uiFog.GetFloat("_UseUI"), Is.EqualTo(1));
-        Assert.That(uiFog.GetFloat("_UsePresentationTime"), Is.Zero);
+        Assert.That(uiFog.HasProperty("_UsePresentationTime"), Is.False, "Imported UI fog keeps its original shader; only world fog owns presentation time.");
     }
 }

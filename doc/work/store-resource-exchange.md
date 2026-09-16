@@ -1,5 +1,20 @@
 # 가게 리소스 교체·적용 작업 범위
 
+## STAGE1_HANDOFF 1안 적용 (2026-09-16)
+
+- 사용자 선택: 이미지·위치·크기·표시 여부를 현재 UI/GameObject 분리 구조에 맞춘다. 원본은 art에 보존하며 실제 연결은 기존 사용 폴더로 이관·갱신한다. 전용 PixelStage 조명/접촉 그림자/480×270 렌더링은 도입하지 않는다.
+- 가게 본체 반영: `StoreStage1Front`, `Stage1FoodShelfVisual`, `Stage1MedicineCabinetVisual`의 기준은 `STAGE1_HANDOFF.md`와 그 권위 씬의 최종 override 합산값이다. 상판 y=-483, 상자 y=-498, 천막 위치(-15.2,31)·크기(1344,720)·x배율0.975, 선반(65,-454), 약품장(983.84,-451)·배율1.17347193, 시계(1077,13)와 숫자 표시창을 반영했다. 비활성 기둥/천장등·상판 확장면은 숨기며 설비의 실제 표시 여부는 기존 활성 판정을 유지한다.
+- 아트 갱신: `art/Facility/Frame/BoothCanopy.png` → `Environment/Dystopia/BoothCanopy.png`, `art/Facility/Clock/Stage1BasicClock.png` → `UI/Dystopia/Stage1Clock.png`. 기존 GUID·Sprite fileID·import·주소를 유지하며 Resource4300은 계속 Stage1Clock이다. 상판·상자2개·설비2개의 최신 PNG는 직전 Astra 병합에서 이미 갱신됐다. 새 Addressables 등록·CSV·셰이더·게임 코드·MainScene 수정 없음.
+- 현재 Canvas와 기준 씬은 모두1280×720 좌표다. 1600×900 출력에 별도1.25배 좌표 보정을 중복 적용하지 않는다. 현재 UI/조명 경로에서 가게 본체 미리보기를 생성했다(`Temp/stage1-handoff-preview.png`; 고객·시간 텍스트·실제 조작을 포함한 전체 게임 화면 검증은 아님).
+- 검증: 원본 대비 Rect10개 일치, 대상 prefab의 art 직접 의존0·missing script0, 시계 Sprite rect(200,314,1002,494), 컴파일 실패 없음. PlayMode `StoreStagePresentationTests` **4/4**, 실패·skip0: 실제 ResourceManager로 Prefab21·시계3 로드, 설비 활성화·단계 왕복·쏟기 상태·수명 정리. 증거 `Temp/stage1-handoff-verification.json`, `Temp/stage1-handoff-resource-update.json`, `Temp/stage1-handoff-play.json`. 최종 게임 화면의 가독성/사용감은 사용자 확인 대상이다. commit/push 미실행.
+
+### UI / GameObject 배치 적용 경계 확인
+
+- UI: 천막·상판·상자·시계는 StoreStage1Front, 설비는 각 단계별 외형 prefab. 이번 가게 본체 변경은 이 경계에 적용했다.
+- GameObject: 원경/시간대 배경/중경6개와 좌우 연기는 StoreStage1World의 `worldLayers`/`smokeAnchors`로 단계별 적용 가능하다. Image 사각형을 SpriteRenderer의 중심·bounds·Transform으로 변환해야 하며 RectTransform 값을 그대로 localScale에 넣지 않는다.
+- 안개·경비병·총구·군중·탐조등 등의 현재 배치는 CustomerWorld 공용이며 단계별 외형 계약에 포함되지 않는다. 1단계만 재배치하려면 이 객체들의 기준 Transform/표시값을 단계별 prefab에서 전달하도록 기존 계약을 확장해야 한다. 공용 prefab 값만 바꾸면2·3단계에도 영향을 준다. 애니메이션 위상/시간·숨김·일시정지·총구의 부모 관계는 기존 WorldSceneView가 계속 소유한다.
+- 이 World 영역은 이번 사용자 후속 요청에 따라 적용 가능성만 확인했으며 아직 변경하지 않았다. 손님/대기열은 기존550/340/240 합의를 유지한다.
+
 ## astra-prototype 병합 (2026-09-16)
 
 - 입력: `codex/store-resource-exchange b878821` + fetch한 `origin/astra-prototype a43c1ae`. 시작 시 양쪽 대상/upstream 일치·작업 트리 clean, stash3개 보존. 최신 Stage1 기준 씬·아트·접촉 그림자·인계 문서와 프로토타입 경로 재편을 통합한다.

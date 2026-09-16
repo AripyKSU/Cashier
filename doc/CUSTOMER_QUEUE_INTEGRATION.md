@@ -1,5 +1,14 @@
 # 손님 대기열 구현·병합 명세
 
+## 연령별 하향 오프셋 (2026-09-16)
+
+- `Assets/Prefabs/World/CustomerWorld.prefab`의 `CustomerWorldQueueView` Inspector에서 성인 `adultDownOffsetPixels`, 노인 `elderlyDownOffsetPixels`, 아이 `childDownOffsetPixels`를 각각 조정한다. 기본값은 모두0이며, 양수만큼 기존 위치에서 아래로 이동한다. 아이를 유지하려면 아이 값은0으로 둔다.
+- 단위는 전면 로컬 기준 픽셀이다(1280×720 authoring 공간). 원근 배율을 곱하지 않고 입장·모든 대기 슬롯·계산대·퇴장에 동일한 연령별 값을 적용한다. 실제 화면 픽셀은 월드 투영 배율에 따라 달라진다.
+- 연령은 `CustomerVisit.Attributes`로 판정한다. 기존 Child 크기0.6배·상승·하단8px 보정에 추가되는 오프셋이며, 손님 크기·원근·호흡·이동 시간은 유지한다. 대사와 거래 이모지도 변경된 손님 위치를 따른다.
+- Play 중 Inspector 변경은 표시 위치에 바로 반영된다. Play 중 수정값은 종료하면 복구되므로 영구 적용은 EditMode에서 프리팹에 저장한다. 이번 설정은 월드 표시 전용이며 구형 uGUI 경로·CSV·Addressables·공유/개인 씬은 변경하지 않는다.
+- 검증: Unity 컴파일 완료, EditMode `WorldSceneTests` **12/12**, PlayMode `InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime` **1/1**, 실패·skip0. 실제 표시 객체에서 성인11/노인23/아이7의 root Y 이동·높이/기존 상승/대사 상대 위치 불변·0 복귀를 검사했고 기존 입퇴장·이모지 수명 검증을 유지했다. 증거: `Temp/queue-age-offset-edit-pass.json`, `Temp/queue-age-offset-play.json`. 최종 화면의 적절한 하향량은 사용자 조정 대상이다.
+- 최초 EditMode 두 실행은 각각11/12였다. 기존 환경 검사에서 이관 전 `DystopiaPrototype/Art/FogBack.mat` 경로와 원본 shader에 없는 `_UsePresentationTime` 조회를 발견해, 현재 `Materials/Dystopia` 경로 및 원본/월드 shader의 분리 계약으로 테스트만 갱신했다. 제품 배경 로직은 변경하지 않았다.
+
 ## 2026-09-16 고정 슬롯 원근 검증
 
 - `codex/store-resource-exchange`에서 `CustomerWorldQueueView`와 공유 `CustomerWorld.prefab`에 아래 고정 슬롯 계약을 반영했다. MainScene·Local 씬·CSV·Addressables는 수정하지 않았으며 기존 GameUI prefab의 사용자 변경을 보존했다.

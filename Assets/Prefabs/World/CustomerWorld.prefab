@@ -681,6 +681,9 @@ MonoBehaviour:
   moveSeconds: 0.65
   childPortraitScale: 0.6
   childPortraitRise: 0.001090909
+  adultDownOffsetPixels: 0
+  elderlyDownOffsetPixels: 0
+  childDownOffsetPixels: 0
 --- !u!1 &825493237426990043
 GameObject:
   m_ObjectHideFlags: 0
