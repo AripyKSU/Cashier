@@ -74,9 +74,9 @@
 | [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
 | [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 416 | 2 | 감독관 이름·대사, 2일차 확인 문구와 성향·성별별 손님 대사 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 472 | 2 | 감독관 이름·대사, 2일차 확인 문구와 성향·성별·연령별 손님 대사 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 5 | 성별·연령 일치 외형 선택 연결 |
-| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 36 | 구매·MainScene 대기열·명성별 성향 및 성별 대사 선택 연결 |
+| [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 64 | 구매·MainScene 대기열·명성별 성향 및 성별·연령 대사 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
 | [ProductData](../Assets/Datas/Customer/ProductData.csv) | 16 | 10 | 현재 데이터 경로 연결 |
 | [FacilityData](../Assets/Datas/FacilityData.csv) | 12 | 7 | 세션 설비 업그레이드 데이터·FK 검증·정산 상점 입력 |
@@ -233,7 +233,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 16. `queue_warning_textidx` | QueueWarningTextIdx · uint | 재촉 대사 1회 | 필수; 0 금지 | TextData.idx | 8050, 8052, 8054 |
 | 17. `queue_leave_textidx` | QueueLeaveTextIdx · uint | 이탈 불만 대사 1회 | 필수; 0 금지 | TextData.idx | 8051, 8053, 8055 |
 
-런타임 `CustomerDispositionData.csv`는 위 공용 열에 더해 남성/여성별 `entry`, `regular_sale`, `discount_sale`, `exploitative_sale`, `reject`, `queue_warning`, `queue_leave`의 `*_text_idxs` 배열 14개를 필수로 가진다. 방문 생성 시 확정된 `CustomerAttributes.Male/Female`에 맞는 판매 후보를 추첨하고, 줄 합류 시 같은 성별의 재촉·이탈 후보를 각각 추첨해 snapshot으로 유지한다. 모든 배열은 비어 있지 않아야 하고 0·중복을 금지하며 `TextData.idx` FK를 사용한다.
+런타임 `CustomerDispositionData.csv`는 위 공용 열에 더해 성인 남성/여성별 `entry`, `regular_sale`, `discount_sale`, `exploitative_sale`, `reject`, `queue_warning`, `queue_leave` 배열 14개를 필수로 가진다. Normal 행은 같은 일곱 상황에 대해 남아·여아·노년 남성·노년 여성 배열 28개도 필수다. 방문 생성과 줄 합류 시 확정된 `CustomerAttributes`의 연령·성별 조합을 우선하며, 성인은 기존 남녀 후보를 사용한다. 비-Normal 행은 Adult 외형만 허용하므로 연령별 배열을 비워 둔다. 제공된 배열은 0·중복을 금지하고 모두 `TextData.idx` FK를 사용한다.
 | 18. `disposition_type` | DispositionTypeValue · uint → DispositionType | 성향 타입 선택 키 | 필수; 실제 enum 1~4, None/End/미정의 금지 | CustomerDispositionType | 1, 2, 3 |
 | 19. `preferred_product_idxs` | PreferredProductIdxs · IReadOnlyList<uint> | 개별 선호 상품; 분류 선호와 OR | 빈 배열 허용; 0·중복 금지, 각 행 존재 | ProductData.idx | 빈 셀 |
 | 21. `regular_price_min_rate` | RegularPriceMinRate · int | 기준가 판매 인정 하한 배율, 1000=100% | 필수; 0 < 값 ≤ 1000 | 없음 | 1000 |

@@ -61,13 +61,18 @@ public sealed class CustomerQueue
         var data = dispositions[visit.DispositionIdx];
         data.ValidateQueueSettings();
         visit.JoinQueue();
-        bool isMale = (visit.Attributes & CustomerAttributes.Male) != 0;
-        IReadOnlyList<uint> warningCandidates = isMale ? data.MaleQueueWarningTextIdxs : data.FemaleQueueWarningTextIdxs;
-        IReadOnlyList<uint> leaveCandidates = isMale ? data.MaleQueueLeaveTextIdxs : data.FemaleQueueLeaveTextIdxs;
-        uint warningTextIdx = warningCandidates.Count > 0
-            ? warningCandidates[random.Next(warningCandidates.Count)] : data.QueueWarningTextIdx;
-        uint leaveTextIdx = leaveCandidates.Count > 0
-            ? leaveCandidates[random.Next(leaveCandidates.Count)] : data.QueueLeaveTextIdx;
+        IReadOnlyList<uint> warningCandidates = data.GetProfileDialogue(visit.Attributes,
+            data.MaleQueueWarningTextIdxs, data.FemaleQueueWarningTextIdxs,
+            data.MaleChildQueueWarningTextIdxs, data.FemaleChildQueueWarningTextIdxs,
+            data.MaleElderlyQueueWarningTextIdxs, data.FemaleElderlyQueueWarningTextIdxs,
+            new uint[] { data.QueueWarningTextIdx });
+        IReadOnlyList<uint> leaveCandidates = data.GetProfileDialogue(visit.Attributes,
+            data.MaleQueueLeaveTextIdxs, data.FemaleQueueLeaveTextIdxs,
+            data.MaleChildQueueLeaveTextIdxs, data.FemaleChildQueueLeaveTextIdxs,
+            data.MaleElderlyQueueLeaveTextIdxs, data.FemaleElderlyQueueLeaveTextIdxs,
+            new uint[] { data.QueueLeaveTextIdx });
+        uint warningTextIdx = warningCandidates[random.Next(warningCandidates.Count)];
+        uint leaveTextIdx = leaveCandidates[random.Next(leaveCandidates.Count)];
         waiting.Add(new Entry(visit, now + data.QueuePatienceSeconds,
             warningTextIdx, leaveTextIdx));
         return true;

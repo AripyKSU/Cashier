@@ -103,6 +103,90 @@ public sealed class CustomerDispositionData
     /// <summary>여성 손님의 대기열 이탈 대사 후보.</summary>
     [Name("female_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
     public IReadOnlyList<uint> FemaleQueueLeaveTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 입장 대사 후보.</summary>
+    [Name("male_child_entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildEntryTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 기준가 판매 대사 후보.</summary>
+    [Name("male_child_regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildRegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 할인 판매 대사 후보.</summary>
+    [Name("male_child_discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildDiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 착취 판매 대사 후보.</summary>
+    [Name("male_child_exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildExploitativeSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 결제 거부 대사 후보.</summary>
+    [Name("male_child_reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildRejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 대기 재촉 대사 후보.</summary>
+    [Name("male_child_queue_warning_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildQueueWarningTextIdxs { get; set; } = new uint[0];
+    /// <summary>남자아이의 대기열 이탈 대사 후보.</summary>
+    [Name("male_child_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildQueueLeaveTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 입장 대사 후보.</summary>
+    [Name("female_child_entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildEntryTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 기준가 판매 대사 후보.</summary>
+    [Name("female_child_regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildRegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 할인 판매 대사 후보.</summary>
+    [Name("female_child_discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildDiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 착취 판매 대사 후보.</summary>
+    [Name("female_child_exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildExploitativeSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 결제 거부 대사 후보.</summary>
+    [Name("female_child_reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildRejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 대기 재촉 대사 후보.</summary>
+    [Name("female_child_queue_warning_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildQueueWarningTextIdxs { get; set; } = new uint[0];
+    /// <summary>여자아이의 대기열 이탈 대사 후보.</summary>
+    [Name("female_child_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildQueueLeaveTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 입장 대사 후보.</summary>
+    [Name("male_elderly_entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyEntryTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 기준가 판매 대사 후보.</summary>
+    [Name("male_elderly_regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyRegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 할인 판매 대사 후보.</summary>
+    [Name("male_elderly_discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyDiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 착취 판매 대사 후보.</summary>
+    [Name("male_elderly_exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyExploitativeSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 결제 거부 대사 후보.</summary>
+    [Name("male_elderly_reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyRejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 대기 재촉 대사 후보.</summary>
+    [Name("male_elderly_queue_warning_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyQueueWarningTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 남성의 대기열 이탈 대사 후보.</summary>
+    [Name("male_elderly_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyQueueLeaveTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 입장 대사 후보.</summary>
+    [Name("female_elderly_entry_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyEntryTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 기준가 판매 대사 후보.</summary>
+    [Name("female_elderly_regular_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyRegularSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 할인 판매 대사 후보.</summary>
+    [Name("female_elderly_discount_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyDiscountSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 착취 판매 대사 후보.</summary>
+    [Name("female_elderly_exploitative_sale_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyExploitativeSaleTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 결제 거부 대사 후보.</summary>
+    [Name("female_elderly_reject_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyRejectTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 대기 재촉 대사 후보.</summary>
+    [Name("female_elderly_queue_warning_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyQueueWarningTextIdxs { get; set; } = new uint[0];
+    /// <summary>노년 여성의 대기열 이탈 대사 후보.</summary>
+    [Name("female_elderly_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyQueueLeaveTextIdxs { get; set; } = new uint[0];
     /// <summary>양쪽 후보가 남아 있을 때 선호군 선택 확률, 0~1000 (1000 = 100%).</summary>
     [Name("preferred_selection_chance")]
     public int PreferredSelectionChance { get; set; } = 900;
@@ -129,6 +213,7 @@ public sealed class CustomerDispositionData
         validateGenderDialog(MaleQueueLeaveTextIdxs, "male_queue_leave_text_idxs");
         validateGenderDialog(FemaleQueueWarningTextIdxs, "female_queue_warning_text_idxs");
         validateGenderDialog(FemaleQueueLeaveTextIdxs, "female_queue_leave_text_idxs");
+        validateAgeQueueDialogues();
     }
 
     /// <summary>생성기와 CSV 로더가 공유하는 구매 설정의 불변 조건을 검사한다.</summary>
@@ -167,6 +252,7 @@ public sealed class CustomerDispositionData
         validateGenderDialog(FemaleDiscountSaleTextIdxs, "female_discount_sale_text_idxs");
         validateGenderDialog(FemaleExploitativeSaleTextIdxs, "female_exploitative_sale_text_idxs");
         validateGenderDialog(FemaleRejectTextIdxs, "female_reject_text_idxs");
+        validateAgeSaleDialogues();
     }
 
     /// <summary>성별에 맞는 후보를 반환하고, 기존 코드 생성 데이터에는 공용 후보를 사용한다.</summary>
@@ -181,6 +267,33 @@ public sealed class CustomerDispositionData
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         IReadOnlyList<uint> selected = (attributes & CustomerAttributes.Male) != 0 ? male : female;
         return selected != null && selected.Count > 0 ? selected : fallback;
+    }
+
+    /// <summary>연령·성별 조합에 맞는 후보를 우선하고 성인 성별·공용 후보 순으로 대체합니다.</summary>
+    /// <param name="attributes">완성된 손님 속성.</param>
+    /// <param name="maleAdult">성인 남성 후보.</param>
+    /// <param name="femaleAdult">성인 여성 후보.</param>
+    /// <param name="maleChild">남자아이 후보.</param>
+    /// <param name="femaleChild">여자아이 후보.</param>
+    /// <param name="maleElderly">노년 남성 후보.</param>
+    /// <param name="femaleElderly">노년 여성 후보.</param>
+    /// <param name="fallback">스키마 이전 호환용 공용 후보.</param>
+    /// <returns>프로필에 대응하는 대사 후보.</returns>
+    public IReadOnlyList<uint> GetProfileDialogue(CustomerAttributes attributes,
+        IReadOnlyList<uint> maleAdult, IReadOnlyList<uint> femaleAdult,
+        IReadOnlyList<uint> maleChild, IReadOnlyList<uint> femaleChild,
+        IReadOnlyList<uint> maleElderly, IReadOnlyList<uint> femaleElderly,
+        IReadOnlyList<uint> fallback)
+    {
+        CustomerProfileValidation.ValidateCompleteAttributes(attributes);
+        bool isMale = (attributes & CustomerAttributes.Male) != 0;
+        IReadOnlyList<uint> selected = (attributes & CustomerAttributes.Child) != 0
+            ? (isMale ? maleChild : femaleChild)
+            : (attributes & CustomerAttributes.Elderly) != 0
+                ? (isMale ? maleElderly : femaleElderly)
+                : (isMale ? maleAdult : femaleAdult);
+        if (selected != null && selected.Count > 0) return selected;
+        return GetGenderDialogue(attributes, maleAdult, femaleAdult, fallback);
     }
 
     /// <summary>런타임 CSV 행에 남녀별 모든 판매·대기 대사가 들어 있는지 확인한다.</summary>
@@ -201,6 +314,84 @@ public sealed class CustomerDispositionData
         validateDialog(FemaleRejectTextIdxs, "female_reject_text_idxs");
         validateDialog(FemaleQueueWarningTextIdxs, "female_queue_warning_text_idxs");
         validateDialog(FemaleQueueLeaveTextIdxs, "female_queue_leave_text_idxs");
+        if (DispositionType == CustomerDispositionType.Normal)
+        {
+            validateRequiredAgeDialogues();
+        }
+    }
+
+    /// <summary>일반 성향의 아동·노년 판매 및 대기 대사를 모두 필수로 검사합니다.</summary>
+    /// <exception cref="ArgumentException">필수 프로필 대사 후보가 비어 있거나 잘못된 경우.</exception>
+    private void validateRequiredAgeDialogues()
+    {
+        validateDialog(MaleChildEntryTextIdxs, "male_child_entry_text_idxs");
+        validateDialog(MaleChildRegularSaleTextIdxs, "male_child_regular_sale_text_idxs");
+        validateDialog(MaleChildDiscountSaleTextIdxs, "male_child_discount_sale_text_idxs");
+        validateDialog(MaleChildExploitativeSaleTextIdxs, "male_child_exploitative_sale_text_idxs");
+        validateDialog(MaleChildRejectTextIdxs, "male_child_reject_text_idxs");
+        validateDialog(MaleChildQueueWarningTextIdxs, "male_child_queue_warning_text_idxs");
+        validateDialog(MaleChildQueueLeaveTextIdxs, "male_child_queue_leave_text_idxs");
+        validateDialog(FemaleChildEntryTextIdxs, "female_child_entry_text_idxs");
+        validateDialog(FemaleChildRegularSaleTextIdxs, "female_child_regular_sale_text_idxs");
+        validateDialog(FemaleChildDiscountSaleTextIdxs, "female_child_discount_sale_text_idxs");
+        validateDialog(FemaleChildExploitativeSaleTextIdxs, "female_child_exploitative_sale_text_idxs");
+        validateDialog(FemaleChildRejectTextIdxs, "female_child_reject_text_idxs");
+        validateDialog(FemaleChildQueueWarningTextIdxs, "female_child_queue_warning_text_idxs");
+        validateDialog(FemaleChildQueueLeaveTextIdxs, "female_child_queue_leave_text_idxs");
+        validateDialog(MaleElderlyEntryTextIdxs, "male_elderly_entry_text_idxs");
+        validateDialog(MaleElderlyRegularSaleTextIdxs, "male_elderly_regular_sale_text_idxs");
+        validateDialog(MaleElderlyDiscountSaleTextIdxs, "male_elderly_discount_sale_text_idxs");
+        validateDialog(MaleElderlyExploitativeSaleTextIdxs, "male_elderly_exploitative_sale_text_idxs");
+        validateDialog(MaleElderlyRejectTextIdxs, "male_elderly_reject_text_idxs");
+        validateDialog(MaleElderlyQueueWarningTextIdxs, "male_elderly_queue_warning_text_idxs");
+        validateDialog(MaleElderlyQueueLeaveTextIdxs, "male_elderly_queue_leave_text_idxs");
+        validateDialog(FemaleElderlyEntryTextIdxs, "female_elderly_entry_text_idxs");
+        validateDialog(FemaleElderlyRegularSaleTextIdxs, "female_elderly_regular_sale_text_idxs");
+        validateDialog(FemaleElderlyDiscountSaleTextIdxs, "female_elderly_discount_sale_text_idxs");
+        validateDialog(FemaleElderlyExploitativeSaleTextIdxs, "female_elderly_exploitative_sale_text_idxs");
+        validateDialog(FemaleElderlyRejectTextIdxs, "female_elderly_reject_text_idxs");
+        validateDialog(FemaleElderlyQueueWarningTextIdxs, "female_elderly_queue_warning_text_idxs");
+        validateDialog(FemaleElderlyQueueLeaveTextIdxs, "female_elderly_queue_leave_text_idxs");
+    }
+
+    /// <summary>연령별 판매 후보가 제공된 경우 배열 규칙을 검사합니다.</summary>
+    /// <exception cref="ArgumentException">후보가 null이거나 0·중복 ID를 포함한 경우.</exception>
+    private void validateAgeSaleDialogues()
+    {
+        validateGenderDialog(MaleChildEntryTextIdxs, "male_child_entry_text_idxs");
+        validateGenderDialog(MaleChildRegularSaleTextIdxs, "male_child_regular_sale_text_idxs");
+        validateGenderDialog(MaleChildDiscountSaleTextIdxs, "male_child_discount_sale_text_idxs");
+        validateGenderDialog(MaleChildExploitativeSaleTextIdxs, "male_child_exploitative_sale_text_idxs");
+        validateGenderDialog(MaleChildRejectTextIdxs, "male_child_reject_text_idxs");
+        validateGenderDialog(FemaleChildEntryTextIdxs, "female_child_entry_text_idxs");
+        validateGenderDialog(FemaleChildRegularSaleTextIdxs, "female_child_regular_sale_text_idxs");
+        validateGenderDialog(FemaleChildDiscountSaleTextIdxs, "female_child_discount_sale_text_idxs");
+        validateGenderDialog(FemaleChildExploitativeSaleTextIdxs, "female_child_exploitative_sale_text_idxs");
+        validateGenderDialog(FemaleChildRejectTextIdxs, "female_child_reject_text_idxs");
+        validateGenderDialog(MaleElderlyEntryTextIdxs, "male_elderly_entry_text_idxs");
+        validateGenderDialog(MaleElderlyRegularSaleTextIdxs, "male_elderly_regular_sale_text_idxs");
+        validateGenderDialog(MaleElderlyDiscountSaleTextIdxs, "male_elderly_discount_sale_text_idxs");
+        validateGenderDialog(MaleElderlyExploitativeSaleTextIdxs, "male_elderly_exploitative_sale_text_idxs");
+        validateGenderDialog(MaleElderlyRejectTextIdxs, "male_elderly_reject_text_idxs");
+        validateGenderDialog(FemaleElderlyEntryTextIdxs, "female_elderly_entry_text_idxs");
+        validateGenderDialog(FemaleElderlyRegularSaleTextIdxs, "female_elderly_regular_sale_text_idxs");
+        validateGenderDialog(FemaleElderlyDiscountSaleTextIdxs, "female_elderly_discount_sale_text_idxs");
+        validateGenderDialog(FemaleElderlyExploitativeSaleTextIdxs, "female_elderly_exploitative_sale_text_idxs");
+        validateGenderDialog(FemaleElderlyRejectTextIdxs, "female_elderly_reject_text_idxs");
+    }
+
+    /// <summary>연령별 대기 후보가 제공된 경우 배열 규칙을 검사합니다.</summary>
+    /// <exception cref="ArgumentException">후보가 null이거나 0·중복 ID를 포함한 경우.</exception>
+    private void validateAgeQueueDialogues()
+    {
+        validateGenderDialog(MaleChildQueueWarningTextIdxs, "male_child_queue_warning_text_idxs");
+        validateGenderDialog(MaleChildQueueLeaveTextIdxs, "male_child_queue_leave_text_idxs");
+        validateGenderDialog(FemaleChildQueueWarningTextIdxs, "female_child_queue_warning_text_idxs");
+        validateGenderDialog(FemaleChildQueueLeaveTextIdxs, "female_child_queue_leave_text_idxs");
+        validateGenderDialog(MaleElderlyQueueWarningTextIdxs, "male_elderly_queue_warning_text_idxs");
+        validateGenderDialog(MaleElderlyQueueLeaveTextIdxs, "male_elderly_queue_leave_text_idxs");
+        validateGenderDialog(FemaleElderlyQueueWarningTextIdxs, "female_elderly_queue_warning_text_idxs");
+        validateGenderDialog(FemaleElderlyQueueLeaveTextIdxs, "female_elderly_queue_leave_text_idxs");
     }
 
     /// <summary>대사 후보의 필수값·중복을 검사한다. 실제 FK는 catalog에서 검사한다.</summary>

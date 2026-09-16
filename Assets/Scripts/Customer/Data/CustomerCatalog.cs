@@ -103,11 +103,19 @@ public sealed class CustomerCatalog
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, preferred_product_types 표시 참조 실패");
                 foreach (uint textIdx in pair.Value.EntryTextIdxs.Concat(pair.Value.RegularSaleTextIdxs).Concat(pair.Value.DiscountSaleTextIdxs).Concat(pair.Value.ExploitativeSaleTextIdxs).Concat(pair.Value.RejectTextIdxs)
                     .Concat(pair.Value.MaleEntryTextIdxs).Concat(pair.Value.MaleRegularSaleTextIdxs).Concat(pair.Value.MaleDiscountSaleTextIdxs).Concat(pair.Value.MaleExploitativeSaleTextIdxs).Concat(pair.Value.MaleRejectTextIdxs)
-                    .Concat(pair.Value.FemaleEntryTextIdxs).Concat(pair.Value.FemaleRegularSaleTextIdxs).Concat(pair.Value.FemaleDiscountSaleTextIdxs).Concat(pair.Value.FemaleExploitativeSaleTextIdxs).Concat(pair.Value.FemaleRejectTextIdxs))
+                    .Concat(pair.Value.FemaleEntryTextIdxs).Concat(pair.Value.FemaleRegularSaleTextIdxs).Concat(pair.Value.FemaleDiscountSaleTextIdxs).Concat(pair.Value.FemaleExploitativeSaleTextIdxs).Concat(pair.Value.FemaleRejectTextIdxs)
+                    .Concat(pair.Value.MaleChildEntryTextIdxs).Concat(pair.Value.MaleChildRegularSaleTextIdxs).Concat(pair.Value.MaleChildDiscountSaleTextIdxs).Concat(pair.Value.MaleChildExploitativeSaleTextIdxs).Concat(pair.Value.MaleChildRejectTextIdxs)
+                    .Concat(pair.Value.FemaleChildEntryTextIdxs).Concat(pair.Value.FemaleChildRegularSaleTextIdxs).Concat(pair.Value.FemaleChildDiscountSaleTextIdxs).Concat(pair.Value.FemaleChildExploitativeSaleTextIdxs).Concat(pair.Value.FemaleChildRejectTextIdxs)
+                    .Concat(pair.Value.MaleElderlyEntryTextIdxs).Concat(pair.Value.MaleElderlyRegularSaleTextIdxs).Concat(pair.Value.MaleElderlyDiscountSaleTextIdxs).Concat(pair.Value.MaleElderlyExploitativeSaleTextIdxs).Concat(pair.Value.MaleElderlyRejectTextIdxs)
+                    .Concat(pair.Value.FemaleElderlyEntryTextIdxs).Concat(pair.Value.FemaleElderlyRegularSaleTextIdxs).Concat(pair.Value.FemaleElderlyDiscountSaleTextIdxs).Concat(pair.Value.FemaleElderlyExploitativeSaleTextIdxs).Concat(pair.Value.FemaleElderlyRejectTextIdxs))
                     if (!texts.PendingRows.ContainsKey(textIdx))
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, dialog text FK={textIdx} -> TextData.idx 참조 실패");
                 foreach (uint textIdx in pair.Value.MaleQueueWarningTextIdxs.Concat(pair.Value.MaleQueueLeaveTextIdxs)
-                    .Concat(pair.Value.FemaleQueueWarningTextIdxs).Concat(pair.Value.FemaleQueueLeaveTextIdxs))
+                    .Concat(pair.Value.FemaleQueueWarningTextIdxs).Concat(pair.Value.FemaleQueueLeaveTextIdxs)
+                    .Concat(pair.Value.MaleChildQueueWarningTextIdxs).Concat(pair.Value.MaleChildQueueLeaveTextIdxs)
+                    .Concat(pair.Value.FemaleChildQueueWarningTextIdxs).Concat(pair.Value.FemaleChildQueueLeaveTextIdxs)
+                    .Concat(pair.Value.MaleElderlyQueueWarningTextIdxs).Concat(pair.Value.MaleElderlyQueueLeaveTextIdxs)
+                    .Concat(pair.Value.FemaleElderlyQueueWarningTextIdxs).Concat(pair.Value.FemaleElderlyQueueLeaveTextIdxs))
                     if (!texts.PendingRows.ContainsKey(textIdx))
                         throw new InvalidDataException($"CustomerDispositionData.csv PK={pair.Key}, gender queue dialog FK={textIdx} -> TextData.idx 참조 실패");
             }

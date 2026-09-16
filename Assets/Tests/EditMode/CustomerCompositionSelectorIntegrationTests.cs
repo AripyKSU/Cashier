@@ -234,6 +234,26 @@ public sealed class CustomerCompositionSelectorIntegrationTests
             second.ExploitativeSaleTextIdx, second.RejectTextIdx), Is.EqualTo((201u, 202u, 203u, 204u, 205u)));
     }
 
+    /// <summary>아동·노년은 연령과 성별 전용 대사를, 성인은 기존 성별 대사를 사용합니다.</summary>
+    [TestCase(CustomerAttributes.Male | CustomerAttributes.Child | CustomerAttributes.Normal, 301u)]
+    [TestCase(CustomerAttributes.Female | CustomerAttributes.Child | CustomerAttributes.Normal, 401u)]
+    [TestCase(CustomerAttributes.Male | CustomerAttributes.Elderly | CustomerAttributes.Normal, 501u)]
+    [TestCase(CustomerAttributes.Female | CustomerAttributes.Elderly | CustomerAttributes.Normal, 601u)]
+    [TestCase(CustomerAttributes.Male | CustomerAttributes.Adult | CustomerAttributes.Normal, 101u)]
+    [TestCase(CustomerAttributes.Female | CustomerAttributes.Adult | CustomerAttributes.Normal, 201u)]
+    public void DialogueCandidatesFollowAgeAndGender(CustomerAttributes attributes, uint expected)
+    {
+        CustomerDispositionData config = disposition(6001, CustomerDispositionType.Normal, ProductType.Water);
+
+        IReadOnlyList<uint> selected = config.GetProfileDialogue(attributes,
+            new uint[] { 101 }, new uint[] { 201 },
+            new uint[] { 301 }, new uint[] { 401 },
+            new uint[] { 501 }, new uint[] { 601 },
+            new uint[] { 1 });
+
+        Assert.That(selected, Is.EqualTo(new uint[] { expected }));
+    }
+
     /// <summary>테스트용 상품을 만듭니다.</summary>
     private static ProductData product(uint id, ProductType type, uint? requiredFacilityIdx = null)
     {

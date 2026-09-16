@@ -28,12 +28,10 @@ public sealed class CustomerQueueTests
     public void WarningExpiryAndComplaintLifetime()
     {
         var first = queue.Waiting[0]; queue.Advance(2); Assert.That(queue.GetSpeech(first), Is.Zero);
-        queue.Advance(1); Assert.That(config.GetGenderDialogue(first.Visit.Attributes, config.MaleQueueWarningTextIdxs,
-            config.FemaleQueueWarningTextIdxs, new uint[] { config.QueueWarningTextIdx }), Contains.Item(queue.GetSpeech(first)));
+        queue.Advance(1); Assert.That(queueCandidates(first.Visit.Attributes, true), Contains.Item(queue.GetSpeech(first)));
         queue.Advance(3); Assert.That(queue.GetSpeech(first), Is.Zero);
         queue.Advance(3); Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned));
-        Assert.That(config.GetGenderDialogue(first.Visit.Attributes, config.MaleQueueLeaveTextIdxs,
-            config.FemaleQueueLeaveTextIdxs, new uint[] { config.QueueLeaveTextIdx }), Contains.Item(queue.GetSpeech(first)));
+        Assert.That(queueCandidates(first.Visit.Attributes, false), Contains.Item(queue.GetSpeech(first)));
         queue.Advance(3); Assert.That(queue.Leaving.Contains(first), Is.False);
     }
 
@@ -58,7 +56,25 @@ public sealed class CustomerQueueTests
     {
         var first = queue.Waiting[0]; queue.Advance(9);
         Assert.That(first.Visit.State, Is.EqualTo(CustomerState.Abandoned));
-        Assert.That(config.GetGenderDialogue(first.Visit.Attributes, config.MaleQueueLeaveTextIdxs,
-            config.FemaleQueueLeaveTextIdxs, new uint[] { config.QueueLeaveTextIdx }), Contains.Item(queue.GetSpeech(first)));
+        Assert.That(queueCandidates(first.Visit.Attributes, false), Contains.Item(queue.GetSpeech(first)));
+    }
+
+    /// <summary>방문 프로필에 대응하는 재촉 또는 이탈 대사 후보를 반환합니다.</summary>
+    /// <param name="attributes">대기 방문의 완성된 속성.</param>
+    /// <param name="warning">재촉 후보이면 true, 이탈 후보이면 false.</param>
+    /// <returns>실제 대기열이 선택할 수 있는 후보 목록.</returns>
+    private IReadOnlyList<uint> queueCandidates(CustomerAttributes attributes, bool warning)
+    {
+        return warning
+            ? config.GetProfileDialogue(attributes,
+                config.MaleQueueWarningTextIdxs, config.FemaleQueueWarningTextIdxs,
+                config.MaleChildQueueWarningTextIdxs, config.FemaleChildQueueWarningTextIdxs,
+                config.MaleElderlyQueueWarningTextIdxs, config.FemaleElderlyQueueWarningTextIdxs,
+                new uint[] { config.QueueWarningTextIdx })
+            : config.GetProfileDialogue(attributes,
+                config.MaleQueueLeaveTextIdxs, config.FemaleQueueLeaveTextIdxs,
+                config.MaleChildQueueLeaveTextIdxs, config.FemaleChildQueueLeaveTextIdxs,
+                config.MaleElderlyQueueLeaveTextIdxs, config.FemaleElderlyQueueLeaveTextIdxs,
+                new uint[] { config.QueueLeaveTextIdx });
     }
 }

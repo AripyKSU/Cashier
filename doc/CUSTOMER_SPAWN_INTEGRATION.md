@@ -10,6 +10,7 @@
   - 선호 타입과 `preferred_product_idxs`를 OR로 합치되, 상품의 날짜·활성·설비 조건을 먼저 적용한다.
   - 영업일마다 새 인스턴스를 만들며 첫 성별은 무작위, 이후 손님은 직전 성별의 반대다.
   - 성별·연령 속성을 정한 뒤 `CustomerAppearanceData`의 두 분류값이 모두 일치하는 후보를 PK 순으로 정렬해 균등 선택한다. 성향과 Normal은 외형 조건이 아니다.
+  - 구성에 확정된 성별·연령으로 대사 후보를 고른다. 일반 아동·노년은 각 성별 전용 대사를, 성인은 기존 성별 전용 대사를 사용한다. 비-Normal 외형은 Adult만 허용하므로 기존 성향별 성인 대사를 유지한다.
 - `CustomerGenerator`는 selector가 만든 `CustomerComposition`을 `CustomerVisit`으로 복사해 전달한다. 가격 callback과 판매 지침 callback의 수명 연결도 이 경계에서 수행한다.
 - `DayProgress`는 하루 시작 명성 snapshot, 당일 현재가, `GameSessionManager.IsFacilityActive`를 selector에 전달하고, 매 영업일 selector를 새로 만든다.
 

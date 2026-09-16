@@ -73,6 +73,7 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 - 양의 제안 총액이 허용 총액을 초과하면 결제 거부, 그 외에는 위 3차 정가 인정 범위로 판정한다. 초기 1000/1000 데이터에서는 기준 총액보다 1만 높아도 착취 판매다. RegularSale enum 값은 유지한다.
 - 성사된 세 유형만 제안 총액을 Finance에 한 번 반영한다. 시스템 반영 실패는 손님의 결제 거부와 별개다. 명성 변화는 기존 0을 유지한다.
 - 성향 CSV의 `accept_text_idxs`를 `regular_sale_text_idxs`, `discount_sale_text_idxs`, `exploitative_sale_text_idxs`로 교체했다. 모두 필수 uint 배열이며 TextData FK를 검증한다. 구형 CSV는 새 loader에서 거부한다.
+- 대사 후보는 완성된 성별·연령 속성으로 선택한다. 일반 아동과 일반 노년은 각각 남녀 전용 `*_child_*`, `*_elderly_*` 후보를 우선하며, 성인은 기존 `male_*`, `female_*` 후보를 사용한다. 입장·기준가·할인·착취·거절뿐 아니라 대기 재촉·이탈에도 같은 우선순위를 적용한다.
 - 초기 migration은 각 성향의 기존 수락 대사 ID를 세 컬럼에 동일하게 복사했다. 신규 TextData ID·문구는 추가하지 않았다. 저가·착취 전용 문구가 승인되면 해당 컬럼만 교체한다.
 - 테스트 결과명은 `OutcomeLabel`로 표시한다. 정식 UI 현지화 시 결과명도 TextData로 이관한다.
 
