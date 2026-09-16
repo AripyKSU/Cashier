@@ -141,10 +141,13 @@ MonoBehaviour:
   - {fileID: 9060888657886930961}
   - {fileID: 122306115572987317}
   openContainerSprite: {fileID: 1535846992672868323, guid: 9cd32db9f59d7644bbcf1992df9b35e7, type: 3}
+  tiltedContainerSprite: {fileID: 0}
+  emptyContainerSprite: {fileID: 0}
   counterExtensions:
   - {fileID: 9018633920193584428}
   - {fileID: 3270539440072158727}
   clockDigits: {fileID: 833351744142884477}
+  facilityDrawOrder: e52e0000e62e0000e32e0000e42e0000e12e0000e22e0000
 --- !u!1 &2343487229396486608
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,7 +590,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 522, y: -529}
+  m_AnchoredPosition: {x: 522, y: -505}
   m_SizeDelta: {x: 360, y: 240}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &3472023670465776627

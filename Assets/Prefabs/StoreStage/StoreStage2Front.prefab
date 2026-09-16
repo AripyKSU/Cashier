@@ -99,15 +99,15 @@ RectTransform:
   m_GameObject: {fileID: 2450935643341735812}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8110657, y: 0.89575404, z: 0.9891045}
+  m_LocalScale: {x: 0.72995913, y: 0.72995913, z: 0.66766}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1460524768480984964}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 508, y: -462}
-  m_SizeDelta: {x: 324, y: 228}
+  m_AnchoredPosition: {x: 522, y: -505}
+  m_SizeDelta: {x: 360, y: 240}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &7112492103024007255
 CanvasRenderer:
@@ -216,10 +216,13 @@ MonoBehaviour:
   - {fileID: 5068191868433704320}
   - {fileID: 1027743527473761767}
   openContainerSprite: {fileID: 7307633075391968004, guid: fbeac823711e39e45935051ffac7df5e, type: 3}
+  tiltedContainerSprite: {fileID: 0}
+  emptyContainerSprite: {fileID: 0}
   counterExtensions:
   - {fileID: 5688060731223659627}
   - {fileID: 4443199969946439228}
   clockDigits: {fileID: 7456347641160090214}
+  facilityDrawOrder: e32e0000e42e0000e12e0000e22e0000
 --- !u!1 &4971573011564127980
 GameObject:
   m_ObjectHideFlags: 0

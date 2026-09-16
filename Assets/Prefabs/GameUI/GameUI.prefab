@@ -2800,8 +2800,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  durationSeconds: 0.4
-  dustColor: {r: 0.48, g: 0.43, b: 0.39, a: 0.95}
+  durationSeconds: 0.55
+  dustColor: {r: 0.34, g: 0.32, b: 0.28, a: 0.42}
   dustOffset: {x: 0, y: 0}
 --- !u!114 &4245227619641265218 stripped
 MonoBehaviour:

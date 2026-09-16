@@ -340,38 +340,43 @@ public sealed class BusinessClockAndSortingTests
         var dustEffect = dustGo.AddComponent<LandingDustEffect>();
 
         dustEffect.Play(Vector2.zero);
+        Assert.That(dustEffect.IsPlaying);
         dustEffect.Stop();
-        Assert.Pass();
+        Assert.That(dustEffect.IsPlaying, Is.False);
 
         Object.DestroyImmediate(dustGo);
     }
 
     [Test]
-    public void LandingDustEffect_UsesFixedContactPointRegardlessOfBox()
+    public void LandingDustEffect_UsesScaledPivotedRotatedBoxBottomCenter()
     {
         var root = new GameObject("Root", typeof(RectTransform));
+        var rootRect = (RectTransform)root.transform;
+        rootRect.sizeDelta = new Vector2(1280f, 720f);
+        rootRect.pivot = new Vector2(0.5f, 0.5f);
         var boxGo = new GameObject("FrontContainer", typeof(RectTransform));
         boxGo.transform.SetParent(root.transform, false);
         var boxRect = (RectTransform)boxGo.transform;
         boxRect.anchorMin = new Vector2(0f, 1f);
         boxRect.anchorMax = new Vector2(0f, 1f);
-        boxRect.pivot = new Vector2(0f, 1f);
-        boxRect.anchoredPosition = new Vector2(460f, -350f);
-        boxRect.sizeDelta = new Vector2(360f, 240f);
+        boxRect.pivot = new Vector2(0.25f, 0.75f);
+        boxRect.anchoredPosition = new Vector2(400f, -200f);
+        boxRect.sizeDelta = new Vector2(200f, 100f);
+        boxRect.localScale = new Vector3(2f, 0.5f, 1f);
+        boxRect.localRotation = Quaternion.Euler(0f, 0f, 90f);
 
         var dustGo = new GameObject("LandingDustGo");
         var dustEffect = dustGo.AddComponent<LandingDustEffect>();
 
         Vector2 contact = dustEffect.CalculateContactPoint(boxRect);
-        Assert.That(contact, Is.EqualTo(new Vector2(640f, -578f)));
-
-        boxRect.anchoredPosition += new Vector2(100f, 180f);
-        boxRect.sizeDelta *= 2f;
-        Assert.That(dustEffect.CalculateContactPoint(boxRect), Is.EqualTo(contact));
+        dustEffect.DustOffset = new Vector2(5f, -10f);
+        Assert.That(contact.x, Is.EqualTo(437.5f).Within(0.001f));
+        Assert.That(contact.y, Is.EqualTo(-100f).Within(0.001f));
+        Vector2 offsetContact = dustEffect.CalculateContactPoint(boxRect);
+        Assert.That(offsetContact.x, Is.EqualTo(442.5f).Within(0.001f));
+        Assert.That(offsetContact.y, Is.EqualTo(-110f).Within(0.001f));
 
         dustEffect.BaseContactPoint = new Vector2(600f, -500f);
-        dustEffect.DustOffset = new Vector2(5f, -10f);
-        Assert.That(dustEffect.CalculateContactPoint(boxRect), Is.EqualTo(new Vector2(605f, -510f)));
         Assert.That(dustEffect.CalculateContactPoint(null), Is.EqualTo(new Vector2(605f, -510f)));
 
         Object.DestroyImmediate(boxGo);

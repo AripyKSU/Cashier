@@ -90,13 +90,18 @@ public sealed class StoreStagePresentationTests
         var facilities = front.GetComponentsInChildren<Image>(true).Where(image => image.name.StartsWith("Facility_")).ToArray();
         Assert.That(facilities.Length, Is.EqualTo(4));
         Assert.That(facilities.All(image => !image.raycastTarget && image.gameObject.activeSelf), Is.True);
-        Assert.That(front.transform.Find("Facility_12001").GetSiblingIndex(), Is.EqualTo(counter.transform.GetSiblingIndex() + 1));
+        Assert.That(front.transform.Find("Facility_12003").GetSiblingIndex(), Is.EqualTo(counter.transform.GetSiblingIndex() + 1));
+        Assert.That(facilities.OrderBy(image => image.transform.GetSiblingIndex()).Select(image => image.name),
+            Is.EqualTo(new[] { "Facility_12003", "Facility_12004", "Facility_12001", "Facility_12002" }));
         Assert.That(counter.GetComponentsInChildren<RawImage>().Count(image => image.enabled), Is.EqualTo(2));
         var tinted = (Graphic[])typeof(WorldSceneView).GetField("counterGraphics", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(world);
         Assert.That(facilities.All(image => tinted.Contains(image)), Is.True);
         presentation.Apply(3, _ => true);
         yield return null;
         Assert.That(front.GetComponentsInChildren<Image>(true).Count(image => image.name.StartsWith("Facility_")), Is.EqualTo(6));
+        Assert.That(front.GetComponentsInChildren<Image>(true).Where(image => image.name.StartsWith("Facility_"))
+                .OrderBy(image => image.transform.GetSiblingIndex()).Select(image => image.name),
+            Is.EqualTo(new[] { "Facility_12005", "Facility_12006", "Facility_12003", "Facility_12004", "Facility_12001", "Facility_12002" }));
         presentation.Apply(1, _ => false);
         yield return null;
         Assert.That(counter.GetComponentsInChildren<RawImage>().All(image => !image.enabled), Is.True);

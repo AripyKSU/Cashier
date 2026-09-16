@@ -1,5 +1,43 @@
 # 가게 리소스 교체·적용 작업 범위
 
+## ART_UPDATE_20260916 4단계: 상자 착지·먼지·전환 (2026-09-16)
+
+- 기존 `SaleSortingPanel.playContainerArrival`을 76px 높이의 0.3초 가속 낙하와 0.55초 감쇠 눌림·복원으로 변경했다. 총0.85초 및 기존 손님 도착 대기·자동 전환 시간은 유지한다. Rect의 피벗·배율·회전으로 하단 중앙을 계산해 눌림 중 접점을 고정하고 착지 시 SFX와 먼지를 한 번 시작한다.
+- 새 방문·ClearCustomer·결과 표시·OnDisable/OnDestroy는 진행 중 착지를 정리하고 원래 위치·배율·회전을 복원한다. 연출 중 Inspector 등 외부에서 배치를 바꾸면 그 값을 보존하고 정면 클릭 대기로 돌아간다. 기존 표시 차단 조회를 먼지에도 전달하며 해제 시 새 컴포넌트를 생성하지 않는다. 새 게임 일시정지 기능을 추가한 것은 아니다.
+- `LandingDustEffect.CalculateContactPoint`는 현재 상자의 하단 중앙을 부모 좌상단 좌표계로 변환한다. BaseContactPoint는 null 상자/수동 테스트 fallback, DustOffset은 추가 보정으로 유지한다. 먼지10개·12×6·0.55초·기본 색(.34,.32,.28)·알파.42→0·좌우 교대 분산·2px 스냅을 적용했다. Image.color와 CanvasRenderer에 alpha를 중복 적용하던 부분을 제거했다. GameUI.prefab의 시간·색 직렬화2곳도 함께 갱신했다.
+- 탑뷰 전환은 이미 현재 단계의 `workbench`가 포함된 `sortingView` 자체를 이동한다. 별도 덮개 Sprite 교체 시스템을 추가하지 않았고 기존 쏟기·상자 열림/퇴장 코드는 유지한다. Preview Scene 정적 확인에서 MainScene과 StoreResourceSandbox의 작업대가 이동 영역 자식이며 새 먼지 설정을 상속한다. 구형 SpriteWorldSandbox에는 StoreStagePresentation이 없어 단계별 통합 확인은 StoreResourceSandbox를 사용한다.
+- 구현 담당: `/root/crate_landing_step4` (gpt-5.6-sol/medium). 기존 지속 프로그래머 작업이 무출력 종료하여 제한 범위로 재배정했다. 설계 담당이 취소·외부 편집·조회 해제 경로를 리뷰하고 프리팹·문서·최종 컴파일을 담당했다.
+- 검증 상태 **PARTIAL**: 컴파일 오류0·Console error0·missing script0. GameUI 전체에서 기존 이미지 참조2개(`FrontContainer.m_Sprite`, `ReputationStamp.m_Sprite`)가 누락되어 있다. 이번 GameUI diff는 먼지 시간·색2줄뿐이며 두 참조는 이전과 동일하다. 정상 단계 적용 시 정면 상자는 StoreStagePresentation에서 갱신되지만 실행 확인은 아직 하지 않았다. 근거: `Temp/art-update-step4/verification.json`, `existing-missing-references.json`, `scene-bindings.json`, `preservation.json`, `backup/`.
+- 기존 EditMode 먼지2개 검사를 보완하고 PlayMode `ContainerArrivalPausesAndRestoresAcrossRestartAndCancel` 1개를 준비했다. 접점의 비단위 scale/pivot/rotation·fallback, 상자/먼지 차단·재시작·취소·정상 복원 경계를 대상으로 한다. **Test Runner/Play 실행0회**이며 통과 결과로 보고하지 않는다.
+- 1~3단계 산출물과 MainScene/Local씬 등 보호 파일38개를 보존했다. 신규 자산·Addressables·CSV·씬·고객 큐·그림자 변경은 없다. 남은 단계는 **5단계 누적 API/수명 검증, 기존 누락 참조 영향 확인, 문서·병합 기록 정리**다. 화면·조작감은 사용자 확인 대상이며 commit/push 미실행.
+
+## ART_UPDATE_20260916 3단계: 월드 배경 배치 (2026-09-16)
+
+- 최신 Stage1/2/3Reference의 월드 배치가 동일함을 확인했다(군중·바리케이드의 부동소수점 미세 차이 제외). 기존 `CustomerWorld`와 `StoreStage1/2/3World` 총4개 Prefab에 반영했으며 단계별 공용 API나 런타임 코드는 추가하지 않았다.
+- 단계 World3개의 배경6개·연기 기준점2개를 갱신했다. 공용 World에는 배경·연기·안개3개·군중3개·바리케이드·경비병2명·총구2개의 배치를 반영하고 새5마리의 렌더 영역을 하늘 영역에 맞췄다. Image의 pivot·회전·preserveAspect와 Sprite bounds를 계산해 SpriteRenderer의 중심·배율로 변환했다.
+- 탐조등 시작점은 각각 경비병 중심 `(126.20337,-172.6695)`, `(1159.7751,-234.81252)`에 맞췄다. 표시 순서는 기준 씬처럼 안개 → 중경 → 탐조등 → 군중 → 경비병 → 바리케이드다. 기준 씬에서 비활성인 감시탑 중복 이미지2개와 Front UI가 소유하는 천막의 구형 World 사본은 비활성화했다. 석양 초기 Sprite도 기존 사용 폴더의 `SunsetClouded`로 맞췄다.
+- 경비병의 `Origin/WidthPixels/HeightPixels`, 연기의 `Origin`도 함께 갱신하여 애니메이션 시 종전 배치로 복귀하지 않도록 했다. 기존 시간대 색·셰이더·프레임 전환·사격·일시정지 동작은 유지한다. 원본 art·프로토타입 경로를 직접 참조하지 않으며 새 이미지·Addressables·CSV 변경은 없다.
+- **STATIC PASS**: Prefab4개의 배치102건을 3개 권위 씬과 대조(최대 모서리 오차 약0.000126px), 표시 순서·애니메이션 기준점 정합, missing script/reference0·원본 경로 의존0, meta4개 보존, 컴파일 실패 없음·Console error0. 증거: `Temp/art-update-step3/verification.json`, `layout-before.json`, `layout-after.json`, `preservation.json`, `backup/`. Preview Scene의 Canvas는 월드 행렬이 0이 될 수 있어 저장된 로컬 TRS로 모서리를 대조했다.
+- 문서 갱신 전 보호 파일38개(1/2단계 산출물·MainScene/Local씬·권위 씬)의 해시 일치, 대기열 컴포넌트와 루트/대기열 Transform17개 보존을 확인했다. 성인·노인·아이 오프셋은 변경하지 않았다. MainScene에 이번 배치/표시 순서를 덮는 별도 override가 없음을 정적으로 확인했으며 Scene 파일은 저장하지 않았다.
+- Test Runner/Play 실행 **0회**, 최종 화면·시간대·단계 전환 UX는 미확인이다. 다음은 **4단계 착지 높이·찌그러짐·먼지·탑뷰 전환 연출**, 이후 **5단계 누적 기능 검증·문서 정리**다. 전용 PixelStage 조명·접촉 그림자는 기존 합의대로 별도 범위이며 이번에는 도입하지 않았다. commit/push 미실행.
+
+## ART_UPDATE_20260916 2단계: 정면 배치 (2026-09-16)
+
+- 권위는 최신 `STAGE1/2/3_HANDOFF.md`와 대응 `Stage1/2/3Reference.unity`의 저장값이다. Unity Preview Scene으로 원본 prefab override를 포함한 값을 읽고, Prefab 편집 API로 본편 자산을 보정했다. 1단계의 미커밋 PNG/import 변경은 보존했다.
+- 변경 Prefab5개: Front3개의 상자를 `(522,-505)`, size `(360,240)`, scale `(0.72995913,0.72995913,0.66766)`으로 통일했다. Stage1 상판 y=-498, 시계 숫자 y=-45, 식량 선반 y=-467, 약품장 y=-466으로 갱신했다. 나머지 설비10개의 배치는 이미 최신 기준과 일치해 저장하지 않았다.
+- 가림 순서 차이를 함께 보정했다. Front의 `facilityDrawOrder`가 Facility ID로 뒤→앞 순서를 소유한다: Stage1 `[12001,12002]`, Stage2 `[12003,12004,12001,12002]`, Stage3 `[12005,12006,12003,12004,12001,12002]`. 표시 코드는 이 순서로 형제 인덱스를 부여한다. 기존 빈 배열은 종전 순서와 호환되며, 명시한 배열의 중복·미등록·누락은 PrepareAsync에서 준비 결과 공개 전에 거부한다. 비용·보유·활성일·같은 단계 활성 갱신 계약은 유지한다.
+- **STATIC PASS**: Front3+설비12 총15개 Prefab의 배치40곳(정면 슬롯21·시계 숫자3·상판 확장4·설비12)이 권위 씬과 일치한다. 확장 UV·표시 여부·Sprite 연결 확인, 대상 missing script/reference0, art 직접 의존0, prefab meta15개 보존, 컴파일 실패 없음·최종 Console error0. `Temp/art-update-step2/verification.json`, `layout-before.json`, `changes.json`, `backup/`.
+- `StoreStagePresentationTests.ApplyRefreshesFacilitiesAndResetsContainerAcrossStages`에 2·3단계 실제 생성 순서 기대를 반영했다. 사용자 요청에 따라 Test Runner/Play 실행은 **0회**이며 최종 단계에서 실행할 예정이다. 명시 순서 검증의 정상·중복·누락 실패 경로도 최종 검증에 포함한다. 전체 표시/UX 성공으로 판단하지 않는다.
+- MainScene·Local씬·원본 참조 씬·폰트·CSV·Addressables 변경 없음. 배경·탐조등·손님·연령 오프셋은 다음 단계 범위이며, 착지/먼지 연출과 그림자·전용 조명은 이번 단계에서 수정하지 않았다. commit/push 미실행.
+
+## ART_UPDATE_20260916 1단계: 이미지·import 갱신 (2026-09-16)
+
+- 기준: `codex/store-resource-exchange fa4033f2`, `Assets/Textures/art/ART_UPDATE_20260916.md` 및 최신 `STAGE1/2/3_HANDOFF.md`. 사용자 승인 범위는 1단계만이며, 기능 테스트는 후속 구현을 마친 마지막 단계에서 모아서 실행한다.
+- 원본 PNG를 기존 사용 경로에 복사: `art/Facility/Clock/Stage1BasicClock.png` → `UI/Dystopia/Stage1Clock.png`, `art/Facility/Frame/BoothCanopy.png` → `Environment/Dystopia/BoothCanopy.png`, `art/Facility/Frame/Stage3Shop.png` → `Environment/Dystopia/Stage3Shop.png` (모두 `Assets/Textures/` 기준). 크기가 동일한 원본을 사용하고 기존 파일명·GUID·Sprite 식별자/영역을 보존했다. 원본 art는 수정하지 않았다.
+- 직전 병합으로 사용 폴더에 반영된 PNG24개는 다시 복사하지 않았다. 합계27개 중 Bilinear였던 1·2단계 이미지14개의 `filterMode`만 Point로 보정했다. 나머지13개는 이미 Point이며, `.meta`의 다른 값은 모두 보존했다. 대상별 목록은 `Temp/art-update-step1/manifest.json`, `filter-changes.json`에 있다.
+- **STATIC PASS**: Unity Editor import/load27개 성공, Point27개, 전후 Sprite GUID/fileID/rect/pivot 일치, PNG3개 원본 해시 일치, `.meta`27개는 필터14곳 외 바이트 동일. 컴파일 실패 없음·Console error0, InitScene clean 유지. 근거/백업: `Temp/art-update-step1/import-before.json`, `import-after.json`, `backup/`.
+- 이번 변경은 PNG3개·기존 meta14개 및 이 기록이다. 배치·Prefab·Scene·CSV·Addressables·게임 코드 변경, 기능 테스트, commit/push는 수행하지 않았다. 다음은 단계별 정면 배치 갱신이며, 최종 시각 품질과 기능 통과를 이번 import 검사로 판정하지 않는다.
+
 ## STAGE1_HANDOFF 1안 적용 (2026-09-16)
 
 - 사용자 선택: 이미지·위치·크기·표시 여부를 현재 UI/GameObject 분리 구조에 맞춘다. 원본은 art에 보존하며 실제 연결은 기존 사용 폴더로 이관·갱신한다. 전용 PixelStage 조명/접촉 그림자/480×270 렌더링은 도입하지 않는다.

@@ -18,7 +18,7 @@
 |---|---|---|
 | **배경 시간대 전환 (TimeOfDay)** | 09:00~21:00 시간 경과에 따른 배경 페이드(아침/주간/석양/야간), 도시 불빛·가판대 조명·탐조등 점등, 환경광/인물 틴트 제어 | `TimeOfDayUIController.cs`<br>`BusinessClockController.cs`<br>`Assets/DystopiaPrototype/Art/TimeOfDay/*` |
 | **대화창 & 폰트** | `DialoguePanel` 최상단 계층 순서 보존, 마비노기 SDF 폰트 직렬화 연결, 손님 대사별 자동 표시/숨김 | `OperatingPanel.prefab`<br>`CustomerPresenter.cs`<br>`DialogueFrame.png` |
-| **상자 착지 흙먼지** | 상자 밑면 매대 접점(`Y ≈ -578`) 기반 정확한 착지 위치 계산, 10개 픽셀 먼지의 좌우 자연스러운 비산 궤적 | `LandingDustEffect.cs`<br>`SaleSortingPanel.cs` |
+| **상자 착지 흙먼지** | 현재 단계 상자의 밑면 접점 계산, 낙하·눌림·복원과 10개 픽셀 먼지의 동기화. 최신 기준은 아래 D절 | `LandingDustEffect.cs`<br>`SaleSortingPanel.cs` |
 | **상자 & 시계 정렬** | 1280 해상도 기준 정중앙선(**Center X = 640**) 일치, 상자 매대 착지(`Y = -350`), 시계 매대 전면부 중앙 배치(`Y = -605`) | `OperatingPanel.prefab`<br>`SaleSortingPrefabSetup.cs` |
 | **상자 물품 쏟기 & 아이템 뷰** | 상자 틸트 회전(-90° -> -100°)과 함께 물품이 우르르 쏟아져 나오는 애니메이션, 빈 상자 퇴장(Fade), 아이템 뷰 드래그 및 영역 판정 피드백 | `SaleSortingPanel.cs`<br>`SaleSortingItemView.cs`<br>`TopDownContainerTilted.png`<br>`TopDownContainerEmpty.png` |
 | **단위 테스트** | TimeOfDay 시간 반영/블렌딩, 착지 접점 계산, 말풍선 제어, 아이템 뷰 드래그/상태 전환 검증 테스트 보존 | `BusinessClockAndSortingTests.cs` |
@@ -104,24 +104,14 @@
 
 ### D. 상자 착지 흙먼지 이펙트 (LandingDustEffect)
 
-1. **접점 계산 방식 (`CalculateContactPoint`)**:
-   * 기존의 임의 오프셋(`box.anchoredPosition.y - 151f`, `0.42f`)은 상자 중간 공중에서 먼지가 터지므로 **절대 복원하지 않습니다**.
-   * 상자 스프라이트(`FrontContainerMale.png`, 1254×1254, 하단 접점 비율 95.06%)의 실제 렌더링 영역을 기반으로 계산식을 유지합니다:
-     ```csharp
-     float boxLeftX = box.anchoredPosition.x - box.pivot.x * box.sizeDelta.x;
-     float boxTopY = box.anchoredPosition.y + (1f - box.pivot.y) * box.sizeDelta.y;
-     float centerX = boxLeftX + box.sizeDelta.x * 0.5f;
+2026-09-16 `ART_UPDATE_20260916` 4단계 계약이다. 구형 `FrontContainerMale`의 95.06% 비율과 고정 접점 `(640,-578)`은 현재 단계별 상자 계산에 사용하지 않는다. 구현·검증 상태는 [가게 리소스 작업 기록](work/store-resource-exchange.md)을 따른다.
 
-     float renderedHeight = Mathf.Min(box.sizeDelta.x, box.sizeDelta.y);
-     float visualBottomY = boxTopY - (renderedHeight * 0.9506f);
-     return new Vector2(centerX, visualBottomY) + this.dustOffset;
-     ```
-2. **먼지 입자 비산 궤적 (`animateDust`)**:
-   * 상자 하단 테두리 폭(~228px, 반폭 ~114px) 아래에서 10개의 픽셀 먼지가 좌우 대칭으로 솟구치도록 시작점과 호(arc)를 설정합니다:
-     * 좌측 파티클: 시작 X = `-30px ~ -94px`, 이동 X = `-35px ~ -108px`, 호 높이 = `8px ~ 18px`.
-     * 우측 파티클: 시작 X = `+30px ~ +94px`, 이동 X = `+35px ~ +108px`, 호 높이 = `8px ~ 18px`.
-3. **인스펙터 조정 필드**:
-   * 미세 조정용 직렬화 필드 `[SerializeField] private Vector2 dustOffset`을 유지합니다.
+1. **낙하와 복원**: 현재 배치를 기준으로 76px 위에서 0.3초 동안 가속 낙하하고, 0.55초 동안 `sin(2πt)·exp(-4t)·0.10`으로 눌림·복원한다. 실제 배율·피벗을 반영해 밑면 중앙을 고정한다. 정상 완료·취소·새 방문·비활성화에서 원래 위치와 배율을 복원한다.
+2. **접점 계산 (`CalculateContactPoint`)**: 현재 상자의 하단 중앙을 먼지 부모의 좌상단 좌표계로 변환하고 `DustOffset`을 더한다. `BaseContactPoint`는 상자 없는 호출과 수동 테스트의 fallback으로만 유지한다. 특정 옛 이미지의 비율이나 가게 공통 고정 좌표를 복원하지 않는다.
+3. **먼지**: 실제 착지 시점에 10개가 좌우로 퍼진다. 크기12×6, 색 `(0.34,0.32,0.28)`, 알파0.42→0, 지속0.55초, 2px 격자를 사용한다. `GameUI.prefab`의 직렬화 색·시간도 코드 기본값과 함께 갱신한다. 접점 미세 조정용 `dustOffset`은 보존한다.
+4. **수명과 전환**: 상자와 먼지는 같은 표시 진행 차단 조회를 따른다. 취소 시 먼지를 숨기고 다음 방문에 이전 연출을 남기지 않는다. 본편은 현재 단계의 작업대가 포함된 `sortingView` 자체를 이동하므로 프로토타입의 별도 전환 덮개·구형 작업대 Sprite를 추가하지 않는다.
+
+아래 E절의 좌표는 구형 배치 기록이다. 단계별 상자·가게 좌표를 병합할 때는 최신 `STAGE1/2/3_HANDOFF.md`와 StoreStage Prefab을 우선하며, 이 과거 수치로 덮어쓰지 않는다.
 
 ---
 
@@ -193,7 +183,7 @@ ClockText:
      * `SaleSortingItemView_InitializesRaycastTarget_AndSupportsDrag` PASS
      * `TimeOfDayUIController_EditorPreview_DoesNotChangeBusinessClock` PASS
      * `TimeOfDayUIController_BlendsDayAndNight_AccordingToBusinessClock` PASS
-     * `LandingDustEffect_CalculatesContactPointAtBottomOfBox` PASS
+     * `LandingDustEffect_UsesScaledPivotedRotatedBoxBottomCenter` 통과 확인(실행 결과는 해당 작업 검증 기록에 남김)
 3. **Unity Editor 씬/프리팹 검증**:
    * `OperatingPanel.prefab`을 열었을 때 Missing Script나 Missing Reference가 없는지 확인.
    * `AstraFrontView` 내 `DialoguePanel`이 최하단(화면 최앞단)에 존재하고, TextMeshProUGUI에 마비노기 폰트가 정상 할당되어 있는지 확인.

@@ -58,6 +58,16 @@ public sealed class StoreStagePresentation : MonoBehaviour
                     throw new InvalidOperationException($"Facility {facility.Idx}: {facilityResource.Path} is not a visual prefab");
                 facilityPrefabs.Add(facility.Idx, facilityPrefab);
             }
+            uint[] drawOrder = visuals[(int)StoreStageVisual.Region.Front].facilityDrawOrder;
+            if (drawOrder.Length > 0)
+            {
+                var unique = new HashSet<uint>();
+                foreach (uint facilityIdx in drawOrder)
+                    if (!facilityPrefabs.ContainsKey(facilityIdx) || !unique.Add(facilityIdx))
+                        throw new InvalidOperationException($"StoreStage {row.StoreStage}: invalid facility draw order {facilityIdx}");
+                if (unique.Count != facilityPrefabs.Count)
+                    throw new InvalidOperationException($"StoreStage {row.StoreStage}: incomplete facility draw order");
+            }
             next.Add(row.StoreStage, (visuals, clock, facilityPrefabs));
         }
         cancellationToken.ThrowIfCancellationRequested();
@@ -111,7 +121,7 @@ public sealed class StoreStagePresentation : MonoBehaviour
         workbench.sprite = visuals[2].images[0].sprite;
         workbench.color = visuals[2].images[0].color;
         // Workbench 자식의 물리·입력 영역과 시계/상자 버튼 인스턴스는 유지한다.
-        this.rebuildFacilities(stageAssets.Facilities, isFacilityActive);
+        this.rebuildFacilities(stageAssets.Facilities, visuals[1].facilityDrawOrder, isFacilityActive);
         world.SetStageGraphics(frontTargets, workbench, counterExtensions, facilityGraphics);
         world.SetStageSmoke(visuals[0].smokeAnchors);
         AppliedStage = stage;
@@ -169,8 +179,9 @@ public sealed class StoreStagePresentation : MonoBehaviour
 
     /// <summary>이전 단계 설비를 숨긴 뒤 현재 단계의 표시 인스턴스를 소유한다.</summary>
     /// <param name="prefabs">설비 ID별 준비된 외형.</param>
+    /// <param name="drawOrder">단계 프리팹이 소유하는 뒤에서 앞으로의 표시 순서.</param>
     /// <param name="isActive">현재 활성 판정.</param>
-    private void rebuildFacilities(IReadOnlyDictionary<uint, GameObject> prefabs, Func<uint, bool> isActive)
+    private void rebuildFacilities(IReadOnlyDictionary<uint, GameObject> prefabs, uint[] drawOrder, Func<uint, bool> isActive)
     {
         foreach (GameObject visual in facilityVisuals.Values)
             if (visual != null)
@@ -182,18 +193,19 @@ public sealed class StoreStagePresentation : MonoBehaviour
         facilityGraphics.Clear();
         Transform parent = frontTargets[0].transform.parent;
         int siblingIndex = frontTargets[0].transform.GetSiblingIndex() + 1;
-        foreach (var pair in prefabs)
+        IEnumerable<uint> orderedIds = drawOrder.Length == 0 ? prefabs.Keys : drawOrder;
+        foreach (uint facilityIdx in orderedIds)
         {
-            GameObject visual = Instantiate(pair.Value, parent, false);
-            visual.name = $"Facility_{pair.Key}";
+            GameObject visual = Instantiate(prefabs[facilityIdx], parent, false);
+            visual.name = $"Facility_{facilityIdx}";
             visual.transform.SetSiblingIndex(siblingIndex++);
             foreach (Graphic graphic in visual.GetComponentsInChildren<Graphic>(true))
             {
                 graphic.raycastTarget = false;
                 facilityGraphics.Add(graphic);
             }
-            visual.SetActive(isActive(pair.Key));
-            facilityVisuals.Add(pair.Key, visual);
+            visual.SetActive(isActive(facilityIdx));
+            facilityVisuals.Add(facilityIdx, visual);
         }
     }
 

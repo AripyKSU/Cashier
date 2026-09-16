@@ -25,6 +25,8 @@ public sealed class StoreStageVisual : MonoBehaviour
     public RawImage[] counterExtensions = Array.Empty<RawImage>();
     /// <summary>Front의 기존 시계 숫자가 따를 표시창 배치.</summary>
     public RectTransform clockDigits;
+    /// <summary>Front 설비의 뒤에서 앞으로 그리는 순서. FacilityData ID이며 빈 배열은 기존 생성 순서를 유지한다.</summary>
+    public uint[] facilityDrawOrder = Array.Empty<uint>();
 
     /// <summary>세트의 타입과 모든 슬롯을 적용 전에 검사한다.</summary>
     public void Validate(Region expected)
@@ -46,7 +48,7 @@ public sealed class StoreStageVisual : MonoBehaviour
             for (int i = 0; i < images.Length; i++)
                 if (images[i] == null || (images[i].enabled && images[i].sprite == null && !(region == Region.Front && i == 6)))
                     throw new InvalidOperationException($"{name}: visible Sprite missing");
-            if (region == Region.Front && (clockDigits == null || openContainerSprite == null
+            if (region == Region.Front && (clockDigits == null || openContainerSprite == null || facilityDrawOrder == null
                 || counterExtensions == null || (counterExtensions.Length != 0 && counterExtensions.Length != 2)))
                 throw new InvalidOperationException($"{name}: front container/extension slots missing");
             if (region == Region.Front)

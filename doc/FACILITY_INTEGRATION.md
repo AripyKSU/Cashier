@@ -9,6 +9,7 @@
 - FacilityData의 필수 `uint` 컬럼 `stage1_resource_idx`, `stage2_resource_idx`, `stage3_resource_idx`는 ResourceData를 거쳐 **외형 Prefab**을 참조한다. 0은 해당 단계의 외형 없음이다. 같은 설비 PK가 단계별로 다른 Prefab을 사용한다.
 - `GetStageResourceIdx(uint stage)`는 1~3단계 FK를 반환하고 범위 밖 값은 거부한다. CustomerCatalog는 공개 전에 비0 Resource FK를 검사한다.
 - StoreStagePresentation은 PrepareAsync에서 단계별 Prefab을 ResourceManager로 로드하고 RectTransform·Graphic 존재를 검사한 뒤 준비 결과를 공개한다. Prefab은 이미지·배치·크기를 소유하고 구매 상태·비용·세이브를 소유하지 않는다.
+- Front `StoreStageVisual.facilityDrawOrder`는 해당 단계 외형의 Facility ID를 뒤→앞 순으로 저장한다. 1단계는 식량→약품, 2단계는 공구→전력통신→식량→약품, 3단계는 핵보호→정밀전자→공구→전력통신→식량→약품이다. 구매 여부와 무관한 표시 순서이며 실제 활성 여부는 기존 콜백을 따른다. 빈 배열은 기존 생성 순서를 유지하고, 명시한 순서의 중복·미등록·누락은 PrepareAsync에서 거부한다. CSV 행 순서를 변경해 배치를 제어하지 않는다.
 - `Apply(stage, isFacilityActive)`는 단계 교체 시 해당 Prefab을 교체하고, 같은 단계에서는 기존 인스턴스의 활성 여부를 다시 반영한다. 콜백은 GameSessionManager.IsFacilityActive를 사용하며 상품 설비 구매 당일에는 숨기고 다음 영업일부터 표시한다.
 - 생성한 설비의 Graphic은 raycast를 받지 않으며 기존 WorldSceneView의 시간대 색을 따른다. GameUI/StoreStageVisual에 설비 이미지·배치 슬롯을 중복 등록하지 않는다.
 - 닫힌/열린 상자는 StoreStageVisual의 기존 images[5]와 openContainerSprite로 분리한다. SaleSortingPanel.ContainerOpenChanged → GameUIController → StoreStagePresentation.SetContainerOpen 경로를 사용하며 새 방문·초기화·비활성화 때 닫힘으로 복원한다.

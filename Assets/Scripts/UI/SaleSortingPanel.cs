@@ -89,6 +89,26 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private Coroutine transitionRoutine;
     private Coroutine autoSortingRoutine;
     private Coroutine calculatorSlideRoutine;
+    /// <summary>현재 착지 연출이 소유한 상자입니다.</summary>
+    private RectTransform landingBox;
+    /// <summary>착지 시작 시점의 위치입니다.</summary>
+    private Vector2 landingRestPosition;
+    /// <summary>착지 시작 시점의 배율입니다.</summary>
+    private Vector3 landingRestScale;
+    /// <summary>착지 시작 시점의 회전입니다.</summary>
+    private Quaternion landingRestRotation;
+    /// <summary>착지 시작 시점의 부모 좌표계 하단 중앙입니다.</summary>
+    private Vector2 landingRestBottom;
+    /// <summary>연출이 마지막으로 쓴 위치입니다.</summary>
+    private Vector2 landingLastPosition;
+    /// <summary>연출이 마지막으로 쓴 배율입니다.</summary>
+    private Vector3 landingLastScale;
+    /// <summary>연출이 마지막으로 쓴 회전입니다.</summary>
+    private Quaternion landingLastRotation;
+    /// <summary>연출 중 외부 변경을 구분할 마지막 피벗입니다.</summary>
+    private Vector2 landingLastPivot;
+    /// <summary>연출 중 외부 변경을 구분할 마지막 크기입니다.</summary>
+    private Vector2 landingLastSize;
     private Vector2 calculatorOpenPosition;
     private Vector2 calculatorClosedPosition;
     private bool isCalculatorOpen;
@@ -99,7 +119,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     /// <summary>기존 연출 시계를 멈출 조회자를 연결한다. null은 기존 unscaled 동작이다.</summary>
     /// <param name="isBlocked">오류나 비활성화로 표현 진행이 막혔는지 조회합니다.</param>
-    public void SetPresentationBlockQuery(Func<bool> isBlocked) => this.isPresentationBlocked = isBlocked;
+    public void SetPresentationBlockQuery(Func<bool> isBlocked)
+    {
+        this.isPresentationBlocked = isBlocked;
+        if (this.landingDustEffect != null) this.landingDustEffect.SetPresentationBlockQuery(isBlocked);
+    }
 
     /// <summary>기존 unscaled 시간을 사용하되 표현 진행이 막힌 동안은 제외합니다.</summary>
     private float PresentationDeltaSeconds => this.isPresentationBlocked?.Invoke() == true ? 0f : Time.unscaledDeltaTime;
@@ -258,6 +282,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 this.landingDustEffect = this.frontView.AddComponent<LandingDustEffect>();
             }
         }
+        if (this.landingDustEffect != null) this.landingDustEffect.SetPresentationBlockQuery(this.isPresentationBlocked);
         return this.landingDustEffect;
     }
 
@@ -353,6 +378,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트 구독과 진행 중 연출을 정리합니다.</summary>
     private void OnDestroy()
     {
+        this.stopContainerArrival();
         this.hideCalculatorImmediately();
         if (this.frontContainerButton != null)
         {
@@ -365,6 +391,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>비활성화 중 계산기 연출과 열린 상자 상태를 남기지 않습니다.</summary>
     private void OnDisable()
     {
+        if (this.transitionRoutine != null)
+        {
+            StopCoroutine(this.transitionRoutine);
+            this.transitionRoutine = null;
+        }
+        this.stopContainerArrival();
         this.hideCalculatorImmediately();
         this.ContainerOpenChanged?.Invoke(false);
     }
@@ -373,6 +405,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <param name="basket">상품 ID, 수량과 이미지가 포함된 장바구니 표시 데이터입니다.</param>
     public void BeginCustomer(IReadOnlyList<CustomerBasketItemViewData> basket)
     {
+        if (this.transitionRoutine != null)
+        {
+            StopCoroutine(this.transitionRoutine);
+            this.transitionRoutine = null;
+        }
+        this.stopContainerArrival();
         this.stopAutoSorting();
         this.cancelVacuumItems();
         this.hideCalculatorImmediately();
@@ -392,17 +430,18 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.pendingBasket = basket;
         if (this.frontBasketRoot != null) this.frontBasketRoot.SetActive(false);
 
-        if (this.transitionRoutine != null)
-        {
-            StopCoroutine(this.transitionRoutine);
-        }
-
         this.transitionRoutine = StartCoroutine(this.playContainerArrival());
     }
 
     /// <summary>거래 결과 표시를 위해 분류 입력을 잠그고 정면 화면으로 돌아갑니다.</summary>
     public void ShowTransactionResult()
     {
+        if (this.transitionRoutine != null)
+        {
+            StopCoroutine(this.transitionRoutine);
+            this.transitionRoutine = null;
+        }
+        this.stopContainerArrival();
         this.stopAutoSorting();
         this.cancelVacuumItems();
         this.state = ViewState.Locked;
@@ -420,6 +459,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             StopCoroutine(this.transitionRoutine);
             this.transitionRoutine = null;
         }
+        this.stopContainerArrival();
 
         this.clearItems();
         this.pendingBasket = Array.Empty<CustomerBasketItemViewData>();
@@ -637,33 +677,43 @@ public sealed class SaleSortingPanel : MonoBehaviour
             RectTransform box = (RectTransform)this.frontContainerButton.transform;
             this.frontContainerButton.gameObject.SetActive(true);
             this.frontContainerButton.interactable = false;
-            Vector2 destination = box.anchoredPosition;
-            Vector2 start = destination + new Vector2(0f, 180f);
+            this.landingBox = box;
+            this.landingRestPosition = box.anchoredPosition;
+            this.landingRestScale = box.localScale;
+            this.landingRestRotation = box.localRotation;
+            this.landingRestBottom = this.getBottomCenterInParent(box);
+            this.recordContainerLandingPose();
             float elapsed = 0f;
-            const float ArrivalSeconds = 0.85f;
-            bool dustPlayed = false;
-            while (elapsed < ArrivalSeconds)
+            bool landed = false;
+            while (elapsed < 0.85f)
             {
-                elapsed += this.PresentationDeltaSeconds;
-                float t = Mathf.Clamp01(elapsed / ArrivalSeconds);
-                float eased = 1f - Mathf.Pow(1f - t, 3f);
-                box.anchoredPosition = Vector2.LerpUnclamped(start, destination, eased);
-
-                // DEV-2D-11-01: 착지 순간 10개의 픽셀 먼지 조각이 양옆으로 포물선 비산하는 연출
-                if (!dustPlayed && elapsed >= 0.3f)
+                if (this.hasContainerLayoutChanged())
                 {
-                    dustPlayed = true;
-                    if (dust != null)
-                    {
-                        dust.Play(box);
-                    }
+                    this.abandonContainerArrival();
+                    yield break;
+                }
+                elapsed += this.PresentationDeltaSeconds;
+                float drop = Mathf.Clamp01(elapsed / 0.3f);
+                float impact = Mathf.Clamp01((elapsed - 0.3f) / 0.55f);
+                float squash = Mathf.Sin(impact * Mathf.PI * 2f) * Mathf.Exp(-impact * 4f) * 0.10f;
+                this.setContainerLandingPose(new Vector3(1f + squash, 1f - squash, 1f),
+                    76f * (1f - drop * drop));
+                if (!landed && elapsed >= 0.3f)
+                {
+                    landed = true;
+                    if (dust != null) dust.Play(box);
                     SoundManager.Instance?.PlaySfx(SoundKeys.CustomerBoxDrop);
                 }
-
+                this.recordContainerLandingPose();
                 yield return null;
             }
 
-            box.anchoredPosition = destination;
+            if (this.hasContainerLayoutChanged())
+            {
+                this.abandonContainerArrival();
+                yield break;
+            }
+            this.restoreContainerLandingPose();
             this.frontContainerButton.interactable = true;
         }
 
@@ -681,6 +731,85 @@ public sealed class SaleSortingPanel : MonoBehaviour
             }
         }
 
+        this.transitionRoutine = null;
+    }
+
+    /// <summary>현재 상자의 실제 피벗·회전·배율을 반영한 부모 좌표계 하단 중앙을 반환합니다.</summary>
+    /// <param name="box">접점을 계산할 상자입니다.</param>
+    /// <returns>상자 부모 좌표계의 하단 중앙입니다.</returns>
+    private Vector2 getBottomCenterInParent(RectTransform box)
+    {
+        Transform parent = box.parent;
+        Vector3 world = box.TransformPoint(new Vector3(box.rect.center.x, box.rect.yMin));
+        return parent != null ? (Vector2)parent.InverseTransformPoint(world) : (Vector2)world;
+    }
+
+    /// <summary>기준 하단 중앙을 고정한 채 낙하 높이와 상대 눌림 배율을 적용합니다.</summary>
+    /// <param name="relativeScale">원래 배율에 곱할 상대 배율입니다.</param>
+    /// <param name="dropHeight">원래 접점에서 위로 이동할 픽셀 거리입니다.</param>
+    private void setContainerLandingPose(Vector3 relativeScale, float dropHeight)
+    {
+        this.landingBox.anchoredPosition = this.landingRestPosition;
+        this.landingBox.localScale = Vector3.Scale(this.landingRestScale, relativeScale);
+        this.landingBox.localRotation = this.landingRestRotation;
+        Vector2 bottomOffset = this.landingRestBottom - this.getBottomCenterInParent(this.landingBox);
+        this.landingBox.anchoredPosition += bottomOffset + Vector2.up * dropHeight;
+    }
+
+    /// <summary>중단되거나 완료된 착지 연출을 시작 배치로 복원합니다.</summary>
+    private void stopContainerArrival()
+    {
+        if (this.hasContainerLayoutChanged())
+        {
+            this.releaseContainerLandingPose();
+            return;
+        }
+        this.restoreContainerLandingPose();
+        if (this.landingDustEffect != null) this.landingDustEffect.Stop();
+    }
+
+    /// <summary>현재 배치가 연출이 마지막으로 쓴 값과 다른지 검사합니다.</summary>
+    /// <returns>착지 중 외부에서 배치를 변경했으면 true입니다.</returns>
+    private bool hasContainerLayoutChanged() => this.landingBox != null &&
+        (this.landingBox.anchoredPosition != this.landingLastPosition ||
+         this.landingBox.localScale != this.landingLastScale ||
+         this.landingBox.localRotation != this.landingLastRotation ||
+         this.landingBox.pivot != this.landingLastPivot ||
+         this.landingBox.sizeDelta != this.landingLastSize);
+
+    /// <summary>연출이 쓴 배치를 기록해 다음 프레임의 외부 변경을 구분합니다.</summary>
+    private void recordContainerLandingPose()
+    {
+        this.landingLastPosition = this.landingBox.anchoredPosition;
+        this.landingLastScale = this.landingBox.localScale;
+        this.landingLastRotation = this.landingBox.localRotation;
+        this.landingLastPivot = this.landingBox.pivot;
+        this.landingLastSize = this.landingBox.sizeDelta;
+    }
+
+    /// <summary>착지 시작 배치를 복원하고 연출 소유권을 해제합니다.</summary>
+    private void restoreContainerLandingPose()
+    {
+        if (this.landingBox == null) return;
+        this.landingBox.anchoredPosition = this.landingRestPosition;
+        this.landingBox.localScale = this.landingRestScale;
+        this.landingBox.localRotation = this.landingRestRotation;
+        this.landingBox = null;
+    }
+
+    /// <summary>외부에서 바꾼 현재 배치는 유지하고 착지 연출 소유권과 먼지만 해제합니다.</summary>
+    private void releaseContainerLandingPose()
+    {
+        this.landingBox = null;
+        if (this.landingDustEffect != null) this.landingDustEffect.Stop();
+    }
+
+    /// <summary>외부 배치 변경이 감지되면 새 값을 보존하고 연출 상태만 버립니다.</summary>
+    private void abandonContainerArrival()
+    {
+        this.releaseContainerLandingPose();
+        this.state = ViewState.FrontWaiting;
+        if (this.frontContainerButton != null) this.frontContainerButton.interactable = true;
         this.transitionRoutine = null;
     }
 

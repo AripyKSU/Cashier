@@ -1359,6 +1359,61 @@ public sealed class GameSessionApiTests
         Assert.That(progress.ReputationLogService.SettlementEntries.Count, Is.EqualTo(1));
     }
 
+    /// <summary>상자 착지가 차단 중 멈추고 재시작·취소·완료마다 원래 배치를 복원하는지 검사한다.</summary>
+    /// <returns>착지와 차단 시간 경계 대기.</returns>
+    [UnityTest]
+    public IEnumerator ContainerArrivalPausesAndRestoresAcrossRestartAndCancel()
+    {
+        var ui = createGameUi();
+        yield return waitForGameUi(ui);
+        var sorting = uiReference<SaleSortingPanel>(ui, "saleSortingPanel");
+        var button = uiReference<UnityEngine.UI.Button>(sorting, "frontContainerButton");
+        var box = (RectTransform)button.transform;
+        var dust = uiReference<LandingDustEffect>(sorting, "landingDustEffect");
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        uiProgress(ui).OpenBusiness();
+        sorting.ClearCustomer();
+        typeof(SaleSortingPanel).GetField("customerArrivalSeconds", flags).SetValue(sorting, 0f);
+        typeof(SaleSortingPanel).GetField("autoAdvanceDelaySeconds", flags).SetValue(sorting, 10f);
+        box.pivot = new Vector2(0.25f, 0.75f);
+        box.localScale = new Vector3(1.2f, 0.8f, 1f);
+        box.localRotation = Quaternion.Euler(0f, 0f, 7f);
+        Vector2 restPosition = box.anchoredPosition;
+        Vector3 restScale = box.localScale;
+        Quaternion restRotation = box.localRotation;
+
+        bool blocked = true;
+        sorting.SetPresentationBlockQuery(() => blocked);
+        sorting.BeginCustomer(Array.Empty<CustomerBasketItemViewData>());
+        yield return null;
+        Vector2 pausedPosition = box.anchoredPosition;
+        yield return new WaitForSecondsRealtime(0.05f);
+        Assert.That(box.anchoredPosition, Is.EqualTo(pausedPosition));
+        Assert.That(dust.IsPlaying, Is.False);
+
+        blocked = false;
+        float deadline = Time.realtimeSinceStartup + 1f;
+        while (!dust.IsPlaying && Time.realtimeSinceStartup < deadline) yield return null;
+        Assert.That(dust.IsPlaying);
+        blocked = true;
+        yield return new WaitForSecondsRealtime(0.65f);
+        Assert.That(dust.IsPlaying, "표시 차단 중에는 먼지의 재생 수명이 소진되지 않아야 합니다.");
+        blocked = false;
+        sorting.BeginCustomer(Array.Empty<CustomerBasketItemViewData>());
+        sorting.ClearCustomer();
+        Assert.That(box.anchoredPosition, Is.EqualTo(restPosition));
+        Assert.That(box.localScale, Is.EqualTo(restScale));
+        Assert.That(box.localRotation, Is.EqualTo(restRotation));
+        Assert.That(dust.IsPlaying, Is.False);
+
+        sorting.BeginCustomer(Array.Empty<CustomerBasketItemViewData>());
+        yield return new WaitForSecondsRealtime(0.9f);
+        Assert.That(box.anchoredPosition, Is.EqualTo(restPosition));
+        Assert.That(box.localScale, Is.EqualTo(restScale));
+        Assert.That(box.localRotation, Is.EqualTo(restRotation));
+        sorting.SetPresentationBlockQuery(null);
+    }
+
     /// <summary>계산기는 실제 상품 분류 완료에만 열리고 입력·잠금·빈 판매 경계를 함께 따른다.</summary>
     [UnityTest]
     public IEnumerator CalculatorFollowsSaleSortingLifecycle()
