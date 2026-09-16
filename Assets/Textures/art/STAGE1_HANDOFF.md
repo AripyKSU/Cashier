@@ -1,6 +1,6 @@
 # Stage 1 개발자 인계 — 정면 가판 씬 전체 명세
 
-작성 2026-09-16 14:45 · 브랜치 `astra-prototype` · HEAD `def6552` (작업 트리 미커밋 변경 포함) · 근거 파일 SHA1 `1d557f720511`
+작성 2026-09-16 17:49 · 브랜치 `astra-prototype` · HEAD `53e8d196` (작업 트리 미커밋 변경 포함) · 근거 파일 SHA1 `37da91bbd21d`
 
 이 문서 하나로 **Stage 1 정면 화면을 Unity에서 그대로 재현**할 수 있도록, 씬에 저장된 모든 오브젝트·컴포넌트·수치·이미지·스크립트·머티리얼·셰이더·폰트·프리팹과 적용 방법을 기록했다. 값은 사람이 손으로 옮긴 것이 아니라 아래 근거 파일을 파싱해 프리팹 기본값과 씬 override를 합산한 결과다.
 
@@ -8,8 +8,8 @@
 
 | 항목 | 값 |
 |---|---|
-| Stage 1 권위 씬 | `Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity` (2026-09-16 12:47 저장, `output/shop-stage-switch/stage1-approved-20260916-125120/after.unity`와 바이트 동일) |
-| 실제 플레이 씬 | `Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity` — 현재는 Stage 3 상태로 저장되어 있다. Stage 1은 `Dystopia > Apply Stage 1 Shop` 메뉴가 위 권위 씬에서 값을 복사해 적용한다 |
+| Stage 1 권위 씬 | `Assets/DystopiaPrototype/Editor/References/Stage1Reference.unity` (2026-09-16 17:01 저장(사용자 배치) + 17:2x~17:4x 상자 통일·탐조등·그림자 반영) |
+| 실제 플레이 씬 | `Assets/DystopiaPrototype/Scenes/DystopiaVerticalSlice.unity` — 현재는 Stage 3 상태로 저장되어 있다. Stage 1는 `Dystopia > Apply Stage 1 Shop` 메뉴가 위 권위 씬에서 값을 복사해 적용한다 |
 | 프리팹 원본 | `Assets/DystopiaPrototype/Prefabs/FrontView.prefab` (DystopiaCanvas), `CheckoutUI.prefab` (TopDownTestCanvas), `Workbench.prefab` (TopDownWorkbench). **이 문서의 값은 프리팹 기본값 + 씬 override를 합산한 최종값**이므로 프리팹만 열어 보고 판단하면 틀린다 |
 | 기준 해상도 | 1280×720 (CanvasScaler Scale With Screen Size, Match Width 0). 모든 좌표는 이 캔버스 단위 |
 | 좌표계 | uGUI RectTransform. 이 씬의 거의 모든 요소는 anchorMin=anchorMax=(0,1), pivot=(0,1) = **화면 좌상단 기준, Y는 아래로 갈수록 음수**. 손님 3종만 pivot (0.5,0)=아래 중앙 |
@@ -37,14 +37,14 @@
 
 1. `FrontCounter/DystopiaCanvas`(Screen Space Overlay, 1280×720)에 배경·손님·가판·설비를 uGUI `Image`로 **편집 가능하게** 배치한다. Hierarchy 순서 = 그리기 순서(뒤→앞).
 2. `TopDownCheckout`의 **DystopiaPixelStage**가 위 Image들을 `DystopiaPixelSource`(BaseMeshEffect)로 가로채 임시 월드 메시로 옮기고, 전용 셰이더 `Cashier/PixelStageLighting`으로 시간대 조명을 입혀 RenderTexture에 그린 뒤 화면 전체 `RawImage`(sortingOrder -100 Canvas)로 출력한다. 원본 Image는 메시가 비워져 화면에 직접 그려지지 않는다.
-3. 렌더 크기: `width`=480, `matchScreenResolution`=False → Stage 1은 **480×270 도트 렌더 후 Point 확대**다(Stage 3만 `Stage3CeilingLamp` 존재 시 화면 해상도 1:1). 텍스트·계산기·문서 UI는 픽셀 스테이지 레이어가 아니므로 원래 Canvas에 선명하게 남는다.
+3. 렌더 크기: `width`=480, `matchScreenResolution`=False, `ceilingLamp`=Stage3CeilingLamp. `UseScreenResolution = matchScreenResolution || ceilingLamp.name == "Stage3CeilingLamp"` 이므로 이 씬의 실제 렌더는 **화면 해상도 1:1(Bilinear)** 이다(5.1 참조). 텍스트·계산기·문서 UI는 픽셀 스테이지 레이어가 아니므로 원래 Canvas에 선명하게 남는다.
 4. **DystopiaDayNight**가 영업 시각(09~21시)으로 Dawn/Sunset/Evening/CityLights/Searchlight/CounterLamplight 레이어의 canvasRenderer 알파와 PixelStage 시간 가중치를 매 프레임 갱신한다. 편집 중에는 `preview`가 꺼져 있으면 낮(알파 0)으로 복원한다. **즉 아래 표의 밤 레이어들은 낮에는 보이지 않는 것이 정상이다.**
 5. 손님 3슬롯(`Customer`, `WaitingLeft`, `WaitingRear`)의 Sprite는 `DystopiaScreen`이 거래 데이터에 따라 남/여 30종 배열에서 교체한다. 위치·크기는 씬 값이며 호흡은 렌더 1픽셀 상하 이동뿐이다.
 6. 정면 상자(`FrontContainer`)와 시계(`CounterClock`)는 별도 Canvas `TopDownCheckout/TopDownTestCanvas`에 있지만 같은 1280×720 좌표계이며 PixelStage 레이어 목록에 포함되어 함께 렌더된다.
 
 ## 3. 아트 폴더 구조 (2026-09-16 재편) 와 사용 이미지 전체 목록
 
-옛 `Assets/Textures/Checkout/` 100장을 모두 `Assets/Textures/art/` 아래 종류별 폴더로 옮겼다(.meta 동반 이동, GUID 102/102 보존 확인, 씬·프리팹 참조 변경 없음). 코드의 경로 문자열 71곳도 함께 바꿨다. 이동 목록: `output/art-move/moved.csv`.
+옛 `Assets/Textures/Checkout/` 100장을 모두 `Assets/Textures/art/` 아래 종류별 폴더로 옮겼다(2026-09-16, 커밋 a43c1aec; .meta 동반 이동, GUID 보존, 씬·프리팹 참조 변경 없음). 이동 목록: `output/art-move/moved.csv`, 옛→새 경로 표: `doc/CHECKOUT_ASSET_LAYOUT.md`.
 
 ```text
 Assets/Textures/art/
@@ -65,8 +65,8 @@ Assets/Textures/art/
 ├── Products/ (+Legacy) 상품 16종 + 구형
 ├── UI/                지침서·가계부·대사창·표정·손
 ├── Workbench/         계산기·토글·디바이더·청소기·탑다운 물품
-├── _Reference/        배치 검증 이미지 Stage1_LayoutCheck.png
-└── STAGE1_HANDOFF.md  이 문서
+├── _Reference/        배치 검증 이미지 Stage{N}_LayoutCheck.png
+└── STAGE{N}_HANDOFF.md 단계별 명세 문서(이 문서)
 ```
 
 ### 3.1 Stage 1 씬이 참조하는 이미지 (PNG + .meta 짝을 함께 전달)
@@ -177,9 +177,9 @@ Assets/Textures/art/
 | `Assets/Textures/art/Facility/Props/Stage1FoodShelf.png` | 1254×1254 | Sprite/Multiple | 100 | 1 | 2048 | None | off | off | on | Stage1FoodShelf | Stage1FoodShelf (167,223,964,828) pivot(0.5, 0.5) | `dd20d10e18911d9498124edd0f21fd16` |
 | `Assets/Textures/art/Facility/Props/Stage1MedicineCabinet.png` | 1254×1254 | Sprite/Multiple | 100 | 1 | 2048 | None | off | off | on | Stage1MedicineCabinet | Stage1MedicineCabinet (97,273,1038,740) pivot(0.5, 0.5) | `05e332e6e58e6b54f9e30a94d319fec5` |
 | `Assets/Textures/art/Facility/Props/Stage3NuclearProtection.png` | 1448×1086 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3NuclearProtection | Stage3NuclearProtection (78,91,1296,872) pivot(0.5, 0.5) | `56021a32eecae564ca4d5a558d712c43` |
-| `Assets/Textures/art/Facility/Props/Stage3PowerCommunications.png` | 1223×1286 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3PowerCommunications | Stage3PowerCommunications (54,181,1094,1050) pivot(0.5, 0.5) | `3f62e7b863807ad42bcba13f1e9b745f` |
-| `Assets/Textures/art/Facility/Props/Stage3PrecisionElectronics.png` | 1672×941 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3PrecisionElectronics | Stage3PrecisionElectronics (12,46,1648,886) pivot(0.5, 0.5) | `92e018ba77d83b2468945383b01f7aab` |
-| `Assets/Textures/art/Facility/Props/Stage3ToolBench.png` | 1844×853 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3ToolBench | Stage3ToolBench (69,39,1708,763) pivot(0.5, 0.5) | `b0eea89e97a6eaf4884fe3b1c53564b8` |
+| `Assets/Textures/art/Facility/Props/Stage3PowerCommunications.png` | 1448×1086 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3PowerCommunications | Stage3PowerCommunications (246,7,887,957) pivot(0.5, 0.5) | `3f62e7b863807ad42bcba13f1e9b745f` |
+| `Assets/Textures/art/Facility/Props/Stage3PrecisionElectronics.png` | 1672×941 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3PrecisionElectronics | Stage3PrecisionElectronics (2,43,1660,892) pivot(0.5, 0.5) | `92e018ba77d83b2468945383b01f7aab` |
+| `Assets/Textures/art/Facility/Props/Stage3ToolBench.png` | 1448×1086 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | Stage3ToolBench | Stage3ToolBench (73,164,1313,592) pivot(0.5, 0.5) | `b0eea89e97a6eaf4884fe3b1c53564b8` |
 | `Assets/Textures/art/Facility/Workbench/Stage1TopDownWorkbench.png` | 335×187 | Sprite/Single | 100 | 0 | 2048 | None | off | off | on | Stage1TopDownWorkbench |  | `e93c313b8c781a2489ffe5574db83f91` |
 | `Assets/Textures/art/Facility/Workbench/TopDownWorkbench.png` | 209×117 | Sprite/Single | 128 | 0 | 2048 | None | off | off | on | TopDownWorkbench |  | `2a170e436543a5647a171a435e7ba07d` |
 | `Assets/Textures/art/Products/CannedFood.png` | 1254×1254 | Sprite/Multiple | 100 | 0 | 2048 | None | off | off | on | CannedFood | CannedFood (84,72,1087,1153) pivot(0.5, 0.5) | `5de934797e6d0f04a9ef01fc3692fa97` |
@@ -220,7 +220,7 @@ Assets/Textures/art/
 | `Assets/Textures/art/Workbench/TopDownWater.png` | 128×128 | Sprite/Single | 128 | 0 | 128 | None | off | off | on | TopDownWater |  | `85116844fe2300d47a1e7ed17365fdbf` |
 | `Assets/Textures/art/Workbench/Vacuum.png` | 102×128 | Sprite/Single | 40 | 0 | 2048 | None | off | off | on | Vacuum |  | `8c5509423fa570745bc62cafae857f42` |
 
-참고: `art/Customer/Male|Female` 60장은 `DystopiaScreen.maleCustomers/femaleCustomers`와 `DystopiaTopDownTest`의 같은 두 배열에 30개씩 순서대로 들어 있다(순서 규칙은 `doc/CUSTOMER_ARTWORK_GUIDE.md` 3절). 노멀맵 60장은 폴더에 있지만 이 씬의 `normalVariants`는 비어 있어 **Stage 1에서는 사용하지 않는다**.
+참고: `art/Customer/Male|Female` 60장은 `DystopiaScreen.maleCustomers/femaleCustomers`와 `DystopiaTopDownTest`의 같은 두 배열에 30개씩 순서대로 들어 있다(순서 규칙은 `doc/CUSTOMER_ARTWORK_GUIDE.md` 3절). 노멀맵 60장은 폴더에 있지만 이 씬의 `normalVariants`는 비어 있어 **이 단계에서는 사용하지 않는다**.
 
 ### 3.2 씬이 직접 참조하지 않지만 함께 전달해야 하는 파일
 
@@ -228,7 +228,7 @@ Assets/Textures/art/
 |---|---|
 | `art/Characters/Inspector/InspectorHead.png` | `InspectorPortrait.prefab`의 비활성 `Head` RawImage가 참조 |
 | `art/Customer/NormalMap/*` 60장 | 노멀맵 대응표 등록 시 사용(현재 미등록) |
-| `art/Facility/Frame/Stage2*`, `Stage3*`, `art/Facility/Clock/Stage2*`, `Stage3*`, `art/Facility/Crate/Stage2*`, `Stage3*`, `art/Facility/CounterTop/Stage2*`, `Stage3*`, `art/Facility/Props/Stage2*`, `Stage3*` | Stage 2/3 기준 씬과 적용 메뉴가 사용. Stage 1 씬에도 비활성 기둥·천장등이 `Stage2Shop.png`/`Stage3Shop.png`를 참조한다 |
+| `art/Facility/{Frame,Clock,Crate,CounterTop,Props}/Stage*` 중 3.1 표에 없는 파일 | 다른 단계 기준 씬과 적용 메뉴가 사용. 이 씬에도 비활성 오브젝트가 다른 단계 Sprite를 참조할 수 있다(3.1 표에 포함) |
 | `art/UI/Hands.png`, `art/Workbench/*` | 탑다운 작업 화면(`DystopiaTopDownTest`)이 에디터에서 경로로 보완 로드 |
 | `art/Products/Legacy/*` | `Product0~3.prefab`(탑다운 물리 물품)이 Can/Crackers/Rice/Water 참조 |
 
@@ -326,12 +326,12 @@ Surface: 0 Unlit · 1 Environment · 2 Person · 3 Metal · 4 CityLights · 5 Or
 | 31 | `FrontCounter/DystopiaCanvas/Counter/CounterLeftExtension` | Metal | 0.65 | 0.3 | 1 | 0.05 | 0 | 0.8 | 0.08 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
 | 32 | `FrontCounter/DystopiaCanvas/Counter/CounterRightExtension` | Metal | 0.65 | 0.3 | 1 | 0.05 | 0 | 0.8 | 0.08 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
 | 33 | `FrontCounter/DystopiaCanvas/Counter` | Metal | 1 | 0.7 | 3 | 1 | 1 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
-| 34 | `FrontCounter/DystopiaCanvas/FacilityNuclearProtection` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.12 | (0.5, 0, 1.12, 0.24) | 1 | 0 | (0, 0) |  |
-| 35 | `FrontCounter/DystopiaCanvas/FacilityPrecisionElectronics` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.12 | (0.5, 0, 1.12, 0.24) | 1 | 0 | (0, 0) |  |
-| 36 | `FrontCounter/DystopiaCanvas/FacilityToolBench` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.12 | (0.5, 0, 1.12, 0.24) | 1 | 0 | (0, 0) |  |
-| 37 | `FrontCounter/DystopiaCanvas/FacilityPowerCommunications` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.12 | (0.5, 0, 1.12, 0.24) | 1 | 0 | (0, 0) |  |
-| 38 | `FrontCounter/DystopiaCanvas/FacilityFoodShelf` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.12 | (0.5, 0, 1.12, 0.24) | 1 | 0 | (0, 0) |  |
-| 39 | `FrontCounter/DystopiaCanvas/FacilityMedicineCabinet` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.12 | (0.5, 0, 1.12, 0.24) | 1 | 0 | (0, 0) |  |
+| 34 | `FrontCounter/DystopiaCanvas/FacilityNuclearProtection` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.3 | (0.5, 0, 1.06, 0.22) | 0 | 0 | (0, 0) |  |
+| 35 | `FrontCounter/DystopiaCanvas/FacilityPrecisionElectronics` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.3 | (0.5, 0, 1.06, 0.22) | 0 | 0 | (0, 0) |  |
+| 36 | `FrontCounter/DystopiaCanvas/FacilityToolBench` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.3 | (0.5, 0, 1.06, 0.22) | 0 | 0 | (0, 0) |  |
+| 37 | `FrontCounter/DystopiaCanvas/FacilityPowerCommunications` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.3 | (0.5, 0, 1.06, 0.22) | 0 | 0 | (0, 0) |  |
+| 38 | `FrontCounter/DystopiaCanvas/FacilityFoodShelf` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.3 | (0.5, 0, 1.06, 0.22) | 0 | 0 | (0, 0) |  |
+| 39 | `FrontCounter/DystopiaCanvas/FacilityMedicineCabinet` | Metal | 0.65 | 0.3 | 1 | 0 | 0.55 | 0.9 | 0.2 | 0 | 0.3 | (0.5, 0, 1.06, 0.22) | 0 | 0 | (0, 0) |  |
 | 40 | `FrontCounter/DystopiaCanvas/CounterLamplight` | Hidden | 0.15 | 0 | 3 | 1 | 1 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
 | 41 | `FrontCounter/DystopiaCanvas/Stage3CeilingLamp` | Unlit | 0.4 | 0 | 1 | 0.1 | 0.55 | 0.75 | 0.12 | 1.5 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) | `Assets/Textures/art/Facility/Frame/Stage3Shop.png` → Sprite `Stage3CeilingLamp` / 없음(None) |
 | 42 | `TopDownCheckout/TopDownTestCanvas/FrontView/LandingDust0` | Environment | 0.7 | 0 | 3 | 1 | 1 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
@@ -344,7 +344,7 @@ Surface: 0 Unlit · 1 Environment · 2 Person · 3 Metal · 4 CityLights · 5 Or
 | 49 | `TopDownCheckout/TopDownTestCanvas/FrontView/LandingDust7` | Environment | 0.7 | 0 | 3 | 1 | 1 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
 | 50 | `TopDownCheckout/TopDownTestCanvas/FrontView/LandingDust8` | Environment | 0.7 | 0 | 3 | 1 | 1 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
 | 51 | `TopDownCheckout/TopDownTestCanvas/FrontView/LandingDust9` | Environment | 0.7 | 0 | 3 | 1 | 1 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) |  |
-| 52 | `TopDownCheckout/TopDownTestCanvas/FrontView/FrontContainer` | Metal | 1 | 0 | 1 | 0 | 0.3 | 1 | 1 | 0 | 0.12 | (0.5, 0, 1, 0.7) | 0 | 1 | (0, 0) |  |
+| 52 | `TopDownCheckout/TopDownTestCanvas/FrontView/FrontContainer` | Metal | 0.65 | 0 | 1 | 0 | 0.3 | 0.9 | 1 | 0 | 0.3 | (0.5, 0, 1.06, 0.26) | 0 | 0 | (0, 0) |  |
 | 53 | `TopDownCheckout/TopDownTestCanvas/CounterClock` | Metal | 1.13 | 0 | 1 | 0.2 | 0.3 | 1 | 1 | 0 | 0 | (0, 0, 0, 0) | 0 | 0 | (0, 0) | `Assets/Textures/art/Facility/Clock/Stage1BasicClock.png` → Sprite `Stage1BasicClock` / `Assets/Textures/art/Facility/Clock/Stage1BasicClockNormal.png` (Texture2D) |
 
 레이어에 없는 Canvas 오브젝트(텍스트, DialoguePanel, 버튼, 지침서, 가계부, Modal)는 픽셀 렌더를 거치지 않고 원래 Canvas에 그려진다.
@@ -366,7 +366,7 @@ Surface: 0 Unlit · 1 Environment · 2 Person · 3 Metal · 4 CityLights · 5 Or
 | `rightBeam` | → `FrontCounter/DystopiaCanvas/RightSearchlight` (Image) |
 | `environment` | [→ `FrontCounter/DystopiaCanvas/MidBackground` (Image), → `FrontCounter/DystopiaCanvas/Fog_Back` (Image), → `FrontCounter/DystopiaCanvas/Fog_Mid` (Image), → `FrontCounter/DystopiaCanvas/Fog_Front` (Image), → `FrontCounter/DystopiaCanvas/LeftWatchTower` (Image), → `FrontCounter/DystopiaCanvas/RightWatchTower` (Image), → `FrontCounter/DystopiaCanvas/Canopy` (Image), → `FrontCounter/DystopiaCanvas/Barricade` (Image), → `FrontCounter/DystopiaCanvas/Counter` (Image), → `FrontCounter/DystopiaCanvas/CrowdRow0` (DystopiaCrowdImage), → `FrontCounter/DystopiaCanvas/CrowdRow1` (DystopiaCrowdImage), → `FrontCounter/DystopiaCanvas/CrowdRow2` (DystopiaCrowdImage)] |
 | `people` | [→ `FrontCounter/DystopiaCanvas/Customer` (Image), → `FrontCounter/DystopiaCanvas/WaitingLeft` (Image), → `FrontCounter/DystopiaCanvas/WaitingRear` (Image)] |
-| `preview` | 1 |
+| `preview` | 0 |
 | `previewHour` | 9 |
 | `dawnStart` | 9 |
 | `dayStart` | 12 |
@@ -383,7 +383,7 @@ Surface: 0 Unlit · 1 Environment · 2 Person · 3 Metal · 4 CityLights · 5 Or
 
 ### 5.1 주의: ceilingLamp 이름 조건
 
-`DystopiaPixelStage.UseScreenResolution => matchScreenResolution || (ceilingLamp != null && ceilingLamp.name == "Stage3CeilingLamp")`. Stage 1 씬에서도 `ceilingLamp` 필드가 비활성 오브젝트 `Stage3CeilingLamp`에 연결되어 있으므로 이 조건은 **참**이 되어 실제 렌더 폭은 `Screen.width`(고해상도 1:1, Bilinear)가 된다. 즉 Stage 1도 480 도트가 아니라 화면 해상도로 렌더된다. `width=480`은 이 조건이 거짓일 때만 쓰인다. 도트 표현을 원하면 `ceilingLamp` 연결을 비우거나 코드 조건을 바꿔야 한다(이번 인계에서는 저장값 그대로 둔다).
+`DystopiaPixelStage.UseScreenResolution => matchScreenResolution || (ceilingLamp != null && ceilingLamp.name == "Stage3CeilingLamp")`. 이 씬의 `ceilingLamp`는 `FrontCounter/DystopiaCanvas/Stage3CeilingLamp` (비활성 오브젝트) 이므로 조건은 **참** → 실제 렌더 폭은 `Screen.width`(고해상도 1:1, Bilinear). `width` 값은 조건이 거짓일 때만 쓰인다. 도트/고해상도를 바꾸려면 `ceilingLamp` 연결 또는 `matchScreenResolution`을 조정한다(이번 인계에서는 저장값 그대로 둔다).
 
 ## 6. 씬 전체 계층 — 모든 오브젝트·컴포넌트·값
 
@@ -428,7 +428,7 @@ Layer 0 · Tag `Untagged`
 Layer 0 · Tag `Untagged`
 
 - **Transform**
-  - localPosition (0, 0, 0) · localRotation(quat) (0, 0, 0, 1) · localScale (1, 1, 1)
+  - localPosition (0, -161, 0) · localRotation(quat) (0, 0, 0, 1) · localScale (1, 1, 1)
 - **DystopiaScreen**
   - childPortraitScale = 0.4
   - childPortraitRise = 0.18
@@ -674,7 +674,7 @@ Layer 0 · Tag `Untagged` · 원본 FrontView.prefab (씬 override 병합됨)
 Layer 0 · Tag `Untagged`
 
 - **RectTransform**
-  - anchoredPosition (153.062, -192.675) · sizeDelta(W×H) (1653.75, 330.75) · localScale (1, 1, 1)
+  - anchoredPosition (126.203, -172.669) · sizeDelta(W×H) (1653.75, 330.75) · localScale (1, 1, 1)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0, 0.5)
   - localRotation z = -15.35°
 - **Image**
@@ -688,7 +688,7 @@ Layer 0 · Tag `Untagged`
 Layer 0 · Tag `Untagged`
 
 - **RectTransform**
-  - anchoredPosition (1114.99, -240.45) · sizeDelta(W×H) (1653.75, 336.875) · localScale (1, 1, 1)
+  - anchoredPosition (1159.78, -234.813) · sizeDelta(W×H) (1653.75, 336.875) · localScale (1, 1, 1)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0, 0.5)
   - localRotation z = -169.2°
 - **Image**
@@ -1076,10 +1076,10 @@ Layer 0 · Tag `Untagged`
 Layer 0 · Tag `Untagged` · 원본 FrontView.prefab (씬 override 병합됨)
 
 - **RectTransform**
-  - anchoredPosition (0, -483) · sizeDelta(W×H) (1280, 324.506) · localScale (1, 1, 1)
+  - anchoredPosition (0, -498) · sizeDelta(W×H) (1280, 324.506) · localScale (1, 1, 1)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0, 1)
   - localRotation 0° (identity)
-  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 0, 위 483, 폭 1280, 높이 324.506 (scale 적용)
+  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 0, 위 498, 폭 1280, 높이 324.506 (scale 적용)
 - **Image**
   - sprite `Assets/Textures/art/Facility/CounterTop/Stage1CounterTop.png` → Sprite `Stage1CounterTop`
   - color RGBA(1, 1, 1, 1) #FFFFFFFF · material 기본(UI/Default)
@@ -1130,7 +1130,7 @@ Layer 0 · Tag `Untagged`
 - **Outline**
   - effectColor RGBA(0.035, 0.03, 0.025, 0.8) #090806CC · effectDistance (1, -1) · useGraphicAlpha true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **DystopiaPixelSource**
 
 ##### `FrontCounter/DystopiaCanvas/FacilityPrecisionElectronics` — ⛔ 비활성(SetActive false)
@@ -1149,7 +1149,7 @@ Layer 0 · Tag `Untagged`
 - **Outline**
   - effectColor RGBA(0.035, 0.03, 0.025, 0.8) #090806CC · effectDistance (1, -1) · useGraphicAlpha true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **DystopiaPixelSource**
 
 ##### `FrontCounter/DystopiaCanvas/FacilityToolBench` — ⛔ 비활성(SetActive false)
@@ -1166,7 +1166,7 @@ Layer 0 · Tag `Untagged`
   - color RGBA(1, 1, 1, 1) #FFFFFFFF · material 기본(UI/Default)
   - type Simple · preserveAspect true · fillCenter true · raycastTarget false · maskable true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **Outline**
   - effectColor RGBA(0.035, 0.03, 0.025, 0.8) #090806CC · effectDistance (1, -1) · useGraphicAlpha true
 - **DystopiaPixelSource**
@@ -1185,7 +1185,7 @@ Layer 0 · Tag `Untagged`
   - color RGBA(1, 1, 1, 1) #FFFFFFFF · material 기본(UI/Default)
   - type Simple · preserveAspect true · fillCenter true · raycastTarget false · maskable true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **Outline**
   - effectColor RGBA(0.035, 0.03, 0.025, 0.8) #090806CC · effectDistance (1, -1) · useGraphicAlpha true
 - **DystopiaPixelSource**
@@ -1195,16 +1195,16 @@ Layer 0 · Tag `Untagged`
 Layer 0 · Tag `Untagged`
 
 - **RectTransform**
-  - anchoredPosition (65, -454) · sizeDelta(W×H) (213, 182.95) · localScale (1, 1, 1)
+  - anchoredPosition (65, -467) · sizeDelta(W×H) (213, 182.95) · localScale (1, 1, 1)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0, 1)
   - localRotation 0° (identity)
-  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 65, 위 454, 폭 213, 높이 182.95 (scale 적용)
+  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 65, 위 467, 폭 213, 높이 182.95 (scale 적용)
 - **Image**
   - sprite `Assets/Textures/art/Facility/Props/Stage1FoodShelf.png` → Sprite `Stage1FoodShelf`
   - color RGBA(1, 1, 1, 1) #FFFFFFFF · material 기본(UI/Default)
   - type Simple · preserveAspect true · fillCenter true · raycastTarget false · maskable true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **Outline**
   - effectColor RGBA(0.035, 0.03, 0.025, 0.8) #090806CC · effectDistance (1, -1) · useGraphicAlpha true
 - **DystopiaPixelSource**
@@ -1214,16 +1214,16 @@ Layer 0 · Tag `Untagged`
 Layer 0 · Tag `Untagged`
 
 - **RectTransform**
-  - anchoredPosition (983.84, -451) · sizeDelta(W×H) (221, 157.553) · localScale (1.17347, 1.17347, 1.17347)
+  - anchoredPosition (983.84, -466) · sizeDelta(W×H) (221, 157.553) · localScale (1.17347, 1.17347, 1.17347)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0, 1)
   - localRotation 0° (identity)
-  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 983.84, 위 451, 폭 259.337, 높이 184.884 (scale 적용)
+  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 983.84, 위 466, 폭 259.337, 높이 184.884 (scale 적용)
 - **Image**
   - sprite `Assets/Textures/art/Facility/Props/Stage1MedicineCabinet.png` → Sprite `Stage1MedicineCabinet`
   - color RGBA(1, 1, 1, 1) #FFFFFFFF · material 기본(UI/Default)
   - type Simple · preserveAspect true · fillCenter true · raycastTarget false · maskable true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **Outline**
   - effectColor RGBA(0.035, 0.03, 0.025, 0.8) #090806CC · effectDistance (1, -1) · useGraphicAlpha true
 - **DystopiaPixelSource**
@@ -3218,7 +3218,7 @@ Layer 0 · Tag `Untagged`
   - rightBeam = → `FrontCounter/DystopiaCanvas/RightSearchlight` (Image)
   - environment = [→ `FrontCounter/DystopiaCanvas/MidBackground` (Image), → `FrontCounter/DystopiaCanvas/Fog_Back` (Image), → `FrontCounter/DystopiaCanvas/Fog_Mid` (Image), → `FrontCounter/DystopiaCanvas/Fog_Front` (Image), → `FrontCounter/DystopiaCanvas/LeftWatchTower` (Image), → `FrontCounter/DystopiaCanvas/RightWatchTower` (Image), → `FrontCounter/DystopiaCanvas/Canopy` (Image), → `FrontCounter/DystopiaCanvas/Barricade` (Image), → `FrontCounter/DystopiaCanvas/Counter` (Image), → `FrontCounter/DystopiaCanvas/CrowdRow0` (DystopiaCrowdImage), → `FrontCounter/DystopiaCanvas/CrowdRow1` (DystopiaCrowdImage), → `FrontCounter/DystopiaCanvas/CrowdRow2` (DystopiaCrowdImage)]
   - people = [→ `FrontCounter/DystopiaCanvas/Customer` (Image), → `FrontCounter/DystopiaCanvas/WaitingLeft` (Image), → `FrontCounter/DystopiaCanvas/WaitingRear` (Image)]
-  - preview = 1
+  - preview = 0
   - previewHour = 9
   - dawnStart = 9
   - dayStart = 12
@@ -3564,16 +3564,16 @@ Layer 0 · Tag `Untagged` · 원본 CheckoutUI.prefab (씬 override 병합됨)
 Layer 0 · Tag `Untagged` · 원본 CheckoutUI.prefab (씬 override 병합됨)
 
 - **RectTransform**
-  - anchoredPosition (497, -498) · sizeDelta(W×H) (324, 228) · localScale (0.811066, 0.791399, 0.989105)
+  - anchoredPosition (522, -505) · sizeDelta(W×H) (360, 240) · localScale (0.729959, 0.729959, 0.66766)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0, 1)
   - localRotation 0° (identity)
-  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 497, 위 498, 폭 262.785, 높이 180.439 (scale 적용)
+  - → 1280×720 좌상단 기준 표시 사각형: 왼쪽 522, 위 505, 폭 262.785, 높이 175.19 (scale 적용)
 - **Image**
   - sprite `Assets/Textures/art/Facility/Crate/Stage1CrateClosed.png` → Sprite `Stage1CrateClosed`
   - color RGBA(1, 1, 1, 1) #FFFFFFFF · material 기본(UI/Default)
   - type Simple · preserveAspect true · fillCenter true · raycastTarget false · maskable true
 - **Shadow**
-  - effectColor RGBA(0.015, 0.012, 0.01, 0.85) #040303D9 · effectDistance (4, -9) · useGraphicAlpha true · **비활성**
+  - effectColor RGBA(0.02, 0.015, 0.01, 0.8) #050403CC · effectDistance (10, -12) · useGraphicAlpha true · **비활성**
 - **DystopiaPixelSource**
 
 ##### `TopDownCheckout/TopDownTestCanvas/WorkViewUI` — ⛔ 비활성(SetActive false)
@@ -4172,7 +4172,7 @@ Layer 0 · Tag `Untagged` · 원본 CheckoutUI.prefab (씬 override 병합됨)
 Layer 0 · Tag `Untagged` · 원본 CheckoutUI.prefab (씬 override 병합됨)
 
 - **RectTransform**
-  - anchoredPosition (85.25, -49.1667) · sizeDelta(W×H) (122.76, 31.6667) · localScale (1, 1, 1)
+  - anchoredPosition (85.25, -45) · sizeDelta(W×H) (122.76, 31.6667) · localScale (1, 1, 1)
   - anchorMin (0, 1) · anchorMax (0, 1) (좌상단 고정) · pivot (0.5, 0.5)
   - localRotation 0° (identity)
 - **Text**
@@ -4381,12 +4381,13 @@ Layer 0 · Tag `Untagged`
 2. `DystopiaVerticalSlice.unity`를 열고 Play를 종료한 상태에서 `Dystopia > Apply Stage 1 Shop`을 실행한다. 이 메뉴가 `Stage1Reference.unity`에서 4.2 표의 레이어(상판·천막·상자·시계·배경·안개·군중·경비·설비)의 RectTransform·Sprite·색·효과·레이어 설정과 `PouringContainer`, `TopDownWorkbench`, `shadowTableY`를 복사한다. 실행 전 사본을 `output/shop-stage-switch/`에 남긴다.
 3. 씬을 저장한다. 이후 Play. `TopDownCheckout`의 DystopiaDayNight `preview`를 켜고 `previewHour`를 9~21로 바꾸면 편집 중에도 시간대를 확인할 수 있다(저장 시 preview는 꺼 둔다).
 4. **새로 만드는 경우:** 6장의 계층을 위에서 아래 순서대로 같은 이름으로 만들고(이름이 곧 코드 연결 키), 각 RectTransform·Image 값을 그대로 입력한 뒤, `TopDownCheckout`에 DystopiaTopDownTest/DystopiaDayNight/DystopiaPixelStage를 붙이고 4.1·4.2·5장의 값을 입력한다. PixelStage `layers`의 `source`는 해당 Image 컴포넌트를 드래그해 연결한다. Canvas는 Screen Space Overlay + CanvasScaler(1280×720, match 0).
-5. Stage 1에서 **보여야 하는 것**: 목재 천막 `BoothCanopy`, 상판 `Stage1CounterTop`, 설비 `Stage1FoodShelf`(왼쪽)·`Stage1MedicineCabinet`(오른쪽), 정면 상자 `Stage1CrateClosed`, 시계 `Stage1BasicClock`, 배경 6장(FARBACKGROUND/MidBackground/군중 3줄/바리케이드), 경비병 2, 손님 3, 연기 2, 안개 3. **보이면 안 되는 것**: Stage3LeftPillar/RightPillar, Stage3CeilingLamp, Facility 4종(Tool/Power/Nuclear/Precision), Left/RightWatchTower(옛 감시탑, 배경에 그려져 있으므로 비활성), CounterLeft/RightExtension, Register/Digit 버튼(옛 정면 계산기), CounterLamplight.
+5. Stage 1에서 **보여야 하는 레이어(활성)**: `FarBackground` (FARBACKGROUND), `DawnBackground` (Dawn), `SunsetBackground` (SunsetClouded), `EveningBackground` (Evening), `CityLights` (CityLights), `Fog_Back` (FogBack), `Fog_Mid` (FogMid), `Fog_Front` (FogFront), `MidBackground` (MidBackground), `LeftChimneySmoke` (ChimneySmoke0), `RightChimneySmoke` (ChimneySmoke1), `LeftWatchGuard` (WatchGuard), `RightWatchGuard` (WatchGuard), `LeftSearchlight` (Searchlight), `RightSearchlight` (Searchlight), `CrowdRow0` (CrowdBack), `CrowdRow1` (CrowdMiddle), `CrowdRow2` (CrowdFront), `Barricade` (BoothBarricade), `WaitingRear` (MalePriceSensitive_01), `WaitingLeft` (FemalePriceSensitive_01), `Customer` (MalePriceSensitive_01), `Canopy` (BoothCanopy), `Counter` (Stage1CounterTop), `FacilityFoodShelf` (Stage1FoodShelf), `FacilityMedicineCabinet` (Stage1MedicineCabinet), `LandingDust0`, `LandingDust1`, `LandingDust2`, `LandingDust3`, `LandingDust4`, `LandingDust5`, `LandingDust6`, `LandingDust7`, `LandingDust8`, `LandingDust9`, `FrontContainer` (Stage1CrateClosed), `CounterClock` (Stage1BasicClock).
+   **보이면 안 되는 레이어(비활성 저장 또는 Surface Hidden)**: `Core`, `Spark`, `Flame`, `Core`, `Spark`, `Flame`, `Stage3LeftPillar` (Stage2LeftPillar), `Stage3RightPillar` (Stage2RightPillar), `CounterLeftExtension`, `CounterRightExtension`, `FacilityNuclearProtection` (Stage3NuclearProtection), `FacilityPrecisionElectronics` (Stage3PrecisionElectronics), `FacilityToolBench` (Stage3ToolBench), `FacilityPowerCommunications` (Stage3PowerCommunications), `CounterLamplight` (CounterLight), `Stage3CeilingLamp` (Stage3CeilingLamp). 밤 전용 레이어(Dawn/Sunset/Evening/CityLights/Searchlight)는 활성이어도 낮에는 알파 0이다.
 
 ## 11. 검증 상태와 알려진 한계
 
-- STATIC PASS: 권위 씬 + 프리팹 3개 파싱, 참조 GUID 177개 중 176개 존재 확인. 끊어진 참조 1개: `DystopiaScreen.daughter`(guid e4dd2b06…, 삭제된 옛 딸 Sprite) — 코드에서 사용하지 않는 필드라 화면 영향 없음.
-- 아트 이동 후 GUID 102/102 일치 확인, 코드 경로 71곳 교체, `Textures/Checkout` 잔여 참조 0. Unity가 자동 새로고침으로 재컴파일했으며 최종 컴파일 오류 0을 Editor.log에서 확인해야 한다(이 문서 작성 시점의 결과는 아래 인계 메시지 참조).
+- STATIC PASS: 권위 씬 + 프리팹 3개 파싱, 참조 자산 177개 존재 확인. 끊어진 참조 1개: `DystopiaScreen.daughter`(guid e4dd2b06…, 삭제된 옛 딸 Sprite) — 코드에서 사용하지 않는 필드라 화면 영향 없음.
+- 아트 폴더 재편(2026-09-16, 커밋 a43c1aec)과 코드 경로 교체·컴파일 확인은 Stage 1 인계에서 완료했다.
 - 배치 검증 이미지 `_Reference/Stage1_LayoutCheck.png`는 이 문서의 수치만으로 합성한 것이며 조명·시간대·호흡은 포함하지 않는다. 밤 전용 레이어(Dawn/Sunset/Evening/CityLights/Searchlight)는 알파 1로 그려져 실제 낮 화면보다 밝게 보일 수 있다.
 - Play Mode 시각 검증(손님 교대, 조명, 그림자)은 사용자가 수행한다. Unity MCP 연결이 시간 초과 상태라 편집기 상태(열린 씬의 미저장 편집)는 반영하지 못했다. **열린 씬에 저장하지 않은 편집이 있다면 Inspector 값이 이 문서보다 우선한다.**
 - `Validate Rules` 메뉴는 이전부터 실패 상태(코드 기본 카탈로그에 Sprite 없음). 이번 작업과 무관.
@@ -4394,7 +4395,8 @@ Layer 0 · Tag `Untagged`
 ## 12. 관련 문서
 
 - `doc/CUSTOMER_ARTWORK_GUIDE.md` — 손님 60종 분류·배열 순서·어린이 배율
-- `Assets/Textures/STAGE_LAYOUT_HANDOFF.md` — Stage 2/3 배치 기록
+- `Assets/Textures/STAGE_LAYOUT_HANDOFF.md` — Stage 2/3 배치 작업 기록(사람이 쓴 이력; 수치는 단계별 명세 문서가 최신)
+- `Assets/Textures/art/STAGE1_HANDOFF.md`, `STAGE2_HANDOFF.md`, `STAGE3_HANDOFF.md` — 단계별 명세(있는 것만)
 - `Assets/Textures/ART_HANDOFF.md`, `ART_IMAGE_INVENTORY.md` — 이전 이미지 인계(경로는 재편 전 기준, 3장의 새 경로로 읽을 것)
 - `doc/2026-09-14-prototype-handoff.md`, `Assets/DystopiaPrototype/EDITABLE_SCENE.md`, `IMPLEMENTATION_NOTES.md` — 구현 이력
 - `AGENTS.md` — 배치 보호 규칙

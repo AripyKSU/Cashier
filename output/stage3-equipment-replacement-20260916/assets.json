@@ -1,0 +1,32 @@
+[
+  {
+    "asset": "Assets\\Textures\\art\\Facility\\Props\\Stage3NuclearProtection.png",
+    "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-196d3ce5-93a0-4fdf-ae35-05d7901ecdec.png",
+    "size": [
+      1448,
+      1086
+    ],
+    "spriteRect": [
+      78,
+      91,
+      1296,
+      872
+    ],
+    "guid": "56021a32eecae564ca4d5a558d712c43"
+  },
+  {
+    "asset": "Assets\\Textures\\art\\Facility\\Props\\Stage3PowerCommunications.png",
+    "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-b3d3a6ad-47b6-43eb-96a2-38d8aef77b1a.png",
+    "size": [
+      1223,
+      1286
+    ],
+    "spriteRect": [
+      107,
+      129,
+      1048,
+      977
+    ],
+    "guid": "3f62e7b863807ad42bcba13f1e9b745f"
+  }
+]

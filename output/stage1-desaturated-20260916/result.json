@@ -1,0 +1,62 @@
+{
+  "method": "Built-in ImageGen",
+  "promptSummary": "Reduce saturation roughly70% and brightness25%, cold grey-brown dystopian wood, subdued supply colors; clock included; dark pillars and irregular shallow tarp. Preserve scene placement.",
+  "assets": [
+    {
+      "asset": "Assets\\Textures\\art\\Facility\\CounterTop\\Stage1CounterTop.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-599eee53-84d0-48e0-9096-bd53a88d5428.png",
+      "size": [
+        1594,
+        986
+      ]
+    },
+    {
+      "asset": "Assets\\Textures\\art\\Facility\\Crate\\Stage1CrateOpen.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-20c28905-dea4-4140-8766-ed7c2bd0a241.png",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "asset": "Assets\\Textures\\art\\Facility\\Crate\\Stage1CrateClosed.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-4bf0517c-2e4b-4361-8781-c9411d22d41a.png",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "asset": "Assets\\Textures\\art\\Facility\\Props\\Stage1FoodShelf.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-a453967e-e819-4d56-874a-0d5d4f2ea49a.png",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "asset": "Assets\\Textures\\art\\Facility\\Props\\Stage1MedicineCabinet.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-05ee981e-1dd9-432a-9527-52acee56e5cb.png",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "asset": "Assets\\Textures\\Checkout\\Shop\\Stage1BasicClock.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-99c2ec8e-6d77-4c56-8023-5b93f270bfb4.png",
+      "size": [
+        1402,
+        1122
+      ]
+    },
+    {
+      "asset": "Assets\\Textures\\Checkout\\Shop\\BoothCanopy.png",
+      "source": "C:\\Users\\PC\\.codex\\generated_images\\01a0a79e-2544-7921-b083-e554591ff654\\exec-f442b50c-e001-4451-a93f-692a84f02069.png",
+      "size": [
+        1671,
+        941
+      ]
+    }
+  ]
+}

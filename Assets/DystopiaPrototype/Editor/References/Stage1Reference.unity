@@ -1200,8 +1200,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &511438790
 MonoBehaviour:
@@ -1345,8 +1345,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &578463040 stripped
 MonoBehaviour:
@@ -2801,7 +2801,7 @@ Transform:
   m_GameObject: {fileID: 1111119867}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -161, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2896,7 +2896,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -454}
+  m_AnchoredPosition: {x: 65, y: -467}
   m_SizeDelta: {x: 213, y: 182.95021}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1125013251
@@ -2911,8 +2911,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &1125013252
 MonoBehaviour:
@@ -3120,7 +3120,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1114.9938, y: -240.45001}
+  m_AnchoredPosition: {x: 1159.7751, y: -234.81252}
   m_SizeDelta: {x: 1653.75, y: 336.875}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1257552085
@@ -3348,7 +3348,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 983.84, y: -451}
+  m_AnchoredPosition: {x: 983.84, y: -466}
   m_SizeDelta: {x: 221, y: 157.553}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1310137331
@@ -3363,8 +3363,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &1310137332
 MonoBehaviour:
@@ -3715,8 +3715,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &1520615620
 MonoBehaviour:
@@ -4138,8 +4138,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!1 &1808015287
 GameObject:
@@ -4243,8 +4243,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.015, g: 0.012, b: 0.01, a: 0.85}
-  m_EffectDistance: {x: 4, y: -9}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &1808015293
 MonoBehaviour:
@@ -4703,7 +4703,7 @@ MonoBehaviour:
   - {fileID: 17788076}
   - {fileID: 1091883700}
   - {fileID: 292542810}
-  preview: 1
+  preview: 0
   previewHour: 9
   dawnStart: 9
   dayStart: 12
@@ -5355,9 +5355,9 @@ MonoBehaviour:
     highlightResponse: 0.9
     specularResponse: 0.2
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1.12, w: 0.24}
-    softContactShadow: 1
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
     projectedContactShadow: 0
   - source: {fileID: 1757765515}
     surface: 3
@@ -5373,9 +5373,9 @@ MonoBehaviour:
     highlightResponse: 0.9
     specularResponse: 0.2
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1.12, w: 0.24}
-    softContactShadow: 1
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
     projectedContactShadow: 0
   - source: {fileID: 511438785}
     surface: 3
@@ -5391,9 +5391,9 @@ MonoBehaviour:
     highlightResponse: 0.9
     specularResponse: 0.2
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1.12, w: 0.24}
-    softContactShadow: 1
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
     projectedContactShadow: 0
   - source: {fileID: 1808015288}
     surface: 3
@@ -5409,9 +5409,9 @@ MonoBehaviour:
     highlightResponse: 0.9
     specularResponse: 0.2
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1.12, w: 0.24}
-    softContactShadow: 1
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
     projectedContactShadow: 0
   - source: {fileID: 1125013247}
     surface: 3
@@ -5427,9 +5427,9 @@ MonoBehaviour:
     highlightResponse: 0.9
     specularResponse: 0.2
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1.12, w: 0.24}
-    softContactShadow: 1
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
     projectedContactShadow: 0
   - source: {fileID: 1310137327}
     surface: 3
@@ -5445,9 +5445,9 @@ MonoBehaviour:
     highlightResponse: 0.9
     specularResponse: 0.2
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1.12, w: 0.24}
-    softContactShadow: 1
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.22}
+    softContactShadow: 0
     projectedContactShadow: 0
   - source: {fileID: 1408947112}
     surface: 6
@@ -5672,17 +5672,17 @@ MonoBehaviour:
     normalVariants: []
     textureEdgeTrim: {x: 0, y: 0}
     roomResponse: 0
-    lampResponse: 1
+    lampResponse: 0.65
     rimWidthPixels: 1
     rimResponse: 0
     normalResponse: 0.3
-    highlightResponse: 1
+    highlightResponse: 0.9
     specularResponse: 1
     emission: 0
-    bottomShade: 0.12
-    contactShadow: {x: 0.5, y: 0, z: 1, w: 0.7}
+    bottomShade: 0.3
+    contactShadow: {x: 0.5, y: 0, z: 1.06, w: 0.26}
     softContactShadow: 0
-    projectedContactShadow: 1
+    projectedContactShadow: 0
   - source: {fileID: 2356696958130715507}
     surface: 3
     normalSprite: {fileID: 5159471508451480017, guid: 2bffadd95cbce7b42bf7dbfef7806daa, type: 3}
@@ -5964,7 +5964,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 153.0625, y: -192.675}
+  m_AnchoredPosition: {x: 126.20337, y: -172.6695}
   m_SizeDelta: {x: 1653.75, y: 330.75}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &1901093216
@@ -6674,7 +6674,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2157994509030777372, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -49.166664
+      value: -45
       objectReference: {fileID: 0}
     - target: {fileID: 3208392661193809579, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_Name
@@ -6846,31 +6846,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 324
+      value: 360
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 228
+      value: 240
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.8110657
+      value: 0.72995913
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.7913987
+      value: 0.72995913
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.9891045
+      value: 0.66766
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 497
+      value: 522
       objectReference: {fileID: 0}
     - target: {fileID: 9001072083699337873, guid: a110fce3f8e0a46438e2a83f4712286b, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -498
+      value: -505
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -7512,7 +7512,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6074115966392403193, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -483
+      value: -498
       objectReference: {fileID: 0}
     - target: {fileID: 6131985178820754655, guid: f7d7176ddb30caf46b5519836f319e93, type: 3}
       propertyPath: m_Sprite

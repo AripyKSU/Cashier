@@ -293,8 +293,18 @@ public sealed class DystopiaPixelStage : MonoBehaviour
     private void Sync(Layer layer, int order)
     {
         if (layer.renderer == null || layer.source == null) return;
+        var source = layer.source;
+        var image = source as Image;
+        bool stage3Foreground=image!=null && image.sprite!=null
+            && image.sprite.name.StartsWith("Stage3",StringComparison.Ordinal)
+            && (source.name.StartsWith("Facility",StringComparison.Ordinal) || source.name=="FrontContainer");
+        // Stage 3 전경은 저장된 배치를 바꾸지 않고 같은 방향의 짧은 접지 그림자만 렌더합니다.
+        // 단, 레이어에 직접 접촉 그림자를 저장했으면(Soft Facility Shadows 메뉴) 그 값을 우선합니다.
+        Vector4 contactShadow=stage3Foreground && layer.contactShadow.w<=0
+            ? source.name=="FrontContainer" ? new Vector4(.5f,0,1.06f,.075f) : new Vector4(.5f,0,1.02f,.055f)
+            : layer.contactShadow;
         // 최초 생성 이후 Inspector/Scene에서 그림자가 켜져도 현재 설정대로 생성합니다.
-        if (layer.contactShadow.w > 0 && layer.contactRenderer == null)
+        if (contactShadow.w > 0 && layer.contactRenderer == null)
         {
             var shadow = new GameObject(layer.source.name + " Contact Shadow", typeof(MeshFilter), typeof(MeshRenderer)) { hideFlags = HideFlags.HideAndDontSave, layer = 31 };
             shadow.transform.SetParent(renderRoot.transform, false);
@@ -304,10 +314,9 @@ public sealed class DystopiaPixelStage : MonoBehaviour
             layer.contactRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             layer.contactRenderer.receiveShadows = false;
         }
-        var source = layer.source;
         bool visible = source.isActiveAndEnabled && layer.capture.isActiveAndEnabled && layer.capture.CapturedMesh != null && layer.surface != Surface.Hidden;
         layer.renderer.enabled = visible;
-        if (layer.contactRenderer != null) layer.contactRenderer.enabled = visible && layer.contactShadow.w > 0;
+        if (layer.contactRenderer != null) layer.contactRenderer.enabled = visible && contactShadow.w > 0;
         if (!visible) return;
         layer.filter.sharedMesh = layer.capture.CapturedMesh;
         Vector2 p = ScreenPoint(source, Vector3.zero), x = ScreenPoint(source, Vector3.right) - p, y = ScreenPoint(source, Vector3.up) - p;
@@ -334,8 +343,9 @@ public sealed class DystopiaPixelStage : MonoBehaviour
             block.SetVector("_SkyRect", new Vector4(topLeft.x, topLeft.y, sky.width * x.magnitude, sky.height * y.magnitude));
         }
         // 새 Stage 3 상자에만 거친 철판 표현을 적용합니다.
-        var containerImage=source as Image;
-        block.SetFloat("_ContainerFinish",source.name=="FrontContainer" && containerImage!=null && containerImage.sprite!=null && containerImage.sprite.name=="Stage3Container" ? 1 : 0);
+        block.SetFloat("_ContainerFinish",source.name=="FrontContainer" && image!=null && image.sprite!=null && image.sprite.name=="Stage3Container" ? 1 : 0);
+        // 배경보다 강한 검은 외곽선과 흰 림의 대비만 눌러 전경 소품이 화면에서 튀어나오지 않게 합니다.
+        block.SetFloat("_PropDepthBlend",stage3Foreground ? (source.name=="FrontContainer" ? .42f : .6f) : 0);
         // 기존 감시탑 다리의 녹 색 제거를 새 조명에서도 먼저 적용합니다.
         bool neutral = source.material.HasProperty("_GrayRegion") && source.material.HasProperty("_Brightness");
         block.SetFloat("_UseNeutralRegion", neutral ? 1 : 0);
@@ -354,12 +364,11 @@ public sealed class DystopiaPixelStage : MonoBehaviour
         }
         block.SetColor("_Tint", tint); block.SetColor("_Color", tint); block.SetFloat("_Surface", (float)layer.surface);
         block.SetFloat("_LampStrength", lampIntensity * NightWeight() * layer.lampResponse);
-        block.SetFloat("_RimStrength", rimIntensity * layer.rimResponse * (layer.surface == Surface.Person ? .7f : layer.surface == Surface.Metal ? .22f : .06f));
+        block.SetFloat("_RimStrength", rimIntensity * layer.rimResponse * (layer.surface == Surface.Person ? .7f : layer.surface == Surface.Metal ? .22f : .06f) * (stage3Foreground ? .35f : 1));
         block.SetFloat("_RimWidthPixels", layer.rimWidthPixels);
         block.SetFloat("_HighlightResponse", layer.highlightResponse);
         block.SetFloat("_SpecularResponse", layer.specularResponse);
         block.SetFloat("_Emission", layer.emission * Mathf.Lerp(.2f,1,nightWeight));
-        var image = source as Image;
         Texture2D normal = image != null ? layer.NormalFor(image.sprite) : null;
         bool mapped = relightingTrial && useCustomerNormalMap && normal != null;
         if (mapped) block.SetTexture("_NormalMap", normal);
@@ -410,10 +419,10 @@ public sealed class DystopiaPixelStage : MonoBehaviour
                 }
             }
             float footY = image != null && image.sprite != null && (layer.surface == Surface.Metal || layer.softContactShadow)
-                ? MeasureFootprintY(layer,image.sprite) : layer.contactShadow.y;
-            Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * layer.contactShadow.x, drawing.y + drawing.height * footY, 0));
+                ? MeasureFootprintY(layer,image.sprite) : contactShadow.y;
+            Vector2 center = ScreenPoint(source, new Vector3(drawing.x + drawing.width * contactShadow.x, drawing.y + drawing.height * footY, 0));
             // 밑면에 겹친 상태로 광원 반대쪽 상판으로 퍼지며 원본 Transform은 변경하지 않습니다.
-            float spread = drawing.height * y.magnitude * layer.contactShadow.w;
+            float spread = drawing.height * y.magnitude * contactShadow.w;
             Vector4 lightOrigin = material.GetVector(nightWeight > .5f ? "_SpotOrigin" : "_SunShadowOrigin");
             float drift = Mathf.Clamp((center.x - lightOrigin.x) / Mathf.Max(100, lightOrigin.y - center.y), -1, 1);
             var shadowTransform = layer.contactRenderer.transform;
@@ -438,22 +447,22 @@ public sealed class DystopiaPixelStage : MonoBehaviour
             layer.contactRenderer.GetComponent<MeshFilter>().sharedMesh=contactMesh;
             shadowTransform.localPosition = center;
             shadowTransform.localRotation = Quaternion.identity;
-            shadowTransform.localScale = new Vector3(drawing.width * x.magnitude * layer.contactShadow.z, drawing.height * y.magnitude * layer.contactShadow.w, 1);
+            shadowTransform.localScale = new Vector3(drawing.width * x.magnitude * contactShadow.z, drawing.height * y.magnitude * contactShadow.w, 1);
             bool facility = source.name.StartsWith("Facility", StringComparison.Ordinal);
             bool hardPropShadow = image != null && image.sprite != null && (source.name == "FrontContainer" || source.name == "CounterClock" || facility);
             bool fittedContact = facility || source.name == "FrontContainer";
             block.SetFloat("_ContactShadow", layer.softContactShadow ? 1 : layer.projectedContactShadow ? 2 : fittedContact ? 3 : hardPropShadow ? 2 : 1);
             // 압축한 전체 실루엣 대신 각 열의 실제 밑면에서 그림자가 시작하도록 높이 기준을 전달합니다.
-            block.SetVector("_ContactFootprint", new Vector4(footY, layer.contactShadow.w, 2f / Mathf.Max(1, drawing.height * y.magnitude), 0));
+            block.SetVector("_ContactFootprint", new Vector4(footY, contactShadow.w, 2f / Mathf.Max(1, drawing.height * y.magnitude), 0));
             // 두 금속 소품은 흐린 타원 대신 원본 알파 윤곽을 상판에 투영합니다.
             if (hardPropShadow)
                 block.SetVector("_ContactSpriteUV", UnityEngine.Sprites.DataUtility.GetOuterUV(image.sprite));
             // 그림자 메시가 이동해도 가장 진한 접촉부는 원본 밑면 좌표에 고정합니다.
-            float shadowWidth = drawing.width * x.magnitude * layer.contactShadow.z;
+            float shadowWidth = drawing.width * x.magnitude * contactShadow.z;
             float shear = drift * spread * horizontalCast / Mathf.Max(1, shadowWidth);
             // 상자와 설비는 원본 밑면 폭을 덮어 접점 양끝이 떠 보이지 않게 합니다.
             float footprintWidth = source.name == "FrontContainer" ? 1.03f : facility ? 1f : .9f;
-            block.SetVector("_ContactAnchor", new Vector4(.5f - shear, .72f, footprintWidth / layer.contactShadow.z, shear));
+            block.SetVector("_ContactAnchor", new Vector4(.5f - shear, .72f, footprintWidth / contactShadow.z, shear));
             float contactOpacity = layer.softContactShadow ? .46f : layer.projectedContactShadow ? .65f : .95f;
             block.SetColor("_Tint", new Color(.035f, .025f, .018f, source.color.a * source.canvasRenderer.GetAlpha() * contactOpacity));
             layer.contactRenderer.SetPropertyBlock(block);

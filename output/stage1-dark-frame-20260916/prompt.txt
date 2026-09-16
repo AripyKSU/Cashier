@@ -1,0 +1,5 @@
+Built-in ImageGen edit.
+
+First pass: darken the two posts, corner braces, and roof planks to a cold desaturated charcoal grey-brown about 25% darker than the Stage1 counter, preserving the exact canvas, alpha, layout, nails, knots, cracks, and silhouette.
+
+Final refinement: darken all wooden pixels another 18%, remove remaining warmth, and preserve every existing edge, dimension, pixel cluster, transparent opening, and the absence of external shadows.

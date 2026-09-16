@@ -1,0 +1,10 @@
+Built-in ImageGen edit.
+
+Use case: style-transfer
+Asset type: transparent pixel-art Unity clock housing sprite
+Input images: Image 1 is the exact clock edit target; Image 2 is the authoritative wooden booth frame style reference.
+Primary request: Restyle only the clock housing so it belongs to the same handmade reclaimed-wood booth as Image 2.
+Style/medium: chunky low-resolution pixel art with the same dark desaturated grey-brown wood palette, plank grain, knots, black edge color, nail style, and restrained highlights as Image 2.
+Composition/framing: preserve Image 1 canvas, clock position, overall width/height, rectangular black display opening, and transparent margins exactly.
+Constraints: keep the display completely empty opaque black for Unity's separate green digits; no digits or text; no feet; no cast shadow below; no floating lower lip; flat bottom edge; add a subtle 1-2 pixel dark lower contour attached directly to the wood; preserve true alpha outside the housing; retain only small simple top controls if already present.
+Avoid: metal/plastic casing, warm orange wood, bright bevels, smooth rendering, drop shadow, detached shadow, scenery, clock digits.
