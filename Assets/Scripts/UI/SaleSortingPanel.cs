@@ -654,8 +654,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.state = ViewState.Sorting;
         this.draggedItem = null;
         this.dragOffset = Vector2.zero;
-        this.refreshStatus();
         this.SortingStarted?.Invoke();
+        this.refreshStatus();
         this.transitionRoutine = null;
     }
 
