@@ -584,6 +584,11 @@ public sealed class GameUIController : MonoBehaviour
     private void handleGameStateChanged(GameProgressState state)
     {
         if (state != GameProgressState.DayInProgress && this.IsFacilityShopOpen) this.closeFacilityShop();
+        if (state == GameProgressState.Failed || state == GameProgressState.Completed)
+        {
+            // 정산 화면을 거치지 않는 종료 경로에서도 전역 BGM이 다음 화면까지 남지 않게 한다.
+            SoundManager.Instance?.StopBgm();
+        }
         if (state == GameProgressState.Failed)
         {
             this.gameInputRouter.enabled = false;
