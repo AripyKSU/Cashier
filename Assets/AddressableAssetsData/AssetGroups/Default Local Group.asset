@@ -206,6 +206,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a080b71ca3f4b74c92dce861407a95a
+    m_Address: NextDay
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2ab2087055f53fa4f8dd3eea7283e27f
     m_Address: Stage2RustedClock
     m_ReadOnly: 0
