@@ -1,0 +1,264 @@
+fileFormatVersion: 2
+guid: f96f9be3da3ab15439899a6ee531a851
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 8833158680547586138
+    second: PamPleteShine_0
+  - first:
+      213: 3325848388988535102
+    second: PamPleteShine_1
+  - first:
+      213: -5568165743267943264
+    second: PamPleteShine_2
+  - first:
+      213: 3517557451107880651
+    second: PamPleteShine_3
+  - first:
+      213: 2970726245850480971
+    second: PamPleteShine_4
+  - first:
+      213: -2732728119143171734
+    second: PamPleteShine_5
+  - first:
+      213: 3773040089771889480
+    second: PamPleteShine_6
+  - first:
+      213: -8888290962865321750
+    second: PamPleteShine_7
+  - first:
+      213: -4898203304572605923
+    second: PamPleteShine_8
+  - first:
+      213: 6921131028252459077
+    second: PamPleteShine_9
+  - first:
+      213: -6359728493713747998
+    second: PamPleteShine_10
+  - first:
+      213: 1996472112938005591
+    second: PamPleteShine_11
+  - first:
+      213: 7274365867562787562
+    second: PamPleteShine_12
+  - first:
+      213: -2712021262527515639
+    second: PamPleteShine_13
+  - first:
+      213: -4957297444073876460
+    second: PamPleteShine_14
+  - first:
+      213: -2029745024674244584
+    second: PamPleteShine_15
+  - first:
+      213: 3015691214819585203
+    second: PamPleteShine_16
+  - first:
+      213: -1987792585876772279
+    second: PamPleteShine_17
+  - first:
+      213: 5059081978375065727
+    second: PamPleteShine_18
+  - first:
+      213: 3571626940328199295
+    second: PamPleteShine_19
+  - first:
+      213: -9147091831343974201
+    second: PamPleteShine_20
+  - first:
+      213: 6217680752198391432
+    second: PamPleteShine_21
+  - first:
+      213: 8986122155406931542
+    second: PamPleteShine_22
+  - first:
+      213: 2054125961466238003
+    second: PamPleteShine_23
+  - first:
+      213: -4461152605774385481
+    second: PamPleteShine_24
+  - first:
+      213: -341522222843660100
+    second: PamPleteShine_25
+  - first:
+      213: -3624098693757541766
+    second: PamPleteShine_26
+  - first:
+      213: 8139362681826238259
+    second: PamPleteShine_27
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 105, y: 95, z: 415, w: 557}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: PamPleteShine_0
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 94
+        width: 720
+        height: 494
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5072b6150fa59a70800000000000000
+      internalID: 8833158680547586138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      PamPleteShine_0: 8833158680547586138
+      PamPleteShine_1: 3325848388988535102
+      PamPleteShine_10: -6359728493713747998
+      PamPleteShine_11: 1996472112938005591
+      PamPleteShine_12: 7274365867562787562
+      PamPleteShine_13: -2712021262527515639
+      PamPleteShine_14: -4957297444073876460
+      PamPleteShine_15: -2029745024674244584
+      PamPleteShine_16: 3015691214819585203
+      PamPleteShine_17: -1987792585876772279
+      PamPleteShine_18: 5059081978375065727
+      PamPleteShine_19: 3571626940328199295
+      PamPleteShine_2: -5568165743267943264
+      PamPleteShine_20: -9147091831343974201
+      PamPleteShine_21: 6217680752198391432
+      PamPleteShine_22: 8986122155406931542
+      PamPleteShine_23: 2054125961466238003
+      PamPleteShine_24: -4461152605774385481
+      PamPleteShine_25: -341522222843660100
+      PamPleteShine_26: -3624098693757541766
+      PamPleteShine_27: 8139362681826238259
+      PamPleteShine_3: 3517557451107880651
+      PamPleteShine_4: 2970726245850480971
+      PamPleteShine_5: -2732728119143171734
+      PamPleteShine_6: 3773040089771889480
+      PamPleteShine_7: -8888290962865321750
+      PamPleteShine_8: -4898203304572605923
+      PamPleteShine_9: 6921131028252459077
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
