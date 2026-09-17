@@ -27,6 +27,7 @@ public class HubScene : MonoBehaviour
             if (GameSceneManager.Instance == null)
                 throw new InvalidOperationException("Start Play Mode from InitScene to bootstrap managers.");
             await UniTask.NextFrame(this.GetCancellationTokenOnDestroy());
+            SoundManager.Instance?.PlayBgm(SoundKeys.TitleBgm);
             newGameButton.interactable = true;
             statusText.text = string.Empty;
         }
@@ -46,18 +47,27 @@ public class HubScene : MonoBehaviour
         if (!newGameButton.interactable) return;
         newGameButton.interactable = false;
         statusText.text = "새 게임을 준비하고 있습니다.";
+        SoundManager.Instance?.StopBgm();
         try { await GameSceneManager.Instance.RestartGameAsync(); }
         catch (Exception exception)
         {
             if (this == null) return;
+            SoundManager.Instance?.PlayBgm(SoundKeys.TitleBgm);
             newGameButton.interactable = true;
             showError(exception);
         }
     }
 
+    /// <summary>Hub가 비활성화되면 타이틀 BGM이 다음 씬으로 이어지지 않게 정지한다.</summary>
+    private void OnDisable()
+    {
+        SoundManager.Instance?.StopBgm();
+    }
+
     /// <summary>배포 실행을 종료하며 Editor에서는 Play만 종료한다.</summary>
     private void quitGame()
     {
+        SoundManager.Instance?.StopBgm();
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

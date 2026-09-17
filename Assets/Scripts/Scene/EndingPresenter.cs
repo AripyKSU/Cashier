@@ -46,6 +46,7 @@ public sealed class EndingPresenter : MonoBehaviour
     /// <summary>비활성화 뒤 늦은 로드·페이드가 화면을 덮지 않도록 취소한다.</summary>
     private void OnDisable()
     {
+        SoundManager.Instance?.StopBgm();
         lifetime?.Cancel();
         lifetime?.Dispose();
         lifetime = null;
@@ -113,6 +114,9 @@ public sealed class EndingPresenter : MonoBehaviour
             foreach (uint idx in pages.Where(page => page.SfxResourceIdx.HasValue).Select(page => page.SfxResourceIdx.Value).Distinct())
                 if (sounds == null || !sounds.CachedClips.TryGetValue(idx, out AudioClip clip) || clip == null)
                     throw new InvalidOperationException($"Ending SFX FK={idx}가 SoundManager cache에 없습니다.");
+            if (sounds == null || !sounds.CachedClips.ContainsKey(GetEndingBgmResourceIdx(result.Kind)))
+                throw new InvalidOperationException("Ending BGM이 SoundManager cache에 없습니다.");
+            sounds.PlayBgm(GetEndingBgmResourceIdx(result.Kind));
             isReady = true;
             pageIndex = 0;
             showPage();
@@ -149,6 +153,7 @@ public sealed class EndingPresenter : MonoBehaviour
         }
         nextButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(true);
+        SoundManager.Instance?.StopBgm();
         UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
     }
 
@@ -233,8 +238,20 @@ public sealed class EndingPresenter : MonoBehaviour
         pageIndicator.gameObject.SetActive(false);
         nextButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(true);
+        SoundManager.Instance?.StopBgm();
         UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
     }
+
+    /// <summary>동결된 엔딩 종류를 해당 엔딩 화면의 BGM 리소스로 변환한다.</summary>
+    /// <param name="kind">검증된 엔딩 종류.</param>
+    /// <returns>Good은 GoodEndingBgm, 나머지 세 종료 종류는 BadEndingBgm.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">유효한 종료 종류가 아닌 경우 발생합니다.</exception>
+    internal static uint GetEndingBgmResourceIdx(EndingKind kind) => kind switch
+    {
+        EndingKind.Good => SoundKeys.GoodEndingBgm,
+        EndingKind.GameOver or EndingKind.Bad or EndingKind.CitizenshipNegative => SoundKeys.BadEndingBgm,
+        _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "유효한 엔딩 종류가 필요합니다.")
+    };
 
     /// <summary>이전 페이지 효과음을 정리하고 현재 페이지 효과음을 한 번 시작한다.</summary>
     /// <param name="page">표시가 완료된 페이지.</param>

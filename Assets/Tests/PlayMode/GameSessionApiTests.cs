@@ -1978,6 +1978,11 @@ public sealed class GameSessionApiTests
                 deadline = Time.realtimeSinceStartup + 20;
                 while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
             }
+            var endingBgm = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Single(source => source.name == "BGM Source");
+            uint expectedBgm = expectedKind == EndingKind.Good ? SoundKeys.GoodEndingBgm : SoundKeys.BadEndingBgm;
+            Assert.That(endingBgm.clip, Is.SameAs(sounds.CachedClips[expectedBgm]));
+            Assert.That(endingBgm.isPlaying, Is.True);
             var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
                 .Where(p => p.Kind == session.EndingResult.Value.Kind).OrderBy(p => p.PageOrder).ToArray();
             AudioSource endingSfxSource = null;
@@ -2026,6 +2031,8 @@ public sealed class GameSessionApiTests
             Assert.That(panelBackground.enabled, Is.False);
             Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "heading").text, Is.Empty);
             Assert.That(uiReference<UnityEngine.UI.Button>(presenter, "newGameButton").gameObject.activeSelf);
+            Assert.That(endingBgm.isPlaying, Is.False);
+            Assert.That(endingBgm.clip, Is.Null);
             if (endingSfxSource != null) Assert.That(endingSfxSource.isPlaying, Is.False);
             UnityEngine.Object.Destroy(obj); yield return null;
             if (expectedKind == EndingKind.Bad)

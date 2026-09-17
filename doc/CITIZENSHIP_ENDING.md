@@ -1,5 +1,12 @@
 # 시민권·엔딩 구현 및 플레이 테스트 안내
 
+## 2026-09-17 endingBgm 재통합
+
+- 대상 `origin/endingBgm 8b0340ab`. 이전 병합 `fab44dd4`와 되돌림 `30cc4a1e`가 이력에 있으므로 단순 merge는 변경을 다시 가져오지 않는다. 되돌림을 취소해 기존 BGM 변경을 복구하고, 이전 충돌 해결에서 누락된 EndingPresenter의 BGM 연결을 현재 효과음 페이지 흐름에 맞게 반영한다.
+- Resource4413/4414/4415는 TitleBgm/GoodEndingBgm/BadEndingBgm이며 사운드 캐시는23개다. Hub 타이틀 BGM과 엔딩 종류별 BGM을 사용한다. Good=2만 GoodEndingBgm, 나머지1·3·4는 BadEndingBgm이다. 중간 검은 화면/효과음 페이지에서는 BGM을 유지하고 마지막 문구·새 게임 버튼 표시 또는 비활성화 시 정지한다.
+- 엔딩36페이지·4263 효과음·대화 박스 알파·최종 정산 확인창 제거를 유지한다. BGM 원본/metadata3쌍·Addressables·ResourceData·SoundKeys/Manager·Hub/EndingPresenter·관련 테스트를 함께 통합한다. 새 meta의 빈 필드 공백만 정리하며 GUID/import 값은 보존한다.
+- 검증 **PASS(API 범위)**: 재컴파일 후 EditMode EndingPageTests **14/14**, SoundResourceDataTests **2/2**; PlayMode CitizenshipEndingPagesDisplayAndFinish **1/1**(4종36페이지·BGM 시작/최종 정지·효과음·알파·표시 수명), InitializeLoadsAllSoundClips **1/1**(23개 실제 AudioClip). 모두 실패·skip0. 증거: `Temp/qa1-endingbgm-merge/{editmode-ending,editmode-sounds,playmode-ending,playmode-sounds}.json`. 첫 EditMode13건은 재컴파일 전 결과라 현재 검증 수에서 제외했다. PlayMode 엔딩 테스트의 CLI 연결 종료 후 동일 실행의 완료 파일을 확인했으며 재실행하지 않았다. Console의 SFX FK4393 오류는 의도한 잘못된 리소스 입력에 대한 예상 로그다. 신규 BGM3종의 ID/address/GUID도 확인했다(`resource-check.json`). 최종 청음·Hub 수동 전환·전체 회귀·Player build는 미실행이며 원격 push는 이번 병합 요청에 포함하지 않는다.
+
 ## 2026-09-17 최종 정산 확인창 제거
 
 - 최종일 정산에서 기존 다음 단계 버튼(문구 `마무리`)을 누르면 추가 확인창 없이 `OnNextStepRequested`를 전달한다. 일반일 버튼은 기존 `다음 날`이다. 정산 화면이 열리자마자 자동으로 종료하는 변경은 아니다.
@@ -26,7 +33,7 @@
 | 기존 마지막 문구 | 18025 | 11 | 빈 셀 | 8503 | 빈 셀 |
 
 - 실제 철컥/펑 리소스는 아직 없으므로 사용자 지정 `4263=CalculatorButton`을 두 행에 임시로 사용한다. 전체36행이며 다른 엔딩 대사·이미지는 변경하지 않는다. 공용 예약표의 EndingPage 범위를 사용자 승인 후 `18001~18036`으로 갱신했다.
-- 기존 `SoundManager`의 사운드 캐시와 재생·정지 API를 사용한다. 현재 사운드 로더는 `SoundKeys.All`에 등록한 20개를 로드하므로 새로운 소리를 나중에 추가할 때 ResourceData/Addressables뿐 아니라 이 목록과 고정 개수 검증도 함께 갱신해야 한다. 이번 작업은 이미 등록된4263을 재사용하며 공용 사운드 로더는 변경하지 않는다.
+- 기존 `SoundManager`의 사운드 캐시와 재생·정지 API를 사용한다. 현재 사운드 로더는 `SoundKeys.All`에 등록한 23개(endingBgm 통합 전20개)를 로드하므로 새로운 소리를 나중에 추가할 때 ResourceData/Addressables뿐 아니라 이 목록과 고정 개수 검증도 함께 갱신해야 한다. 효과음 페이지 작업 자체는 이미 등록된4263을 재사용한다.
 - 병합 시 새 CSV 컬럼·nullable DTO/Table·Presenter·테스트를 함께 반영한다. 이전 CSV/새 파서 혼용은 헤더 검증 실패다. 신규 PK18035/18036의 통합 브랜치 충돌을 확인한다. 기존 Text/Resource/Addressables/씬/Prefab은 변경하지 않는다.
 - 검증 **PASS(API 범위)**: EditMode `EndingPageTests` **13/13**, PlayMode `CitizenshipEndingPagesDisplayAndFinish` **1/1**. 네 엔딩36페이지·nullable/FK 오류·공개 데이터 보존, 실제 SoundManager의4263 로드/재생/동일 source 재시작·종료/비활성 정지, black→black 즉시 진행·최종 문구, 알파174/255 보존을 검사했다. 잘못된 비오디오 FK가 사운드 캐시에 없을 때 오류 화면으로 연결되는 것도 확인했다. 실패·skip0. 증거: `Temp/qa1-ending-sfx/editmode.json`, `playmode.json`, `static-data.json`.
 - 기존 대사/이미지34행과 Scene/Prefab 파일을 보존했다. 전체 suite·Player build·사용자 청감/최종 UX 확인은 미실행이며 두 소리는 모두 임시 계산기 버튼음이다. Git commit/push 미수행.
