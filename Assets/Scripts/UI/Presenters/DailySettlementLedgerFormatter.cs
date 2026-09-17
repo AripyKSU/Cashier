@@ -40,7 +40,6 @@ public static class DailySettlementLedgerFormatter
         appendAmount(builder, "판매 수입", viewData.SaleIncome, true);
         appendAmount(builder, "유지비", viewData.MaintenanceAmount, false, true);
         appendAmount(builder, "지침 벌금", viewData.GuidelinePenaltyAmount, false, true);
-        appendAmount(builder, "총지출", viewData.Expenses, false, true);
         builder.AppendLine("──────────");
         appendAmount(builder, "순이익", viewData.NetProfit, true);
         builder.AppendLine();
@@ -73,9 +72,6 @@ public static class DailySettlementLedgerFormatter
     /// <param name="viewData">확정된 정산 스냅샷입니다.</param>
     private static void appendPaymentStatus(StringBuilder builder, DailySettlementViewData viewData)
     {
-        appendAmount(builder, "총 납부 필요액", viewData.TotalPaymentDue);
-        appendAmount(builder, "납부액", viewData.PaidAmount);
-
         if (viewData.GracePeriodEndDay.HasValue)
         {
             builder.Append("상환 기한  DAY ").AppendLine(viewData.GracePeriodEndDay.Value.ToString());

@@ -1,19 +1,10 @@
 fileFormatVersion: 2
-guid: 20606d7a48a6b9545a534ff19013ea32
+guid: ea20845ded9ce8a479fa095ab4af54b6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7549582781228940981
-    second: InspectorDialogueFrame_0
-  - first:
-      213: -5761113566386171891
-    second: InspectorDialogueFrame_1
-  - first:
-      213: -1029812145725522559
-    second: InspectorDialogueFrame_2
-  - first:
-      213: -8873975970431914672
-    second: InspectorDialogueFrame_3
+      213: 5486814418371444487
+    second: dailyguidebutton_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -57,11 +48,11 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 230, y: 215, z: 230, w: 215}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -81,10 +72,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 4096
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -122,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: InspectorDialogueFrame_0
+      name: dailyguidebutton_0
       rect:
         serializedVersion: 2
-        x: 40
-        y: 108
-        width: 2091
-        height: 515
+        x: 73
+        y: 259
+        width: 1514
+        height: 419
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 421, y: 110, z: 508, w: 113}
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5be7e854a8185c860800000000000000
-      internalID: 7549582781228940981
+      spriteID: 70f7583a4a4152c40800000000000000
+      internalID: 5486814418371444487
       vertices: []
       indices: 
       edges: []
@@ -147,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -157,10 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      InspectorDialogueFrame_0: 7549582781228940981
-      InspectorDialogueFrame_1: -5761113566386171891
-      InspectorDialogueFrame_2: -1029812145725522559
-      InspectorDialogueFrame_3: -8873975970431914672
+      dailyguidebutton_0: 5486814418371444487
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
