@@ -61,6 +61,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0aa3a0892a512ff4da876e4c3226dbfd
+    m_Address: badending2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0b7abd40c5a3d4b408c65dea6e77c1bd
     m_Address: ProtectiveSuit
     m_ReadOnly: 0
@@ -111,6 +116,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1a44704d43f1b9b4e8646a7bb02a0d03
+    m_Address: goodending2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1a651144da99c104bbb613cf8d4504b1
     m_Address: Radio
     m_ReadOnly: 0
@@ -126,6 +136,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1cecb754b39261c48b4901242b7a4505
+    m_Address: badending4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1d0ad060c38871a4a95c92fb594d0a91
     m_Address: FemaleWealthy_03_Normal
     m_ReadOnly: 0
@@ -133,6 +148,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1d2d6af80af438545baca84cd674cf9e
     m_Address: FemalePoor_01_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1db5bd1818a65c1459a1667299949604
+    m_Address: nomoneyending3
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -168,6 +188,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 28616b2c53126ac4b8fcc9db974d02ce
     m_Address: Battery
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 287ea539e2f32274db344fa783c24eec
+    m_Address: goodending3
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -212,6 +237,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Datas
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2d65f10642c562949a7ff13d9d531ec7
+    m_Address: nomoneyending4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2d9a95f2a7541e34ebaa74e59d88fd3b
     m_Address: MaleNormal_05
     m_ReadOnly: 0
@@ -229,6 +259,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 31926bb7c9f4b24408fb47ec43a97d1a
     m_Address: FemaleElder_01_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 31a27e828d3bc8441b9236c2045faf22
+    m_Address: norentending3
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -303,6 +338,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 40f0fd82e4a7fc64386b46a4790afa3f
+    m_Address: nomoneyending1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 417e6bb9a1348ae42bcdf2b7dc148d6e
     m_Address: FemaleNormal_09
@@ -415,6 +455,21 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 595aa36ac38c64a47b551fcb98c850a9
+    m_Address: norentending2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b1ec3a8abb4a3e4593196fedb218360
+    m_Address: badending3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b382565157b26840bcbd0bf8539b203
+    m_Address: norentending1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5b6743295cd63b04386484a2ee47255a
     m_Address: StoreStage1TopView
     m_ReadOnly: 0
@@ -443,6 +498,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5f8faaf3cb1633c4593c73a04d3a3ab5
     m_Address: MaleWealthy_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5f9841f5db0dc0d448cc67328c65ec7c
+    m_Address: GoodEndingBgm
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -541,6 +601,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 73857358e54954043846839aa2ddf956
+    m_Address: badending1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 744d6f35b5794b8449de96666e75a6e6
     m_Address: FemaleNormal_01_Normal
     m_ReadOnly: 0
@@ -582,6 +647,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7eb1e66cefa481e4dbd6d1df8e427f11
+    m_Address: BadEndingBgm
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7f4a19c06d8e42a3b57c91e5f0236dab
     m_Address: MaintenanceBalanceData
     m_ReadOnly: 0
@@ -605,6 +675,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 83d51b01f314d024b8b7ff1904f62540
     m_Address: MaleNormal_11
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 871a9fc936944874d8a1c862c5e27b9f
+    m_Address: TitleBgm
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -667,6 +742,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 951473079ba37cb4198234baa810cffc
     m_Address: FemaleNormal_02_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9549518417d8b104a8e5759095c43d49
+    m_Address: nomoneyending5
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -812,6 +892,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b2468cc43ae61c245836be9c01f2c1db
+    m_Address: goodending4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b5711cd33f523d34bb0f045cac6a161e
     m_Address: FemaleNormal_07_Normal
     m_ReadOnly: 0
@@ -843,6 +928,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Datas
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c057ac57bb2814f428e4a6e08acc13c5
+    m_Address: badending5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c3740279e17b09c4d9a77ec3202b55cb
     m_Address: Painkiller
@@ -924,6 +1014,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d20331cf25ecd4c4d9f8ce27603b437e
+    m_Address: nomoneyending2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d28f46bde3deec24682f0e4e50a64d81
     m_Address: FemaleChild_03_Normal
     m_ReadOnly: 0
@@ -985,6 +1080,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd5c848cde7b8af4b9da508a076fbf14
+    m_Address: norentending4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e0acfecbe92a3f74ca1555f4f7d132e6
     m_Address: FemaleChild_02_Normal
     m_ReadOnly: 0
@@ -1041,8 +1141,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb22dab5f183d924aaef430a3ab28e9b
+    m_Address: norentending5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ebb68df11a1a9774f9f482f9dd8a5e90
     m_Address: FemalePriceSensitive_03_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec8a64dece3a52246b6f4c91a54ee1a7
+    m_Address: goodending1
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -1121,6 +1231,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ff065281e6708db45bbdfbfd7b4c0a82
     m_Address: FemaleHasty_02_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ffabed614b0a129438588dbda1d51be1
+    m_Address: goodending5
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

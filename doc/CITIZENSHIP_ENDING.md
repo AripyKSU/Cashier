@@ -1,5 +1,84 @@
 # 시민권·엔딩 구현 및 플레이 테스트 안내
 
+## 2026-09-17 endingBgm 재통합
+
+- 대상 `origin/endingBgm 8b0340ab`. 이전 병합 `fab44dd4`와 되돌림 `30cc4a1e`가 이력에 있으므로 단순 merge는 변경을 다시 가져오지 않는다. 되돌림을 취소해 기존 BGM 변경을 복구하고, 이전 충돌 해결에서 누락된 EndingPresenter의 BGM 연결을 현재 효과음 페이지 흐름에 맞게 반영한다.
+- Resource4413/4414/4415는 TitleBgm/GoodEndingBgm/BadEndingBgm이며 사운드 캐시는23개다. Hub 타이틀 BGM과 엔딩 종류별 BGM을 사용한다. Good=2만 GoodEndingBgm, 나머지1·3·4는 BadEndingBgm이다. 중간 검은 화면/효과음 페이지에서는 BGM을 유지하고 마지막 문구·새 게임 버튼 표시 또는 비활성화 시 정지한다.
+- 엔딩36페이지·4263 효과음·대화 박스 알파·최종 정산 확인창 제거를 유지한다. BGM 원본/metadata3쌍·Addressables·ResourceData·SoundKeys/Manager·Hub/EndingPresenter·관련 테스트를 함께 통합한다. 새 meta의 빈 필드 공백만 정리하며 GUID/import 값은 보존한다.
+- 검증 **PASS(API 범위)**: 재컴파일 후 EditMode EndingPageTests **14/14**, SoundResourceDataTests **2/2**; PlayMode CitizenshipEndingPagesDisplayAndFinish **1/1**(4종36페이지·BGM 시작/최종 정지·효과음·알파·표시 수명), InitializeLoadsAllSoundClips **1/1**(23개 실제 AudioClip). 모두 실패·skip0. 증거: `Temp/qa1-endingbgm-merge/{editmode-ending,editmode-sounds,playmode-ending,playmode-sounds}.json`. 첫 EditMode13건은 재컴파일 전 결과라 현재 검증 수에서 제외했다. PlayMode 엔딩 테스트의 CLI 연결 종료 후 동일 실행의 완료 파일을 확인했으며 재실행하지 않았다. Console의 SFX FK4393 오류는 의도한 잘못된 리소스 입력에 대한 예상 로그다. 신규 BGM3종의 ID/address/GUID도 확인했다(`resource-check.json`). 최종 청음·Hub 수동 전환·전체 회귀·Player build는 미실행이며 원격 push는 이번 병합 요청에 포함하지 않는다.
+
+## 2026-09-17 최종 정산 확인창 제거
+
+- 최종일 정산에서 기존 다음 단계 버튼(문구 `마무리`)을 누르면 추가 확인창 없이 `OnNextStepRequested`를 전달한다. 일반일 버튼은 기존 `다음 날`이다. 정산 화면이 열리자마자 자동으로 종료하는 변경은 아니다.
+- `DailySettlementPresenter.ConfigureEnding(bool isFinalDay)`로 변경하고 확인창·확인/취소 버튼·확인창 상태 API를 제거했다. 단일 호출자인 GameUIController도 새 인자를 사용한다.
+- `SettlementPanel.prefab`의 `FinalConfirmationPanel`과 구형 Editor 생성 경로를 제거한다. 정산 가계부·딸 대화·명성 도장 순서와 `DailySettlementFlowController`의 입력 준비/한 번 진행 가드는 유지한다. 시민권 구매 즉시 종료 및 미납 판정은 변경하지 않는다.
+- 병합 시 Presenter/호출자/Editor 도구/SettlementPanel Prefab/관련 테스트를 함께 반영한다. 아래 과거 기록의 최종 확인창·취소 후 구매 설명은 이 변경으로 대체된다.
+- 검증 **PASS(API 범위)**: PlayMode `SettlementNextButtonRequestsNormalAndFinalProgressImmediately` **1/1**, 실패·skip0. 실제 Prefab의 확인창 제거, 최종/일반일 버튼 문구와 즉시 요청을 확인했다. Prefab의 나머지 직렬화 객체는 이전 내용과 동일하며 확인창 하위 객체·루트 자식 참조·Presenter의 구형3필드만 제거됐다. CLI 대기 연결이 중단되어 동일 실행의 완료 파일을 확인·보관했다: `Temp/qa1-final-confirmation/playmode.json`. 전체 플레이/최종 UX는 별도 확인 대상이다. 커밋·푸시 미수행.
+
+## 2026-09-17 페이지별 효과음 (현재 계약)
+
+아래 34페이지 최초 구현 기록에서 검은 화면을 마지막 한 행으로 제한하던 계약을 확장한다.
+
+- `EndingPageData.csv` 끝에 선택 컬럼 `sfx_resource_idx`를 추가한다. `ResourceData`의 사운드 FK이며 빈 셀은 재생 없음이다. 배열 대신 페이지를 추가하여 효과음을 순서대로 재생한다. 이미지·대사·효과음은 한 행에 함께 지정할 수 있다.
+- `idx`, `ending_kind`, `page_order`는 필수다. 배경 빈 셀은 검은 화면, 대사/화자 빈 셀은 표시 없음이다. 배경·대사·효과음 모두 없는 행과 대사 없이 화자만 있는 행은 거부한다. 0·잘못된 대역·없는 FK는 로드 검증에서 거부한다.
+- 검은 화면은 중간에도 여러 행 존재할 수 있다. 마지막 `page_order` 행이 종료 페이지이며, 마지막 행은 기존처럼 검은 화면·화자 없음·최종 텍스트 필수다.
+- 이미지에서 검은 화면으로 넘어갈 때만 0.6초 암전 후 해당 페이지의 대사·효과음을 시작한다. 검은 화면에서 다음 검은 화면으로 넘어가면 화면을 유지하고 내용만 변경한다. 같은 이미지의 다음 행도 이미지 전환을 반복하지 않는다.
+- 다음/Enter로 수동 진행한다. 효과음은 페이지 진입 시 한 번 재생하고 다음 페이지·비활성화·파괴 시 해당 엔딩 효과음을 정리한다. 소리가 먼저 끝나면 페이지는 다음 입력까지 유지한다. 대화 박스 Image의 색상/알파는 계속 인스펙터 값을 보존한다.
+
+| Kind3의 마지막 부분 | PK | page_order | 배경 FK | 대사 FK | SFX FK |
+|---|---|---|---|---|---|
+| 기존 5컷 | 18024 | 8 | 4407 | 빈 셀 | 빈 셀 |
+| 암전 후 첫 효과음 | 18035 | 9 | 빈 셀 | 빈 셀 | 4263 |
+| 검은 화면에서 둘째 효과음 | 18036 | 10 | 빈 셀 | 빈 셀 | 4263 |
+| 기존 마지막 문구 | 18025 | 11 | 빈 셀 | 8503 | 빈 셀 |
+
+- 실제 철컥/펑 리소스는 아직 없으므로 사용자 지정 `4263=CalculatorButton`을 두 행에 임시로 사용한다. 전체36행이며 다른 엔딩 대사·이미지는 변경하지 않는다. 공용 예약표의 EndingPage 범위를 사용자 승인 후 `18001~18036`으로 갱신했다.
+- 기존 `SoundManager`의 사운드 캐시와 재생·정지 API를 사용한다. 현재 사운드 로더는 `SoundKeys.All`에 등록한 23개(endingBgm 통합 전20개)를 로드하므로 새로운 소리를 나중에 추가할 때 ResourceData/Addressables뿐 아니라 이 목록과 고정 개수 검증도 함께 갱신해야 한다. 효과음 페이지 작업 자체는 이미 등록된4263을 재사용한다.
+- 병합 시 새 CSV 컬럼·nullable DTO/Table·Presenter·테스트를 함께 반영한다. 이전 CSV/새 파서 혼용은 헤더 검증 실패다. 신규 PK18035/18036의 통합 브랜치 충돌을 확인한다. 기존 Text/Resource/Addressables/씬/Prefab은 변경하지 않는다.
+- 검증 **PASS(API 범위)**: EditMode `EndingPageTests` **13/13**, PlayMode `CitizenshipEndingPagesDisplayAndFinish` **1/1**. 네 엔딩36페이지·nullable/FK 오류·공개 데이터 보존, 실제 SoundManager의4263 로드/재생/동일 source 재시작·종료/비활성 정지, black→black 즉시 진행·최종 문구, 알파174/255 보존을 검사했다. 잘못된 비오디오 FK가 사운드 캐시에 없을 때 오류 화면으로 연결되는 것도 확인했다. 실패·skip0. 증거: `Temp/qa1-ending-sfx/editmode.json`, `playmode.json`, `static-data.json`.
+- 기존 대사/이미지34행과 Scene/Prefab 파일을 보존했다. 전체 suite·Player build·사용자 청감/최종 UX 확인은 미실행이며 두 소리는 모두 임시 계산기 버튼음이다. Git commit/push 미수행.
+- 최종 Editor: InitScene clean, Play 종료, compileFailed=false, 시작 씬 override 없음, runInBackground=false. Console에는 테스트가 의도적으로 주입한 `SFX FK=4393` 캐시 누락 오류1건이 남아 있으며 `LogAssert.Expect`로 검증한 로그다. 예상하지 않은 오류는0건이다.
+
+## 2026-09-17 엔딩 4종 대사·컷씬 연결 (qa1 현재 계약)
+
+사용자가 전달한 대응표를 기준으로 아래 데이터를 사용한다. 아래의 과거 2종·임시 이미지·결과 요약 설명보다 이 절을 우선한다. 시민권 가격·구매 조건·도덕성 분기·미납 판정은 변경하지 않는다.
+
+| EndingKind | 컷씬 순서 / Resource ID | 페이지 수(최종 포함) | 최종 제목 |
+|---|---|---|---|
+| GameOver=1 | norentending1~5 / 4408~4412 | 9 | ENDING — 박탈 |
+| Good=2 | goodending1~5 / 4393~4397 | 8 | GOOD ENDING — 살림 |
+| Bad=3 | nomoneyending1~5 / 4403~4407 | 9 | ENDING — 마지막 하루 |
+| CitizenshipNegative=4 | badending1~5 / 4398~4402 | 8 | BAD ENDING — 대가 |
+
+- `EndingPageData.csv`의 기존 6컬럼을 유지한다. `page_order`는 엔딩 안에서 연속한다. 한 이미지에 화자가 바뀌면 같은 이미지 FK를 가진 다음 행으로 대사만 전환한다. 연속된 같은 화자 또는 서술은 개행으로 한 페이지에 묶었다.
+- `text_idx` 빈 값은 무언 컷씬(3·4번 엔딩의 컷씬5), `speaker_nameidx` 빈 값은 화자명 없는 서술이다. 화자만 있고 대사가 없는 행은 허용하지 않는다.
+- `background_resource_idx` 빈 값은 엔딩의 마지막 검은 화면이다. 각 엔딩에 정확히 1행이며 마지막에만 위치한다. 이 행은 대사가 필수이고 화자는 비어 있어야 한다. 0을 빈 값 대신 넣지 않는다. 존재하는 FK는 전체 로드 시 검증하고 실패하면 이전 공개 데이터를 보존한다.
+- 최종 문구와 제목은 같은 `TextData`에 개행으로 보관한다. 마지막 컷씬에서 다음 입력 시 이전 문구를 숨기고 0.6초간 검게 페이드한 뒤 최종 문구를 표시한다. 이때 다음 버튼을 숨기고 기존 새 게임 버튼(Hub 복귀)을 표시하며 별도 결과 요약으로 덮어쓰지 않는다. 수동 다음/Enter 방식은 유지한다.
+- 대화 박스는 `DialoguePanel` Image의 인스펙터 색상·알파를 유지한다. 무언/최종 페이지는 Image만 비활성화하고, 대사가 다시 나타나면 활성화한다. CanvasGroup 페이드는 이 원래 알파에 곱해진다. 알파174/255를 주입한 기존 PlayMode 검사 **1/1**(4종 전체 페이지·재활성·최종 숨김), compile error0·Console error0. CLI 대기 연결이 중단됐으나 동일 실행의 완료 파일로 통과를 확인했다: `Temp/qa1-ending-dialogue/panel-alpha-playmode.json`.
+- `GoodEndingScene`은 2번, `BadEndingScene`은 1·3·4번을 표시한다. 4번은 2번 대사를 재사용하지 않는다. 미납 만료로 `GameOver` 결과가 확정된 `Failed`는 엔딩으로 이동하고, 엔딩 결과 없는 실패는 기존 오류 화면을 유지한다. 두 씬은 공용 `EndingPanel.prefab` 변경을 상속한다. 최초 구현은 씬 파일을 변경하지 않았으며, 후속 사용자 조정으로 저장된 BadEndingScene의 Canvas 채널과 대화 박스 알파 override를 함께 반영한다. 커밋 준비 시 공용 Image 알파는 175/255, BadEndingScene override는 103/255이며 코드가 각각의 설정값을 보존한다.
+- 공용 CSV 예약표의 EndingPage 범위 `18001~18034`는 사용자 승인 후 2026-09-17 한 줄을 갱신했다. 기존 PK18001~18008은 유지하고 18009~18034를 추가했다. Text8478~8480은 아빠·하루·경비 이름, 8481~8512는 대사·최종 문구다. 감독관 이름은 기존8232를 사용하며 과거 Text8240~8247은 삭제하지 않았다.
+- 병합 묶음: EndingPage/Text/Resource CSV, 이미지20개와 meta, 기존 Addressables 등록20개, DTO/Table/Presenter, GameOver 씬 진입 연결, EndingPanel Prefab 및 관련 테스트. 다른 브랜치와 합칠 때 신규 Text·Resource·EndingPage PK의 충돌을 확인한다.
+- 검증 **PASS(데이터·Presenter API 범위)**: EditMode `EndingPageTests` **11/11**, PlayMode `CitizenshipEndingPagesDisplayAndFinish` **1/1**(실제 세션 종료 결과 4종과 전체34페이지, 무언·화자 표시, 중복 다음 입력, 비활성/재활성 로드, 최종 검은 화면·CSV 최종문구·새 게임 표시). 실패·skip0, compileFailed=false·제품 Console error0. 사용자 전달본과 CSV34페이지의 이미지/화자/대사를 별도로 대조했다. 실행 증거는 `Temp/qa1-ending-dialogue/test-results.json`, 대조 결과는 `static-result.json`이다. 이번 CLI는 XML 파일을 생성하지 않아 실제 반환 요약을 보관했다.
+- 최종 Editor는 InitScene clean·Play 종료·시작 씬 override 없음·runInBackground=false다. 원본 이미지20개/meta·공유/개인 Scene 파일을 보존했다. 전체 suite·Player build·실제 GameOver 씬 전환 smoke·최종 화면/UX 사용자 확인은 미실행이다. commit/push 미수행.
+
+## 2026-09-17 엔딩 컷씬 리소스 등록 (qa1)
+
+- 기준 브랜치 `codex/qa1`, HEAD `498784d9`. 사용자 제공 원본은 `Assets/Textures/UI/Ending/`에 있는 PNG20개다. 기존 파일명·GUID·Sprite 슬라이스·import 설정을 보존하고 기존 `Default Local Group`에 파일명(확장자 제외) 주소로 등록했다. 새 그룹·라벨은 만들지 않았다.
+- `ResourceData.csv`에 다음20행을 추가했다. 각 범위는 파일명 끝의1~5 순서이며, 이름의 의미를 `EndingKind`에 자동 매핑하지 않는다.
+
+| Resource ID | Address / 파일명 |
+|---|---|
+| 4393~4397 | goodending1~goodending5 |
+| 4398~4402 | badending1~badending5 |
+| 4403~4407 | nomoneyending1~nomoneyending5 |
+| 4408~4412 | norentending1~norentending5 |
+
+- 이번 완료 범위는 리소스 등록·ResourceData 연결이다. 새 대사·컷씬 대응표는 사용자가 후속 전달할 예정이므로 `EndingPageData.csv`, `TextData.csv`, 엔딩 출력 코드와 Prefab/Scene은 변경하지 않았다. 등록만으로 새 컷씬이 게임 엔딩에 자동 표시되지는 않는다.
+- 후속 구현 시 현재의 임시 계약을 함께 교체해야 한다: EndingPageData는 Good(2)/Bad(3)만 허용하고, CitizenshipNegative(4)는 Good 페이지를 재사용하며, GameOver(1)는 EndingPresenter가 받지 않는다. 검은 화면 대사 역시 현재 필수 배경 FK와 페이지 전환 방식에 반영이 필요하다. 대응표에서 엔딩 종류·순서·이미지 ID·Text ID·화자 및 마지막 검은 화면 대사를 확정한 뒤 적용한다. 기존 시민권 구매·도덕성·미납 종료 판정은 이번 작업에서 바꾸지 않는다.
+- 검증 **PASS(등록·로드 범위)**: Unity6000.3.18f1, EndingPageTests EditMode **7/7**, ActualEndingCutsceneSpritesLoad PlayMode **1/1**(실제 ResourceManager로 신규20개 모두 로드하여 원본 Sprite와 동일함 확인), 실패·skip0. Resource212행 PK 중복0, Addressables247entry 주소/GUID 중복0, 최종 compileFailed=false·Console error0. 전체 suite·Player build·최종 엔딩 화면/UX는 미실행이다.
+- 최초 Editor 모드 비동기 로드 시도는 완료 결과를 얻지 못해 성공으로 집계하지 않았다. 검사용 Preview Scene/객체를 정리하고 위 Test Runner 검증으로 대체했다. 최종 검사용 객체0, InitScene clean·Play 종료·시작 씬 override 없음·runInBackground=false. 이미지20개와 meta·기존 Scene 파일 해시를 보존했다.
+- 증거: `Temp/qa1-ending-resources/registration.csv`, `registered.json`, `static-result.json`, `editmode.json`, `playmode.json`. 새 테스트는 기존 `GameSessionApiTests.cs`에 추가했으며 별도 테스트 실행기·패키지는 없다. commit/push는 수행하지 않았다. 병합 시 PNG/meta20쌍·Ending 폴더 meta·ResourceData20행·그룹 entry20개를 함께 반영하고 최신 통합 브랜치의 ID/주소 충돌을 다시 확인한다.
+
 ## 2026-09-14 엔딩 규칙 개편
 
 - 시민권은 가게 3단계와 시민권 자신을 제외한 3단계 이하 상품·편의·가게 확장 설비를 모두 보유한 뒤 정산 중 구매할 수 있다. 대상은 `FacilityData` 카탈로그에서 판정하며 제품 코드에 고정 PK 목록을 두지 않는다.
