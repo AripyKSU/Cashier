@@ -9,20 +9,6 @@ using UnityEngine.TestTools;
 /// <summary>실제 엔딩 CSV의 순서·숫자 코드·문구·리소스 참조를 검사한다.</summary>
 public sealed class EndingPageTests
 {
-    [Test]
-    public void EndingKindsSelectExpectedBgm()
-    {
-        var selector = typeof(EndingPresenter).GetMethod("GetEndingBgmResourceIdx",
-            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-        Assert.That(selector, Is.Not.Null);
-        Assert.That((uint)selector.Invoke(null, new object[] { EndingKind.Good }), Is.EqualTo(SoundKeys.GoodEndingBgm));
-        foreach (EndingKind kind in new[] { EndingKind.GameOver, EndingKind.Bad, EndingKind.CitizenshipNegative })
-            Assert.That((uint)selector.Invoke(null, new object[] { kind }), Is.EqualTo(SoundKeys.BadEndingBgm));
-        var exception = Assert.Throws<System.Reflection.TargetInvocationException>(
-            () => selector.Invoke(null, new object[] { EndingKind.None }));
-        Assert.That(exception.InnerException, Is.TypeOf<System.ArgumentOutOfRangeException>());
-    }
-
     /// <summary>시민권 엔딩은 보유와 도덕성 부호가 모순된 snapshot을 거부한다.</summary>
     [Test]
     public void EndingResultRejectsContradictoryCitizenshipMorality()

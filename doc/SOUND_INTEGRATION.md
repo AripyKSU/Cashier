@@ -1,6 +1,6 @@
 # Cashier 사운드 통합 명세
 
-2026-09-17 Hub 및 엔딩 BGM 3개를 `4413~4415`에 추가했다. 기존 사운드 ID `4257~4275`, `4295`와 주소는 유지한다. 충돌한 상품 Sprite는 `4276~4291`을 사용하고, 매장 2단계 World 리소스는 `4297`로 이동했다. [통합 계약](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 따른다.
+2026-09-15 손님 도착 연출 사운드를 추가했다. 기존 사운드 ID `4257~4275`와 주소는 유지하고 `CustomerBoxDrop`을 `4295`에 추가하여 ResourceData는 총 102행이다. 충돌한 상품 Sprite는 `4276~4291`을 사용하고, 매장 2단계 World 리소스는 `4297`로 이동했다. [통합 계약](MAINSCENE_INTEGRATION.md#거래-화면상품-16종-통합-2026-09-14)을 따른다.
 
 기준: `SoundKeys`, `ResourceData.csv`, Addressables `Default Local Group`, `SoundManager`와 `Assets/Sounds` 에셋.
 영문 파일명·address 변경 내역은 [SOUND_ASSET_NAME_MIGRATION.md](SOUND_ASSET_NAME_MIGRATION.md)에 기록한다.
@@ -27,9 +27,6 @@
 | SupervisorBgm | 4257 | SupervisorBgm | Assets/Sounds/BGM/SupervisorBgm.mp3 |
 | GameplayAmbience | 4258 | GameplayAmbience | Assets/Sounds/BGM/GameplayAmbience.mp3 |
 | SettlementBgm | 4259 | SettlementBgm | Assets/Sounds/BGM/SettlementBgm.mp3 |
-| TitleBgm | 4413 | TitleBgm | Assets/Sounds/BGM/TitleBgm.mp3 |
-| GoodEndingBgm | 4414 | GoodEndingBgm | Assets/Sounds/BGM/GoodEndingBgm.mp3 |
-| BadEndingBgm | 4415 | BadEndingBgm | Assets/Sounds/BGM/BadEndingBgm.mp3 |
 | TransactionSuccess | 4260 | TransactionSuccess | Assets/Sounds/SFX/TransactionSuccess.wav |
 | TransactionFail | 4261 | TransactionFail | Assets/Sounds/SFX/TransactionFail.wav |
 | CalculatorOpen | 4262 | CalculatorOpen | Assets/Sounds/SFX/CalculatorOpen.wav |
@@ -63,8 +60,6 @@
 
 - `DayEnd`는 `DayProgressState.Closing`으로 전환되는 21:00 경계에서 재생하며, 정산 화면 진입 처리에서는 재생하지 않는다.
 - `SettlementBgm`은 정산 화면에서 시작하고 다음 날 버튼 요청 직전에 정지한다.
-- `TitleBgm`은 HubScene의 타이틀 화면이 활성화되면 시작하고 새 게임·종료 또는 Hub 비활성화 직전에 정지한다. 새 게임 준비가 실패하면 다시 재생한다.
-- `GoodEndingBgm`은 동결된 `EndingKind.Good`에서, `BadEndingBgm`은 `GameOver`, `Bad`, `CitizenshipNegative`에서 시작한다. 마지막 페이지를 마쳐 새 게임 버튼이 노출되거나 엔딩 화면이 비활성화되면 정지한다.
 
 ## 후보 에셋
 
@@ -78,6 +73,6 @@
 
 ## 검증
 
-- 정적: 23개 ResourceData path, Addressables address, 실제 파일 GUID의 일치 여부와 후보 미등록 여부.
-- EditMode: SoundKeys 23개 고유성, Resource 대역, 실제 CSV 23개 path 매핑과 엔딩 종류별 BGM 선택.
-- PlayMode: 23개 실제 AudioClip 로드, 동시·반복 초기화, 호출자 취소, 누락/잘못된 address 실패·재시도, BGM/SFX/loop 재생·정지.
+- 정적: 20개 ResourceData path, Addressables address, 실제 파일 GUID의 일치 여부와 후보 미등록 여부.
+- EditMode: SoundKeys 20개 고유성, Resource 대역, 실제 CSV 20개 path 매핑.
+- PlayMode: 20개 실제 AudioClip 로드, 동시·반복 초기화, 호출자 취소, 누락/잘못된 address 실패·재시도, BGM/SFX/loop 재생·정지.

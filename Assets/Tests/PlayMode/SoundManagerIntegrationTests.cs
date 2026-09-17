@@ -53,7 +53,7 @@ public sealed class SoundManagerIntegrationTests
         LogAssert.NoUnexpectedReceived();
     }
 
-    /// <summary>23개 SoundKeys가 실제 ResourceData address의 AudioClip으로 로드되는지 확인한다.</summary>
+    /// <summary>20개 SoundKeys가 실제 ResourceData address의 AudioClip으로 로드되는지 확인한다.</summary>
     /// <returns>전체 사운드 초기화 완료 대기.</returns>
     [UnityTest]
     public IEnumerator InitializeLoadsAllSoundClips()
@@ -62,7 +62,7 @@ public sealed class SoundManagerIntegrationTests
         yield return wait(initialization);
 
         Assert.That(sounds.IsInitialized, Is.True);
-        Assert.That(sounds.CachedClips.Count, Is.EqualTo(23));
+        Assert.That(sounds.CachedClips.Count, Is.EqualTo(20));
         foreach (uint resourceIdx in SoundKeys.All)
         {
             Assert.That(sounds.CachedClips[resourceIdx], Is.Not.Null);
@@ -110,7 +110,7 @@ public sealed class SoundManagerIntegrationTests
 
         yield return wait(first);
         Assert.That(sounds.IsInitialized, Is.True);
-        Assert.That(sounds.CachedClips.Count, Is.EqualTo(23));
+        Assert.That(sounds.CachedClips.Count, Is.EqualTo(20));
     }
 
     /// <summary>필수 ResourceData 누락이 부분 캐시를 공개하지 않고 재시도 가능한지 확인한다.</summary>
@@ -136,7 +136,7 @@ public sealed class SoundManagerIntegrationTests
         Task retry = sounds.InitializeAsync(tables).AsTask();
         yield return wait(retry);
         Assert.That(sounds.IsInitialized, Is.True);
-        Assert.That(sounds.CachedClips.Count, Is.EqualTo(23));
+        Assert.That(sounds.CachedClips.Count, Is.EqualTo(20));
     }
 
     /// <summary>빈 Addressables address가 부분 캐시 없이 실패하는지 확인한다.</summary>

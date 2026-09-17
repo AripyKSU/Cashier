@@ -142,7 +142,7 @@ public sealed class SoundManager : Singleton<SoundManager>
     /// </summary>
     /// <param name="dataTables">ResourceDataTable을 소유한 데이터 매니저입니다.</param>
     /// <param name="cancellationToken">호출자의 대기만 취소하는 토큰입니다.</param>
-    /// <returns>23개 필수 사운드 클립의 초기화 완료를 나타내는 작업입니다.</returns>
+    /// <returns>20개 필수 사운드 클립의 초기화 완료를 나타내는 작업입니다.</returns>
     /// <exception cref="ArgumentNullException">dataTables가 null인 경우 발생합니다.</exception>
     /// <exception cref="InvalidOperationException">필수 manager, 데이터 테이블 또는 사운드 설정이 없는 경우 발생합니다.</exception>
     /// <exception cref="InvalidDataException">ResourceData 매핑이 누락되었거나 중복된 경우 발생합니다.</exception>
@@ -450,9 +450,9 @@ public sealed class SoundManager : Singleton<SoundManager>
                 throw new InvalidOperationException("ResourceDataTable is not available.");
             }
 
-            if (SoundKeys.All == null || SoundKeys.All.Count != 23)
+            if (SoundKeys.All == null || SoundKeys.All.Count != 20)
             {
-                throw new InvalidDataException("SoundKeys.All must contain exactly 23 resource IDs.");
+                throw new InvalidDataException("SoundKeys.All must contain exactly 20 resource IDs.");
             }
 
             foreach (uint resourceIdx in SoundKeys.All)

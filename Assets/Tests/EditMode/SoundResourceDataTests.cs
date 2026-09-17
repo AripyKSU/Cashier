@@ -12,14 +12,14 @@ using UnityEngine.TestTools;
 public sealed class SoundResourceDataTests
 {
     /// <summary>
-    /// 사운드 키 23개가 Resource 대역에서 고유하게 정의되었는지 확인한다.
+    /// 사운드 키 20개가 Resource 대역에서 고유하게 정의되었는지 확인한다.
     /// </summary>
     [Test]
     public void SoundKeysAreUniqueResourceIds()
     {
         Assert.That(SoundKeys.All, Is.Not.Null);
-        Assert.That(SoundKeys.All.Count, Is.EqualTo(23));
-        Assert.That(SoundKeys.All.Distinct().Count(), Is.EqualTo(23));
+        Assert.That(SoundKeys.All.Count, Is.EqualTo(20));
+        Assert.That(SoundKeys.All.Distinct().Count(), Is.EqualTo(20));
         foreach (uint resourceIdx in SoundKeys.All)
         {
             Assert.That(resourceIdx, Is.GreaterThan(4000u));
@@ -28,7 +28,7 @@ public sealed class SoundResourceDataTests
     }
 
     /// <summary>
-    /// 실제 ResourceData.csv의 23개 사운드 행이 각 address를 보존하는지 확인한다.
+    /// 실제 ResourceData.csv의 20개 사운드 행이 각 address를 보존하는지 확인한다.
     /// </summary>
     [Test]
     public void ResourceDataContainsAllSoundAddresses()
@@ -38,9 +38,6 @@ public sealed class SoundResourceDataTests
             [SoundKeys.SupervisorBgm] = "SupervisorBgm",
             [SoundKeys.GameplayAmbience] = "GameplayAmbience",
             [SoundKeys.SettlementBgm] = "SettlementBgm",
-            [SoundKeys.TitleBgm] = "TitleBgm",
-            [SoundKeys.GoodEndingBgm] = "GoodEndingBgm",
-            [SoundKeys.BadEndingBgm] = "BadEndingBgm",
             [SoundKeys.TransactionSuccess] = "TransactionSuccess",
             [SoundKeys.TransactionFail] = "TransactionFail",
             [SoundKeys.CalculatorOpen] = "CalculatorOpen",
