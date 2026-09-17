@@ -35,6 +35,7 @@ public sealed class EndingPresenter : MonoBehaviour
     private uint? currentSfx;
     private CancellationTokenSource lifetime;
     private bool started;
+    private bool isPageDelaying;
 
     /// <summary>활성 수명에 묶인 비동기 표시 취소 토큰을 준비한다.</summary>
     private void OnEnable()
@@ -52,6 +53,7 @@ public sealed class EndingPresenter : MonoBehaviour
         lifetime = null;
         isLoading = false;
         isReady = false;
+        isPageDelaying = false;
         stopPageSfx();
         currentBackground = null;
     }
@@ -119,7 +121,7 @@ public sealed class EndingPresenter : MonoBehaviour
             sounds.PlayBgm(GetEndingBgmResourceIdx(result.Kind));
             isReady = true;
             pageIndex = 0;
-            showPage();
+            showPageAsync().Forget();
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         catch (Exception exception)
@@ -140,7 +142,7 @@ public sealed class EndingPresenter : MonoBehaviour
     /// <summary>입력 한 번에 한 페이지 진행하고 마지막에는 결과와 새 게임 선택을 표시한다.</summary>
     private void advance()
     {
-        if (!isActiveAndEnabled || isLoading || !nextButton.gameObject.activeSelf ||
+        if (!isActiveAndEnabled || isLoading || isPageDelaying || !nextButton.gameObject.activeSelf ||
             !nextButton.interactable || Time.unscaledTime < nextInputTime) return;
         nextInputTime = Time.unscaledTime + 0.2f;
         if (!isReady) { loadPagesAsync().Forget(); return; }
@@ -148,7 +150,7 @@ public sealed class EndingPresenter : MonoBehaviour
         {
             stopPageSfx();
             if (!pages[pageIndex].BackgroundResourceIdx.HasValue && currentBackground.HasValue) showBlackPageAsync().Forget();
-            else showPage();
+            else showPageAsync().Forget();
             return;
         }
         nextButton.gameObject.SetActive(false);
@@ -158,17 +160,20 @@ public sealed class EndingPresenter : MonoBehaviour
     }
 
     /// <summary>현재 페이지의 이미지와 약 세 줄의 문구를 표시한다.</summary>
-    private void showPage()
+    private async UniTask showPageAsync()
     {
         var page = pages[pageIndex];
+        CancellationToken token = lifetime.Token;
+        isPageDelaying = page.DelaySecond.GetValueOrDefault() > 0;
+        nextButton.interactable = false;
         heading.text = string.Empty;
         heading.gameObject.SetActive(false);
-        speaker.gameObject.SetActive(page.SpeakerNameIdx.HasValue);
+        speaker.gameObject.SetActive(!isPageDelaying && page.SpeakerNameIdx.HasValue);
         speaker.text = page.SpeakerNameIdx.HasValue ? texts.Rows[page.SpeakerNameIdx.Value].Text : string.Empty;
         dialogue.text = page.TextIdx.HasValue ? texts.Rows[page.TextIdx.Value].Text : string.Empty;
-        dialogue.gameObject.SetActive(page.TextIdx.HasValue);
-        setPanelBackgroundVisible(page.TextIdx.HasValue);
-        pageIndicator.gameObject.SetActive(true);
+        dialogue.gameObject.SetActive(!isPageDelaying && page.TextIdx.HasValue);
+        setPanelBackgroundVisible(!isPageDelaying && page.TextIdx.HasValue);
+        pageIndicator.gameObject.SetActive(!isPageDelaying);
         nextButton.gameObject.SetActive(true);
         bool startedFade = false;
         if (page.BackgroundResourceIdx.HasValue)
@@ -191,9 +196,33 @@ public sealed class EndingPresenter : MonoBehaviour
             currentBackground = null;
             blackCover.color = Color.black;
         }
+
+        if (isPageDelaying)
+        {
+            float elapsed = 0;
+            try
+            {
+                while (elapsed < page.DelaySecond.Value)
+                {
+                    await UniTask.Yield(token);
+                    elapsed += Time.unscaledDeltaTime;
+                }
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                return;
+            }
+            isPageDelaying = false;
+            speaker.gameObject.SetActive(page.SpeakerNameIdx.HasValue);
+            dialogue.gameObject.SetActive(page.TextIdx.HasValue);
+            setPanelBackgroundVisible(page.TextIdx.HasValue);
+            pageIndicator.gameObject.SetActive(true);
+            if (!startedFade || pageGroup.alpha >= 1) nextButton.interactable = true;
+        }
+
         pageIndicator.text = $"{pageIndex + 1} / {pages.Length}";
         nextButton.GetComponentInChildren<TMP_Text>().text = pageIndex + 1 == pages.Length ? "마무리" : "다음";
-        if (!startedFade) nextButton.interactable = true;
+        if (!startedFade && !isPageDelaying) nextButton.interactable = true;
         nextInputTime = Time.unscaledTime + 0.2f;
         playPageSfx(page);
         if (!page.BackgroundResourceIdx.HasValue && pageIndex + 1 == pages.Length) finishFinalPage();
@@ -224,7 +253,7 @@ public sealed class EndingPresenter : MonoBehaviour
             background.sprite = null;
             background.color = Color.black;
             currentBackground = null;
-            showPage();
+            await showPageAsync();
             blackCover.color = Color.black;
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
@@ -296,7 +325,7 @@ public sealed class EndingPresenter : MonoBehaviour
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         finally
         {
-            if (this != null && !token.IsCancellationRequested && isReady && !isLoading)
+            if (this != null && !token.IsCancellationRequested && isReady && !isLoading && !isPageDelaying)
                 nextButton.interactable = true;
         }
     }

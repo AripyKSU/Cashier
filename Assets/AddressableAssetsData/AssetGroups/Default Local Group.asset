@@ -282,6 +282,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 344186b56e83466479af4ed167fbee72
+    m_Address: Gunshot
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 35e159c73b078f6488db168c27ece572
     m_Address: EndingPageData
     m_ReadOnly: 0
@@ -305,6 +310,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3c0ad79631dbbe541a256c1d05466940
     m_Address: FemaleElder_01
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3c1b0a1b1fe9941449fc296af1c477a1
+    m_Address: Reload
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -18,6 +18,8 @@ public sealed class EndingPageData
     [Name("background_resource_idx")] public uint? BackgroundResourceIdx { get; set; }
     /// <summary>페이지 진입 시 한 번 재생할 Sound ResourceData FK. 빈 셀은 효과음 없음이다.</summary>
     [Name("sfx_resource_idx")] public uint? SfxResourceIdx { get; set; }
+    /// <summary>페이지 진입 시 딜레이 시간. 빈 셀은 0초이고 딜레이 없음이다.</summary>
+    [Name("delay_second")] public float? DelaySecond { get; set; }
     /// <summary>검증된 엔딩 종류.</summary>
     public EndingKind Kind => (EndingKind)EndingKindValue;
 
@@ -32,7 +34,8 @@ public sealed class EndingPageData
             (BackgroundResourceIdx.HasValue && (BackgroundResourceIdx.Value == 0 || Util.GetDataTableType(BackgroundResourceIdx.Value) != DataTableType.Resource)) ||
             (SfxResourceIdx.HasValue && (SfxResourceIdx.Value == 0 || Util.GetDataTableType(SfxResourceIdx.Value) != DataTableType.Resource)) ||
             (!TextIdx.HasValue && SpeakerNameIdx.HasValue) ||
-            (!TextIdx.HasValue && !BackgroundResourceIdx.HasValue && !SfxResourceIdx.HasValue))
+            (!TextIdx.HasValue && !BackgroundResourceIdx.HasValue && !SfxResourceIdx.HasValue) ||
+            (DelaySecond.HasValue && (DelaySecond.Value < 0 || float.IsNaN(DelaySecond.Value) || float.IsInfinity(DelaySecond.Value))))
             throw new ArgumentException($"EndingPage PK={Idx}: 종류·순서·필수 FK 오류");
     }
 }
