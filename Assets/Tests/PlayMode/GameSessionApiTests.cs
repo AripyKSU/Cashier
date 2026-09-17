@@ -2100,13 +2100,9 @@ public sealed class GameSessionApiTests
         var presenter = obj.GetComponentInChildren<DailySettlementPresenter>(true);
         int completed = 0;
         presenter.OnNextStepRequested += () => completed++;
-        presenter.ConfigureEnding(true);
         var next = uiReference<UnityEngine.UI.Button>(presenter, "nextStepButton");
-        Assert.That(next.GetComponentInChildren<TMPro.TMP_Text>().text, Is.EqualTo("마무리"));
         next.onClick.Invoke();
         Assert.That(completed, Is.EqualTo(1));
-        presenter.ConfigureEnding(false);
-        Assert.That(next.GetComponentInChildren<TMPro.TMP_Text>().text, Is.EqualTo("다음 날"));
         next.onClick.Invoke();
         Assert.That(completed, Is.EqualTo(2));
     }

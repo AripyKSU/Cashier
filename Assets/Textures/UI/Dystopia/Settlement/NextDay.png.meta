@@ -1,0 +1,832 @@
+fileFormatVersion: 2
+guid: 2a080b71ca3f4b74c92dce861407a95a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -4664245404459461107
+    second: NextDay_0
+  - first:
+      213: 2007995583715562878
+    second: NextDay_1
+  - first:
+      213: 9104150360147968903
+    second: NextDay_2
+  - first:
+      213: 8344190559568335497
+    second: NextDay_3
+  - first:
+      213: -5827533281047144014
+    second: NextDay_4
+  - first:
+      213: -5416494294223330010
+    second: NextDay_5
+  - first:
+      213: 8434447640806378046
+    second: NextDay_6
+  - first:
+      213: -6399512852213909193
+    second: NextDay_7
+  - first:
+      213: 8116976834584359144
+    second: NextDay_8
+  - first:
+      213: -710381244262284327
+    second: NextDay_9
+  - first:
+      213: 6044103128419712735
+    second: NextDay_10
+  - first:
+      213: -8581732559075607014
+    second: NextDay_11
+  - first:
+      213: 5955201676457118004
+    second: NextDay_12
+  - first:
+      213: -358785018725322579
+    second: NextDay_13
+  - first:
+      213: -6741532751513727799
+    second: NextDay_14
+  - first:
+      213: 5268178055932665155
+    second: NextDay_15
+  - first:
+      213: 5514481433858461505
+    second: NextDay_16
+  - first:
+      213: 3255180997015393419
+    second: NextDay_17
+  - first:
+      213: -317970011652231011
+    second: NextDay_18
+  - first:
+      213: 6801783851346175993
+    second: NextDay_19
+  - first:
+      213: -583912820810278744
+    second: NextDay_20
+  - first:
+      213: 8188427861699924010
+    second: NextDay_21
+  - first:
+      213: 5076777820955048531
+    second: NextDay_22
+  - first:
+      213: 2402720205330661490
+    second: NextDay_23
+  - first:
+      213: 6848265251133985186
+    second: NextDay_24
+  - first:
+      213: -8176781157169589890
+    second: NextDay_25
+  - first:
+      213: -4504093732499631
+    second: NextDay_26
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: NextDay_0
+      rect:
+        serializedVersion: 2
+        x: 42
+        y: 17
+        width: 2083
+        height: 691
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0612f15485454fb0800000000000000
+      internalID: -4664245404459461107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_1
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 693
+        width: 17
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e755be53855dddb10800000000000000
+      internalID: 2007995583715562878
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_2
+      rect:
+        serializedVersion: 2
+        x: 675
+        y: 690
+        width: 8
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7834d564480785e70800000000000000
+      internalID: 9104150360147968903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_3
+      rect:
+        serializedVersion: 2
+        x: 1542
+        y: 693
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9821d31ca158cc370800000000000000
+      internalID: 8344190559568335497
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_4
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 665
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b91b624b51702fa0800000000000000
+      internalID: -5827533281047144014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 537
+        width: 23
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62563e0232fb4d4b0800000000000000
+      internalID: -5416494294223330010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_6
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 552
+        width: 11
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3a45e2117d2d0570800000000000000
+      internalID: 8434447640806378046
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_7
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 307
+        width: 70
+        height: 109
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7393e3c87fc5037a0800000000000000
+      internalID: -6399512852213909193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_8
+      rect:
+        serializedVersion: 2
+        x: 1526
+        y: 69
+        width: 12
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e0b97bec6b45a070800000000000000
+      internalID: 8116976834584359144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_9
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 31
+        width: 13
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d385a8a5083426f0800000000000000
+      internalID: -710381244262284327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_10
+      rect:
+        serializedVersion: 2
+        x: 471
+        y: 33
+        width: 27
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdeb843b5c7f0e350800000000000000
+      internalID: 6044103128419712735
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_11
+      rect:
+        serializedVersion: 2
+        x: 539
+        y: 49
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1ef4ea94bf87e880800000000000000
+      internalID: -8581732559075607014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_12
+      rect:
+        serializedVersion: 2
+        x: 989
+        y: 50
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 439890b6f5025a250800000000000000
+      internalID: 5955201676457118004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_13
+      rect:
+        serializedVersion: 2
+        x: 1364
+        y: 31
+        width: 19
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da035282de6550bf0800000000000000
+      internalID: -358785018725322579
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_14
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 33
+        width: 7
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9cccc504ea34172a0800000000000000
+      internalID: -6741532751513727799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_15
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 30
+        width: 21
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 34ddf55a7045c1940800000000000000
+      internalID: 5268178055932665155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_16
+      rect:
+        serializedVersion: 2
+        x: 652
+        y: 33
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14fce99a5af578c40800000000000000
+      internalID: 5514481433858461505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_17
+      rect:
+        serializedVersion: 2
+        x: 700
+        y: 33
+        width: 7
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8454bebed9bc2d20800000000000000
+      internalID: 3255180997015393419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_18
+      rect:
+        serializedVersion: 2
+        x: 746
+        y: 31
+        width: 7
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d90fd3685f7569bf0800000000000000
+      internalID: -317970011652231011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_19
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 35
+        width: 13
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9f72a7a106ac46e50800000000000000
+      internalID: 6801783851346175993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_20
+      rect:
+        serializedVersion: 2
+        x: 1036
+        y: 31
+        width: 9
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a89ec7126685e7f0800000000000000
+      internalID: -583912820810278744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_21
+      rect:
+        serializedVersion: 2
+        x: 1207
+        y: 35
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a20198d81c323a170800000000000000
+      internalID: 8188427861699924010
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_22
+      rect:
+        serializedVersion: 2
+        x: 1532
+        y: 34
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35a7b9db786547640800000000000000
+      internalID: 5076777820955048531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_23
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 31
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 270436deb4d285120800000000000000
+      internalID: 2402720205330661490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_24
+      rect:
+        serializedVersion: 2
+        x: 1850
+        y: 29
+        width: 31
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a11e7556fce90f50800000000000000
+      internalID: 6848265251133985186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_25
+      rect:
+        serializedVersion: 2
+        x: 1890
+        y: 33
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e719cc82cdc368e80800000000000000
+      internalID: -8176781157169589890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: NextDay_26
+      rect:
+        serializedVersion: 2
+        x: 1961
+        y: 33
+        width: 17
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15f0a05fc8fffeff0800000000000000
+      internalID: -4504093732499631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      NextDay_0: -4664245404459461107
+      NextDay_1: 2007995583715562878
+      NextDay_10: 6044103128419712735
+      NextDay_11: -8581732559075607014
+      NextDay_12: 5955201676457118004
+      NextDay_13: -358785018725322579
+      NextDay_14: -6741532751513727799
+      NextDay_15: 5268178055932665155
+      NextDay_16: 5514481433858461505
+      NextDay_17: 3255180997015393419
+      NextDay_18: -317970011652231011
+      NextDay_19: 6801783851346175993
+      NextDay_2: 9104150360147968903
+      NextDay_20: -583912820810278744
+      NextDay_21: 8188427861699924010
+      NextDay_22: 5076777820955048531
+      NextDay_23: 2402720205330661490
+      NextDay_24: 6848265251133985186
+      NextDay_25: -8176781157169589890
+      NextDay_26: -4504093732499631
+      NextDay_3: 8344190559568335497
+      NextDay_4: -5827533281047144014
+      NextDay_5: -5416494294223330010
+      NextDay_6: 8434447640806378046
+      NextDay_7: -6399512852213909193
+      NextDay_8: 8116976834584359144
+      NextDay_9: -710381244262284327
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

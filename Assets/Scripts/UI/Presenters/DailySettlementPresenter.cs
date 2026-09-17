@@ -1,5 +1,4 @@
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -101,17 +100,6 @@ public class DailySettlementPresenter : MonoBehaviour
 
     /// <summary>딸 대사 완료 뒤 준비된 명성 도장 연출을 시작합니다.</summary>
     public void PresentReputationStamp() => this.reputationStampPresenter.Present();
-
-    /// <summary>최종 영업일 여부를 다음 단계 버튼 문구에 반영합니다.</summary>
-    /// <param name="isFinalDay">최종 영업일 정산인지 여부입니다.</param>
-    public void ConfigureEnding(bool isFinalDay)
-    {
-        if (this.nextStepButton != null)
-        {
-            TMP_Text label = this.nextStepButton.GetComponentInChildren<TMP_Text>();
-            if (label != null) label.text = isFinalDay ? "마무리" : "다음 날";
-        }
-    }
 
     /// <summary>가계부 View의 완료를 이후 딸 대사 흐름이 구독할 수 있도록 전달합니다.</summary>
     private void handleLedgerPresentationCompleted()

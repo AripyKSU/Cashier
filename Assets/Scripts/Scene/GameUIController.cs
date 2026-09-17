@@ -710,7 +710,6 @@ public sealed class GameUIController : MonoBehaviour
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
         SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
-        this.dailySettlementPresenter.ConfigureEnding(this.subscribedDay.Day == 31);
         this.dailySettlementFlowController.Begin(
             this.subscribedDay,
             this.createSettlementViewData(result),
