@@ -71,7 +71,6 @@ public sealed class FacilityShopPresenter : MonoBehaviour
     {
         currentData = data ?? throw new ArgumentNullException(nameof(data));
         if (data.CurrentStoreStage < 3) isCitizenshipPageOpen = false;
-        if (feedbackText != null) feedbackText.text = feedback ?? string.Empty;
 
         FacilityPamphletSlotView[] activeSlots = data.CurrentStoreStage switch
         {
