@@ -347,14 +347,30 @@ public sealed class DividerBarController : MonoBehaviour
                 }
 
                 // 접촉한 상품을 막대의 이동 방향 쪽 경계 밖으로 배치해 다음 프레임에 다시 붙지 않게 합니다.
-                float currentSideDistance = Vector2.Dot(itemPos - barCenter, rightNormal);
-                float requiredSideDistance = totalRadius + ItemSeparationPixels;
-                float targetSideDistance = movementSide * requiredSideDistance;
-                if ((movementSide > 0f && currentSideDistance < targetSideDistance) ||
-                    (movementSide < 0f && currentSideDistance > targetSideDistance))
+                // 막대가 시각적으로 기울어져 있어도 상품은 수평(X축) 일직선으로만 밀리도록 Y좌표를 보존하고 X좌표만 분리합니다.
+                float safeDirY = Mathf.Abs(dir.y) > 0.001f ? dir.y : 1f;
+                float clampedT = Mathf.Clamp((itemPos.y - barCenter.y) / safeDirY, -this.barLength * 0.5f, this.barLength * 0.5f);
+                float barLineX = barCenter.x + dir.x * clampedT;
+                float normalX = Mathf.Max(0.5f, Mathf.Abs(rightNormal.x));
+                float requiredDistanceX = (totalRadius + ItemSeparationPixels) / normalX;
+
+                if (movementSide > 0f)
                 {
-                    Vector2 separatedPosition = itemPos + rightNormal * (targetSideDistance - currentSideDistance);
-                    item.Position = this.clampItemPosition(separatedPosition, item);
+                    float targetX = barLineX + requiredDistanceX;
+                    if (itemPos.x < targetX)
+                    {
+                        Vector2 separatedPosition = new Vector2(targetX, itemPos.y);
+                        item.Position = this.clampItemPosition(separatedPosition, item);
+                    }
+                }
+                else
+                {
+                    float targetX = barLineX - requiredDistanceX;
+                    if (itemPos.x > targetX)
+                    {
+                        Vector2 separatedPosition = new Vector2(targetX, itemPos.y);
+                        item.Position = this.clampItemPosition(separatedPosition, item);
+                    }
                 }
 
                 item.Manipulation = SaleSortingItemView.ManipulationState.DividerMoving;
