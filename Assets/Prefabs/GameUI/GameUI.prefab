@@ -2530,14 +2530,6 @@ PrefabInstance:
       propertyPath: m_TextWrappingMode
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6905925139397958794, guid: cb56396611f15064f9ce66b932c05550, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 4285437030
-      objectReference: {fileID: 0}
-    - target: {fileID: 6905925139397958794, guid: cb56396611f15064f9ce66b932c05550, type: 3}
-      propertyPath: m_TextStyleHashCode
-      value: -1183493901
-      objectReference: {fileID: 0}
     - target: {fileID: 8099590994143925570, guid: cb56396611f15064f9ce66b932c05550, type: 3}
       propertyPath: m_Sprite
       value: 
