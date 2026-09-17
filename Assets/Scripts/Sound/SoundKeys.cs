@@ -10,6 +10,9 @@ public static class SoundKeys
     public const uint SupervisorBgm = 4257;
     public const uint GameplayAmbience = 4258;
     public const uint SettlementBgm = 4259;
+    public const uint TitleBgm = 4413;
+    public const uint GoodEndingBgm = 4414;
+    public const uint BadEndingBgm = 4415;
 
     // 거래
     public const uint TransactionSuccess = 4260;
@@ -47,6 +50,9 @@ public static class SoundKeys
         SupervisorBgm,
         GameplayAmbience,
         SettlementBgm,
+        TitleBgm,
+        GoodEndingBgm,
+        BadEndingBgm,
         TransactionSuccess,
         TransactionFail,
         CalculatorOpen,

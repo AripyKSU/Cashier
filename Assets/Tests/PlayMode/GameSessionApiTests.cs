@@ -63,6 +63,28 @@ public sealed class GameSessionApiTests
         }
     }
 
+#if UNITY_EDITOR
+    /// <summary>등록된 엔딩 컷씬20개의 Resource FK가 실제 원본 Sprite를 로드하는지 검사한다.</summary>
+    /// <returns>실제 Addressables 로드 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator ActualEndingCutsceneSpritesLoad()
+    {
+        var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+        foreach (uint idx in Enumerable.Range(4393, 20).Select(value => (uint)value))
+        {
+            Assert.That(resources.TryGetResource(idx, out var resource), Is.True, $"Ending Resource FK {idx}");
+            var expected = UnityEditor.AssetDatabase.LoadAllAssetsAtPath($"Assets/Textures/UI/Ending/{resource.Path}.png")
+                .OfType<Sprite>().Single();
+            var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resource.Path).AsTask();
+            yield return wait(task);
+            Assert.That(task.Result, Is.SameAs(expected), $"Ending Sprite FK {idx}");
+            Assert.That(task.Result.rect.width, Is.GreaterThan(0));
+            Assert.That(task.Result.rect.height, Is.GreaterThan(0));
+        }
+    }
+
+#endif
+
     /// <summary>Main 선로드가 빈 외형을 건너뛰고 설비12개를 캐시하며 지정된 잘못된 FK는 거부한다.</summary>
     /// <returns>실제 Addressables 선로드와 로딩 단계 대기.</returns>
     [UnityTest]
@@ -1904,81 +1926,189 @@ public sealed class GameSessionApiTests
         Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(EndingKind.Bad));
     }
 
-    /// <summary>세 결과가 기존 페이지를 안정적으로 재사용하고 마지막 요약을 구분하는지 검사한다.</summary>
+    /// <summary>네 엔딩의 페이지·알파·효과음·최종 문구와 표시 수명을 검사한다.</summary>
     [UnityTest]
     public IEnumerator CitizenshipEndingPagesDisplayAndFinish()
     {
-        foreach (EndingKind expectedKind in new[] { EndingKind.Bad, EndingKind.Good, EndingKind.CitizenshipNegative })
+        Assert.That(SoundManager.Instance, Is.Null);
+        var sounds = root.AddComponent<SoundManager>();
+        yield return wait(sounds.InitializeAsync(tables).AsTask());
+        foreach (EndingKind expectedKind in new[] { EndingKind.GameOver, EndingKind.Bad, EndingKind.Good, EndingKind.CitizenshipNegative })
         {
             session.ResetSession(); session.InitializeNewGame(tables);
-            var progress = endingProgress(31);
-            session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
-            settleEndingDay(progress);
-            if (expectedKind != EndingKind.Bad)
+            var progress = endingProgress(expectedKind == EndingKind.GameOver ? 30 : 31);
+            if (expectedKind == EndingKind.GameOver)
             {
-                buyCitizenshipPrerequisites(progress);
-                typeof(GameSessionManager).GetField("currentMorality",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(
-                        session, expectedKind == EndingKind.Good ? 0m : -1m);
-                Assert.That(progress.TryPurchaseFacility(12012, out _));
+                session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _);
+                seedEndingDebt(27, 30);
+                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY 30"));
+                settleEndingDay(progress);
             }
-            else progress.CompleteSettlement();
+            else
+            {
+                session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
+                settleEndingDay(progress);
+                if (expectedKind != EndingKind.Bad)
+                {
+                    buyCitizenshipPrerequisites(progress);
+                    typeof(GameSessionManager).GetField("currentMorality",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(
+                            session, expectedKind == EndingKind.Good ? 0m : -1m);
+                    Assert.That(progress.TryPurchaseFacility(12012, out _));
+                }
+                else progress.CompleteSettlement();
+            }
             Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(expectedKind));
             var obj = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/Prefabs/Ending/EndingPanel.prefab"), root.transform);
             var presenter = obj.GetComponent<EndingPresenter>();
+            var panelBackground = uiReference<UnityEngine.UI.Image>(presenter, "dialoguePanelBackground");
+            var panelColor = panelBackground.color;
+            panelColor.a = 174f / 255f;
+            panelBackground.color = panelColor;
             yield return null;
             var next = uiReference<UnityEngine.UI.Button>(presenter, "nextButton");
             float deadline = Time.realtimeSinceStartup + 20;
             while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
-            EndingKind pageKind = session.EndingResult.Value.Kind == EndingKind.CitizenshipNegative
-                ? EndingKind.Good : session.EndingResult.Value.Kind;
-            var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
-                .Where(p => p.Kind == pageKind).OrderBy(p => p.PageOrder).ToArray();
-            for (int page = 0; page < 4; page++)
+            if (expectedKind == EndingKind.GameOver)
             {
+                obj.SetActive(false);
+                yield return new WaitForSecondsRealtime(.7f);
+                obj.SetActive(true);
+                deadline = Time.realtimeSinceStartup + 20;
+                while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+            }
+            var endingBgm = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Single(source => source.name == "BGM Source");
+            uint expectedBgm = expectedKind == EndingKind.Good ? SoundKeys.GoodEndingBgm : SoundKeys.BadEndingBgm;
+            Assert.That(endingBgm.clip, Is.SameAs(sounds.CachedClips[expectedBgm]));
+            Assert.That(endingBgm.isPlaying, Is.True);
+            var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
+                .Where(p => p.Kind == session.EndingResult.Value.Kind).OrderBy(p => p.PageOrder).ToArray();
+            AudioSource endingSfxSource = null;
+            for (int page = 0; page < pages.Length; page++)
+            {
+                deadline = Time.realtimeSinceStartup + 2;
+                if (page + 1 < pages.Length)
+                    while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+                else
+                    while (!uiReference<UnityEngine.UI.Button>(presenter, "newGameButton").gameObject.activeSelf &&
+                        Time.realtimeSinceStartup < deadline) yield return null;
                 var text = uiReference<TMPro.TextMeshProUGUI>(presenter, "dialogue");
-                Assert.That(text.text, Is.EqualTo(tables.GetDB<TextDataTable>(DataTableType.Text).Rows[pages[page].TextIdx].Text));
+                string expected = pages[page].TextIdx.HasValue
+                    ? tables.GetDB<TextDataTable>(DataTableType.Text).Rows[pages[page].TextIdx.Value].Text : string.Empty;
+                Assert.That(text.text, Is.EqualTo(expected));
+                Assert.That(panelBackground.color.a, Is.EqualTo(174f / 255f).Within(.001f));
+                Assert.That(panelBackground.enabled,
+                    Is.EqualTo(pages[page].TextIdx.HasValue && pages[page].BackgroundResourceIdx.HasValue));
+                Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "speaker").gameObject.activeSelf,
+                    Is.EqualTo(pages[page].SpeakerNameIdx.HasValue));
+                if (pages[page].SfxResourceIdx.HasValue)
+                {
+                    var source = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                        .Single(audio => audio.name == $"Timed SFX Source {pages[page].SfxResourceIdx.Value}" &&
+                            audio.clip == SoundManager.Instance.CachedClips[pages[page].SfxResourceIdx.Value]);
+                    Assert.That(source.isPlaying, Is.True);
+                    if (endingSfxSource != null) Assert.That(source, Is.SameAs(endingSfxSource));
+                    endingSfxSource = source;
+                }
                 text.ForceMeshUpdate();
                 Assert.That(text.isTextOverflowing, Is.False, "엔딩 대사가 표시 영역을 넘었습니다.");
                 Assert.That(text.text.Where(c => !char.IsWhiteSpace(c)).All(c => text.font.HasCharacter(c)), Is.True);
-                yield return new WaitForSecondsRealtime(0.25f);
-                next.onClick.Invoke(); next.onClick.Invoke();
+                if (page + 1 < pages.Length)
+                {
+                    yield return new WaitForSecondsRealtime(0.25f);
+                    next.onClick.Invoke(); next.onClick.Invoke();
+                    if (!pages[page].BackgroundResourceIdx.HasValue && !pages[page + 1].BackgroundResourceIdx.HasValue)
+                    {
+                        Assert.That(uiReference<UnityEngine.UI.Image>(presenter, "blackCover").color.a, Is.EqualTo(1));
+                        Assert.That(next.gameObject.activeSelf, Is.EqualTo(page + 2 < pages.Length), "검은 페이지끼리는 즉시 진행");
+                    }
+                }
             }
             Assert.That(next.gameObject.activeSelf, Is.False);
-            string expectedSummary = expectedKind switch
-            {
-                EndingKind.Good => "시민권 · 긍정",
-                EndingKind.CitizenshipNegative => "시민권 · 부정",
-                _ => "시민권 미소지"
-            };
-            Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "speaker").text, Is.EqualTo(expectedSummary));
+            Assert.That(uiReference<UnityEngine.UI.Image>(presenter, "blackCover").color.a, Is.EqualTo(1).Within(.001f));
+            Assert.That(panelBackground.enabled, Is.False);
+            Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "heading").text, Is.Empty);
             Assert.That(uiReference<UnityEngine.UI.Button>(presenter, "newGameButton").gameObject.activeSelf);
+            Assert.That(endingBgm.isPlaying, Is.False);
+            Assert.That(endingBgm.clip, Is.Null);
+            if (endingSfxSource != null) Assert.That(endingSfxSource.isPlaying, Is.False);
             UnityEngine.Object.Destroy(obj); yield return null;
+            if (expectedKind == EndingKind.Bad)
+            {
+                var replay = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+                    "Assets/Prefabs/Ending/EndingPanel.prefab"), root.transform);
+                var replayPresenter = replay.GetComponent<EndingPresenter>();
+                var replayNext = uiReference<UnityEngine.UI.Button>(replayPresenter, "nextButton");
+                deadline = Time.realtimeSinceStartup + 20;
+                while (!replayNext.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+                for (int page = 0; page < 8; page++)
+                {
+                    yield return new WaitForSecondsRealtime(.25f);
+                    replayNext.onClick.Invoke();
+                }
+                AudioSource source = null;
+                deadline = Time.realtimeSinceStartup + 2;
+                while (source == null && Time.realtimeSinceStartup < deadline)
+                {
+                    source = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                        .FirstOrDefault(audio => audio.name == "Timed SFX Source 4263" && audio.isPlaying);
+                    if (source == null) yield return null;
+                }
+                Assert.That(source, Is.Not.Null);
+                Assert.That(source.isPlaying, Is.True);
+                replay.SetActive(false);
+                yield return new WaitForSecondsRealtime(.7f);
+                Assert.That(source.isPlaying, Is.False);
+                replay.SetActive(true);
+                deadline = Time.realtimeSinceStartup + 20;
+                while (!replayNext.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+                yield return new WaitForSecondsRealtime(.25f);
+                replayNext.onClick.Invoke();
+                Assert.That(uiReference<TMPro.TextMeshProUGUI>(replayPresenter, "dialogue").text,
+                    Is.EqualTo(tables.GetDB<TextDataTable>(DataTableType.Text).Rows[pages[1].TextIdx.Value].Text),
+                    "재활성화 뒤 next listener는 한 번만 동작해야 합니다.");
+                UnityEngine.Object.Destroy(replay); yield return null;
+            }
         }
+        var missingCachedSoundPage = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
+            .First(page => page.Kind == session.EndingResult.Value.Kind);
+        uint? originalSfx = missingCachedSoundPage.SfxResourceIdx;
+        missingCachedSoundPage.SfxResourceIdx = 4393;
+        LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex(
+            "Ending load failed:.*SFX", System.Text.RegularExpressions.RegexOptions.Singleline));
+        var invalid = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/Prefabs/Ending/EndingPanel.prefab"), root.transform);
+        var invalidPresenter = invalid.GetComponent<EndingPresenter>();
+        float invalidDeadline = Time.realtimeSinceStartup + 2;
+        var invalidHeading = uiReference<TMPro.TextMeshProUGUI>(invalidPresenter, "heading");
+        while (string.IsNullOrEmpty(invalidHeading.text) && Time.realtimeSinceStartup < invalidDeadline) yield return null;
+        Assert.That(invalidHeading.text, Is.EqualTo("엔딩을 불러오지 못했습니다"));
+        missingCachedSoundPage.SfxResourceIdx = originalSfx;
+        UnityEngine.Object.Destroy(invalid); yield return null;
     }
 
-    /// <summary>최종 미구매 확인은 취소할 수 있고 명시적으로 확인해야 종료 요청을 보낸다.</summary>
+    /// <summary>일반일과 최종일 모두 기존 버튼 한 번으로 진행 요청을 전달한다.</summary>
     [UnityTest]
-    public IEnumerator CitizenshipFinalConfirmationCanReturnToShop()
+    public IEnumerator SettlementNextButtonRequestsNormalAndFinalProgressImmediately()
     {
         var obj = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/Prefabs/GameUI/SettlementPanel.prefab"), root.transform);
         obj.SetActive(true); yield return null;
+        Assert.That(obj.GetComponentsInChildren<Transform>(true).Any(t => t.name == "FinalConfirmationPanel"), Is.False);
         var presenter = obj.GetComponentInChildren<DailySettlementPresenter>(true);
         int completed = 0;
         presenter.OnNextStepRequested += () => completed++;
-        presenter.ConfigureEnding(true, false);
+        presenter.ConfigureEnding(true);
         var next = uiReference<UnityEngine.UI.Button>(presenter, "nextStepButton");
+        Assert.That(next.GetComponentInChildren<TMPro.TMP_Text>().text, Is.EqualTo("마무리"));
         next.onClick.Invoke();
-        Assert.That(presenter.IsFinalConfirmationOpen);
-        Assert.That(completed, Is.Zero);
-        uiReference<UnityEngine.UI.Button>(presenter, "finalCancelButton").onClick.Invoke();
-        Assert.That(presenter.IsFinalConfirmationOpen, Is.False);
-        Assert.That(completed, Is.Zero);
-        next.onClick.Invoke();
-        uiReference<UnityEngine.UI.Button>(presenter, "finalConfirmButton").onClick.Invoke();
         Assert.That(completed, Is.EqualTo(1));
+        presenter.ConfigureEnding(false);
+        Assert.That(next.GetComponentInChildren<TMPro.TMP_Text>().text, Is.EqualTo("다음 날"));
+        next.onClick.Invoke();
+        Assert.That(completed, Is.EqualTo(2));
     }
 
     /// <summary>과거 미납 이력만 테스트에 주입하고 종료 판정은 실제 정산 API로 검증한다.</summary>

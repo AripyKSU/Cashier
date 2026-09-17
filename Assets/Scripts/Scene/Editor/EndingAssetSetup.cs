@@ -77,7 +77,6 @@ public static class EndingAssetSetup
             EditorSceneManager.CloseScene(scene, true);
             if (previous.IsValid()) SceneManager.SetActiveScene(previous);
         }
-        setupSettlement();
         setupFailure();
         FinishResourceLinks();
         Debug.Log("Ending assets created: two scenes, shared panel, settlement confirmation, failure restart, loading retry.");
@@ -153,31 +152,6 @@ public static class EndingAssetSetup
         register("Assets/Datas/EndingPageData.csv", true);
         register("Assets/Textures/Environment/Dystopia/MidBackground.png", false);
         AssetDatabase.SaveAssets();
-    }
-
-    /// <summary>정산 프리팹에 최종 확인과 상점 복귀 선택을 연결한다.</summary>
-    private static void setupSettlement()
-    {
-        const string path = "Assets/Prefabs/GameUI/SettlementPanel.prefab";
-        var root = PrefabUtility.LoadPrefabContents(path);
-        try
-        {
-            var presenter = root.GetComponentInChildren<DailySettlementPresenter>(true);
-            var overlay = image("FinalConfirmation", root.transform, new Color(0, 0, 0, 0.94f));
-            stretch(overlay.rectTransform);
-            overlay.raycastTarget = true;
-            var modalCanvas = overlay.gameObject.AddComponent<Canvas>();
-            modalCanvas.overrideSorting = true;
-            modalCanvas.sortingOrder = 100;
-            overlay.gameObject.AddComponent<GraphicRaycaster>();
-            label("Message", overlay.transform, "시민권을 구매하지 않았습니다.\n결과를 확인하면 구매 기회가 끝납니다.\n이대로 마무리할까요?", 30, new Vector2(0, 60), new Vector2(850, 180));
-            var cancel = button("Cancel", overlay.transform, "돌아가서 구매하기", new Vector2(-210, -100), new Vector2(350, 75));
-            var confirm = button("Confirm", overlay.transform, "구매 없이 마무리", new Vector2(210, -100), new Vector2(350, 75));
-            bind(presenter, ("finalConfirmationPanel", overlay.gameObject), ("finalConfirmButton", confirm), ("finalCancelButton", cancel));
-            overlay.gameObject.SetActive(false);
-            PrefabUtility.SaveAsPrefabAsset(root, path);
-        }
-        finally { PrefabUtility.UnloadPrefabContents(root); }
     }
 
     /// <summary>기존 미납 실패 화면에 새 게임 입력을 추가한다.</summary>

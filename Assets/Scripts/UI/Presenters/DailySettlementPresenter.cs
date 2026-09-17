@@ -20,19 +20,11 @@ public class DailySettlementPresenter : MonoBehaviour
     [Header("Reputation Stamp")]
     [SerializeField] private ReputationStampPresenter reputationStampPresenter;
 
-    [Header("Ending Confirmation")]
+    [Header("Settlement Progress")]
     [SerializeField] private Button nextStepButton;
-    [SerializeField] private GameObject finalConfirmationPanel;
-    [SerializeField] private Button finalConfirmButton;
-    [SerializeField] private Button finalCancelButton;
 
     private int presentedLedgerDay = -1;
     private bool hasCompletedLedgerPresentation;
-    private bool requiresFinalConfirmation;
-
-    /// <summary>최종일 미구매 확인 창이 열려 있는지 반환합니다.</summary>
-    public bool IsFinalConfirmationOpen =>
-        this.finalConfirmationPanel != null && this.finalConfirmationPanel.activeSelf;
 
     /// <summary>가계부 양쪽 페이지의 순차 출력이 완료됐을 때 발생하는 이벤트입니다.</summary>
     public event Action OnLedgerPresentationCompleted;
@@ -53,10 +45,6 @@ public class DailySettlementPresenter : MonoBehaviour
             this.reputationStampPresenter.OnPresentationCompleted += this.handleStampPresentationCompleted;
         if (this.nextStepButton != null)
             this.nextStepButton.onClick.AddListener(this.handleNextStepClicked);
-        if (this.finalConfirmButton != null)
-            this.finalConfirmButton.onClick.AddListener(this.confirmFinalEnding);
-        if (this.finalCancelButton != null)
-            this.finalCancelButton.onClick.AddListener(this.cancelFinalEnding);
     }
 
     private void OnDestroy()
@@ -69,10 +57,6 @@ public class DailySettlementPresenter : MonoBehaviour
             this.reputationStampPresenter.OnPresentationCompleted -= this.handleStampPresentationCompleted;
         if (this.nextStepButton != null)
             this.nextStepButton.onClick.RemoveListener(this.handleNextStepClicked);
-        if (this.finalConfirmButton != null)
-            this.finalConfirmButton.onClick.RemoveListener(this.confirmFinalEnding);
-        if (this.finalCancelButton != null)
-            this.finalCancelButton.onClick.RemoveListener(this.cancelFinalEnding);
     }
 
     /// <summary>
@@ -118,19 +102,15 @@ public class DailySettlementPresenter : MonoBehaviour
     /// <summary>딸 대사 완료 뒤 준비된 명성 도장 연출을 시작합니다.</summary>
     public void PresentReputationStamp() => this.reputationStampPresenter.Present();
 
-    /// <summary>최종 영업일과 시민권 보유 상태를 다음 단계 입력에 반영합니다.</summary>
+    /// <summary>최종 영업일 여부를 다음 단계 버튼 문구에 반영합니다.</summary>
     /// <param name="isFinalDay">최종 영업일 정산인지 여부입니다.</param>
-    /// <param name="hasCitizenship">시민권 보유 여부입니다.</param>
-    public void ConfigureEnding(bool isFinalDay, bool hasCitizenship)
+    public void ConfigureEnding(bool isFinalDay)
     {
-        this.requiresFinalConfirmation = isFinalDay && !hasCitizenship;
         if (this.nextStepButton != null)
         {
             TMP_Text label = this.nextStepButton.GetComponentInChildren<TMP_Text>();
-            if (label != null) label.text = isFinalDay ? "최종 확인" : "다음 날";
-            this.nextStepButton.interactable = !this.IsFinalConfirmationOpen;
+            if (label != null) label.text = isFinalDay ? "마무리" : "다음 날";
         }
-
     }
 
     /// <summary>가계부 View의 완료를 이후 딸 대사 흐름이 구독할 수 있도록 전달합니다.</summary>
@@ -143,37 +123,6 @@ public class DailySettlementPresenter : MonoBehaviour
 
     private void handleStampPresentationCompleted() => this.OnStampPresentationCompleted?.Invoke();
 
-    /// <summary>최종일 미구매 상태면 확인 창을 열고, 그 외에는 진행 요청을 전달합니다.</summary>
-    private void handleNextStepClicked()
-    {
-        if (this.requiresFinalConfirmation)
-        {
-            if (this.finalConfirmationPanel == null)
-                throw new InvalidOperationException("최종 확인 창 연결이 필요합니다.");
-            this.finalConfirmationPanel.SetActive(true);
-            this.nextStepButton.interactable = false;
-            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
-            return;
-        }
-
-        this.OnNextStepRequested?.Invoke();
-    }
-
-    /// <summary>최종일 종료를 확인한 경우 진행 요청을 전달합니다.</summary>
-    private void confirmFinalEnding()
-    {
-        if (!this.IsFinalConfirmationOpen) return;
-        this.finalConfirmationPanel.SetActive(false);
-        this.OnNextStepRequested?.Invoke();
-    }
-
-    /// <summary>최종일 종료를 취소하고 정산 입력을 복구합니다.</summary>
-    private void cancelFinalEnding()
-    {
-        if (this.finalConfirmationPanel != null)
-            this.finalConfirmationPanel.SetActive(false);
-        if (this.nextStepButton != null)
-            this.nextStepButton.interactable = true;
-        UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
-    }
+    /// <summary>정산 이후의 기존 진행 요청을 그대로 전달합니다.</summary>
+    private void handleNextStepClicked() => this.OnNextStepRequested?.Invoke();
 }

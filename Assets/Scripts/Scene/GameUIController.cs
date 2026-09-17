@@ -592,6 +592,12 @@ public sealed class GameUIController : MonoBehaviour
         if (state == GameProgressState.Failed)
         {
             this.gameInputRouter.enabled = false;
+            if (GameSessionManager.Instance != null && GameSessionManager.Instance.EndingResult.HasValue &&
+                GameSessionManager.Instance.EndingResult.Value.Kind == EndingKind.GameOver)
+            {
+                this.openEndingAsync().Forget();
+                return;
+            }
             this.failureText.text = "영업권을 잃었습니다.\n유지비·벌금의 미납 유예기간이 끝났습니다.\n새 게임에서 다시 시작할 수 있습니다.";
             this.setPanelVisibility(this.preOpenPanel, false);
             this.setPanelVisibility(this.operatingPanel, false);
@@ -704,9 +710,7 @@ public sealed class GameUIController : MonoBehaviour
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
         SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
-        this.dailySettlementPresenter.ConfigureEnding(
-            this.subscribedDay.Day == 31,
-            this.gameProgress.HasCitizenship);
+        this.dailySettlementPresenter.ConfigureEnding(this.subscribedDay.Day == 31);
         this.dailySettlementFlowController.Begin(
             this.subscribedDay,
             this.createSettlementViewData(result),
