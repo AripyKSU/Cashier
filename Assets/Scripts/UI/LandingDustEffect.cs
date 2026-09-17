@@ -1,9 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem;
-#endif
 
 /// <summary>
 /// 손님이 카운터에 상자를 내려놓을 때 상자 하단 접점에서 10개의 픽셀 먼지 입자가
@@ -61,31 +58,7 @@ public sealed class LandingDustEffect : MonoBehaviour
         this.clearDust();
     }
 
-    private void Update()
-    {
-        if (!Application.isPlaying) return;
-
-        bool isLKeyPressed = false;
-#if ENABLE_INPUT_SYSTEM
-        Keyboard kb = Keyboard.current;
-        if (kb != null && kb.lKey.wasPressedThisFrame)
-        {
-            isLKeyPressed = true;
-        }
-#else
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            isLKeyPressed = true;
-        }
-#endif
-
-        if (isLKeyPressed)
-        {
-            this.TestPlay();
-        }
-    }
-
-    /// <summary>인스펙터 컨텍스트 메뉴 및 L키로 더스트 효과를 즉시 테스트합니다.</summary>
+    /// <summary>인스펙터 컨텍스트 메뉴에서 더스트 효과를 즉시 테스트합니다.</summary>
     [ContextMenu("Test Play Dust")]
     public void TestPlay()
     {
