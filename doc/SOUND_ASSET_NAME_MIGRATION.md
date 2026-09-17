@@ -1,6 +1,6 @@
 # 사운드 에셋 영문명 변경표
 
-2026-09-14 기준으로 사운드 파일명을 영문 PascalCase로 통일했다. 파일과 `.meta`를 함께 이동해 기존 Unity GUID를 보존했으며, 당시 등록된 19개는 `ResourceData.csv` path와 Addressables address도 같은 영문 basename으로 변경했다. 2026-09-15에는 손님 도착 효과음 `CustomerBoxDrop`을 신규 등록했다. 현재 전체 등록 수와 사용 위치는 [SOUND_INTEGRATION.md](SOUND_INTEGRATION.md)를 따른다.
+2026-09-14 기준으로 사운드 파일명을 영문 PascalCase로 통일했다. 파일과 `.meta`를 함께 이동해 기존 Unity GUID를 보존했으며, 당시 등록된 19개는 `ResourceData.csv` path와 Addressables address도 같은 영문 basename으로 변경했다. 2026-09-15에는 손님 도착 효과음 `CustomerBoxDrop`, 2026-09-17에는 사용자 제공 Hub·엔딩 BGM 3개를 신규 등록했다. 현재 전체 등록 수와 사용 위치는 [SOUND_INTEGRATION.md](SOUND_INTEGRATION.md)를 따른다.
 
 ## 변경된 에셋
 
@@ -13,6 +13,9 @@
 | BGM | 정산화면.mp3 | SettlementBgm.mp3 | 4259 | SettlementBgm | 예 |
 | BGM | 정산화면2.mp3 | SettlementBgmVariant2.mp3 | - | - | 아니오, 후보 유지 |
 | BGM | 정산화면3.mp3 | SettlementBgmVariant3.mp3 | - | - | 아니오, 후보 유지 |
+| BGM | title.mp3 | TitleBgm.mp3 | 4413 | TitleBgm | 예 |
+| BGM | goodending.mp3 | GoodEndingBgm.mp3 | 4414 | GoodEndingBgm | 예 |
+| BGM | badending.mp3 | BadEndingBgm.mp3 | 4415 | BadEndingBgm | 예 |
 | SFX | 거래 성공시.wav | TransactionSuccess.wav | 4260 | TransactionSuccess | 예 |
 | SFX | 거래 실패시.wav | TransactionFail.wav | 4261 | TransactionFail | 예 |
 | SFX | 거래 실패시2.wav | TransactionFailVariant2.wav | - | - | 아니오, 후보 유지 |
