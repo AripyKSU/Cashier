@@ -14,6 +14,10 @@ public static class SoundKeys
     public const uint GoodEndingBgm = 4414;
     public const uint BadEndingBgm = 4415;
 
+    // 무기
+    public const uint Reload = 4416;
+    public const uint Gunshot = 4417;
+
     // 거래
     public const uint TransactionSuccess = 4260;
     public const uint TransactionFail = 4261;
@@ -53,6 +57,8 @@ public static class SoundKeys
         TitleBgm,
         GoodEndingBgm,
         BadEndingBgm,
+        Reload,
+        Gunshot,
         TransactionSuccess,
         TransactionFail,
         CalculatorOpen,
