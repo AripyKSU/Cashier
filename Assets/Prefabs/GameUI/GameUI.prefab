@@ -577,7 +577,7 @@ MonoBehaviour:
   spitIntervalSeconds: 0.07
   suctionRadiusPixels: 150
   captureRadiusPixels: 28
-  suctionAccelerationPixels: 2800
+  suctionAccelerationPixels: 11200
   spitOffsetPixels: 12
   spitSpeedPixels: 420
   spitAngleDegrees: 7
@@ -2221,30 +2221,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: DaughterDialoguePanel
       objectReference: {fileID: 0}
-    - target: {fileID: 2308304820964326519, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2308304820964326519, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2308304820964326519, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2308304820964326519, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2308304820964326519, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2308304820964326519, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6109740659176054984, guid: 7d9bf74209dc65e488594a53eea2be26, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2802,6 +2778,7 @@ MonoBehaviour:
   - {fileID: 0}
   durationSeconds: 0.55
   dustColor: {r: 0.34, g: 0.32, b: 0.28, a: 0.42}
+  baseContactPoint: {x: 640, y: -578}
   dustOffset: {x: 0, y: 0}
 --- !u!114 &4245227619641265218 stripped
 MonoBehaviour:
