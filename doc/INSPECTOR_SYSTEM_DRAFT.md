@@ -132,13 +132,15 @@ GameProgress.startCurrentDay가 날짜별 가격 준비와 DayProgress 생성·S
 
 실제 Init→Hub의 새 게임 버튼→Main에서 첫 관측 렌더부터 불투명 덮개를 유지했고, 감독관→일일지침 동안 유지·영업 버튼 후 해제를 확인했다. `Temp/ProductHubMain-RenderTrace.csv`와 `ProductHubMain-Inspector.png`, `ProductHubMain-PreOpen.png`, `ProductHubMain-TopView.png` 참고. 탑뷰 생성 상품 6개는 모두 144×144(`Temp/ProductHubMain-ItemSizes.txt`). 화면 확인은 기술 준비 조건의 최종 보강 전 실행이며, 보강 후에는 관련 PlayMode 회귀로 재확인한다. 전체 suite·다른 화면비·청소기 및 자동 소팅의 최종 조작감은 미검증이다. Main/Hub/InitScene·ProjectSettings·TMP 폰트는 사전 hash와 동일하며, 기존 MainScene의 덮개 비활성 override는 보존하고 Awake에서 대응한다.
 
-GameUIController.Start는 CSV·Sprite·참조 검증 후 GameProgress.Start를 수행하고 표시 데이터를 바인딩한다. Canvas 레이아웃 반영 뒤에만 별도 `presentationReady`를 설정해 감독관·일일지침 입력을 허용한다. 검은 덮개는 InspectorEvent와 PreOpen 동안 배경으로 유지하고, 영업 시작 시 제거한다(2026-09-15 사용자 요청).
+GameUIController.Start는 CSV·Sprite·참조 검증 후 GameProgress.Start를 수행하고 표시 데이터를 바인딩한다. Canvas 레이아웃 반영 뒤에만 별도 `presentationReady`를 설정해 감독관·일일지침 입력을 허용한다. 검은 덮개는 기술 준비 중과 InspectorEvent 동안 유지하고, 준비 완료 후 일일지침(PreOpen)이 표시될 때 제거한다(2026-09-17 사용자 요청으로 해제 시점 변경).
 
 - 기존 일일지침의 어두운 이미지/스타일을 재사용한다. 현재 PreOpenPanel은 고정 크기이므로 그 부모 패널을 통째로 가림으로 사용하지 않는다. 가림 Image를 하루별 내용 패널과 독립된 GameUI 직속 레이어로 분리하는 최소 변경을 우선한다.
 - 초기 prefab 직렬화 상태부터 가림은 활성·불투명·전체 화면 stretch이며 최상단에서 입력을 차단한다. MainScene의 비활성 instance override도 GameUIController.Awake에서 첫 렌더 전에 활성·불투명·입력 차단으로 복구한다. 비동기 로드 뒤 처음 켜는 방식은 사용하지 않는다.
 - 로딩 중에는 감독관·일일지침 내용과 버튼을 숨긴다. UI 뒤의 키보드 확인·영업 시작·설비 구매도 초기화 경계에서 차단한다.
 - 준비 완료 조건: 데이터 검증·세션 초기화, 표시할 이미지 로드, UI 참조 검증, GameProgress.Start, 최초 표시 데이터 바인딩 및 레이아웃 반영 완료. 고정 시간 대기만으로 준비 완료를 판단하지 않는다.
-- 감독관이 있으면 준비 완료 뒤 덮개를 ProgressCanvas의 첫 sibling으로 옮겨 검은 배경 위에 감독관을 표시한다. 감독관이 없거나 퇴장하면 같은 검은 배경 위에 일일지침을 표시한다. 대사 진행 중에는 일일지침·영업 패널 입력을 허용하지 않는다. 영업 시작 버튼은 presentationReady 이후에만 동작하고, Operating 전환 시 덮개와 raycast 차단을 해제한다. 다음 날 InspectorEvent/PreOpen에서도 덮개를 다시 유지한다.
+- 감독관이 있으면 준비 완료 뒤 덮개를 ProgressCanvas의 첫 sibling으로 옮겨 검은 배경 위에 감독관을 표시한다. 감독관이 없거나 퇴장하면 준비 완료된 PreOpen에서 덮개와 덮개의 raycast 차단을 해제하고 일일지침을 표시한다. 대사 진행 중에는 일일지침·영업 패널 입력을 허용하지 않는다. 영업 시작 버튼은 presentationReady 이후에만 동작한다. 다음 날도 InspectorEvent에서는 덮개를 유지하고 PreOpen에서는 해제한다.
+- PreOpen에서는 OperatingPanel을 가게 배경 표시용으로 활성화한다. 월드 배경과 픽셀 렌더러가 자식 AstraFrontView의 활성 상태를 따르므로 덮개만 꺼서는 배경이 나타나지 않는다. 이때 이전 거래 표시를 정리하고 정면을 복원하며, OperatingPanel의 CanvasGroup 입력 및 GameInputRouter는 차단한다. 일일지침은 그 앞에 배치하고 영업 시작 시 영업 입력을 복구한다. 감독관·정산 중 OperatingPanel 숨김은 유지하며 Scene/Prefab은 변경하지 않는다.
+- 이번 해제 시점 변경은 파일 수정·정적 검토만 수행한다. 컴파일 확인·테스트 실행은 제외하며 기존 `InspectorStartupCoverDialogueRecreationAndExit`의 PreOpen 커버 활성 기대값 갱신은 후속 검증 작업으로 남긴다. 위 과거 실행 기록은 변경 전 동작의 증거다.
 - 가림이 필요한 다른 Scene에서 GameUI 생성 전에 노출되는 구간은 최초 실측 시 확인한다. 해당 구간이 있다면 기존 Scene 전환의 검은 배경으로 이어 가리며, 비동기로 생성되는 GameUI만으로 전체 Scene 전환을 가렸다고 판단하지 않는다.
 - 로딩 실패 시 불완전 화면을 공개하지 않는다. 어두운 가림 위에 기존 오류 안내를 읽을 수 있게 표시하고 상세 오류를 로그에 남긴다. 무한 검은 화면이나 자동 재시도 루프는 만들지 않는다.
 - 가림 해제 후 raycast 차단도 해제해 투명 이미지가 버튼을 막지 않게 한다. 감독관 페이드와 준비 가림은 서로 다른 대상이며 색·알파를 동시에 수정하는 작성자는 각각 하나만 둔다.

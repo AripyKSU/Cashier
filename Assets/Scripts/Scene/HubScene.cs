@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -10,6 +11,15 @@ public class HubScene : MonoBehaviour
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button quitButton;
     [SerializeField] private TMP_Text statusText;
+    [SerializeField] private TMP_Text pressGuideText;
+    private CancellationTokenSource pressGuideFadeCancellation;
+
+    /// <summary>활성화된 안내 문구의 알파 PingPong 반복을 시작한다.</summary>
+    private void OnEnable()
+    {
+        pressGuideFadeCancellation = new CancellationTokenSource();
+        fadePressGuideAsync(pressGuideFadeCancellation.Token).Forget();
+    }
 
     /// <summary>씬의 메뉴 버튼을 연결하고 부트 준비 전 새 게임을 잠근다.</summary>
     private void Awake()
@@ -61,7 +71,28 @@ public class HubScene : MonoBehaviour
     /// <summary>Hub가 비활성화되면 타이틀 BGM이 다음 씬으로 이어지지 않게 정지한다.</summary>
     private void OnDisable()
     {
+        pressGuideFadeCancellation?.Cancel();
+        pressGuideFadeCancellation?.Dispose();
+        pressGuideFadeCancellation = null;
         SoundManager.Instance?.StopBgm();
+    }
+
+    /// <summary>안내 문구의 알파를 0.2와 1 사이에서 반복한다.</summary>
+    private async UniTask fadePressGuideAsync(CancellationToken token)
+    {
+        float elapsed = 0;
+        try
+        {
+            while (true)
+            {
+                await UniTask.Yield(token);
+                elapsed += Time.unscaledDeltaTime;
+                Color color = pressGuideText.color;
+                color.a = Mathf.Lerp(0.2f, 1f, Mathf.PingPong(elapsed / 0.8f, 1f));
+                pressGuideText.color = color;
+            }
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
     }
 
     /// <summary>배포 실행을 종료하며 Editor에서는 Play만 종료한다.</summary>

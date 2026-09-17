@@ -78,6 +78,8 @@ public sealed class GameUIController : MonoBehaviour
 
     private bool isPurchasingFacility;
     private bool wasInputRouterEnabled;
+    private CanvasGroup operatingInputGroup;
+    private bool wasPreOpenBackgroundVisible;
     private string facilityFeedback = string.Empty;
 
     private bool isReady;
@@ -136,6 +138,8 @@ public sealed class GameUIController : MonoBehaviour
         if (openBusinessButton != null) openBusinessButton.interactable = false;
         if (inspectorPresenter != null) inspectorPresenter.gameObject.SetActive(false);
         if (businessClock != null) businessClock.DisplayTime(BusinessHours.OpenMinutes);
+        if (operatingPanel != null)
+            operatingInputGroup = operatingPanel.GetComponent<CanvasGroup>() ?? operatingPanel.AddComponent<CanvasGroup>();
     }
 
     /// <summary>같은 화면을 다시 켜면 세션에 남아 있는 대사를 재표시한다.</summary>
@@ -1229,6 +1233,7 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (this.gameProgress.State != GameProgressState.DayInProgress)
         {
+            this.wasPreOpenBackgroundVisible = false;
             this.setPanelVisibility(this.preOpenPanel, false);
             this.setPanelVisibility(this.operatingPanel, false);
             this.setPanelVisibility(this.settlementPanel, false);
@@ -1244,13 +1249,22 @@ public sealed class GameUIController : MonoBehaviour
             || this.subscribedDay.State == DayProgressState.Closing;
         bool settlement = !this.isSettlementPresentationPending && this.subscribedDay.State == DayProgressState.Settlement;
 
+        if (preOpen && !this.wasPreOpenBackgroundVisible) this.saleSortingPanel.ClearCustomer();
+        this.wasPreOpenBackgroundVisible = preOpen;
         this.setPanelVisibility(this.preOpenPanel, preOpen);
-        this.setPanelVisibility(this.operatingPanel, operating);
+        this.setPanelVisibility(this.operatingPanel, operating || preOpen);
+        if (preOpen) this.preOpenPanel.transform.SetSiblingIndex(this.operatingPanel.transform.GetSiblingIndex() + 1);
+        if (this.operatingInputGroup != null)
+        {
+            bool operatingInput = operating && this.presentationReady && !this.hasError;
+            this.operatingInputGroup.interactable = operatingInput;
+            this.operatingInputGroup.blocksRaycasts = operatingInput;
+        }
         this.setPanelVisibility(this.settlementPanel, settlement);
         this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
         this.openBusinessButton.interactable = preOpen && !this.isOpeningBusiness && !this.hasError && presentationReady && !hasError;
         bool inspector = this.subscribedDay.State == DayProgressState.InspectorEvent;
-        this.gameInputRouter.enabled = presentationReady && !hasError && !inspector && !IsFacilityShopOpen;
+        this.gameInputRouter.enabled = presentationReady && !hasError && !preOpen && !inspector && !IsFacilityShopOpen;
         this.inspectorPresenter.gameObject.SetActive(inspector && !hasError);
         if (inspector && !hasError)
         {
@@ -1261,13 +1275,12 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshStartupCover();
     }
 
-    /// <summary>기술 준비 중에는 전체 입력을 막고, 준비 후 영업 전 콘텐츠만 검은 배경 위에 표시합니다.</summary>
+    /// <summary>기술 준비와 감독관 진행 중에는 검은 커버를 유지하고, 일일 지침부터 해제합니다.</summary>
     private void refreshStartupCover()
     {
         if (this.startupCover == null || this.hasError || this.subscribedDay == null) return;
 
-        bool beforeOpening = !this.presentationReady || this.subscribedDay.State == DayProgressState.InspectorEvent
-            || this.subscribedDay.State == DayProgressState.PreOpen;
+        bool beforeOpening = !this.presentationReady || this.subscribedDay.State == DayProgressState.InspectorEvent;
         this.startupCover.gameObject.SetActive(beforeOpening);
         this.startupCover.alpha = 1f;
         this.startupCover.interactable = beforeOpening;
