@@ -791,6 +791,7 @@ GameObject:
   - component: {fileID: 4563163735454495173}
   - component: {fileID: 2113547606776632133}
   - component: {fileID: 1032883098898676258}
+  - component: {fileID: 7716528542586043860}
   m_Layer: 0
   m_Name: FacilityPamphletButton
   m_TagString: Untagged
@@ -814,8 +815,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -482.26733, y: -247.75798}
-  m_SizeDelta: {x: 256.3543, y: 187.5159}
+  m_AnchoredPosition: {x: -482.66602, y: -250.64523}
+  m_SizeDelta: {x: 251.8002, y: 174.042}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4563163735454495173
 CanvasRenderer:
@@ -838,14 +839,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.06}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 8833158680547586138, guid: f96f9be3da3ab15439899a6ee531a851, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -874,9 +875,9 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -899,6 +900,24 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7716528542586043860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7039610305171260911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c261940a8ab4d6e8b630285e0b3431f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::FacilityPamphletShine
+  targetImage: {fileID: 2113547606776632133}
+  minimumAlpha: 0.06
+  maximumAlpha: 0.48
+  fadeInDurationSeconds: 0.9
+  fadeOutDurationSeconds: 0.9
+  intervalSeconds: 0.35
 --- !u!1 &8541508575200198431
 GameObject:
   m_ObjectHideFlags: 0
