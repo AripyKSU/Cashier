@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -20,6 +21,8 @@ public sealed class EndingPresenter : MonoBehaviour
     [SerializeField] private Button nextButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private CanvasGroup pageGroup;
+    [SerializeField] private Image blackCover;
+    [SerializeField] private Image dialoguePanelBackground;
     private EndingPageData[] pages;
     private TextDataTable texts;
     private readonly Dictionary<uint, Sprite> backgrounds = new Dictionary<uint, Sprite>();
@@ -28,10 +31,32 @@ public sealed class EndingPresenter : MonoBehaviour
     private float nextInputTime;
     private bool isReady;
     private bool isLoading;
+    private uint? currentBackground;
+    private CancellationTokenSource lifetime;
+    private bool started;
+
+    /// <summary>활성 수명에 묶인 비동기 표시 취소 토큰을 준비한다.</summary>
+    private void OnEnable()
+    {
+        lifetime = new CancellationTokenSource();
+        if (started) loadPagesAsync().Forget();
+    }
+
+    /// <summary>비활성화 뒤 늦은 로드·페이드가 화면을 덮지 않도록 취소한다.</summary>
+    private void OnDisable()
+    {
+        lifetime?.Cancel();
+        lifetime?.Dispose();
+        lifetime = null;
+        isLoading = false;
+        isReady = false;
+        currentBackground = null;
+    }
 
     /// <summary>페이지를 자동으로 넘기지 않고 표시 준비 후 입력을 받는다.</summary>
     private void Start()
     {
+        started = true;
         nextButton.onClick.AddListener(advance);
         newGameButton.gameObject.SetActive(false);
         loadPagesAsync().Forget();
@@ -52,6 +77,10 @@ public sealed class EndingPresenter : MonoBehaviour
     {
         if (isLoading) return;
         isLoading = true;
+        CancellationToken token = lifetime.Token;
+        nextButton.gameObject.SetActive(true);
+        newGameButton.gameObject.SetActive(false);
+        pageIndicator.gameObject.SetActive(true);
         nextButton.interactable = false;
         try
         {
@@ -59,23 +88,22 @@ public sealed class EndingPresenter : MonoBehaviour
             if (session == null || !session.EndingResult.HasValue)
                 throw new InvalidOperationException("게임 본편에서 확정된 엔딩을 열어 주세요.");
             result = session.EndingResult.Value;
-            if (result.Kind != EndingKind.Good && result.Kind != EndingKind.Bad &&
-                result.Kind != EndingKind.CitizenshipNegative)
-                throw new InvalidOperationException("시민권 또는 미소지 엔딩 결과가 필요합니다.");
+            if (result.Kind <= EndingKind.None || result.Kind >= EndingKind.EndingKind_End)
+                throw new InvalidOperationException("확정된 엔딩 결과가 필요합니다.");
             var tables = DataTableManager.Instance;
-            await tables.EnsureDataLoadedAsync().AttachExternalCancellation(this.GetCancellationTokenOnDestroy());
+            await tables.EnsureDataLoadedAsync().AttachExternalCancellation(token);
             texts = tables.GetDB<TextDataTable>(DataTableType.Text);
-            EndingKind pageKind = result.Kind == EndingKind.CitizenshipNegative ? EndingKind.Good : result.Kind;
             pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
-                .Where(row => row.Kind == pageKind).OrderBy(row => row.PageOrder).ToArray();
+                .Where(row => row.Kind == result.Kind).OrderBy(row => row.PageOrder).ToArray();
             if (pages.Length == 0) throw new InvalidOperationException("엔딩 페이지가 없습니다.");
             var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
-            foreach (uint idx in pages.Select(p => p.BackgroundResourceIdx).Distinct())
+            foreach (uint idx in pages.Where(p => p.BackgroundResourceIdx.HasValue)
+                .Select(p => p.BackgroundResourceIdx.Value).Distinct())
             {
                 if (backgrounds.ContainsKey(idx)) continue;
                 if (!resources.TryGetResource(idx, out var resource))
                     throw new InvalidOperationException($"Ending Resource FK={idx} 누락");
-                var sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(resource.Path, this.GetCancellationTokenOnDestroy());
+                var sprite = await ResourceManager.Instance.LoadAssetAsync<Sprite>(resource.Path, token);
                 if (sprite == null) throw new InvalidOperationException($"Ending Sprite FK={idx} 누락");
                 backgrounds.Add(idx, sprite);
             }
@@ -83,35 +111,35 @@ public sealed class EndingPresenter : MonoBehaviour
             pageIndex = 0;
             showPage();
         }
-        catch (OperationCanceledException) when (this == null) { }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         catch (Exception exception)
         {
-            if (this == null) return;
+            if (this == null || token.IsCancellationRequested) return;
             Debug.LogError($"Ending load failed: {exception}");
+            pageGroup.alpha = 1;
+            heading.gameObject.SetActive(true);
+            dialogue.gameObject.SetActive(true);
             heading.text = "엔딩을 불러오지 못했습니다";
             dialogue.text = "결과는 보존되어 있습니다.\n다시 시도해 주세요.";
             nextButton.GetComponentInChildren<TMP_Text>().text = "다시 시도";
             nextButton.interactable = true;
         }
-        finally { isLoading = false; }
+        finally { if (!token.IsCancellationRequested) isLoading = false; }
     }
 
     /// <summary>입력 한 번에 한 페이지 진행하고 마지막에는 결과와 새 게임 선택을 표시한다.</summary>
     private void advance()
     {
-        if (isLoading || !nextButton.gameObject.activeSelf || Time.unscaledTime < nextInputTime) return;
+        if (!isActiveAndEnabled || isLoading || !nextButton.gameObject.activeSelf ||
+            !nextButton.interactable || Time.unscaledTime < nextInputTime) return;
         nextInputTime = Time.unscaledTime + 0.2f;
         if (!isReady) { loadPagesAsync().Forget(); return; }
-        if (++pageIndex < pages.Length) { showPage(); return; }
-        heading.text = "CASHIER";
-        speaker.text = result.Kind switch
+        if (++pageIndex < pages.Length)
         {
-            EndingKind.Good => "시민권 · 긍정",
-            EndingKind.CitizenshipNegative => "시민권 · 부정",
-            _ => "시민권 미소지"
-        };
-        dialogue.text = $"{result.DisplayDay}일간의 영업이 끝났습니다.\n시민권 {(result.HasCitizenship ? "보유" : "미보유")} · 남은 돈 {result.Balance:N0} G\n명성 {result.Reputation} · 도덕성 {result.Morality:0.##}";
-        pageIndicator.text = "플레이해 주셔서 감사합니다.";
+            if (!pages[pageIndex].BackgroundResourceIdx.HasValue) showFinalPageAsync().Forget();
+            else showPage();
+            return;
+        }
         nextButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(true);
         UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
@@ -121,31 +149,96 @@ public sealed class EndingPresenter : MonoBehaviour
     private void showPage()
     {
         var page = pages[pageIndex];
-        heading.text = result.Kind == EndingKind.Bad ? "문 밖에서" :
-            (result.Kind == EndingKind.Good ? "문 안으로" : "문 안으로 · 임시 대사");
-        speaker.text = texts.Rows[page.SpeakerNameIdx].Text;
-        dialogue.text = texts.Rows[page.TextIdx].Text;
-        background.sprite = backgrounds[page.BackgroundResourceIdx];
-        pageIndicator.text = $"{pageIndex + 1} / {pages.Length} · 임시 이미지";
+        heading.text = string.Empty;
+        heading.gameObject.SetActive(false);
+        speaker.gameObject.SetActive(page.SpeakerNameIdx.HasValue);
+        speaker.text = page.SpeakerNameIdx.HasValue ? texts.Rows[page.SpeakerNameIdx.Value].Text : string.Empty;
+        dialogue.text = page.TextIdx.HasValue ? texts.Rows[page.TextIdx.Value].Text : string.Empty;
+        dialogue.gameObject.SetActive(page.TextIdx.HasValue);
+        setPanelBackgroundVisible(page.TextIdx.HasValue);
+        bool startedFade = false;
+        if (page.BackgroundResourceIdx.HasValue)
+        {
+            blackCover.color = new Color(0, 0, 0, 0);
+            bool changed = currentBackground != page.BackgroundResourceIdx;
+            background.sprite = backgrounds[page.BackgroundResourceIdx.Value];
+            background.color = Color.white;
+            currentBackground = page.BackgroundResourceIdx;
+            if (changed)
+            {
+                startedFade = true;
+                fadePageAsync().Forget();
+            }
+        }
+        pageIndicator.text = $"{pageIndex + 1} / {pages.Length}";
         nextButton.GetComponentInChildren<TMP_Text>().text = pageIndex + 1 == pages.Length ? "마무리" : "다음";
-        nextButton.interactable = true;
+        if (!startedFade) nextButton.interactable = true;
         nextInputTime = Time.unscaledTime + 0.2f;
-        fadePageAsync().Forget();
+    }
+
+    /// <summary>마지막 이미지에서 검은 화면으로 전환한 뒤 최종 문구를 표시한다.</summary>
+    /// <returns>0.6초 페이드와 최종 페이지 표시 완료.</returns>
+    private async UniTask showFinalPageAsync()
+    {
+        isLoading = true;
+        nextButton.interactable = false;
+        nextButton.gameObject.SetActive(false);
+        CancellationToken token = lifetime.Token;
+        try
+        {
+            heading.gameObject.SetActive(false);
+            speaker.gameObject.SetActive(false);
+            dialogue.gameObject.SetActive(false);
+            pageIndicator.gameObject.SetActive(false);
+            setPanelBackgroundVisible(false);
+            float elapsed = 0;
+            while (elapsed < 0.6f)
+            {
+                await UniTask.Yield(token);
+                elapsed += Time.unscaledDeltaTime;
+                blackCover.color = new Color(0, 0, 0, Mathf.Clamp01(elapsed / 0.6f));
+            }
+            background.sprite = null;
+            background.color = Color.black;
+            currentBackground = null;
+            showPage();
+            blackCover.color = Color.black;
+            setPanelBackgroundVisible(false);
+            nextButton.gameObject.SetActive(false);
+            newGameButton.gameObject.SetActive(true);
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        finally { if (this != null && !token.IsCancellationRequested) isLoading = false; }
+    }
+
+    /// <summary>설정된 색상·알파를 보존하고 대사 패널 배경만 표시하거나 숨긴다.</summary>
+    /// <param name="visible">대사 패널 배경 표시 여부.</param>
+    private void setPanelBackgroundVisible(bool visible)
+    {
+        dialoguePanelBackground.enabled = visible;
     }
 
     /// <summary>짧은 표시 페이드만 적용하고 페이지는 자동으로 넘기지 않는다.</summary>
     /// <returns>페이드 완료.</returns>
     private async UniTask fadePageAsync()
     {
+        CancellationToken token = lifetime.Token;
+        nextButton.interactable = false;
         pageGroup.alpha = 0;
         try
         {
             while (pageGroup.alpha < 1)
             {
-                await UniTask.Yield(this.GetCancellationTokenOnDestroy());
+                await UniTask.Yield(token);
                 pageGroup.alpha = Mathf.Min(1, pageGroup.alpha + Time.unscaledDeltaTime / 0.15f);
             }
         }
-        catch (OperationCanceledException) when (this == null) { }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        finally
+        {
+            if (this != null && !token.IsCancellationRequested && isReady && !isLoading)
+                nextButton.interactable = true;
+        }
     }
 }

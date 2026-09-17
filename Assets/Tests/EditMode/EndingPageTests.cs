@@ -20,9 +20,9 @@ public sealed class EndingPageTests
         Assert.Throws<ArgumentException>(() => new GameEndingResult(EndingKind.CitizenshipNegative, 1, false, 0, 0, -1m));
     }
 
-    /// <summary>각 엔딩 네 페이지와 세 줄 대사가 참조되는지 확인한다.</summary>
+    /// <summary>실제 네 엔딩의 페이지·침묵 컷·마지막 검은 화면과 FK를 확인한다.</summary>
     [Test]
-    public void ActualPagesHaveBothEndingsAndThreeLineDialogue()
+    public void ActualPagesHaveFourEndingsSilenceAndFinalBlackPage()
     {
         var pages = new EndingPageDataTable();
         pages.LoadData(File.ReadAllText("Assets/Datas/EndingPageData.csv"));
@@ -34,20 +34,28 @@ public sealed class EndingPageTests
         Assert.That(pages.GetDataCount(), Is.Zero);
         typeof(EndingPageDataTable).GetMethod("Commit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Invoke(pages, null);
-        Assert.That(pages.Rows.Count, Is.EqualTo(8));
+        Assert.That(pages.Rows.Count, Is.EqualTo(34));
         foreach (var group in pages.Rows.Values.GroupBy(p => p.Kind))
         {
-            Assert.That(group.Count(), Is.EqualTo(4));
-            foreach (var page in group) Assert.That(texts[page.TextIdx].Text.Split('\n').Length, Is.EqualTo(3));
+            int expected = group.Key == EndingKind.Good || group.Key == EndingKind.CitizenshipNegative ? 8 : 9;
+            Assert.That(group.Count(), Is.EqualTo(expected));
+            var ordered = group.OrderBy(page => page.PageOrder).ToArray();
+            Assert.That(ordered[^1].BackgroundResourceIdx, Is.Null);
+            Assert.That(ordered[^1].TextIdx, Is.Not.Null);
+            Assert.That(ordered[^1].SpeakerNameIdx, Is.Null);
+            int silentCount = ordered.Take(ordered.Length - 1).Count(page => !page.TextIdx.HasValue);
+            Assert.That(silentCount, Is.EqualTo(group.Key == EndingKind.Bad || group.Key == EndingKind.CitizenshipNegative ? 1 : 0));
         }
-        texts.Remove(8240);
+        uint referencedText = pages.Rows.Values.Select(page => page.TextIdx).First(value => value.HasValue).Value;
+        texts.Remove(referencedText);
         pages.LoadData(File.ReadAllText("Assets/Datas/EndingPageData.csv"));
         Assert.Throws<InvalidDataException>(() => pages.Validate(texts, resources));
-        Assert.That(pages.Rows.Count, Is.EqualTo(8), "검증 실패 전 공개 데이터 보존");
+        Assert.That(pages.Rows.Count, Is.EqualTo(34), "검증 실패 전 공개 데이터 보존");
     }
 
     /// <summary>종류·순서·PK·필수 헤더 오류를 숨기지 않는다.</summary>
     [TestCase("kind"), TestCase("gap"), TestCase("duplicate"), TestCase("missing-ending"), TestCase("header")]
+    [TestCase("zero"), TestCase("middle-black"), TestCase("final-background"), TestCase("silent-speaker")]
     public void InvalidPageTablesAreRejected(string kind)
     {
         string csv = File.ReadAllText("Assets/Datas/EndingPageData.csv");
@@ -56,6 +64,10 @@ public sealed class EndingPageTests
         if (kind == "duplicate") csv = csv.Replace("18002,", "18001,");
         if (kind == "missing-ending") csv = csv.Replace(",3,", ",2,");
         if (kind == "header") csv = csv.Replace("background_resource_idx", "missing_background");
+        if (kind == "zero") csv = csv.Replace("18001,2,1,8481", "18001,2,1,0");
+        if (kind == "middle-black") csv = csv.Replace("18002,2,2,8482,8479,4394", "18002,2,2,8482,8479,");
+        if (kind == "final-background") csv = csv.Replace("18012,2,8,8488,,", "18012,2,8,8488,,4397");
+        if (kind == "silent-speaker") csv = csv.Replace("18019,4,7,,,4402", "18019,4,7,,8478,4402");
         var table = new EndingPageDataTable();
         LogAssert.Expect(LogType.Error, new Regex("EndingPageData.csv"));
         Assert.Catch(() => table.LoadData(csv));

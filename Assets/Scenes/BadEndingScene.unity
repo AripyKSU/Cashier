@@ -298,6 +298,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 686371005687945974, guid: 025c4d8f642c4b6478a71ceb5c7d41b8, type: 3}
+      propertyPath: m_AdditionalShaderChannelsFlag
+      value: 25
+      objectReference: {fileID: 0}
     - target: {fileID: 3099011421402141713, guid: 025c4d8f642c4b6478a71ceb5c7d41b8, type: 3}
       propertyPath: m_Name
       value: EndingPanel
@@ -381,6 +385,10 @@ PrefabInstance:
     - target: {fileID: 3843667683229827920, guid: 025c4d8f642c4b6478a71ceb5c7d41b8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5885060743493989242, guid: 025c4d8f642c4b6478a71ceb5c7d41b8, type: 3}
+      propertyPath: m_Color.a
+      value: 0.40392157
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

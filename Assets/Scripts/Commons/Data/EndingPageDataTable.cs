@@ -6,7 +6,7 @@ using System.Linq;
 using CsvHelper;
 using UnityEngine;
 
-/// <summary>굿·배드 엔딩 페이지 CSV를 전체 검증한 뒤 공개한다.</summary>
+/// <summary>네 종류 엔딩 페이지 CSV를 nullable 표시 계약까지 전체 검증한 뒤 공개한다.</summary>
 public sealed class EndingPageDataTable : IDataLoad
 {
     private IReadOnlyDictionary<uint, EndingPageData> rows =
@@ -19,7 +19,7 @@ public sealed class EndingPageDataTable : IDataLoad
     /// <returns>공개 행 수.</returns>
     public int GetDataCount() => rows.Count;
 
-    /// <summary>CSV를 임시 파싱하고 두 엔딩의 연속 페이지 순서를 검사한다.</summary>
+    /// <summary>CSV를 임시 파싱하고 네 엔딩의 연속 순서와 마지막 검은 화면을 검사한다.</summary>
     /// <param name="csvText">CSV 원문.</param>
     /// <exception cref="Exception">헤더·PK·종류·순서 오류.</exception>
     public void LoadData(string csvText)
@@ -39,13 +39,16 @@ public sealed class EndingPageDataTable : IDataLoad
                 item.Validate();
                 if (!parsed.TryAdd(item.Idx, item)) throw new InvalidDataException($"PK={item.Idx}: 중복");
             }
-            foreach (EndingKind kind in new[] { EndingKind.Good, EndingKind.Bad })
+            foreach (EndingKind kind in new[] { EndingKind.GameOver, EndingKind.Good, EndingKind.Bad, EndingKind.CitizenshipNegative })
             {
                 var pages = parsed.Values.Where(p => p.Kind == kind).OrderBy(p => p.PageOrder).ToArray();
                 if (pages.Length == 0) throw new InvalidDataException($"{kind}: 페이지 누락");
                 for (int i = 0; i < pages.Length; i++)
                     if (pages[i].PageOrder != i + 1)
                         throw new InvalidDataException($"{kind}: page_order는 1부터 중복 없이 연속해야 합니다.");
+                if (pages.Count(page => !page.BackgroundResourceIdx.HasValue) != 1 || pages[^1].BackgroundResourceIdx.HasValue ||
+                    !pages[^1].TextIdx.HasValue || pages[^1].SpeakerNameIdx.HasValue)
+                    throw new InvalidDataException($"{kind}: 마지막 페이지는 화자 없는 검은 화면 텍스트여야 합니다.");
             }
             PendingRows = parsed;
         }
@@ -66,10 +69,10 @@ public sealed class EndingPageDataTable : IDataLoad
             throw new InvalidDataException("EndingPage/Text/Resource CSV 필요");
         foreach (var page in PendingRows.Values)
         {
-            foreach (uint textIdx in new[] { page.TextIdx, page.SpeakerNameIdx })
+            foreach (uint textIdx in new[] { page.TextIdx, page.SpeakerNameIdx }.Where(value => value.HasValue).Select(value => value.Value))
                 if (!texts.TryGetValue(textIdx, out var text) || string.IsNullOrWhiteSpace(text.Text))
                     throw new InvalidDataException($"EndingPage PK={page.Idx}: Text FK={textIdx} 누락/빈 문구");
-            if (!resources.TryGetResource(page.BackgroundResourceIdx, out _))
+            if (page.BackgroundResourceIdx.HasValue && !resources.TryGetResource(page.BackgroundResourceIdx.Value, out _))
                 throw new InvalidDataException($"EndingPage PK={page.Idx}: Resource FK={page.BackgroundResourceIdx} 실패");
         }
     }

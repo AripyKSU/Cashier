@@ -63,6 +63,28 @@ public sealed class GameSessionApiTests
         }
     }
 
+#if UNITY_EDITOR
+    /// <summary>등록된 엔딩 컷씬20개의 Resource FK가 실제 원본 Sprite를 로드하는지 검사한다.</summary>
+    /// <returns>실제 Addressables 로드 완료 대기.</returns>
+    [UnityTest]
+    public IEnumerator ActualEndingCutsceneSpritesLoad()
+    {
+        var resources = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+        foreach (uint idx in Enumerable.Range(4393, 20).Select(value => (uint)value))
+        {
+            Assert.That(resources.TryGetResource(idx, out var resource), Is.True, $"Ending Resource FK {idx}");
+            var expected = UnityEditor.AssetDatabase.LoadAllAssetsAtPath($"Assets/Textures/UI/Ending/{resource.Path}.png")
+                .OfType<Sprite>().Single();
+            var task = ResourceManager.Instance.LoadAssetAsync<Sprite>(resource.Path).AsTask();
+            yield return wait(task);
+            Assert.That(task.Result, Is.SameAs(expected), $"Ending Sprite FK {idx}");
+            Assert.That(task.Result.rect.width, Is.GreaterThan(0));
+            Assert.That(task.Result.rect.height, Is.GreaterThan(0));
+        }
+    }
+
+#endif
+
     /// <summary>Main 선로드가 빈 외형을 건너뛰고 설비12개를 캐시하며 지정된 잘못된 FK는 거부한다.</summary>
     /// <returns>실제 Addressables 선로드와 로딩 단계 대기.</returns>
     [UnityTest]
@@ -1908,51 +1930,83 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator CitizenshipEndingPagesDisplayAndFinish()
     {
-        foreach (EndingKind expectedKind in new[] { EndingKind.Bad, EndingKind.Good, EndingKind.CitizenshipNegative })
+        foreach (EndingKind expectedKind in new[] { EndingKind.GameOver, EndingKind.Bad, EndingKind.Good, EndingKind.CitizenshipNegative })
         {
             session.ResetSession(); session.InitializeNewGame(tables);
-            var progress = endingProgress(31);
-            session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
-            settleEndingDay(progress);
-            if (expectedKind != EndingKind.Bad)
+            var progress = endingProgress(expectedKind == EndingKind.GameOver ? 30 : 31);
+            if (expectedKind == EndingKind.GameOver)
             {
-                buyCitizenshipPrerequisites(progress);
-                typeof(GameSessionManager).GetField("currentMorality",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(
-                        session, expectedKind == EndingKind.Good ? 0m : -1m);
-                Assert.That(progress.TryPurchaseFacility(12012, out _));
+                session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _);
+                seedEndingDebt(27, 30);
+                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY 30"));
+                settleEndingDay(progress);
             }
-            else progress.CompleteSettlement();
+            else
+            {
+                session.Economy.FinanceService.AddIncome(20_000_000, FinanceChangeReason.Sale);
+                settleEndingDay(progress);
+                if (expectedKind != EndingKind.Bad)
+                {
+                    buyCitizenshipPrerequisites(progress);
+                    typeof(GameSessionManager).GetField("currentMorality",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(
+                            session, expectedKind == EndingKind.Good ? 0m : -1m);
+                    Assert.That(progress.TryPurchaseFacility(12012, out _));
+                }
+                else progress.CompleteSettlement();
+            }
             Assert.That(session.EndingResult.Value.Kind, Is.EqualTo(expectedKind));
             var obj = UnityEngine.Object.Instantiate(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
                 "Assets/Prefabs/Ending/EndingPanel.prefab"), root.transform);
             var presenter = obj.GetComponent<EndingPresenter>();
+            var panelBackground = uiReference<UnityEngine.UI.Image>(presenter, "dialoguePanelBackground");
+            var panelColor = panelBackground.color;
+            panelColor.a = 174f / 255f;
+            panelBackground.color = panelColor;
             yield return null;
             var next = uiReference<UnityEngine.UI.Button>(presenter, "nextButton");
             float deadline = Time.realtimeSinceStartup + 20;
             while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
-            EndingKind pageKind = session.EndingResult.Value.Kind == EndingKind.CitizenshipNegative
-                ? EndingKind.Good : session.EndingResult.Value.Kind;
-            var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
-                .Where(p => p.Kind == pageKind).OrderBy(p => p.PageOrder).ToArray();
-            for (int page = 0; page < 4; page++)
+            if (expectedKind == EndingKind.GameOver)
             {
+                obj.SetActive(false);
+                yield return new WaitForSecondsRealtime(.7f);
+                obj.SetActive(true);
+                deadline = Time.realtimeSinceStartup + 20;
+                while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+            }
+            var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
+                .Where(p => p.Kind == session.EndingResult.Value.Kind).OrderBy(p => p.PageOrder).ToArray();
+            for (int page = 0; page < pages.Length; page++)
+            {
+                deadline = Time.realtimeSinceStartup + 2;
+                if (page + 1 < pages.Length)
+                    while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
+                else
+                    while (!uiReference<UnityEngine.UI.Button>(presenter, "newGameButton").gameObject.activeSelf &&
+                        Time.realtimeSinceStartup < deadline) yield return null;
                 var text = uiReference<TMPro.TextMeshProUGUI>(presenter, "dialogue");
-                Assert.That(text.text, Is.EqualTo(tables.GetDB<TextDataTable>(DataTableType.Text).Rows[pages[page].TextIdx].Text));
+                string expected = pages[page].TextIdx.HasValue
+                    ? tables.GetDB<TextDataTable>(DataTableType.Text).Rows[pages[page].TextIdx.Value].Text : string.Empty;
+                Assert.That(text.text, Is.EqualTo(expected));
+                Assert.That(panelBackground.color.a, Is.EqualTo(174f / 255f).Within(.001f));
+                Assert.That(panelBackground.enabled,
+                    Is.EqualTo(pages[page].TextIdx.HasValue && pages[page].BackgroundResourceIdx.HasValue));
+                Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "speaker").gameObject.activeSelf,
+                    Is.EqualTo(pages[page].SpeakerNameIdx.HasValue));
                 text.ForceMeshUpdate();
                 Assert.That(text.isTextOverflowing, Is.False, "엔딩 대사가 표시 영역을 넘었습니다.");
                 Assert.That(text.text.Where(c => !char.IsWhiteSpace(c)).All(c => text.font.HasCharacter(c)), Is.True);
-                yield return new WaitForSecondsRealtime(0.25f);
-                next.onClick.Invoke(); next.onClick.Invoke();
+                if (page + 1 < pages.Length)
+                {
+                    yield return new WaitForSecondsRealtime(0.25f);
+                    next.onClick.Invoke(); next.onClick.Invoke();
+                }
             }
             Assert.That(next.gameObject.activeSelf, Is.False);
-            string expectedSummary = expectedKind switch
-            {
-                EndingKind.Good => "시민권 · 긍정",
-                EndingKind.CitizenshipNegative => "시민권 · 부정",
-                _ => "시민권 미소지"
-            };
-            Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "speaker").text, Is.EqualTo(expectedSummary));
+            Assert.That(uiReference<UnityEngine.UI.Image>(presenter, "blackCover").color.a, Is.EqualTo(1).Within(.001f));
+            Assert.That(panelBackground.enabled, Is.False);
+            Assert.That(uiReference<TMPro.TextMeshProUGUI>(presenter, "heading").text, Is.Empty);
             Assert.That(uiReference<UnityEngine.UI.Button>(presenter, "newGameButton").gameObject.activeSelf);
             UnityEngine.Object.Destroy(obj); yield return null;
         }

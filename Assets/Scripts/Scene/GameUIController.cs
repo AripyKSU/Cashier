@@ -587,6 +587,12 @@ public sealed class GameUIController : MonoBehaviour
         if (state == GameProgressState.Failed)
         {
             this.gameInputRouter.enabled = false;
+            if (GameSessionManager.Instance != null && GameSessionManager.Instance.EndingResult.HasValue &&
+                GameSessionManager.Instance.EndingResult.Value.Kind == EndingKind.GameOver)
+            {
+                this.openEndingAsync().Forget();
+                return;
+            }
             this.failureText.text = "영업권을 잃었습니다.\n유지비·벌금의 미납 유예기간이 끝났습니다.\n새 게임에서 다시 시작할 수 있습니다.";
             this.setPanelVisibility(this.preOpenPanel, false);
             this.setPanelVisibility(this.operatingPanel, false);
