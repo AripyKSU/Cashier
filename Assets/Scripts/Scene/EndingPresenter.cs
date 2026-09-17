@@ -32,6 +32,7 @@ public sealed class EndingPresenter : MonoBehaviour
     private bool isReady;
     private bool isLoading;
     private uint? currentBackground;
+    private uint? currentSfx;
     private CancellationTokenSource lifetime;
     private bool started;
 
@@ -50,6 +51,7 @@ public sealed class EndingPresenter : MonoBehaviour
         lifetime = null;
         isLoading = false;
         isReady = false;
+        stopPageSfx();
         currentBackground = null;
     }
 
@@ -107,6 +109,10 @@ public sealed class EndingPresenter : MonoBehaviour
                 if (sprite == null) throw new InvalidOperationException($"Ending Sprite FK={idx} 누락");
                 backgrounds.Add(idx, sprite);
             }
+            var sounds = SoundManager.Instance;
+            foreach (uint idx in pages.Where(page => page.SfxResourceIdx.HasValue).Select(page => page.SfxResourceIdx.Value).Distinct())
+                if (sounds == null || !sounds.CachedClips.TryGetValue(idx, out AudioClip clip) || clip == null)
+                    throw new InvalidOperationException($"Ending SFX FK={idx}가 SoundManager cache에 없습니다.");
             isReady = true;
             pageIndex = 0;
             showPage();
@@ -136,7 +142,8 @@ public sealed class EndingPresenter : MonoBehaviour
         if (!isReady) { loadPagesAsync().Forget(); return; }
         if (++pageIndex < pages.Length)
         {
-            if (!pages[pageIndex].BackgroundResourceIdx.HasValue) showFinalPageAsync().Forget();
+            stopPageSfx();
+            if (!pages[pageIndex].BackgroundResourceIdx.HasValue && currentBackground.HasValue) showBlackPageAsync().Forget();
             else showPage();
             return;
         }
@@ -156,6 +163,8 @@ public sealed class EndingPresenter : MonoBehaviour
         dialogue.text = page.TextIdx.HasValue ? texts.Rows[page.TextIdx.Value].Text : string.Empty;
         dialogue.gameObject.SetActive(page.TextIdx.HasValue);
         setPanelBackgroundVisible(page.TextIdx.HasValue);
+        pageIndicator.gameObject.SetActive(true);
+        nextButton.gameObject.SetActive(true);
         bool startedFade = false;
         if (page.BackgroundResourceIdx.HasValue)
         {
@@ -170,15 +179,24 @@ public sealed class EndingPresenter : MonoBehaviour
                 fadePageAsync().Forget();
             }
         }
+        else
+        {
+            background.sprite = null;
+            background.color = Color.black;
+            currentBackground = null;
+            blackCover.color = Color.black;
+        }
         pageIndicator.text = $"{pageIndex + 1} / {pages.Length}";
         nextButton.GetComponentInChildren<TMP_Text>().text = pageIndex + 1 == pages.Length ? "마무리" : "다음";
         if (!startedFade) nextButton.interactable = true;
         nextInputTime = Time.unscaledTime + 0.2f;
+        playPageSfx(page);
+        if (!page.BackgroundResourceIdx.HasValue && pageIndex + 1 == pages.Length) finishFinalPage();
     }
 
-    /// <summary>마지막 이미지에서 검은 화면으로 전환한 뒤 최종 문구를 표시한다.</summary>
-    /// <returns>0.6초 페이드와 최종 페이지 표시 완료.</returns>
-    private async UniTask showFinalPageAsync()
+    /// <summary>이미지에서 검은 화면으로 전환한 뒤 해당 페이지의 대사·효과음을 시작한다.</summary>
+    /// <returns>0.6초 암전과 페이지 표시 완료.</returns>
+    private async UniTask showBlackPageAsync()
     {
         isLoading = true;
         nextButton.interactable = false;
@@ -203,13 +221,37 @@ public sealed class EndingPresenter : MonoBehaviour
             currentBackground = null;
             showPage();
             blackCover.color = Color.black;
-            setPanelBackgroundVisible(false);
-            nextButton.gameObject.SetActive(false);
-            newGameButton.gameObject.SetActive(true);
-            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         finally { if (this != null && !token.IsCancellationRequested) isLoading = false; }
+    }
+
+    /// <summary>최종 CSV 문구를 유지한 채 입력을 새 게임 선택으로 전환한다.</summary>
+    private void finishFinalPage()
+    {
+        setPanelBackgroundVisible(false);
+        pageIndicator.gameObject.SetActive(false);
+        nextButton.gameObject.SetActive(false);
+        newGameButton.gameObject.SetActive(true);
+        UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+    }
+
+    /// <summary>이전 페이지 효과음을 정리하고 현재 페이지 효과음을 한 번 시작한다.</summary>
+    /// <param name="page">표시가 완료된 페이지.</param>
+    private void playPageSfx(EndingPageData page)
+    {
+        stopPageSfx();
+        if (!page.SfxResourceIdx.HasValue) return;
+        currentSfx = page.SfxResourceIdx;
+        SoundManager.Instance.PlaySfxUntilStopped(currentSfx.Value);
+    }
+
+    /// <summary>이 Presenter가 시작한 엔딩 페이지 효과음만 정지한다.</summary>
+    private void stopPageSfx()
+    {
+        if (!currentSfx.HasValue) return;
+        SoundManager.Instance?.StopSfxForDuration(currentSfx.Value);
+        currentSfx = null;
     }
 
     /// <summary>설정된 색상·알파를 보존하고 대사 패널 배경만 표시하거나 숨긴다.</summary>

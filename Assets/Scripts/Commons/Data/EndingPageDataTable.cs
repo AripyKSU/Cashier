@@ -46,8 +46,7 @@ public sealed class EndingPageDataTable : IDataLoad
                 for (int i = 0; i < pages.Length; i++)
                     if (pages[i].PageOrder != i + 1)
                         throw new InvalidDataException($"{kind}: page_order는 1부터 중복 없이 연속해야 합니다.");
-                if (pages.Count(page => !page.BackgroundResourceIdx.HasValue) != 1 || pages[^1].BackgroundResourceIdx.HasValue ||
-                    !pages[^1].TextIdx.HasValue || pages[^1].SpeakerNameIdx.HasValue)
+                if (pages[^1].BackgroundResourceIdx.HasValue || !pages[^1].TextIdx.HasValue || pages[^1].SpeakerNameIdx.HasValue)
                     throw new InvalidDataException($"{kind}: 마지막 페이지는 화자 없는 검은 화면 텍스트여야 합니다.");
             }
             PendingRows = parsed;
@@ -74,6 +73,8 @@ public sealed class EndingPageDataTable : IDataLoad
                     throw new InvalidDataException($"EndingPage PK={page.Idx}: Text FK={textIdx} 누락/빈 문구");
             if (page.BackgroundResourceIdx.HasValue && !resources.TryGetResource(page.BackgroundResourceIdx.Value, out _))
                 throw new InvalidDataException($"EndingPage PK={page.Idx}: Resource FK={page.BackgroundResourceIdx} 실패");
+            if (page.SfxResourceIdx.HasValue && !resources.TryGetResource(page.SfxResourceIdx.Value, out _))
+                throw new InvalidDataException($"EndingPage PK={page.Idx}: SFX Resource FK={page.SfxResourceIdx} 실패");
         }
     }
 

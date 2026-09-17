@@ -14,8 +14,10 @@ public sealed class EndingPageData
     [Name("text_idx")] public uint? TextIdx { get; set; }
     /// <summary>화자 이름 TextData FK. 빈 셀은 이름을 숨긴다.</summary>
     [Name("speaker_nameidx")] public uint? SpeakerNameIdx { get; set; }
-    /// <summary>배경 Sprite ResourceData FK. 빈 셀은 마지막 검은 화면이다.</summary>
+    /// <summary>배경 Sprite ResourceData FK. 빈 셀은 중간 또는 마지막 검은 화면이다.</summary>
     [Name("background_resource_idx")] public uint? BackgroundResourceIdx { get; set; }
+    /// <summary>페이지 진입 시 한 번 재생할 Sound ResourceData FK. 빈 셀은 효과음 없음이다.</summary>
+    [Name("sfx_resource_idx")] public uint? SfxResourceIdx { get; set; }
     /// <summary>검증된 엔딩 종류.</summary>
     public EndingKind Kind => (EndingKind)EndingKindValue;
 
@@ -28,7 +30,9 @@ public sealed class EndingPageData
             (TextIdx.HasValue && (TextIdx.Value == 0 || Util.GetDataTableType(TextIdx.Value) != DataTableType.Text)) ||
             (SpeakerNameIdx.HasValue && (SpeakerNameIdx.Value == 0 || Util.GetDataTableType(SpeakerNameIdx.Value) != DataTableType.Text)) ||
             (BackgroundResourceIdx.HasValue && (BackgroundResourceIdx.Value == 0 || Util.GetDataTableType(BackgroundResourceIdx.Value) != DataTableType.Resource)) ||
-            (!TextIdx.HasValue && SpeakerNameIdx.HasValue) || (!BackgroundResourceIdx.HasValue && (!TextIdx.HasValue || SpeakerNameIdx.HasValue)))
+            (SfxResourceIdx.HasValue && (SfxResourceIdx.Value == 0 || Util.GetDataTableType(SfxResourceIdx.Value) != DataTableType.Resource)) ||
+            (!TextIdx.HasValue && SpeakerNameIdx.HasValue) ||
+            (!TextIdx.HasValue && !BackgroundResourceIdx.HasValue && !SfxResourceIdx.HasValue))
             throw new ArgumentException($"EndingPage PK={Idx}: 종류·순서·필수 FK 오류");
     }
 }

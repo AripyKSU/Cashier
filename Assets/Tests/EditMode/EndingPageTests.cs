@@ -34,28 +34,42 @@ public sealed class EndingPageTests
         Assert.That(pages.GetDataCount(), Is.Zero);
         typeof(EndingPageDataTable).GetMethod("Commit", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
             .Invoke(pages, null);
-        Assert.That(pages.Rows.Count, Is.EqualTo(34));
+        Assert.That(pages.Rows.Count, Is.EqualTo(36));
         foreach (var group in pages.Rows.Values.GroupBy(p => p.Kind))
         {
-            int expected = group.Key == EndingKind.Good || group.Key == EndingKind.CitizenshipNegative ? 8 : 9;
+            int expected = group.Key switch { EndingKind.Good or EndingKind.CitizenshipNegative => 8, EndingKind.Bad => 11, _ => 9 };
             Assert.That(group.Count(), Is.EqualTo(expected));
             var ordered = group.OrderBy(page => page.PageOrder).ToArray();
             Assert.That(ordered[^1].BackgroundResourceIdx, Is.Null);
             Assert.That(ordered[^1].TextIdx, Is.Not.Null);
             Assert.That(ordered[^1].SpeakerNameIdx, Is.Null);
             int silentCount = ordered.Take(ordered.Length - 1).Count(page => !page.TextIdx.HasValue);
-            Assert.That(silentCount, Is.EqualTo(group.Key == EndingKind.Bad || group.Key == EndingKind.CitizenshipNegative ? 1 : 0));
+            int expectedSilent = group.Key == EndingKind.Bad ? 3 : group.Key == EndingKind.CitizenshipNegative ? 1 : 0;
+            Assert.That(silentCount, Is.EqualTo(expectedSilent));
+            Assert.That(ordered.Count(page => !page.TextIdx.HasValue && page.BackgroundResourceIdx.HasValue),
+                Is.EqualTo(group.Key == EndingKind.Bad || group.Key == EndingKind.CitizenshipNegative ? 1 : 0));
+            Assert.That(ordered.Count(page => !page.TextIdx.HasValue && page.SfxResourceIdx.HasValue),
+                Is.EqualTo(group.Key == EndingKind.Bad ? 2 : 0));
         }
         uint referencedText = pages.Rows.Values.Select(page => page.TextIdx).First(value => value.HasValue).Value;
         texts.Remove(referencedText);
         pages.LoadData(File.ReadAllText("Assets/Datas/EndingPageData.csv"));
         Assert.Throws<InvalidDataException>(() => pages.Validate(texts, resources));
-        Assert.That(pages.Rows.Count, Is.EqualTo(34), "검증 실패 전 공개 데이터 보존");
+        Assert.That(pages.Rows.Count, Is.EqualTo(36), "검증 실패 전 공개 데이터 보존");
+        var resourcesWithoutSfx = new ResourceDataTable();
+        LogAssert.Expect(LogType.Log, new Regex(@"^\[ResourceDataTable\]"));
+        resourcesWithoutSfx.LoadData(string.Join("\n", File.ReadAllLines("Assets/Datas/ResourceData.csv")
+            .Where(line => !line.StartsWith("4263,"))));
+        pages.LoadData(File.ReadAllText("Assets/Datas/EndingPageData.csv"));
+        Assert.Throws<InvalidDataException>(() => pages.Validate(Util.ParseFromCSV<TextData>(
+            File.ReadAllText("Assets/Datas/TextData.csv")).ToDictionary(t => t.Idx), resourcesWithoutSfx));
+        Assert.That(pages.Rows.Count, Is.EqualTo(36));
     }
 
     /// <summary>종류·순서·PK·필수 헤더 오류를 숨기지 않는다.</summary>
     [TestCase("kind"), TestCase("gap"), TestCase("duplicate"), TestCase("missing-ending"), TestCase("header")]
-    [TestCase("zero"), TestCase("middle-black"), TestCase("final-background"), TestCase("silent-speaker")]
+    [TestCase("zero"), TestCase("sfx-zero"), TestCase("all-empty"), TestCase("final-background")]
+    [TestCase("final-text-missing"), TestCase("silent-speaker")]
     public void InvalidPageTablesAreRejected(string kind)
     {
         string csv = File.ReadAllText("Assets/Datas/EndingPageData.csv");
@@ -65,9 +79,11 @@ public sealed class EndingPageTests
         if (kind == "missing-ending") csv = csv.Replace(",3,", ",2,");
         if (kind == "header") csv = csv.Replace("background_resource_idx", "missing_background");
         if (kind == "zero") csv = csv.Replace("18001,2,1,8481", "18001,2,1,0");
-        if (kind == "middle-black") csv = csv.Replace("18002,2,2,8482,8479,4394", "18002,2,2,8482,8479,");
-        if (kind == "final-background") csv = csv.Replace("18012,2,8,8488,,", "18012,2,8,8488,,4397");
-        if (kind == "silent-speaker") csv = csv.Replace("18019,4,7,,,4402", "18019,4,7,,8478,4402");
+        if (kind == "sfx-zero") csv = csv.Replace("18035,3,9,,,,4263", "18035,3,9,,,,0");
+        if (kind == "all-empty") csv = csv.Replace("18035,3,9,,,,4263", "18035,3,9,,,,");
+        if (kind == "final-background") csv = csv.Replace("18012,2,8,8488,,,", "18012,2,8,8488,,4397,");
+        if (kind == "final-text-missing") csv = csv.Replace("18012,2,8,8488,,,", "18012,2,8,,,,");
+        if (kind == "silent-speaker") csv = csv.Replace("18019,4,7,,,4402,", "18019,4,7,,8478,4402,");
         var table = new EndingPageDataTable();
         LogAssert.Expect(LogType.Error, new Regex("EndingPageData.csv"));
         Assert.Catch(() => table.LoadData(csv));

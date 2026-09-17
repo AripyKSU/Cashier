@@ -1,5 +1,37 @@
 # 시민권·엔딩 구현 및 플레이 테스트 안내
 
+## 2026-09-17 최종 정산 확인창 제거
+
+- 최종일 정산에서 기존 다음 단계 버튼(문구 `마무리`)을 누르면 추가 확인창 없이 `OnNextStepRequested`를 전달한다. 일반일 버튼은 기존 `다음 날`이다. 정산 화면이 열리자마자 자동으로 종료하는 변경은 아니다.
+- `DailySettlementPresenter.ConfigureEnding(bool isFinalDay)`로 변경하고 확인창·확인/취소 버튼·확인창 상태 API를 제거했다. 단일 호출자인 GameUIController도 새 인자를 사용한다.
+- `SettlementPanel.prefab`의 `FinalConfirmationPanel`과 구형 Editor 생성 경로를 제거한다. 정산 가계부·딸 대화·명성 도장 순서와 `DailySettlementFlowController`의 입력 준비/한 번 진행 가드는 유지한다. 시민권 구매 즉시 종료 및 미납 판정은 변경하지 않는다.
+- 병합 시 Presenter/호출자/Editor 도구/SettlementPanel Prefab/관련 테스트를 함께 반영한다. 아래 과거 기록의 최종 확인창·취소 후 구매 설명은 이 변경으로 대체된다.
+- 검증 **PASS(API 범위)**: PlayMode `SettlementNextButtonRequestsNormalAndFinalProgressImmediately` **1/1**, 실패·skip0. 실제 Prefab의 확인창 제거, 최종/일반일 버튼 문구와 즉시 요청을 확인했다. Prefab의 나머지 직렬화 객체는 이전 내용과 동일하며 확인창 하위 객체·루트 자식 참조·Presenter의 구형3필드만 제거됐다. CLI 대기 연결이 중단되어 동일 실행의 완료 파일을 확인·보관했다: `Temp/qa1-final-confirmation/playmode.json`. 전체 플레이/최종 UX는 별도 확인 대상이다. 커밋·푸시 미수행.
+
+## 2026-09-17 페이지별 효과음 (현재 계약)
+
+아래 34페이지 최초 구현 기록에서 검은 화면을 마지막 한 행으로 제한하던 계약을 확장한다.
+
+- `EndingPageData.csv` 끝에 선택 컬럼 `sfx_resource_idx`를 추가한다. `ResourceData`의 사운드 FK이며 빈 셀은 재생 없음이다. 배열 대신 페이지를 추가하여 효과음을 순서대로 재생한다. 이미지·대사·효과음은 한 행에 함께 지정할 수 있다.
+- `idx`, `ending_kind`, `page_order`는 필수다. 배경 빈 셀은 검은 화면, 대사/화자 빈 셀은 표시 없음이다. 배경·대사·효과음 모두 없는 행과 대사 없이 화자만 있는 행은 거부한다. 0·잘못된 대역·없는 FK는 로드 검증에서 거부한다.
+- 검은 화면은 중간에도 여러 행 존재할 수 있다. 마지막 `page_order` 행이 종료 페이지이며, 마지막 행은 기존처럼 검은 화면·화자 없음·최종 텍스트 필수다.
+- 이미지에서 검은 화면으로 넘어갈 때만 0.6초 암전 후 해당 페이지의 대사·효과음을 시작한다. 검은 화면에서 다음 검은 화면으로 넘어가면 화면을 유지하고 내용만 변경한다. 같은 이미지의 다음 행도 이미지 전환을 반복하지 않는다.
+- 다음/Enter로 수동 진행한다. 효과음은 페이지 진입 시 한 번 재생하고 다음 페이지·비활성화·파괴 시 해당 엔딩 효과음을 정리한다. 소리가 먼저 끝나면 페이지는 다음 입력까지 유지한다. 대화 박스 Image의 색상/알파는 계속 인스펙터 값을 보존한다.
+
+| Kind3의 마지막 부분 | PK | page_order | 배경 FK | 대사 FK | SFX FK |
+|---|---|---|---|---|---|
+| 기존 5컷 | 18024 | 8 | 4407 | 빈 셀 | 빈 셀 |
+| 암전 후 첫 효과음 | 18035 | 9 | 빈 셀 | 빈 셀 | 4263 |
+| 검은 화면에서 둘째 효과음 | 18036 | 10 | 빈 셀 | 빈 셀 | 4263 |
+| 기존 마지막 문구 | 18025 | 11 | 빈 셀 | 8503 | 빈 셀 |
+
+- 실제 철컥/펑 리소스는 아직 없으므로 사용자 지정 `4263=CalculatorButton`을 두 행에 임시로 사용한다. 전체36행이며 다른 엔딩 대사·이미지는 변경하지 않는다. 공용 예약표의 EndingPage 범위를 사용자 승인 후 `18001~18036`으로 갱신했다.
+- 기존 `SoundManager`의 사운드 캐시와 재생·정지 API를 사용한다. 현재 사운드 로더는 `SoundKeys.All`에 등록한 20개를 로드하므로 새로운 소리를 나중에 추가할 때 ResourceData/Addressables뿐 아니라 이 목록과 고정 개수 검증도 함께 갱신해야 한다. 이번 작업은 이미 등록된4263을 재사용하며 공용 사운드 로더는 변경하지 않는다.
+- 병합 시 새 CSV 컬럼·nullable DTO/Table·Presenter·테스트를 함께 반영한다. 이전 CSV/새 파서 혼용은 헤더 검증 실패다. 신규 PK18035/18036의 통합 브랜치 충돌을 확인한다. 기존 Text/Resource/Addressables/씬/Prefab은 변경하지 않는다.
+- 검증 **PASS(API 범위)**: EditMode `EndingPageTests` **13/13**, PlayMode `CitizenshipEndingPagesDisplayAndFinish` **1/1**. 네 엔딩36페이지·nullable/FK 오류·공개 데이터 보존, 실제 SoundManager의4263 로드/재생/동일 source 재시작·종료/비활성 정지, black→black 즉시 진행·최종 문구, 알파174/255 보존을 검사했다. 잘못된 비오디오 FK가 사운드 캐시에 없을 때 오류 화면으로 연결되는 것도 확인했다. 실패·skip0. 증거: `Temp/qa1-ending-sfx/editmode.json`, `playmode.json`, `static-data.json`.
+- 기존 대사/이미지34행과 Scene/Prefab 파일을 보존했다. 전체 suite·Player build·사용자 청감/최종 UX 확인은 미실행이며 두 소리는 모두 임시 계산기 버튼음이다. Git commit/push 미수행.
+- 최종 Editor: InitScene clean, Play 종료, compileFailed=false, 시작 씬 override 없음, runInBackground=false. Console에는 테스트가 의도적으로 주입한 `SFX FK=4393` 캐시 누락 오류1건이 남아 있으며 `LogAssert.Expect`로 검증한 로그다. 예상하지 않은 오류는0건이다.
+
 ## 2026-09-17 엔딩 4종 대사·컷씬 연결 (qa1 현재 계약)
 
 사용자가 전달한 대응표를 기준으로 아래 데이터를 사용한다. 아래의 과거 2종·임시 이미지·결과 요약 설명보다 이 절을 우선한다. 시민권 가격·구매 조건·도덕성 분기·미납 판정은 변경하지 않는다.
