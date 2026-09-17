@@ -110,6 +110,56 @@ public sealed class BusinessClockAndSortingTests
     }
 
     [Test]
+    public void DividerBar_PushItems_PushesHorizontally_EvenWhenTilted()
+    {
+        var root = new GameObject("WorkbenchRoot", typeof(RectTransform));
+        var workRect = (RectTransform)root.transform;
+        workRect.sizeDelta = new Vector2(1000f, 600f);
+
+        var barGo = new GameObject("DividerBar", typeof(RectTransform));
+        barGo.transform.SetParent(workRect, false);
+        var barRect = (RectTransform)barGo.transform;
+        barRect.anchoredPosition = new Vector2(0f, 0f);
+
+        var divider = barGo.AddComponent<DividerBarController>();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        typeof(DividerBarController).GetField("barRect", flags).SetValue(divider, barRect);
+        typeof(DividerBarController).GetField("workArea", flags).SetValue(divider, workRect);
+        typeof(DividerBarController).GetField("isHolding", flags).SetValue(divider, true);
+
+        var itemGo = new GameObject("TestItem", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+        itemGo.transform.SetParent(workRect, false);
+        var itemRect = (RectTransform)itemGo.transform;
+        var itemView = itemGo.AddComponent<SaleSortingItemView>();
+        itemView.Initialize(1001, 0, null, 100f, "TestProduct", workRect);
+
+        // 1. 오른쪽으로 밀 때: 막대가 시각적으로 -25도 기울어진(눕힌) 상태
+        float initialY = 75f;
+        itemRect.anchoredPosition = new Vector2(10f, initialY);
+        typeof(DividerBarController).GetField("movementDelta", flags).SetValue(divider, new Vector2(30f, 0f));
+        typeof(DividerBarController).GetField("currentAngle", flags).SetValue(divider, -25f);
+
+        divider.PushItems(new SaleSortingItemView[] { itemView });
+
+        Assert.That(itemView.Position.y, Is.EqualTo(initialY).Within(0.001f), "오른쪽으로 밀 때 상품의 Y좌표는 변하지 않고 수평 일자로 밀려야 합니다.");
+        Assert.That(itemView.Position.x, Is.GreaterThan(10f), "오른쪽으로 밀 때 상품의 X좌표는 오른쪽으로 이동해야 합니다.");
+
+        // 2. 왼쪽으로 밀 때: 막대가 시각적으로 +25도 기울어진 상태
+        float pushedRightX = itemView.Position.x;
+        barRect.anchoredPosition = new Vector2(pushedRightX + 10f, 0f); // 상품 바로 오른쪽에 밀대 배치
+        typeof(DividerBarController).GetField("movementDelta", flags).SetValue(divider, new Vector2(-30f, 0f));
+        typeof(DividerBarController).GetField("currentAngle", flags).SetValue(divider, 25f);
+
+        divider.PushItems(new SaleSortingItemView[] { itemView });
+
+        Assert.That(itemView.Position.y, Is.EqualTo(initialY).Within(0.001f), "왼쪽으로 밀 때 상품의 Y좌표는 변하지 않고 수평 일자로 밀려야 합니다.");
+        Assert.That(itemView.Position.x, Is.LessThan(pushedRightX), "왼쪽으로 밀 때 상품의 X좌표는 왼쪽으로 이동해야 합니다.");
+
+        Object.DestroyImmediate(itemGo);
+        Object.DestroyImmediate(root);
+    }
+
+    [Test]
     public void SaleSortingItemView_InitializesRaycastTarget_AndSupportsDrag()
     {
         var root = new GameObject("WorkbenchRoot", typeof(RectTransform));
