@@ -53,11 +53,13 @@ Shader "Cashier/World/Birds"
                     float body = step(wing,1.5) * step(abs(p.y + 1),2);
                     mask = max(mask,max(wings,body));
                 }
-                half3 gray = half3(.75,.75,.75);
+                // Match the prototype darkest silhouette (#211915 in display RGB) and respect renderer tint.
+                half3 birdColor = half3(33.0 / 255.0, 25.0 / 255.0, 21.0 / 255.0);
                 #ifndef UNITY_COLORSPACE_GAMMA
-                gray = SRGBToLinear(gray);
+                birdColor = SRGBToLinear(birdColor);
                 #endif
-                return half4(gray,mask * input.color.a);
+                birdColor *= input.color.rgb;
+                return half4(birdColor, mask * input.color.a);
             }
             ENDHLSL
         }
