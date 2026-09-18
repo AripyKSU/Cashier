@@ -91,6 +91,7 @@ public sealed class GameSessionApiTests
     public IEnumerator InspectorMainPreloadSupportsOptionalPortraitsAndFacilityPrefabs()
     {
         Assert.That(GameSceneManager.Instance, Is.Null);
+        root.AddComponent<SimplePoolManager>();
         var manager = root.AddComponent<GameSceneManager>();
         var loadingRoot = new GameObject("Preload test loading", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup));
         loadingRoot.SetActive(false);
@@ -916,6 +917,32 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator InspectorWorldQueuePreservesIdentityAndIndependentSpeechLifetime()
     {
+        var pools = root.AddComponent<SimplePoolManager>();
+        var resourceRows = tables.GetDB<ResourceDataTable>(DataTableType.Resource);
+        string visitPath = resourceRows.GetResourcePath(CustomerGenerator.resourceIdx);
+        string speechPath = resourceRows.GetResourcePath(CustomerGenerator.speechIdx);
+        int poolCapacity = CustomerQueue.Capacity * 2 + 2;
+        var visitPool = pools.CreatePoolAsync<WorldVisit>(visitPath, poolCapacity, 2, pools.transform,
+            onRelease: item => item.ResetForPool()).AsTask();
+        yield return wait(visitPool);
+        var speechPool = pools.CreatePoolAsync<WorldQueueSpeech>(speechPath, poolCapacity, 2, pools.transform,
+            onRelease: item => item.ResetForPool()).AsTask();
+        yield return wait(speechPool);
+        Assert.That(visitPool.Result); Assert.That(speechPool.Result);
+        var firstRent = pools.Get<WorldVisit>(visitPath);
+        var secondRent = pools.Get<WorldVisit>(visitPath);
+        Assert.That(firstRent, Is.Not.Null); Assert.That(secondRent, Is.Not.Null);
+        Assert.That(pools.Get<WorldVisit>(visitPath), Is.Null, "준비된 풀 소진은 모델을 변경하지 않고 null이어야 합니다.");
+        pools.Release(visitPath, firstRent);
+        var rerent = pools.Get<WorldVisit>(visitPath);
+        Assert.That(rerent, Is.SameAs(firstRent), "반환된 같은 큐 객체를 다음 대여에서 재사용해야 합니다.");
+        pools.Release(visitPath, rerent); pools.Release(visitPath, secondRent);
+        Assert.That(pools.TryGetPool<WorldVisit>(visitPath, out var visitObjects));
+        Assert.That(pools.TryGetPool<WorldQueueSpeech>(speechPath, out var speechObjects));
+        yield return wait(visitObjects.PrewarmAsync(poolCapacity));
+        yield return wait(speechObjects.PrewarmAsync(poolCapacity));
+        Assert.That(visitObjects.TotalOwned, Is.EqualTo(poolCapacity));
+        Assert.That(speechObjects.TotalOwned, Is.EqualTo(poolCapacity));
         var ui = createGameUi();
         var settings = new UnityEditor.SerializedObject(ui);
         settings.FindProperty("useCustomerQueue").boolValue = true;
@@ -941,7 +968,7 @@ public sealed class GameSessionApiTests
         var type = visual.GetType();
         var rootTransform = (Transform)type.GetField("Root").GetValue(visual);
         var body = (SpriteRenderer)type.GetField("Body").GetValue(visual);
-        var speech = (TMPro.TextMeshPro)type.GetField("Speech").GetValue(visual);
+        var speech = (TMPro.TextMeshPro)type.GetField("SpeechTMP").GetValue(visual);
         float waitingScale = (waiting.Attributes & CustomerAttributes.Child) != 0 ? .6f : 1f;
         Assert.That((float)type.GetField("StartHeight").GetValue(visual), Is.EqualTo(240f * waitingScale).Within(.001f));
         Assert.That((float)type.GetField("TargetHeight").GetValue(visual), Is.EqualTo(508f * waitingScale).Within(.001f));
@@ -1214,7 +1241,9 @@ public sealed class GameSessionApiTests
         Assert.That(ui.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
         Assert.That(session.InspectorEvents.HasPending, Is.False);
         cover = uiReference<CanvasGroup>(ui, "startupCover");
-        Assert.That(cover.gameObject.activeSelf); Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
+        Assert.That(cover.gameObject.activeSelf, Is.False, "일일 지침이 표시되면 시작 커버를 해제합니다.");
+        Assert.That(cover.blocksRaycasts, Is.False);
+        Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
         var openButton = uiReference<GameObject>(ui, "preOpenPanel")
             .GetComponentInChildren<PreOpenPanelPresenter>(true).OpenBusinessButton;
         Assert.That(openButton.interactable);
@@ -1659,7 +1688,8 @@ public sealed class GameSessionApiTests
         var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
         var ledger = uiReference<DailySettlementLedgerView>(settlement, "ledgerView");
         var leftPage = uiReference<TMPro.TextMeshProUGUI>(ledger, "leftPageText");
-        Assert.That(leftPage.text, Does.Contain("총지출  -2,000원"));
+        Assert.That(leftPage.text, Does.Contain("유지비  -2,000원"));
+        Assert.That(leftPage.text, Does.Contain("지침 벌금  0원"));
         Assert.That(leftPage.text, Does.Contain("순이익  -2,000원"));
         Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 2000:N0}원"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
@@ -1986,9 +2016,10 @@ public sealed class GameSessionApiTests
             var pages = tables.GetDB<EndingPageDataTable>(DataTableType.EndingPage).Rows.Values
                 .Where(p => p.Kind == session.EndingResult.Value.Kind).OrderBy(p => p.PageOrder).ToArray();
             AudioSource endingSfxSource = null;
+            var endingSfxSources = new System.Collections.Generic.Dictionary<uint, AudioSource>();
             for (int page = 0; page < pages.Length; page++)
             {
-                deadline = Time.realtimeSinceStartup + 2;
+                deadline = Time.realtimeSinceStartup + pages[page].DelaySecond.GetValueOrDefault() + 2;
                 if (page + 1 < pages.Length)
                     while (!next.interactable && Time.realtimeSinceStartup < deadline) yield return null;
                 else
@@ -2009,7 +2040,11 @@ public sealed class GameSessionApiTests
                         .Single(audio => audio.name == $"Timed SFX Source {pages[page].SfxResourceIdx.Value}" &&
                             audio.clip == SoundManager.Instance.CachedClips[pages[page].SfxResourceIdx.Value]);
                     Assert.That(source.isPlaying, Is.True);
-                    if (endingSfxSource != null) Assert.That(source, Is.SameAs(endingSfxSource));
+                    if (endingSfxSources.TryGetValue(pages[page].SfxResourceIdx.Value, out var cachedSource))
+                        Assert.That(source, Is.SameAs(cachedSource), "같은 효과음 키는 AudioSource를 재사용합니다.");
+                    if (endingSfxSource != null && endingSfxSource != source)
+                        Assert.That(endingSfxSource.isPlaying, Is.False, "이전 페이지 효과음은 정지해야 합니다.");
+                    endingSfxSources[pages[page].SfxResourceIdx.Value] = source;
                     endingSfxSource = source;
                 }
                 text.ForceMeshUpdate();
@@ -2043,17 +2078,19 @@ public sealed class GameSessionApiTests
                 var replayNext = uiReference<UnityEngine.UI.Button>(replayPresenter, "nextButton");
                 deadline = Time.realtimeSinceStartup + 20;
                 while (!replayNext.interactable && Time.realtimeSinceStartup < deadline) yield return null;
-                for (int page = 0; page < 8; page++)
+                int firstSfxPage = Array.FindIndex(pages, page => page.SfxResourceIdx.HasValue);
+                Assert.That(firstSfxPage, Is.GreaterThanOrEqualTo(0));
+                for (int page = 0; page < firstSfxPage; page++)
                 {
                     yield return new WaitForSecondsRealtime(.25f);
                     replayNext.onClick.Invoke();
                 }
                 AudioSource source = null;
-                deadline = Time.realtimeSinceStartup + 2;
+                deadline = Time.realtimeSinceStartup + pages[firstSfxPage].DelaySecond.GetValueOrDefault() + 2;
                 while (source == null && Time.realtimeSinceStartup < deadline)
                 {
                     source = UnityEngine.Object.FindObjectsByType<AudioSource>(FindObjectsInactive.Include, FindObjectsSortMode.None)
-                        .FirstOrDefault(audio => audio.name == "Timed SFX Source 4263" && audio.isPlaying);
+                        .FirstOrDefault(audio => audio.name == $"Timed SFX Source {pages[firstSfxPage].SfxResourceIdx.Value}" && audio.isPlaying);
                     if (source == null) yield return null;
                 }
                 Assert.That(source, Is.Not.Null);

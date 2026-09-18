@@ -10,6 +10,8 @@ using Cysharp.Threading.Tasks;
 /// <summary>전역 수명으로 로딩 화면과 공유·개인 씬 전환을 소유한다.</summary>
 public class GameSceneManager : Singleton<GameSceneManager>
 {
+    // 현재 1 + 대기 10 + 불만 이탈 10 + 거래 퇴장 1을 동시에 보존한다.
+    private const int CustomerWorldPoolCapacity = CustomerQueue.Capacity * 2 + 2;
     private const string LoadingScene = "LoadingScene";
 
     // 이전 씬이 파괴돼도 manager가 목적지 활성화까지 재진입을 차단한다.
@@ -309,19 +311,18 @@ public class GameSceneManager : Singleton<GameSceneManager>
                 await LoadRequiredResourceAsync<Sprite>(daughter.ResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
         await loading.WaitForCurrentPhaseCycleAsync();
 
-        // simplepool에서 prefab을 풀링
-
-        if(tables.GetDB<ResourceDataTable>(DataTableType.Resource).TryGetResource(CustomerGenerator.resourceIdx, out var worldVisitResData))
-        {
-            await ResourceManager.Instance.LoadAssetAsyncTask<GameObject>(worldVisitResData.Path);
-            await SimplePoolManager.Instance.CreatePoolAsync<WorldVisit>(worldVisitResData.Path, CustomerQueue.Capacity + 2, CustomerQueue.Capacity + 2, SimplePoolManager.Instance.transform);
-        }
-
-        if (tables.GetDB<ResourceDataTable>(DataTableType.Resource).TryGetResource(CustomerGenerator.speechIdx, out var worldSpeechResData))
-        {
-            await ResourceManager.Instance.LoadAssetAsyncTask<GameObject>(worldSpeechResData.Path);
-            await SimplePoolManager.Instance.CreatePoolAsync<WorldQueueSpeech>(worldSpeechResData.Path, CustomerQueue.Capacity + 2, CustomerQueue.Capacity + 2, SimplePoolManager.Instance.transform);
-        }
+        var pools = SimplePoolManager.Instance;
+        if (pools == null) throw new InvalidOperationException("MainScene 손님 표시 풀 manager가 없습니다.");
+        if (!resources.TryGetResource(CustomerGenerator.resourceIdx, out var worldVisitResData))
+            throw new InvalidOperationException($"손님 외형 Resource FK {CustomerGenerator.resourceIdx}가 없습니다.");
+        if (!resources.TryGetResource(CustomerGenerator.speechIdx, out var worldSpeechResData))
+            throw new InvalidOperationException($"손님 말풍선 Resource FK {CustomerGenerator.speechIdx}가 없습니다.");
+        if (!await pools.CreatePoolAsync<WorldVisit>(worldVisitResData.Path, CustomerWorldPoolCapacity,
+                CustomerWorldPoolCapacity, pools.transform, onRelease: item => item.ResetForPool()))
+            throw new InvalidOperationException($"손님 외형 풀을 준비하지 못했습니다: {worldVisitResData.Path}");
+        if (!await pools.CreatePoolAsync<WorldQueueSpeech>(worldSpeechResData.Path, CustomerWorldPoolCapacity,
+                CustomerWorldPoolCapacity, pools.transform, onRelease: item => item.ResetForPool()))
+            throw new InvalidOperationException($"손님 말풍선 풀을 준비하지 못했습니다: {worldSpeechResData.Path}");
 
         loading.SetLoadingPhase(3);
         StoreStageDataTable stages = tables.GetDB<StoreStageDataTable>(DataTableType.StoreStage);

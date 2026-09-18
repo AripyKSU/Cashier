@@ -1,5 +1,11 @@
 # 기능 API 검증
 
+## 사용자 Pool·DOTween 패턴 적용 (2026-09-18)
+
+- 기준 `refactor_fix 6c7ef198` + 미커밋 구현. 기존 Unity6000.3.18f1 Editor에서 컴파일 오류0, 관련 EditMode **33/35**(실패2·skip0), 관련 PlayMode 최종 고유 테스트 **17/17**(실패·skip0). 전체 suite·Player build·최종 UI/UX는 미검증이다.
+- Edit 실패2개는 이전에 기록한 청소기 자산 경로 기대다. Play 최초3개 실패는 기존 커버 해제 시점·엔딩 SFX/Delay·정산 표시 fixture를 현행 계약에 맞춰 갱신한 뒤 모두 통과했다. 최초 실패와 재실행을 포함한 Play 실행20건 중 통과17·실패3이다.
+- Pool 재사용/반환·용량, 연출 중단/재진입/차단/완료 이벤트, 실제 대기열·계산기·상자·감독관·Main preload·엔딩4종·정산 연결을 확인했다. 씬·Prefab·CSV·Addressables·사용자 폰트 보존 및 최종 InitScene clean/Play 종료/Console error0을 확인했다. 상세 A/B/C와 각 실행 증거는 [구현·검증 보고](work/refactor-pattern-20260918.md#검증)를 따른다. 종합 상태는 기존 Edit 실패2개를 포함한 **PARTIAL**이다.
+
 ## ART_UPDATE_20260916 최종 기능 검증 (2026-09-16)
 
 - 기준: `codex/store-resource-exchange 01f5707f`, Unity6000.3.18f1/PID9716. 사용자가 마지막 단계로 미룬 1~4단계 검증을 실행했다. 전체 EditMode **319/323**, 전체 PlayMode **64/67**; 각각 skip/미완료0. 관련 EditMode(Facility35·StoreStageData10·WorldScene12·먼지2) **59/59**, 새 착지/먼지 수명 PlayMode1건과 기존 단계 표시/실제 자산 로드4건 모두 통과.

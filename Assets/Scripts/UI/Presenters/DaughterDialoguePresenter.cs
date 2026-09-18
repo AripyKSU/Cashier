@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,7 +17,7 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     [SerializeField, Min(0f)] private float nodAngleDegrees = 6f;
     [SerializeField, Min(0f)] private float nodDistancePixels = 5f;
 
-    private Coroutine presentationCoroutine;
+    private Tween presentationTween;
     private DaughterDialogueViewData preparedViewData;
     private Vector2 portraitRestPosition;
     private Vector3 portraitRestScale;
@@ -89,7 +89,7 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         SoundManager.Instance?.PlaySfxForDuration(
             SoundKeys.DialogueVoice,
             DialogueVoiceDurationSeconds);
-        presentationCoroutine = StartCoroutine(playPresentation());
+        playPresentation();
     }
 
     private void OnDisable()
@@ -100,27 +100,35 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     }
 
     /// <summary>대사 타이핑과 등장 직후 두 번의 짧은 끄덕임을 함께 재생합니다.</summary>
-    /// <returns>정산 시간이 멈춰도 진행하는 표시 Coroutine.</returns>
-    private IEnumerator playPresentation()
+    private void playPresentation()
     {
         int characterCount = dialogue.textInfo.characterCount;
         if (characterCount == 0 && dialogue.text.Length > 0)
             throw new InvalidOperationException("딸 대사의 TMP 문자 정보를 생성하지 못했습니다.");
         float elapsedSeconds = 0f;
-        while (dialogue.maxVisibleCharacters < characterCount)
-        {
-            elapsedSeconds += Time.unscaledDeltaTime;
-            dialogue.maxVisibleCharacters = Mathf.Min(
-                characterCount,
-                Mathf.FloorToInt(elapsedSeconds * charactersPerSecond));
-            updatePortraitNod(elapsedSeconds);
-            yield return null;
-        }
+        float duration = characterCount / Mathf.Max(1f, charactersPerSecond);
+        if (duration <= 0f) { completePresentation(); return; }
+        presentationTween = DOTween.To(() => elapsedSeconds, value =>
+            {
+                elapsedSeconds = value;
+                dialogue.maxVisibleCharacters = Mathf.Min(characterCount,
+                    Mathf.FloorToInt(value * charactersPerSecond));
+                updatePortraitNod(value);
+            }, duration, duration).SetEase(Ease.Linear).SetUpdate(true)
+            .OnComplete(() =>
+            {
+                dialogue.maxVisibleCharacters = characterCount;
+                completePresentation();
+            });
+    }
 
+    /// <summary>타이핑 완료 시 자세·음성을 정리하고 완료를 한 번 통지합니다.</summary>
+    private void completePresentation()
+    {
         SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         restorePortrait();
-        presentationCoroutine = null;
-        if (hasCompleted) yield break;
+        presentationTween = null;
+        if (hasCompleted) return;
         hasCompleted = true;
         OnPresentationCompleted?.Invoke();
     }
@@ -170,8 +178,7 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     /// <summary>진행 중인 딸 대사 연출을 중복 실행 없이 중단합니다.</summary>
     private void stopPresentation()
     {
-        if (presentationCoroutine == null) return;
-        StopCoroutine(presentationCoroutine);
-        presentationCoroutine = null;
+        presentationTween?.Kill();
+        presentationTween = null;
     }
 }

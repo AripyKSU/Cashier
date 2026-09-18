@@ -32,6 +32,14 @@
 - 동일 키의 생성 진행 중 요청은 false를 반환한다. 준비된 기존 풀은 동일 타입·정원이고 열려 있을 때만 true다. 이 경우 최초 parent·hook 설정을 유지하고 추가 prewarm은 하지 않는다.
 - `TryGetPool`은 준비 완료·미종료·타입 일치 풀만 반환한다. `ClearPool`은 등록을 제거하므로 같은 키로 새 풀을 생성할 수 있다.
 
+### 표시 객체 소비자 규칙 (2026-09-18)
+
+- 손님은 기존 공용 `CustomerGenerator.resourceIdx/speechIdx` → ResourceData → Prefab 경로를 유지한다. 표시용 ID를 새로운 DataTable 컬럼이나 Catalog로 분리하지 않는다.
+- 상품은 이미 직렬화된 `itemPrefab`을 로컬 `SimplePool<SaleSortingItemView>`로 재사용한다. 이를 위해 새 Resource ID나 Addressables 항목을 만들지 않는다.
+- 반환 전 해당 소비자의 Tween을 `Kill(false)`하고 이벤트 구독·조작 상태를 정리한다. 재대여 시 이전 방문/거래의 위치·색·알파·텍스트·속도가 남지 않도록 초기화한다.
+- Tween 완료는 도메인 완료와 구분한다. 취소·비활성화·풀 반환이 거래 또는 표현 완료 이벤트를 대신 발생시키면 안 된다.
+- 일회 생성 후 캐시하는 객체와 드문 단계별 Prefab 교체는 반복 생성 근거 없이 Pool로 바꾸지 않는다. 적용·유지·후속 후보는 [검토 기록](work/refactor-pattern-20260918.md)을 참조한다.
+
 ## 검증 방법
 
 [TESTING.md](TESTING.md)의 PlayMode ResourcePoolTests를 실행한다. 별도 InitScene Play 또는 ValidateResourcePool 셸은 사용하지 않는다. 표준 Test Runner의 임시 씬에서 테스트 소유 manager·provider·locator·객체만 만들고 정리한다.

@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -18,7 +18,7 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
     /// <summary>왼쪽 페이지 완료 후 오른쪽 페이지를 쓰기 전 대기 시간입니다.</summary>
     [SerializeField, Min(0f)] private float pageIntervalSeconds = 0.25f;
 
-    private Coroutine typingCoroutine;
+    private Sequence typingTween;
     private bool hasCompleted;
 
     /// <summary>양쪽 페이지의 모든 문자가 공개됐을 때 한 번 발생합니다.</summary>
@@ -34,7 +34,7 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
         setPageText(leftPageText, ledgerText.LeftPage);
         setPageText(rightPageText, ledgerText.RightPage);
         SoundManager.Instance?.PlayLoopSfx(SoundKeys.LedgerWrite);
-        typingCoroutine = StartCoroutine(playTyping());
+        playTyping();
     }
 
     /// <summary>진행 중인 연출을 중단하고 양쪽 페이지의 전체 문구를 즉시 표시합니다.</summary>
@@ -69,44 +69,36 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
         if (rightPageText != null) rightPageText.text = string.Empty;
     }
 
-    /// <summary>비활성화된 화면에서 타이핑 Coroutine이 남지 않도록 정리합니다.</summary>
+    /// <summary>비활성화된 화면에서 타이핑 트윈이 남지 않도록 정리합니다.</summary>
     private void OnDisable()
     {
         stopTyping();
     }
 
     /// <summary>왼쪽 페이지 완료 후 실시간 간격을 두고 오른쪽 페이지를 공개합니다.</summary>
-    /// <returns>페이지 타이핑 Coroutine입니다.</returns>
-    private IEnumerator playTyping()
+    private void playTyping()
     {
-        yield return revealPage(leftPageText);
-
-        float remainingSeconds = pageIntervalSeconds;
-        while (remainingSeconds > 0f)
-        {
-            remainingSeconds -= Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        yield return revealPage(rightPageText);
-        typingCoroutine = null;
-        notifyCompleted();
+        typingTween = DOTween.Sequence().SetUpdate(true)
+            .Append(revealPage(leftPageText))
+            .AppendInterval(Mathf.Max(0f, pageIntervalSeconds))
+            .Append(revealPage(rightPageText))
+            .OnComplete(() => { typingTween = null; notifyCompleted(); });
     }
 
     /// <summary>레이아웃을 유지한 채 TMP의 표시 문자 수만 실시간으로 늘립니다.</summary>
     /// <param name="pageText">순차 공개할 TMP 영역입니다.</param>
-    /// <returns>한 페이지의 타이핑 Coroutine입니다.</returns>
-    private IEnumerator revealPage(TextMeshProUGUI pageText)
+    /// <returns>시퀀스에 포함할 한 페이지의 문자 공개 트윈입니다.</returns>
+    private Tween revealPage(TextMeshProUGUI pageText)
     {
         pageText.ForceMeshUpdate();
         int characterCount = pageText.textInfo.characterCount;
         float visibleCharacters = 0f;
-        while (pageText.maxVisibleCharacters < characterCount)
-        {
-            visibleCharacters += charactersPerSecond * Time.unscaledDeltaTime;
-            pageText.maxVisibleCharacters = Mathf.Min(characterCount, Mathf.FloorToInt(visibleCharacters));
-            yield return null;
-        }
+        return DOTween.To(() => visibleCharacters, value =>
+            {
+                visibleCharacters = value;
+                pageText.maxVisibleCharacters = Mathf.Min(characterCount, Mathf.FloorToInt(value));
+            }, characterCount, characterCount / Mathf.Max(1f, charactersPerSecond))
+            .SetEase(Ease.Linear).OnComplete(() => pageText.maxVisibleCharacters = characterCount);
     }
 
     /// <summary>전체 문구를 먼저 배치하고 화면에 보이는 문자 수만 초기화합니다.</summary>
@@ -123,9 +115,8 @@ public sealed class DailySettlementLedgerView : MonoBehaviour
     private void stopTyping()
     {
         SoundManager.Instance?.StopLoopSfx(SoundKeys.LedgerWrite);
-        if (typingCoroutine == null) return;
-        StopCoroutine(typingCoroutine);
-        typingCoroutine = null;
+        typingTween?.Kill();
+        typingTween = null;
     }
 
     /// <summary>실행 전에 두 TMP 직렬화 참조가 준비됐는지 확인합니다.</summary>

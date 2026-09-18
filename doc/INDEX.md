@@ -59,6 +59,7 @@
 | [work/store-resource-exchange.md](work/store-resource-exchange.md) | 최신 가게 아트·단계별 설비 외형 Prefab | CSV FK·주소·화면 배치·검증 및 통합 주의점 |
 | [FINANCE_SCENE_WORKFLOW.md](FINANCE_SCENE_WORKFLOW.md) | 경제 런타임·FinanceScene | 경제 구성과 작업 흐름 |
 | [RESOURCE_POOL_CONTRACT.md](RESOURCE_POOL_CONTRACT.md) | 리소스 비동기 로드·풀 수명 | ResourceManager·Pool 계약 |
+| [work/refactor-pattern-20260918.md](work/refactor-pattern-20260918.md) | 사용자 Prefab·Pool·DOTween 패턴 적용 검토 | 수정·유지·후속 후보와 제한된 검증 결과 |
 | [SALE_ITEM_LAYOUT_RULES.md](SALE_ITEM_LAYOUT_RULES.md) | 판매 상품 위치·레이아웃 | 판매 상품 배치 규칙 |
 | [IMAGE_RESOURCE_INTEGRATION.md](IMAGE_RESOURCE_INTEGRATION.md) | 상품·손님 Sprite 연결 | 이미지 FK·migration·연결 |
 | [CUSTOMER_APPEARANCE_CLASSIFICATION.md](CUSTOMER_APPEARANCE_CLASSIFICATION.md) | 손님 외형의 이름·성별·연령 분류 검토 | 이미지45종 초안 분류; 런타임 기준은 CustomerAppearanceData.csv의 gender·age |

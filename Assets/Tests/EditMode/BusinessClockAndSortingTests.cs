@@ -185,6 +185,58 @@ public sealed class BusinessClockAndSortingTests
         Object.DestroyImmediate(root);
     }
 
+    /// <summary>연속 손님은 같은 상품 인스턴스를 빌리고 이전 조작·Transform 상태를 남기지 않습니다.</summary>
+    [Test]
+    public void SaleSortingPanel_ReusesPooledItem_WithResetState()
+    {
+        var root = new GameObject("SortingPoolRoot", typeof(RectTransform));
+        var itemRoot = new GameObject("ItemRoot", typeof(RectTransform));
+        itemRoot.transform.SetParent(root.transform, false);
+        var prefabObject = new GameObject("ItemPrefab", typeof(RectTransform), typeof(UnityEngine.UI.Image));
+        prefabObject.transform.SetParent(root.transform, false);
+        var prefab = prefabObject.AddComponent<SaleSortingItemView>();
+        var panel = root.AddComponent<SaleSortingPanel>();
+        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        var panelType = typeof(SaleSortingPanel);
+        panelType.GetField("itemPrefab", flags).SetValue(panel, prefab);
+        panelType.GetField("itemRoot", flags).SetValue(panel, (RectTransform)itemRoot.transform);
+        panelType.GetField("workArea", flags).SetValue(panel, (RectTransform)itemRoot.transform);
+
+        var basket = new[] { new CustomerBasketItemViewData(1001, "A", 1) };
+        panelType.GetField("pendingBasket", flags).SetValue(panel, basket);
+        panelType.GetMethod("createPendingItems", flags).Invoke(panel, null);
+        var items = (System.Collections.Generic.List<SaleSortingItemView>)panelType
+            .GetField("items", flags).GetValue(panel);
+        SaleSortingItemView first = items[0];
+        first.State = SaleSortingItemView.SortingState.Excluded;
+        first.OnBeginDrag(null);
+        first.transform.localRotation = Quaternion.Euler(0f, 0f, 25f);
+
+        panelType.GetMethod("clearItems", flags).Invoke(panel, null);
+        Assert.That(first.gameObject.activeSelf, Is.False);
+        panelType.GetField("pendingBasket", flags).SetValue(panel,
+            new[] { new CustomerBasketItemViewData(1002, "B", 1) });
+        panelType.GetMethod("createPendingItems", flags).Invoke(panel, null);
+
+        SaleSortingItemView second = items[0];
+        Assert.That(second, Is.SameAs(first));
+        Assert.That(second.gameObject.activeSelf, Is.True);
+        Assert.That(second.State, Is.EqualTo(SaleSortingItemView.SortingState.Working));
+        Assert.That(second.Manipulation, Is.EqualTo(SaleSortingItemView.ManipulationState.Idle));
+        Assert.That(second.IsDragging, Is.False);
+        Assert.That(second.Velocity, Is.EqualTo(Vector2.zero));
+        Assert.That(second.transform.localRotation, Is.EqualTo(Quaternion.identity));
+        Assert.That(second.transform.localScale, Is.EqualTo(Vector3.one));
+
+        panelType.GetMethod("clearItems", flags).Invoke(panel, null);
+        UnityEngine.TestTools.LogAssert.Expect(LogType.Error, "[SaleSortingPanel] 방문 상품은 최대 9개입니다.");
+        Assert.Throws<System.InvalidOperationException>(() => panel.BeginCustomer(
+            new[] { new CustomerBasketItemViewData(1003, "TooMany", 10) }));
+        Assert.That(items, Is.Empty, "정원 초과 주문은 일부 상품만 대여한 상태를 남기면 안 됩니다.");
+        panelType.GetField("itemPool", flags).SetValue(panel, null);
+        Object.DestroyImmediate(root);
+    }
+
     [TestCase(false, 0f, 0f, SaleSortingHandCursor.HandCursorState.Released)]
     [TestCase(true, 0f, 0f, SaleSortingHandCursor.HandCursorState.HoldingStill)]
     [TestCase(true, -80f, 0f, SaleSortingHandCursor.HandCursorState.HoldingLeft)]

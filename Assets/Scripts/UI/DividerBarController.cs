@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
@@ -63,6 +64,7 @@ public sealed class DividerBarController : MonoBehaviour
     private bool hasSample;
     private Vector2 movementDelta;
     private Color originalColor = Color.white;
+    private Tween hintTween;
 
     /// <summary>현재 밀대의 로컬 위치입니다.</summary>
     public Vector2 Position => this.barRect != null ? this.barRect.anchoredPosition : Vector2.zero;
@@ -106,6 +108,14 @@ public sealed class DividerBarController : MonoBehaviour
     // =========================================================================
     // 4. PUBLIC API
     // =========================================================================
+
+    /// <summary>입력 수명 종료 시 시각 힌트만 정리합니다.</summary>
+    private void OnDisable()
+    {
+        this.hintTween?.Kill();
+        this.hintTween = null;
+        if (this.barImage != null) this.barImage.color = this.originalColor;
+    }
 
     /// <summary>작업대 영역과 초기 위치를 설정하고 왼쪽 끝 대기 위치로 이동합니다.</summary>
     /// <param name="workAreaRect">작업대 RectTransform입니다.</param>
@@ -232,9 +242,7 @@ public sealed class DividerBarController : MonoBehaviour
 
             if (this.barImage != null)
             {
-                // 잡기 대기 중에는 부드러운 밝기 펄스로 클릭 가능함을 안내
-                float pulse = 0.85f + 0.15f * Mathf.Sin(Time.unscaledTime * 4f);
-                this.barImage.color = new Color(this.originalColor.r * pulse, this.originalColor.g * pulse, this.originalColor.b * pulse, this.originalColor.a);
+                this.updateIdleHint();
             }
             return;
         }
@@ -382,6 +390,23 @@ public sealed class DividerBarController : MonoBehaviour
     // =========================================================================
     // 5. HELPER METHODS
     // =========================================================================
+
+    /// <summary>조작·충돌 계산과 분리된 밝기 힌트만 기존 실시간 위상으로 표시합니다.</summary>
+    private void updateIdleHint()
+    {
+        if (this.hintTween == null)
+        {
+            float phase = 0f;
+            this.hintTween = DOTween.To(() => phase, value =>
+            {
+                phase = value;
+                float pulse = .85f + .15f * Mathf.Sin(value);
+                this.barImage.color = new Color(this.originalColor.r * pulse,
+                    this.originalColor.g * pulse, this.originalColor.b * pulse, this.originalColor.a);
+            }, Mathf.PI * 2f, Mathf.PI * .5f).SetEase(Ease.Linear).SetAutoKill(false).Pause();
+        }
+        this.hintTween.Goto(Mathf.Repeat(Time.unscaledTime, Mathf.PI * .5f));
+    }
 
     private Vector2 getClosestPointOnSegment(Vector2 a, Vector2 b, Vector2 p)
     {

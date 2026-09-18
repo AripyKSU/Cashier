@@ -119,12 +119,41 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         this.rectTransform.pivot = new Vector2(0.5f, 0.5f);
         this.rectTransform.sizeDelta = Vector2.one * sizePixels;
         this.transform.localScale = Vector3.one;
+        this.transform.localRotation = Quaternion.identity;
         this.itemImage.sprite = sprite;
         this.itemImage.preserveAspect = true;
         this.itemImage.raycastTarget = true;
 
         this.UpdateVisualState();
         this.gameObject.SetActive(true);
+    }
+
+    /// <summary>풀 반환 전에 드래그 구독과 이전 손님의 표시·물리 상태를 제거합니다.</summary>
+    internal void ResetForPool()
+    {
+        if (this.rectTransform == null)
+        {
+            this.rectTransform = (RectTransform)this.transform;
+            this.itemImage = this.GetComponent<Image>();
+        }
+
+        this.DragStarted = null;
+        this.Dragged = null;
+        this.DragEnded = null;
+        this.workArea = null;
+        this.isDragging = false;
+        this.State = SortingState.Working;
+        this.Manipulation = ManipulationState.Idle;
+        this.Velocity = Vector2.zero;
+        this.rectTransform.anchoredPosition = Vector2.zero;
+        this.transform.localScale = Vector3.one;
+        this.transform.localRotation = Quaternion.identity;
+        if (this.itemImage != null)
+        {
+            this.itemImage.sprite = null;
+            this.itemImage.color = Color.white;
+            this.itemImage.raycastTarget = true;
+        }
     }
 
     /// <summary>마우스 클릭 시 드래그 준비를 처리합니다.</summary>

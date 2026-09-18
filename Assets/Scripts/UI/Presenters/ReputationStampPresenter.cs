@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,7 +16,7 @@ public sealed class ReputationStampPresenter : MonoBehaviour
     [SerializeField, Min(1f)] private float startScale = 1.65f;
     [SerializeField, Min(0f)] private float impactRotationDegrees = 4f;
 
-    private Coroutine presentationCoroutine;
+    private Tween presentationTween;
     private Vector3 restScale;
     private Quaternion restRotation;
     private int preparedDay = -1;
@@ -62,6 +62,8 @@ public sealed class ReputationStampPresenter : MonoBehaviour
         restoreTransform();
     }
 
+    /// <summary>준비된 도장의 트윈을 재시작합니다. 완료된 날짜는 다시 통지하지 않습니다.</summary>
+    /// <exception cref="InvalidOperationException">도장 데이터 또는 필수 참조가 준비되지 않은 경우입니다.</exception>
     public void Present()
     {
         ValidateReferences();
@@ -70,17 +72,17 @@ public sealed class ReputationStampPresenter : MonoBehaviour
         stopPresentation();
         impactSoundPlayed = false;
         stampImage.enabled = true;
-        presentationCoroutine = StartCoroutine(playPresentation());
+        playPresentation();
     }
 
-    private IEnumerator playPresentation()
+    /// <summary>도장의 충격·반동을 하나의 트윈으로 진행하고 끝에서만 완료를 통지합니다.</summary>
+    private void playPresentation()
     {
         RectTransform rect = stampImage.rectTransform;
-        float elapsed = 0f;
-        while (elapsed < durationSeconds)
+        float progressValue = 0f;
+        presentationTween = DOTween.To(() => progressValue, progress =>
         {
-            elapsed += Time.unscaledDeltaTime;
-            float progress = Mathf.Clamp01(elapsed / durationSeconds);
+            progressValue = progress;
             float impactProgress = Mathf.Clamp01(progress / 0.58f);
             float scale = Mathf.Lerp(startScale, 1f, 1f - Mathf.Pow(1f - impactProgress, 3f));
             float shake = progress < 0.58f ? 0f : Mathf.Sin((progress - 0.58f) * Mathf.PI * 8f)
@@ -92,13 +94,14 @@ public sealed class ReputationStampPresenter : MonoBehaviour
             }
             rect.localScale = restScale * scale;
             rect.localRotation = restRotation * Quaternion.Euler(0f, 0f, shake);
-            yield return null;
-        }
-        restoreTransform();
-        presentationCoroutine = null;
-        if (hasCompleted) yield break;
-        hasCompleted = true;
-        OnPresentationCompleted?.Invoke();
+        }, 1f, durationSeconds).SetEase(Ease.Linear).SetUpdate(true).OnComplete(() =>
+        {
+            restoreTransform();
+            presentationTween = null;
+            if (hasCompleted) return;
+            hasCompleted = true;
+            OnPresentationCompleted?.Invoke();
+        });
     }
 
     private Sprite selectSprite(int reputation)
@@ -117,11 +120,11 @@ public sealed class ReputationStampPresenter : MonoBehaviour
         stampImage.rectTransform.localRotation = restRotation;
     }
 
+    /// <summary>완료 이벤트 없이 현재 표시 트윈만 중단합니다.</summary>
     private void stopPresentation()
     {
-        if (presentationCoroutine == null) return;
-        StopCoroutine(presentationCoroutine);
-        presentationCoroutine = null;
+        presentationTween?.Kill();
+        presentationTween = null;
     }
 
     private void OnDisable()
