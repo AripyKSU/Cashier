@@ -309,6 +309,20 @@ public class GameSceneManager : Singleton<GameSceneManager>
                 await LoadRequiredResourceAsync<Sprite>(daughter.ResourceIdx.Value, resources, loadedSpriteIds, cancellationToken);
         await loading.WaitForCurrentPhaseCycleAsync();
 
+        // simplepool에서 prefab을 풀링
+
+        if(tables.GetDB<ResourceDataTable>(DataTableType.Resource).TryGetResource(CustomerGenerator.resourceIdx, out var worldVisitResData))
+        {
+            await ResourceManager.Instance.LoadAssetAsyncTask<GameObject>(worldVisitResData.Path);
+            await SimplePoolManager.Instance.CreatePoolAsync<WorldVisit>(worldVisitResData.Path, CustomerQueue.Capacity + 2, CustomerQueue.Capacity + 2, SimplePoolManager.Instance.transform);
+        }
+
+        if (tables.GetDB<ResourceDataTable>(DataTableType.Resource).TryGetResource(CustomerGenerator.speechIdx, out var worldSpeechResData))
+        {
+            await ResourceManager.Instance.LoadAssetAsyncTask<GameObject>(worldSpeechResData.Path);
+            await SimplePoolManager.Instance.CreatePoolAsync<WorldQueueSpeech>(worldSpeechResData.Path, CustomerQueue.Capacity + 2, CustomerQueue.Capacity + 2, SimplePoolManager.Instance.transform);
+        }
+
         loading.SetLoadingPhase(3);
         StoreStageDataTable stages = tables.GetDB<StoreStageDataTable>(DataTableType.StoreStage);
         FacilityDataTable facilities = tables.GetDB<FacilityDataTable>(DataTableType.Facility);

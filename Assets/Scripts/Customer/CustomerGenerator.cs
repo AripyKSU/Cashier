@@ -11,6 +11,9 @@ using System.Collections.Generic;
 public sealed class CustomerGenerator
 {
     // 구형 호출부의 seed 재현을 위한 호환 경로 전용 난수원입니다. 신규 경로는 보관하지 않습니다.
+    public static readonly uint resourceIdx = 4419;
+    public static readonly uint speechIdx = 4420;
+
     private readonly Random compatibilityRandom;
     /// <summary>구성 snapshot을 방문 객체로 바꾸는 무상태 생성기입니다.</summary>
     public CustomerGenerator()
@@ -101,6 +104,8 @@ public sealed class CustomerGenerator
             composition.DiscountSaleTextIdx,
             composition.ExploitativeSaleTextIdx,
             composition.RejectTextIdx,
+            resourceIdx,
+            speechIdx,
             products,
             getCurrentPrices,
             composition.DispositionType,

@@ -45,6 +45,10 @@ public sealed class CustomerVisit
     private readonly uint exploitativeSaleTextIdx;
     /// <summary>생성 시 선택한 거절 대사.</summary>
     private readonly uint rejectTextIdx;
+    /// <summary>생성 시 사용할 외형 프리팹 id.</summary>
+    private readonly uint resourceIdx;
+    /// <summary>생성 시 사용할 말풍선 프리팹 id.</summary>
+    private readonly uint speechIdx;
     /// <summary>제출 완료 결과. null은 미판정이며 재정 반영 완료를 의미하지 않는다.</summary>
     public TransactionResult? Result { get; private set; }
     /// <summary>방문의 현재 상태. 이 객체의 API만 변경한다.</summary>
@@ -92,6 +96,10 @@ public sealed class CustomerVisit
     public uint AppearanceIdx { get; }
     /// <summary>이번 방문 생성에 사용한 성향 ID.</summary>
     public uint DispositionIdx { get; }
+    /// <summary>이번 방문 생성에 사용한 리소스 ID.</summary>
+    public uint ResourceIdx { get; }
+    /// <summary>이번 방문 생성에 사용한 말풍선 ID.</summary>
+    public uint SpeechIdx { get; }
     /// <summary>방문 생성 시 복사한 성향 타입. 이후 원본 DTO 변경에 영향받지 않는다.</summary>
     public CustomerDispositionType DispositionType { get; }
     /// <summary>성별·연령·특수 축에서 각각 하나씩 독립 추첨한 속성. 가격·대기 수치를 암묵적으로 변경하지 않는다.</summary>
@@ -122,7 +130,7 @@ public sealed class CustomerVisit
     /// <param name="moralityCalculator">제출 시 사용할 도덕성 계산기. null은 미평가다.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
-        int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
+        int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx, uint resourceIdx, uint speechIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
@@ -138,6 +146,8 @@ public sealed class CustomerVisit
         DispositionType = dispositionType;
         Attributes = attributes;
         AppearanceIdx = appearanceIdx;
+        ResourceIdx = resourceIdx;
+        SpeechIdx = speechIdx;
         DispositionIdx = dispositionIdx;
         Items = new List<CustomerOrderItem>(items).AsReadOnly();
         PriceTolerance = priceTolerance;
@@ -149,6 +159,8 @@ public sealed class CustomerVisit
         this.discountSaleTextIdx = discountSaleTextIdx;
         this.exploitativeSaleTextIdx = exploitativeSaleTextIdx;
         this.rejectTextIdx = rejectTextIdx;
+        this.resourceIdx = resourceIdx;
+        this.speechIdx = speechIdx;
         this.products = products;
         this.getCurrentPrices = getCurrentPrices;
         this.availableProductIds = new HashSet<uint>(availableProductIds);
