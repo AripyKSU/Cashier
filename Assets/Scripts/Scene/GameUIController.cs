@@ -935,14 +935,14 @@ public sealed class GameUIController : MonoBehaviour
     }
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-    /// <summary>영업 전 수동 검증을 위해 10일차를 새로 준비합니다.</summary>
-    private void handleDebugDay10Clicked() => DebugJumpToDay(10);
+    /// <summary>영업 전 수동 검증을 위해 7일차를 새로 준비합니다.</summary>
+    private void handleDebugDay10Clicked() => DebugJumpToDay(7);
 
-    /// <summary>영업 전 수동 검증을 위해 20일차를 새로 준비합니다.</summary>
-    private void handleDebugDay20Clicked() => DebugJumpToDay(20);
+    /// <summary>영업 전 수동 검증을 위해 13일차를 새로 준비합니다.</summary>
+    private void handleDebugDay20Clicked() => DebugJumpToDay(13);
 
-    /// <summary>영업 전 수동 검증을 위해 엔딩 전날인 30일차를 새로 준비합니다.</summary>
-    private void handleDebugDay30Clicked() => DebugJumpToDay(30);
+    /// <summary>영업 전 수동 검증을 위해 엔딩 전날인 19일차를 새로 준비합니다.</summary>
+    private void handleDebugDay30Clicked() => DebugJumpToDay(19);
 #endif
 
     /// <summary>테스트 날짜 점프를 진행 경계에 전달하고 화면을 갱신합니다.</summary>

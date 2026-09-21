@@ -11,7 +11,8 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 /// <summary>
 /// 데이터 테이블 매니저 (Singleton)
 /// CSV 데이터 테이블 전반의 비동기 로드, 파싱 및 캐싱을 총괄 관리합니다.
-/// 데이터 식별 및 검증은 오직 idx 기반(Util.GetDataTableType)으로만 수행합니다.
+/// 데이터 식별 및 검증은 행이 있는 CSV에서는 idx 기반(Util.GetDataTableType)으로 수행합니다.
+/// 이벤트·스케줄처럼 비활성화할 수 있는 테이블은 고유 header로 header-only CSV를 식별합니다.
 /// </summary>
 public class DataTableManager : Singleton<DataTableManager>
 {
@@ -222,13 +223,16 @@ public class DataTableManager : Singleton<DataTableManager>
             throw new InvalidDataException($"{assetName}: CSV 내용이 비어있습니다.");
         }
 
-        // 오직 idx 기반으로만 DataTableType 식별 (파일명 검사 없음)
-        uint firstIdx = this.extractFirstRowIdx(csvText);
-        DataTableType dtt = Util.GetDataTableType(firstIdx);
+        // 일반 CSV는 첫 idx로 식별한다. 이벤트 테이블은 비활성화 시 header만 남을 수 있다.
+        uint? firstIdx = this.extractFirstRowIdx(csvText);
+        DataTableType dtt = firstIdx.HasValue
+            ? Util.GetDataTableType(firstIdx.Value)
+            : this.getHeaderOnlyDataTableType(csvText);
 
         if (dtt == DataTableType.None)
         {
-            throw new InvalidDataException($"{assetName}: 첫 idx={firstIdx}의 테이블을 찾을 수 없습니다.");
+            string identity = firstIdx.HasValue ? $"첫 idx={firstIdx.Value}" : "header-only schema";
+            throw new InvalidDataException($"{assetName}: {identity}의 테이블을 찾을 수 없습니다.");
         }
 
         if (!this.dataList.TryGetValue(dtt, out var loader))
@@ -242,17 +246,35 @@ public class DataTableManager : Singleton<DataTableManager>
 
     /// <summary>따옴표·구분자 처리도 실제 CSV parser와 동일하게 첫 PK를 읽는다.</summary>
     /// <param name="csvText">CSV 원문.</param>
-    /// <returns>첫 행의 idx.</returns>
-    /// <exception cref="InvalidDataException">header 또는 첫 데이터 행 누락.</exception>
-    private uint extractFirstRowIdx(string csvText)
+    /// <returns>첫 행의 idx. 이벤트 테이블 header-only CSV면 null.</returns>
+    /// <exception cref="InvalidDataException">header 누락.</exception>
+    private uint? extractFirstRowIdx(string csvText)
     {
         using (var reader = new StringReader(csvText))
         using (var csv = new CsvReader(reader, Util.GetCsvConfiguration()))
         {
             if (!csv.Read()) throw new InvalidDataException("CSV header 누락");
             csv.ReadHeader();
-            if (!csv.Read()) throw new InvalidDataException("CSV 데이터 행 누락");
+            if (!csv.Read()) return null;
             return csv.GetField<uint>("idx");
+        }
+    }
+
+    /// <summary>행이 없는 이벤트 CSV의 고유 header로 로더를 선택한다.</summary>
+    /// <param name="csvText">header-only CSV 원문.</param>
+    /// <returns>PriceEvent 또는 PriceEventSchedule. 그 외 schema면 None.</returns>
+    private DataTableType getHeaderOnlyDataTableType(string csvText)
+    {
+        using (var reader = new StringReader(csvText))
+        using (var csv = new CsvReader(reader, Util.GetCsvConfiguration()))
+        {
+            if (!csv.Read()) throw new InvalidDataException("CSV header 누락");
+            csv.ReadHeader();
+            if (csv.HeaderRecord.SequenceEqual(new[] { "idx", "nameidx", "descriptionidx", "product_idxs", "product_types", "change_type", "change_value" }))
+                return DataTableType.PriceEvent;
+            if (csv.HeaderRecord.SequenceEqual(new[] { "idx", "event_idx", "channel", "start_day", "end_day", "repeat_days", "selection_weight" }))
+                return DataTableType.PriceEventSchedule;
+            return DataTableType.None;
         }
     }
 

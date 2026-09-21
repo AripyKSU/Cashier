@@ -412,10 +412,20 @@ public sealed class FacilityTests
         Assert.That(table.Rows[12010].PurchasePrice, Is.Zero);
         Assert.That(table.Rows.Values.Where(x => x.RequiredStoreStage == 1 &&
             (x.UpgradeKind == FacilityUpgradeKind.ProductUnlock || x.UpgradeKind == FacilityUpgradeKind.Convenience))
-            .Sum(x => x.PurchasePrice), Is.EqualTo(808000));
+            .Sum(x => x.PurchasePrice), Is.EqualTo(500000));
         Assert.That(table.Rows.Values.Where(x => x.RequiredStoreStage == 2 &&
             (x.UpgradeKind == FacilityUpgradeKind.ProductUnlock || x.UpgradeKind == FacilityUpgradeKind.Convenience))
-            .Sum(x => x.PurchasePrice), Is.EqualTo(2092000));
+            .Sum(x => x.PurchasePrice), Is.EqualTo(1300000));
+        Assert.That(table.Rows[12001].PurchasePrice, Is.EqualTo(200000));
+        Assert.That(table.Rows[12002].PurchasePrice, Is.EqualTo(200000));
+        Assert.That(table.Rows[12003].PurchasePrice, Is.EqualTo(500000));
+        Assert.That(table.Rows[12004].PurchasePrice, Is.EqualTo(500000));
+        Assert.That(table.Rows[12005].PurchasePrice, Is.EqualTo(1000000));
+        Assert.That(table.Rows[12006].PurchasePrice, Is.EqualTo(1000000));
+        Assert.That(table.Rows[12007].PurchasePrice, Is.EqualTo(100000));
+        Assert.That(table.Rows[12009].PurchasePrice, Is.EqualTo(300000));
+        Assert.That(table.Rows[12011].PurchasePrice, Is.EqualTo(600000));
+        Assert.That(table.Rows[12012].PurchasePrice, Is.EqualTo(5000000));
         Assert.That(table.Rows[12012].RequiredStoreStage, Is.EqualTo(3));
         Assert.That(table.Rows[12007].EffectType, Is.EqualTo(ConvenienceEffectType.DividerBar));
         Assert.That(table.Rows[12009].EffectType, Is.EqualTo(ConvenienceEffectType.AutoSorting));

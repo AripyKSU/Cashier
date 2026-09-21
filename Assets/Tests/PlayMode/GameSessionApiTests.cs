@@ -167,7 +167,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total));
         Assert.That(session.EndTradingDay(), Is.EqualTo(total));
         Assert.That(session.Economy.DailyAggregationService.TryApplyTransaction(visit.Result.Value), Is.False);
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total - 2000));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance + total - 5000));
         session.CompleteDay(0); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
     }
 
@@ -559,9 +559,9 @@ public sealed class GameSessionApiTests
     {
         long[] maintenanceAmounts = tables.GetDB<MaintenanceBalanceDataTable>(
             DataTableType.MaintenanceBalance).GetMaintenanceAmounts();
-        Assert.That(maintenanceAmounts.Length, Is.EqualTo(31));
-        for (int day = 1; day <= maintenanceAmounts.Length; day++)
-            Assert.That(maintenanceAmounts[day - 1], Is.EqualTo(2000 + ((day - 1) * 1000)));
+        long[] expectedMaintenance = { 5000, 5000, 10000, 10000, 15000, 15000, 25000, 25000, 35000, 35000,
+            50000, 50000, 75000, 75000, 100000, 100000, 150000, 150000, 200000, 250000 };
+        Assert.That(maintenanceAmounts, Is.EqualTo(expectedMaintenance));
 
         var progress = new GameProgress(session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
         progress.Start();
@@ -569,9 +569,9 @@ public sealed class GameSessionApiTests
         long previousBalance = session.Economy.QueryService.CurrentBalance;
         closeProgressDay(progress);
         var closed = progress.CurrentDayProgress;
-        Assert.That(closed.AggregationResult.Value.Expenses, Is.EqualTo(2000));
-        Assert.That(closed.AggregationResult.Value.NetProfit, Is.EqualTo(-2000));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previousBalance - 2000));
+        Assert.That(closed.AggregationResult.Value.Expenses, Is.EqualTo(5000));
+        Assert.That(closed.AggregationResult.Value.NetProfit, Is.EqualTo(-5000));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(previousBalance - 5000));
         progress.CompleteSettlement();
         Assert.Throws<InvalidOperationException>(() => closed.CompleteSettlement());
         Assert.Throws<InvalidOperationException>(() => session.CompleteDay(0));
@@ -599,11 +599,11 @@ public sealed class GameSessionApiTests
         Assert.That(progress.SubmitOffer(long.MaxValue,
             day.CurrentVisit.Items.Select(x => new SaleItem(x.ProductIdx, x.Quantity)).ToArray()), Is.False);
         LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(
-            @"\[Settlement\] DAY 1 .*2000 G.*0 G"));
+            @"\[Settlement\] DAY 1 .*5000 G.*0 G"));
         progress.CompleteTransactionResult();
         Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(day.SettlementResult.Value.PaidAmount, Is.Zero);
-        Assert.That(day.SettlementResult.Value.UnpaidAmount, Is.EqualTo(2000));
+        Assert.That(day.SettlementResult.Value.UnpaidAmount, Is.EqualTo(5000));
         Assert.That(day.SettlementResult.Value.GracePeriodEndDay, Is.EqualTo(4));
         Assert.That(session.ElapsedDays, Is.Zero);
         Assert.That(session.Economy.MaintenanceService.LastPaidDay, Is.Zero);
@@ -799,12 +799,12 @@ public sealed class GameSessionApiTests
         Assert.That(session.AdvanceTradingTime(1000), Is.False);
     }
 
-    /// <summary>가격표는 현재가·해금일을 사용하며 누락 가격과 다른 날짜 snapshot을 거부한다.</summary>
+    /// <summary>가격표는 이벤트가 없을 때도 기본 현재가·해금일을 사용하며 누락 가격과 다른 날짜 snapshot을 거부한다.</summary>
     [Test]
     public void ProgressPriceListUsesDailyPricesAndUnlockDay()
     {
-        // 첫날에도 가격 차이가 있도록 메모리의 사건 일정만 준비한다. 실제 초안 일정은 3일차부터다.
-        tables.GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Rows[10001].StartDay = 0;
+        Assert.That(tables.GetDB<PriceEventDataTable>(DataTableType.PriceEvent).Rows, Is.Empty);
+        Assert.That(tables.GetDB<PriceEventScheduleDataTable>(DataTableType.PriceEventSchedule).Rows, Is.Empty);
         var factory = new ProgressViewDataFactory(tables.Customers,
             tables.GetDB<TextDataTable>(DataTableType.Text), new System.Collections.Generic.Dictionary<uint, Sprite>());
         var product = tables.Customers.Products.Rows.Values.First();
@@ -815,11 +815,9 @@ public sealed class GameSessionApiTests
         progress.DebugJumpToDay(1); // SetUp에서 확정한 snapshot을 fixture 변경 후 재생성한다.
         string firstList = factory.CreatePriceListText(progress.CurrentDay, session.DailyPrices);
         Assert.That(firstList, Does.Not.Contain(name + "  ·"));
-        var discounted = CustomerProductAvailability.GetAvailableProducts(tables.Customers.Products.Rows, 0)
-            .First(x => session.DailyPrices.Prices[x.Idx] != x.BasePrice);
-        string discountedName = tables.GetDB<TextDataTable>(DataTableType.Text).Rows[discounted.NameIdx].Text;
-        Assert.That(firstList, Does.Contain($"{discountedName}  ·  {session.DailyPrices.Prices[discounted.Idx]:N0} G"));
-        Assert.That(firstList, Does.Not.Contain($"{discountedName}  ·  {discounted.BasePrice:N0} G"));
+        Assert.That(session.DailyPrices.NewspaperEventIdx, Is.Null);
+        Assert.That(session.DailyPrices.RadioEventIdx, Is.Null);
+        Assert.That(session.DailyPrices.Prices.All(pair => pair.Value == tables.Customers.Products.Rows[pair.Key].BasePrice), Is.True);
         Assert.Throws<InvalidOperationException>(() => factory.CreatePriceListText(2, session.DailyPrices));
         Assert.Throws<InvalidOperationException>(() => new DayProgress(2, session, tables.Customers, tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1)));
         closeProgressDay(progress); progress.CompleteSettlement();
@@ -1125,7 +1123,7 @@ public sealed class GameSessionApiTests
         progress.OpenBusiness();
         Assert.That(clock.CurrentBusinessMinutes, Is.EqualTo(BusinessHours.OpenMinutes));
         var day = progress.CurrentDayProgress;
-        Assert.That(day.BusinessDurationSeconds, Is.EqualTo(180f));
+        Assert.That(day.BusinessDurationSeconds, Is.EqualTo(120f));
         progress.Tick(90f);
         var refresh = typeof(GameUIController).GetMethod("refreshFrameViews", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
         refresh.Invoke(ui, null);
@@ -1260,9 +1258,9 @@ public sealed class GameSessionApiTests
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
     }
 
-    /// <summary>날짜 이벤트를 거쳐 실제 10일차 네 페이지가 한 번씩 진행된 뒤 퇴장하는지 검사한다.</summary>
+    /// <summary>날짜 이벤트를 거쳐 실제 7일차 네 페이지가 한 번씩 진행된 뒤 퇴장하는지 검사한다.</summary>
     [Test]
-    public void InspectorDayTenPagesAdvanceOnceWithoutFacilities()
+    public void InspectorDaySevenPagesAdvanceOnceWithoutFacilities()
     {
         // 시작금 초안과 무관하게 무매출 날짜 진행 중 유지비를 납부할 수 있게 한다.
         session.Economy.FinanceService.AddIncome(1_000_000, FinanceChangeReason.Sale);
@@ -1274,7 +1272,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.FacilityActivationDays, Is.Empty);
         Assert.That(session.CurrentStoreStage, Is.EqualTo(1));
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
-        while (progress.CurrentDay < 10)
+        while (progress.CurrentDay < 7)
         {
             completeInspectors(progress);
             closeProgressDay(progress); progress.CompleteSettlement();
@@ -1285,7 +1283,7 @@ public sealed class GameSessionApiTests
         Assert.That(snapshot.TextIdx, Is.EqualTo(8405));
         Assert.That(snapshot.PortraitResourceIdx, Is.EqualTo(4256));
         var text = tables.GetDB<TextDataTable>(DataTableType.Text);
-        Assert.That(text.Rows[8391].Text, Is.EqualTo("10일차: 딸과 시민권"));
+        Assert.That(text.Rows[8391].Text, Is.EqualTo("7일차: 딸과 시민권"));
         Assert.That(text.Rows[snapshot.TextIdx].Text.Count(character => character == '\n'), Is.EqualTo(2));
         long balance = session.Economy.QueryService.CurrentBalance;
         decimal morality = session.CurrentMorality;
@@ -1659,9 +1657,9 @@ public sealed class GameSessionApiTests
         var settlement = uiReference<DailySettlementPresenter>(ui, "dailySettlementPresenter");
         var ledger = uiReference<DailySettlementLedgerView>(settlement, "ledgerView");
         var leftPage = uiReference<TMPro.TextMeshProUGUI>(ledger, "leftPageText");
-        Assert.That(leftPage.text, Does.Contain("총지출  -2,000원"));
-        Assert.That(leftPage.text, Does.Contain("순이익  -2,000원"));
-        Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 2000:N0}원"));
+        Assert.That(leftPage.text, Does.Contain("총지출  -5,000원"));
+        Assert.That(leftPage.text, Does.Contain("순이익  -5,000원"));
+        Assert.That(leftPage.text, Does.Contain($"현재 보유금  {openingBalance - 5000:N0}원"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
         Assert.That(next.IsInteractable(), Is.False);
         UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
@@ -1681,7 +1679,7 @@ public sealed class GameSessionApiTests
         Assert.That(uiReference<GameInputRouter>(ui, "gameInputRouter").enabled);
         next.onClick.Invoke(); Assert.That(session.ElapsedDays, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001));
         Assert.That(open.gameObject.activeInHierarchy, Is.False);
-        session.Economy.FinanceService.AddIncome(3000, FinanceChangeReason.Sale); // 2일차 유지비를 전액 납부할 테스트 자금.
+        session.Economy.FinanceService.AddIncome(5000, FinanceChangeReason.Sale); // 2일차 유지비를 전액 납부할 테스트 자금.
         completeInspectors(progress);
         closeProgressDay(progress); yield return waitForSettlementReady(ui); open.onClick.Invoke();
         Assert.That(uiReference<UnityEngine.UI.Image>(rows[0], "soldOutImage").gameObject.activeSelf);
@@ -1707,7 +1705,7 @@ public sealed class GameSessionApiTests
         uiReference<UnityEngine.UI.Button>(row, "purchaseButton").onClick.Invoke();
         session.Economy.FinanceService.BalanceChanged -= fail;
         Assert.That(session.FacilityActivationDays.ContainsKey(12001));
-        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(openingBalance - 2000 - purchasePrice));
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(openingBalance - 5000 - purchasePrice));
         Assert.That(uiReference<UnityEngine.UI.Image>(row, "soldOutImage").gameObject.activeSelf);
         Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
         Assert.That(uiReferenceArray<FacilityPamphletSlotView>(panel, "stage1Slots").All(
@@ -1816,7 +1814,7 @@ public sealed class GameSessionApiTests
     /// <summary>시민권은 모든 선행 설비 보유 후 도덕성 부호에 따라 구매 당일 즉시 종료한다.</summary>
     [TestCase(1, -1, EndingKind.CitizenshipNegative)]
     [TestCase(7, 0, EndingKind.Good)]
-    [TestCase(31, 1, EndingKind.Good)]
+    [TestCase(20, 1, EndingKind.Good)]
     public void CitizenshipPurchaseImmediatelyFreezesMoralityEnding(int day, int morality, EndingKind expectedKind)
     {
         var progress = endingProgress(day);
@@ -1830,7 +1828,8 @@ public sealed class GameSessionApiTests
         typeof(GameSessionManager).GetField("currentMorality",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(session, (decimal)morality);
         var finance = session.Economy.FinanceService;
-        finance.TrySpend(finance.CurrentBalance - 9_999_999, FinanceChangeReason.Sale, out _);
+        long citizenshipPrice = tables.GetDB<FacilityDataTable>(DataTableType.Facility).Rows[12012].PurchasePrice;
+        finance.TrySpend(finance.CurrentBalance - (citizenshipPrice - 1), FinanceChangeReason.Sale, out _);
         Assert.That(progress.TryPurchaseFacility(12012, out var insufficient), Is.False);
         Assert.That(insufficient.Status, Is.EqualTo(FacilityPurchaseStatus.InsufficientFunds));
         finance.AddIncome(1, FinanceChangeReason.Sale);
@@ -1891,8 +1890,8 @@ public sealed class GameSessionApiTests
     }
 
     /// <summary>미납 유예 만료는 날짜와 무관하게 시민권 구매보다 먼저 게임오버를 확정한다.</summary>
-    [TestCase(30)]
-    [TestCase(31)]
+    [TestCase(19)]
+    [TestCase(20)]
     public void CitizenshipDebtDeadlineAlwaysFails(int day)
     {
         var progress = endingProgress(day);
@@ -1916,10 +1915,10 @@ public sealed class GameSessionApiTests
     [Test]
     public void CitizenshipGraceRemainingEndsBadWithoutPurchase()
     {
-        var progress = endingProgress(31);
+        var progress = endingProgress(20);
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _);
-        seedEndingDebt(29, 32);
-        LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY 31"));
+        seedEndingDebt(18, 21);
+        LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY 20"));
         settleEndingDay(progress);
         Assert.That(session.IsLastSettlementUnpaidGameOver, Is.False);
         progress.CompleteSettlement();
@@ -1936,12 +1935,12 @@ public sealed class GameSessionApiTests
         foreach (EndingKind expectedKind in new[] { EndingKind.GameOver, EndingKind.Bad, EndingKind.Good, EndingKind.CitizenshipNegative })
         {
             session.ResetSession(); session.InitializeNewGame(tables);
-            var progress = endingProgress(expectedKind == EndingKind.GameOver ? 30 : 31);
+            var progress = endingProgress(expectedKind == EndingKind.GameOver ? 19 : 20);
             if (expectedKind == EndingKind.GameOver)
             {
                 session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Sale, out _);
-                seedEndingDebt(27, 30);
-                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY 30"));
+                seedEndingDebt(16, 19);
+                LogAssert.Expect(LogType.Warning, new System.Text.RegularExpressions.Regex(@"\[Settlement\] DAY 19"));
                 settleEndingDay(progress);
             }
             else
@@ -2202,7 +2201,7 @@ public sealed class GameSessionApiTests
 
     /// <summary>현재 진행의 마지막 손님을 거절하고 일일 집계까지 실제 API로 종료한다.</summary>
     /// <param name="progress">시작된 영업 전 진행.</param>
-    private static void closeProgressDay(GameProgress progress)
+    private void closeProgressDay(GameProgress progress)
     {
         progress.OpenBusiness();
         var day = progress.CurrentDayProgress;
@@ -2211,7 +2210,9 @@ public sealed class GameSessionApiTests
         progress.CompleteTransactionResult();
         Assert.That(day.State, Is.EqualTo(DayProgressState.Settlement));
         Assert.That(day.AggregationResult.Value.SaleIncome, Is.Zero);
-        Assert.That(day.AggregationResult.Value.Expenses, Is.EqualTo(2000 + ((day.Day - 1) * 1000)));
+        long expectedMaintenance = tables.GetDB<MaintenanceBalanceDataTable>(DataTableType.MaintenanceBalance)
+            .GetMaintenanceAmounts()[day.Day - 1];
+        Assert.That(day.AggregationResult.Value.Expenses, Is.EqualTo(expectedMaintenance));
     }
 
     /// <summary>공개 catalog로 실제 가격 공급을 연결한 방문을 만든다.</summary>

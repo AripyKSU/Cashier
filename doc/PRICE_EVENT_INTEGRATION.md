@@ -2,36 +2,40 @@
 
 ## 데이터 밸런싱 초안 (2026-09-12)
 
-사용자가 승인한 순차 데이터 작업으로 기존 이벤트4개·일정5개의 ID와 스키마를 유지하면서 검증용 값을 교체했다. 식료품9001은−10%, 물9002는+15, 의약품9004는+15%다. 신문은 표시 영업일3·10·17·24·31일에9001,6·13·20·27일에 무효과9003을 보도한다. 라디오는 표시1~31일에9002/9004/9003을 가중치1/1/4로 예약한다. 경과일31(표시32일)부터는 후보가 없다. 가격 효과는 당일만 유효하며0~60초 방송 계약은 유지한다.
+이 문서는 가격 변동 이벤트의 데이터 계약과 재활성화 가능한 런타임 API를 기록한 과거 구현 이력이다. 현재 운영 데이터에서는 신문·라디오 사건과 스케줄을 사용하지 않는다.
 
-뉴스 설명8043·8045·8049를 수치와 방송 적용 시점에 맞춰 수정했다. 기존 테스트값을 최종 기획으로 확정한 것은 아니다. [비교표·매출/회수 그래프](work/balancing-reference/price-events-20260912/draft.md)와 [검증 기록](work/balancing-preparation.md)을 따른다. 아래 '초기 신문' 등 테스트용 수치는 당시 기록이다.
+과거 뉴스 TextData와 수치 조정 기록은 삭제된 운영 데이터의 이력으로만 남아 있었으며, 현재 TextData에서는 제거했다. [비교표·매출/회수 그래프](work/balancing-reference/price-events-20260912/draft.md)와 [검증 기록](work/balancing-preparation.md)은 당시 기록이다.
 
 상태: 2026-09-08 구현 및 개인 씬 최소 실행 검증 완료. 영업 시작 60초 이내 방송·방송 시 가격 반영 기준을 포함한다. Google Docs ID 목록 등록은 아래 사유로 보류.
 
-## 현재 데이터 운용 변경 (2026-09-14)
+## 현재 데이터 운용 변경 (2026-09-14, 리밸런싱 전 이력)
 
-- 라디오 가격 이벤트는 더 이상 사용하지 않는다. `PriceEventScheduleData.csv`에는 신문 채널 행만 남기고, 라디오 전용 이벤트·Text 행도 제거했다.
-- 기존 라디오 API와 아래 과거 구현 기록은 호환 코드 및 이력 설명이며, 현재 런타임 CSV에서는 라디오 후보가 생성되지 않는다.
+- 신문·라디오 가격변동 이벤트는 모두 폐기했다. `PriceEventData.csv`와 `PriceEventScheduleData.csv`는 header-only이며 관련 TextData 행도 제거했다.
+- 기존 신문·라디오 API와 아래 구현 기록은 재활성화 가능한 호환 코드이며, 현재 런타임 CSV에서는 어떤 후보도 생성되지 않는다.
+
+## 20일 리밸런싱 현재 데이터 (2026-09-21)
+
+- 런타임 CSV에는 이벤트·스케줄 행이 없다. 따라서 20일 전체에서 신문·라디오 후보, 방송, 가격 변동이 생성되지 않는다.
+- 기본 영업시간은 `DayProgress.DefaultBusinessDurationSeconds=120초`다. 이벤트 API와 방송 지연 계약은 데이터가 다시 승인될 때 사용할 수 있도록 유지한다.
 
 ## 현재 진행 연결 (2026-09-09)
 
-현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. DayProgress.Tick은 pause를 제외한 min(deltaSeconds, 남은 영업시간)만 세션 방송 API에 전달하며 Closing에서는 진행하지 않는다. 2026-09-12 밸런싱 초안으로 기본 영업시간을180초로 변경해 기존0~60초 예약 방송 범위를 포함한다. 명시적으로 짧은 영업시간을 지정하면 마감 뒤 방송은 여전히 취소된다. 현재 가격표는 ProgressViewDataFactory.CreatePriceListText(day, DailyPriceState)에서 같은 날짜의 현재가를 사용하고 누락 단가 fallback을 금지한다. 기존 Dev3 신문/전단 화면 설명은 아래 과거 연결이며 현 UI에 연결 완료한 의미가 아니다.
+현재 GameUIController → GameProgress/DayProgress가 세션을 명시 주입받는다. 이벤트 데이터가 없으므로 DayProgress는 방송을 예약하거나 진행하지 않으며, 가격표는 기본가격 snapshot을 사용한다. 이벤트 API의 pause·Closing 경계와 UI 연결 설명은 재활성화 시 적용할 과거 계약이다.
 
 EndTradingDay(out DailyAggregationResult result) overload는 기존 long EndTradingDay()와 종료 구현을 공유한다. 일반일 정산/상납 성공 후 GameProgress가 CompleteDay를 한 번 호출하고 다음날 가격을 준비한다. [MAINSCENE_INTEGRATION.md](MAINSCENE_INTEGRATION.md)에 실패·Closing 정책과 미연결 경계를 기록했다.
 
 ## 목적과 범위
 
-- 상품 CSV의 BasePrice는 고정 기본가격이다. 신문은 하루 시작에, 라디오 효과는 영업 중 방송 시점에 현재가에 반영한다. 거래는 SubmitOffer 시점의 최종 목록과 최신 현재 단가를 고정한다.
-- 신문은 주기적인 사건, 라디오는 랜덤 사건을 표현한다. 채널별 최대 1개이며 서로 독립적으로 발생한다.
-- 뉴스 부재와 가격 영향 없는 뉴스는 다르다. 신문/라디오 O/O, O/X, X/O, X/X를 허용한다.
-- 기존 전단지 UI에 신문 제목·설명을 연결한다. 라디오는 Debug.Log로 출력하며 별도 UI는 만들지 않는다.
+- 상품 CSV의 BasePrice는 고정 기본가격이다. 현재 운영 데이터에서는 이벤트가 없으므로 신문·라디오 효과 없이 기본가격이 현재가로 유지된다. 거래는 SubmitOffer 시점의 최종 목록과 현재 단가를 고정한다.
+- 신문·라디오의 독립 선정과 적용 API는 재활성화 시 사용할 수 있도록 유지한다. 현재는 채널 후보가 없다.
+- 기존 전단지·라디오 출력 API도 재활성화 시 사용할 수 있도록 보존하며, 현재는 표시·로그 대상 사건이 없다.
 - 재고·매입·명성·도덕성·저장 시스템은 이번 범위에 추가하지 않는다.
 
 ## 선행 확인
 
 - 사용자가 재생성한 t.ccpln6m1g4kv 탭에서 기존 배정 목록을 확인했다. 단일 권위 링크는 doc/CSV_RULES.md를 따른다.
 - 사용자가 9부터 사용하도록 명시적으로 승인하여 PriceEvent=9, PriceEventSchedule=10을 적용했다. 종료 표식은 값을 명시하지 않는 마지막 항목이다.
-- 테스트 행은 이벤트 9001~9004, 스케줄 10001~10005, 뉴스 TextData 8042~8049다. 기존 로컬 PK와 충돌하지 않는다. 병합 직전 다른 branch와 다시 확인한다.
+- 현재 테스트용 운영 행은 없다. 순수 API 회귀 테스트는 메모리 fixture로 이벤트를 구성하고 실제 CSV 테스트는 header-only 상태와 기본가격 유지를 검사한다.
 - 기존 Default Local Group·Datas 라벨 등록 승인을 받아 두 CSV를 확장자 없는 파일명 주소로 등록했다.
 - Google Docs 쓰기 전 필수 trusted-read 도구가 Windows 절대 경로를 거부하여 원격 ID 목록 갱신은 보류했다. 지원 환경에서 권위 목록 등록을 완료해야 한다.
 
@@ -145,10 +149,10 @@ EndTradingDay(out DailyAggregationResult result) overload는 기존 long EndTrad
 ## 테스트 사용법
 
 - 기존 개인 씬 선택을 유지한 채 InitScene부터 Play한다. NEW GAME → 여정 시작 → 영업 시작 → OPEN STORE로 거래한다.
-- 전단지 첫 페이지에서 신문 제목·설명과 현재가를 확인한다. 라디오는 발생한 날에만 Console의 `[Radio]` 로그를 확인한다.
+- 현재 운영 CSV에는 신문·라디오 행이 없으므로 전단지 제목·설명과 `[Radio]` 로그가 생성되지 않고, 가격표는 기본가격만 표시한다.
 - 상품 카드는 기본가격·희망 목록 생성 당시 단가를 표시한다. 최종 기준액은 제출 전 미확정이다. 거래 제안은 구매 목록 전체 총액을 입력한다.
 - 거래 판정 후 END DAY → COMPLETE DAY로 다음 날 이벤트를 확정한다. 상납일에는 기존 Finance 납부 절차가 먼저다.
-- 초기 신문은 경과 0일부터 2일 간격 식료품 -20%, 경과 3일부터 4일 간격 무효과 뉴스다. 라디오 후보는 물 +30, 의약품 +30%, 무효과 뉴스이며 가중치는 동일하다. 이 수치는 테스트용으로 기획 확정 시 CSV에서 교체한다.
+- 이벤트 재활성화 전에는 초기 신문·라디오 후보를 만들지 않는다. API 회귀 테스트의 사건은 운영 CSV와 분리된 메모리 fixture다.
 - 게임을 멈춘 상태에서 [TESTING.md](TESTING.md)의 EditMode PriceEventTests와 PlayMode GameSessionApiTests를 실행한다. UI/라디오 로그의 체감 시점은 위 사용법으로 별도 확인한다.
 
 ## 병합 시 특이사항

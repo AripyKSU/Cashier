@@ -250,10 +250,10 @@ public sealed class DailyGuidelineGenerator
 
     /// <summary>경과 일수에 대응하는 일일지침 수를 반환합니다.</summary>
     /// <param name="elapsedDays">게임 시작일부터 경과한 일수입니다. 0은 1일차입니다.</param>
-    /// <returns>1~2일차 0개, 3~19일차 1개, 20일차 이후 2개입니다.</returns>
+    /// <returns>1~2일차 0개, 3~12일차 1개, 13일차 이후 2개입니다.</returns>
     public static int GetGuidelineCount(uint elapsedDays)
     {
-        if (elapsedDays >= 19) return 2;
+        if (elapsedDays >= 12) return 2;
         if (elapsedDays >= 2) return 1;
         return 0;
     }

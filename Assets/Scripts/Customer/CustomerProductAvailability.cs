@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// 손님 생성과 상품 표시가 공유하는 날짜별 판매 가능 상품 규칙을 제공합니다.
@@ -105,9 +106,9 @@ public static class CustomerProductAvailability
 public sealed class DailyProductSelector
 {
     private const int BaseWeight = 100;
-    private const int Stage1Weight = 220;
-    private const int Stage2Weight = 280;
-    private const int Stage3Weight = 350;
+    private const int Stage1Weight = 250;
+    private const int Stage2Weight = 450;
+    private const int Stage3Weight = 700;
 
     // 같은 추첨기 인스턴스 안에서 일관된 난수 흐름을 사용합니다.
     private readonly Random random;
@@ -122,17 +123,17 @@ public sealed class DailyProductSelector
 
     /// <summary>게임 시작 후 경과 일수에 따른 일일 등장 상품 최대 종류 수를 반환합니다.</summary>
     /// <param name="elapsedDays">게임 시작일부터 경과한 0 이상의 일수입니다. 0은 1일차입니다.</param>
-    /// <returns>1~9일차 4종, 10~19일차 6종, 20일차 이후 8종입니다.</returns>
+    /// <returns>1~6일차 4종, 7~12일차 6종, 13일차 이후 8종입니다.</returns>
     public static int GetMaximumProductKinds(uint elapsedDays)
     {
-        if (elapsedDays >= 19) return 8;
-        if (elapsedDays >= 9) return 6;
+        if (elapsedDays >= 12) return 8;
+        if (elapsedDays >= 6) return 6;
         return 4;
     }
 
     /// <summary>해금 단계에 대응하는 상대 등장 가중치를 반환합니다.</summary>
     /// <param name="unlockStage">기본 또는 1~3단계 해금 단계입니다.</param>
-    /// <returns>기본 100, 1단계 220, 2단계 280, 3단계 350입니다.</returns>
+    /// <returns>기본 100, 1단계 250, 2단계 450, 3단계 700입니다.</returns>
     /// <exception cref="ArgumentOutOfRangeException">유효한 상품 해금 단계가 아닌 경우 발생합니다.</exception>
     public static int GetSelectionWeight(ProductUnlockStage unlockStage)
     {
@@ -170,11 +171,30 @@ public sealed class DailyProductSelector
         foreach (ProductData product in availableProducts)
         {
             ProductUnlockStage unlockStage = CustomerProductAvailability.GetUnlockStage(product, facilities);
-            candidates.Add(new WeightedProductCandidate(product, GetSelectionWeight(unlockStage)));
+            candidates.Add(new WeightedProductCandidate(product, unlockStage, GetSelectionWeight(unlockStage)));
         }
 
-        int selectionCount = Math.Min(GetMaximumProductKinds(elapsedDays), candidates.Count);
+        int maximumProductKinds = GetMaximumProductKinds(elapsedDays);
+        int selectionCount = Math.Min(maximumProductKinds, candidates.Count);
         var selected = new List<ProductData>(selectionCount);
+        if (selectionCount == 0) return selected.AsReadOnly();
+
+        ProductUnlockStage highestActiveStage = candidates.Max(candidate => candidate.UnlockStage);
+        List<WeightedProductCandidate> highestStageCandidates = candidates
+            .Where(candidate => candidate.UnlockStage == highestActiveStage)
+            .ToList();
+        int guaranteedCount = Math.Min(
+            GetMinimumHighestStageProducts(maximumProductKinds),
+            highestStageCandidates.Count);
+        for (int index = 0; index < guaranteedCount; index++)
+        {
+            int guaranteedIndex = this.random.Next(highestStageCandidates.Count);
+            ProductData guaranteedProduct = highestStageCandidates[guaranteedIndex].Product;
+            selected.Add(guaranteedProduct);
+            highestStageCandidates.RemoveAt(guaranteedIndex);
+            candidates.RemoveAll(candidate => candidate.Product.Idx == guaranteedProduct.Idx);
+        }
+
         while (selected.Count < selectionCount)
         {
             int totalWeight = 0;
@@ -210,22 +230,40 @@ public sealed class DailyProductSelector
         return selected.AsReadOnly();
     }
 
+    /// <summary>당일 최대 상품 수에 대응하는 최고 단계 상품 최소 등장 수를 반환합니다.</summary>
+    /// <param name="maximumProductKinds">당일 최대 상품 종류 수입니다.</param>
+    /// <returns>최고 활성 단계에서 먼저 선택할 상품 수입니다.</returns>
+    private static int GetMinimumHighestStageProducts(int maximumProductKinds)
+    {
+        return maximumProductKinds switch
+        {
+            4 => 1,
+            6 => 2,
+            8 => 2,
+            _ => throw new ArgumentOutOfRangeException(nameof(maximumProductKinds), maximumProductKinds, "지원하지 않는 일일 상품 종류 수입니다.")
+        };
+    }
+
     /// <summary>한 추첨 후보의 상품과 양수 상대 가중치입니다.</summary>
     private readonly struct WeightedProductCandidate
     {
         /// <summary>후보 상품입니다.</summary>
         public ProductData Product { get; }
+        /// <summary>상품 해금 단계입니다.</summary>
+        public ProductUnlockStage UnlockStage { get; }
         /// <summary>비복원 추첨에 사용할 상대 가중치입니다.</summary>
         public int Weight { get; }
 
         /// <summary>검증된 상품 후보를 생성합니다.</summary>
         /// <param name="product">null이 아닌 상품입니다.</param>
+        /// <param name="unlockStage">상품 해금 단계입니다.</param>
         /// <param name="weight">양수 상대 가중치입니다.</param>
         /// <exception cref="ArgumentNullException">상품이 null인 경우 발생합니다.</exception>
         /// <exception cref="ArgumentOutOfRangeException">가중치가 양수가 아닌 경우 발생합니다.</exception>
-        public WeightedProductCandidate(ProductData product, int weight)
+        public WeightedProductCandidate(ProductData product, ProductUnlockStage unlockStage, int weight)
         {
             Product = product ?? throw new ArgumentNullException(nameof(product));
+            UnlockStage = unlockStage;
             if (weight <= 0) throw new ArgumentOutOfRangeException(nameof(weight));
             Weight = weight;
         }

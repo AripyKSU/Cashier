@@ -111,7 +111,7 @@ public static class EndingAssetSetup
                     var dim = image("Dim", root.transform, new Color(0.015f, 0.02f, 0.025f, 0.8f));
                     stretch(dim.rectTransform);
                     label("Title", root.transform, "CASHIER", 64, new Vector2(0, 260), new Vector2(1200, 100));
-                    label("Subtitle", root.transform, "시민권을 향한 31일", 28, new Vector2(0, 170), new Vector2(1200, 60));
+                    label("Subtitle", root.transform, "시민권을 향한 20일", 28, new Vector2(0, 170), new Vector2(1200, 60));
                     var start = button("NewGame", root.transform, "새 게임", Vector2.zero, new Vector2(360, 80));
                     var quit = button("Quit", root.transform, "끝내기", new Vector2(0, -110), new Vector2(360, 80));
                     var status = label("Status", root.transform, string.Empty, 24, new Vector2(0, -240), new Vector2(1300, 100));

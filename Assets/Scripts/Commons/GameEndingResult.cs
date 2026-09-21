@@ -7,7 +7,7 @@ public enum EndingKind
     GameOver = 1,
     /// <summary>시민권 보유와 비음수 도덕성으로 종료.</summary>
     Good = 2,
-    /// <summary>31일차 시민권 미보유 종료.</summary>
+    /// <summary>20일차 시민권 미보유 종료.</summary>
     Bad = 3,
     /// <summary>시민권 보유와 음수 도덕성으로 종료.</summary>
     CitizenshipNegative = 4,

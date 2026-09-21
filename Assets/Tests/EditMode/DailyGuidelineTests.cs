@@ -103,10 +103,9 @@ public sealed class DailyGuidelineTests
     [TestCase(0u, 0)]
     [TestCase(1u, 0)]
     [TestCase(2u, 1)]
-    [TestCase(9u, 1)]
-    [TestCase(18u, 1)]
+    [TestCase(11u, 1)]
+    [TestCase(12u, 2)]
     [TestCase(19u, 2)]
-    [TestCase(30u, 2)]
     public void DailyGuidelineGenerator_GetGuidelineCount_FollowsDayThresholds(uint elapsedDays, int expectedCount)
     {
         Assert.That(DailyGuidelineGenerator.GetGuidelineCount(elapsedDays), Is.EqualTo(expectedCount));

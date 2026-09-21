@@ -28,7 +28,7 @@ public sealed class PriceEventData
     public ProductType[] ProductTypes { get; set; } = Array.Empty<ProductType>();
     /// <summary>0=효과 없음, 1=비율, 2=금액. 숫자로 읽고 enum으로 해석한다.</summary>
     [Name("change_type")] public uint ChangeTypeValue { get; set; }
-    /// <summary>부호 있는 증감량. 비율 -200은 20% 인하다.</summary>
+    /// <summary>부호 있는 증감량. 비율은 1000 기준의 signed rate다.</summary>
     [Name("change_value")] public int ChangeValue { get; set; }
     /// <summary>검증된 가격 효과 종류.</summary>
     [Ignore] public PriceChangeType ChangeType => (PriceChangeType)ChangeTypeValue;

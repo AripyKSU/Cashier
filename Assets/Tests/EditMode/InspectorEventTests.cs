@@ -20,7 +20,7 @@ public sealed class InspectorEventTests
         Assert.That(rows.Length, Is.EqualTo(7));
         foreach (var row in rows) Assert.DoesNotThrow(row.Validate);
         Assert.That(rows.Select(x => x.NameIdx), Is.EqualTo(new uint[] { 8389, 8390, 8391, 8392, 8393, 8394, 8395 }));
-        Assert.That(rows.Take(5).Select(x => x.Day), Is.EqualTo(new uint?[] { 1, 3, 10, 20, 30 }));
+        Assert.That(rows.Take(5).Select(x => x.Day), Is.EqualTo(new uint?[] { 1, 3, 7, 13, 19 }));
         Assert.That(rows.Take(5).All(x => !x.RequiredFacilityIdx.HasValue && !x.MinStoreStage.HasValue), Is.True);
         Assert.That(rows[5].Day, Is.Null); Assert.That(rows[5].RequiredFacilityIdx, Is.EqualTo(12008));
         Assert.That(rows[6].Day, Is.Null); Assert.That(rows[6].RequiredFacilityIdx, Is.EqualTo(12010));
@@ -40,7 +40,7 @@ public sealed class InspectorEventTests
         texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
         var textRows = (System.Collections.Generic.Dictionary<uint, TextData>)typeof(TextDataTable)
             .GetProperty("PendingRows", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(texts);
-        Assert.That(textRows.Count, Is.EqualTo(472), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
+        Assert.That(textRows.Count, Is.EqualTo(499), "따옴표 안 실제 개행은 한 CSV 레코드로 파싱되어야 합니다.");
         uint[] pageIds = rows.SelectMany(x => x.DialogueTextIdxs).ToArray();
         Assert.That(pageIds.Length, Is.EqualTo(26));
         Assert.That(rows.All(x => textRows.ContainsKey(x.NameIdx)) && pageIds.All(textRows.ContainsKey), Is.True);
@@ -66,13 +66,13 @@ public sealed class InspectorEventTests
         Assert.That(service.Current.EventIdx, Is.EqualTo(15001));
         finish(service);
         service.BeginDay(2, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
-        foreach ((uint day, uint eventIdx) in new[] { (3u, 15002u), (10u, 15003u), (20u, 15004u), (30u, 15005u) })
+        foreach ((uint day, uint eventIdx) in new[] { (3u, 15002u), (7u, 15003u), (13u, 15004u), (19u, 15005u) })
         {
             service.BeginDay(day, Array.Empty<uint>(), 1);
             Assert.That(service.Current.EventIdx, Is.EqualTo(eventIdx));
             finish(service);
         }
-        service.BeginDay(31, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
+        service.BeginDay(20, Array.Empty<uint>(), 1); Assert.That(service.HasPending, Is.False);
     }
 
     /// <summary>전체 조건 AND·priority/PK 정렬·완료 이력·중복 입력을 확인한다.</summary>

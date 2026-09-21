@@ -59,11 +59,11 @@ public class PreOpenPanelPresenter : MonoBehaviour
     public Button OpenBusinessButton => this.openBusinessButton;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-    /// <summary>10일차 이동용 임시 테스트 버튼입니다.</summary>
+    /// <summary>7일차 이동용 임시 테스트 버튼입니다.</summary>
     public Button DebugDay10Button => this.debugDay10Button;
-    /// <summary>20일차 이동용 임시 테스트 버튼입니다.</summary>
+    /// <summary>13일차 이동용 임시 테스트 버튼입니다.</summary>
     public Button DebugDay20Button => this.debugDay20Button;
-    /// <summary>30일차 이동용 임시 테스트 버튼입니다.</summary>
+    /// <summary>19일차 이동용 임시 테스트 버튼입니다.</summary>
     public Button DebugDay30Button => this.debugDay30Button;
 #endif
 

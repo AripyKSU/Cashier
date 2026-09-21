@@ -103,7 +103,8 @@ public sealed class GameProgress
     /// <exception cref="InvalidOperationException">현재 영업 전 상태가 아닌 경우 발생합니다.</exception>
     public void DebugJumpToDay(int displayDay)
     {
-        if (displayDay <= 0) throw new ArgumentOutOfRangeException(nameof(displayDay));
+        if (displayDay <= 0 || displayDay > GameSessionManager.FinalDay)
+            throw new ArgumentOutOfRangeException(nameof(displayDay), displayDay, $"표시 일차는 1~{GameSessionManager.FinalDay} 범위여야 합니다.");
         if (this.State != GameProgressState.DayInProgress ||
             this.currentDayProgress == null ||
             this.currentDayProgress.State != DayProgressState.PreOpen)
@@ -287,7 +288,7 @@ public sealed class GameProgress
             throw new InvalidOperationException("완료 통지의 하루 진행이 현재 상태와 일치하지 않습니다.");
         }
 
-        if (completedDay.Day == 31)
+        if (completedDay.Day == GameSessionManager.FinalDay)
         {
             this.applyTerminatingDayReputation(completedDay);
             this.session.FinalizeGame(EndingKind.Bad, completedDay.Day);

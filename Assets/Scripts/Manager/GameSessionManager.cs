@@ -6,6 +6,9 @@ using System.Linq;
 /// </summary>
 public sealed class GameSessionManager : Singleton<GameSessionManager>
 {
+    /// <summary>한 세션의 마지막 영업일입니다.</summary>
+    public const int FinalDay = 20;
+
     // 현재 게임 세션에서 사용하는 경제 런타임입니다.
     private EconomyRuntime economy;
     private DataTableManager dataTables;
@@ -199,8 +202,8 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
         if (!IsInitialized) throw new InvalidOperationException("세션 초기화 전입니다.");
         if (EndingResult.HasValue) throw new InvalidOperationException("종료한 세션에서는 설비를 구매할 수 없습니다.");
         if (facilities.IsCitizenship(facilityIdx) &&
-            (!isSettlement || !hasClosedDay || Economy.QueryService.IsDayOpen || ElapsedDays > 30 || IsLastSettlementUnpaidGameOver))
-            throw new InvalidOperationException("시민권은 게임오버가 아닌 1~31일차 정산 중에만 구매할 수 있습니다.");
+            (!isSettlement || !hasClosedDay || Economy.QueryService.IsDayOpen || ElapsedDays >= FinalDay || IsLastSettlementUnpaidGameOver))
+            throw new InvalidOperationException($"시민권은 게임오버가 아닌 1~{FinalDay}일차 정산 중에만 구매할 수 있습니다.");
         EnsureInspectorDay();
         if (InspectorEvents.HasPending) throw new InvalidOperationException("감독관 대사·퇴장 중에는 설비를 구매할 수 없습니다.");
         return facilities.TryPurchase(facilityIdx, out result);
@@ -437,7 +440,7 @@ public sealed class GameSessionManager : Singleton<GameSessionManager>
     /// <exception cref="InvalidOperationException">날짜 불일치, 영업 중 또는 미정산 상태.</exception>
     public void CompleteDay(uint completedDay)
     {
-        if (EndingResult.HasValue || IsLastSettlementUnpaidGameOver || completedDay >= 30)
+        if (EndingResult.HasValue || IsLastSettlementUnpaidGameOver || completedDay >= (uint)(FinalDay - 1))
             throw new InvalidOperationException("게임 종료일에는 다음 날을 시작할 수 없습니다.");
         if (!IsInitialized || !hasClosedDay || completedDay != ElapsedDays || economy.QueryService.IsDayOpen)
             throw new InvalidOperationException("날짜 완료 상태가 아닙니다.");

@@ -25,7 +25,7 @@ public sealed class PriceEventScheduleDataTable : IDataLoad
     /// <returns>존재 여부.</returns>
     public bool TryGetData(uint idx, out PriceEventScheduleData data) => dataDict.TryGetValue(idx, out data);
 
-    /// <summary>CSV 전체를 별도 사전에 검증한다. 공개는 DataTableManager의 FK 검사 후 수행한다.</summary>
+    /// <summary>CSV 전체를 별도 사전에 검증한다. 스케줄이 없으면 header-only CSV도 공개한다.</summary>
     /// <param name="csvText">CSV 원문.</param>
     /// <exception cref="Exception">header·형식·PK·행 값 오류.</exception>
     public void LoadData(string csvText)
@@ -47,7 +47,6 @@ public sealed class PriceEventScheduleDataTable : IDataLoad
                 item.Validate();
                 parsed.Add(item.Idx, item);
             }
-            if (parsed.Count == 0) throw new InvalidDataException("데이터 행 누락");
             PendingRows = parsed;
         }
         catch (Exception exception)

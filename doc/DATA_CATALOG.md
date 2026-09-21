@@ -16,9 +16,11 @@
 
 > 2026-09-15 손님 외형 분류 적용: CustomerAppearanceData에 기존 `CustomerAttributes` 숫자값을 사용하는 필수 `gender,age` 열을 추가했다. 45개 분류는 [외형 분류표](CUSTOMER_APPEARANCE_CLASSIFICATION.md)를 따르며 플레이 확인 뒤 수정할 수 있다.
 
-> 2026-09-13 감독관 전용 이미지 연결: Resource4256 → `Inspector` 추가로 Resource는56행이다. 1·10·21일 감독관 이벤트가 이 이미지를 참조한다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)를 참고한다.
+> 2026-09-13 감독관 전용 이미지 연결: Resource4256 → `Inspector` 추가로 Resource는56행이다. 감독관 이벤트가 이 이미지를 참조한다. 날짜 계약은 [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md)와 2026-09-21 리밸런싱 주석을 따른다.
 
 > 2026-09-13 시민권·엔딩 구현: 설비12012(100만G), EndingPage 종류18의 8행, Text8231~8234/8240~8247, Resource4255를 추가했다. 현재 Text242행·Resource55행·설비12행이다. 신규 스키마·소비 계약은 [시민권·엔딩 명세](CITIZENSHIP_ENDING.md#데이터구현-위치)를 우선하며, 아래 표와 부록의 과거 스냅샷에는 이 추가분이 포함되지 않는다.
+
+> 2026-09-21 20일 리밸런싱: 최종일20, 기본 영업시간120초, 시민권12012는5,000,000G다. 유지비는 표시1~20일 20개 행(총1,380,000G), 상품 기본가격은1,000~100,000G이며 원가는 모두 판매가의50%다. 상품 등장 상한은4/6/8종이고 최고 활성 단계 상품을1/2/2종 이상 보장한다. 감독관 날짜는1·3·7·13·19일이다. 신문·라디오 가격변동 이벤트 CSV는 폐기되어 header-only이며, 이벤트 런타임 API와 로더만 비활성 데이터 상태로 유지한다. 아래 부록 A 원문은 리밸런싱 전 스냅샷이므로 실제 CSV와 이 주석을 우선한다.
 
 > 2026-09-14 시설 업그레이드 진행 UI: 현재 단계 일반 설비와 진행 항목을 분리한 `FacilityShopViewData` 및 선행 조건 상태를 반영했다. 시민권12012는 3단계 일반 설비 완료 후 구매한다.
 
@@ -26,6 +28,7 @@
 
 - CSV 밸런스와 별도로 `BusinessHours`가 게임 속 시작09시·마감21시(540~1260분, 총720분)를 정의한다. 실제 영업 길이는 `DayProgress` 기본180초/생성자 입력이다(2026-09-12 밸런싱 초안 적용).
 - 진행 비율로 시계·배경을 연결하며 감독관·영업 전·일시정지에서는 영업 시간을 소비하지 않는다. 배경의 중간 전환값은 연출 설정으로 유지한다. [MainScene 계약](MAINSCENE_INTEGRATION.md#감독관공용-영업-시각-통합-2026-09-11)과 [검증 기록](work/inspector-events.md)을 참고한다.
+- 현재 리밸런싱 기준은 `DayProgress` 기본120초이며 위 180초 문장은 이전 검증 이력이다.
 
 > 2026-09-11 감독관 브랜치 `ad72b17` 이후: 2일차 임시 이벤트15003·Text8180/8181을 추가해 감독관3행·Text181행이다. 이전 `50155f1` 기준에서 관련 enum, 대기열·설비 연결 설명을 대조했다. [감독관 명세](INSPECTOR_SYSTEM_DRAFT.md), [전체 감사](FEATURE_CONTRACT_AUDIT.md).
 
@@ -45,7 +48,7 @@
 ## 2. 원본에서 화면까지
 
 1. [DataTableManager](../Assets/Scripts/Manager/DataTableManager.cs)가 `Datas` 라벨의 TextAsset을 가져온다. 후보가 없을 때만 기존 Resources/Editor fallback을 검사한다.
-2. 첫 데이터 행의 `idx / 1000`으로 로더를 선택한다. 파일명은 오류 문맥이며 종류 판정 키가 아니다. 각 테이블이 header·타입·중복·범위를 검사한다.
+2. 일반 CSV는 첫 데이터 행의 `idx / 1000`으로 로더를 선택한다. 이벤트·스케줄처럼 비활성화할 수 있는 테이블은 고유 header만 남은 경우에도 전용 로더가 빈 사전으로 등록한다. 파일명은 오류 문맥이며 종류 판정 키가 아니다. 각 테이블이 header·타입·중복·범위를 검사한다.
 3. [CustomerCatalog](../Assets/Scripts/Customer/Data/CustomerCatalog.cs)가 상품·성향·외형·분류·Text FK를 검사한다. 가격 이벤트 FK는 DataTableManager가 검사한다. 소비자는 전체 로딩 완료를 기다린다.
 4. [GameSessionManager](../Assets/Scripts/Manager/GameSessionManager.cs)가 경제 상태·0부터 시작하는 경과일·당일 현재가를 소유한다. [GameProgress](../Assets/Scripts/Progress/GameProgress.cs)와 [DayProgress](../Assets/Scripts/Progress/DayProgress.cs)는 이를 통해 진행한다.
 5. [CustomerCompositionSelector](../Assets/Scripts/Customer/CustomerCompositionSelector.cs)가 명성·성별 교대·설비 상태로 손님 구성 snapshot을 선택하고, [CustomerGenerator](../Assets/Scripts/Customer/CustomerGenerator.cs)가 이를 [CustomerVisit](../Assets/Scripts/Customer/CustomerVisit.cs)으로 변환한다. `CustomerVisit`은 최종 판매 목록과 제출 당시 현재가로 판정한다.
@@ -71,10 +74,10 @@
 |---|---:|---:|---|
 | [EconomyBalanceData](../Assets/Datas/EconomyBalanceData.csv) | 1 | 2 | 현재 데이터 경로 연결 |
 | [MaintenanceBalanceData](../Assets/Datas/MaintenanceBalanceData.csv) | 30 | 3 | 일자별 유지비 연결 |
-| [PriceEventData](../Assets/Datas/PriceEventData.csv) | 4 | 7 | 현재 데이터 경로 연결 |
-| [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 5 | 7 | 현재 데이터 경로 연결 |
+| [PriceEventData](../Assets/Datas/PriceEventData.csv) | 0 | 7 | header-only, 런타임 기능만 유지 |
+| [PriceEventScheduleData](../Assets/Datas/PriceEventScheduleData.csv) | 0 | 7 | header-only, 런타임 기능만 유지 |
 | [ResourceData](../Assets/Datas/ResourceData.csv) | 54 | 2 | 로더 연결, 개별 자산 미확인 |
-| [TextData](../Assets/Datas/TextData.csv) | 472 | 2 | 감독관 이름·대사, 2일차 확인 문구와 성향·성별·연령별 손님 대사 포함 |
+| [TextData](../Assets/Datas/TextData.csv) | 499 | 2 | 감독관 이름·대사, 2일차 확인 문구와 성향·성별·연령별 손님 대사 포함 |
 | [CustomerAppearanceData](../Assets/Datas/Customer/CustomerAppearanceData.csv) | 45 | 5 | 성별·연령 일치 외형 선택 연결 |
 | [CustomerDispositionData](../Assets/Datas/Customer/CustomerDispositionData.csv) | 15 | 64 | 구매·MainScene 대기열·명성별 성향 및 성별·연령 대사 선택 연결 |
 | [ProductCategoryData](../Assets/Datas/Customer/ProductCategoryData.csv) | 7 | 3 | 현재 데이터 경로 연결 |
@@ -87,7 +90,7 @@
 
 ### InspectorEventData
 
-종류15, PK15001~15007. `idx`, `nameidx`, `day`, `required_facility_idx`, `min_store_stage`, `priority`, `repeat_mode`, `dialogue_text_idxs`, `portrait_resource_idx`의 9열이다. 표시1·3·10·20·30일의 날짜 이벤트5개와2단계·3단계 확장 설비12008·12010의 구매 다음 날 이벤트2개이며 모두 Resource4256을 사용한다. 각 페이지는 TextData의 실제3줄 문자열이고, 날짜 이벤트와 겹친 설비 이벤트는 표시 없이 세션에서 소비한다. 조건의 빈값·AND 판정, 반복 enum, FK와 로드 검증은 [감독관 명세 3절](INSPECTOR_SYSTEM_DRAFT.md#3-데이터-계약)을 단일 계약으로 따른다. 실제 금전·명성·도덕성을 변경하지 않는다.
+종류15, PK15001~15007. `idx`, `nameidx`, `day`, `required_facility_idx`, `min_store_stage`, `priority`, `repeat_mode`, `dialogue_text_idxs`, `portrait_resource_idx`의 9열이다. 표시1·3·7·13·19일의 날짜 이벤트5개와2단계·3단계 확장 설비12008·12010의 구매 다음 날 이벤트2개이며 모두 Resource4256을 사용한다. 각 페이지는 TextData의 실제3줄 문자열이고, 날짜 이벤트와 겹친 설비 이벤트는 표시 없이 세션에서 소비한다. 조건의 빈값·AND 판정, 반복 enum, FK와 로드 검증은 [감독관 명세 3절](INSPECTOR_SYSTEM_DRAFT.md#3-데이터-계약)을 단일 계약으로 따른다. 실제 금전·명성·도덕성을 변경하지 않는다.
 
 ### ReputationBalanceData
 
@@ -133,47 +136,47 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### MaintenanceBalanceData
 
-현재 연결. `day`는 1부터 연속이며 EconomySettings → MaintenanceService로 전달된다. 영업 종료 시 해당 표시일의 유지비를 정산창 전에 자동 차감한다. 현 30일 이후는 마지막 금액 반복이 아니라 범위 오류다.
+현재 연결. `day`는 1부터 연속이며 EconomySettings → MaintenanceService로 전달된다. 영업 종료 시 해당 표시일의 유지비를 정산창 전에 자동 차감한다. 현 20일 이후는 마지막 금액 반복이 아니라 범위 오류다.
 
 근거: [CSV](../Assets/Datas/MaintenanceBalanceData.csv), [DTO](../Assets/Scripts/Finance/Data/MaintenanceBalanceData.cs), [DataTable](../Assets/Scripts/Finance/Data/MaintenanceBalanceDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 유지비 설정 PK | 필수·0 금지; 종류/중복 검사 | 없음 | 003001~003030 |
-| 2. `day` | Day · int | 적용 표시일, 1부터 | 필수; 양수·고유, 전체 1부터 연속 | 없음 | 1~30 |
-| 3. `maintenanceAmount` | MaintenanceAmount · long | 해당 일자 유지비, 정수 G | 필수; 양수 | 없음 | 200부터 100씩 증가, 30일 3100 |
+| 1. `idx` | Idx · uint | 유지비 설정 PK | 필수·0 금지; 종류/중복 검사 | 없음 | 003001~003020 |
+| 2. `day` | Day · int | 적용 표시일, 1부터 | 필수; 양수·고유, 전체 1부터 연속 | 없음 | 1~20 |
+| 3. `maintenanceAmount` | MaintenanceAmount · long | 해당 일자 유지비, 정수 G | 필수; 양수 | 없음 | 5000, 5000, 10000, 10000, 15000, 15000, 25000, 25000, 35000, 35000, 50000, 50000, 75000, 75000, 100000, 100000, 150000, 150000, 200000, 250000 |
 
 ### PriceEventData
 
-현재 연결. DataTableManager FK 검사 → PriceEventScheduler → GameSessionManager의 현재가. Text 제목/설명은 뉴스 전달용이다. 같은 사건이 두 채널에 잡히면 효과는 한 번만 적용한다.
+현재 CSV는 header-only다. DataTableManager는 빈 이벤트 사전과 빈 스케줄 사전을 공개하며, PriceEventScheduler → GameSessionManager의 런타임 기능과 FK 검증 경계는 재활성화용으로 유지한다.
 
 근거: [CSV](../Assets/Datas/PriceEventData.csv), [DTO](../Assets/Scripts/Commons/Data/PriceEventData.cs), [DataTable](../Assets/Scripts/Commons/Data/PriceEventDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 가격 효과 사건 PK | 필수; 종류 대역·고유 | 없음 | 9001, 9003 |
-| 2. `nameidx` | NameIdx · uint | 뉴스 제목 | 필수; 0 금지 | TextData.idx | 8042, 8046 |
-| 3. `descriptionidx` | DescriptionIdx · uint | 뉴스 설명 | 필수; 0 금지 | TextData.idx | 8043, 8047 |
+| 1. `idx` | Idx · uint | 가격 효과 사건 PK | 행이 있을 때 필수; 종류 대역·고유 | 없음 | 없음 |
+| 2. `nameidx` | NameIdx · uint | 뉴스 제목 | 행이 있을 때 필수; 0 금지 | TextData.idx | 없음 |
+| 3. `descriptionidx` | DescriptionIdx · uint | 뉴스 설명 | 행이 있을 때 필수; 0 금지 | TextData.idx | 없음 |
 | 4. `product_idxs` | ProductIdxs · uint[] | 효과 대상 개별 상품 | 빈 배열 허용; 0·중복 금지; 효과가 있으면 두 대상 목록 중 하나 이상 필요 | ProductData.idx | 빈 셀, 1001 |
 | 5. `product_types` | ProductTypes · ProductType[] | 효과 대상 분류; 개별 대상과 합집합 | 빈 배열 허용; None·중복·미정의 금지 | ProductType | 2, 빈 셀, 3 |
 | 6. `change_type` | ChangeTypeValue · uint → ChangeType | 0 무효과 / 1 비율 / 2 정액 | 필수; 0~2, End 금지 | PriceChangeType | 1, 2, 0 |
-| 7. `change_value` | ChangeValue · int | 부호로 상승/하락; Rate는1000=100%, Amount는G | 필수; Rate ≥ -1000, Amount는 int 범위. None이면0 및 대상 두 목록 모두 빈값 | 없음 | -200, 30, 0, 300 |
+| 7. `change_value` | ChangeValue · int | 부호로 상승/하락; Rate는1000 기준 | 행이 있을 때 필수; Rate ≥ -1000, Amount는 int 범위. None이면0 및 대상 두 목록 모두 빈값 | 없음 | 없음 |
 
 ### PriceEventScheduleData
 
-현재 연결. 채널별 날짜 후보에서 가중치로 최대1개를 고른다. 후보 없음과 무효과 사건 선택은 다르다. 라디오는 후보가 있으면 예약하되 실제 방송은 영업시간 경과 조건을 따른다.
+현재 CSV는 header-only다. 채널별 후보가 없어 세션의 신문·라디오 사건 ID와 방송완료 상태는 항상 비어 있으며, 채널별 선정·방송 API는 재활성화용으로 유지한다.
 
 근거: [CSV](../Assets/Datas/PriceEventScheduleData.csv), [DTO](../Assets/Scripts/Commons/Data/PriceEventScheduleData.cs), [DataTable](../Assets/Scripts/Commons/Data/PriceEventScheduleDataTable.cs).
 
 | 순서·컬럼 | C# 구성원·타입 | 의미·단위 | 빈값·0·검증 | FK/참조 | 현재 값 |
 |---|---|---|---|---|---|
-| 1. `idx` | Idx · uint | 선정 후보 스케줄 PK | 필수; 종류 대역·고유 | 없음 | 10001, 10002 |
-| 2. `event_idx` | EventIdx · uint | 실행할 사건 | 필수; 0 금지 | PriceEventData.idx | 9001, 9003 |
-| 3. `channel` | ChannelValue · uint → Channel | 신문1 / 라디오2 | 필수; 현재 데이터는 신문1만 사용 | PriceEventChannel | 1 |
-| 4. `start_day` | StartDay · uint | 최초 후보 경과일, 시작일0 | 필수; 0 허용 | ElapsedDays와 비교 | 0, 3 |
-| 5. `end_day` | EndDay · uint? | 후보 종료 경과일(포함) | 빈 셀=null 무기한; 숫자0은0일 종료; StartDay 이상 | 없음 | 빈 셀 |
-| 6. `repeat_days` | RepeatDays · uint | 신문 반복 간격, 게임 일수 | 필수; 신문0=시작일1회, 양수=간격; 라디오는0만 | 없음 | 2, 4, 0 |
-| 7. `selection_weight` | SelectionWeight · uint | 같은 채널·날짜 후보 사이 상대 가중치 | 필수; 양수. 선택 시 후보 총합 int.MaxValue 이하; 합1000 요구 없음 | 없음 | 1 |
+| 1. `idx` | Idx · uint | 선정 후보 스케줄 PK | 행이 있을 때 필수; 종류 대역·고유 | 없음 | 없음 |
+| 2. `event_idx` | EventIdx · uint | 실행할 사건 | 행이 있을 때 필수; 0 금지 | PriceEventData.idx | 없음 |
+| 3. `channel` | ChannelValue · uint → Channel | 신문1 / 라디오2 | 행이 있을 때 필수 | PriceEventChannel | 없음 |
+| 4. `start_day` | StartDay · uint | 최초 후보 경과일, 시작일0 | 행이 있을 때 필수; 0 허용 | ElapsedDays와 비교 | 없음 |
+| 5. `end_day` | EndDay · uint? | 후보 종료 경과일(포함) | 빈 셀=null 무기한; 숫자0은0일 종료; StartDay 이상 | 없음 | 없음 |
+| 6. `repeat_days` | RepeatDays · uint | 신문 반복 간격, 게임 일수 | 행이 있을 때 필수; 신문0=시작일1회, 양수=간격; 라디오는0만 | 없음 | 없음 |
+| 7. `selection_weight` | SelectionWeight · uint | 같은 채널·날짜 후보 사이 상대 가중치 | 행이 있을 때 필수; 양수. 선택 시 후보 총합 int.MaxValue 이하 | 없음 | 없음 |
 
 ### ResourceData
 
@@ -258,7 +261,7 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### ProductData
 
-현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본4·설비 해금12행이며 모두0일 등장이다. 이미지6종 연결·10종 양쪽 빈값이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
+현재 연결. CustomerCatalog → 생성 후보/최종 거래/현재가/상품 UI. IsAvailable && AvailableDay <= ElapsedDays && (필요 설비 없음 또는 활성)인 상품이 생성·가격표 후보다. 현재 기본4·설비 해금12행이며 모두0일 등장이다. 일일 상품은 경과일0~5에4종, 6~11에6종, 12~19에8종을 최대치로 사용하고 최고 활성 단계 상품을 각각1/2/2종 이상 보장한다. 이미지6종 연결·10종 양쪽 빈값이다. 원가는 결과에 기록만 되며 자동 지출이 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/ProductData.csv), [DTO](../Assets/Scripts/Commons/Data/ProductData.cs), [DataTable](../Assets/Scripts/Commons/Data/ProductDataTable.cs).
 
@@ -268,10 +271,10 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 | 2. `nameidx` | NameIdx · uint | 상품 표시 이름 | 필수; 0·빈값 금지 | TextData.idx | 8012, 8015~8018, 8021, 8061~8070, 8075 |
 | 3. `product_type` | ProductType · ProductType(uint) | 구매 선호와 이벤트·지침에 쓰는 분류 | 필수; 정의된 1~7, 숫자 converter | ProductCategoryData.product_type (enum 대응) | 1, 2, 3, 4, 5, 6, 7 |
 | 4. `is_available` | IsAvailable · bool | 판매 후보 활성 여부 | 필수; 정확히 0/1 | 없음 | 1 |
-| 5. `base_price` | BasePrice · uint | 상품 1개의 고정 기본가격, G | 필수; 양수 | 없음 | 100~6000, 전체 행은 부록 |
+| 5. `base_price` | BasePrice · uint | 상품 1개의 고정 기본가격, G | 필수; 양수 | 없음 | 1000~100000, 전체 행은 부록 |
 | 6. `available_day` | AvailableDay · uint | 등장 경과일, 시작일0 | 필수; 0 허용 | GameSessionManager.ElapsedDays와 비교 | 0 |
 | 7. `image_resource_idx` | ImageResourceIdx · uint? | 상품 기본 이미지 | 양쪽 빈값만 흰 사각형; 0·잘못된 FK 금지 | ResourceData.idx → Path → Sprite | 4246~4249,4254 또는 빈 셀 |
-| 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 50~3000, 전체 행은 부록 |
+| 8. `cost_price` | CostPrice · uint | 상품 1개의 원가, G | 필수; 양수, BasePrice 이하라는 제한 없음 | 없음 | 500~50000, 전체 행은 부록 |
 
 | 9. `required_facility_idx` | RequiredFacilityIdx · uint? | 해금에 필요한 설비 | 빈 셀=null 기본상품; 0·대역 오류·미존재 거부 | FacilityData.idx | 빈 셀,12001~12006 |
 | 10. `top_view_image_resource_idx` | TopViewImageResourceIdx · uint? | 작업대 탑뷰 이미지 | 기본 이미지와 함께 비우거나 유효 FK; 탑뷰 없으면 기본 FK 명시 | ResourceData.idx | 4246,4247,4251~4253 또는 빈 셀 |
@@ -284,22 +287,22 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 | 상품PK·이름 | 분류(enum) | 기본가격 G | 원가 G | 판매 조건 (등장일0 / 이미지 매핑은 별도) |
 |---|---|---:|---:|---|
-| 1001 물 | Water=1 | 100 | 50 | 기본 |
-| 1004 통조림 | Food=2 | 250 | 125 | 기본 |
-| 1005 분말 수프 | Food=2 | 150 | 75 | 설비 12001 |
-| 1006 영양바 | Food=2 | 200 | 100 | 설비 12001 |
-| 1007 붕대 | Medicine=3 | 300 | 150 | 기본 |
-| 1010 건전지 | DailyNecessities=4 | 200 | 100 | 기본 |
-| 1013 연고 | Medicine=3 | 500 | 250 | 설비 12002 |
-| 1014 응급 주사 | Medicine=3 | 900 | 450 | 설비 12002 |
-| 1015 손전등 | Tools=5 | 800 | 400 | 설비 12003 |
-| 1016 접이식 삽 | Tools=5 | 1000 | 500 | 설비 12003 |
-| 1018 무전기 | ElectricalEquipment=6 | 2000 | 1000 | 설비 12004 |
-| 1019 배터리 | ElectricalEquipment=6 | 1200 | 600 | 설비 12004 |
-| 1020 방독면 | ProtectiveEquipment=7 | 2500 | 1250 | 설비 12005 |
-| 1021 방호복 | ProtectiveEquipment=7 | 4000 | 2000 | 설비 12005 |
-| 1022 방사능 측정기 | ProtectiveEquipment=7 | 5000 | 2500 | 설비 12006 |
-| 1023 열화상 카메라 | ProtectiveEquipment=7 | 6000 | 3000 | 설비 12006 |
+| 1001 물 | Water=1 | 1000 | 500 | 기본 |
+| 1010 건전지 | DailyNecessities=4 | 2000 | 1000 | 기본 |
+| 1004 통조림 | Food=2 | 2500 | 1250 | 기본 |
+| 1007 붕대 | Medicine=3 | 3000 | 1500 | 기본 |
+| 1005 분말 수프 | Food=2 | 5000 | 2500 | 설비 12001 |
+| 1006 영양바 | Food=2 | 6000 | 3000 | 설비 12001 |
+| 1013 연고 | Medicine=3 | 8000 | 4000 | 설비 12002 |
+| 1014 응급 주사 | Medicine=3 | 10000 | 5000 | 설비 12002 |
+| 1015 손전등 | Tools=5 | 15000 | 7500 | 설비 12003 |
+| 1016 접이식 삽 | Tools=5 | 20000 | 10000 | 설비 12003 |
+| 1019 배터리 | ElectricalEquipment=6 | 25000 | 12500 | 설비 12004 |
+| 1018 무전기 | ElectricalEquipment=6 | 30000 | 15000 | 설비 12004 |
+| 1020 방독면 | ProtectiveEquipment=7 | 50000 | 25000 | 설비 12005 |
+| 1021 방호복 | ProtectiveEquipment=7 | 60000 | 30000 | 설비 12005 |
+| 1022 방사능 측정기 | ProtectiveEquipment=7 | 80000 | 40000 | 설비 12006 |
+| 1023 열화상 카메라 | ProtectiveEquipment=7 | 100000 | 50000 | 설비 12006 |
 
 모든 상품의 현재 원가는 기본가격의50%로 입력되어 있다. 이는 **현 행 값의 관계**이지 `CostPrice <= BasePrice` 검증이나 자동 원가 계산식이 아니다. 가격 이벤트는 CostPrice를 바꾸지 않는다.
 
@@ -329,23 +332,16 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### 가격 사건·스케줄
 
-| 사건 PK·제목 | 대상 | 효과 | 현재 스케줄 |
-|---|---|---|---|
-| 9001 식료품 공급 확대 | Food=2 전체 | Rate -200 = -20% | 신문10001: 경과0일부터2일 간격, 끝없음 |
-| 9003 지역 소식 | 없음 | None=0, 변화0 | 신문10002: 경과3일부터4일 간격 |
+현재 PriceEventData.csv와 PriceEventScheduleData.csv는 header-only다. 신문·라디오 가격변동 사건과 관련 TextData는 폐기되어 실제 세션에서 어떤 날짜에도 후보·방송·가격 변동이 생성되지 않는다. `PriceEventScheduler`, `DailyPriceState`, FK 검증과 채널 enum은 향후 재활성화할 수 있도록 보존한다.
 
-- 신문·라디오를 독립 선정한다. 같은 이벤트를 가리키는 스케줄 여러 행이 후보에 있으면 그 사건의 상대 가중치가 커진다.
-- 현재 CSV에는 라디오 후보가 없으므로 라디오 방송과 방송 시점 가격 교체가 발생하지 않는다.
-- 신문 효과는 당일 준비 시 적용하고, 라디오는 영업 시작 후 무작위 대기 시간이 지나면 새 현재가로 교체한다. 현재 지연은 `(float)(Random.NextDouble() * 60)`초다. 의도는0~60초 미만이며 float 변환 경계에서는60이 될 수 있다.
-- 현 GameUIController는 현재가 가격표를 사용하지만 신문 사건의 NameIdx/DescriptionIdx를 읽어 화면에 전달하는 호출은 없다. 신문 가격 효과 연결과 신문 기사 UI 연결을 구분한다. 라디오 제목·설명은 GameSessionManager의 방송 로그에서 사용한다.
-- 영업 기본값180초는 기존 라디오 예약 범위0~60초보다 길다. pause와 Closing에서는 방송 시계를 늘리지 않으며, 명시적으로 짧게 지정한 영업은 방송 시각 전에 끝날 수 있다. 방송 로그와 신문 화면 연결의 상세 상태는 [PRICE_EVENT_INTEGRATION](PRICE_EVENT_INTEGRATION.md)을 함께 확인한다.
-- 효과는 해당 날짜 기본가격에서 다시 계산한다. 대상 상품 목록과 분류 목록은 합집합이며 같은 사건·상품에 두 번 적용하지 않는다.
+- 빈 후보와 무효과 사건은 런타임에서 구분 가능하지만, 현재 데이터에는 사건 자체가 없다.
+- 상품 기본가격과 원가는 가격 이벤트와 독립적으로 유지된다.
 
-계산식(현재 코드의 해석):
+계산식(이벤트 API 재활성화 시 적용되는 현재 코드의 해석):
 
 `현재 단가 = max(1, floor(BasePrice × (1000 + 적용 Rate 합) / 1000) + 적용 Amount 합)`
 
-동일 사건의 두 채널 중복을 제거한 뒤 계산한다. 비율을 연속 곱하지 않는다. 결과는 uint 범위를 넘으면 예외다. Food 통조림1004는 기본250, 사건9001 적용 시200이다.
+동일 사건의 두 채널 중복을 제거한 뒤 계산한다. 비율을 연속 곱하지 않는다. 결과는 uint 범위를 넘으면 예외다. 현재 운영 데이터에는 선택된 사건이 없어 이 계산식이 실행되지 않는다.
 
 ### 거래·정산 해석
 
@@ -424,7 +420,7 @@ CSV 원본이 아니라 실행 중 생성·계산되는 값이다. 현재 구현
 
 | 계약·근거 | 데이터·단위·소유권 | 현재 상태/제약 |
 |---|---|---|
-| [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceAmounts:IReadOnlyList<long> 일자순 | CSV 두 테이블을 검증·복사한 설정. 현재 초기금100000/30일 유지비 |
+| [EconomySettings](../Assets/Scripts/Finance/EconomySettings.cs) | InitialBalance:long, MaintenanceAmounts:IReadOnlyList<long> 일자순 | CSV 두 테이블을 검증·복사한 설정. 현재 초기금100000/20일 유지비 |
 | [FinanceChangeResult](../Assets/Scripts/Finance/FinanceChangeResult.cs) | PreviousBalance:long 이전잔액, BalanceDelta:long 부호있는증감, CurrentBalance:long 이후잔액, Reason:FinanceChangeReason | FinanceService 결과; 날짜/상품 내역 아님 |
 | [EconomyLogEntry](../Assets/Scripts/Finance/EconomyLogEntry.cs) | Sequence:long 기록순번, PreviousBalance:long, BalanceDelta:long, CurrentBalance:long, Reason:FinanceChangeReason | LogService 결과. 순번은 CSV PK나 날짜 아님 |
 | [DailyAggregationResult](../Assets/Scripts/Finance/DailyAggregationResult.cs) | SaleIncome:long 당일 매출, Expenses:long 유지비, NetProfit:long 순익, ReputationDelta:int 거래 변화합, MoralityDelta:decimal 일일 변화합, Transactions:IReadOnlyList<TransactionResult> | 거래 snapshot을 확정하고 유지비 성공 후 최종 정산 결과를 공개. 일일 명성 최종값은 DailyReputationCalculationResult.FinalDelta |
@@ -465,11 +461,11 @@ DailySettlementPresenter는 확정된 유지비와 NetProfit을 표시한다. �
 
 [PriceListPanel.ItemPriceInfo](../Assets/Scripts/UI/PriceListPanel.cs)는 위 ItemPriceViewData와 별개인 중첩 DTO다. 전체 필드는 ItemName:string 표시명, Price:long 표시가격, SpecialNote:string 선택 문구(기본null), Icon:Sprite 선택 이미지(기본null)이며 상품 PK 필드가 없다. SetPriceList가 [PriceItemSlot.SetData](../Assets/Scripts/UI/PriceItemSlot.cs)에 전달한다. 현재 GameUIController의 문자열 가격표와는 미연결이다.
 
-PriceListPanel.autoPopulateSampleData는 SerializeField bool, 코드 기본true다. Start 시 true이고 생성 슬롯이0개면 PopulateSampleData를 호출한다. 별도 샘플6행은 아래와 같으며 실제 ProductData가 아니다. 20% OFF/1+1 EVENT는 표시 문구일 뿐 할인 계산 구현이 아니다. 모두 Icon=null이다.
+PriceListPanel.autoPopulateSampleData는 SerializeField bool, 코드 기본true다. Start 시 true이고 생성 슬롯이0개면 PopulateSampleData를 호출한다. 별도 샘플6행은 아래와 같으며 실제 ProductData가 아니다. SpecialNote는 가격 계산과 무관한 일반 표시 문구다. 모두 Icon=null이다.
 
 | ItemName | Price (G) | SpecialNote |
 |---|---:|---|
-| Fresh Apple | 1500 | 20% OFF |
+| Fresh Apple | 1500 | 추천 |
 | Organic Milk | 2200 | 1+1 EVENT |
 | Sweet Banana | 3500 | null |
 | Tuna Riceball | 1300 | null |
@@ -486,7 +482,7 @@ PriceListPanel.autoPopulateSampleData는 SerializeField bool, 코드 기본true�
 
 | 위치·원래 이름 | 타입 | 코드 기본 / 공유 prefab 값 | 의미·범위 |
 |---|---|---|---|
-| DayProgress.DefaultBusinessDurationSeconds | const float | 180초 / 현재 생성자 기본 사용 | 영업 제한시간. 생성자는 유한 양수 요구. 결과확인 중도 시간 진행, pause/Closing은 정지 |
+| DayProgress.DefaultBusinessDurationSeconds | const float | 120초 / 현재 생성자 기본 사용 | 영업 제한시간. 생성자는 유한 양수 요구. 결과확인 중도 시간 진행, pause/Closing은 정지 |
 | CustomerQueue.Capacity | const int | 10 / prefab 아님 | 대기 정원, 계산중 제외. 현재 UI 미연결 |
 | CustomerQueue.ArrivalSeconds | const double | 5초 | 자동 입장 간격, 첫 자동 입장5초후 |
 | CustomerQueue.SpeechSeconds | const double | 3초 | 재촉·이탈 대사 표시시간, 거래결과 확인시간 아님 |
@@ -651,22 +647,18 @@ idx,day,maintenanceAmount
 
 ### Assets/Datas/PriceEventData.csv
 
-데이터 2행, 7컬럼. SHA-256: `C444F78B3B017627CEE0E1614521918E3496A50F1841C013BE138D88CB7BC9EA`.
+데이터 0행, 7컬럼. 현재는 header-only이며 런타임 기능 재활성화를 위해 schema만 보존한다.
 
 ```csv
 idx,nameidx,descriptionidx,product_idxs,product_types,change_type,change_value
-9001,8042,8043,,2,1,-200
-9003,8046,8047,,,0,0
 ```
 
 ### Assets/Datas/PriceEventScheduleData.csv
 
-데이터 2행, 7컬럼. SHA-256: `87209FA10AE612B12A6E58F2C69210D9A489D6B856E0FA648BB449D9DF502FED`.
+데이터 0행, 7컬럼. 현재는 header-only이며 런타임 기능 재활성화를 위해 schema만 보존한다.
 
 ```csv
 idx,event_idx,channel,start_day,end_day,repeat_days,selection_weight
-10001,9001,1,0,,2,1
-10002,9003,1,3,,4,1
 ```
 
 ### Assets/Datas/ResourceData.csv
@@ -778,14 +770,6 @@ idx,text
 8039,이 정도면 납득할 수 있어요.
 8040,그 가격이면 다른 데서 사겠어요.
 8041,알아본 가격보다 비싸네요. 안 살게요.
-8042,식료품 공급 확대
-8043,오늘은 식료품 기본가격에서 20% 인하합니다.
-8044,생수 운송 지연
-8045,오늘은 물의 기본가격에 30이 추가됩니다.
-8046,지역 소식
-8047,오늘 지역 소식은 상품 가격에 영향을 주지 않습니다.
-8048,의약품 수요 증가
-8049,오늘은 의약품 기본가격에서 30% 인상합니다.
 8050,얼마나 더 기다려야 하나요?
 8051,너무 오래 걸리네요. 다음에 오겠습니다.
 8052,급한 일이 있어요. 서둘러 주세요!

@@ -51,9 +51,9 @@ public sealed class CustomerCsvTests
         }
     }
 
-    /// <summary>실제 경제 CSV의 시작금과 31일 유지비가 런타임 서비스까지 전달되는지 확인한다.</summary>
+    /// <summary>실제 경제 CSV의 시작금과 20일 유지비가 런타임 서비스까지 전달되는지 확인한다.</summary>
     [Test]
-    public void EconomyCsvSupportsDayThirtyOneSettlement()
+    public void EconomyCsvSupportsDayTwentySettlement()
     {
         var economy = new EconomyBalanceDataTable();
         economy.LoadData(File.ReadAllText("Assets/Datas/EconomyBalanceData.csv"));
@@ -66,9 +66,75 @@ public sealed class CustomerCsvTests
         for (int day = 1; day <= amounts.Length; day++)
             Assert.That(service.TryPay(day, out _), Is.True);
 
-        Assert.That(amounts.Length, Is.EqualTo(31));
-        Assert.That(service.GetRequiredAmount(31), Is.EqualTo(32000));
-        Assert.That(service.LastPaidDay, Is.EqualTo(31));
+        Assert.That(amounts.Length, Is.EqualTo(20));
+        Assert.That(service.GetRequiredAmount(20), Is.EqualTo(250000));
+        Assert.Throws<ArgumentOutOfRangeException>(() => service.GetRequiredAmount(21));
+        Assert.That(service.LastPaidDay, Is.EqualTo(20));
+    }
+
+    /// <summary>상품 16종의 20일 리밸런싱 판매가와 원가를 검증한다.</summary>
+    [Test]
+    public void ProductCsvUsesRebalancedPricesAndCosts()
+    {
+        var table = new ProductDataTable();
+        table.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductData.csv"));
+        var expectedPrices = new Dictionary<uint, uint>
+        {
+            [1001] = 1000, [1010] = 2000, [1004] = 2500, [1007] = 3000,
+            [1005] = 5000, [1006] = 6000, [1013] = 8000, [1014] = 10000,
+            [1015] = 15000, [1016] = 20000, [1019] = 25000, [1018] = 30000,
+            [1020] = 50000, [1021] = 60000, [1022] = 80000, [1023] = 100000
+        };
+        var expectedCosts = new Dictionary<uint, uint>
+        {
+            [1001] = 500, [1010] = 1000, [1004] = 1250, [1007] = 1500,
+            [1005] = 2500, [1006] = 3000, [1013] = 4000, [1014] = 5000,
+            [1015] = 7500, [1016] = 10000, [1019] = 12500, [1018] = 15000,
+            [1020] = 25000, [1021] = 30000, [1022] = 40000, [1023] = 50000
+        };
+        Assert.That(table.Rows.Count, Is.EqualTo(16));
+        foreach (var expected in expectedPrices)
+        {
+            Assert.That(table.Rows[expected.Key].BasePrice, Is.EqualTo(expected.Value));
+            Assert.That(table.Rows[expected.Key].CostPrice, Is.EqualTo(expectedCosts[expected.Key]));
+            Assert.That(table.Rows[expected.Key].BasePrice, Is.GreaterThan(0));
+            Assert.That(table.Rows[expected.Key].CostPrice, Is.GreaterThan(0));
+            Assert.That(table.Rows[expected.Key].CostPrice, Is.LessThanOrEqualTo(table.Rows[expected.Key].BasePrice));
+        }
+    }
+
+    /// <summary>날짜 경계·활성 설비·최고 단계 최소 등장과 고정 seed 재현성을 검증한다.</summary>
+    [Test]
+    public void DailyProductSelectorUsesRebalancedKindsAndStageGuarantee()
+    {
+        var products = new ProductDataTable();
+        products.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductData.csv"));
+        var facilities = new FacilityDataTable();
+        facilities.LoadData(File.ReadAllText("Assets/Datas/FacilityData.csv"));
+        var expectedCounts = new Dictionary<uint, int> { [0] = 4, [5] = 4, [6] = 6, [11] = 6, [12] = 8, [19] = 8 };
+        Func<uint, bool> allProductFacilities = facilityIdx => facilityIdx == 12001 || facilityIdx == 12002 ||
+            facilityIdx == 12003 || facilityIdx == 12004 || facilityIdx == 12005 || facilityIdx == 12006;
+        foreach (var expected in expectedCounts)
+        {
+            Func<uint, bool> active = facilityIdx => expected.Key >= 12
+                ? allProductFacilities(facilityIdx)
+                : expected.Key >= 6 && (facilityIdx == 12001 || facilityIdx == 12002);
+            var selector = new DailyProductSelector(new System.Random(20260921));
+            var selected = selector.Select(products.Rows, facilities.Rows, expected.Key, active);
+            Assert.That(selected.Count, Is.EqualTo(expected.Value), $"elapsedDays={expected.Key}");
+            Assert.That(selected.Select(product => product.Idx).Distinct().Count(), Is.EqualTo(selected.Count));
+        }
+
+        var first = new DailyProductSelector(new System.Random(42)).Select(products.Rows, facilities.Rows, 12, allProductFacilities);
+        var second = new DailyProductSelector(new System.Random(42)).Select(products.Rows, facilities.Rows, 12, allProductFacilities);
+        Assert.That(second.Select(product => product.Idx), Is.EqualTo(first.Select(product => product.Idx)));
+        var stages = first.Select(product => CustomerProductAvailability.GetUnlockStage(product, facilities.Rows));
+        Assert.That(stages.Count(stage => stage == ProductUnlockStage.Stage3), Is.GreaterThanOrEqualTo(2));
+
+        var stageOneOnly = new DailyProductSelector(new System.Random(7)).Select(
+            products.Rows, facilities.Rows, 12, facilityIdx => facilityIdx == 12001 || facilityIdx == 12002);
+        Assert.That(stageOneOnly.Any(product => product.RequiredFacilityIdx == 12003 || product.RequiredFacilityIdx == 12004 ||
+            product.RequiredFacilityIdx == 12005 || product.RequiredFacilityIdx == 12006), Is.False);
     }
 
     /// <summary>정상 파일의 행 수·조회·routing·초기값을 확인한다.</summary>
@@ -94,7 +160,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 472)
+if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 499)
     throw new Exception($"Unexpected sample counts: appearances={valid.Appearances.GetDataCount()}, dispositions={valid.Dispositions.GetDataCount()}, categories={valid.Categories.GetDataCount()}, products={valid.Products.GetDataCount()}, texts={textTables[valid].GetDataCount()}");
 foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
 foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })

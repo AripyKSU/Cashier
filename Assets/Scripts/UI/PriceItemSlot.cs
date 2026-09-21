@@ -31,7 +31,7 @@ public class PriceItemSlot : MonoBehaviour
     /// </summary>
     /// <param name="itemName">상품 이름 (예: 신선한 사과)</param>
     /// <param name="price">상품 가격 (예: 1200)</param>
-    /// <param name="specialNote">특이사항 텍스트 (예: '20% 세일', '1+1', 없으면 null 또는 빈 문자열)</param>
+    /// <param name="specialNote">특이사항 텍스트 (예: '추천', '묶음 안내', 없으면 null 또는 빈 문자열)</param>
     /// <param name="icon">상품 아이콘 스프라이트 (선택)</param>
     public void SetData(string itemName, long price, string specialNote = null, Sprite icon = null)
     {

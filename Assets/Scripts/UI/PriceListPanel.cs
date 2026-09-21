@@ -18,7 +18,7 @@ public class PriceListPanel : MonoBehaviour
     {
         public string ItemName;
         public long Price;
-        public string SpecialNote; // 예: "20% 세일", "1+1", null
+        public string SpecialNote; // 예: "추천", "묶음 안내", null
         public Sprite Icon;
 
         public ItemPriceInfo(string name, long price, string specialNote = null, Sprite icon = null)
@@ -154,7 +154,7 @@ public class PriceListPanel : MonoBehaviour
     {
         var samples = new List<ItemPriceInfo>
         {
-            new ItemPriceInfo("Fresh Apple", 1500, "20% OFF"),
+            new ItemPriceInfo("Fresh Apple", 1500, "추천"),
             new ItemPriceInfo("Organic Milk", 2200, "1+1 EVENT"),
             new ItemPriceInfo("Sweet Banana", 3500),
             new ItemPriceInfo("Tuna Riceball", 1300),
