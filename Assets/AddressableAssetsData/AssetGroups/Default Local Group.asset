@@ -1198,6 +1198,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f074a1f8d4eb5544b800d5df39195d8d
+    m_Address: IntroScene
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f2d765680e48fb54285e1b5a7da6e5e1
     m_Address: StoreStage2TopView
     m_ReadOnly: 0

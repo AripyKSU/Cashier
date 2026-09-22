@@ -1,0 +1,1 @@
+stage 1 closed crateSlot=5 sprite=Stage1CrateClosed

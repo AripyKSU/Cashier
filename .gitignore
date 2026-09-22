@@ -7,8 +7,12 @@
 #
 .utmp/
 # PC-local development scenes and their metadata.
-/Assets/Scenes/Local/
+/Assets/Scenes/Local/*
 /Assets/Scenes/Local.meta
+# Exception: MyArt scene is tracked so it can be shared and backed up.
+!/Assets/Scenes/Local.meta
+!/Assets/Scenes/Local/MyArt.unity
+!/Assets/Scenes/Local/MyArt.unity.meta
 # Personal scene scripts and their Editor tools; shared code must not depend on these.
 /Assets/Scripts/Local/
 /Assets/Scripts/Local.meta

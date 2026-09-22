@@ -6,7 +6,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name:
+  m_Name: 
   m_EffectID: 27a5eb042a1525448ac568f74c3e38e8
   m_EffectName: Attenuation
   m_MixLevel: 0ad85a30889773d479f2b3b6f27b9c3c
@@ -20,7 +20,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name:
+  m_Name: 
   m_EffectID: 5d25016864f7ebe40ac3a4355819ac04
   m_EffectName: Attenuation
   m_MixLevel: c2a649a16dcfcc44cb67a58002bd4cf7
@@ -50,7 +50,12 @@ AudioMixerController:
     name: BgmVolume
   - guid: 66e977281b29fe340b40fafaca11220f
     name: SfxVolume
-  m_AudioMixerGroupViews: []
+  m_AudioMixerGroupViews:
+  - guids:
+    - 556865e69226dca4abc4e0da8549ca5b
+    - 0f4bcfe2bf362cb4e82d87bfca72429d
+    - f1b646e832d54bf45811b028b439c07f
+    name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500006}
 --- !u!243 &24300002
@@ -80,7 +85,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name:
+  m_Name: 
   m_EffectID: e6bdf7b88d4e70b429a876965cd4437c
   m_EffectName: Attenuation
   m_MixLevel: ba25ded374ffb9a43a8b08d78f373b1a

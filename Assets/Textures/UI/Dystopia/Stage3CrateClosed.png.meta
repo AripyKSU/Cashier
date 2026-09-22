@@ -116,10 +116,10 @@ TextureImporter:
       name: Stage3CrateClosed
       rect:
         serializedVersion: 2
-        x: 112
-        y: 130
-        width: 1224
-        height: 778
+        x: 0
+        y: 0
+        width: 153
+        height: 102
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

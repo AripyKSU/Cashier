@@ -31,7 +31,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
         Hub,
         Main,
         GoodEnding,
-        BadEnding
+        BadEnding,
+        Intro
     }
 
     /// <summary>
@@ -50,6 +51,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
             SceneName.Main => "MainScene",
             SceneName.GoodEnding => "GoodEndingScene",
             SceneName.BadEnding => "BadEndingScene",
+            SceneName.Intro => "IntroScene",
             _ => throw new ArgumentOutOfRangeException(nameof(target), target, "Unknown scene.")
         };
 
@@ -98,7 +100,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
             sessionPrepared = true;
             // TransitionAsync가 전환 lock을 소유하므로 준비 단계에서만 별도 lock을 사용한다.
             isPreparingNewGame = false;
-            await TransitionToGameplayAsync();
+            // 새 게임은 인트로 씬을 먼저 거치고, 인트로가 끝나면 IntroSceneEntry가 Gameplay 전환을 요청한다.
+            await TransitionTo(SceneName.Intro);
         }
         catch (Exception exception)
         {
