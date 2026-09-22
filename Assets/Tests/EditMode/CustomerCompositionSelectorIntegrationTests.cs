@@ -7,6 +7,32 @@ using NUnit.Framework;
 /// <summary>명성 구성군·설비 해금·성별 교대가 구성 선택 단계에서 함께 적용되는지 검사합니다.</summary>
 public sealed class CustomerCompositionSelectorIntegrationTests
 {
+    /// <summary>표시 1~6일에는 한 종류당 최대2개, 7일차부터 데이터 상한3개를 적용합니다.</summary>
+    [TestCase(0u, 1, 2)]
+    [TestCase(5u, 2, 2)]
+    [TestCase(6u, 1, 3)]
+    [TestCase(0u, 3, 2)]
+    public void ProductQuantityCapEndsOnDisplayDaySeven(
+        uint elapsedDays,
+        int minimumQuantity,
+        int expectedQuantity)
+    {
+        Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData>
+        {
+            [1] = product(1, ProductType.Water)
+        };
+        CustomerDispositionData config = disposition(6001, CustomerDispositionType.Normal, ProductType.Water);
+        config.MinQuantity = minimumQuantity;
+        config.MaxQuantity = 3;
+        Dictionary<uint, uint> prices = products.ToDictionary(pair => pair.Key, pair => pair.Value.BasePrice);
+        CustomerCompositionSelector selector = new CustomerCompositionSelector(new FixedRandom(0.999d));
+
+        CustomerComposition composition = selector.SelectComposition(
+            CustomerAppearanceFixtures.Create(), new[] { config }, products, normalOnlyBalance(), prices, elapsedDays);
+
+        Assert.That(composition.Items.Single().Quantity, Is.EqualTo(expectedQuantity));
+    }
+
     /// <summary>표시일9/10일과19/20일 경계에서 같은 성향의 선호 행 가중치가 바뀝니다.</summary>
     [TestCase(8u, 0.4d, 6001u)]
     [TestCase(9u, 0.4d, 6002u)]

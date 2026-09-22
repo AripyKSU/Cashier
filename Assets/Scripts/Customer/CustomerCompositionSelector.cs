@@ -12,6 +12,12 @@ using System.Linq;
 /// </remarks>
 public sealed class CustomerCompositionSelector
 {
+    /// <summary>초반 조작 학습을 위해 수량 상한을 적용하는 표시 일수입니다.</summary>
+    private const uint IntroQuantityLimitDisplayDays = 6;
+
+    /// <summary>초반 학습 구간의 상품 한 종류당 최대 수량입니다.</summary>
+    private const int IntroMaxQuantityPerProduct = 2;
+
     /// <summary>방문 간 재사용할 난수원입니다.</summary>
     private readonly Random random;
 
@@ -128,7 +134,7 @@ public sealed class CustomerCompositionSelector
         if (matchingAppearances.Count == 0)
             throw new InvalidDataException($"gender={selectedGender}, age={selectedAge}, disposition_type={disposition.DispositionType} 외형 후보 누락");
         uint appearanceIdx = matchingAppearances[this.random.Next(matchingAppearances.Count)].Idx;
-        List<CustomerOrderItem> items = selectItems(disposition, availableProducts, currentPrices);
+        List<CustomerOrderItem> items = selectItems(disposition, availableProducts, currentPrices, elapsedDays);
         CustomerComposition composition = new CustomerComposition(
             appearanceIdx,
             disposition.Idx,
@@ -364,10 +370,16 @@ public sealed class CustomerCompositionSelector
     }
 
     /// <summary>선호 타입·개별 선호를 합친 후보에서 구매 항목을 확정합니다.</summary>
+    /// <param name="disposition">검증된 성향과 구매 수량 설정입니다.</param>
+    /// <param name="availableProducts">현재 구매 후보인 상품 사전입니다.</param>
+    /// <param name="currentPrices">현재 상품별 가격 snapshot입니다.</param>
+    /// <param name="elapsedDays">게임 시작 후 경과 일수입니다.</param>
+    /// <returns>중복 상품이 없는 구매 항목 목록입니다.</returns>
     private List<CustomerOrderItem> selectItems(
         CustomerDispositionData disposition,
         IReadOnlyDictionary<uint, ProductData> availableProducts,
-        IReadOnlyDictionary<uint, uint> currentPrices)
+        IReadOnlyDictionary<uint, uint> currentPrices,
+        uint elapsedDays)
     {
         HashSet<ProductType> preferredTypes = new HashSet<ProductType>(disposition.PreferredProductTypes);
         HashSet<uint> preferredProductIds = new HashSet<uint>(disposition.PreferredProductIdxs);
@@ -386,6 +398,10 @@ public sealed class CustomerCompositionSelector
         int maxKinds = Math.Min(disposition.MaxProductKinds, availableProducts.Count);
         int minKinds = Math.Min(disposition.MinProductKinds, maxKinds);
         int count = this.random.Next(minKinds, maxKinds + 1);
+        int maxQuantity = elapsedDays < IntroQuantityLimitDisplayDays
+            ? Math.Min(disposition.MaxQuantity, IntroMaxQuantityPerProduct)
+            : disposition.MaxQuantity;
+        int minQuantity = Math.Min(disposition.MinQuantity, maxQuantity);
         List<CustomerOrderItem> items = new List<CustomerOrderItem>(count);
         for (int i = 0; i < count; i++)
         {
@@ -397,7 +413,7 @@ public sealed class CustomerCompositionSelector
             int index = this.random.Next(candidates.Count);
             uint productId = candidates[index];
             items.Add(new CustomerOrderItem(productId,
-                this.random.Next(disposition.MinQuantity, disposition.MaxQuantity + 1),
+                this.random.Next(minQuantity, maxQuantity + 1),
                 currentPrices[productId]));
             candidates.RemoveAt(index);
         }
