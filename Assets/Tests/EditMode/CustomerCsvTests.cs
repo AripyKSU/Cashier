@@ -10,6 +10,51 @@ using UnityEngine.TestTools;
 /// <summary>실제 CSV parser와 FK 공개 경계를 각 음성 사례로 검사한다.</summary>
 public sealed class CustomerCsvTests
 {
+    /// <summary>실제 성향 CSV의 성별·연령 대사가 생성과 전량 제외 결과까지 연결됩니다.</summary>
+    [Test]
+    public void NoSaleItemsDialogueRoutesActualProfilesAndSurvivesDeparture()
+    {
+        var catalog = new CustomerCatalog(new CustomerAppearanceDataTable(), new CustomerDispositionDataTable(),
+            new ProductCategoryDataTable(), new ProductDataTable());
+        catalog.Appearances.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerAppearanceData.csv"));
+        catalog.Dispositions.LoadData(File.ReadAllText("Assets/Datas/Customer/CustomerDispositionData.csv"));
+        catalog.Categories.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductCategoryData.csv"));
+        catalog.Products.LoadData(File.ReadAllText("Assets/Datas/Customer/ProductData.csv"));
+        var texts = new TextDataTable();
+        texts.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
+        catalog.ValidateAndCommit(texts, loadResources(), facilities: loadFacilities());
+        var prices = CustomerProductAvailability.GetAvailableProducts(catalog.Products.Rows, 20)
+            .ToDictionary(product => product.Idx, product => product.BasePrice);
+        var seen = new HashSet<(CustomerDispositionType, CustomerAttributes)>();
+        foreach (CustomerDispositionData row in catalog.Dispositions.Rows.Values)
+        {
+            var selector = new CustomerCompositionSelector(new System.Random(37));
+            for (int i = 0; i < 64; i++)
+            {
+                CustomerComposition composition = selector.SelectCompositionUniform(
+                    CustomerAppearanceFixtures.Create(), new[] { row }, catalog.Products.Rows, prices, 20);
+                var candidates = row.GetProfileDialogue(composition.Attributes,
+                    row.MaleNoSaleItemsTextIdxs, row.FemaleNoSaleItemsTextIdxs,
+                    row.MaleChildNoSaleItemsTextIdxs, row.FemaleChildNoSaleItemsTextIdxs,
+                    row.MaleElderlyNoSaleItemsTextIdxs, row.FemaleElderlyNoSaleItemsTextIdxs,
+                    row.NoSaleItemsTextIdxs);
+                Assert.That(candidates, Does.Contain(composition.NoSaleItemsTextIdx));
+                Assert.That(composition.NoSaleItemsTextIdx, Is.Not.EqualTo(composition.RejectTextIdx));
+                Assert.That(texts.Rows[composition.NoSaleItemsTextIdx].Text, Is.Not.Empty);
+                CustomerVisit visit = new CustomerGenerator().Generate(composition, catalog.Products.Rows, () => prices);
+                Assert.That(visit.RejectionReason, Is.EqualTo(CustomerRejectionReason.None));
+                visit.BeginOffer();
+                Assert.That(visit.SubmitOffer(0, Array.Empty<SaleItem>()), Is.False);
+                Assert.That(visit.FeedbackTextIdx, Is.EqualTo(composition.NoSaleItemsTextIdx));
+                visit.Depart();
+                Assert.That(visit.FeedbackTextIdx, Is.EqualTo(composition.NoSaleItemsTextIdx));
+                Assert.That(visit.RejectionReason, Is.EqualTo(CustomerRejectionReason.NoSaleItems));
+                seen.Add((row.DispositionType, composition.Attributes));
+            }
+        }
+        Assert.That(seen.Count, Is.EqualTo(14), "일반 6프로필과 나머지 4성향의 남녀 8프로필");
+    }
+
     /// <summary>빈 외형 이미지 FK만 허용하고 필수 헤더·잘못된 값·없는 참조는 거부한다.</summary>
     /// <param name="value">첫 외형의 시험 값 또는 헤더 누락 표시.</param>
     /// <param name="accepted">전체 카탈로그 공개 성공 여부.</param>
@@ -160,7 +205,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 499)
+if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 527)
     throw new Exception($"Unexpected sample counts: appearances={valid.Appearances.GetDataCount()}, dispositions={valid.Dispositions.GetDataCount()}, categories={valid.Categories.GetDataCount()}, products={valid.Products.GetDataCount()}, texts={textTables[valid].GetDataCount()}");
 foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
 foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
@@ -221,6 +266,13 @@ Assert.That(priceSensitive.All(x => x.EntryTextIdxs.SequenceEqual(new uint[] { 8
     }
     /// <summary>명명된 잘못된 파일 하나가 LogError와 예외를 내며 공개되지 않는지 확인한다.</summary>
     /// <param name="name">오류 사례.</param>
+    [TestCase("no sale header")]
+    [TestCase("no sale empty")]
+    [TestCase("no sale duplicate")]
+    [TestCase("no sale zero")]
+    [TestCase("no sale FK")]
+    [TestCase("no sale gender empty")]
+    [TestCase("no sale age empty")]
     [TestCase("old probability header")]
     [TestCase("negative probability")]
     [TestCase("probability overflow")]
@@ -304,6 +356,13 @@ Func<CustomerCatalog> load = () => {
 var c=load();
 Action mutate;
 switch(name) {
+case "no sale header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("no_sale_items_text_idxs", "missing_no_sale_column")); break;
+case "no sale empty": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8513_8514_8515_8516", "")); break;
+case "no sale duplicate": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8513_8514_8515_8516", "8513_8513")); break;
+case "no sale zero": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8513_8514_8515_8516", "0")); break;
+case "no sale FK": mutate=()=>c.Dispositions.LoadData(disposition.Replace("8513_8514_8515_8516", "8999")); break;
+case "no sale gender empty": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",8513_8514,", ",,")); break;
+case "no sale age empty": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",8517_8518,", ",,")); break;
 case "old probability header": mutate=()=>c.Dispositions.LoadData(disposition.Replace("preferred_selection_chance", "preferred_selection_percent")); break;
 case "negative probability": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",900,", ",-1,")); break;
 case "probability overflow": mutate=()=>c.Dispositions.LoadData(disposition.Replace(",900,", ",1001,")); break;

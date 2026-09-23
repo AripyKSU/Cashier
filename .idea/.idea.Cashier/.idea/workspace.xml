@@ -10,7 +10,34 @@
     <configurations />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="" />
+    <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/doc/work/gameplay-balance-merge-handoff.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerDispositionData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerDispositionData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/FacilityData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/FacilityData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Datas/TextData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/TextData.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerComposition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerComposition.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerCompositionSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerCompositionSelector.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerVisit.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerVisit.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionData.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerWorldQueueView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerWorldQueueView.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionSelectorIntegrationTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionSelectorIntegrationTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerContractTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerContractTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCsvTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCsvTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/FacilityTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/FacilityTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/MoralityTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/MoralityTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationDispositionRulesTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationDispositionRulesTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationSystemTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationSystemTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/WorldSceneTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/WorldSceneTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_INTEGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_QUEUE_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_QUEUE_INTEGRATION.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/DATA_CATALOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DATA_CATALOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/TESTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/TESTING.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -110,23 +137,23 @@
   </component>
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
-      <entry key="MS100" value="1.000000003144607" />
-      <entry key="MS500" value="1.032039021716016" />
-      <entry key="S2" value="1.9367416870132166" />
-      <entry key="S5" value="3.436408093346036" />
-      <entry key="S10" value="4.723150601692687" />
-      <entry key="S30" value="7.26785029224273" />
-      <entry key="S60" value="10.10240822584023" />
-      <entry key="M2" value="13.982006519628523" />
-      <entry key="M5" value="20.48429735686812" />
-      <entry key="M10" value="24.952384464930077" />
-      <entry key="M15" value="26.94251691530157" />
-      <entry key="M30" value="29.268848250090763" />
-      <entry key="H1" value="30.57897903135382" />
-      <entry key="H2" value="31.274968761414073" />
-      <entry key="H4" value="31.63376810266089" />
-      <entry key="D1" value="31.9384377168785" />
-      <entry key="W1" value="31.991192465643284" />
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0000000008025365" />
+      <entry key="S2" value="1.0128387915669366" />
+      <entry key="S5" value="1.502467901979375" />
+      <entry key="S10" value="2.9239986127350566" />
+      <entry key="S30" value="6.7467190293630805" />
+      <entry key="S60" value="10.255179312265032" />
+      <entry key="M2" value="14.678437169950806" />
+      <entry key="M5" value="21.715802548312148" />
+      <entry key="M10" value="26.483928803396083" />
+      <entry key="M15" value="28.60522741938335" />
+      <entry key="M30" value="31.085599071306042" />
+      <entry key="H1" value="32.48324107247872" />
+      <entry key="H2" value="33.22600700389447" />
+      <entry key="H4" value="33.6090055184245" />
+      <entry key="D1" value="33.934270749075075" />
+      <entry key="W1" value="33.990596198245626" />
     </decayedCancelled>
     <decayedSelected>
       <entry key="MS100" value="0.0" />
@@ -148,23 +175,23 @@
       <entry key="W1" value="0.0" />
     </decayedSelected>
     <decayedShown>
-      <entry key="MS100" value="0.9201876510565172" />
-      <entry key="MS500" value="1.0074916073958318" />
-      <entry key="S2" value="1.8857046029863023" />
-      <entry key="S5" value="3.398434030176111" />
-      <entry key="S10" value="4.699254513610653" />
-      <entry key="S30" value="7.258187185445454" />
-      <entry key="S60" value="10.097086663818928" />
-      <entry key="M2" value="13.978976557941772" />
-      <entry key="M5" value="20.482597489427903" />
-      <entry key="M10" value="24.951285819110634" />
-      <entry key="M15" value="26.941699873958953" />
-      <entry key="M30" value="29.268386757840872" />
-      <entry key="H1" value="30.57873261591795" />
-      <entry key="H2" value="31.274841289253185" />
-      <entry key="H4" value="31.633703254025402" />
-      <entry key="D1" value="31.93842675015859" />
-      <entry key="W1" value="31.991190895030176" />
+      <entry key="MS100" value="0.9794202975869268" />
+      <entry key="MS500" value="0.9958497537294221" />
+      <entry key="S2" value="1.0111304032339026" />
+      <entry key="S5" value="1.4931074539297948" />
+      <entry key="S10" value="2.9088663356722817" />
+      <entry key="S30" value="6.735188950423517" />
+      <entry key="S60" value="10.247864939967247" />
+      <entry key="M2" value="14.67409695488848" />
+      <entry key="M5" value="21.71349918861562" />
+      <entry key="M10" value="26.4825118388062" />
+      <entry key="M15" value="28.604193457042765" />
+      <entry key="M30" value="31.08502630205511" />
+      <entry key="H1" value="32.48293819805185" />
+      <entry key="H2" value="33.225851079337055" />
+      <entry key="H4" value="33.60892638540905" />
+      <entry key="D1" value="33.93425739332414" />
+      <entry key="W1" value="33.99059428613612" />
     </decayedShown>
   </component>
   <component name="ProjectColorInfo">{
@@ -187,7 +214,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "total__merge",
+    "git-widget-placeholder": "GameplayBalance",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -245,6 +272,7 @@
       <workItem from="1788743272615" duration="6497000" />
       <workItem from="1788914650040" duration="5493000" />
       <workItem from="1789441979434" duration="4102000" />
+      <workItem from="1790123634882" duration="702000" />
     </task>
     <servers />
   </component>

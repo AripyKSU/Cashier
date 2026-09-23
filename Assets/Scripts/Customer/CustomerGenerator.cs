@@ -101,6 +101,7 @@ public sealed class CustomerGenerator
             composition.DiscountSaleTextIdx,
             composition.ExploitativeSaleTextIdx,
             composition.RejectTextIdx,
+            composition.NoSaleItemsTextIdx,
             products,
             getCurrentPrices,
             composition.DispositionType,

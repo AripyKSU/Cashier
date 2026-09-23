@@ -14,6 +14,8 @@ public readonly struct TransactionResult
     private readonly IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations;
     /// <summary>거래 판정. 상세 없는 재정 호환 생성자는 None.</summary>
     public CustomerTradeOutcome Outcome { get; }
+    /// <summary>거절 원인. 판매 성사·재정 호환 결과는 None입니다.</summary>
+    public CustomerRejectionReason RejectionReason { get; }
     /// <summary>거래 당사자의 성향 snapshot.</summary>
     public CustomerDispositionType DispositionType { get; }
     /// <summary>거래 당사자의 Child·Elderly 등 속성 snapshot.</summary>
@@ -57,14 +59,21 @@ public readonly struct TransactionResult
     /// <param name="wereDailyGuidelinesEvaluated">수락 경로에서 정식 일일지침을 평가했는지 여부.</param>
     /// <param name="dailyGuidelineViolations">판정기가 확정한 지침별 위반값.</param>
     /// <param name="moralityEvaluation">확정한 도덕성 행·점수. null은 미평가다.</param>
+    /// <param name="rejectionReason">가격 거절 또는 전량 제외 원인. 성사 시 None입니다.</param>
+    /// <exception cref="ArgumentException">거래 결과와 거절 사유 불일치.</exception>
     /// <exception cref="OverflowException">합계 범위 초과.</exception>
     internal TransactionResult(CustomerTradeOutcome outcome, long offeredTotal, IReadOnlyList<SoldItem> items,
         bool wereRestrictionsEvaluated, IReadOnlyList<SaleRestrictionViolation> violations,
         CustomerDispositionType dispositionType, CustomerAttributes customerAttributes,
         bool wereDailyGuidelinesEvaluated = false,
         IReadOnlyList<DailyGuidelineViolation> dailyGuidelineViolations = null,
-        MoralityEvaluation? moralityEvaluation = null)
+        MoralityEvaluation? moralityEvaluation = null,
+        CustomerRejectionReason rejectionReason = CustomerRejectionReason.None)
     {
+        if (!Enum.IsDefined(typeof(CustomerRejectionReason), rejectionReason) ||
+            (outcome == CustomerTradeOutcome.PaymentRefused) != (rejectionReason != CustomerRejectionReason.None))
+            throw new ArgumentException("거래 결과와 거절 사유가 일치하지 않습니다.", nameof(rejectionReason));
+        RejectionReason = rejectionReason;
         var copy = new List<SoldItem>(items);
         long reference = 0, cost = 0;
         foreach (var item in copy)
@@ -121,6 +130,7 @@ public readonly struct TransactionResult
         MoralityDataIdx = null;
         MoralityDelta = null;
         Outcome = CustomerTradeOutcome.None;
+        RejectionReason = CustomerRejectionReason.None;
         DispositionType = CustomerDispositionType.None;
         CustomerAttributes = CustomerAttributes.None;
         OfferedTotal = null;

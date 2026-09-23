@@ -154,7 +154,7 @@ public sealed class MoralityTests
             var composition = new CustomerComposition(5001, row.Idx, item.type,
                 CustomerAttributes.Male | CustomerAttributes.Adult | CustomerAttributes.Normal,
                 selected.Items, row.EntryTextIdxs[0], row.RegularSaleTextIdxs[0],
-                row.DiscountSaleTextIdxs[0], row.ExploitativeSaleTextIdxs[0], row.RejectTextIdxs[0],
+                row.DiscountSaleTextIdxs[0], row.ExploitativeSaleTextIdxs[0], row.RejectTextIdxs[0], row.NoSaleItemsTextIdxs[0],
                 row.PriceTolerance, row.MinimumPriceTolerance, row.RegularPriceMinRate, row.RegularPriceMaxRate,
                 new uint[] { 1001 });
             CustomerVisit visit = new CustomerGenerator().Generate(composition, products, () => prices, moralityCalculator: calculator);

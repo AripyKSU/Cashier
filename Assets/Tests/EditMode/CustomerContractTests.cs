@@ -185,7 +185,7 @@ public sealed class CustomerContractTests
         foreach (int bits in new[] { 0, 1, 16, 32, 17, 33, 48, 51, 53, 113 })
         {
             var arguments = new object[] { 1u, 1u, items,
-                1000, 0, 1u, 2u, 3u, 4u, 5u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
+                1000, 0, 1u, 2u, 3u, 4u, 5u, 6u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
                 CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys, null, null };
             var error = Assert.Throws<System.Reflection.TargetInvocationException>(() => constructor.Invoke(arguments));
             Assert.That(error.InnerException, Is.InstanceOf<ArgumentException>());
@@ -202,6 +202,7 @@ public sealed class CustomerContractTests
         var visit = generate(); visit.BeginOffer(); visit.SubmitOffer(offered, new[] { new SaleItem(4, 2) });
         var result = visit.Result.Value;
         Assert.That(visit.Items.Single().ProductIdx, Is.EqualTo(1)); Assert.That(result.ReferenceTotal, Is.EqualTo(202));
+        Assert.That(visit.RejectionReason, Is.EqualTo(expected == CustomerTradeOutcome.PaymentRefused ? CustomerRejectionReason.PriceRejected : CustomerRejectionReason.None));
         Assert.That(visit.Outcome, Is.EqualTo(expected)); Assert.That(result.SaleIncome, Is.EqualTo(expected == CustomerTradeOutcome.PaymentRefused ? 0 : offered));
         Assert.That(result.CostTotal, Is.EqualTo(expected == CustomerTradeOutcome.PaymentRefused ? 0 : 100));
         Assert.That(result.SoldItems.Count, Is.EqualTo(expected == CustomerTradeOutcome.PaymentRefused ? 0 : 1));
@@ -298,10 +299,18 @@ public sealed class CustomerContractTests
         Assert.That(visit.State, Is.EqualTo(CustomerState.Rejected));
         Assert.That(visit.Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
         Assert.That(visit.Result.HasValue, Is.True);
+        Assert.That(visit.RejectionReason, Is.EqualTo(CustomerRejectionReason.NoSaleItems));
+        Assert.That(visit.Result.Value.RejectionReason, Is.EqualTo(visit.RejectionReason));
+        Assert.That(visit.FeedbackTextIdx, Is.EqualTo(6u));
+        Assert.That(visit.Result.Value.MoralityDelta, Is.Null);
+        Assert.That(visit.Result.Value.WereDailyGuidelinesEvaluated, Is.False);
         Assert.That(visit.Result.Value.SaleIncome, Is.Zero);
         Assert.That(visit.Result.Value.CostTotal, Is.Zero);
         Assert.That(visit.Result.Value.SoldItems, Is.Empty);
         Assert.Throws<InvalidOperationException>(() => visit.SubmitOffer(101, new[] { new SaleItem(1, 1) }));
+        visit.Depart();
+        Assert.That(visit.RejectionReason, Is.EqualTo(CustomerRejectionReason.NoSaleItems));
+        Assert.That(visit.FeedbackTextIdx, Is.EqualTo(6u));
     }
 
     /// <summary>지침 AND·분류·합산수량은 최종 판매를 검사하며 위반은 결제를 막지 않는다.</summary>
@@ -402,7 +411,7 @@ public sealed class CustomerContractTests
     {
         Idx = id, DispositionType = type, PreferredProductIdxs = new[] { product }, PreferredSelectionChance = 1000,
         MinProductKinds = 1, MaxProductKinds = 1, MinQuantity = 1, MaxQuantity = 1,
-        EntryTextIdxs = new uint[] { 1 }, RegularSaleTextIdxs = new uint[] { 2 }, DiscountSaleTextIdxs = new uint[] { 3 }, ExploitativeSaleTextIdxs = new uint[] { 4 }, RejectTextIdxs = new uint[] { 5 }
+        EntryTextIdxs = new uint[] { 1 }, RegularSaleTextIdxs = new uint[] { 2 }, DiscountSaleTextIdxs = new uint[] { 3 }, ExploitativeSaleTextIdxs = new uint[] { 4 }, RejectTextIdxs = new uint[] { 5 }, NoSaleItemsTextIdxs = new uint[] { 6 }
     };
 
     /// <summary>현재 사례의 공개 생성 API를 호출한다.</summary>

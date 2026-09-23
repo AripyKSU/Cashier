@@ -107,7 +107,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             retarget(visual, counter);
             visual.Body.sortingOrder = 200;
             setSpeech(visual, 0);
-            showReaction(visual, day.CurrentVisit.Outcome);
+            showReaction(visual, day.CurrentVisit);
         }
         float delta = controller.IsPresentationBlocked ? 0 : Time.deltaTime;
         float reactionDelta = controller.IsPresentationBlocked || world.Opacity <= 0 ||
@@ -179,6 +179,14 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         CustomerTradeOutcome.PaymentRefused => 3,
         _ => -1
     };
+
+    /// <summary>전량 제외로 거래가 끝났다면 보통 표정을 표시합니다.</summary>
+    /// <param name="outcome">확정 거래 결과.</param>
+    /// <param name="rejectionReason">확정 거절 사유.</param>
+    /// <returns>0~3 또는 표시하지 않는 -1.</returns>
+    public static int GetReactionIndex(CustomerTradeOutcome outcome, CustomerRejectionReason rejectionReason) =>
+        outcome == CustomerTradeOutcome.PaymentRefused && rejectionReason == CustomerRejectionReason.NoSaleItems
+            ? 0 : GetReactionIndex(outcome);
 
     /// <summary>거래 완료 방문의 동일 외형을 퇴장시킨다.</summary>
     /// <param name="visit">반납된 방문.</param>
@@ -297,10 +305,10 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     }
 
     /// <summary>방문당 확정 결과를 한 번만 이모지 연출로 시작합니다.</summary>
-    /// <param name="visual">현재 방문의 표시 상태.</param><param name="outcome">확정된 기존 거래 결과.</param>
-    private void showReaction(Visual visual, CustomerTradeOutcome outcome)
+    /// <param name="visual">현재 방문의 표시 상태.</param><param name="visit">확정 결과와 거절 사유를 가진 방문.</param>
+    private void showReaction(Visual visual, CustomerVisit visit)
     {
-        int index = GetReactionIndex(outcome);
+        int index = GetReactionIndex(visit.Outcome, visit.RejectionReason);
         if (index < 0 || visual.ReactionShown || visual.Leaving) return;
         visual.ReactionShown = true;
         visual.ReactionElapsed = 0;

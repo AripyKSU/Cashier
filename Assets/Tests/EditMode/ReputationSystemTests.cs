@@ -295,7 +295,7 @@ public sealed class ReputationSystemTests
             RegularSaleTextIdxs = new uint[] { 2 },
             DiscountSaleTextIdxs = new uint[] { 3 },
             ExploitativeSaleTextIdxs = new uint[] { 4 },
-            RejectTextIdxs = new uint[] { 5 }
+            RejectTextIdxs = new uint[] { 5 }, NoSaleItemsTextIdxs = new uint[] { 6 }
         };
     }
 

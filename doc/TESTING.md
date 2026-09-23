@@ -1,5 +1,15 @@
 # 기능 API 검증
 
+## 전량 제외 대사·거절 사유 분리 (2026-09-22)
+
+- `GameplayBalance` 작업 디렉터리에서 Unity6000.3.18f1 숨김 batchmode로 컴파일·관련 suite를 실행했다. 컴파일 오류0. 신규 TextData **8513~8540(28개)**와 성향 CSV7열을 함께 반영했다.
+- EditMode **227/230**, 실패3·skip0. 실패는 `CustomerCsvTests.ProductCsvUsesRebalancedPricesAndCosts`, `DailyProductSelectorUsesRebalancedKindsAndStageGuarantee`(LoadData 후 FK 공개 전 Rows를 읽어0개), `FacilityTests.CsvExposesUpgradeKindsAndStageContracts`(기대500000, 실제280000)다. 해당 상품 로더·상품/설비 CSV·실패 assertion은 이번에 변경하지 않았다. 변경 전 전체 실행 증거는 없으므로 기존 baseline 실행 결과로 표현하지 않는다.
+- 전량 제외 관련 실제15성향 행·14프로필 대사 선택/퇴장 보존, null·빈 목록, 가격 거절/판매 성사 사유, 누락 열·빈 후보·0·중복·잘못된 FK 검사는 통과했다. 첫 실행은 생성자 reflection/행 수 fixture 및 신규 테스트 현재가 입력 수정 전224/230이며 최종 결과로 사용하지 않는다.
+- PlayMode **5/5**, 실패·skip0: `CalculatorFollowsSaleSortingLifecycle`, `EmptySalePreservesReasonAndCompletesExactlyOnce`, `FacilityAndReputationShareCompletedDayBoundary`, `ProgressPreservesTransactionAndRejectsDuplicateSubmission`, `QueueControllerEmptyCounterAndFinalExitPresentation`. 실제 분류 패널의 전량 제외·키패드 잠금, 전용 대사 ID, 매출0·거절1회·중복 제출 차단·퇴장·다음 방문 및 정산 경계를 검사했다.
+- 증거: `Logs/TestResults/no-sale-items-20260922-edit-final/EditMode.xml`·`.log`, `Logs/TestResults/no-sale-items-20260922-play/PlayMode.xml`·`.log`. Unity 재시작으로 Temp의 이전 EditMode 기록이 정리되어 동일 suite를 최종 로그 경로에서 재실행했다. PlayMode 결과는 재시작 전에 Logs로 복사했다. Logs는 Git 제외다. batchmode는 테스트 종료 후 자체 종료했으며 씬·프로젝트 설정·패키지는 변경하지 않았다.
+- CSV 정적 비교: 기존 Text499개와 성향15행의 기존 셀 모두 보존, 신규 ID28개 고유·모든 FK 유효, `git diff --check` 통과. 관련 회귀 suite 결과는 실패3건으로 `FAIL`, 요청 변경의 종합 검증은 **PARTIAL**(관련 API 통과, 대사 체감·말풍선 UI 수동 확인 미실행)이다. commit·push는 하지 않았다.
+
+
 ## ART_UPDATE_20260916 최종 기능 검증 (2026-09-16)
 
 - 기준: `codex/store-resource-exchange 01f5707f`, Unity6000.3.18f1/PID9716. 사용자가 마지막 단계로 미룬 1~4단계 검증을 실행했다. 전체 EditMode **319/323**, 전체 PlayMode **64/67**; 각각 skip/미완료0. 관련 EditMode(Facility35·StoreStageData10·WorldScene12·먼지2) **59/59**, 새 착지/먼지 수명 PlayMode1건과 기존 단계 표시/실제 자산 로드4건 모두 통과.

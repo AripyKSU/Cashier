@@ -138,6 +138,10 @@ public sealed class WorldSceneTests
         Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.DiscountSale), Is.EqualTo(1));
         Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.ExploitativeSale), Is.EqualTo(2));
         Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.PaymentRefused), Is.EqualTo(3));
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.PaymentRefused,
+            CustomerRejectionReason.NoSaleItems), Is.EqualTo(0));
+        Assert.That(CustomerWorldQueueView.GetReactionIndex(CustomerTradeOutcome.PaymentRefused,
+            CustomerRejectionReason.PriceRejected), Is.EqualTo(3));
     }
 
     /// <summary>실제 prefab에는 Canvas/Image가 없고 10개 슬롯·Sprite material이 연결된다.</summary>

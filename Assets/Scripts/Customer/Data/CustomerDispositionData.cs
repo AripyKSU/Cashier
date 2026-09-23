@@ -187,6 +187,28 @@ public sealed class CustomerDispositionData
     /// <summary>노년 여성의 대기열 이탈 대사 후보.</summary>
     [Name("female_elderly_queue_leave_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
     public IReadOnlyList<uint> FemaleElderlyQueueLeaveTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 공용 프로필의 대사 후보.</summary>
+    [Name("no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> NoSaleItemsTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 성인 남성 프로필의 대사 후보.</summary>
+    [Name("male_no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleNoSaleItemsTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 성인 여성 프로필의 대사 후보.</summary>
+    [Name("female_no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleNoSaleItemsTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 남자아이 프로필의 대사 후보.</summary>
+    [Name("male_child_no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleChildNoSaleItemsTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 여자아이 프로필의 대사 후보.</summary>
+    [Name("female_child_no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleChildNoSaleItemsTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 노년 남성 프로필의 대사 후보.</summary>
+    [Name("male_elderly_no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> MaleElderlyNoSaleItemsTextIdxs { get; set; } = new uint[0];
+    /// <summary>전량 제외 시 노년 여성 프로필의 대사 후보.</summary>
+    [Name("female_elderly_no_sale_items_text_idxs"), TypeConverter(typeof(UIntArrayConverter))]
+    public IReadOnlyList<uint> FemaleElderlyNoSaleItemsTextIdxs { get; set; } = new uint[0];
+
     /// <summary>양쪽 후보가 남아 있을 때 선호군 선택 확률, 0~1000 (1000 = 100%).</summary>
     [Name("preferred_selection_chance")]
     public int PreferredSelectionChance { get; set; } = 900;
@@ -242,16 +264,19 @@ public sealed class CustomerDispositionData
         validateDialog(DiscountSaleTextIdxs, "discount_sale_text_idxs");
         validateDialog(ExploitativeSaleTextIdxs, "exploitative_sale_text_idxs");
         validateDialog(RejectTextIdxs, "reject_text_idxs");
+        validateDialog(NoSaleItemsTextIdxs, "no_sale_items_text_idxs");
         validateGenderDialog(MaleEntryTextIdxs, "male_entry_text_idxs");
         validateGenderDialog(MaleRegularSaleTextIdxs, "male_regular_sale_text_idxs");
         validateGenderDialog(MaleDiscountSaleTextIdxs, "male_discount_sale_text_idxs");
         validateGenderDialog(MaleExploitativeSaleTextIdxs, "male_exploitative_sale_text_idxs");
         validateGenderDialog(MaleRejectTextIdxs, "male_reject_text_idxs");
+        validateGenderDialog(MaleNoSaleItemsTextIdxs, "male_no_sale_items_text_idxs");
         validateGenderDialog(FemaleEntryTextIdxs, "female_entry_text_idxs");
         validateGenderDialog(FemaleRegularSaleTextIdxs, "female_regular_sale_text_idxs");
         validateGenderDialog(FemaleDiscountSaleTextIdxs, "female_discount_sale_text_idxs");
         validateGenderDialog(FemaleExploitativeSaleTextIdxs, "female_exploitative_sale_text_idxs");
         validateGenderDialog(FemaleRejectTextIdxs, "female_reject_text_idxs");
+        validateGenderDialog(FemaleNoSaleItemsTextIdxs, "female_no_sale_items_text_idxs");
         validateAgeSaleDialogues();
     }
 
@@ -305,6 +330,7 @@ public sealed class CustomerDispositionData
         validateDialog(MaleDiscountSaleTextIdxs, "male_discount_sale_text_idxs");
         validateDialog(MaleExploitativeSaleTextIdxs, "male_exploitative_sale_text_idxs");
         validateDialog(MaleRejectTextIdxs, "male_reject_text_idxs");
+        validateDialog(MaleNoSaleItemsTextIdxs, "male_no_sale_items_text_idxs");
         validateDialog(MaleQueueWarningTextIdxs, "male_queue_warning_text_idxs");
         validateDialog(MaleQueueLeaveTextIdxs, "male_queue_leave_text_idxs");
         validateDialog(FemaleEntryTextIdxs, "female_entry_text_idxs");
@@ -312,6 +338,7 @@ public sealed class CustomerDispositionData
         validateDialog(FemaleDiscountSaleTextIdxs, "female_discount_sale_text_idxs");
         validateDialog(FemaleExploitativeSaleTextIdxs, "female_exploitative_sale_text_idxs");
         validateDialog(FemaleRejectTextIdxs, "female_reject_text_idxs");
+        validateDialog(FemaleNoSaleItemsTextIdxs, "female_no_sale_items_text_idxs");
         validateDialog(FemaleQueueWarningTextIdxs, "female_queue_warning_text_idxs");
         validateDialog(FemaleQueueLeaveTextIdxs, "female_queue_leave_text_idxs");
         if (DispositionType == CustomerDispositionType.Normal)
@@ -329,6 +356,7 @@ public sealed class CustomerDispositionData
         validateDialog(MaleChildDiscountSaleTextIdxs, "male_child_discount_sale_text_idxs");
         validateDialog(MaleChildExploitativeSaleTextIdxs, "male_child_exploitative_sale_text_idxs");
         validateDialog(MaleChildRejectTextIdxs, "male_child_reject_text_idxs");
+        validateDialog(MaleChildNoSaleItemsTextIdxs, "male_child_no_sale_items_text_idxs");
         validateDialog(MaleChildQueueWarningTextIdxs, "male_child_queue_warning_text_idxs");
         validateDialog(MaleChildQueueLeaveTextIdxs, "male_child_queue_leave_text_idxs");
         validateDialog(FemaleChildEntryTextIdxs, "female_child_entry_text_idxs");
@@ -336,6 +364,7 @@ public sealed class CustomerDispositionData
         validateDialog(FemaleChildDiscountSaleTextIdxs, "female_child_discount_sale_text_idxs");
         validateDialog(FemaleChildExploitativeSaleTextIdxs, "female_child_exploitative_sale_text_idxs");
         validateDialog(FemaleChildRejectTextIdxs, "female_child_reject_text_idxs");
+        validateDialog(FemaleChildNoSaleItemsTextIdxs, "female_child_no_sale_items_text_idxs");
         validateDialog(FemaleChildQueueWarningTextIdxs, "female_child_queue_warning_text_idxs");
         validateDialog(FemaleChildQueueLeaveTextIdxs, "female_child_queue_leave_text_idxs");
         validateDialog(MaleElderlyEntryTextIdxs, "male_elderly_entry_text_idxs");
@@ -343,6 +372,7 @@ public sealed class CustomerDispositionData
         validateDialog(MaleElderlyDiscountSaleTextIdxs, "male_elderly_discount_sale_text_idxs");
         validateDialog(MaleElderlyExploitativeSaleTextIdxs, "male_elderly_exploitative_sale_text_idxs");
         validateDialog(MaleElderlyRejectTextIdxs, "male_elderly_reject_text_idxs");
+        validateDialog(MaleElderlyNoSaleItemsTextIdxs, "male_elderly_no_sale_items_text_idxs");
         validateDialog(MaleElderlyQueueWarningTextIdxs, "male_elderly_queue_warning_text_idxs");
         validateDialog(MaleElderlyQueueLeaveTextIdxs, "male_elderly_queue_leave_text_idxs");
         validateDialog(FemaleElderlyEntryTextIdxs, "female_elderly_entry_text_idxs");
@@ -350,6 +380,7 @@ public sealed class CustomerDispositionData
         validateDialog(FemaleElderlyDiscountSaleTextIdxs, "female_elderly_discount_sale_text_idxs");
         validateDialog(FemaleElderlyExploitativeSaleTextIdxs, "female_elderly_exploitative_sale_text_idxs");
         validateDialog(FemaleElderlyRejectTextIdxs, "female_elderly_reject_text_idxs");
+        validateDialog(FemaleElderlyNoSaleItemsTextIdxs, "female_elderly_no_sale_items_text_idxs");
         validateDialog(FemaleElderlyQueueWarningTextIdxs, "female_elderly_queue_warning_text_idxs");
         validateDialog(FemaleElderlyQueueLeaveTextIdxs, "female_elderly_queue_leave_text_idxs");
     }
@@ -363,21 +394,25 @@ public sealed class CustomerDispositionData
         validateGenderDialog(MaleChildDiscountSaleTextIdxs, "male_child_discount_sale_text_idxs");
         validateGenderDialog(MaleChildExploitativeSaleTextIdxs, "male_child_exploitative_sale_text_idxs");
         validateGenderDialog(MaleChildRejectTextIdxs, "male_child_reject_text_idxs");
+        validateGenderDialog(MaleChildNoSaleItemsTextIdxs, "male_child_no_sale_items_text_idxs");
         validateGenderDialog(FemaleChildEntryTextIdxs, "female_child_entry_text_idxs");
         validateGenderDialog(FemaleChildRegularSaleTextIdxs, "female_child_regular_sale_text_idxs");
         validateGenderDialog(FemaleChildDiscountSaleTextIdxs, "female_child_discount_sale_text_idxs");
         validateGenderDialog(FemaleChildExploitativeSaleTextIdxs, "female_child_exploitative_sale_text_idxs");
         validateGenderDialog(FemaleChildRejectTextIdxs, "female_child_reject_text_idxs");
+        validateGenderDialog(FemaleChildNoSaleItemsTextIdxs, "female_child_no_sale_items_text_idxs");
         validateGenderDialog(MaleElderlyEntryTextIdxs, "male_elderly_entry_text_idxs");
         validateGenderDialog(MaleElderlyRegularSaleTextIdxs, "male_elderly_regular_sale_text_idxs");
         validateGenderDialog(MaleElderlyDiscountSaleTextIdxs, "male_elderly_discount_sale_text_idxs");
         validateGenderDialog(MaleElderlyExploitativeSaleTextIdxs, "male_elderly_exploitative_sale_text_idxs");
         validateGenderDialog(MaleElderlyRejectTextIdxs, "male_elderly_reject_text_idxs");
+        validateGenderDialog(MaleElderlyNoSaleItemsTextIdxs, "male_elderly_no_sale_items_text_idxs");
         validateGenderDialog(FemaleElderlyEntryTextIdxs, "female_elderly_entry_text_idxs");
         validateGenderDialog(FemaleElderlyRegularSaleTextIdxs, "female_elderly_regular_sale_text_idxs");
         validateGenderDialog(FemaleElderlyDiscountSaleTextIdxs, "female_elderly_discount_sale_text_idxs");
         validateGenderDialog(FemaleElderlyExploitativeSaleTextIdxs, "female_elderly_exploitative_sale_text_idxs");
         validateGenderDialog(FemaleElderlyRejectTextIdxs, "female_elderly_reject_text_idxs");
+        validateGenderDialog(FemaleElderlyNoSaleItemsTextIdxs, "female_elderly_no_sale_items_text_idxs");
     }
 
     /// <summary>연령별 대기 후보가 제공된 경우 배열 규칙을 검사합니다.</summary>

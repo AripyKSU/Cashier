@@ -41,6 +41,9 @@ public sealed class CustomerComposition
     /// <summary>거절 대사의 TextData FK입니다.</summary>
     public uint RejectTextIdx { get; }
 
+    /// <summary>전량 제외 대사의 TextData FK입니다.</summary>
+    public uint NoSaleItemsTextIdx { get; }
+
     /// <summary>생성 시 복사한 가격 허용 배율입니다. 1000=100%입니다.</summary>
     public int PriceTolerance { get; }
 
@@ -68,7 +71,8 @@ public sealed class CustomerComposition
     /// <param name="regularSaleTextIdx">정상 판매 대사 FK입니다.</param>
     /// <param name="discountSaleTextIdx">할인 판매 대사 FK입니다.</param>
     /// <param name="exploitativeSaleTextIdx">착취 판매 대사 FK입니다.</param>
-    /// <param name="rejectTextIdx">거절 대사 FK입니다.</param>
+    /// <param name="rejectTextIdx">가격 거절 대사 FK입니다.</param>
+    /// <param name="noSaleItemsTextIdx">전량 제외 대사 FK입니다.</param>
     /// <param name="priceTolerance">가격 허용 배율입니다.</param>
     /// <param name="minimumPriceTolerance">결제 허용 하한 배율입니다.</param>
     /// <param name="regularPriceMinRate">정가 인정 하한 배율입니다.</param>
@@ -87,6 +91,7 @@ public sealed class CustomerComposition
         uint discountSaleTextIdx,
         uint exploitativeSaleTextIdx,
         uint rejectTextIdx,
+        uint noSaleItemsTextIdx,
         int priceTolerance,
         int minimumPriceTolerance,
         int regularPriceMinRate,
@@ -102,7 +107,7 @@ public sealed class CustomerComposition
         if (availableProductIds == null)
             throw new ArgumentNullException(nameof(availableProductIds));
         if (entryTextIdx == 0 || regularSaleTextIdx == 0 || discountSaleTextIdx == 0 ||
-            exploitativeSaleTextIdx == 0 || rejectTextIdx == 0)
+            exploitativeSaleTextIdx == 0 || rejectTextIdx == 0 || noSaleItemsTextIdx == 0)
             throw new ArgumentException("모든 대사 FK가 필요합니다.");
         if (priceTolerance <= 0 || minimumPriceTolerance < 0 || minimumPriceTolerance > 1000 ||
             minimumPriceTolerance > priceTolerance || regularPriceMinRate <= 0 || regularPriceMinRate > 1000 || regularPriceMaxRate < 1000)
@@ -152,6 +157,7 @@ public sealed class CustomerComposition
         DiscountSaleTextIdx = discountSaleTextIdx;
         ExploitativeSaleTextIdx = exploitativeSaleTextIdx;
         RejectTextIdx = rejectTextIdx;
+        NoSaleItemsTextIdx = noSaleItemsTextIdx;
         PriceTolerance = priceTolerance;
         MinimumPriceTolerance = minimumPriceTolerance;
         RegularPriceMinRate = regularPriceMinRate;
@@ -164,11 +170,11 @@ public sealed class CustomerComposition
         uint appearanceIdx, uint dispositionIdx, CustomerDispositionType dispositionType,
         CustomerAttributes attributes, IEnumerable<CustomerOrderItem> items,
         uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx,
-        uint exploitativeSaleTextIdx, uint rejectTextIdx, int priceTolerance,
+        uint exploitativeSaleTextIdx, uint rejectTextIdx, uint noSaleItemsTextIdx, int priceTolerance,
         int regularPriceMinRate, int regularPriceMaxRate, IEnumerable<uint> availableProductIds)
         : this(appearanceIdx, dispositionIdx, dispositionType, attributes, items,
             entryTextIdx, regularSaleTextIdx, discountSaleTextIdx, exploitativeSaleTextIdx,
-            rejectTextIdx, priceTolerance, 0, regularPriceMinRate, regularPriceMaxRate, availableProductIds)
+            rejectTextIdx, noSaleItemsTextIdx, priceTolerance, 0, regularPriceMinRate, regularPriceMaxRate, availableProductIds)
     {
     }
 }

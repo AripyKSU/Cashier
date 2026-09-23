@@ -216,6 +216,8 @@ header·중복·대역·가격·enum·단계/효과 조합·Text FK 검사 후 �
 
 ### CustomerDispositionData
 
+전량 제외 대사7열과 Text8513~8540의 최신 연결·필수값·이전 계약은 [전량 제외 대사와 거절 사유](CUSTOMER_INTEGRATION.md#전량-제외-대사와-거절-사유-2026-09-22)를 따른다.
+
 구매·가격·대사·타입은 현재 연결. queue_*는 MainScene의 GameUIController/DayProgress/CustomerQueueView에 연결된다. 이름은 검증되며 내부 성향 이름·허용액이 현재 UI에 자동 노출되는 것은 아니다.
 
 근거: [CSV](../Assets/Datas/Customer/CustomerDispositionData.csv), [DTO](../Assets/Scripts/Customer/Data/CustomerDispositionData.cs), [DataTable](../Assets/Scripts/Customer/Data/CustomerDispositionDataTable.cs).

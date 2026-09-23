@@ -41,7 +41,7 @@ public sealed class CustomerCompositionTests
             RegularSaleTextIdxs = new uint[] { 2 },
             DiscountSaleTextIdxs = new uint[] { 3 },
             ExploitativeSaleTextIdxs = new uint[] { 4 },
-            RejectTextIdxs = new uint[] { 5 }
+            RejectTextIdxs = new uint[] { 5 }, NoSaleItemsTextIdxs = new uint[] { 6 }
         };
         visit = new CustomerGenerator(new Random(1)).Generate(
             CustomerAppearanceFixtures.Create(),
@@ -151,6 +151,7 @@ public sealed class CustomerCompositionTests
             3,
             4,
             5,
+            6,
             priceTolerance,
             regularPriceMinRate,
             regularPriceMaxRate,

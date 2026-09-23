@@ -53,6 +53,7 @@ GameUIController의 `useCustomerQueue` 옵션으로 DayProgress 대기열을 연
 
 - `DystopiaScreen.AdvanceQueueVisual`의 보행 위상·좌우/상하 흔들림·미세 squash를 현재 월드 이동에 이식했다. 당시 원본의 원근 축소·자동 거래 완료는 가져오지 않았으며, 원근 크기는 이후 위 고정 슬롯 계약으로 추가했다. 자동 거래 완료는 적용하지 않는다.
 - 이모지는 새 가격/도덕성 판정 없이 기존 확정 `CustomerTradeOutcome`을 사용한다. `GetReactionIndex`는 `None`/그 외 값=-1, `RegularSale`=0(Satisfied), `DiscountSale`=1(Delighted), `ExploitativeSale`=2(Reluctant), `PaymentRefused`=3(Refused)를 반환한다.
+- 화면 표시는 `PaymentRefused` 중 `RejectionReason=NoSaleItems`(물건 전량 제외)만 0(Satisfied)을 사용한다. 가격 거절은 기존 3(Refused)을 유지한다.
 - `tradeReactionSprites`는 위 순서의 필수 참조 4개다. 새 시트 사본과 GUID·영역·연결은 [리소스 이관 기록](DYSTOPIA_RESOURCE_INTEGRATION.md#2026-09-14-손님-보행거래-표정-이관)을 따른다. 외형 객체를 소유하는 기존 Visual이 64px 이모지의 생성·정리를 함께 맡는다.
 - MainScene 파일을 저장하거나 교체하지 않고 이미 참조 중인 `CustomerWorld.prefab`을 갱신했다. 프로토타입 원본·CSV·Addressables·가격 판정·퇴장 입력은 변경하지 않았다.
 - 실제 Init→Hub 새 게임→Main의 할인 거래에서 `Delighted`가 머리 옆에 표시됨을 확인했다. pause 중 경과값 유지 후 resume하면 비활성화됐다(관찰 종료 경과 1.306035초: 낮은 프레임 속도로 1초 경계를 넘은 프레임에서 종료). `Temp/Queue-Reaction-Main.png`, `Temp/Queue-Reaction-Main.txt`. API로 진행한 화면 확인이며 최종 사용감·다른 화면비·Player build 검증은 아니다.

@@ -270,7 +270,7 @@ public sealed class FacilityTests
         var config = new CustomerDispositionData { Idx = 6001, DispositionType = CustomerDispositionType.Normal,
             PreferredProductIdxs = new uint[] { 1005 }, PreferredSelectionChance = 1000, MinProductKinds = 2, MaxProductKinds = 2,
             MinQuantity = 1, MaxQuantity = 1, EntryTextIdxs = new uint[] { 1 }, RegularSaleTextIdxs = new uint[] { 1 },
-            DiscountSaleTextIdxs = new uint[] { 1 }, ExploitativeSaleTextIdxs = new uint[] { 1 }, RejectTextIdxs = new uint[] { 1 } };
+            DiscountSaleTextIdxs = new uint[] { 1 }, ExploitativeSaleTextIdxs = new uint[] { 1 }, RejectTextIdxs = new uint[] { 1 }, NoSaleItemsTextIdxs = new uint[] { 6 } };
         var generator = new CustomerGenerator(new System.Random(1));
         Func<CustomerVisit> generate = () => generator.Generate(CustomerAppearanceFixtures.Create(), new[] { config }, products, day,
             () => CustomerProductAvailability.GetAvailableProducts(products, day, service.IsActive).ToDictionary(x => x.Idx, x => x.BasePrice), isFacilityActive: service.IsActive);
@@ -311,7 +311,7 @@ public sealed class FacilityTests
             RegularSaleTextIdxs = new uint[] { 1 },
             DiscountSaleTextIdxs = new uint[] { 1 },
             ExploitativeSaleTextIdxs = new uint[] { 1 },
-            RejectTextIdxs = new uint[] { 1 }
+            RejectTextIdxs = new uint[] { 1 }, NoSaleItemsTextIdxs = new uint[] { 6 }
         };
         var generator = new CustomerGenerator(new System.Random(1));
         Func<CustomerVisit> generate = () => generator.Generate(

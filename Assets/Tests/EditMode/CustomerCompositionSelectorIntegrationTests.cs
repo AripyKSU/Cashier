@@ -234,11 +234,13 @@ public sealed class CustomerCompositionSelectorIntegrationTests
         config.MaleDiscountSaleTextIdxs = new uint[] { 103 };
         config.MaleExploitativeSaleTextIdxs = new uint[] { 104 };
         config.MaleRejectTextIdxs = new uint[] { 105 };
+        config.MaleNoSaleItemsTextIdxs = new uint[] { 106 };
         config.FemaleEntryTextIdxs = new uint[] { 201 };
         config.FemaleRegularSaleTextIdxs = new uint[] { 202 };
         config.FemaleDiscountSaleTextIdxs = new uint[] { 203 };
         config.FemaleExploitativeSaleTextIdxs = new uint[] { 204 };
         config.FemaleRejectTextIdxs = new uint[] { 205 };
+        config.FemaleNoSaleItemsTextIdxs = new uint[] { 206 };
         Dictionary<uint, ProductData> products = new Dictionary<uint, ProductData>
         {
             [1] = product(1, ProductType.Water)
@@ -254,10 +256,10 @@ public sealed class CustomerCompositionSelectorIntegrationTests
 
         Assert.That(first.Attributes & CustomerAttributes.Male, Is.EqualTo(CustomerAttributes.Male));
         Assert.That((first.EntryTextIdx, first.RegularSaleTextIdx, first.DiscountSaleTextIdx,
-            first.ExploitativeSaleTextIdx, first.RejectTextIdx), Is.EqualTo((101u, 102u, 103u, 104u, 105u)));
+            first.ExploitativeSaleTextIdx, first.RejectTextIdx, first.NoSaleItemsTextIdx), Is.EqualTo((101u, 102u, 103u, 104u, 105u, 106u)));
         Assert.That(second.Attributes & CustomerAttributes.Female, Is.EqualTo(CustomerAttributes.Female));
         Assert.That((second.EntryTextIdx, second.RegularSaleTextIdx, second.DiscountSaleTextIdx,
-            second.ExploitativeSaleTextIdx, second.RejectTextIdx), Is.EqualTo((201u, 202u, 203u, 204u, 205u)));
+            second.ExploitativeSaleTextIdx, second.RejectTextIdx, second.NoSaleItemsTextIdx), Is.EqualTo((201u, 202u, 203u, 204u, 205u, 206u)));
     }
 
     /// <summary>아동·노년은 연령과 성별 전용 대사를, 성인은 기존 성별 대사를 사용합니다.</summary>
@@ -315,7 +317,7 @@ public sealed class CustomerCompositionSelectorIntegrationTests
             RegularSaleTextIdxs = new uint[] { 2 },
             DiscountSaleTextIdxs = new uint[] { 3 },
             ExploitativeSaleTextIdxs = new uint[] { 4 },
-            RejectTextIdxs = new uint[] { 5 }
+            RejectTextIdxs = new uint[] { 5 }, NoSaleItemsTextIdxs = new uint[] { 6 }
         };
     }
 

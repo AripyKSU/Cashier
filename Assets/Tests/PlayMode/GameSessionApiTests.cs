@@ -190,6 +190,34 @@ public sealed class GameSessionApiTests
     }
 
     /// <summary>실제 진행 경로가 확정 판매 목록·원가·판정을 보존하고 한 번만 입금한다.</summary>
+    /// <summary>전량 제외는 전용 사유와 대사를 보존하며 매출 없이 한 번 집계하고 다음 방문으로 진행합니다.</summary>
+    [Test]
+    public void EmptySalePreservesReasonAndCompletesExactlyOnce()
+    {
+        var progress = new GameProgress(session, tables.Customers,
+            tables.GetDB<ReputationBalanceDataTable>(DataTableType.ReputationBalance), new System.Random(1));
+        progress.Start();
+        progress.OpenBusiness();
+        progress.BeginCustomerSorting();
+        var day = progress.CurrentDayProgress;
+        var visit = day.CurrentVisit;
+        long balance = session.Economy.QueryService.CurrentBalance;
+        int completed = 0;
+        day.TransactionCompleted += actual => completed++;
+        Assert.That(progress.SubmitOffer(0, Array.Empty<SaleItem>()), Is.False);
+        Assert.That(visit.RejectionReason, Is.EqualTo(CustomerRejectionReason.NoSaleItems));
+        Assert.That(visit.FeedbackTextIdx, Is.InRange(8513u, 8540u));
+        Assert.That(day.RefusedCustomers, Is.EqualTo(1));
+        Assert.That(day.SuccessfulSales, Is.Zero);
+        Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(balance));
+        Assert.Throws<InvalidOperationException>(() => progress.SubmitOffer(0, Array.Empty<SaleItem>()));
+        Assert.That(completed, Is.EqualTo(1));
+        progress.CompleteTransactionResult();
+        Assert.That(visit.State, Is.EqualTo(CustomerState.Departed));
+        Assert.That(visit.RejectionReason, Is.EqualTo(CustomerRejectionReason.NoSaleItems));
+        Assert.That(day.CurrentVisit, Is.Not.SameAs(visit));
+    }
+
     [Test]
     public void ProgressPreservesTransactionAndRejectsDuplicateSubmission()
     {
@@ -1541,6 +1569,8 @@ public sealed class GameSessionApiTests
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.TransactionResult));
         Assert.That(progress.CurrentDayProgress.CurrentVisit.Outcome, Is.EqualTo(CustomerTradeOutcome.PaymentRefused));
         Assert.That(progress.CurrentDayProgress.CurrentVisit.State, Is.EqualTo(CustomerState.Rejected));
+        Assert.That(progress.CurrentDayProgress.CurrentVisit.RejectionReason, Is.EqualTo(CustomerRejectionReason.NoSaleItems));
+        Assert.That(progress.CurrentDayProgress.CurrentVisit.FeedbackTextIdx, Is.InRange(8513u, 8540u));
         var calculatorCorners = new Vector3[4];
         calculator.GetWorldCorners(calculatorCorners);
         Assert.That(calculatorCorners.Max(corner => calculatorBoundary.InverseTransformPoint(corner).y),

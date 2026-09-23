@@ -23,6 +23,14 @@ public enum CustomerTradeOutcome
     PaymentRefused = 4
 }
 
+/// <summary>거래 거부의 원인. 거래 결과와 별개로 대사를 선택하며 퇴장 후에도 보존합니다.</summary>
+public enum CustomerRejectionReason
+{
+    None = 0,
+    PriceRejected = 1,
+    NoSaleItems = 2
+}
+
 /// <summary>한 방문에서 확정된 손님 조합과 변경 불가능한 구매 목록.</summary>
 public sealed class CustomerVisit
 {
@@ -45,8 +53,12 @@ public sealed class CustomerVisit
     private readonly uint exploitativeSaleTextIdx;
     /// <summary>생성 시 선택한 거절 대사.</summary>
     private readonly uint rejectTextIdx;
+    /// <summary>생성 시 선택한 전량 제외 대사.</summary>
+    private readonly uint noSaleItemsTextIdx;
     /// <summary>제출 완료 결과. null은 미판정이며 재정 반영 완료를 의미하지 않는다.</summary>
     public TransactionResult? Result { get; private set; }
+    /// <summary>확정 결과의 거절 사유. 제출 전은 None입니다.</summary>
+    public CustomerRejectionReason RejectionReason => Result?.RejectionReason ?? CustomerRejectionReason.None;
     /// <summary>방문의 현재 상태. 이 객체의 API만 변경한다.</summary>
     public CustomerState State { get; private set; } = CustomerState.Entering;
     /// <summary>최종 목록의 제출 시점 기준 총액. 제출 전 null.</summary>
@@ -85,7 +97,7 @@ public sealed class CustomerVisit
         CustomerTradeOutcome.RegularSale => regularSaleTextIdx,
         CustomerTradeOutcome.DiscountSale => discountSaleTextIdx,
         CustomerTradeOutcome.ExploitativeSale => exploitativeSaleTextIdx,
-        CustomerTradeOutcome.PaymentRefused => rejectTextIdx,
+        CustomerTradeOutcome.PaymentRefused => RejectionReason == CustomerRejectionReason.NoSaleItems ? noSaleItemsTextIdx : rejectTextIdx,
         _ => EntryTextIdx
     };
     /// <summary>이번 방문의 외형 ID. 동일 외형의 재등장은 동일 인물을 뜻하지 않는다.</summary>
@@ -108,7 +120,8 @@ public sealed class CustomerVisit
     /// <param name="regularSaleTextIdx">수락 대사.</param>
     /// <param name="discountSaleTextIdx">저가 판매 대사.</param>
     /// <param name="exploitativeSaleTextIdx">착취 판매 대사.</param>
-    /// <param name="rejectTextIdx">거절 대사.</param>
+    /// <param name="rejectTextIdx">가격 거절 대사.</param>
+    /// <param name="noSaleItemsTextIdx">전량 제외 대사.</param>
     /// <param name="products">최종 목록의 상품·원가를 조회할 catalog.</param>
     /// <param name="getCurrentPrices">최신 현재가 조회 함수. 생성 시 가격표를 캡처하지 않는다.</param>
     /// <param name="dispositionType">검증 후 복사할 성향 타입.</param>
@@ -122,7 +135,7 @@ public sealed class CustomerVisit
     /// <param name="moralityCalculator">제출 시 사용할 도덕성 계산기. null은 미평가다.</param>
     /// <exception cref="ArgumentException">성향 타입 또는 속성이 유효하지 않음.</exception>
     internal CustomerVisit(uint appearanceIdx, uint dispositionIdx, List<CustomerOrderItem> items,
-        int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx,
+        int priceTolerance, int minimumPriceTolerance, uint entryTextIdx, uint regularSaleTextIdx, uint discountSaleTextIdx, uint exploitativeSaleTextIdx, uint rejectTextIdx, uint noSaleItemsTextIdx,
         IReadOnlyDictionary<uint, ProductData> products, Func<IReadOnlyDictionary<uint, uint>> getCurrentPrices,
         CustomerDispositionType dispositionType, CustomerAttributes attributes,
         int regularPriceMinRate, int regularPriceMaxRate, Func<IReadOnlyList<SaleRestriction>> getSaleRestrictions,
@@ -149,6 +162,7 @@ public sealed class CustomerVisit
         this.discountSaleTextIdx = discountSaleTextIdx;
         this.exploitativeSaleTextIdx = exploitativeSaleTextIdx;
         this.rejectTextIdx = rejectTextIdx;
+        this.noSaleItemsTextIdx = noSaleItemsTextIdx;
         this.products = products;
         this.getCurrentPrices = getCurrentPrices;
         this.availableProductIds = new HashSet<uint>(availableProductIds);
@@ -212,12 +226,12 @@ public sealed class CustomerVisit
     }
 
     /// <summary>전체 구매 목록의 총액을 한 번 판정한다. 입력 오류는 기회를 소모하지 않는다.</summary>
-    /// <param name="offeredTotal">양의 정수 제안 총액.</param>
-    /// <param name="saleItems">최종 상품·수량. 최초 희망 목록과 달라도 허용한다.</param>
+    /// <param name="offeredTotal">양의 제안 총액. 전량 제외 시 입력을 사용하지 않고 0으로 확정합니다.</param>
+    /// <param name="saleItems">최종 상품·수량. null 또는 빈 목록은 전량 제외로 확정한다.</param>
     /// <returns>수락 여부.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">0 또는 음수 입력.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">상품이 있는 제안의 0 또는 음수 입력.</exception>
     /// <exception cref="InvalidOperationException">대기 상태가 아닌 방문.</exception>
-    /// <exception cref="ArgumentException">빈 목록·잘못된 상품·수량·지침 조건 또는 중복 지침.</exception>
+    /// <exception cref="ArgumentException">잘못된 상품·수량·지침 조건 또는 중복 지침.</exception>
     /// <exception cref="OverflowException">합산 수량·기준액·허용액·원가 범위 초과.</exception>
     public bool SubmitOffer(long offeredTotal, IReadOnlyList<SaleItem> saleItems)
     {
@@ -237,7 +251,8 @@ public sealed class CustomerVisit
                     customerAttributes: Attributes,
                     wereDailyGuidelinesEvaluated: false,
                     dailyGuidelineViolations: Array.Empty<DailyGuidelineViolation>(),
-                    moralityEvaluation: null);
+                    moralityEvaluation: null,
+                    rejectionReason: CustomerRejectionReason.NoSaleItems);
                 Result = emptyResult;
                 AllowedTotal = 0;
                 OfferedTotal = 0;
@@ -303,8 +318,9 @@ public sealed class CustomerVisit
                 DispositionType,
                 Attributes,
                 wereDailyGuidelinesEvaluated,
-                dailyGuidelineViolations
-                , morality);
+                dailyGuidelineViolations,
+                morality,
+                outcome == CustomerTradeOutcome.PaymentRefused ? CustomerRejectionReason.PriceRejected : CustomerRejectionReason.None);
             Result = result;
             AllowedTotal = allowed;
             OfferedTotal = offeredTotal;

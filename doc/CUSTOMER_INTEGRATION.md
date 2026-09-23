@@ -73,6 +73,28 @@ Check-CustomerOutcomes와 Check-RadioTiming은 스크립트 그대로 실행했�
 
 실행 출력: `MAIN_INTEGRATION_PASS: button input, accepted/rejected, one income, departure, settlement, next day, failed settlement stops without retry (expected LogError=1)`. Console에는 의도된 접수 실패 `InvalidOperationException: 영업 종료로 거래 수입 반영이 거부되었습니다.` 1건이 있었다. 출력은 작업 실행 기록에 있으며 별도 로그 파일은 저장하지 않았다. Check-RadioTiming은 최초 초기화 전 실행이 실패했고 GameplaySandbox의 initialized=True 확인 후 재실행한 성공 결과다.
 
+### 전량 제외 대사와 거절 사유 (2026-09-22)
+
+- `CustomerRejectionReason`은 `None=0 / PriceRejected=1 / NoSaleItems=2`다. `TransactionResult.RejectionReason`에 확정하고 `CustomerVisit.RejectionReason`은 이를 읽는다. 제출 전·성사·재정 호환 결과는 None이며 퇴장 후에도 보존한다.
+- null/빈 판매 목록은 기존처럼 PaymentRefused·Rejected, 제시액/매출/원가0으로 종료하되 사유를 NoSaleItems로 기록한다. 상품이 있는 가격 상한 초과·하한 미달은 PriceRejected다. 기존 거절 횟수·명성 등급·이모지와 도덕성 미평가 정책은 변경하지 않는다.
+- `FeedbackTextIdx`는 NoSaleItems일 때만 생성 시 확정한 `NoSaleItemsTextIdx`를 반환한다. 가격 거절은 기존 RejectTextIdx를 사용한다. `CustomerComposition` 생성자에 필수 `noSaleItemsTextIdx` 인자를 rejectTextIdx 다음에 추가했으며 생성기·호출 fixture를 함께 이전했다.
+- 성향 CSV 끝에 아래 7열을 순서대로 추가한다. 전부 `IReadOnlyList<uint>`, `UIntArrayConverter`의 `_` 구분 형식이며 TextData.idx FK다. 값에0·중복·없는 FK를 허용하지 않는다. 누락 열은 로더 오류다.
+
+| 추가 열 순서 | 컬럼 | 빈 셀 규칙 |
+|---|---|---|
+| 1 | `no_sale_items_text_idxs` | 모든 행 필수 |
+| 2 | `male_no_sale_items_text_idxs` | 모든 행 필수 |
+| 3 | `female_no_sale_items_text_idxs` | 모든 행 필수 |
+| 4 | `male_child_no_sale_items_text_idxs` | 일반 성향 필수, 나머지 허용 |
+| 5 | `female_child_no_sale_items_text_idxs` | 일반 성향 필수, 나머지 허용 |
+| 6 | `male_elderly_no_sale_items_text_idxs` | 일반 성향 필수, 나머지 허용 |
+| 7 | `female_elderly_no_sale_items_text_idxs` | 일반 성향 필수, 나머지 허용 |
+
+- 프로필 선택은 연령·성별 → 같은 성별 기본 → 공용 후보 순서다. 일반 이외 성향의 연령 열은 빈 값이며, 공용 열에는 해당 성향 성인 남녀4개를 함께 참조한다. 기존 가격 거절 후보로 대체하지 않는다.
+- 신규 TextData는 **8513~8540, 총28개**다. 일반 성인 남8513~8514/여8515~8516, 아동 남8517~8518/여8519~8520, 노년 남8521~8522/여8523~8524, 절박 남8525~8526/여8527~8528, 가격 민감 남8529~8530/여8531~8532, 부자 남8533~8534/여8535~8536, 가난 남8537~8538/여8539~8540이다. 짧은 반응과 성향별 어조를 섞고 기존 문구는 보존했다.
+- ID는 기존 Text8 대역에서 현재 CSV·저장소 문서·로컬 전체 Git 이력의 사용 충돌을 확인한 뒤 연속 배정했다. 새 종류 ID는 없다. 원격 미가져온 변경은 통합 직전 다시 확인한다.
+- 이전은 CSV·DTO·FK 검증·구성/방문/결과 API·테스트를 함께 적용한다. 기존 컬럼·행·Text ID·GUID·리소스 경로는 보존하며, 복구 시 이 변경 묶음을 함께 되돌린다. 외부 영속 세이브 포맷은 추가하지 않는다.
+
 ### 거래 결과 4단계
 
 - `CustomerVisit.Outcome`은 `None / RegularSale / DiscountSale / ExploitativeSale / PaymentRefused`이며 퇴장 후에도 보존한다. `WasAccepted`는 결과에서 파생된다.
