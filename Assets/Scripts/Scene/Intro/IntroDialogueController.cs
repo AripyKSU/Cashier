@@ -122,6 +122,9 @@ public sealed class IntroDialogueController : MonoBehaviour
     [Header("Cuts")]
     [SerializeField] private IntroCut[] cuts = Array.Empty<IntroCut>();
 
+    [Header("Nine-cut sequence (optional)")]
+    [SerializeField] private IntroNineCutPlayer nineCutSequence;
+
     [Header("CUT 4 - 남은 시간 표시")]
     [Tooltip("\"하루에게 주어진 시간\" + \"31일\"을 담는 CanvasGroup.")]
     [SerializeField] private CanvasGroup remainingTimeGroup;
@@ -156,7 +159,7 @@ public sealed class IntroDialogueController : MonoBehaviour
     public bool IsPlaying => playback != null;
 
     /// <summary>현재 줄이 Typewriter로 출력되는 중인지 여부. true인 동안 모든 진행 입력을 무시한다.</summary>
-    public bool IsTyping => isTyping;
+    public bool IsTyping => nineCutSequence != null ? nineCutSequence.IsTyping : isTyping;
 
     /// <summary>재생 전에 인트로를 잠긴 상태로 세운다.</summary>
     private void Awake()
@@ -197,6 +200,13 @@ public sealed class IntroDialogueController : MonoBehaviour
     public void Play()
     {
         if (IsPlaying) return;
+        if (nineCutSequence != null)
+        {
+            setBlocking(true);
+            if (introRoot != null) introRoot.alpha = 1f;
+            playback = StartCoroutine(runNineCutIntro());
+            return;
+        }
         if (cuts.Length == 0)
         {
             Debug.LogError("[IntroDialogueController] CUT이 비어 있습니다. 컨텍스트 메뉴의 '인트로 기본 대사 채우기'로 채우세요.", this);
@@ -250,6 +260,16 @@ public sealed class IntroDialogueController : MonoBehaviour
             }
         }
 
+        playback = null;
+        complete();
+    }
+
+    /// <summary>새 9컷 데이터를 재생하고 기존 완료 이벤트로 게임 진입을 이어간다.</summary>
+    /// <returns>9컷 연출의 수명.</returns>
+    private IEnumerator runNineCutIntro()
+    {
+        yield return nineCutSequence.Run(dialogueBox, bodyText, speakerText,
+            dialogueBoxObject, speakerObject, secondsPerCharacter);
         playback = null;
         complete();
     }
@@ -430,6 +450,7 @@ public sealed class IntroDialogueController : MonoBehaviour
     /// <summary>진행 중인 연출을 중단한다.</summary>
     private void stopPlayback()
     {
+        if (nineCutSequence != null) nineCutSequence.Stop();
         if (playback == null) return;
         StopCoroutine(playback);
         playback = null;

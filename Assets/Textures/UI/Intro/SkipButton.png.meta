@@ -1,0 +1,216 @@
+fileFormatVersion: 2
+guid: 5357d1a5782b08241ba5ecbb43fdfe76
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 7510497192285408470
+    second: SkipButton_0
+  - first:
+      213: 5693414980891809519
+    second: SkipButton_1
+  - first:
+      213: -640051939423911205
+    second: SkipButton_2
+  - first:
+      213: 3834850124352633553
+    second: SkipButton_3
+  - first:
+      213: 2681013332060497239
+    second: SkipButton_4
+  - first:
+      213: 1917059289415419098
+    second: SkipButton_5
+  - first:
+      213: 479014290346066471
+    second: SkipButton_6
+  - first:
+      213: 4716569088827597303
+    second: SkipButton_7
+  - first:
+      213: -359021277087164116
+    second: SkipButton_8
+  - first:
+      213: 8407872518615449738
+    second: SkipButton_9
+  - first:
+      213: -5479581982285944436
+    second: SkipButton_10
+  - first:
+      213: -7324412597991399507
+    second: SkipButton_11
+  - first:
+      213: -3091992801832160676
+    second: SkipButton_12
+  - first:
+      213: -7847374189540900756
+    second: SkipButton_13
+  - first:
+      213: -3872625203611106779
+    second: SkipButton_14
+  - first:
+      213: 342473158392721655
+    second: SkipButton
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: SkipButton
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 162
+        width: 1985
+        height: 430
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 95, y: 70, z: 95, w: 70}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7f0ba17e585b0c400800000000000000
+      internalID: 342473158392721655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      SkipButton: 342473158392721655
+      SkipButton_0: 7510497192285408470
+      SkipButton_1: 5693414980891809519
+      SkipButton_10: -5479581982285944436
+      SkipButton_11: -7324412597991399507
+      SkipButton_12: -3091992801832160676
+      SkipButton_13: -7847374189540900756
+      SkipButton_14: -3872625203611106779
+      SkipButton_2: -640051939423911205
+      SkipButton_3: 3834850124352633553
+      SkipButton_4: 2681013332060497239
+      SkipButton_5: 1917059289415419098
+      SkipButton_6: 479014290346066471
+      SkipButton_7: 4716569088827597303
+      SkipButton_8: -359021277087164116
+      SkipButton_9: 8407872518615449738
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
