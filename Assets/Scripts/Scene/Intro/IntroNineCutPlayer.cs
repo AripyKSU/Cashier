@@ -26,12 +26,12 @@ public sealed class IntroSequenceBeat
 }
 
 /// <summary>한 번씩 순차 실행하는 인트로 연출 종류.</summary>
-public enum IntroBeatKind { Image, Fade, Wait, Line, Effect, Music, Ambience, MusicLevel, Shake, Card, StopAudio, MealDialogue }
+public enum IntroBeatKind { Image, Fade, Wait, Line, Effect, Music, Ambience, MusicLevel, Shake, Card, StopAudio, MealDialogue, ConcurrentShake }
 
-/// <summary>기존 인트로 대화 UI/완료 경로를 사용하며 9컷의 입력, 연출과 로컬 오디오 수명을 소유한다.</summary>
+/// <summary>기존 인트로 대화 UI/완료 경로를 사용하며 인트로 컷의 입력, 연출과 로컬 오디오 수명을 소유한다.</summary>
 public sealed class IntroNineCutPlayer : MonoBehaviour
 {
-    [Header("Confirmed art, in Scene 01–09 order")]
+    [Header("Confirmed art, in Scene 01, 02, 02.5, 03–09 order")]
     [SerializeField] private Sprite[] artwork;
     [SerializeField] private Image picture;
     [SerializeField] private CanvasGroup pictureGroup;
@@ -54,7 +54,19 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     [SerializeField] private AudioSource effects;
     [SerializeField, Range(0f, 1f)] private float musicVolume = 0.18f;
     [SerializeField, Range(0f, 1f)] private float ambienceVolume = 0.22f;
-    [SerializeField, Range(0f, 1f)] private float effectsVolume = 0.55f;
+    [SerializeField, Range(0f, 1f)] private float effectsVolume = 0.8f;
+    /// <summary>하루 대사 타이핑 때 재생할 짧은 글자 효과음 슬롯.</summary>
+    [SerializeField, Min(0)] private int textBlipClipIndex = 17;
+    /// <summary>아빠 대사 타이핑 때 재생할 짧은 글자 효과음 슬롯.</summary>
+    [SerializeField, Min(0)] private int fatherTextBlipClipIndex = 20;
+    /// <summary>감독관 대사 타이핑 때 재생할 짧은 글자 효과음 슬롯.</summary>
+    [SerializeField, Min(0)] private int inspectorTextBlipClipIndex = 21;
+    /// <summary>전체 효과음 음량에 곱하는 하루 글자 효과음 배율.</summary>
+    [SerializeField, Range(0f, 2f)] private float textBlipVolumeScale = 0.4f;
+    /// <summary>전체 효과음 음량에 곱하는 아빠 글자 효과음 배율.</summary>
+    [SerializeField, Range(0f, 2f)] private float fatherTextBlipVolumeScale = 0.45f;
+    /// <summary>전체 효과음 음량에 곱하는 감독관 글자 효과음 배율.</summary>
+    [SerializeField, Range(0f, 2f)] private float inspectorTextBlipVolumeScale = 0.25f;
     [Header("Scene 04: confirmed dialogue")]
     [SerializeField, TextArea] private string confirmedSettlement;
     [SerializeField] private IntroDialogueLine[] confirmedMealDialogue = Array.Empty<IntroDialogueLine>();
@@ -62,6 +74,9 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     [SerializeField, Min(0f)] private float settlementRowDelaySeconds = .35f;
     private readonly List<RaycastResult> hits = new List<RaycastResult>();
     private Vector2 picturePosition;
+    private Vector3 pictureScale;
+    private Vector2 shakeOffset;
+    private float shakeZoom;
     private float musicGain;
     private float ambienceGain;
     private bool running;
@@ -77,6 +92,7 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     private void Awake()
     {
         picturePosition = picture.rectTransform.anchoredPosition;
+        pictureScale = picture.rectTransform.localScale;
         skipButton.onClick.AddListener(requestSkip);
         if (confirmYes != null) confirmYes.onClick.AddListener(confirmSkip);
         if (confirmNo != null) confirmNo.onClick.AddListener(cancelSkip);
@@ -87,7 +103,10 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     private void Update()
     {
         if (!running) return;
-        foreach (IntroAtmosphereGraphic layer in atmosphere) layer.Tick(playbackDelta);
+        float delta = playbackDelta;
+        picture.rectTransform.anchoredPosition = picturePosition + shakeOffset;
+        picture.rectTransform.localScale = pictureScale * (1f + shakeZoom);
+        foreach (IntroAtmosphereGraphic layer in atmosphere) layer.Tick(delta);
         music.volume = musicVolume * musicGain;
         ambience.volume = ambienceVolume * ambienceGain;
         effects.volume = effectsVolume;
@@ -145,7 +164,7 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                     boxObject.SetActive(true);
                     speakerObject.SetActive(false);
                     speaker.text = string.Empty;
-                    yield return line(box, body, dialogueText(beat.speaker, beat.text), characterSeconds);
+                    yield return line(box, body, beat.speaker, dialogueText(beat.speaker, beat.text), characterSeconds);
                     break;
                 case IntroBeatKind.Effect:
                     if (beat.index == 8 && mealSequence != null) mealSequence.StopRoom();
@@ -153,6 +172,7 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                     if (clips[beat.index] != null) effects.PlayOneShot(clips[beat.index], beat.value);
                     break;
                 case IntroBeatKind.Music:
+                    if (beat.index == 1 && mealSequence != null) mealSequence.StopRoom();
                     musicGain = beat.value;
                     loop(music, beat.index, musicVolume * musicGain);
                     break;
@@ -172,16 +192,10 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                     musicGain = beat.value;
                     break;
                 case IntroBeatKind.Shake:
-                    float time = 0f;
-                    while (time < beat.seconds)
-                    {
-                        time += playbackDelta;
-                        float decay = 1f - Mathf.Clamp01(time / beat.seconds);
-                        picture.rectTransform.anchoredPosition = picturePosition +
-                            new Vector2(Mathf.Sin(time * 113f), Mathf.Sin(time * 157f)) * beat.value * decay;
-                        yield return null;
-                    }
-                    picture.rectTransform.anchoredPosition = picturePosition;
+                    yield return shake(beat.value, beat.seconds);
+                    break;
+                case IntroBeatKind.ConcurrentShake:
+                    StartCoroutine(shake(beat.value, beat.seconds));
                     break;
                 case IntroBeatKind.Card:
                     if (beat.index == 4 && mealSequence != null)
@@ -220,7 +234,7 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                         speaker.text = string.Empty;
                         Action onTyped = mealIndex == confirmedMealDialogue.Length - 1 && mealSequence != null
                             ? mealSequence.PlayEatingSound : (Action)null;
-                        yield return line(box, body, dialogueText(meal.Speaker, meal.Body), characterSeconds, onTyped);
+                        yield return line(box, body, meal.Speaker, dialogueText(meal.Speaker, meal.Body), characterSeconds, onTyped);
                     }
                     break;
                 case IntroBeatKind.StopAudio:
@@ -253,18 +267,25 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
         if (music != null) music.Stop();
         if (ambience != null) ambience.Stop();
         if (effects != null) effects.Stop();
-        if (picture != null) picture.rectTransform.anchoredPosition = picturePosition;
+        shakeOffset = Vector2.zero;
+        shakeZoom = 0f;
+        if (picture != null)
+        {
+            picture.rectTransform.anchoredPosition = picturePosition;
+            picture.rectTransform.localScale = pictureScale;
+        }
         if (cardText != null) cardText.gameObject.SetActive(false);
     }
 
     /// <summary>대사 전체 크기를 먼저 확정하고 입력 한 번으로 완성, 다음 입력으로 진행한다.</summary>
     /// <param name="box">기존 대화창.</param>
     /// <param name="body">표시 텍스트.</param>
+    /// <param name="speakerName">화자별 글자 효과음을 선택할 이름.</param>
     /// <param name="text">확정 대사.</param>
     /// <param name="seconds">글자당 시간.</param>
     /// <param name="onTyped">문장 완성 때 한 번 호출하는 선택적 효과음 이벤트.</param>
     /// <returns>완성과 진행 입력 대기.</returns>
-    private IEnumerator line(AutoSizeNineSliceDialogueBox box, TextMeshProUGUI body, string text, float seconds, Action onTyped = null)
+    private IEnumerator line(AutoSizeNineSliceDialogueBox box, TextMeshProUGUI body, string speakerName, string text, float seconds, Action onTyped = null)
     {
         box.Apply(text);
         body.text = text;
@@ -273,12 +294,26 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
         int count = body.textInfo.characterCount;
         typing = true;
         float elapsed = 0f;
+        float characterDelaySeconds = Mathf.Max(.001f, seconds);
+        int soundCharacterCount = 0;
         yield return null; // 이전 줄의 Down이 새 줄을 완성하지 않게 한다.
         while (body.maxVisibleCharacters < count)
         {
             if (advance()) break;
             elapsed += playbackDelta;
-            body.maxVisibleCharacters = Mathf.Min(count, Mathf.FloorToInt(elapsed / Mathf.Max(.001f, seconds)));
+            if (elapsed >= characterDelaySeconds)
+            {
+                elapsed -= characterDelaySeconds;
+                int previousVisibleCharacters = body.maxVisibleCharacters;
+                body.maxVisibleCharacters = previousVisibleCharacters + 1;
+                char revealedCharacter = body.textInfo.characterInfo[previousVisibleCharacters].character;
+                if (char.IsLetterOrDigit(revealedCharacter))
+                {
+                    soundCharacterCount++;
+                    if ((soundCharacterCount & 1) == 1)
+                        playTextBlip(body, speakerName, previousVisibleCharacters, body.maxVisibleCharacters);
+                }
+            }
             yield return null;
         }
         body.maxVisibleCharacters = count;
@@ -287,6 +322,46 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
         onTyped?.Invoke();
         yield return null;
         while (!advance()) yield return null;
+    }
+
+    /// <summary>타이핑 루프가 선택한 새 글자에 효과음을 한 번 재생한다.</summary>
+    /// <param name="body">현재 대사 TMP 본문.</param>
+    /// <param name="speakerName">효과음을 선택할 화자 이름.</param>
+    /// <param name="from">이전까지 보인 글자 수.</param>
+    /// <param name="to">이번 프레임까지 보인 글자 수.</param>
+    private void playTextBlip(TextMeshProUGUI body, string speakerName, int from, int to)
+    {
+        int clipIndex;
+        float volumeScale;
+        if (speakerName == "하루")
+        {
+            clipIndex = textBlipClipIndex;
+            volumeScale = textBlipVolumeScale;
+        }
+        else if (speakerName == "아빠")
+        {
+            clipIndex = fatherTextBlipClipIndex;
+            volumeScale = fatherTextBlipVolumeScale;
+        }
+        else if (speakerName == "감독관")
+        {
+            clipIndex = inspectorTextBlipClipIndex;
+            volumeScale = inspectorTextBlipVolumeScale;
+        }
+        else return;
+
+        if (effects == null || clips == null || clipIndex < 0 || clipIndex >= clips.Length) return;
+
+        AudioClip clip = clips[clipIndex];
+        if (clip == null) return;
+
+        int end = Mathf.Min(to, body.textInfo.characterCount);
+        for (int i = Mathf.Max(0, from); i < end; i++)
+        {
+            if (!char.IsLetterOrDigit(body.textInfo.characterInfo[i].character)) continue;
+            effects.PlayOneShot(clip, volumeScale);
+            return;
+        }
     }
 
     /// <summary>화자 이름을 별도 표기하지 않고 대화창 본문 앞에 붙인다.</summary>
@@ -315,7 +390,11 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
             yield return null;
         }
         pictureGroup.alpha = target;
-        if (fadeMusic) musicGain = musicTarget;
+        if (fadeMusic)
+        {
+            musicGain = musicTarget;
+            if (musicTarget <= 0f && music.isPlaying) music.Pause();
+        }
     }
 
     /// <summary>이전 루프를 멈춘 뒤 지정 클립 한 개만 재생한다.</summary>
@@ -364,6 +443,25 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     private IEnumerator hold(float seconds)
     {
         while (seconds > 0f) { seconds -= playbackDelta; yield return null; }
+    }
+
+    /// <summary>잔잔한 반응부터 강한 충격까지 같은 감쇠 곡선으로 화면을 흔든다.</summary>
+    private IEnumerator shake(float strength, float seconds)
+    {
+        float duration = Mathf.Max(.01f, seconds);
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += playbackDelta;
+            float decay = 1f - Mathf.Clamp01(elapsed / duration);
+            float x = Mathf.Sin(elapsed * 113f) + Mathf.Sin(elapsed * 257f) * .45f;
+            float y = Mathf.Sin(elapsed * 157f + .7f) + Mathf.Sin(elapsed * 211f) * .35f;
+            shakeOffset = new Vector2(x, y) * strength * decay * .72f;
+            shakeZoom = Mathf.Min(.05f, strength * .002f) * decay;
+            yield return null;
+        }
+        shakeOffset = Vector2.zero;
+        shakeZoom = 0f;
     }
 
     /// <summary>전체 인트로를 멈추고 확인창만 입력받는다.</summary>

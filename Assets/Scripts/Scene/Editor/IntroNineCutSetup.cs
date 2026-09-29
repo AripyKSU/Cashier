@@ -7,15 +7,21 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>열린 IntroScene에만 9컷 리소스를 연결한다. 기존 4컷과 공용 씬 전환은 보존한다.</summary>
+/// <summary>열린 IntroScene에만 인트로 컷 리소스를 연결한다. 기존 4컷과 공용 씬 전환은 보존한다.</summary>
 public static class IntroNineCutSetup
 {
     private const string ScenePath = "Assets/Scenes/IntroScene.unity";
     private const string ArtPath = "Assets/Textures/art/Intro/NineCut";
     private const string AudioPath = "Assets/Sounds/Intro/NineCut";
-    private static readonly string[] ClipNames = { "LonelyTheme", "OminousDrone", "Wind", "Burner",
-        "SlowStoneSteps", "PaperRustle", "MetalContainer", "PotSimmer", "ChopsticksDrop", "BodyFall",
-        "RunningStop", "BodyCollision", "DullImpact", "ApproachingShoes", "LabouredBreath", "LedgerTick" };
+    private static readonly string[] ArtNames = { "Scene01", "Scene02", "Scene02_5", "Scene03", "Scene04",
+        "Scene05", "Scene06", "Scene07", "Scene08", "Scene09" };
+    private static readonly string[] ClipFiles = { "PeacefulMusic.mp3", "SadMusic.mp3", "Wind.wav", "Burner.wav",
+        null, null, null, "BoilingWater.mp3", null, "BodyFallProvided.mp3",
+        null, "BodyCollision.wav", null, null, "LabouredBreath.wav", "LedgerTick.wav",
+        "VehicleRevealFanfare.ogg", "TextBlip.ogg", "FatherAttack01.ogg", "FatherAttack02.ogg",
+        "FatherTextBlip.ogg", "InspectorTextBlip.ogg" };
+    // 현재 연출에서 음소거하지 않은 필수 음원 슬롯입니다.
+    private static readonly int[] RequiredClipIndices = { 0, 1, 2, 3, 7, 9, 11, 14, 15, 16, 17, 18, 19, 20, 21 };
 
     /// <summary>Editor JSON 입력. 런타임에는 씬에 저장한 Inspector 데이터만 사용한다.</summary>
     [Serializable]
@@ -30,12 +36,12 @@ public static class IntroNineCutSetup
             throw new InvalidOperationException("저장된 IntroScene을 편집 모드에서 열어야 합니다. 미저장 씬을 덮어쓰지 않습니다.");
         var controller = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<IntroDialogueController>(true)).Single();
         if (controller.GetComponent<IntroNineCutPlayer>() != null)
-            throw new InvalidOperationException("이미 연결된 9컷을 자동으로 덮어쓰지 않습니다. Inspector에서 편집하세요.");
+            throw new InvalidOperationException("이미 연결된 인트로 컷을 자동으로 덮어쓰지 않습니다. Inspector에서 편집하세요.");
         AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
-        var sprites = new Sprite[9];
+        var sprites = new Sprite[ArtNames.Length];
         for (int i = 0; i < sprites.Length; i++)
         {
-            string path = $"{ArtPath}/Scene{i + 1:00}.png";
+            string path = $"{ArtPath}/{ArtNames[i]}.png";
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType = TextureImporterType.Sprite;
             importer.spriteImportMode = SpriteImportMode.Single;
@@ -48,8 +54,11 @@ public static class IntroNineCutSetup
             sprites[i] = AssetDatabase.LoadAssetAtPath<Sprite>(path);
             if (sprites[i] == null) throw new InvalidOperationException(path);
         }
-        var clips = ClipNames.Select(name => AssetDatabase.LoadAssetAtPath<AudioClip>($"{AudioPath}/{name}.wav")).ToArray();
-        if (clips.Any(clip => clip == null)) throw new InvalidOperationException("오디오 import 누락");
+        var clips = ClipFiles.Select(name => string.IsNullOrEmpty(name)
+            ? null
+            : AssetDatabase.LoadAssetAtPath<AudioClip>($"{AudioPath}/{name}")).ToArray();
+        if (RequiredClipIndices.Any(index => clips[index] == null))
+            throw new InvalidOperationException("필수 오디오 import 누락");
         var file = JsonUtility.FromJson<SequenceFile>(File.ReadAllText("Assets/Datas/Intro/IntroNineCutSequence.json"));
         var existing = new SerializedObject(controller);
         var font = ((TextMeshProUGUI)existing.FindProperty("bodyText").objectReferenceValue).font;
@@ -96,6 +105,8 @@ public static class IntroNineCutSetup
             p.FindPropertyRelative("text").stringValue = b.text;
             p.FindPropertyRelative("seconds").floatValue = b.seconds;
             p.FindPropertyRelative("value").floatValue = b.value;
+            p.FindPropertyRelative("fadeMusic").boolValue = b.fadeMusic;
+            p.FindPropertyRelative("musicTarget").floatValue = b.musicTarget;
         }
         so.ApplyModifiedPropertiesWithoutUndo();
         set(existing,"nineCutSequence",player);
@@ -109,7 +120,7 @@ public static class IntroNineCutSetup
         validate(player);
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
-        Debug.Log("[IntroNineCut] SAVED: 9 images, 16 audio clips, 35 lines, 104 beats; original 4 cuts retained. Scene 04 dialogue/settlement unconfirmed.");
+        Debug.Log("[IntroNineCut] SAVED: 10 images, 22 audio clips, 40 lines, 114 beats; original 4 cuts retained. Scene 04 dialogue/settlement unconfirmed.");
     }
 
     /// <summary>저장된 씬의 참조와 순서, 원본 컷 보존 및 오디오 수를 검사한다.</summary>
@@ -123,7 +134,7 @@ public static class IntroNineCutSetup
         Debug.Log("[IntroNineCut] STATIC VALIDATION OK; input/audio listening/Play Mode not tested.");
     }
 
-    /// <summary>필수 리소스와 9컷 순서를 검증하고 결과를 Temp에 기록한다.</summary>
+    /// <summary>필수 리소스와 인트로 컷 순서를 검증하고 결과를 Temp에 기록한다.</summary>
     private static void validate(IntroNineCutPlayer player)
     {
         var so = new SerializedObject(player);
@@ -132,10 +143,15 @@ public static class IntroNineCutSetup
         foreach (string field in new[]{"artwork","clips"})
         {
             var a=so.FindProperty(field);
-            if (a.arraySize != (field == "artwork" ? 9 : 16)) throw new InvalidOperationException(field + " count");
-            for(int i=0;i<a.arraySize;i++)
-                if(a.GetArrayElementAtIndex(i).objectReferenceValue==null) throw new InvalidOperationException(field+" missing "+i);
+            if (a.arraySize != (field == "artwork" ? 10 : 22)) throw new InvalidOperationException(field + " count");
+            if (field == "artwork")
+                for(int i=0;i<a.arraySize;i++)
+                    if(a.GetArrayElementAtIndex(i).objectReferenceValue==null) throw new InvalidOperationException(field+" missing "+i);
         }
+        var clips = so.FindProperty("clips");
+        foreach (int index in RequiredClipIndices)
+            if (clips.GetArrayElementAtIndex(index).objectReferenceValue == null)
+                throw new InvalidOperationException("clips missing " + index);
         int image=0, lines=0, impacts=0;
         var beats=so.FindProperty("beats");
         for(int i=0;i<beats.arraySize;i++)
@@ -145,9 +161,9 @@ public static class IntroNineCutSetup
             int index=b.FindPropertyRelative("index").intValue;
             if(kind==(int)IntroBeatKind.Image && index!=image++) throw new InvalidOperationException("image order");
             if(kind==(int)IntroBeatKind.Line) lines++;
-            if(kind==(int)IntroBeatKind.Effect && index==12) impacts++;
+            if(kind==(int)IntroBeatKind.Effect && (index==18 || index==19)) impacts++;
         }
-        if(image!=9 || lines!=35 || impacts!=2) throw new InvalidOperationException($"counts {image}/{lines}/{impacts}");
+        if(image!=10 || lines!=40 || impacts!=2) throw new InvalidOperationException($"counts {image}/{lines}/{impacts}");
         var legacy=new SerializedObject(player.GetComponent<IntroDialogueController>());
         if(legacy.FindProperty("cuts").arraySize!=4) throw new InvalidOperationException("original cuts changed");
         foreach(var source in player.GetComponentsInChildren<AudioSource>(true))

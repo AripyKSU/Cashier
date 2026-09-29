@@ -10,7 +10,7 @@ public sealed class IntroMealSequence : MonoBehaviour
     [SerializeField] private CanvasGroup[] rows;
     [SerializeField] private float[] revealSeconds = { .3f, .8f, 1.3f, 1.8f, 2.3f, 2.6f, 3.3f };
     [SerializeField] private AudioClip[] rowClips;
-    [SerializeField] private float[] rowVolumes = { .28f, .3f, .3f, .3f, 0f, .28f, 0f };
+    [SerializeField] private float[] rowVolumes = { .5f, .45f, .45f, .45f, 0f, .9f, 1f };
     [SerializeField, Min(0f)] private float captionHoldSeconds = 1.5f;
     [SerializeField, Min(0f)] private float simmerPrelapSeconds = .7f;
     [SerializeField, Min(0f)] private float textFadeSeconds = .3f;

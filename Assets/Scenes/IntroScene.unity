@@ -1922,6 +1922,7 @@ MonoBehaviour:
   artwork:
   - {fileID: 21300000, guid: 6377ab3ef70418f4f8fac23de8aa5be5, type: 3}
   - {fileID: 21300000, guid: eb464e89108d11e4293d8275dffcb4d6, type: 3}
+  - {fileID: 21300000, guid: 5174a9c466564a72a7f31fbca41863f9, type: 3}
   - {fileID: 21300000, guid: e96746dd18cef03448ae6952ca75359c, type: 3}
   - {fileID: 21300000, guid: 6729e8f69fe288d4f9a0a5a921b9c9b6, type: 3}
   - {fileID: 21300000, guid: 466ca383e427c4d4d9d881eb0beccf45, type: 3}
@@ -2091,9 +2092,99 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
-  - label: Scene 03
+  - label: Scene 02.5
     kind: 0
     index: 2
+    speaker:
+    text:
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Fade
+    kind: 1
+    index: 0
+    speaker:
+    text:
+    seconds: 0.6
+    value: 1
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Vehicle reveal fanfare
+    kind: 4
+    index: 16
+    speaker:
+    text:
+    seconds: 0
+    value: 0.9
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Proud reaction
+    kind: 12
+    index: 0
+    speaker:
+    text:
+    seconds: 0.2
+    value: 3
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uD558\uB8E8"
+    text: "\uC9DC\uC794~! \uC6B0\uB9AC \uC9D1\uC774\uC790 \uAC00\uAC8C\uC608\uC694. \uBA4B\uC9C0\uC8E0?"
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uD558\uB8E8"
+    text: "\uC81C\uAC00 \uC544\uAE30\uC600\uC744 \uB54C\uBD80\uD130 \uC544\uBE60\uB294 \uC870\uAE08\uC529 \uB3C8\uC744 \uBAA8\uC558\uB300\uC694."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uD558\uB8E8"
+    text: "\uB0A1\uC740 \uC637\uB3C4 \uAFF0\uB9E4 \uC785\uACE0, \uACE0\uC7A5 \uB09C \uBB3C\uAC74\uB3C4 \uACE0\uCCD0 \uC4F0\uBA74\uC11C\uC694."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uD558\uB8E8"
+    text: "\uADF8\uB807\uAC8C \uC544\uB07C\uACE0 \uBAA8\uC544\uC11C\u2026 \uB4DC\uB514\uC5B4 \uC6B0\uB9AC \uCC28\uAC00 \uC0DD\uACBC\uC5B4\uC694!"
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uD558\uB8E8"
+    text: "\uC7A5\uC0AC\uB3C4 \uD558\uACE0, \uBC25\uB3C4 \uBA39\uACE0, \uC7A0\uB3C4 \uC798 \uC218 \uC788\uC5B4\uC694."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Fade
+    kind: 1
+    index: 0
+    speaker:
+    text:
+    seconds: 0.6
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Scene 03
+    kind: 0
+    index: 3
     speaker:
     text:
     seconds: 0
@@ -2185,7 +2276,7 @@ MonoBehaviour:
     musicTarget: 0.15
   - label: Scene 04
     kind: 0
-    index: 3
+    index: 4
     speaker:
     text:
     seconds: 0
@@ -2266,24 +2357,6 @@ MonoBehaviour:
     musicTarget: 0
   - label: Effect
     kind: 4
-    index: 8
-    speaker:
-    text:
-    seconds: 0
-    value: 0.7
-    fadeMusic: 0
-    musicTarget: 0.15
-  - label: Wait
-    kind: 2
-    index: 0
-    speaker:
-    text:
-    seconds: 0.35
-    value: 0
-    fadeMusic: 0
-    musicTarget: 0.15
-  - label: Effect
-    kind: 4
     index: 9
     speaker:
     text:
@@ -2291,22 +2364,22 @@ MonoBehaviour:
     value: 0.7
     fadeMusic: 0
     musicTarget: 0.15
-  - label: MusicLevel
-    kind: 7
-    index: 0
-    speaker:
-    text:
-    seconds: 0.12
-    value: 0
-    fadeMusic: 0
-    musicTarget: 0.15
   - label: Wait
     kind: 2
     index: 0
     speaker:
     text:
-    seconds: 0.5
+    seconds: 0.65
     value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Sad music starts after fall
+    kind: 5
+    index: 1
+    speaker:
+    text:
+    seconds: 0
+    value: 0.85
     fadeMusic: 0
     musicTarget: 0.15
   - label: Line
@@ -2320,16 +2393,7 @@ MonoBehaviour:
     musicTarget: 0.15
   - label: Scene 05
     kind: 0
-    index: 4
-    speaker:
-    text:
-    seconds: 0
-    value: 0
-    fadeMusic: 0
-    musicTarget: 0.15
-  - label: Scene 05 sad piano starts
-    kind: 5
-    index: 1
+    index: 5
     speaker:
     text:
     seconds: 0
@@ -2343,8 +2407,8 @@ MonoBehaviour:
     text:
     seconds: 0.8
     value: 1
-    fadeMusic: 1
-    musicTarget: 0.85
+    fadeMusic: 0
+    musicTarget: 0.15
   - label: Line
     kind: 3
     index: 0
@@ -2354,6 +2418,15 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
+  - label: Panic reaction
+    kind: 8
+    index: 0
+    speaker:
+    text:
+    seconds: 0.18
+    value: 4
+    fadeMusic: 0
+    musicTarget: 0.15
   - label: Line
     kind: 3
     index: 0
@@ -2361,6 +2434,15 @@ MonoBehaviour:
     text: "\uB208 \uB5A0 \uBD10! \uD558\uB8E8\uC57C!"
     seconds: 0
     value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Panic reaction strong
+    kind: 8
+    index: 0
+    speaker:
+    text:
+    seconds: 0.24
+    value: 5.5
     fadeMusic: 0
     musicTarget: 0.15
   - label: Fade
@@ -2374,7 +2456,7 @@ MonoBehaviour:
     musicTarget: 0.15
   - label: Scene 06
     kind: 0
-    index: 5
+    index: 6
     speaker:
     text:
     seconds: 0
@@ -2474,6 +2556,15 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
+  - label: Desperate shout reaction
+    kind: 8
+    index: 0
+    speaker:
+    text:
+    seconds: 0.28
+    value: 7
+    fadeMusic: 0
+    musicTarget: 0.15
   - label: Fade
     kind: 1
     index: 0
@@ -2503,7 +2594,7 @@ MonoBehaviour:
     musicTarget: 0.15
   - label: Scene 07
     kind: 0
-    index: 6
+    index: 7
     speaker:
     text:
     seconds: 0
@@ -2528,13 +2619,13 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
-  - label: Effect
+  - label: Father attack 1
     kind: 4
-    index: 12
+    index: 18
     speaker:
     text:
     seconds: 0
-    value: 0.8
+    value: 1
     fadeMusic: 0
     musicTarget: 0.15
   - label: Shake
@@ -2542,8 +2633,8 @@ MonoBehaviour:
     index: 0
     speaker:
     text:
-    seconds: 0.14
-    value: 2.2
+    seconds: 0.48
+    value: 22
     fadeMusic: 0
     musicTarget: 0.15
   - label: Wait
@@ -2565,13 +2656,13 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
-  - label: Effect
+  - label: Father attack 2
     kind: 4
-    index: 12
+    index: 19
     speaker:
     text:
     seconds: 0
-    value: 0.8
+    value: 1
     fadeMusic: 0
     musicTarget: 0.15
   - label: Shake
@@ -2579,8 +2670,8 @@ MonoBehaviour:
     index: 0
     speaker:
     text:
-    seconds: 0.14
-    value: 2.2
+    seconds: 0.55
+    value: 24
     fadeMusic: 0
     musicTarget: 0.15
   - label: Wait
@@ -2612,7 +2703,7 @@ MonoBehaviour:
     musicTarget: 0.15
   - label: Scene 08
     kind: 0
-    index: 7
+    index: 8
     speaker:
     text:
     seconds: 0
@@ -2685,7 +2776,7 @@ MonoBehaviour:
     musicTarget: 0.15
   - label: Scene 09
     kind: 0
-    index: 8
+    index: 9
     speaker:
     text:
     seconds: 0
@@ -2910,38 +3001,41 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
-  - label: Card
-    kind: 9
-    index: 0
-    speaker:
-    text: "1\uC77C \uCC28"
-    seconds: 1.6
-    value: 0
-    fadeMusic: 0
-    musicTarget: 0.15
   clips:
-  - {fileID: 8300000, guid: a35cde67c6b941f88e551a40abce0011, type: 3}
-  - {fileID: 8300000, guid: a35cde67c6b941f88e551a40abce0012, type: 3}
+  - {fileID: 8300000, guid: 76ccfefe33994845b5ae0e5fa47042f4, type: 3}
+  - {fileID: 8300000, guid: a47b5c8754824519b1136987ceb3dd1a, type: 3}
   - {fileID: 8300000, guid: 6d2af58f9a6c6034bb261bc59c155f55, type: 3}
   - {fileID: 8300000, guid: 27385a31a1d20fa48a2cf0a64c699cef, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 8300000, guid: f9a01e8554702dc43a070effa6e00058, type: 3}
-  - {fileID: 8300000, guid: 8ef054ea33fd3d54098d70ef248ef715, type: 3}
-  - {fileID: 8300000, guid: 483cb7c3fbe726c4f8101202e99e915c, type: 3}
+  - {fileID: 8300000, guid: 18d7d3538e5348a1ada33fc51d436238, type: 3}
   - {fileID: 0}
+  - {fileID: 8300000, guid: 6c371564539f427f90f2d0dde1942bd9, type: 3}
   - {fileID: 0}
+  - {fileID: 8300000, guid: c46795d41ccd2ac45b486323684e2b8e, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 8300000, guid: fed3385fd61301648b3b1217eb121b42, type: 3}
   - {fileID: 8300000, guid: f64f188ad56992843bc94c656f11fa02, type: 3}
+  - {fileID: 8300000, guid: 50a0475dd5c0431c82e9576c1a805ba1, type: 3}
+  - {fileID: 8300000, guid: cf750a87b26decc45b17044a0e9631b9, type: 3}
+  - {fileID: 8300000, guid: f3e8c19a4b7d462e8a05c7139d2f6b40, type: 3}
+  - {fileID: 8300000, guid: 8c26a71d5f034e9ba418d6c2f7903e51, type: 3}
+  - {fileID: 8300000, guid: 54db9a61e7c24f83b150d26a8c9347ef, type: 3}
+  - {fileID: 8300000, guid: aa32c8f419e64d57b30791af625e8c40, type: 3}
   music: {fileID: 172434823}
   ambience: {fileID: 354427500}
   effects: {fileID: 791834630}
   musicVolume: 0.32
   ambienceVolume: 0.22
-  effectsVolume: 0.55
+  effectsVolume: 0.8
+  textBlipClipIndex: 17
+  fatherTextBlipClipIndex: 20
+  inspectorTextBlipClipIndex: 21
+  textBlipVolumeScale: 0.4
+  fatherTextBlipVolumeScale: 0.45
+  inspectorTextBlipVolumeScale: 0.25
   confirmedSettlement:
   confirmedMealDialogue:
   - speaker: "\uC544\uBE60"
@@ -2995,16 +3089,16 @@ MonoBehaviour:
   - {fileID: 8300000, guid: f64f188ad56992843bc94c656f11fa02, type: 3}
   - {fileID: 8300000, guid: f64f188ad56992843bc94c656f11fa02, type: 3}
   - {fileID: 0}
-  - {fileID: 8300000, guid: e8aa084471675174186ed94eb2cada32, type: 3}
-  - {fileID: 0}
+  - {fileID: 8300000, guid: c48429ff417642c2b06059dfea1fd38b, type: 3}
+  - {fileID: 8300000, guid: 1ca073e661194c7ea6d8e7c99e117c48, type: 3}
   rowVolumes:
-  - 0.28
-  - 0.3
-  - 0.3
-  - 0.3
+  - 0.5
+  - 0.45
+  - 0.45
+  - 0.45
   - 0
-  - 0.28
-  - 0
+  - 0.9
+  - 1
   captionHoldSeconds: 1.5
   simmerPrelapSeconds: 0.7
   textFadeSeconds: 0.3
@@ -4125,7 +4219,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 5379982603356840082, guid: 7e9a382e3bf605e408143c8fd95d394f, type: 2}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: f9a01e8554702dc43a070effa6e00058, type: 3}
+  m_Resource: {fileID: 8300000, guid: 18d7d3538e5348a1ada33fc51d436238, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -6400,7 +6494,7 @@ MonoBehaviour:
   artwork: {fileID: 1926980498}
   steamTexture: {fileID: 2800000, guid: 8146c36afd06422a92ae965371323f2e, type: 3}
   effect: 1
-  cutIndex: 3
+  cutIndex: 4
   region:
     serializedVersion: 2
     x: 715

@@ -145,9 +145,99 @@
       "speaker": ""
     },
     {
-      "label": "Scene 03",
+      "label": "Scene 02.5",
       "kind": 0,
       "index": 2,
+      "seconds": 0,
+      "value": 0,
+      "text": "",
+      "speaker": ""
+    },
+    {
+      "label": "Fade",
+      "kind": 1,
+      "index": 0,
+      "seconds": 0.6,
+      "value": 1,
+      "text": "",
+      "speaker": ""
+    },
+    {
+      "label": "Vehicle reveal fanfare",
+      "kind": 4,
+      "index": 16,
+      "seconds": 0,
+      "value": 0.9,
+      "text": "",
+      "speaker": ""
+    },
+    {
+      "label": "Proud reaction",
+      "kind": 12,
+      "index": 0,
+      "seconds": 0.2,
+      "value": 3,
+      "text": "",
+      "speaker": ""
+    },
+    {
+      "label": "Line",
+      "kind": 3,
+      "index": 0,
+      "seconds": 0,
+      "value": 0,
+      "text": "짜잔~! 우리 집이자 가게예요. 멋지죠?",
+      "speaker": "하루"
+    },
+    {
+      "label": "Line",
+      "kind": 3,
+      "index": 0,
+      "seconds": 0,
+      "value": 0,
+      "text": "제가 아기였을 때부터 아빠는 조금씩 돈을 모았대요.",
+      "speaker": "하루"
+    },
+    {
+      "label": "Line",
+      "kind": 3,
+      "index": 0,
+      "seconds": 0,
+      "value": 0,
+      "text": "낡은 옷도 꿰매 입고, 고장 난 물건도 고쳐 쓰면서요.",
+      "speaker": "하루"
+    },
+    {
+      "label": "Line",
+      "kind": 3,
+      "index": 0,
+      "seconds": 0,
+      "value": 0,
+      "text": "그렇게 아끼고 모아서… 드디어 우리 차가 생겼어요!",
+      "speaker": "하루"
+    },
+    {
+      "label": "Line",
+      "kind": 3,
+      "index": 0,
+      "seconds": 0,
+      "value": 0,
+      "text": "장사도 하고, 밥도 먹고, 잠도 잘 수 있어요.",
+      "speaker": "하루"
+    },
+    {
+      "label": "Fade",
+      "kind": 1,
+      "index": 0,
+      "seconds": 0.6,
+      "value": 0,
+      "text": "",
+      "speaker": ""
+    },
+    {
+      "label": "Scene 03",
+      "kind": 0,
+      "index": 3,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -237,7 +327,7 @@
     {
       "label": "Scene 04",
       "kind": 0,
-      "index": 3,
+      "index": 4,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -303,24 +393,8 @@
       "index": 0,
       "seconds": 0.5,
       "value": 0,
-      "text": "",
-      "speaker": ""
-    },
-    {
-      "label": "Effect",
-      "kind": 4,
-      "index": 8,
-      "seconds": 0,
-      "value": 0.7,
-      "text": "",
-      "speaker": ""
-    },
-    {
-      "label": "Wait",
-      "kind": 2,
-      "index": 0,
-      "seconds": 0.35,
-      "value": 0,
+      "fadeMusic": true,
+      "musicTarget": 0,
       "text": "",
       "speaker": ""
     },
@@ -334,20 +408,20 @@
       "speaker": ""
     },
     {
-      "label": "MusicLevel",
-      "kind": 7,
+      "label": "Wait",
+      "kind": 2,
       "index": 0,
-      "seconds": 0.12,
+      "seconds": 0.65,
       "value": 0,
       "text": "",
       "speaker": ""
     },
     {
-      "label": "Wait",
-      "kind": 2,
-      "index": 0,
-      "seconds": 0.5,
-      "value": 0,
+      "label": "Sad music starts after fall",
+      "kind": 5,
+      "index": 1,
+      "seconds": 0,
+      "value": 0.85,
       "text": "",
       "speaker": ""
     },
@@ -363,7 +437,7 @@
     {
       "label": "Scene 05",
       "kind": 0,
-      "index": 4,
+      "index": 5,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -388,6 +462,15 @@
       "speaker": "아빠"
     },
     {
+      "label": "Panic reaction",
+      "kind": 8,
+      "index": 0,
+      "seconds": 0.18,
+      "value": 4,
+      "text": "",
+      "speaker": ""
+    },
+    {
       "label": "Line",
       "kind": 3,
       "index": 0,
@@ -395,6 +478,15 @@
       "value": 0,
       "text": "눈 떠 봐! 하루야!",
       "speaker": "아빠"
+    },
+    {
+      "label": "Panic reaction strong",
+      "kind": 8,
+      "index": 0,
+      "seconds": 0.24,
+      "value": 5.5,
+      "text": "",
+      "speaker": ""
     },
     {
       "label": "Fade",
@@ -408,7 +500,7 @@
     {
       "label": "Scene 06",
       "kind": 0,
-      "index": 5,
+      "index": 6,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -505,6 +597,15 @@
       "speaker": "아빠"
     },
     {
+      "label": "Desperate shout reaction",
+      "kind": 8,
+      "index": 0,
+      "seconds": 0.28,
+      "value": 7,
+      "text": "",
+      "speaker": ""
+    },
+    {
       "label": "Fade",
       "kind": 1,
       "index": 0,
@@ -534,7 +635,7 @@
     {
       "label": "Scene 07",
       "kind": 0,
-      "index": 6,
+      "index": 7,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -559,11 +660,11 @@
       "speaker": "경비"
     },
     {
-      "label": "Effect",
+      "label": "Father attack 1",
       "kind": 4,
-      "index": 12,
+      "index": 18,
       "seconds": 0,
-      "value": 0.8,
+      "value": 1,
       "text": "",
       "speaker": ""
     },
@@ -571,8 +672,8 @@
       "label": "Shake",
       "kind": 8,
       "index": 0,
-      "seconds": 0.14,
-      "value": 2.2,
+      "seconds": 0.48,
+      "value": 22,
       "text": "",
       "speaker": ""
     },
@@ -595,11 +696,11 @@
       "speaker": "아빠"
     },
     {
-      "label": "Effect",
+      "label": "Father attack 2",
       "kind": 4,
-      "index": 12,
+      "index": 19,
       "seconds": 0,
-      "value": 0.8,
+      "value": 1,
       "text": "",
       "speaker": ""
     },
@@ -607,8 +708,8 @@
       "label": "Shake",
       "kind": 8,
       "index": 0,
-      "seconds": 0.14,
-      "value": 2.2,
+      "seconds": 0.55,
+      "value": 24,
       "text": "",
       "speaker": ""
     },
@@ -642,7 +743,7 @@
     {
       "label": "Scene 08",
       "kind": 0,
-      "index": 7,
+      "index": 8,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -714,7 +815,7 @@
     {
       "label": "Scene 09",
       "kind": 0,
-      "index": 8,
+      "index": 9,
       "seconds": 0,
       "value": 0,
       "text": "",
@@ -925,15 +1026,6 @@
       "seconds": 1,
       "value": 0,
       "text": "",
-      "speaker": ""
-    },
-    {
-      "label": "Card",
-      "kind": 9,
-      "index": 0,
-      "seconds": 1.6,
-      "value": 0,
-      "text": "1일 차",
       "speaker": ""
     }
   ]

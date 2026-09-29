@@ -109,7 +109,7 @@ public static class IntroMealSetup
                     amount.color=(i==0 || i==5)?new Color(.56f,.76f,.56f):new Color(.8f,.48f,.46f);
                 }
             }
-            string sound=i==0?Sounds+"SettlementCoinSoft.wav":i==5?"Assets/Sounds/SFX/CalculatorButton.wav":i<4?Sounds+"LedgerTick.wav":null;
+            string sound=i==0?Sounds+"SettlementCoinSoft.wav":i==5?Sounds+"SettlementPachinko.ogg":i==6?Sounds+"SettlementWinJingle.ogg":i<4?Sounds+"LedgerTick.wav":null;
             clips.GetArrayElementAtIndex(i).objectReferenceValue=sound==null?null:AssetDatabase.LoadAssetAtPath<AudioClip>(sound);
         }
         var fx=(AudioSource)so.FindProperty("effects").objectReferenceValue;
@@ -120,8 +120,8 @@ public static class IntroMealSetup
         ((AudioSource)so.FindProperty("ambience").objectReferenceValue).outputAudioMixerGroup=sfxGroup;
         fx.outputAudioMixerGroup=sfxGroup;
         set(mealSo,"effects",fx);
-        set(mealSo,"simmer",loopSource("MealSimmer",player.transform,"PotSimmer",sfxGroup));
-        set(mealSo,"nightWind",loopSource("MealNightWind",player.transform,"Wind",sfxGroup));
+        set(mealSo,"simmer",loopSource("MealSimmer",player.transform,"BoilingWater.mp3",sfxGroup));
+        set(mealSo,"nightWind",loopSource("MealNightWind",player.transform,"Wind.wav",sfxGroup));
         mealSo.ApplyModifiedPropertiesWithoutUndo();
         group.SetActive(false);
         set(so,"mealSequence",meal);
@@ -171,7 +171,7 @@ public static class IntroMealSetup
     private static AudioSource loopSource(string name,Transform parent,string clip,AudioMixerGroup group)
     {
         var go=new GameObject(name,typeof(AudioSource)); go.transform.SetParent(parent,false);
-        var a=go.GetComponent<AudioSource>(); a.playOnAwake=false; a.loop=true; a.clip=AssetDatabase.LoadAssetAtPath<AudioClip>(Sounds+clip+".wav");
+        var a=go.GetComponent<AudioSource>(); a.playOnAwake=false; a.loop=true; a.clip=AssetDatabase.LoadAssetAtPath<AudioClip>(Sounds+clip);
         a.outputAudioMixerGroup=group; return a;
     }
 
