@@ -185,7 +185,7 @@ public sealed class CustomerContractTests
         foreach (int bits in new[] { 0, 1, 16, 32, 17, 33, 48, 51, 53, 113 })
         {
             var arguments = new object[] { 1u, 1u, items,
-                1000, 0, 1u, 2u, 3u, 4u, 5u, 6u, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
+                1000, 0, 1u, 2u, 3u, 4u, 5u, 6u, CustomerGenerator.resourceIdx, CustomerGenerator.speechIdx, products, (Func<IReadOnlyDictionary<uint, uint>>)(() => prices),
                 CustomerDispositionType.Normal, (CustomerAttributes)bits, 1000, 1000, null, products.Keys, null, null };
             var error = Assert.Throws<System.Reflection.TargetInvocationException>(() => constructor.Invoke(arguments));
             Assert.That(error.InnerException, Is.InstanceOf<ArgumentException>());

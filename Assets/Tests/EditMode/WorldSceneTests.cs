@@ -48,7 +48,8 @@ public sealed class WorldSceneTests
             settings.FindProperty("heightPixels").floatValue = baseHeight;
             settings.ApplyModifiedPropertiesWithoutUndo();
             var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            var type = typeof(CustomerWorldQueueView).GetNestedType("Visual", System.Reflection.BindingFlags.NonPublic);
+            var type = typeof(CustomerWorldQueueView).GetNestedType("Visual",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
             var visual = System.Activator.CreateInstance(type, true);
             var retarget = typeof(CustomerWorldQueueView).GetMethod("retarget", flags);
             var scale = typeof(CustomerWorldQueueView).GetMethod("getPerspectiveScale", flags);

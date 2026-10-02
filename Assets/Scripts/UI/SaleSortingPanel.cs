@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,6 +29,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private const int SaleAnchorCount = 9;
     private const int SaleAnchorRowSize = 3;
     private const float AutoSortingDurationSeconds = 0.15f;
+    private const float ContainerLandingSeconds = 0.85f;
 
     [Header("Views")]
     [SerializeField] private GameObject frontView;
@@ -87,8 +89,16 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private SaleSortingItemView draggedItem;
     private Vector2 dragOffset;
     private Coroutine transitionRoutine;
-    private Coroutine autoSortingRoutine;
-    private Coroutine calculatorSlideRoutine;
+    private SimplePool<SaleSortingItemView> itemPool;
+    private Tween entryTween;
+    private Tween containerArrivalTween;
+    private Tween autoSortingTween;
+    private Tween calculatorSlideTween;
+    private bool hasEntryContainerPose;
+    private Vector2 entryContainerPosition;
+    private Quaternion entryContainerRotation;
+    private Color entryContainerColor;
+    private bool entryContainerWasActive;
     /// <summary>현재 착지 연출이 소유한 상자입니다.</summary>
     private RectTransform landingBox;
     /// <summary>착지 시작 시점의 위치입니다.</summary>
@@ -247,6 +257,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트를 연결하고 초기 화면을 숨깁니다.</summary>
     private void Awake()
     {
+        this.ensureItemPool();
         if (this.calculatorPanel != null)
         {
             this.calculatorOpenPosition = this.calculatorPanel.anchoredPosition;
@@ -289,6 +300,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>현재 도구 또는 플레이어가 소유한 상품만 한 번 이동시킵니다.</summary>
     private void Update()
     {
+        this.syncPresentationTween(this.entryTween);
+        this.syncPresentationTween(this.containerArrivalTween);
+        this.syncPresentationTween(this.autoSortingTween);
+        this.syncPresentationTween(this.calculatorSlideTween);
+
         if (this.state != ViewState.Sorting || this.workArea == null || this.isPresentationBlocked?.Invoke() == true)
         {
             this.stopAutoSorting();
@@ -378,8 +394,13 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>버튼 이벤트 구독과 진행 중 연출을 정리합니다.</summary>
     private void OnDestroy()
     {
+        this.stopTransition();
         this.stopContainerArrival();
+        this.stopAutoSorting();
         this.hideCalculatorImmediately();
+        this.clearItems();
+        this.itemPool?.Clear();
+        this.itemPool = null;
         if (this.frontContainerButton != null)
         {
             this.frontContainerButton.onClick.RemoveListener(this.handleFrontContainerClicked);
@@ -391,12 +412,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>비활성화 중 계산기 연출과 열린 상자 상태를 남기지 않습니다.</summary>
     private void OnDisable()
     {
-        if (this.transitionRoutine != null)
-        {
-            StopCoroutine(this.transitionRoutine);
-            this.transitionRoutine = null;
-        }
+        this.stopTransition();
         this.stopContainerArrival();
+        this.stopAutoSorting();
         this.hideCalculatorImmediately();
         this.ContainerOpenChanged?.Invoke(false);
     }
@@ -405,11 +423,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <param name="basket">상품 ID, 수량과 이미지가 포함된 장바구니 표시 데이터입니다.</param>
     public void BeginCustomer(IReadOnlyList<CustomerBasketItemViewData> basket)
     {
-        if (this.transitionRoutine != null)
-        {
-            StopCoroutine(this.transitionRoutine);
-            this.transitionRoutine = null;
-        }
+        this.stopTransition();
         this.stopContainerArrival();
         this.stopAutoSorting();
         this.cancelVacuumItems();
@@ -425,6 +439,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             throw new ArgumentNullException(nameof(basket));
         }
+        if (getRequestedUnitCount(basket) > SaleAnchorCount)
+        {
+            this.reportSaleLayoutContractViolation($"방문 상품은 최대 {SaleAnchorCount}개입니다.");
+            throw new InvalidOperationException($"상품 풀 정원 {SaleAnchorCount}개를 초과한 주문입니다.");
+        }
 
         this.ContainerOpenChanged?.Invoke(false);
         this.pendingBasket = basket;
@@ -436,11 +455,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>거래 결과 표시를 위해 분류 입력을 잠그고 정면 화면으로 돌아갑니다.</summary>
     public void ShowTransactionResult()
     {
-        if (this.transitionRoutine != null)
-        {
-            StopCoroutine(this.transitionRoutine);
-            this.transitionRoutine = null;
-        }
+        this.stopTransition();
         this.stopContainerArrival();
         this.stopAutoSorting();
         this.cancelVacuumItems();
@@ -454,11 +469,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.stopAutoSorting();
         this.cancelVacuumItems();
         this.hideCalculatorImmediately();
-        if (this.transitionRoutine != null)
-        {
-            StopCoroutine(this.transitionRoutine);
-            this.transitionRoutine = null;
-        }
+        this.stopTransition();
         this.stopContainerArrival();
 
         this.clearItems();
@@ -546,117 +557,149 @@ public sealed class SaleSortingPanel : MonoBehaviour
         RectTransform sortingRect = this.sortingView == null
             ? null
             : this.sortingView.transform as RectTransform;
+        var sequence = DOTween.Sequence().SetUpdate(UpdateType.Late, true).SetTarget(this);
+        this.entryTween = sequence;
+        bool completed = false;
+        Exception entryFailure = null;
+        Vector2 exitStartPosition = Vector2.zero;
+        Vector2 exitTargetPosition = Vector2.zero;
+        Color exitStartColor = Color.white;
+
+        Action preparePour = () =>
+        {
+            if (this.frontView != null) this.frontView.SetActive(false);
+            this.setCalculatorVisible(false);
+            if (this.containerImage != null)
+            {
+                this.captureEntryContainerPose();
+                this.containerImage.sprite = this.tiltedContainerSprite != null
+                    ? this.tiltedContainerSprite
+                    : this.containerImage.sprite;
+                this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f);
+                this.containerImage.gameObject.SetActive(true);
+                exitStartPosition = this.containerImage.rectTransform.anchoredPosition;
+                exitTargetPosition = exitStartPosition + new Vector2(-150f, 80f);
+                exitStartColor = this.containerImage.color;
+            }
+
+            this.state = ViewState.Pouring;
+            if (this.sortingStatusText != null) this.sortingStatusText.text = "물품을 쏟는 중…";
+            try
+            {
+                this.createPendingItems();
+            }
+            catch (Exception exception)
+            {
+                entryFailure = exception;
+                completed = true;
+                sequence.Kill(false);
+                this.restoreEntryContainerPose();
+                return;
+            }
+            SoundManager.Instance?.PlaySfx(SoundKeys.BoxItemDrop);
+        };
+
         if (sortingRect != null)
         {
             this.sortingView.SetActive(true);
             float screenWidth = Mathf.Max(1f, sortingRect.rect.width);
-            sortingRect.anchoredPosition = new Vector2(-screenWidth, 0f);
-            float slideElapsed = 0f;
+            Vector2 slideStart = new Vector2(-screenWidth, 0f);
+            sortingRect.anchoredPosition = slideStart;
             float slideSeconds = Mathf.Max(0.01f, this.transitionSeconds);
-            while (slideElapsed < slideSeconds)
+            float slideProgress = 0f;
+            sequence.Append(DOTween.To(() => slideProgress, value =>
             {
-                slideElapsed += this.PresentationDeltaSeconds;
-                float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(slideElapsed / slideSeconds));
-                sortingRect.anchoredPosition = new Vector2(Mathf.Lerp(-screenWidth, 0f, progress), 0f);
-                yield return null;
+                slideProgress = value;
+                sortingRect.anchoredPosition = Vector2.Lerp(
+                    slideStart, Vector2.zero, Mathf.SmoothStep(0f, 1f, value));
+            }, 1f, slideSeconds).SetEase(Ease.Linear));
+            sequence.AppendCallback(preparePour.Invoke);
+        }
+        else
+        {
+            preparePour();
+            if (entryFailure != null)
+            {
+                this.entryTween = null;
+                this.transitionRoutine = null;
+                throw entryFailure;
             }
-
-            sortingRect.anchoredPosition = Vector2.zero;
         }
 
-        if (this.frontView != null) this.frontView.SetActive(false);
-        this.setCalculatorVisible(false);
-        if (this.containerImage != null)
+        float pourProgress = 0f;
+        sequence.Append(DOTween.To(() => pourProgress, value =>
         {
-            this.containerImage.sprite = this.tiltedContainerSprite != null ? this.tiltedContainerSprite : this.containerImage.sprite;
-            this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f);
-            this.containerImage.gameObject.SetActive(true);
-        }
+            pourProgress = value;
 
-        this.state = ViewState.Pouring;
-        if (this.sortingStatusText != null)
-        {
-            this.sortingStatusText.text = "물품을 쏟는 중…";
-        }
-
-        this.createPendingItems();
-        SoundManager.Instance?.PlaySfx(SoundKeys.BoxItemDrop);
-        float elapsed = 0f;
-        while (elapsed < this.pourSeconds)
-        {
-            elapsed += this.PresentationDeltaSeconds;
-            float t = this.pourSeconds <= 0f ? 1f : Mathf.Clamp01(elapsed / this.pourSeconds);
-
-            // 상자를 물품이 쏟아지는 방향으로 조금 더 기울입니다 (-90도 -> -100도)
             if (this.containerImage != null)
             {
-                this.containerImage.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-90f, -100f, t));
+                this.containerImage.rectTransform.localRotation = Quaternion.Euler(
+                    0f, 0f, Mathf.Lerp(-90f, -100f, value));
             }
 
             for (int i = 0; i < this.items.Count; i++)
             {
                 SaleSortingItemView item = this.items[i];
-                if (item == null)
-                {
-                    continue;
-                }
+                if (item == null) continue;
 
                 Vector2 target = this.getInitialSpreadPosition(i, this.items.Count);
-                item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, t);
+                item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, value);
             }
+        }, 1f, this.pourSeconds).SetEase(Ease.Linear));
 
-            yield return null;
-        }
-
-        // 빈 상자로 이미지 변경 후 페이드아웃 및 퇴장
         if (this.containerImage != null)
         {
-            if (this.emptyContainerSprite != null)
+            sequence.AppendCallback(() =>
             {
-                this.containerImage.sprite = this.emptyContainerSprite;
+                if (this.emptyContainerSprite != null) this.containerImage.sprite = this.emptyContainerSprite;
                 this.containerImage.preserveAspect = true;
-            }
-
-            Vector2 exitStartPos = this.containerImage.rectTransform.anchoredPosition;
-            Vector2 exitTargetPos = exitStartPos + new Vector2(-150f, 80f);
-            float exitDuration = 0.35f;
-            float exitElapsed = 0f;
-            Color initialColor = this.containerImage.color;
-
-            while (exitElapsed < exitDuration)
+                this.containerImage.color = new Color(
+                    exitStartColor.r, exitStartColor.g, exitStartColor.b, 1f);
+            });
+            float exitProgress = 0f;
+            sequence.Append(DOTween.To(() => exitProgress, value =>
             {
-                exitElapsed += this.PresentationDeltaSeconds;
-                float exitT = Mathf.Clamp01(exitElapsed / exitDuration);
+                exitProgress = value;
+                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(
+                    exitStartPosition, exitTargetPosition, value);
+                this.containerImage.color = new Color(
+                    exitStartColor.r, exitStartColor.g, exitStartColor.b, 1f - value);
+            }, 1f, 0.35f).SetEase(Ease.Linear));
+        }
 
-                this.containerImage.rectTransform.anchoredPosition = Vector2.Lerp(exitStartPos, exitTargetPos, exitT);
-                this.containerImage.color = new Color(initialColor.r, initialColor.g, initialColor.b, Mathf.Lerp(1f, 0f, exitT));
-
-                yield return null;
+        sequence.OnComplete(() =>
+        {
+            this.restoreEntryContainerPose();
+            if (this.containerImage != null) this.containerImage.gameObject.SetActive(false);
+            if (this.dividerBar != null)
+            {
+                this.dividerBar.ResetToLeftEnd();
+                this.dividerBar.SetVisible(this.dividerBarAvailable);
+            }
+            if (this.vacuum != null)
+            {
+                this.vacuum.ResetToStart();
+                this.vacuum.SetVisible(this.vacuumAvailable);
             }
 
-            this.containerImage.gameObject.SetActive(false);
-            this.containerImage.rectTransform.localRotation = Quaternion.identity;
-            this.containerImage.rectTransform.anchoredPosition = exitStartPos;
-            this.containerImage.color = initialColor;
-        }
-
-        if (this.dividerBar != null)
+            this.state = ViewState.Sorting;
+            this.draggedItem = null;
+            this.dragOffset = Vector2.zero;
+            if (this.entryTween == sequence) this.entryTween = null;
+            this.transitionRoutine = null;
+            completed = true;
+            this.SortingStarted?.Invoke();
+            if (this.state == ViewState.Sorting) this.refreshStatus();
+        });
+        sequence.OnKill(() => completed = true);
+        this.syncPresentationTween(sequence);
+        while (!completed) yield return null;
+        if (entryFailure != null)
         {
-            this.dividerBar.ResetToLeftEnd();
-            this.dividerBar.SetVisible(this.dividerBarAvailable);
+            if (this.entryTween == sequence) this.entryTween = null;
+            this.transitionRoutine = null;
+            throw entryFailure;
         }
-        if (this.vacuum != null)
-        {
-            this.vacuum.ResetToStart();
-            this.vacuum.SetVisible(this.vacuumAvailable);
-        }
-
-        this.state = ViewState.Sorting;
-        this.draggedItem = null;
-        this.dragOffset = Vector2.zero;
-        this.SortingStarted?.Invoke();
-        this.refreshStatus();
-        this.transitionRoutine = null;
     }
 
     /// <summary>손님 정면 화면을 먼저 보여주고 박스를 가판대 위에 내려놓은 뒤 클릭 또는 자동 시간 경과로 작업대로 전환합니다.</summary>
@@ -671,58 +714,82 @@ public sealed class SaleSortingPanel : MonoBehaviour
         LandingDustEffect dust = this.ensureLandingDustEffect();
         if (dust != null) dust.Stop();
 
-        yield return this.waitUnscaled(this.customerArrivalSeconds);
+        bool completed = false;
+        bool abandoned = false;
+        bool landed = false;
+        float landingElapsed = 0f;
+        var sequence = DOTween.Sequence().SetUpdate(UpdateType.Late, true).SetTarget(this);
+        this.containerArrivalTween = sequence;
+        if (this.customerArrivalSeconds > 0f) sequence.AppendInterval(this.customerArrivalSeconds);
         if (this.frontContainerButton != null)
         {
             RectTransform box = (RectTransform)this.frontContainerButton.transform;
-            this.frontContainerButton.gameObject.SetActive(true);
-            this.frontContainerButton.interactable = false;
-            this.landingBox = box;
-            this.landingRestPosition = box.anchoredPosition;
-            this.landingRestScale = box.localScale;
-            this.landingRestRotation = box.localRotation;
-            this.landingRestBottom = this.getBottomCenterInParent(box);
-            this.recordContainerLandingPose();
-            float elapsed = 0f;
-            bool landed = false;
-            while (elapsed < 0.85f)
+            sequence.AppendCallback(() =>
+            {
+                this.frontContainerButton.gameObject.SetActive(true);
+                this.frontContainerButton.interactable = false;
+                this.landingBox = box;
+                this.landingRestPosition = box.anchoredPosition;
+                this.landingRestScale = box.localScale;
+                this.landingRestRotation = box.localRotation;
+                this.landingRestBottom = this.getBottomCenterInParent(box);
+                this.recordContainerLandingPose();
+            });
+            sequence.Append(DOTween.To(() => landingElapsed, value =>
             {
                 if (this.hasContainerLayoutChanged())
                 {
+                    abandoned = true;
                     this.abandonContainerArrival();
-                    yield break;
+                    sequence.Kill();
+                    return;
                 }
-                elapsed += this.PresentationDeltaSeconds;
-                float drop = Mathf.Clamp01(elapsed / 0.3f);
-                float impact = Mathf.Clamp01((elapsed - 0.3f) / 0.55f);
+                landingElapsed = value;
+                float drop = Mathf.Clamp01(value / 0.3f);
+                float impact = Mathf.Clamp01((value - 0.3f) / 0.55f);
                 float squash = Mathf.Sin(impact * Mathf.PI * 2f) * Mathf.Exp(-impact * 4f) * 0.10f;
                 this.setContainerLandingPose(new Vector3(1f + squash, 1f - squash, 1f),
                     76f * (1f - drop * drop));
-                if (!landed && elapsed >= 0.3f)
+                if (!landed && value >= 0.3f)
                 {
                     landed = true;
                     if (dust != null) dust.Play(box);
                     SoundManager.Instance?.PlaySfx(SoundKeys.CustomerBoxDrop);
                 }
                 this.recordContainerLandingPose();
-                yield return null;
-            }
-
-            if (this.hasContainerLayoutChanged())
+            }, ContainerLandingSeconds, ContainerLandingSeconds).SetEase(Ease.Linear));
+            sequence.AppendCallback(() =>
             {
-                this.abandonContainerArrival();
-                yield break;
-            }
-            this.restoreContainerLandingPose();
-            this.frontContainerButton.interactable = true;
+                if (this.hasContainerLayoutChanged())
+                {
+                    abandoned = true;
+                    this.abandonContainerArrival();
+                    return;
+                }
+                this.restoreContainerLandingPose();
+                this.frontContainerButton.interactable = true;
+            });
         }
 
-        this.state = ViewState.FrontWaiting;
+        sequence.OnComplete(() => completed = true);
+        sequence.OnKill(() => completed = true);
+        this.syncPresentationTween(sequence);
+        while (!completed) yield return null;
+        if (abandoned) yield break;
 
-        // 자동으로 작업대 전환 (사용자가 직접 클릭하지 않아도 일정 시간 후 자동 진행)
-        if (this.autoAdvanceDelaySeconds > 0f)
+        if (this.containerArrivalTween == sequence) this.containerArrivalTween = null;
+        this.state = ViewState.FrontWaiting;
+        if (this.autoAdvanceDelaySeconds > 0f && this.state == ViewState.FrontWaiting)
         {
-            yield return this.waitUnscaled(this.autoAdvanceDelaySeconds);
+            completed = false;
+            sequence = DOTween.Sequence().AppendInterval(this.autoAdvanceDelaySeconds)
+                .SetUpdate(UpdateType.Late, true).SetTarget(this);
+            this.containerArrivalTween = sequence;
+            sequence.OnComplete(() => completed = true);
+            sequence.OnKill(() => completed = true);
+            this.syncPresentationTween(sequence);
+            while (!completed) yield return null;
+            if (this.containerArrivalTween == sequence) this.containerArrivalTween = null;
             if (this.state == ViewState.FrontWaiting)
             {
                 if (this.frontContainerButton != null) this.frontContainerButton.interactable = false;
@@ -759,13 +826,66 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>중단되거나 완료된 착지 연출을 시작 배치로 복원합니다.</summary>
     private void stopContainerArrival()
     {
-        if (this.hasContainerLayoutChanged())
+        bool layoutChanged = this.hasContainerLayoutChanged();
+        if (this.containerArrivalTween != null)
+        {
+            this.containerArrivalTween.Kill();
+            this.containerArrivalTween = null;
+        }
+        if (layoutChanged)
         {
             this.releaseContainerLandingPose();
             return;
         }
         this.restoreContainerLandingPose();
         if (this.landingDustEffect != null) this.landingDustEffect.Stop();
+    }
+
+    /// <summary>전환 오케스트레이션과 시각 트윈을 함께 중단하고 상자 기준 배치를 복원합니다.</summary>
+    private void stopTransition()
+    {
+        if (this.transitionRoutine != null)
+        {
+            StopCoroutine(this.transitionRoutine);
+            this.transitionRoutine = null;
+        }
+        if (this.entryTween != null)
+        {
+            this.entryTween.Kill();
+            this.entryTween = null;
+        }
+        this.restoreEntryContainerPose();
+    }
+
+    /// <summary>쏟기 전 상자 배치를 저장해 완료·중단 경로가 같은 기준으로 복원하게 합니다.</summary>
+    private void captureEntryContainerPose()
+    {
+        if (this.containerImage == null || this.hasEntryContainerPose) return;
+        this.hasEntryContainerPose = true;
+        this.entryContainerPosition = this.containerImage.rectTransform.anchoredPosition;
+        this.entryContainerRotation = this.containerImage.rectTransform.localRotation;
+        this.entryContainerColor = this.containerImage.color;
+        this.entryContainerWasActive = this.containerImage.gameObject.activeSelf;
+    }
+
+    /// <summary>쏟기·퇴장 중단 여부와 관계없이 상자의 원래 Transform·색·활성 상태를 복원합니다.</summary>
+    private void restoreEntryContainerPose()
+    {
+        if (!this.hasEntryContainerPose) return;
+        this.hasEntryContainerPose = false;
+        if (this.containerImage == null) return;
+        this.containerImage.rectTransform.anchoredPosition = this.entryContainerPosition;
+        this.containerImage.rectTransform.localRotation = this.entryContainerRotation;
+        this.containerImage.color = this.entryContainerColor;
+        this.containerImage.gameObject.SetActive(this.entryContainerWasActive);
+    }
+
+    /// <summary>차단 조회가 true인 동안 독립 업데이트 트윈의 진행률을 0으로 유지합니다.</summary>
+    /// <param name="tween">현재 표시 흐름이 소유한 트윈입니다.</param>
+    private void syncPresentationTween(Tween tween)
+    {
+        if (tween != null && tween.active)
+            tween.timeScale = this.isPresentationBlocked?.Invoke() == true ? 0f : 1f;
     }
 
     /// <summary>현재 배치가 연출이 마지막으로 쓴 값과 다른지 검사합니다.</summary>
@@ -824,35 +944,63 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>보관한 주문을 수량 단위의 독립 상품 GameObject로 펼칩니다.</summary>
     private void createPendingItems()
     {
-        int unitSequence = 0;
-        foreach (CustomerBasketItemViewData line in this.pendingBasket)
+        int requestedUnits = getRequestedUnitCount(this.pendingBasket);
+        if (requestedUnits > SaleAnchorCount)
         {
-            for (int quantityIndex = 0; quantityIndex < line.Quantity; quantityIndex++)
+            this.reportSaleLayoutContractViolation($"방문 상품은 최대 {SaleAnchorCount}개입니다.");
+            throw new InvalidOperationException($"상품 풀 정원 {SaleAnchorCount}개를 초과한 주문입니다.");
+        }
+
+        this.ensureItemPool();
+        if (this.itemPool == null) throw new InvalidOperationException("상품 Prefab이 연결되지 않았습니다.");
+
+        int unitSequence = 0;
+        try
+        {
+            foreach (CustomerBasketItemViewData line in this.pendingBasket)
             {
-                SaleSortingItemView item = Instantiate(this.itemPrefab, this.itemRoot);
-                item.name = $"SaleItem_{line.ItemId}_{quantityIndex}";
-                item.Initialize(line.ItemId, quantityIndex, line.TopViewIcon, this.itemSizePixels, line.DisplayName, this.workArea);
-                item.Position = this.getPourStartPosition(unitSequence);
-                item.DragStarted += this.handleItemDragStarted;
-                item.Dragged += this.handleItemDragged;
-                item.DragEnded += this.handleItemDragEnded;
-                this.items.Add(item);
-                unitSequence++;
+                for (int quantityIndex = 0; quantityIndex < line.Quantity; quantityIndex++)
+                {
+                    SaleSortingItemView item = this.itemPool.Get();
+                    if (item == null) throw new InvalidOperationException("상품 풀이 정상 주문을 수용하지 못했습니다.");
+                    this.items.Add(item);
+                    item.name = $"SaleItem_{line.ItemId}_{quantityIndex}";
+                    item.Initialize(line.ItemId, quantityIndex, line.TopViewIcon, this.itemSizePixels, line.DisplayName, this.workArea);
+                    item.Position = this.getPourStartPosition(unitSequence);
+                    item.DragStarted += this.handleItemDragStarted;
+                    item.Dragged += this.handleItemDragged;
+                    item.DragEnded += this.handleItemDragEnded;
+                    unitSequence++;
+                }
             }
+        }
+        catch
+        {
+            this.clearItems();
+            throw;
         }
     }
 
-    /// <summary>지정한 실제 시간만큼 게임 시간 배율과 관계없이 기다립니다.</summary>
-    /// <param name="seconds">기다릴 실제 시간입니다.</param>
-    /// <returns>Unity 프레임 대기 열거자입니다.</returns>
-    private IEnumerator waitUnscaled(float seconds)
+    /// <summary>장바구니에서 실제 개별 상품으로 펼칠 양수 수량 합계를 계산합니다.</summary>
+    /// <param name="basket">합산할 장바구니 표시 데이터입니다.</param>
+    /// <returns>풀에서 대여할 상품 수입니다.</returns>
+    private static int getRequestedUnitCount(IReadOnlyList<CustomerBasketItemViewData> basket)
     {
-        float elapsed = 0f;
-        while (elapsed < seconds)
-        {
-            elapsed += this.PresentationDeltaSeconds;
-            yield return null;
-        }
+        int requestedUnits = 0;
+        foreach (CustomerBasketItemViewData line in basket)
+            requestedUnits = checked(requestedUnits + Math.Max(0, line.Quantity));
+        return requestedUnits;
+    }
+
+    /// <summary>직렬화된 상품 Prefab으로 최대 주문 수량을 재사용하는 로컬 풀을 준비합니다.</summary>
+    private void ensureItemPool()
+    {
+        if (this.itemPool != null || this.itemPrefab == null) return;
+        this.itemPool = new SimplePool<SaleSortingItemView>(
+            SaleAnchorCount,
+            this.itemPrefab,
+            this.itemRoot,
+            onRelease: item => item.ResetForPool());
     }
 
     /// <summary>막대가 지난 프레임에 소유했던 상품의 조작 상태를 정리합니다.</summary>
@@ -1033,7 +1181,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
         if (targets.Count > 0)
         {
-            this.autoSortingRoutine = StartCoroutine(this.playAutoSorting(targets));
+            this.playAutoSorting(targets);
         }
     }
 
@@ -1130,10 +1278,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     /// <summary>자동 소팅 중인 상품을 짧게 보간하고 중단된 상품은 현재 위치에 둡니다.</summary>
     /// <param name="targets">상품별 목표 위치입니다.</param>
-    /// <returns>Unity 프레임별 보간 열거자입니다.</returns>
-    private IEnumerator playAutoSorting(IReadOnlyDictionary<SaleSortingItemView, Vector2> targets)
+    private void playAutoSorting(IReadOnlyDictionary<SaleSortingItemView, Vector2> targets)
     {
-        var starts = new Dictionary<SaleSortingItemView, Vector2>();
+        var sequence = DOTween.Sequence().SetUpdate(UpdateType.Late, true).SetTarget(this);
+        int tweenCount = 0;
         foreach (KeyValuePair<SaleSortingItemView, Vector2> pair in targets)
         {
             SaleSortingItemView item = pair.Key;
@@ -1141,49 +1289,51 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 item.State != SaleSortingItemView.SortingState.ForSale ||
                 item.Manipulation != SaleSortingItemView.ManipulationState.Idle) continue;
 
-            starts.Add(item, item.Position);
             item.Manipulation = SaleSortingItemView.ManipulationState.AutoSorting;
+            Vector2 start = item.Position;
+            Vector2 target = pair.Value;
+            float progress = 0f;
+            sequence.Join(DOTween.To(() => progress, value =>
+            {
+                progress = value;
+                if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
+                    item.Position = Vector2.Lerp(start, target, Mathf.SmoothStep(0f, 1f, value));
+            }, 1f, AutoSortingDurationSeconds).SetEase(Ease.Linear).SetTarget(item));
+            tweenCount++;
         }
 
-        float elapsed = 0f;
-        while (elapsed < AutoSortingDurationSeconds)
+        if (tweenCount == 0)
         {
-            elapsed += Time.unscaledDeltaTime;
-            float progress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / AutoSortingDurationSeconds));
+            sequence.Kill();
+            return;
+        }
+
+        this.autoSortingTween = sequence;
+        sequence.OnComplete(() =>
+        {
             foreach (KeyValuePair<SaleSortingItemView, Vector2> pair in targets)
             {
                 SaleSortingItemView item = pair.Key;
-                if (item != null && starts.ContainsKey(item) &&
-                    item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
+                if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
                 {
-                    item.Position = Vector2.Lerp(starts[item], pair.Value, progress);
+                    item.Position = pair.Value;
+                    item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
                 }
             }
 
-            yield return null;
-        }
-
-        foreach (KeyValuePair<SaleSortingItemView, Vector2> pair in targets)
-        {
-            SaleSortingItemView item = pair.Key;
-            if (item != null && item.Manipulation == SaleSortingItemView.ManipulationState.AutoSorting)
-            {
-                item.Position = pair.Value;
-                item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
-            }
-        }
-
-        this.autoSortingRoutine = null;
-        this.refreshStatus();
+            if (this.autoSortingTween == sequence) this.autoSortingTween = null;
+            this.refreshStatus();
+        });
+        this.syncPresentationTween(sequence);
     }
 
     /// <summary>진행 중 자동 소팅을 중단하고 상품 조작 상태를 대기로 되돌립니다.</summary>
     private void stopAutoSorting()
     {
-        if (this.autoSortingRoutine != null)
+        if (this.autoSortingTween != null)
         {
-            StopCoroutine(this.autoSortingRoutine);
-            this.autoSortingRoutine = null;
+            this.autoSortingTween.Kill();
+            this.autoSortingTween = null;
         }
 
         foreach (SaleSortingItemView item in this.items)
@@ -1344,7 +1494,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
     }
 
-    /// <summary>기존 개별 상품 오브젝트를 제거합니다.</summary>
+    /// <summary>현재 대여한 상품을 입력 상태까지 초기화해 로컬 풀로 반환합니다.</summary>
     private void clearItems()
     {
         foreach (SaleSortingItemView item in this.items)
@@ -1354,7 +1504,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 item.DragStarted -= this.handleItemDragStarted;
                 item.Dragged -= this.handleItemDragged;
                 item.DragEnded -= this.handleItemDragEnded;
-                Destroy(item.gameObject);
+                this.itemPool?.Release(item);
             }
         }
 
@@ -1414,12 +1564,16 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>계산기를 아래 화면 밖으로 열고 닫으며 도착 완료 상태만 입력 라우팅에 알립니다.</summary>
     private void setCalculatorVisible(bool visible)
     {
-        if (this.calculatorPanel == null || this.calculatorTargetVisible == visible && this.calculatorSlideRoutine != null) return;
+        if (this.calculatorPanel == null || this.calculatorTargetVisible == visible && this.calculatorSlideTween != null) return;
         if (visible && this.isCalculatorOpen || !visible && !this.calculatorPanel.gameObject.activeSelf) return;
 
         this.calculatorTargetVisible = visible;
         if (!visible) this.setCalculatorInputOpen(false);
-        if (this.calculatorSlideRoutine != null) StopCoroutine(this.calculatorSlideRoutine);
+        if (this.calculatorSlideTween != null)
+        {
+            this.calculatorSlideTween.Kill();
+            this.calculatorSlideTween = null;
+        }
         if (visible && !this.calculatorPanel.gameObject.activeSelf)
         {
             this.calculatorPanel.anchoredPosition = this.calculatorOpenPosition;
@@ -1431,29 +1585,26 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             this.calculatorClosedPosition = this.getCalculatorClosedPosition();
         }
-        this.calculatorSlideRoutine = StartCoroutine(this.slideCalculator(visible));
-    }
-
-    /// <summary>현재 위치에서 목표 방향으로 전환해 중간 반전에도 위치가 튀지 않습니다.</summary>
-    private IEnumerator slideCalculator(bool visible)
-    {
         Vector2 start = this.calculatorPanel.anchoredPosition;
         Vector2 target = visible ? this.calculatorOpenPosition : this.calculatorClosedPosition;
         float fullDistance = Vector2.Distance(this.calculatorOpenPosition, this.calculatorClosedPosition);
         float duration = this.calculatorSlideSeconds * (fullDistance <= 0f ? 0f : Vector2.Distance(start, target) / fullDistance);
-        float elapsed = 0f;
-        while (elapsed < duration)
+        float progress = 0f;
+        Tween tween = DOTween.To(() => progress, value =>
         {
-            elapsed += this.PresentationDeltaSeconds;
-            float progress = duration <= 0f ? 1f : Mathf.Clamp01(elapsed / duration);
-            this.calculatorPanel.anchoredPosition = Vector2.LerpUnclamped(start, target, Mathf.SmoothStep(0f, 1f, progress));
-            yield return null;
-        }
-
-        this.calculatorPanel.anchoredPosition = target;
-        this.calculatorSlideRoutine = null;
-        if (visible) this.setCalculatorInputOpen(true);
-        else this.calculatorPanel.gameObject.SetActive(false);
+            progress = value;
+            this.calculatorPanel.anchoredPosition = Vector2.LerpUnclamped(
+                start, target, Mathf.SmoothStep(0f, 1f, value));
+        }, 1f, duration).SetEase(Ease.Linear).SetUpdate(UpdateType.Late, true).SetTarget(this.calculatorPanel);
+        this.calculatorSlideTween = tween;
+        tween.OnComplete(() =>
+        {
+            this.calculatorPanel.anchoredPosition = target;
+            if (this.calculatorSlideTween == tween) this.calculatorSlideTween = null;
+            if (visible) this.setCalculatorInputOpen(true);
+            else this.calculatorPanel.gameObject.SetActive(false);
+        });
+        this.syncPresentationTween(tween);
     }
 
     /// <summary>계산기 상단이 부모 하단을 완전히 벗어나는 실제 닫힘 좌표를 구합니다.</summary>
@@ -1479,10 +1630,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>새 방문·비활성화 경계에서는 진행 중 연출까지 즉시 정리합니다.</summary>
     private void hideCalculatorImmediately()
     {
-        if (this.calculatorSlideRoutine != null)
+        if (this.calculatorSlideTween != null)
         {
-            StopCoroutine(this.calculatorSlideRoutine);
-            this.calculatorSlideRoutine = null;
+            this.calculatorSlideTween.Kill();
+            this.calculatorSlideTween = null;
         }
         this.calculatorTargetVisible = false;
         this.setCalculatorInputOpen(false);

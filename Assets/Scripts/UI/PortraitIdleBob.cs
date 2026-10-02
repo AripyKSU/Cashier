@@ -1,4 +1,5 @@
 using UnityEngine;
+using DG.Tweening;
 
 /// <summary>
 /// 초상 RectTransform을 시작 위치 기준으로 아주 느리게 위아래로 흔들어 가만히 서 있지 않게 하는 유휴 연출 컴포넌트입니다.
@@ -17,8 +18,8 @@ public sealed class PortraitIdleBob : MonoBehaviour
     /// <summary>OnEnable 시점에 반올림해 저장한 기준 anchoredPosition입니다.</summary>
     private Vector2 basePosition;
 
-    /// <summary>연출 시작 시각(Time.unscaledTime)입니다.</summary>
-    private float startTime;
+    /// <summary>활성 수명 동안 반복하는 정수 픽셀 유휴 연출입니다.</summary>
+    private Tween idleTween;
 
     /// <summary>이 컴포넌트가 움직일 RectTransform입니다.</summary>
     private RectTransform rectTransform;
@@ -30,21 +31,22 @@ public sealed class PortraitIdleBob : MonoBehaviour
         Vector2 current = this.rectTransform.anchoredPosition;
         this.basePosition = new Vector2(Mathf.Round(current.x), Mathf.Round(current.y));
         this.rectTransform.anchoredPosition = this.basePosition;
-        this.startTime = Time.unscaledTime;
+        float phase = 0f;
+        this.idleTween = DOTween.To(() => phase, value =>
+        {
+            phase = value;
+            float offset = Mathf.Round(Mathf.Sin(value * Mathf.PI * 2f) * this.moveDistance);
+            this.rectTransform.anchoredPosition = this.basePosition + new Vector2(0f, offset);
+        }, 1f, this.cycleDuration).SetEase(Ease.Linear).SetLoops(-1).SetUpdate(true);
     }
 
     /// <summary>연출을 멈추면 기준 위치로 되돌립니다.</summary>
     private void OnDisable()
     {
+        this.idleTween?.Kill();
+        this.idleTween = null;
         if (this.rectTransform != null)
             this.rectTransform.anchoredPosition = this.basePosition;
     }
 
-    /// <summary>경과 시간으로부터 정수 픽셀 오프셋을 계산해 적용합니다.</summary>
-    private void Update()
-    {
-        float phase = Mathf.Repeat(Time.unscaledTime - this.startTime, this.cycleDuration) / this.cycleDuration;
-        float offset = Mathf.Round(Mathf.Sin(phase * Mathf.PI * 2f) * this.moveDistance);
-        this.rectTransform.anchoredPosition = this.basePosition + new Vector2(0f, offset);
-    }
 }

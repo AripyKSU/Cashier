@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM
@@ -99,6 +100,7 @@ public sealed class VacuumController : MonoBehaviour
     private float flipVelocity;
     private float spitElapsed;
     private float vfxElapsed;
+    private Tween suctionTween;
     private int spitSequence;
 
     /// <summary>실제 포인터 버튼으로 청소기를 잡고 있는지 나타냅니다.</summary>
@@ -321,6 +323,8 @@ public sealed class VacuumController : MonoBehaviour
     /// <summary>청소기 오브젝트가 비활성화될 때 상품과 효과를 멱등적으로 정리합니다.</summary>
     private void OnDisable()
     {
+        this.suctionTween?.Kill();
+        this.suctionTween = null;
         this.CancelAndRestoreItems();
         this.pendingSpatItems.Clear();
     }
@@ -328,6 +332,8 @@ public sealed class VacuumController : MonoBehaviour
     /// <summary>파괴될 때도 청소기 내부 상품을 유실하지 않도록 정리합니다.</summary>
     private void OnDestroy()
     {
+        this.suctionTween?.Kill();
+        this.suctionTween = null;
         this.CancelAndRestoreItems();
         this.pendingSpatItems.Clear();
     }
@@ -780,7 +786,24 @@ public sealed class VacuumController : MonoBehaviour
             return;
         }
 
-        this.vfxElapsed += deltaSeconds;
+        // 입력 소유자가 전달한 시간만 사용해 pause·수동 API 갱신 경계를 유지합니다.
+        if (this.suctionTween == null)
+        {
+            float phase = 0f;
+            this.suctionTween = DOTween.To(() => phase, value =>
+            {
+                phase = value;
+                this.applySuctionPhase(value);
+            }, 1f, 1f / 1.7f).SetEase(Ease.Linear).SetAutoKill(false).Pause();
+        }
+        this.vfxElapsed = Mathf.Repeat(this.vfxElapsed + deltaSeconds, 1f / 1.7f);
+        this.suctionTween.Goto(this.vfxElapsed);
+    }
+
+    /// <summary>게임 판정을 바꾸지 않고 재사용 중인 12개 바람 이미지의 표시만 보간합니다.</summary>
+    /// <param name="cyclePhase">한 흡입 주기의 0~1 진행도입니다.</param>
+    private void applySuctionPhase(float cyclePhase)
+    {
         for (int index = 0; index < this.suctionVfx.Length; index++)
         {
             Image image = this.suctionVfx[index];
@@ -789,7 +812,7 @@ public sealed class VacuumController : MonoBehaviour
                 continue;
             }
 
-            float phase = Mathf.Repeat(this.vfxElapsed * 1.7f + index / (float)this.suctionVfx.Length, 1f);
+            float phase = Mathf.Repeat(cyclePhase + index / (float)this.suctionVfx.Length, 1f);
             float distance = (1f - phase) * this.suctionRadiusPixels;
             float lane = (index % 5 - 2) * 0.12f;
             RectTransform rect = image.rectTransform;

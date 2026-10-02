@@ -9,6 +9,11 @@
 - 증거: `Logs/TestResults/no-sale-items-20260922-edit-final/EditMode.xml`·`.log`, `Logs/TestResults/no-sale-items-20260922-play/PlayMode.xml`·`.log`. Unity 재시작으로 Temp의 이전 EditMode 기록이 정리되어 동일 suite를 최종 로그 경로에서 재실행했다. PlayMode 결과는 재시작 전에 Logs로 복사했다. Logs는 Git 제외다. batchmode는 테스트 종료 후 자체 종료했으며 씬·프로젝트 설정·패키지는 변경하지 않았다.
 - CSV 정적 비교: 기존 Text499개와 성향15행의 기존 셀 모두 보존, 신규 ID28개 고유·모든 FK 유효, `git diff --check` 통과. 관련 회귀 suite 결과는 실패3건으로 `FAIL`, 요청 변경의 종합 검증은 **PARTIAL**(관련 API 통과, 대사 체감·말풍선 UI 수동 확인 미실행)이다. commit·push는 하지 않았다.
 
+## 사용자 Pool·DOTween 패턴 적용 (2026-09-18)
+
+- 기준 `refactor_fix 6c7ef198` + 미커밋 구현. 기존 Unity6000.3.18f1 Editor에서 컴파일 오류0, 관련 EditMode **33/35**(실패2·skip0), 관련 PlayMode 최종 고유 테스트 **17/17**(실패·skip0). 전체 suite·Player build·최종 UI/UX는 미검증이다.
+- Edit 실패2개는 이전에 기록한 청소기 자산 경로 기대다. Play 최초3개 실패는 기존 커버 해제 시점·엔딩 SFX/Delay·정산 표시 fixture를 현행 계약에 맞춰 갱신한 뒤 모두 통과했다. 최초 실패와 재실행을 포함한 Play 실행20건 중 통과17·실패3이다.
+- Pool 재사용/반환·용량, 연출 중단/재진입/차단/완료 이벤트, 실제 대기열·계산기·상자·감독관·Main preload·엔딩4종·정산 연결을 확인했다. 씬·Prefab·CSV·Addressables·사용자 폰트 보존 및 최종 InitScene clean/Play 종료/Console error0을 확인했다. 상세 A/B/C와 각 실행 증거는 [구현·검증 보고](work/refactor-pattern-20260918.md#검증)를 따른다. 종합 상태는 기존 Edit 실패2개를 포함한 **PARTIAL**이다.
 
 ## ART_UPDATE_20260916 최종 기능 검증 (2026-09-16)
 

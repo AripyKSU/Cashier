@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,6 +37,9 @@ public sealed class EndingPresenter : MonoBehaviour
     private CancellationTokenSource lifetime;
     private bool started;
     private bool isPageDelaying;
+    private Tween pageFadeTween;
+    private Tween blackFadeTween;
+    private Tween pageDelayTween;
 
     /// <summary>활성 수명에 묶인 비동기 표시 취소 토큰을 준비한다.</summary>
     private void OnEnable()
@@ -47,8 +51,13 @@ public sealed class EndingPresenter : MonoBehaviour
     /// <summary>비활성화 뒤 늦은 로드·페이드가 화면을 덮지 않도록 취소한다.</summary>
     private void OnDisable()
     {
+        SimplePoolManager.Instance?.ClearAll();
         SoundManager.Instance?.StopBgm();
         lifetime?.Cancel();
+        pageFadeTween?.Kill();
+        blackFadeTween?.Kill();
+        pageDelayTween?.Kill();
+        pageFadeTween = blackFadeTween = pageDelayTween = null;
         lifetime?.Dispose();
         lifetime = null;
         isLoading = false;
@@ -199,14 +208,14 @@ public sealed class EndingPresenter : MonoBehaviour
 
         if (isPageDelaying)
         {
-            float elapsed = 0;
             try
             {
-                while (elapsed < page.DelaySecond.Value)
-                {
-                    await UniTask.Yield(token);
-                    elapsed += Time.unscaledDeltaTime;
-                }
+                pageDelayTween?.Kill();
+                pageDelayTween = DOTween.Sequence().AppendInterval(page.DelaySecond.Value).SetUpdate(true);
+                Tween delay = pageDelayTween;
+                await UniTask.WaitUntil(() => !delay.IsActive() || delay.IsComplete(), cancellationToken: token);
+                token.ThrowIfCancellationRequested();
+                pageDelayTween = null;
             }
             catch (OperationCanceledException) when (token.IsCancellationRequested)
             {
@@ -243,13 +252,13 @@ public sealed class EndingPresenter : MonoBehaviour
             dialogue.gameObject.SetActive(false);
             pageIndicator.gameObject.SetActive(false);
             setPanelBackgroundVisible(false);
-            float elapsed = 0;
-            while (elapsed < 0.6f)
-            {
-                await UniTask.Yield(token);
-                elapsed += Time.unscaledDeltaTime;
-                blackCover.color = new Color(0, 0, 0, Mathf.Clamp01(elapsed / 0.6f));
-            }
+            blackFadeTween?.Kill();
+            blackFadeTween = DOTween.ToAlpha(() => blackCover.color, value => blackCover.color = value, 1f, 0.6f)
+                .SetEase(Ease.Linear).SetUpdate(true);
+            Tween fade = blackFadeTween;
+            await UniTask.WaitUntil(() => !fade.IsActive() || fade.IsComplete(), cancellationToken: token);
+            token.ThrowIfCancellationRequested();
+            blackFadeTween = null;
             background.sprite = null;
             background.color = Color.black;
             currentBackground = null;
@@ -316,11 +325,13 @@ public sealed class EndingPresenter : MonoBehaviour
         pageGroup.alpha = 0;
         try
         {
-            while (pageGroup.alpha < 1)
-            {
-                await UniTask.Yield(token);
-                pageGroup.alpha = Mathf.Min(1, pageGroup.alpha + Time.unscaledDeltaTime / 0.15f);
-            }
+            pageFadeTween?.Kill();
+            pageFadeTween = DOTween.To(() => pageGroup.alpha, value => pageGroup.alpha = value, 1f, 0.15f)
+                .SetEase(Ease.Linear).SetUpdate(true);
+            Tween fade = pageFadeTween;
+            await UniTask.WaitUntil(() => !fade.IsActive() || fade.IsComplete(), cancellationToken: token);
+            token.ThrowIfCancellationRequested();
+            pageFadeTween = null;
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         finally

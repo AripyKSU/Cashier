@@ -1,6 +1,5 @@
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,7 +21,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <summary>입장·퇴장 각각의 유한한 양수 초.</summary>
     [SerializeField, Min(0.01f)] private float fadeSeconds = 0.4f;
     private InspectorEventSnapshot current;
-    private CancellationTokenSource presentationCancellation;
+    private Sequence presentationTween;
     private Func<bool> isPresentationBlocked;
     private bool hasPresentation;
     private bool entered;
@@ -48,6 +47,13 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void OnEnable()
     {
         if (hasPresentation && canReveal) Present(current, dialogue.text, portrait.sprite, true, isPresentationBlocked);
+    }
+
+    /// <summary>LateUpdate 트윈이 진행되기 전에 모델의 표현 차단을 반영한다.</summary>
+    private void Update()
+    {
+        if (presentationTween != null)
+            presentationTween.timeScale = isPresentationBlocked?.Invoke() == true ? 0f : 1f;
     }
 
     /// <summary>패널을 숨기면 진행 중 연출과 늦은 완료 콜백을 취소한다.</summary>
@@ -118,7 +124,7 @@ public sealed class InspectorPresenter : MonoBehaviour
             nextButton.interactable = false;
             startFade(false, snapshot);
         }
-        else if (!entered && presentationCancellation == null) startFade(true, snapshot);
+        else if (!entered && presentationTween == null) startFade(true, snapshot);
         else if (entered) nextButton.interactable = !(isPresentationBlocked?.Invoke() ?? false);
     }
 
@@ -136,50 +142,34 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void startFade(bool entering, InspectorEventSnapshot snapshot)
     {
         if (entering) playDialogueVoice();
-        presentationCancellation = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
-        fadeAsync(entering, snapshot, presentationCancellation.Token).Forget(exception => Failed?.Invoke(exception));
-    }
-
-    /// <summary>경과 시간 기반으로 색과 알파를 바꾸고 유효한 수명에서만 완료한다.</summary>
-    /// <param name="entering">입장 또는 퇴장.</param>
-    /// <param name="snapshot">시작한 모델 상태.</param>
-    /// <param name="token">비활성·파괴 시 취소.</param>
-    /// <returns>연출 완료 또는 정상 취소.</returns>
-    private async UniTask fadeAsync(bool entering, InspectorEventSnapshot snapshot, CancellationToken token)
-    {
-        Color from = portrait.color;
-        Color to = entering ? originalColor : new Color(0, 0, 0, 0);
-        float fromAlpha = dialogueGroup.alpha;
-        float elapsed = 0;
-        try
-        {
-            while (elapsed < fadeSeconds)
+        presentationTween = DOTween.Sequence().SetUpdate(UpdateType.Late)
+            .Append(DOTween.To(() => portrait.color, value => portrait.color = value,
+                entering ? originalColor : Color.clear, fadeSeconds).SetEase(Ease.Linear))
+            .Join(DOTween.To(() => dialogueGroup.alpha, value => dialogueGroup.alpha = value,
+                entering ? 1f : 0f, fadeSeconds).SetEase(Ease.Linear))
+            .OnComplete(() =>
             {
-                await UniTask.Yield(PlayerLoopTiming.Update, token);
-                token.ThrowIfCancellationRequested();
-                if (isPresentationBlocked?.Invoke() ?? false) continue;
-                elapsed += Time.deltaTime;
-                float progress = Mathf.Clamp01(elapsed / fadeSeconds);
-                portrait.color = Color.Lerp(from, to, progress);
-                dialogueGroup.alpha = Mathf.Lerp(fromAlpha, entering ? 1 : 0, progress);
-            }
-            token.ThrowIfCancellationRequested();
-            if (entering)
-            {
-                entered = true;
-                nextButton.interactable = true;
-            }
-            else ExitCompleted?.Invoke(snapshot);
-        }
-        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+                presentationTween = null;
+                if (!isActiveAndEnabled) return;
+                try
+                {
+                    if (entering)
+                    {
+                        entered = true;
+                        nextButton.interactable = true;
+                    }
+                    else ExitCompleted?.Invoke(snapshot);
+                }
+                catch (Exception exception) { Failed?.Invoke(exception); }
+            });
+        presentationTween.timeScale = isPresentationBlocked?.Invoke() == true ? 0f : 1f;
     }
 
     /// <summary>게임 진행을 바꾸지 않고 표현 수명만 종료합니다.</summary>
     private void cancelPresentation()
     {
-        presentationCancellation?.Cancel();
-        presentationCancellation?.Dispose();
-        presentationCancellation = null;
+        presentationTween?.Kill();
+        presentationTween = null;
     }
 
     /// <summary>감독관 대화가 끝나거나 화면 수명이 종료되면 대화 음성을 즉시 정지한다.</summary>

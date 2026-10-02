@@ -641,6 +641,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7a76d937da487a842871c7eccef94ad4
+    m_Address: WorldVisit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7b157b71b50e4864c8828f0b4125ff29
     m_Address: MaleNormal_02_Normal
     m_ReadOnly: 0
@@ -664,6 +669,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7eb1e66cefa481e4dbd6d1df8e427f11
     m_Address: BadEndingBgm
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f49574279b76534e844ad5e8f2fc20c
+    m_Address: WorldQueueSpeech
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

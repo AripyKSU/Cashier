@@ -1,4 +1,4 @@
-using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,12 +27,12 @@ public sealed class LandingDustEffect : MonoBehaviour
     [Tooltip("먼지 발생 기준점의 추가 미세 조정 오프셋 (X, Y)")]
     [SerializeField] private Vector2 dustOffset = Vector2.zero;
 
-    private Coroutine playRoutine;
+    private Tween dustTween;
     /// <summary>오류나 비활성화로 표현 진행이 막혔는지 조회합니다.</summary>
     private System.Func<bool> isPresentationBlocked;
 
     /// <summary>더스트 연출이 현재 진행 중인지 나타냅니다.</summary>
-    public bool IsPlaying => this.playRoutine != null;
+    public bool IsPlaying => this.dustTween != null && this.dustTween.IsActive();
 
     /// <summary>오류나 비활성화로 표현 진행이 막힌 동안 시간을 멈출 조회자를 연결합니다.</summary>
     /// <param name="isBlocked">표현 진행 차단 여부를 반환하는 조회자입니다.</param>
@@ -129,24 +129,23 @@ public sealed class LandingDustEffect : MonoBehaviour
     /// <param name="origin">먼지 부모의 좌상단 기준 접점입니다.</param>
     private void startAnimate(Vector2 origin)
     {
-        if (this.playRoutine != null)
-        {
-            this.StopCoroutine(this.playRoutine);
-        }
-
-        this.playRoutine = this.StartCoroutine(this.animateDust(origin));
+        this.dustTween?.Kill();
+        this.animateDust(origin);
     }
 
     /// <summary>현재 재생 중인 더스트 효과를 중지하고 투명하게 숨깁니다.</summary>
     public void Stop()
     {
-        if (this.playRoutine != null)
-        {
-            this.StopCoroutine(this.playRoutine);
-            this.playRoutine = null;
-        }
-
+        this.dustTween?.Kill();
+        this.dustTween = null;
         this.clearDust();
+    }
+
+    /// <summary>LateUpdate 전에 표현 차단을 반영해 입자의 시간을 함께 멈춥니다.</summary>
+    private void Update()
+    {
+        if (this.dustTween != null)
+            this.dustTween.timeScale = this.isPresentationBlocked?.Invoke() == true ? 0f : 1f;
     }
 
     private void OnDisable()
@@ -190,10 +189,9 @@ public sealed class LandingDustEffect : MonoBehaviour
         }
     }
 
-    /// <summary>더스트 입자를 좌우로 번갈아 확산하고 알파 페이드아웃을 적용하는 코루틴입니다.</summary>
+    /// <summary>재사용 입자의 위치·알파를 하나의 차단 가능한 트윈으로 진행합니다.</summary>
     /// <param name="origin">먼지 부모의 좌상단 기준 접점입니다.</param>
-    /// <returns>표시 차단을 따르는 프레임 대기 열거자입니다.</returns>
-    private IEnumerator animateDust(Vector2 origin)
+    private void animateDust(Vector2 origin)
     {
         for (int i = 0; i < ParticleCount; i++)
         {
@@ -203,11 +201,10 @@ public sealed class LandingDustEffect : MonoBehaviour
             this.dustImages[i].gameObject.SetActive(true);
         }
 
-        float elapsed = 0f;
-        while (elapsed < this.durationSeconds)
+        float progress = 0f;
+        this.dustTween = DOTween.To(() => progress, t =>
         {
-            if (this.isPresentationBlocked?.Invoke() != true) elapsed += Time.unscaledDeltaTime;
-            float t = Mathf.Clamp01(elapsed / this.durationSeconds);
+            progress = t;
             float alpha = (1f - t) * this.dustColor.a;
 
             for (int i = 0; i < ParticleCount; i++)
@@ -224,11 +221,10 @@ public sealed class LandingDustEffect : MonoBehaviour
                 this.setParticleAlpha(this.dustImages[i], alpha);
             }
 
-            yield return null;
-        }
-
-        this.clearDust();
-        this.playRoutine = null;
+        }, 1f, this.durationSeconds).SetEase(Ease.Linear).SetUpdate(UpdateType.Late, true)
+            .OnComplete(() => { this.clearDust(); this.dustTween = null; });
+        this.dustTween.Goto(0f, true);
+        this.dustTween.timeScale = this.isPresentationBlocked?.Invoke() == true ? 0f : 1f;
     }
 
     /// <summary>이미지 색이 알파를 단독 소유하도록 CanvasRenderer의 중복 틴트를 제거합니다.</summary>

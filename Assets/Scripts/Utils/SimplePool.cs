@@ -264,4 +264,5 @@ public class SimplePool<T> : IPool where T : Component
         if (isClosed) throw new ObjectDisposedException(nameof(SimplePool<T>));
         if (hadParent && parent == null) throw new InvalidOperationException("Pool parent was destroyed.");
     }
+
 }
