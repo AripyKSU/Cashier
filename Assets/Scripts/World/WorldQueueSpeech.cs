@@ -21,6 +21,7 @@ public class WorldQueueSpeech : MonoBehaviour
     public void Init(Transform visualRoot, TMP_FontAsset font)
     {
         tmp.transform.SetParent(visualRoot, false);
+        tmp.transform.localScale = Vector3.one;
         tmp.font = font;
         tmp.fontSize = 160; // 월드 TMP의 1/10 단위 보정: authoring 좌표 16px.
         tmp.alignment = TextAlignmentOptions.Center;
@@ -36,6 +37,5 @@ public class WorldQueueSpeech : MonoBehaviour
         tmp.text = string.Empty;
         tmp.color = Color.clear;
         tmp.transform.localPosition = Vector3.zero;
-        tmp.transform.localScale = Vector3.one;
     }
 }

@@ -11,32 +11,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="75d822fb-0a2a-45f6-98d2-e13db247f7a5" name="변경" comment="">
-      <change afterPath="$PROJECT_DIR$/doc/work/gameplay-balance-merge-handoff.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerDispositionData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/Customer/CustomerDispositionData.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Datas/FacilityData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/FacilityData.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Datas/TextData.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Datas/TextData.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerComposition.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerComposition.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerCompositionSelector.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerCompositionSelector.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerGenerator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerVisit.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/CustomerVisit.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerCatalog.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Customer/Data/CustomerDispositionData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Finance/TransactionResult.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerWorldQueueView.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Scene/CustomerWorldQueueView.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionSelectorIntegrationTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionSelectorIntegrationTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCompositionTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerContractTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerContractTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCsvTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/CustomerCsvTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/FacilityTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/FacilityTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/MoralityTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/MoralityTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationDispositionRulesTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationDispositionRulesTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationSystemTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/ReputationSystemTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/EditMode/WorldSceneTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/EditMode/WorldSceneTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Tests/PlayMode/GameSessionApiTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_INTEGRATION.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/CUSTOMER_QUEUE_INTEGRATION.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/CUSTOMER_QUEUE_INTEGRATION.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/DATA_CATALOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/DATA_CATALOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/TESTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/TESTING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Cashier/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -214,7 +189,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "cidr.known.project.marker": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
-    "git-widget-placeholder": "GameplayBalance",
+    "git-widget-placeholder": "total__merge",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -272,7 +247,7 @@
       <workItem from="1788743272615" duration="6497000" />
       <workItem from="1788914650040" duration="5493000" />
       <workItem from="1789441979434" duration="4102000" />
-      <workItem from="1790123634882" duration="702000" />
+      <workItem from="1790123634882" duration="3929000" />
     </task>
     <servers />
   </component>

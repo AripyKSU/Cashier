@@ -17,6 +17,7 @@ public class WorldVisit : MonoBehaviour
     public Visual ToVisual(CustomerVisit visit, Transform visualRoot, Transform start, Sprite sprite, Texture2D normalTexture, WorldSceneView world, CustomerPortraitLayout layout, WorldQueueSpeech speech, float phase)
     {
         transform.SetParent(visualRoot, false);
+        transform.localScale = Vector3.one;
         transform.position = start.position;
         appearance.sprite = sprite;
         appearance.transform.localScale = Vector3.one * (layout.DisplayHeight / sprite.bounds.size.y);
@@ -30,6 +31,7 @@ public class WorldVisit : MonoBehaviour
         bodyProperties.SetFloat("_Surface", 2f);
         appearance.SetPropertyBlock(bodyProperties);
         appearance.color = Color.clear;
+        reaction.transform.localScale = Vector3.one;
         reaction.sortingOrder = 220;
         reaction.gameObject.SetActive(false);
 
@@ -59,13 +61,10 @@ public class WorldVisit : MonoBehaviour
         appearance.SetPropertyBlock(null);
         bodyProperties?.Clear();
         appearance.transform.localPosition = Vector3.zero;
-        appearance.transform.localScale = Vector3.one;
         reaction.sprite = null;
         reaction.color = Color.clear;
         reaction.transform.localPosition = Vector3.zero;
-        reaction.transform.localScale = Vector3.one;
         reaction.gameObject.SetActive(false);
         transform.localPosition = Vector3.zero;
-        transform.localScale = Vector3.one;
     }
 }
