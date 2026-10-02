@@ -33,7 +33,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
         Hub,
         Main,
         GoodEnding,
-        BadEnding
+        BadEnding,
+        Intro
     }
 
     /// <summary>
@@ -52,6 +53,7 @@ public class GameSceneManager : Singleton<GameSceneManager>
             SceneName.Main => "MainScene",
             SceneName.GoodEnding => "GoodEndingScene",
             SceneName.BadEnding => "BadEndingScene",
+            SceneName.Intro => "IntroScene",
             _ => throw new ArgumentOutOfRangeException(nameof(target), target, "Unknown scene.")
         };
 
@@ -85,8 +87,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
         }
     }
 
-    /// <summary>이미 부트스트랩된 런타임으로 새 세션을 만들고 Gameplay 씬으로 직접 진입한다.</summary>
-    /// <returns>Gameplay 전환 또는 재시도 안내 완료.</returns>
+    /// <summary>이미 부트스트랩된 런타임으로 새 세션을 만들고 인트로 후 Gameplay 씬으로 진입한다.</summary>
+    /// <returns>인트로 전환 또는 재시도 안내 완료.</returns>
     public async UniTask RestartGameAsync()
     {
         if (isTransitioning || isPreparingNewGame)
@@ -100,7 +102,8 @@ public class GameSceneManager : Singleton<GameSceneManager>
             sessionPrepared = true;
             // TransitionAsync가 전환 lock을 소유하므로 준비 단계에서만 별도 lock을 사용한다.
             isPreparingNewGame = false;
-            await TransitionToGameplayAsync();
+            // 새 게임은 인트로 씬을 먼저 거치고, 인트로가 끝나면 IntroSceneEntry가 Gameplay 전환을 요청한다.
+            await TransitionTo(SceneName.Intro);
         }
         catch (Exception exception)
         {
