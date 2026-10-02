@@ -416,7 +416,7 @@ public sealed class GameSessionApiTests
         var result = (TransactionResult)typeof(TransactionResult).GetConstructors(flags).Single().Invoke(new object[] {
             CustomerTradeOutcome.RegularSale, 100L, Array.Empty<SoldItem>(), false,
             Array.Empty<SaleRestrictionViolation>(), CustomerDispositionType.Normal, attributes, true,
-            new[] { new DailyGuidelineViolation(guideline, attributes, 1) }, new MoralityEvaluation(14001, 1m) });
+            new[] { new DailyGuidelineViolation(guideline, attributes, 1) }, new MoralityEvaluation(14001, 1m), CustomerRejectionReason.None });
         long balance = session.Economy.QueryService.CurrentBalance;
         Assert.Throws<OverflowException>(() =>
             typeof(GameSessionManager).GetMethod("TryApplyTransaction", flags).Invoke(session, new object[] { result }));
@@ -1107,6 +1107,11 @@ public sealed class GameSessionApiTests
     [UnityTest]
     public IEnumerator InspectorWorldEffectsPreserveSuspendedTimeAndFlashLifetime()
     {
+        var pools = root.AddComponent<SimplePoolManager>();
+        yield return wait(pools.CreatePoolAsync<WorldVisit>("WorldVisit", 22, 22, pools.transform,
+            onRelease: item => item.ResetForPool()).AsTask());
+        yield return wait(pools.CreatePoolAsync<WorldQueueSpeech>("WorldQueueSpeech", 22, 22, pools.transform,
+            onRelease: item => item.ResetForPool()).AsTask());
         var ui = createGameUi();
         yield return waitForGameUi(ui);
         var progress = uiProgress(ui);
@@ -1767,7 +1772,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.FacilityActivationDays.ContainsKey(12001));
         Assert.That(session.Economy.QueryService.CurrentBalance, Is.EqualTo(openingBalance - 5000 - purchasePrice));
         Assert.That(uiReference<UnityEngine.UI.Image>(row, "soldOutImage").gameObject.activeSelf);
-        Assert.That(uiReference<TMPro.TextMeshProUGUI>(panel, "feedbackText").text, Does.Contain("처리 오류"));
+        Assert.That(ui.IsPresentationBlocked, Is.True, "알림 예외 후 제품 기술 오류 잠금 유지");
         Assert.That(uiReferenceArray<FacilityPamphletSlotView>(panel, "stage1Slots").All(
             x => !uiReference<UnityEngine.UI.Button>(x, "purchaseButton").interactable));
         uiReference<UnityEngine.UI.Button>(panel, "outsideCloseButton").onClick.Invoke();

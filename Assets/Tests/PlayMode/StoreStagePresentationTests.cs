@@ -116,6 +116,10 @@ public sealed class StoreStagePresentationTests
     public IEnumerator StagePouringSpritesReachExistingImageAcrossStages()
     {
         var panel = root.AddComponent<SaleSortingPanel>();
+        var authoredPanel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/GameUI/GameUI.prefab").GetComponentInChildren<SaleSortingPanel>(true);
+        var itemTemplate = (SaleSortingItemView)new UnityEditor.SerializedObject(authoredPanel).FindProperty("itemPrefab").objectReferenceValue;
+        Assert.That(itemTemplate, Is.Not.Null);
+        setField(panel, "itemPrefab", itemTemplate);
         var image = new GameObject("PouringContainer", typeof(Image)).GetComponent<Image>();
         image.transform.SetParent(root.transform);
         setField(panel, "containerImage", image);

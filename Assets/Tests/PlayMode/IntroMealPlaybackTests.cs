@@ -32,16 +32,19 @@ public sealed class IntroMealPlaybackTests
     [UnitySetUp]
     public IEnumerator SetUp()
     {
+        Directory.CreateDirectory("Logs/IntroMealRevision");
         background=Application.runInBackground; Application.runInBackground=true;
+        controller=null; player=null; meal=null;
         SceneManager.sceneLoaded+=loaded;
         EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/IntroScene.unity",new LoadSceneParameters(LoadSceneMode.Single));
+        yield return until(()=>controller!=null,10);
         SceneManager.sceneLoaded-=loaded;
         yield return null;
         player=controller.GetComponent<IntroNineCutPlayer>(); meal=controller.GetComponent<IntroMealSequence>();
         Assert.That(meal,Is.Not.Null);
         authored=get<IntroSequenceBeat[]>(player,"beats");
         keyboard=InputSystem.AddDevice<Keyboard>();
-        Directory.CreateDirectory("Temp/IntroMealRevision");
+        Directory.CreateDirectory("Logs/IntroMealRevision");
     }
 
     /// <summary>씬의 Awake 이후 Start 전 테스트 인스턴스의 외부 진입만 차단한다.</summary>
@@ -56,8 +59,9 @@ public sealed class IntroMealPlaybackTests
     [UnityTearDown]
     public IEnumerator TearDown()
     {
+        Directory.CreateDirectory("Logs/IntroMealRevision");
         var result=TestContext.CurrentContext.Result;
-        File.WriteAllText("Temp/IntroMealRevision/"+TestContext.CurrentContext.Test.Name+".txt",result.Outcome+"\n"+result.Message+"\n"+result.StackTrace);
+        File.WriteAllText("Logs/IntroMealRevision/"+TestContext.CurrentContext.Test.Name+".txt",result.Outcome+"\n"+result.Message+"\n"+result.StackTrace);
         SceneManager.sceneLoaded-=loaded;
         if(controller!=null) controller.gameObject.SetActive(false);
         if(keyboard!=null) InputSystem.RemoveDevice(keyboard);
@@ -88,7 +92,7 @@ public sealed class IntroMealPlaybackTests
             if(simmer.isPlaying && !potWas){simmerStarts++;potAt=elapsed;}
             fxWas=fx.isPlaying; potWas=simmer.isPlaying;
             if(!captured && elapsed>3.6f)
-            { ScreenCapture.CaptureScreenshot("Temp/IntroMealRevision/settlement.png"); captured=true; }
+            { ScreenCapture.CaptureScreenshot("Logs/IntroMealRevision/settlement.png"); captured=true; }
             yield return null;
         }
         float[] expected={.3f,.8f,1.3f,1.8f,2.3f,2.6f,3.3f};
@@ -107,8 +111,8 @@ public sealed class IntroMealPlaybackTests
         Assert.That(32000-14000-7000-9000,Is.EqualTo(2000));
         Assert.That(rows[4].transform.Find("Divider").GetComponent<RectTransform>().rect.height,Is.EqualTo(2));
         Assert.That(group.GetComponent<Image>(),Is.Null);
-        ScreenCapture.CaptureScreenshot("Temp/IntroMealRevision/meal.png");
-        File.WriteAllText("Temp/IntroMealRevision/timing.txt",string.Join(",",seen)+$"\nSfxStarts={sfxStarts}\nPrelap={potAt}\nSimmerStarts={simmerStarts}\n");
+        ScreenCapture.CaptureScreenshot("Logs/IntroMealRevision/meal.png");
+        File.WriteAllText("Logs/IntroMealRevision/timing.txt",string.Join(",",seen)+$"\nSfxStarts={sfxStarts}\nPrelap={potAt}\nSimmerStarts={simmerStarts}\n");
         yield return new WaitForSecondsRealtime(.2f);
     }
 
@@ -129,6 +133,8 @@ public sealed class IntroMealPlaybackTests
             string displayed=$"{speakers[i]} : {lines[i]}";
             yield return until(()=>body.text==displayed && player.IsTyping,2);
             Assert.That(speaker.gameObject.activeSelf,Is.False);
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+            yield return null; // 새 줄 첫 프레임의 이전 Down 차단을 지난 뒤 새 입력을 보낸다.
             yield return pressSpace();
             Assert.That(player.IsTyping,Is.False); Assert.That(body.text,Is.EqualTo(displayed));
             if(i==3) Assert.That(get<AudioSource>(player,"effects").isPlaying,Is.True,"last typed callback");
@@ -153,7 +159,7 @@ public sealed class IntroMealPlaybackTests
         yield return new WaitForSecondsRealtime(.15f);
         get<Button>(player,"skipButton").onClick.Invoke();
         Assert.That(get<GameObject>(player,"skipConfirmation").activeSelf,Is.True);
-        ScreenCapture.CaptureScreenshot("Temp/IntroMealRevision/skip-confirmation.png");
+        ScreenCapture.CaptureScreenshot("Logs/IntroMealRevision/skip-confirmation.png");
         yield return new WaitForSecondsRealtime(.6f);
         Assert.That(rows[0].alpha,Is.EqualTo(0)); Assert.That(completed,Is.Zero);
         get<Button>(player,"confirmNo").onClick.Invoke();
