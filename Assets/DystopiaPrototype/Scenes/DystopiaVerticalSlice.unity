@@ -1340,13 +1340,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 559771571}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
-  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.4627451}
-  m_EffectDistance: {x: 4.6, y: -5.2}
+  m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &578463040 stripped
 MonoBehaviour:
@@ -2556,77 +2556,77 @@ MonoBehaviour:
     - id: 5
       requiredFacility: 1
       name: "\uAD70\uC6A9\uC2DD\uB7C9"
-      price: 0
+      price: 3500
       firstDay: 1
       sprite: {fileID: -162468576413262463, guid: 334584a1119da584ab0346d127869d09, type: 3}
     - id: 6
       requiredFacility: 1
       name: "\uC601\uC591\uBC14"
-      price: 0
+      price: 4500
       firstDay: 1
       sprite: {fileID: 6682129903784239701, guid: 51da5fd132c97d54383f70be61cac3b1, type: 3}
     - id: 7
       requiredFacility: 2
       name: "\uC57D\uD1B5"
-      price: 0
+      price: 5000
       firstDay: 1
       sprite: {fileID: -954668776948508918, guid: 303dc58656fbec341a80658cbda9b548, type: 3}
     - id: 8
       requiredFacility: 2
       name: "\uC751\uAE09 \uC8FC\uC0AC"
-      price: 0
+      price: 9000
       firstDay: 1
       sprite: {fileID: 1271666705010799792, guid: 9e219d8862ff7c54bb9a76b477f3838c, type: 3}
     - id: 9
       requiredFacility: 4
       name: "\uC190\uC804\uB4F1"
-      price: 0
+      price: 8000
       firstDay: 1
       sprite: {fileID: -2638390803197812687, guid: feaf852d7b25364469a2f4c7db58631f, type: 3}
     - id: 10
       requiredFacility: 4
       name: "\uC811\uC774\uC2DD \uC0BD"
-      price: 0
+      price: 10000
       firstDay: 1
       sprite: {fileID: 6791316595065204616, guid: 23fc9344777e016438d26b8c7b9a8fc2, type: 3}
     - id: 11
       requiredFacility: 8
       name: "\uBB34\uC804\uAE30"
-      price: 0
+      price: 20000
       firstDay: 1
       sprite: {fileID: -8070686850402279387, guid: 0acb55395f9655a4d97c529d2b1d0288, type: 3}
     - id: 12
       requiredFacility: 8
       name: "\uBC30\uD130\uB9AC"
-      price: 0
+      price: 12000
       firstDay: 1
       sprite: {fileID: -1792923517491293989, guid: 8b23b5ed8030f824abf68d908b57607e, type: 3}
     - id: 13
       requiredFacility: 16
       name: "\uBC29\uB3C5\uBA74"
-      price: 0
+      price: 25000
       firstDay: 1
       sprite: {fileID: 8528137531322026537, guid: 4d7494db5f40d4a448a7b2acdb6d3cdc, type: 3}
     - id: 14
       requiredFacility: 16
       name: "\uBC29\uD638\uBCF5"
-      price: 0
+      price: 40000
       firstDay: 1
       sprite: {fileID: -7399573725920153293, guid: b07599151bbd35f48bc6b995e34f3af1, type: 3}
     - id: 15
       requiredFacility: 32
       name: "\uBC29\uC0AC\uB2A5 \uCE21\uC815\uAE30"
-      price: 0
+      price: 50000
       firstDay: 1
       sprite: {fileID: 636093524434014793, guid: a0a1efba266304b44814d2b8d7750bf2, type: 3}
     - id: 16
       requiredFacility: 32
       name: "\uC5F4\uD654\uC0C1 \uCE74\uBA54\uB77C"
-      price: 0
+      price: 60000
       firstDay: 1
       sprite: {fileID: 2023536025061265600, guid: 3a45fc018e0f0f74ea54d25b62394157, type: 3}
     shopStage: 3
-    ownedFacilities: 0
+    ownedFacilities: 63
     citizenshipPrice: 300000
     firstTribute: 50000
     secondTribute: 80000
@@ -3716,7 +3716,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
   m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
-  m_EffectDistance: {x: 6, y: -8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!114 &1520615620
 MonoBehaviour:
@@ -3803,7 +3803,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 557.47, y: 6}
+  m_AnchoredPosition: {x: 557.47, y: -3}
   m_SizeDelta: {x: 150.04785, y: 20.658873}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1595516233
@@ -4139,7 +4139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
   m_EffectColor: {r: 0.02, g: 0.015, b: 0.01, a: 0.8}
-  m_EffectDistance: {x: 6, y: -8}
+  m_EffectDistance: {x: 10, y: -12}
   m_UseGraphicAlpha: 1
 --- !u!1 &1808015287
 GameObject:

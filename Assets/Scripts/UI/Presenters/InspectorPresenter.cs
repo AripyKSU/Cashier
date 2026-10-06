@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
@@ -8,8 +9,9 @@ using UnityEngine.UI;
 /// <summary>독립 감독관 패널의 대사·입력·검은 틴트 페이드만 담당한다. 진행 이력은 세션 소유다.</summary>
 public sealed class InspectorPresenter : MonoBehaviour
 {
-    private const float DialogueVoiceDurationSeconds = 2.5f;
-    private const float DialogueVoiceVolumeScale = 0.75f;
+    private const float DialogueCharacterSeconds = 0.035f;
+    private const float DialogueVoiceDurationSeconds = 0.1f;
+    private const float DialogueVoiceVolumeScale = 0.2f;
 
     /// <summary>감독관 초상 표시.</summary>
     [SerializeField] private Image portrait;
@@ -22,12 +24,14 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <summary>입장·퇴장 각각의 유한한 양수 초.</summary>
     [SerializeField, Min(0.01f)] private float fadeSeconds = 0.4f;
     private InspectorEventSnapshot current;
+    private Coroutine dialogueTyping;
     private CancellationTokenSource presentationCancellation;
     private Func<bool> isPresentationBlocked;
     private bool hasPresentation;
     private bool entered;
     private bool exiting;
     private bool canReveal;
+    private bool typingPending;
     private Color originalColor;
 
     /// <summary>현재 줄에 대한 입력 요청. 날짜·이벤트·줄 번호를 함께 전달한다.</summary>
@@ -54,6 +58,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void OnDisable()
     {
         cancelPresentation();
+        stopDialogueTyping(false);
         stopDialogueVoice();
         hasPresentation = false;
         entered = false;
@@ -64,6 +69,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void OnDestroy()
     {
         cancelPresentation();
+        stopDialogueTyping(false);
         stopDialogueVoice();
         if (nextButton != null) nextButton.onClick.RemoveListener(handleNext);
     }
@@ -92,12 +98,14 @@ public sealed class InspectorPresenter : MonoBehaviour
         bool newEvent = !hasPresentation || current.Day != snapshot.Day || current.EventIdx != snapshot.EventIdx;
         bool newDialogueLine = hasPresentation && !newEvent
             && current.LineIndex != snapshot.LineIndex;
+        bool textChanged = newEvent || newDialogueLine || dialogue.text != text;
         current = snapshot;
         isPresentationBlocked = blockQuery;
         canReveal = reveal;
         if (newEvent)
         {
             cancelPresentation();
+            stopDialogueTyping(false);
             hasPresentation = true;
             entered = false;
             exiting = false;
@@ -106,13 +114,20 @@ public sealed class InspectorPresenter : MonoBehaviour
             dialogueGroup.alpha = 0;
             nextButton.interactable = false;
         }
-        dialogue.text = text;
+        if (textChanged)
+        {
+            stopDialogueTyping(false);
+            dialogue.text = text;
+            dialogue.maxVisibleCharacters = 0;
+            dialogue.ForceMeshUpdate(true, true);
+            typingPending = true;
+        }
         if (!reveal || !isActiveAndEnabled) return;
-        if (newDialogueLine) playDialogueVoice();
         if (snapshot.Phase == InspectorEventPhase.AwaitingExit)
         {
             if (exiting) return;
             cancelPresentation();
+            stopDialogueTyping(false);
             stopDialogueVoice();
             exiting = true;
             nextButton.interactable = false;
@@ -120,12 +135,18 @@ public sealed class InspectorPresenter : MonoBehaviour
         }
         else if (!entered && presentationCancellation == null) startFade(true, snapshot);
         else if (entered) nextButton.interactable = !(isPresentationBlocked?.Invoke() ?? false);
+        startDialogueTypingIfNeeded();
     }
 
     /// <summary>현재 대사 스냅샷으로만 입력을 보낸다.</summary>
     private void handleNext()
     {
         if (!entered || exiting || !nextButton.interactable || (isPresentationBlocked?.Invoke() ?? false)) return;
+        if (dialogueTyping != null || typingPending)
+        {
+            completeDialogueTyping();
+            return;
+        }
         nextButton.interactable = false;
         NextRequested?.Invoke(current);
     }
@@ -135,7 +156,6 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <param name="snapshot">연출 시작 상태.</param>
     private void startFade(bool entering, InspectorEventSnapshot snapshot)
     {
-        if (entering) playDialogueVoice();
         presentationCancellation = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
         fadeAsync(entering, snapshot, presentationCancellation.Token).Forget(exception => Failed?.Invoke(exception));
     }
@@ -182,13 +202,80 @@ public sealed class InspectorPresenter : MonoBehaviour
         presentationCancellation = null;
     }
 
+    /// <summary>인트로와 같은 속도로 현재 대사를 한 글자씩 표시한다.</summary>
+    private IEnumerator typeDialogue()
+    {
+        int characterCount = dialogue.textInfo.characterCount;
+        int soundCharacterCount = 0;
+        float elapsed = 0f;
+        yield return null;
+        while (dialogue.maxVisibleCharacters < characterCount)
+        {
+            if (isPresentationBlocked?.Invoke() ?? false)
+            {
+                yield return null;
+                continue;
+            }
+
+            elapsed += Time.deltaTime;
+            if (elapsed >= DialogueCharacterSeconds)
+            {
+                elapsed -= DialogueCharacterSeconds;
+                int characterIndex = dialogue.maxVisibleCharacters;
+                dialogue.maxVisibleCharacters = characterIndex + 1;
+                if (char.IsLetterOrDigit(dialogue.textInfo.characterInfo[characterIndex].character))
+                {
+                    soundCharacterCount++;
+                    if ((soundCharacterCount & 1) == 1) playDialogueVoice();
+                }
+            }
+            yield return null;
+        }
+
+        dialogue.maxVisibleCharacters = characterCount;
+        typingPending = false;
+        dialogueTyping = null;
+    }
+
+    /// <summary>표시 대기 중인 감독관 대사가 있으면 타이핑을 시작한다.</summary>
+    private void startDialogueTypingIfNeeded()
+    {
+        if (!typingPending || dialogueTyping != null) return;
+        dialogueTyping = StartCoroutine(typeDialogue());
+    }
+
+    /// <summary>현재 타이핑을 즉시 완성하고 다음 입력은 기존 줄 진행으로 남긴다.</summary>
+    private void completeDialogueTyping()
+    {
+        if (dialogueTyping != null) StopCoroutine(dialogueTyping);
+        dialogueTyping = null;
+        dialogue.ForceMeshUpdate(true, true);
+        dialogue.maxVisibleCharacters = dialogue.textInfo.characterCount;
+        typingPending = false;
+        stopDialogueVoice();
+    }
+
+    /// <summary>화면 수명 또는 새 줄 전환 시 진행 중인 타이핑을 정리한다.</summary>
+    /// <param name="showFullText">정리하면서 현재 문장을 모두 표시할지 여부.</param>
+    private void stopDialogueTyping(bool showFullText)
+    {
+        if (dialogueTyping != null) StopCoroutine(dialogueTyping);
+        dialogueTyping = null;
+        if (showFullText && dialogue != null)
+        {
+            dialogue.ForceMeshUpdate(true, true);
+            dialogue.maxVisibleCharacters = dialogue.textInfo.characterCount;
+        }
+        typingPending = false;
+    }
+
     /// <summary>감독관 대화가 끝나거나 화면 수명이 종료되면 대화 음성을 즉시 정지한다.</summary>
     private void stopDialogueVoice()
     {
         SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
     }
 
-    /// <summary>현재 감독관 대사 단위에 한정된 음성을 약한 볼륨으로 재생한다.</summary>
+    /// <summary>실제 게임의 감독관 음성을 짧게 끊어 글자 블립으로 재생한다.</summary>
     private void playDialogueVoice()
     {
         SoundManager.Instance?.PlaySfxForDuration(

@@ -470,7 +470,8 @@ public sealed class DystopiaSession
     public void TogglePause() { IsPaused = !IsPaused; Revision++; }
 
     /// <summary>当日のみの集計と待機状態を初期化します。</summary>
-    private void BeginDay()
+    /// <param name="equipmentTest">후반 설비 미리보기용 최대 품목·수량 주문을 만들면 true입니다.</param>
+    private void BeginDay(bool equipmentTest = false)
     {
         activeProducts = FindActiveProducts(settings);
         dayStartReputation = Reputation;
@@ -486,9 +487,9 @@ public sealed class DystopiaSession
         LastCancelled = false;
         Gauge = settings.gaugeStart;
         Feedback = Reason = "";
-        Customer = CreateCustomer(Customer);
+        Customer = CreateCustomer(Customer, equipmentTest);
         waitingCustomers.Clear();
-        for (int i = 1; i < Visitors; i++) waitingCustomers.Add(CreateCustomer(i == 1 ? Customer : waitingCustomers[i - 2]));
+        for (int i = 1; i < Visitors; i++) waitingCustomers.Add(CreateCustomer(i == 1 ? Customer : waitingCustomers[i - 2], equipmentTest));
         Phase = DystopiaPhase.PriceGuide;
         Revision++;
     }
@@ -524,14 +525,19 @@ public sealed class DystopiaSession
         Revision++;
     }
 
-#if UNITY_EDITOR
+    /// <summary>Stage 3 직행 메뉴에서 현재 날과 대기열 전체를 후반 최대 수량 주문으로 다시 만듭니다.</summary>
+    public void PrepareLateStageEquipmentTestDay()
+    {
+        Day = Math.Max(Day, 3);
+        BeginDay(true);
+    }
+
     /// <summary>현재 거래만 기존 생성 경로의 다품목 테스트 주문으로 교체합니다.</summary>
     internal void PrepareEquipmentTestCustomer()
     {
         Customer = CreateCustomer(Customer, true);
         Revision++;
     }
-#endif
 
     /// <summary>앞 손님과 다른 타입·성별의 등록 외형을 동등한 확률로 선택하고 구매 상황을 생성합니다.</summary>
     /// <param name="previous">실제 대기 순서에서 바로 앞에 있는 손님입니다. 첫 생성에는 null입니다.</param>
@@ -564,16 +570,12 @@ public sealed class DystopiaSession
         customer.tolerancePercent = customer.isPoor ? 110 : 110 + toleranceType * 10;
         var available = new List<DystopiaProduct>(activeProducts);
         int count = random.Next(1, Math.Min(available.Count, Day < 3 ? 2 : 3) + 1);
-#if UNITY_EDITOR
         if (equipmentTest) count = Math.Min(3, available.Count);
-#endif
         for (int i = 0; i < count; i++)
         {
             int index = random.Next(available.Count);
             var line = new DystopiaBasketLine { product = available[index], quantity = random.Next(1, 4) };
-#if UNITY_EDITOR
             if (equipmentTest) line.quantity = 3;
-#endif
             available.RemoveAt(index);
             customer.basket.Add(line);
             customer.total += line.product.price * line.quantity;

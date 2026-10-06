@@ -79,7 +79,7 @@ public sealed class GameUIController : MonoBehaviour
     private bool isPurchasingFacility;
     private bool wasInputRouterEnabled;
     private CanvasGroup operatingInputGroup;
-    private bool wasPreOpenBackgroundVisible;
+    private bool wasStageBackgroundVisible;
     private string facilityFeedback = string.Empty;
 
     private bool isReady;
@@ -1233,7 +1233,7 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (this.gameProgress.State != GameProgressState.DayInProgress)
         {
-            this.wasPreOpenBackgroundVisible = false;
+            this.wasStageBackgroundVisible = false;
             this.setPanelVisibility(this.preOpenPanel, false);
             this.setPanelVisibility(this.operatingPanel, false);
             this.setPanelVisibility(this.settlementPanel, false);
@@ -1243,16 +1243,18 @@ public sealed class GameUIController : MonoBehaviour
         }
         if (this.IsFacilityShopOpen && !this.canOpenFacilityShop()) this.closeFacilityShop();
         bool preOpen = this.subscribedDay.State == DayProgressState.PreOpen;
+        bool inspector = this.subscribedDay.State == DayProgressState.InspectorEvent;
+        bool showStageBackground = preOpen || inspector;
         bool operating = this.isSettlementPresentationPending || this.subscribedDay.State == DayProgressState.Operating
             || this.subscribedDay.State == DayProgressState.Sorting
             || this.subscribedDay.State == DayProgressState.TransactionResult
             || this.subscribedDay.State == DayProgressState.Closing;
         bool settlement = !this.isSettlementPresentationPending && this.subscribedDay.State == DayProgressState.Settlement;
 
-        if (preOpen && !this.wasPreOpenBackgroundVisible) this.saleSortingPanel.ClearCustomer();
-        this.wasPreOpenBackgroundVisible = preOpen;
+        if (showStageBackground && !this.wasStageBackgroundVisible) this.saleSortingPanel.ClearCustomer();
+        this.wasStageBackgroundVisible = showStageBackground;
         this.setPanelVisibility(this.preOpenPanel, preOpen);
-        this.setPanelVisibility(this.operatingPanel, operating || preOpen);
+        this.setPanelVisibility(this.operatingPanel, operating || showStageBackground);
         if (preOpen) this.preOpenPanel.transform.SetSiblingIndex(this.operatingPanel.transform.GetSiblingIndex() + 1);
         if (this.operatingInputGroup != null)
         {
@@ -1263,7 +1265,6 @@ public sealed class GameUIController : MonoBehaviour
         this.setPanelVisibility(this.settlementPanel, settlement);
         this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
         this.openBusinessButton.interactable = preOpen && !this.isOpeningBusiness && !this.hasError && presentationReady && !hasError;
-        bool inspector = this.subscribedDay.State == DayProgressState.InspectorEvent;
         this.gameInputRouter.enabled = presentationReady && !hasError && !preOpen && !inspector && !IsFacilityShopOpen;
         this.inspectorPresenter.gameObject.SetActive(inspector && !hasError);
         if (inspector && !hasError)
@@ -1275,12 +1276,12 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshStartupCover();
     }
 
-    /// <summary>기술 준비와 감독관 진행 중에는 검은 커버를 유지하고, 일일 지침부터 해제합니다.</summary>
+    /// <summary>기술 준비 중에는 검은 커버를 유지하고, 준비된 감독관·일일 지침 화면에서는 해제합니다.</summary>
     private void refreshStartupCover()
     {
         if (this.startupCover == null || this.hasError || this.subscribedDay == null) return;
 
-        bool beforeOpening = !this.presentationReady || this.subscribedDay.State == DayProgressState.InspectorEvent;
+        bool beforeOpening = !this.presentationReady;
         this.startupCover.gameObject.SetActive(beforeOpening);
         this.startupCover.alpha = 1f;
         this.startupCover.interactable = beforeOpening;

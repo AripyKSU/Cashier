@@ -134,6 +134,7 @@ public static class DystopiaTopDownTestTools
     private const string PendingKey = "DystopiaTopDownTest.VerificationPending";
     private const string CleanupKey = "DystopiaTopDownTest.CleanupPending";
     private const string OriginalSceneKey = "DystopiaTopDownTest.OriginalScene";
+    private const string DirectStage3Key = "DystopiaTopDownTest.DirectStage3";
     private static readonly StringBuilder Report = new StringBuilder();
     private static IEnumerator verification;
     private static double nextStep;
@@ -146,6 +147,38 @@ public static class DystopiaTopDownTestTools
     {
         EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
         EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    }
+
+    /// <summary>3단계 가판과 모든 설비를 적용한 뒤 가격 안내 없이 탑다운 거래를 시작합니다.</summary>
+    [MenuItem("Dystopia/Stage 3 탑다운 거래 바로 실행")]
+    public static void PlayStage3TopDownTrade()
+    {
+        if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Play Mode is already changing or active.");
+        if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+        DystopiaTools.ApplyApprovedStageReference(3);
+        var screen = UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>(FindObjectsInactive.Include);
+        if (screen == null) throw new InvalidOperationException("DystopiaVerticalSlice must contain one DystopiaScreen.");
+        Undo.RecordObject(screen, "Unlock stage 3 facilities");
+        screen.Settings.shopStage = 3;
+        screen.Settings.ownedFacilities = DystopiaFacility.FoodShelf | DystopiaFacility.MedicineCabinet |
+            DystopiaFacility.ToolBench | DystopiaFacility.PowerCommunications |
+            DystopiaFacility.NuclearProtection | DystopiaFacility.PrecisionElectronics;
+        int[] stage3Prices = { 0, 1000, 2500, 3000, 3500, 3500, 4500, 5000, 9000,
+            8000, 10000, 20000, 12000, 25000, 40000, 50000, 60000 };
+        foreach (var product in screen.Settings.products)
+        {
+            int id = product != null ? (int)product.id : 0;
+            if (id <= 0 || id >= stage3Prices.Length) throw new InvalidOperationException("Stage 3 상품 16종 등록을 확인하세요.");
+            if (product.price <= 0) product.price = stage3Prices[id];
+        }
+        EditorUtility.SetDirty(screen);
+        EditorSceneManager.MarkSceneDirty(screen.gameObject.scene);
+        SessionState.SetBool(DirectStage3Key, true);
+        // 전역 Play 시작 씬이 Intro로 지정돼 있어도 지금 준비한 Stage 3 씬을 그대로 실행합니다.
+        SessionState.SetString("Dystopia.PreviousStart", AssetDatabase.GetAssetPath(EditorSceneManager.playModeStartScene));
+        SessionState.SetBool("Dystopia.RestoreStart", true);
+        EditorSceneManager.playModeStartScene = null;
+        EditorApplication.isPlaying = true;
     }
 
     /// <summary>신규 이미지 Import 설정을 적용하고 별도 테스트 씬 자산만 생성합니다.</summary>
@@ -227,6 +260,7 @@ public static class DystopiaTopDownTestTools
         }
         else if (change == PlayModeStateChange.EnteredEditMode)
         {
+            SessionState.EraseBool(DirectStage3Key);
             EditorApplication.update -= VerificationStep;
             if (!SessionState.GetBool(CleanupKey, false)) return;
             Scene testScene = SceneManager.GetSceneByPath(ScenePath);
@@ -255,7 +289,12 @@ public static class DystopiaTopDownTestTools
     {
         if (!EditorApplication.isPlaying) return;
         DystopiaScreen screen = UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>();
-        if (screen != null) DystopiaTopDownTest.AttachToExistingScreen(screen);
+        if (screen == null) return;
+        DystopiaTopDownTest.AttachToExistingScreen(screen);
+        if (!SessionState.GetBool(DirectStage3Key, false)) return;
+        SessionState.EraseBool(DirectStage3Key);
+        screen.Session.PrepareLateStageEquipmentTestDay();
+        screen.Session.OpenShop();
     }
 
     /// <summary>실제 PlayerLoop를 유지하며 시간 간격에 맞춰 검사 단계를 진행합니다.</summary>

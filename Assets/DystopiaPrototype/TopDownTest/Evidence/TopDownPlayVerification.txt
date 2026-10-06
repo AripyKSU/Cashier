@@ -1,0 +1,4 @@
+FAIL: System.InvalidOperationException: isolated top-down controller is active
+  at DystopiaTopDownTestTools.Require (System.Boolean condition, System.String label) [0x00020] in C:\UnityProject\CashierGit\Cashier\Assets\DystopiaPrototype\TopDownTest\Editor\DystopiaTopDownTestTools.cs:407 
+  at DystopiaTopDownTestTools+<VerifyInPlay>d__22.MoveNext () [0x000b7] in C:\UnityProject\CashierGit\Cashier\Assets\DystopiaPrototype\TopDownTest\Editor\DystopiaTopDownTestTools.cs:293 
+  at DystopiaTopDownTestTools.VerificationStep () [0x00031] in C:\UnityProject\CashierGit\Cashier\Assets\DystopiaPrototype\TopDownTest\Editor\DystopiaTopDownTestTools.cs:269 

@@ -20,7 +20,7 @@
 - 감독관은 일반 CustomerVisit/CustomerQueue에 넣지 않는다. 상품 목록·가격 제안·명성·거래 도덕성 판정 대상도 아니다.
 - 튜토리얼은 이번 단계에서 설명 대사까지다. 실제 조작 완료 대기, 영업 중 개입, 물품 압수, 딸 사건, 시민권 구매·엔딩은 후속 범위다.
 - 기획서의 3억/6억/5억은 대사 예시다. 실제 지출·승리 목표액으로 등록하지 않는다.
-- 사용자 추가 확정: 감독관 입장·퇴장은 검은색 틴트와 알파 페이드, UI는 독립 prefab, 초기 화면은 준비 완료까지 기존 어두운 이미지로 가린다.
+- 사용자 추가 확정: 감독관 입장·퇴장은 검은색 틴트와 알파 페이드, UI는 독립 prefab, 초기 화면은 준비 완료까지만 기존 어두운 이미지로 가린다. 준비 뒤에는 별도 감독관 배경 대신 현재 가게 단계의 판매 배경을 표시하고 감독관을 계산대 손님 위치에 둔다.
 
 | 쟁점 | 확인된 내용 | 구현 처리 |
 |---|---|---|
@@ -107,11 +107,13 @@ GameProgress.startCurrentDay가 날짜별 가격 준비와 DayProgress 생성·S
 - 독립 자산 `Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab`을 사용한다. 감독관 이미지, 대사 TMP, 다음 버튼, CanvasGroup과 InspectorPresenter를 prefab 내부에서 연결한다.
 - GameUI에는 nested prefab 1개와 Controller의 Presenter 참조만 연결한다. MainScene에 감독관 내부 객체를 풀어 복제하지 않는다. 기존 GameUI 구조·GUID·Local 씬을 보존한다.
 - InspectorPanel은 장면 객체의 직접 참조 없이 자신의 UI와 표현만 소유한다. 이벤트 snapshot과 진행 요청은 GameUIController를 통해 전달한다. prefab 자체를 새 Addressables로 등록할 필요는 없다.
+- InspectorPanel의 전용 검문소 배경은 표시하지 않는다. 감독관 중에도 현재 StoreStage 판매 화면을 입력 차단 상태로 유지하고, 초상은 가판 바로 앞 중앙에서 크게 보이되 별도 Canvas 정렬로 가판 뒤에 표시한다.
+- `CounterAnchor`를 초상의 발 위치로 직접 사용하면 발이 가판 위에 놓이므로 사용하지 않는다. 감독관 초상 RectTransform은 1280×720 기준 좌상단 `(290, 30)`, 크기 `700×700`, 좌상단 pivot으로 배치해 화면 중앙 640에서 일반 손님보다 클로즈업한다. 원본 PNG는 보존하고 Image의 세로 Top Fill을 0.68로 제한해 허벅지 아래 32%를 표시하지 않는다. 별도 Canvas의 가판 뒤 정렬도 유지한다. 사용자 요청으로 Unity 검증과 Play Mode 확인은 실행하지 않았다.
 - 기존 화면·버튼 스타일을 재사용하되 CustomerPresenter의 CustomerVisit 계약에 감독관을 끼워 넣지 않는다.
 - 입장 → 대화 → 퇴장 연출은 Presenter 책임. 애니메이션 완료 callback이 늦게 도착해도 다른 이벤트를 완료하지 않도록 eventIdx와 화면 수명을 확인한다.
 - 입장: 감독관 이미지 RGB 검정·alpha 0 → 원래 색·alpha 1. 퇴장: 현재 색·alpha → RGB 검정·alpha 0. 대사와 버튼은 RGB 검정으로 물들이지 않고 별도 CanvasGroup으로 알파만 처리한다.
 - 입장 완료 전에는 대사 넘김을 막고, 마지막 대사 확인 후 퇴장 중에도 추가 입력을 막는다. 완료 후 색·알파·텍스트·버튼 상태를 초기화해 다음 이벤트에서 검은색이 남지 않게 한다.
-- 감독관 대화 음성은 명시적으로 정지 가능한 효과음 source에서 재생한다. 마지막 대사 확인으로 퇴장 대기 상태에 들어가는 즉시 음성을 정지하며, 패널 비활성·파괴 시에도 같은 정리 경로를 적용한다.
+- 감독관 대사는 인트로와 같은 0.035초 간격으로 한 글자씩 표시하고, 문자·숫자 두 개당 한 번 `DialogueVoice`를 0.10초만 낮은 음량으로 재생한다. 첫 입력은 진행 중인 타이핑만 완성하고 다음 입력이 줄을 넘긴다. 새 줄·퇴장·패널 비활성·파괴 시 타이핑과 남은 음성을 정리한다.
 - 입퇴장 시간은 Presenter의 Inspector 조정값 `fadeSeconds`이며 초기값은 각 0.4초다. UniTask 표현 루프를 사용하고 화면 비활성·파괴 시 취소한다. 같은 부모 화면의 재활성 순서가 달라도 Presenter.OnEnable에서 준비된 연출을 재개한다. 일시정지 정책은 기존 표현 정지 규칙과 맞춘다.
 - ResourceData → ResourceManager로 Sprite를 가져온다. 이미지 파일이 있다는 이유만으로 Addressables 주소를 추측하지 않는다.
 - 2026-09-13 사용자 요청으로 감독관 이벤트 3개의 `portrait_resource_idx`를 전용 Resource4256으로 교체했다. `4256 → Inspector → Assets/Textures/Customer/Dystopia/Inspector.png` 경로로 표시하며 기존 GUID와 Sprite import 설정을 유지한다.
@@ -132,15 +134,15 @@ GameProgress.startCurrentDay가 날짜별 가격 준비와 DayProgress 생성·S
 
 실제 Init→Hub의 새 게임 버튼→Main에서 첫 관측 렌더부터 불투명 덮개를 유지했고, 감독관→일일지침 동안 유지·영업 버튼 후 해제를 확인했다. `Temp/ProductHubMain-RenderTrace.csv`와 `ProductHubMain-Inspector.png`, `ProductHubMain-PreOpen.png`, `ProductHubMain-TopView.png` 참고. 탑뷰 생성 상품 6개는 모두 144×144(`Temp/ProductHubMain-ItemSizes.txt`). 화면 확인은 기술 준비 조건의 최종 보강 전 실행이며, 보강 후에는 관련 PlayMode 회귀로 재확인한다. 전체 suite·다른 화면비·청소기 및 자동 소팅의 최종 조작감은 미검증이다. Main/Hub/InitScene·ProjectSettings·TMP 폰트는 사전 hash와 동일하며, 기존 MainScene의 덮개 비활성 override는 보존하고 Awake에서 대응한다.
 
-GameUIController.Start는 CSV·Sprite·참조 검증 후 GameProgress.Start를 수행하고 표시 데이터를 바인딩한다. Canvas 레이아웃 반영 뒤에만 별도 `presentationReady`를 설정해 감독관·일일지침 입력을 허용한다. 검은 덮개는 기술 준비 중과 InspectorEvent 동안 유지하고, 준비 완료 후 일일지침(PreOpen)이 표시될 때 제거한다(2026-09-17 사용자 요청으로 해제 시점 변경).
+GameUIController.Start는 CSV·Sprite·참조 검증 후 GameProgress.Start를 수행하고 표시 데이터를 바인딩한다. Canvas 레이아웃 반영 뒤에만 별도 `presentationReady`를 설정해 감독관·일일지침 입력을 허용한다. 검은 덮개는 기술 준비 중에만 유지하고, 준비 완료 후 감독관 또는 일일지침이 표시될 때 제거한다.
 
 - 기존 일일지침의 어두운 이미지/스타일을 재사용한다. 현재 PreOpenPanel은 고정 크기이므로 그 부모 패널을 통째로 가림으로 사용하지 않는다. 가림 Image를 하루별 내용 패널과 독립된 GameUI 직속 레이어로 분리하는 최소 변경을 우선한다.
 - 초기 prefab 직렬화 상태부터 가림은 활성·불투명·전체 화면 stretch이며 최상단에서 입력을 차단한다. MainScene의 비활성 instance override도 GameUIController.Awake에서 첫 렌더 전에 활성·불투명·입력 차단으로 복구한다. 비동기 로드 뒤 처음 켜는 방식은 사용하지 않는다.
 - 로딩 중에는 감독관·일일지침 내용과 버튼을 숨긴다. UI 뒤의 키보드 확인·영업 시작·설비 구매도 초기화 경계에서 차단한다.
 - 준비 완료 조건: 데이터 검증·세션 초기화, 표시할 이미지 로드, UI 참조 검증, GameProgress.Start, 최초 표시 데이터 바인딩 및 레이아웃 반영 완료. 고정 시간 대기만으로 준비 완료를 판단하지 않는다.
-- 감독관이 있으면 준비 완료 뒤 덮개를 ProgressCanvas의 첫 sibling으로 옮겨 검은 배경 위에 감독관을 표시한다. 감독관이 없거나 퇴장하면 준비 완료된 PreOpen에서 덮개와 덮개의 raycast 차단을 해제하고 일일지침을 표시한다. 대사 진행 중에는 일일지침·영업 패널 입력을 허용하지 않는다. 영업 시작 버튼은 presentationReady 이후에만 동작한다. 다음 날도 InspectorEvent에서는 덮개를 유지하고 PreOpen에서는 해제한다.
-- PreOpen에서는 OperatingPanel을 가게 배경 표시용으로 활성화한다. 월드 배경과 픽셀 렌더러가 자식 AstraFrontView의 활성 상태를 따르므로 덮개만 꺼서는 배경이 나타나지 않는다. 이때 이전 거래 표시를 정리하고 정면을 복원하며, OperatingPanel의 CanvasGroup 입력 및 GameInputRouter는 차단한다. 일일지침은 그 앞에 배치하고 영업 시작 시 영업 입력을 복구한다. 감독관·정산 중 OperatingPanel 숨김은 유지하며 Scene/Prefab은 변경하지 않는다.
-- 이번 해제 시점 변경은 파일 수정·정적 검토만 수행한다. 컴파일 확인·테스트 실행은 제외하며 기존 `InspectorStartupCoverDialogueRecreationAndExit`의 PreOpen 커버 활성 기대값 갱신은 후속 검증 작업으로 남긴다. 위 과거 실행 기록은 변경 전 동작의 증거다.
+- 준비 완료 뒤 덮개와 raycast 차단을 해제한다. 감독관이 있으면 현재 가게 단계의 판매 배경과 가판을 표시하되 영업 패널 입력은 차단하고, 감독관 초상과 대사만 조작할 수 있게 한다. 감독관이 없거나 퇴장하면 준비 완료된 PreOpen에서 일일지침을 표시한다. 영업 시작 버튼은 presentationReady 이후에만 동작한다.
+- InspectorEvent와 PreOpen에서는 OperatingPanel을 가게 배경 표시용으로 활성화한다. 월드 배경과 픽셀 렌더러가 자식 AstraFrontView의 활성 상태를 따르므로 덮개만 꺼서는 배경이 나타나지 않는다. 이때 이전 거래 표시를 정리하고 정면을 복원하며, OperatingPanel의 CanvasGroup 입력 및 GameInputRouter는 차단한다. 감독관 대사는 가판 앞에, 초상은 가판 뒤에 표시하고 영업 시작 시 영업 입력을 복구한다. 정산 중 OperatingPanel 숨김은 유지한다.
+- 이번 배경 통합은 파일 수정과 테스트 기대값 갱신까지만 수행했다. 사용자 지시에 따라 컴파일·Unity 테스트·Play Mode 실행은 하지 않았으며, 위 과거 실행 기록은 변경 전 동작의 증거다.
 - 가림이 필요한 다른 Scene에서 GameUI 생성 전에 노출되는 구간은 최초 실측 시 확인한다. 해당 구간이 있다면 기존 Scene 전환의 검은 배경으로 이어 가리며, 비동기로 생성되는 GameUI만으로 전체 Scene 전환을 가렸다고 판단하지 않는다.
 - 로딩 실패 시 불완전 화면을 공개하지 않는다. 어두운 가림 위에 기존 오류 안내를 읽을 수 있게 표시하고 상세 오류를 로그에 남긴다. 무한 검은 화면이나 자동 재시도 루프는 만들지 않는다.
 - 가림 해제 후 raycast 차단도 해제해 투명 이미지가 버튼을 막지 않게 한다. 감독관 페이드와 준비 가림은 서로 다른 대상이며 색·알파를 동시에 수정하는 작성자는 각각 하나만 둔다.

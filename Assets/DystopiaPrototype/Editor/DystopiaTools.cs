@@ -954,13 +954,16 @@ public static class DystopiaTools
         ApplyApprovedStageReference(2);
     }
 
-    /// <summary>指定段階の承認済みシーンから店舗と背景の設定を適用します。</summary>
-    /// <param name="stageNumber">保存済みの段階番号です。</param>
+    /// <summary>기존 편집 씬의 저장 여부를 확인하고 전용 프로토타입 씬만 열어 승인된 단계 배치를 적용합니다.</summary>
+    /// <param name="stageNumber">적용할 저장 단계 번호입니다.</param>
     internal static void ApplyApprovedStageReference(int stageNumber)
     {
         if(EditorApplication.isPlaying) throw new InvalidOperationException("Exit Play Mode first.");
-        var stage=UnityEngine.Object.FindFirstObjectByType<DystopiaPixelStage>();
-        if(stage==null || stage.gameObject.scene.path!=Root+"Scenes/DystopiaVerticalSlice.unity") throw new InvalidOperationException("Open DystopiaVerticalSlice first.");
+        if(!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+        var scene=EditorSceneManager.OpenScene(ScenePath,OpenSceneMode.Single);
+        var stages=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<DystopiaPixelStage>(true)).ToArray();
+        if(stages.Length!=1) throw new InvalidOperationException("DystopiaVerticalSlice must contain exactly one DystopiaPixelStage.");
+        var stage=stages[0];
         string directory="output/shop-stage-switch/stage"+stageNumber+"-approved-"+DateTime.Now.ToString("yyyyMMdd-HHmmss");
         Directory.CreateDirectory(directory);
         if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/before.unity",true)) throw new IOException("Backup failed.");
@@ -1046,7 +1049,7 @@ public static class DystopiaTools
             EnsureCanopyBehindCounter(stage);
             RemoveFrontTowerLayers(stage);
             // Keep authored guard positions from the approved reference without recalculation.
-            SetProductShopStage(stageNumber);
+            SetProductShopStage(stageNumber,stage.gameObject.scene);
             EditorUtility.SetDirty(stage);
             EditorSceneManager.MarkSceneDirty(stage.gameObject.scene);
             if(!EditorSceneManager.SaveScene(stage.gameObject.scene,directory+"/after.unity",true)) throw new IOException("Verification copy failed.");
@@ -1163,11 +1166,12 @@ public static class DystopiaTools
         Debug.Log("Survival product validation passed: "+scenarios+" stage/facility combinations. Play Mode visuals not tested.");
     }
 
-    /// <summary>외형 단계 적용 시 상품 해금의 단계 조건만 갱신하며 보유 설비는 유지합니다.</summary>
+    /// <summary>외형 단계 적용 시 같은 씬의 상품 해금 단계만 갱신하며 보유 설비는 유지합니다.</summary>
     /// <param name="stage">적용할 가게 단계입니다.</param>
-    private static void SetProductShopStage(int stage)
+    /// <param name="scene">단계가 적용되는 전용 프로토타입 씬입니다.</param>
+    private static void SetProductShopStage(int stage,Scene scene)
     {
-        var screen=UnityEngine.Object.FindFirstObjectByType<DystopiaScreen>(FindObjectsInactive.Include);
+        var screen=scene.GetRootGameObjects().SelectMany(root=>root.GetComponentsInChildren<DystopiaScreen>(true)).FirstOrDefault();
         if(screen == null) return;
         Undo.RecordObject(screen,"Set product shop stage");
         screen.Settings.shopStage=stage;

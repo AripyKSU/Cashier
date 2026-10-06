@@ -1160,7 +1160,7 @@ public sealed class GameSessionApiTests
         Assert.That(day.IsBusinessTimeExpired, Is.True);
     }
 
-    /// <summary>실제 CSV 첫 대사·불투명 초기 덮개·입력 잠금·패널 재생성·퇴장 후 영업을 검증한다.</summary>
+    /// <summary>실제 CSV 첫 대사·초기 덮개 해제·Stage 배경 입력 잠금·패널 재생성·퇴장 후 영업을 검증한다.</summary>
     /// <returns>프리팹 초기화와 실제 페이드 대기.</returns>
     [UnityTest]
     public IEnumerator InspectorStartupCoverDialogueRecreationAndExit()
@@ -1176,15 +1176,15 @@ public sealed class GameSessionApiTests
         yield return waitForGameUi(ui);
         var progress = uiProgress(ui);
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
-        Assert.That(cover.gameObject.activeSelf); Assert.That(cover.blocksRaycasts);
-        Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
+        Assert.That(cover.gameObject.activeSelf, Is.False); Assert.That(cover.blocksRaycasts, Is.False);
         Transform progressRoot = cover.transform.parent.Find("Root");
-        Assert.That(progressRoot.GetSiblingIndex(), Is.GreaterThan(cover.transform.GetSiblingIndex()));
         Transform legacyBackground = progressRoot.Find("Background");
         Assert.That(legacyBackground == null || !legacyBackground.gameObject.activeSelf, Is.True);
-        Assert.That(progressRoot.Find("OperatingPanel").gameObject.activeSelf, Is.False);
-        Assert.That(progressRoot.GetComponentsInChildren<UnityEngine.UI.Selectable>(false).All(control => !control.interactable),
-            Is.True, "Inspector 중 Root/CommonHUD는 입력을 받지 않아야 합니다.");
+        GameObject operatingPanel = progressRoot.Find("OperatingPanel").gameObject;
+        Assert.That(operatingPanel.activeSelf, Is.True);
+        CanvasGroup operatingInput = operatingPanel.GetComponent<CanvasGroup>();
+        Assert.That(operatingInput.interactable, Is.False);
+        Assert.That(operatingInput.blocksRaycasts, Is.False);
         Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
         progress.Tick(60); Assert.That(session.Economy.QueryService.IsDayOpen, Is.False);
@@ -1214,7 +1214,7 @@ public sealed class GameSessionApiTests
         Assert.That(ui.CurrentDayProgress.State, Is.EqualTo(DayProgressState.PreOpen));
         Assert.That(session.InspectorEvents.HasPending, Is.False);
         cover = uiReference<CanvasGroup>(ui, "startupCover");
-        Assert.That(cover.gameObject.activeSelf); Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
+        Assert.That(cover.gameObject.activeSelf, Is.False); Assert.That(cover.blocksRaycasts, Is.False);
         var openButton = uiReference<GameObject>(ui, "preOpenPanel")
             .GetComponentInChildren<PreOpenPanelPresenter>(true).OpenBusinessButton;
         Assert.That(openButton.interactable);
