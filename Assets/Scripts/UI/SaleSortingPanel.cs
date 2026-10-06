@@ -51,6 +51,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [Tooltip("상자 착지 충격 시 좌우로 흩뿌려지는 10개의 픽셀 먼지 효과 컴포넌트")]
     [SerializeField] private LandingDustEffect landingDustEffect;
 
+    [Header("Sorting Feedback")]
+    [Tooltip("판매(오른쪽)·폐기(왼쪽) 분류 시 서로 다른 손맛 연출을 재생하는 컴포넌트 (미할당 시 런타임 자동 생성)")]
+    [SerializeField] private SaleSortingFeedback sortingFeedback;
+
     [Header("Calculator")]
     [SerializeField] private RectTransform calculatorPanel;
     /// <summary>계산기가 화면 밖과 도착 위치 사이를 완전히 이동하는 시간(초)입니다.</summary>
@@ -133,6 +137,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         this.isPresentationBlocked = isBlocked;
         if (this.landingDustEffect != null) this.landingDustEffect.SetPresentationBlockQuery(isBlocked);
+        if (this.sortingFeedback != null) this.sortingFeedback.SetPresentationBlockQuery(isBlocked);
     }
 
     /// <summary>기존 unscaled 시간을 사용하되 표현 진행이 막힌 동안은 제외합니다.</summary>
@@ -280,6 +285,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.ensureLandingDustEffect();
+        this.ensureSortingFeedback();
         this.showFrontOnly();
     }
 
@@ -295,6 +301,24 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
         if (this.landingDustEffect != null) this.landingDustEffect.SetPresentationBlockQuery(this.isPresentationBlocked);
         return this.landingDustEffect;
+    }
+
+    /// <summary>분류 연출 컴포넌트를 찾거나 작업대 화면에 추가하고 구역을 연결합니다.</summary>
+    private void ensureSortingFeedback()
+    {
+        if (this.itemRoot == null) return;
+        if (this.sortingFeedback == null)
+        {
+            this.sortingFeedback = this.GetComponentInChildren<SaleSortingFeedback>(true);
+            if (this.sortingFeedback == null && this.sortingView != null)
+            {
+                this.sortingFeedback = this.sortingView.AddComponent<SaleSortingFeedback>();
+            }
+        }
+        if (this.sortingFeedback == null) return;
+        this.sortingFeedback.Initialize(this.itemRoot, this.saleZone, this.excludedZone,
+            this.sortingStatusText != null ? this.sortingStatusText.rectTransform : null);
+        this.sortingFeedback.SetPresentationBlockQuery(this.isPresentationBlocked);
     }
 
     /// <summary>현재 도구 또는 플레이어가 소유한 상품만 한 번 이동시킵니다.</summary>
@@ -1023,7 +1047,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 continue;
             }
 
+            SaleSortingItemView.SortingState previousState = item.State;
             this.classifyItem(item);
+            if (this.sortingFeedback != null) this.sortingFeedback.PlayClassified(item, previousState);
             if (item.Manipulation == SaleSortingItemView.ManipulationState.DividerMoving)
             {
                 item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
@@ -1066,6 +1092,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             item.Manipulation = SaleSortingItemView.ManipulationState.Idle;
             SaleSortingItemView.SortingState previousState = item.State;
             this.classifyItem(item);
+            if (this.sortingFeedback != null) this.sortingFeedback.PlayClassified(item, previousState);
             SoundManager.Instance?.PlaySfx(
                 item.State == SaleSortingItemView.SortingState.Excluded && previousState != item.State
                     ? SoundKeys.ItemRemove
@@ -1104,6 +1131,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 this.draggedItem = item;
                 this.draggedItem.Manipulation = SaleSortingItemView.ManipulationState.PlayerDragging;
                 this.dragOffset = item.Position - pointerPosition;
+                if (this.sortingFeedback != null) this.sortingFeedback.BeginDrag(item);
                 SoundManager.Instance?.PlaySfx(SoundKeys.ItemPickup);
             }
         }
@@ -1163,6 +1191,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         SaleSortingItemView.SortingState previousState = releasedItem.State;
         this.classifyItem(releasedItem);
         releasedItem.Manipulation = SaleSortingItemView.ManipulationState.Idle;
+        if (this.sortingFeedback != null) this.sortingFeedback.EndDrag(releasedItem, previousState);
         SoundManager.Instance?.PlaySfx(
             releasedItem.State == SaleSortingItemView.SortingState.Excluded && previousState != releasedItem.State
                 ? SoundKeys.ItemRemove
@@ -1483,7 +1512,12 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.setCalculatorVisible(this.CanConfirm && forSale > 0);
         if (this.sortingStatusText != null)
         {
-            this.sortingStatusText.text = $"미분류 {working} · 판매 {forSale} · 판매 안함 {excluded}";
+            string status = $"미분류 {working} · 판매 {forSale} · 판매 안함 {excluded}";
+            if (this.sortingStatusText.text != status)
+            {
+                this.sortingStatusText.text = status;
+                if (this.sortingFeedback != null) this.sortingFeedback.PulseStatus();
+            }
         }
 
         if (this.CanConfirm && forSale == 0 && excluded > 0)
@@ -1508,6 +1542,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             }
         }
 
+        if (this.sortingFeedback != null) this.sortingFeedback.ClearAll();
         this.items.Clear();
         this.setCalculatorVisible(false);
         this.dividerMovedItems.Clear();
