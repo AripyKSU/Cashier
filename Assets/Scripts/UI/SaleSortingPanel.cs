@@ -52,7 +52,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField] private LandingDustEffect landingDustEffect;
 
     [Header("Sorting Feedback")]
-    [Tooltip("판매(오른쪽)·폐기(왼쪽) 분류 시 서로 다른 손맛 연출을 재생하는 컴포넌트 (미할당 시 런타임 자동 생성)")]
+    [Tooltip("판매(오른쪽)·폐기(왼쪽) 분류 시 서로 다른 손맛 연출을 재생하는 컴포넌트 (미할당·미발견 시 연출 없음)")]
     [SerializeField] private SaleSortingFeedback sortingFeedback;
 
     [Header("Calculator")]
@@ -303,18 +303,22 @@ public sealed class SaleSortingPanel : MonoBehaviour
         return this.landingDustEffect;
     }
 
-    /// <summary>분류 연출 컴포넌트를 찾거나 작업대 화면에 추가하고 구역을 연결합니다.</summary>
+    /// <summary>분류 연출이 없으면 작업대 화면에 추가해 켭니다. 테스트 씬의 활성화 컴포넌트가 호출합니다.</summary>
+    public void EnableSortingFeedback()
+    {
+        if (this.sortingFeedback == null && this.sortingView != null)
+        {
+            this.sortingFeedback = this.sortingView.GetComponent<SaleSortingFeedback>();
+            if (this.sortingFeedback == null) this.sortingFeedback = this.sortingView.AddComponent<SaleSortingFeedback>();
+        }
+        this.ensureSortingFeedback();
+    }
+
+    /// <summary>연결되었거나 하위에 있는 분류 연출 컴포넌트에만 구역을 연결합니다. 없으면 연출 없이 동작합니다.</summary>
     private void ensureSortingFeedback()
     {
         if (this.itemRoot == null) return;
-        if (this.sortingFeedback == null)
-        {
-            this.sortingFeedback = this.GetComponentInChildren<SaleSortingFeedback>(true);
-            if (this.sortingFeedback == null && this.sortingView != null)
-            {
-                this.sortingFeedback = this.sortingView.AddComponent<SaleSortingFeedback>();
-            }
-        }
+        if (this.sortingFeedback == null) this.sortingFeedback = this.GetComponentInChildren<SaleSortingFeedback>(true);
         if (this.sortingFeedback == null) return;
         this.sortingFeedback.Initialize(this.itemRoot, this.saleZone, this.excludedZone,
             this.sortingStatusText != null ? this.sortingStatusText.rectTransform : null);
