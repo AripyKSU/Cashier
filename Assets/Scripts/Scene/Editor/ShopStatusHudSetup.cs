@@ -22,13 +22,9 @@ public static class ShopStatusHudSetup
     private const string GearIconPath = "Assets/Textures/UI/Dystopia/Hud/HudGear.png";
     private const string TraitFolder = "Assets/Textures/UI/Dystopia/CustomerTrait/";
     private const string SettlementPanelPrefabPath = "Assets/Prefabs/GameUI/SettlementPanel.prefab";
-    private const string PenHandPath = "Assets/Textures/UI/Dystopia/Settlement/LedgerPenHand.png";
-    private const string PenHandName = "PenHand";
     private const string CoachName = "TutorialCoach";
     private const string DialogueFramePath = "Assets/Textures/art/UI/InspectorDialogueFrame.png";
     private const string InspectorPanelPrefabPath = "Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab";
-    // 가계부 334px 원본이 1280 기준 화면을 채우므로 원본 1px ≈ UI 3.83px
-    private const float LedgerPixelScale = 1280f / 334f;
 
     // CustomerDispositionType 순서: Normal, Hasty, PriceSensitive, Wealthy, Poor
     private static readonly string[] TraitFiles =
@@ -43,7 +39,6 @@ public static class ShopStatusHudSetup
         installHud();
         installSettlementBalance();
         installTraits();
-        installPenHand();
         installTutorialCoach();
         hideInspectorBackground();
         AssetDatabase.SaveAssets();
@@ -373,43 +368,6 @@ public static class ShopStatusHudSetup
 
             serializedView.ApplyModifiedPropertiesWithoutUndo();
             PrefabUtility.SaveAsPrefabAsset(root, CustomerWorldPrefabPath);
-        }
-        finally
-        {
-            PrefabUtility.UnloadPrefabContents(root);
-        }
-    }
-
-    /// <summary>
-    /// 정산 가계부에 글씨를 따라 움직이는 펜 쥔 손을 추가합니다.
-    /// 가계부 원본 픽셀 크기(화면 약 3.83배)에 맞추고 피벗을 펜 끝에 둡니다.
-    /// </summary>
-    private static void installPenHand()
-    {
-        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(PenHandPath)
-            ?? throw new System.InvalidOperationException("펜 손 이미지가 없습니다.");
-        GameObject root = PrefabUtility.LoadPrefabContents(SettlementPanelPrefabPath);
-        try
-        {
-            var ledgerView = root.GetComponentInChildren<DailySettlementLedgerView>(true)
-                ?? throw new System.InvalidOperationException("DailySettlementLedgerView를 찾을 수 없습니다.");
-            Transform parent = ledgerView.transform;
-            Transform old = parent.Find(PenHandName);
-            if (old != null) Object.DestroyImmediate(old.gameObject);
-
-            var image = createImage(PenHandName, parent, sprite);
-            var rect = (RectTransform)image.transform;
-            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-            // 64x64 원본에서 펜 끝 픽셀 (2,61)의 중심. 공책 크기에 맞는 실제 손 크기로 보이게 한다.
-            rect.pivot = new Vector2(2.5f / 64f, 2.5f / 64f);
-            rect.sizeDelta = new Vector2(64f, 64f) * LedgerPixelScale;
-            rect.SetAsLastSibling();
-            image.gameObject.SetActive(false);
-
-            var serializedView = new SerializedObject(ledgerView);
-            serializedView.FindProperty("penHand").objectReferenceValue = rect;
-            serializedView.ApplyModifiedPropertiesWithoutUndo();
-            PrefabUtility.SaveAsPrefabAsset(root, SettlementPanelPrefabPath);
         }
         finally
         {

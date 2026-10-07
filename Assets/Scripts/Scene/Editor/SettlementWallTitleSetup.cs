@@ -58,6 +58,9 @@ public static class SettlementWallTitleSetup
             Transform stamp = findDeep(root.transform, "ReputationStamp")
                 ?? throw new System.InvalidOperationException("ReputationStamp를 찾을 수 없습니다.");
             Transform parent = stamp.parent;
+            // 가계부 위 펜 쥔 손 연출은 쓰지 않는다.
+            Transform penHand = findDeep(root.transform, "PenHand");
+            if (penHand != null) Object.DestroyImmediate(penHand.gameObject);
             // 따로 그렸던 그림 대신 원래 벽에 걸려 있던 아빠·딸 그림(Image, LedgerDrawing)을 크게 키워 쓴다.
             removeChild(parent, DrawingName);
             Transform original = parent.Find(OriginalDrawingName)
