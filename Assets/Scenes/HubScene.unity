@@ -711,6 +711,7 @@ GameObject:
   - component: {fileID: 1486698361}
   - component: {fileID: 1486698363}
   - component: {fileID: 1486698362}
+  - component: {fileID: 1486698364}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -775,6 +776,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1486698360}
   m_CullTransparentMesh: 1
+--- !u!114 &1486698364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486698360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f38ffdb201b0e544181ff41162d442d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Cashier.Runtime::TitleCoinFallView
+  coinSprite: {fileID: 21300000, guid: d90d8b13594b8e3cb59c94e7375ded46, type: 3}
+  neckPosition: {x: 0.498, y: 0.424}
+  pileTopPosition: {x: 0.498, y: 0.269}
+  coinWidthRatio: 0.0257
+  spawnIntervalSeconds: 1.1
+  fallSeconds: 0.9
+  poolSize: 3
 --- !u!1 &1610253040
 GameObject:
   m_ObjectHideFlags: 0

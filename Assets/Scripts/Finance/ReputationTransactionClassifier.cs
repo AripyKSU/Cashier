@@ -6,6 +6,12 @@ using System;
 public static class ReputationTransactionClassifier
 {
     /// <summary>
+    /// 가격표 대비 이 비율(천분율)까지는 "조금 남긴" 판매로 보고 정가와 같은 중립 등급으로 둡니다.
+    /// 성향 데이터의 정가 상한이 이보다 낮아도 명성 판정에는 이 값을 적용합니다.
+    /// </summary>
+    public const int ModestMarginMaxRate = 1100;
+
+    /// <summary>
     /// 확정 거래를 할인·정가·적당한 폭리·큰 폭리로 분류합니다.
     /// </summary>
     /// <param name="transactionResult">손님 성향과 가격 snapshot을 가진 거래 결과입니다.</param>
@@ -27,10 +33,10 @@ public static class ReputationTransactionClassifier
             throw new ArgumentException("성향 가격 규칙의 범위가 잘못되었습니다.", nameof(dispositionData));
         if (transactionResult.Outcome == CustomerTradeOutcome.PaymentRefused)
         {
-            // 전량 폐기 등으로 판매 물품이 없어 거절된 거래 (기준가가 0 이하인 경우)
+            // 지침 준수 등으로 전부 빼서 판매 물품이 없는 거래는 바가지와 무관하므로 중립으로 둔다.
             if (!transactionResult.ReferenceTotal.HasValue || transactionResult.ReferenceTotal.Value <= 0)
             {
-                return ReputationTransactionGrade.ExtremeMarkup;
+                return ReputationTransactionGrade.Regular;
             }
 
             // 가격 민감 손님의 하한 미달 거절은 판매자의 폭리와 무관하므로 중립 점수로 기록합니다.
@@ -48,7 +54,8 @@ public static class ReputationTransactionClassifier
         long referenceTotal = transactionResult.ReferenceTotal.Value;
         if ((decimal)offeredTotal * 1000m < (decimal)referenceTotal * dispositionData.RegularPriceMinRate)
             return ReputationTransactionGrade.Discount;
-        if ((decimal)offeredTotal * 1000m > (decimal)referenceTotal * dispositionData.RegularPriceMaxRate)
+        int regularMaxRate = Math.Max(dispositionData.RegularPriceMaxRate, ModestMarginMaxRate);
+        if ((decimal)offeredTotal * 1000m > (decimal)referenceTotal * regularMaxRate)
             return ReputationTransactionGrade.ModerateMarkup;
         return ReputationTransactionGrade.Regular;
     }

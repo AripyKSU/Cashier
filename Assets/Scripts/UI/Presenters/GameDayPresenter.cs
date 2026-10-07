@@ -9,7 +9,7 @@ using UnityEngine;
 public class GameDayPresenter : MonoBehaviour
 {
     [Header("UI Text Displays")]
-    [Tooltip("현재 날짜 텍스트 (예: DAY 1)")]
+    [Tooltip("현재 날짜 텍스트 (예: D-19, 마지막 날 D-DAY)")]
     [SerializeField] private TextMeshProUGUI dayText;
 
     [Tooltip("레거시 상납 안내 텍스트. 일일 유지비 전환 후에는 비워 둡니다.")]
@@ -25,7 +25,8 @@ public class GameDayPresenter : MonoBehaviour
     {
         if (this.dayText != null)
         {
-            this.dayText.text = $"DAY {viewData.CurrentDay}";
+            // 딸에게 남은 날짜를 보여 주는 카운트다운 표기(D-19 … D-DAY)입니다.
+            this.dayText.text = DayCountdownLabel.Format(viewData.CurrentDay);
         }
 
         if (this.settlementText != null)

@@ -10,6 +10,8 @@ public sealed class DailySettlementFlowController : MonoBehaviour
         LedgerPresenting,
         DaughterPresenting,
         StampPresenting,
+        /// <summary>도장 뒤 딸이 이어서 말하는 대본(1일차 명성 설명 등)을 출력하는 중입니다.</summary>
+        DaughterAfterStampPresenting,
         ReadyForInteraction,
         FacilityOpen,
         AdvancingDay,
@@ -37,6 +39,7 @@ public sealed class DailySettlementFlowController : MonoBehaviour
         settlementPresenter.OnLedgerPresentationCompleted += handleLedgerCompleted;
         daughterPresenter.OnPresentationCompleted += handleDaughterCompleted;
         settlementPresenter.OnStampPresentationCompleted += handleStampCompleted;
+        daughterPresenter.OnAfterStampCompleted += handleDaughterAfterStampCompleted;
         interactionView.OnFacilityRequested += handleFacilityRequested;
         settlementPresenter.OnNextStepRequested += handleNextDayRequested;
         interactionView.SetInteractionEnabled(false);
@@ -51,7 +54,10 @@ public sealed class DailySettlementFlowController : MonoBehaviour
             settlementPresenter.OnNextStepRequested -= handleNextDayRequested;
         }
         if (daughterPresenter != null)
+        {
             daughterPresenter.OnPresentationCompleted -= handleDaughterCompleted;
+            daughterPresenter.OnAfterStampCompleted -= handleDaughterAfterStampCompleted;
+        }
         if (interactionView != null)
         {
             interactionView.OnFacilityRequested -= handleFacilityRequested;
@@ -148,6 +154,21 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     private void handleStampCompleted()
     {
         if (State != FlowState.StampPresenting) return;
+        // 도장 뒤에 딸이 이어서 할 말이 있으면 그 대본이 끝난 뒤에 입력을 연다.
+        if (daughterPresenter.HasAfterStampLines)
+        {
+            runTransition(FlowState.DaughterAfterStampPresenting, daughterPresenter.PresentAfterStamp);
+            return;
+        }
+
+        State = FlowState.ReadyForInteraction;
+        interactionView.SetInteractionEnabled(true);
+    }
+
+    /// <summary>도장 뒤 대본이 끝나면 정산 입력을 엽니다.</summary>
+    private void handleDaughterAfterStampCompleted()
+    {
+        if (State != FlowState.DaughterAfterStampPresenting) return;
         State = FlowState.ReadyForInteraction;
         interactionView.SetInteractionEnabled(true);
     }

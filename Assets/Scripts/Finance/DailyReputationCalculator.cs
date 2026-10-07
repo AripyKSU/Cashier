@@ -38,11 +38,13 @@ public sealed class DailyReputationCalculator
     /// </summary>
     /// <param name="dayStartReputation">하루 시작 시점의 명성입니다.</param>
     /// <param name="transactions">하루 동안 접수된 성공·거절 거래 목록입니다.</param>
-    /// <returns>소표본 보정과 회복 배율을 포함한 일일 명성 계산 결과입니다.</returns>
+    /// <param name="abandonedDispositions">줄에서 기다리다 떠난 손님들의 성향입니다. 각각 0점 거래로 집계합니다. null이면 없음으로 봅니다.</param>
+    /// <returns>소표본 보정과 회복 배율을 포함한 일일 명성 계산 결과입니다. 거래 수에는 이탈 손님을 넣지 않습니다.</returns>
     /// <exception cref="ArgumentOutOfRangeException">하루 시작 명성이 범위를 벗어난 경우 발생합니다.</exception>
     /// <exception cref="InvalidDataException">거래 성향 또는 명성 밸런스 데이터가 누락된 경우 발생합니다.</exception>
     public DailyReputationCalculationResult Calculate(int dayStartReputation,
-        IReadOnlyList<TransactionResult> transactions)
+        IReadOnlyList<TransactionResult> transactions,
+        IReadOnlyList<CustomerDispositionType> abandonedDispositions = null)
     {
         if (dayStartReputation < MinimumReputation || dayStartReputation > MaximumReputation)
             throw new ArgumentOutOfRangeException(nameof(dayStartReputation), dayStartReputation, "명성은 -100~100 범위여야 합니다.");
@@ -66,9 +68,19 @@ public sealed class DailyReputationCalculator
             totalWeight = checked(totalWeight + weight);
         }
 
+        // 너무 늦게 처리해 줄에서 떠난 손님은 거래 실패와 같은 0점으로 소문을 깎는다.
+        int abandonedCount = abandonedDispositions?.Count ?? 0;
+        for (int index = 0; index < abandonedCount; index++)
+        {
+            int weight = abandonedDispositions[index] == CustomerDispositionType.Hasty ? 3 : 1;
+            totalWeight = checked(totalWeight + weight);
+        }
+
+        // 결과의 거래 수는 일일 집계와 대조하므로 실제 거래만 센다. 소표본 보정에는 이탈 손님도 표본으로 넣는다.
         int actualTransactionCount = transactions.Count;
-        bool wasSmallSampleAdjusted = actualTransactionCount < MinimumSampleCount;
-        for (int virtualTransactionIndex = actualTransactionCount;
+        int sampleCount = checked(actualTransactionCount + abandonedCount);
+        bool wasSmallSampleAdjusted = sampleCount < MinimumSampleCount;
+        for (int virtualTransactionIndex = sampleCount;
             virtualTransactionIndex < MinimumSampleCount;
             virtualTransactionIndex++)
         {
@@ -90,6 +102,9 @@ public sealed class DailyReputationCalculator
 
     private static int getScore(TransactionResult transaction, ReputationTransactionGrade grade)
     {
+        // 전부 빼서 판매가 없던 거래는 중립 50점이다. 급한 손님 가산으로 소문을 쌓는 데 쓰이지 않게 한다.
+        if (!transaction.ReferenceTotal.HasValue || transaction.ReferenceTotal.Value <= 0)
+            return RegularScore;
         if (transaction.DispositionType == CustomerDispositionType.Hasty && grade == ReputationTransactionGrade.Regular)
             return 100;
 

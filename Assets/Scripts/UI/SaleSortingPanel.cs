@@ -165,6 +165,15 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>계산기가 입장을 완료하여 가격 입력을 허용하는지 나타냅니다.</summary>
     public bool IsCalculatorOpen => this.isCalculatorOpen;
 
+    /// <summary>판매할 물건을 놓는 오른쪽 구역입니다. 튜토리얼 강조 위치로만 사용합니다.</summary>
+    public RectTransform SaleZone => this.saleZone;
+
+    /// <summary>팔지 않을 물건을 빼는 왼쪽 구역입니다. 튜토리얼 강조 위치로만 사용합니다.</summary>
+    public RectTransform ExcludedZone => this.excludedZone;
+
+    /// <summary>총액을 입력하는 계산기 영역입니다. 튜토리얼 강조 위치로만 사용합니다.</summary>
+    public RectTransform CalculatorPanel => this.calculatorPanel;
+
     /// <summary>현재 세션에서 막대 편의성 효과가 활성화되었는지 나타냅니다.</summary>
     public bool IsDividerBarAvailable => this.dividerBarAvailable;
 

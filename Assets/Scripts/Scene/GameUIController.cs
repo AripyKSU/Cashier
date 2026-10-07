@@ -25,11 +25,19 @@ public sealed class GameUIController : MonoBehaviour
     private TextDataTable textData;
     private ProgressViewDataFactory viewDataFactory;
     private PreOpenPanelPresenter preOpenPanelPresenter;
+    // 인게임 감독관 튜토리얼 진행자. tutorialCoach가 연결된 경우에만 만든다.
+    private InGameTutorialDirector tutorialDirector;
+    // 직전 프레임에 감독관 안내가 떠 있었는지. 닫히는 순간 입력 상태를 복구하는 데 쓴다.
+    private bool wasCoachShowing;
 
     [Header("Presenter references")]
     [SerializeField] private GameDayPresenter gameDayPresenter;
     [SerializeField] private BusinessTimerPresenter businessTimerPresenter;
     [SerializeField] private EconomyStatusPresenter economyStatusPresenter;
+    /// <summary>영업 중 좌상단에 D-N·시각·보유금을 보여 주는 명패. 없으면 표시하지 않습니다.</summary>
+    [SerializeField] private ShopStatusHudPresenter shopStatusHud;
+    /// <summary>영업 화면 안 감독관 안내 말풍선. 없으면 인게임 튜토리얼을 생략합니다.</summary>
+    [SerializeField] private TutorialCoachPresenter tutorialCoach;
     [SerializeField] private CustomerPresenter customerPresenter;
     [SerializeField] private PriceInputPresenter priceInputPresenter;
     [SerializeField] private DailySettlementPresenter dailySettlementPresenter;
@@ -169,6 +177,13 @@ public sealed class GameUIController : MonoBehaviour
                 throw new InvalidOperationException("손님 또는 텍스트 데이터가 준비되지 않았습니다.");
             }
 
+            if (this.tutorialCoach != null)
+            {
+                this.tutorialDirector = new InGameTutorialDirector(this.tutorialCoach, this.saleSortingPanel,
+                    this.shopStatusHud != null ? (RectTransform)this.shopStatusHud.transform : null,
+                    idx => this.textData.Rows[idx].Text);
+            }
+
             IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadDisplaySpritesAsync();
             this.viewDataFactory = new ProgressViewDataFactory(
                 this.customerCatalog,
@@ -182,7 +197,9 @@ public sealed class GameUIController : MonoBehaviour
 
             this.validateUiReferences();
             if (this.businessClock != null) this.businessClock.StopClock();
-            if (this.useCustomerQueue) this.saleSortingPanel.SetPresentationBlockQuery(() => this.IsPresentationBlocked);
+            // 감독관 안내가 떠 있는 동안에는 작업대 드래그도 멈춰, 안내를 넘기는 클릭이 물건을 집지 않게 한다.
+            if (this.useCustomerQueue) this.saleSortingPanel.SetPresentationBlockQuery(
+                () => this.IsPresentationBlocked || (this.tutorialCoach != null && this.tutorialCoach.IsShowing));
             this.subscribeUi();
             this.gameProgress = new GameProgress(
                 GameSessionManager.Instance,
@@ -232,7 +249,15 @@ public sealed class GameUIController : MonoBehaviour
             }
             if (this.gameProgress.State == GameProgressState.DayInProgress)
             {
-                this.gameProgress.Tick(Time.deltaTime);
+                // 1일차 첫 손님 설명이 끝날 때까지와 감독관 안내가 떠 있는 동안에는 영업 시계를 멈춘다.
+                this.tutorialDirector?.Tick(this.subscribedDay, this.gameProgress.CurrentDay);
+                // 안내 중에는 키패드 단축키 등 입력 라우터도 막고, 안내가 닫히면 원래 입력 상태로 되돌린다.
+                bool coachShowing = this.tutorialCoach != null && this.tutorialCoach.IsShowing;
+                if (coachShowing) this.gameInputRouter.enabled = false;
+                else if (this.wasCoachShowing) this.refreshPanelVisibility();
+                this.wasCoachShowing = coachShowing;
+                if (this.tutorialDirector == null || !this.tutorialDirector.IsHoldingTime)
+                    this.gameProgress.Tick(Time.deltaTime);
                 if (this.isTransactionResultAwaitingAdvance() && this.wasPointerClickThisFrame())
                 {
                     this.runProgressAction(this.gameProgress.CompleteTransactionResult);
@@ -721,6 +746,21 @@ public sealed class GameUIController : MonoBehaviour
                 this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites,
                 this.subscribedDay.DaughterDialogueResult.Value.ResourceIdx.HasValue ? null : this.getPlaceholderSprite()),
             this.gameProgress.CompleteSettlement);
+        // 1일차 밤처럼 대본이 있는 날은 도장 전후로 여러 줄을 말한다. 가계부 연출 중이라 아직 대사 전이다.
+        this.daughterDialoguePresenter.SetScript(
+            this.resolveTexts(DaughterDayScript.GetBeforeStamp(this.subscribedDay.Day)),
+            this.resolveTexts(DaughterDayScript.GetAfterStamp(this.subscribedDay.Day)));
+    }
+
+    /// <summary>TextData 키 목록을 표시 문자열로 바꿉니다.</summary>
+    /// <param name="textIdxs">TextData 키 목록입니다.</param>
+    /// <returns>같은 순서의 문자열 배열입니다.</returns>
+    private string[] resolveTexts(uint[] textIdxs)
+    {
+        var texts = new string[textIdxs.Length];
+        for (int index = 0; index < textIdxs.Length; index++)
+            texts[index] = this.textData.Rows[textIdxs[index]].Text;
+        return texts;
     }
 
     /// <summary>도메인에서 확정된 정산값을 화면용 snapshot으로 변환합니다.</summary>
@@ -1223,6 +1263,13 @@ public sealed class GameUIController : MonoBehaviour
                 BusinessHours.DurationMinutes * (1f - Mathf.Clamp01(normalizedTime)));
             this.businessClock.DisplayTime(minutes);
         }
+        if (this.shopStatusHud != null && this.economy != null)
+        {
+            this.shopStatusHud.SetClock(BusinessHours.OpenMinutes + Mathf.FloorToInt(
+                BusinessHours.DurationMinutes * (1f - Mathf.Clamp01(normalizedTime))));
+            // 보유금은 거래 접수 즉시 바뀌므로 매 프레임 비교해 변화량을 띄운다.
+            this.shopStatusHud.SetBalance(this.economy.QueryService.CurrentBalance, !beforeOpening);
+        }
         this.businessTimerPresenter.UpdateView(new BusinessTimerViewData(
             this.subscribedDay.RemainingSeconds,
             normalizedTime));
@@ -1238,6 +1285,7 @@ public sealed class GameUIController : MonoBehaviour
             this.setPanelVisibility(this.operatingPanel, false);
             this.setPanelVisibility(this.settlementPanel, false);
             this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
+            if (this.shopStatusHud != null) this.shopStatusHud.SetVisible(false);
             this.gameInputRouter.enabled = false;
             return;
         }
@@ -1252,7 +1300,9 @@ public sealed class GameUIController : MonoBehaviour
         if (preOpen && !this.wasPreOpenBackgroundVisible) this.saleSortingPanel.ClearCustomer();
         this.wasPreOpenBackgroundVisible = preOpen;
         this.setPanelVisibility(this.preOpenPanel, preOpen);
-        this.setPanelVisibility(this.operatingPanel, operating || preOpen);
+        bool inspectorInShop = this.subscribedDay.State == DayProgressState.InspectorEvent && this.presentationReady;
+        // 감독관 대사 동안에도 가게 정면을 뒤에 보여 준다. 입력은 아래 operatingInput에서 막힌다.
+        this.setPanelVisibility(this.operatingPanel, operating || preOpen || inspectorInShop);
         if (preOpen) this.preOpenPanel.transform.SetSiblingIndex(this.operatingPanel.transform.GetSiblingIndex() + 1);
         if (this.operatingInputGroup != null)
         {
@@ -1262,6 +1312,11 @@ public sealed class GameUIController : MonoBehaviour
         }
         this.setPanelVisibility(this.settlementPanel, settlement);
         this.setPanelVisibility(this.failurePanel, this.gameProgress.State == GameProgressState.Failed);
+        if (this.shopStatusHud != null)
+        {
+            this.shopStatusHud.SetDay(this.gameProgress.CurrentDay);
+            this.shopStatusHud.SetVisible(operating && !this.hasError);
+        }
         this.openBusinessButton.interactable = preOpen && !this.isOpeningBusiness && !this.hasError && presentationReady && !hasError;
         bool inspector = this.subscribedDay.State == DayProgressState.InspectorEvent;
         this.gameInputRouter.enabled = presentationReady && !hasError && !preOpen && !inspector && !IsFacilityShopOpen;
@@ -1280,16 +1335,15 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (this.startupCover == null || this.hasError || this.subscribedDay == null) return;
 
-        bool beforeOpening = !this.presentationReady || this.subscribedDay.State == DayProgressState.InspectorEvent;
+        // 감독관은 이제 실제 가게 정면(계산대 앞)에서 말하므로 준비 전에만 검은 덮개를 쓴다.
+        bool beforeOpening = !this.presentationReady;
         this.startupCover.gameObject.SetActive(beforeOpening);
         this.startupCover.alpha = 1f;
         this.startupCover.interactable = beforeOpening;
         this.startupCover.blocksRaycasts = beforeOpening;
-        if (beforeOpening)
-        {
-            if (this.presentationReady) this.startupCover.transform.SetAsFirstSibling();
-            else this.startupCover.transform.SetAsLastSibling();
-        }
+        // 준비가 끝나면 덮개를 맨 뒤로 보내 둔다. 준비 전에는 모든 화면을 덮도록 맨 앞에 둔다.
+        if (this.presentationReady) this.startupCover.transform.SetAsFirstSibling();
+        else if (beforeOpening) this.startupCover.transform.SetAsLastSibling();
     }
 
     /// <summary>표시 중이던 줄을 모델과 대조한 뒤 화면을 갱신한다.</summary>
@@ -1364,6 +1418,8 @@ public sealed class GameUIController : MonoBehaviour
     {
         this.hasError = true;
         if (gameInputRouter != null) gameInputRouter.enabled = false;
+        // 오류 화면 위로 감독관 안내가 남지 않게 숨긴다.
+        if (tutorialCoach != null) tutorialCoach.gameObject.SetActive(false);
         if (inspectorPresenter != null) inspectorPresenter.gameObject.SetActive(false);
         if (startupCover != null)
         {

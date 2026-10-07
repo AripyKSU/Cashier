@@ -36,7 +36,7 @@ public static class DailySettlementLedgerFormatter
     private static string formatLeftPage(DailySettlementViewData viewData)
     {
         var builder = new StringBuilder(192);
-        builder.Append("DAY ").Append(viewData.Day).AppendLine(" 영업 결산").AppendLine();
+        builder.Append(DayCountdownLabel.Format(viewData.Day)).AppendLine(" 영업 결산").AppendLine();
         appendAmount(builder, "판매 수입", viewData.SaleIncome, true);
         appendAmount(builder, "유지비", viewData.MaintenanceAmount, false, true);
         appendAmount(builder, "지침 벌금", viewData.GuidelinePenaltyAmount, false, true);
@@ -74,7 +74,7 @@ public static class DailySettlementLedgerFormatter
     {
         if (viewData.GracePeriodEndDay.HasValue)
         {
-            builder.Append("상환 기한  DAY ").AppendLine(viewData.GracePeriodEndDay.Value.ToString());
+            builder.Append("상환 기한  ").AppendLine(DayCountdownLabel.Format(viewData.GracePeriodEndDay.Value));
             builder.Append("남은 기간  ").Append(viewData.RemainingGraceDays).Append("일");
             return;
         }

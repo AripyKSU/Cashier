@@ -606,6 +606,8 @@ MonoBehaviour:
   cityIntensity: 0.7
   beamIntensity: 0.11
   counterIntensity: 0.12
+  stage3NightLift: 0.3
+  stage3LampGlow: 0.5
   debugOverrideTime: 0
   enableDebugKeys: 0
   autoAdvanceClockForTesting: 0
@@ -676,6 +678,13 @@ MonoBehaviour:
   - {fileID: -1103762195, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
   - {fileID: -472334716, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
   - {fileID: 2021129492, guid: e034100cefb10524e9d691aa2cf10315, type: 3}
+  traitSprites:
+  - {fileID: 21300000, guid: 00503442a029485fadf371fe0320e835, type: 3}
+  - {fileID: 21300000, guid: cab4012959e54c8ca05da0823c54a089, type: 3}
+  - {fileID: 21300000, guid: 4cdad359209547bdb4b43ba2c7647134, type: 3}
+  - {fileID: 21300000, guid: a69b7a95f782455db7dc5cd7f8ac523f, type: 3}
+  - {fileID: 21300000, guid: 8765bd5bbd5a4730aeeb0b9c49d98e07, type: 3}
+  traitIconPixels: 44
   heightPixels: 550
   bottomCoverPixels: 12
   moveSeconds: 0.65

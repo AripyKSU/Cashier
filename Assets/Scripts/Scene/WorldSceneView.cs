@@ -28,6 +28,10 @@ public sealed class WorldSceneView : MonoBehaviour
     [SerializeField] private Color nightTint = new Color(.38f, .43f, .56f);
     [SerializeField, Range(0, 1)] private float peopleBrightness = .72f;
     [SerializeField, Range(0, 1)] private float cityIntensity = .7f, beamIntensity = .11f, counterIntensity = .12f;
+    /// <summary>3단계 가게(실내 조명이 있는 철제 부스)의 저녁 밝기 보정. 0이면 다른 단계와 같다.</summary>
+    [SerializeField, Range(0, 1)] private float stage3NightLift = .3f;
+    /// <summary>3단계 천장등 주변의 은은한 빛 세기(저녁 기준).</summary>
+    [SerializeField, Range(0, 1)] private float stage3LampGlow = .3f;
     /// <summary>표현만 바꾸는 테스트 옵션. 실제 시계와 진행에는 쓰지 않는다.</summary>
     [SerializeField] private bool debugOverrideTime, enableDebugKeys, autoAdvanceClockForTesting;
     [SerializeField, Range(9, 21)] private float debugHour = BusinessHours.OpenHour;
@@ -39,6 +43,9 @@ public sealed class WorldSceneView : MonoBehaviour
     [SerializeField] private Smoke[] smoke = Array.Empty<Smoke>();
     /// <summary>좌우 경비병과 총구. 수치는 원본 표현이며 거래 판정과 무관하다.</summary>
     [SerializeField] private Guard[] guards = Array.Empty<Guard>();
+    private uint storeStage;
+    private Image ceilingLamp;
+    private Image lampGlow;
     private MaterialPropertyBlock effectBlock;
     private bool effectsInitialized;
     private float effectSeconds;
@@ -63,6 +70,8 @@ public sealed class WorldSceneView : MonoBehaviour
     {
         if (block == null) throw new ArgumentNullException(nameof(block));
         float night = Mathf.InverseLerp(eveningStart, BusinessHours.CloseHour, CurrentAppliedHour);
+        // 3단계는 실내등이 있어 저녁에도 손님이 덜 어둡게 보이도록 밤 정도를 줄인다.
+        if (storeStage >= 3) night *= 1f - stage3NightLift;
         Color ambient = Color.Lerp(new Color(.78f, .80f, .84f), new Color(.36f, .43f, .58f), night);
         Color sun = Color.Lerp(new Color(1.05f, .98f, .90f), new Color(.30f, .38f, .58f), night);
         block.SetColor("_Tint", Color.white);
@@ -149,6 +158,42 @@ public sealed class WorldSceneView : MonoBehaviour
         counterGraphics[front.Length] = workbench;
         for (int i = 0; i < extensionCount; i++) counterGraphics[front.Length + 1 + i] = counterExtensions[i];
         for (int i = 0; i < facilityCount; i++) counterGraphics[front.Length + 1 + extensionCount + i] = facilities[i];
+    }
+
+    /// <summary>
+    /// 현재 가게 단계를 알려 단계별 조명 보정을 적용한다. 3단계는 가판 위 바닥 조명 웅덩이를 끄고,
+    /// 저녁을 조금 밝게 하며, 천장등 주변에 은은한 빛을 둔다.
+    /// </summary>
+    /// <param name="stage">현재 가게 단계입니다.</param>
+    /// <param name="lamp">단계 정면의 천장등 이미지. 없으면 빛 연출을 생략합니다.</param>
+    public void SetStoreStage(uint stage, Image lamp)
+    {
+        storeStage = stage;
+        ceilingLamp = lamp;
+        if (lampGlow == null && lamp != null && counterLight != null && counterLight.sprite != null)
+        {
+            // 가판 조명과 같은 부드러운 원형 빛 이미지를 재사용해 천장등 아래에 깐다.
+            var glowObject = new GameObject("Stage3LampGlow", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            lampGlow = glowObject.GetComponent<Image>();
+            lampGlow.sprite = counterLight.sprite;
+            lampGlow.raycastTarget = false;
+            var glowRect = lampGlow.rectTransform;
+            glowRect.SetParent(lamp.rectTransform.parent, false);
+            glowRect.SetSiblingIndex(lamp.rectTransform.GetSiblingIndex());
+        }
+
+        if (lampGlow != null && lamp != null)
+        {
+            var glowRect = lampGlow.rectTransform;
+            var lampRect = lamp.rectTransform;
+            glowRect.anchorMin = lampRect.anchorMin;
+            glowRect.anchorMax = lampRect.anchorMax;
+            glowRect.pivot = new Vector2(.5f, 1f);
+            // 천장등 바로 아래에 등 폭의 두 배 정도로 얇게 번지는 빛만 둔다.
+            glowRect.anchoredPosition = lampRect.anchoredPosition + new Vector2(
+                (.5f - lampRect.pivot.x) * lampRect.rect.width, -lampRect.rect.height * .5f);
+            glowRect.sizeDelta = new Vector2(lampRect.rect.width * 2f, lampRect.rect.height * 3f);
+        }
     }
 
     /// <summary>연기 프레임과 시간을 유지하면서 단계 배경의 굴뚝 위치로 옮긴다.</summary>
@@ -245,8 +290,23 @@ public sealed class WorldSceneView : MonoBehaviour
         CurrentAppliedHour = debugOverrideTime ? debugHour : clock != null ? clock.CurrentBusinessMinutes / 60f : BusinessHours.OpenHour;
         Vector3 weights = TimeOfDayUIController.GetBlendWeights(CurrentAppliedHour, dayStart, sunsetStart, eveningStart);
         Color tint = TimeOfDayUIController.GetEnvironmentTint(weights, dawnTint, sunsetTint, nightTint);
+        bool isStage3 = storeStage >= 3;
+        // 3단계는 실내등 덕분에 저녁 색을 흰색 쪽으로 조금 끌어올린다.
+        if (isStage3) tint = Color.Lerp(tint, Color.white, weights.z * stage3NightLift);
         // 탑뷰 동안 전면 월드가 숨겨져도 작업대 색은 같은 영업 시계를 따른다.
         if (counterGraphics != null) foreach (var graphic in counterGraphics) if (graphic != null) graphic.canvasRenderer.SetColor(tint);
+        if (isStage3 && ceilingLamp != null)
+        {
+            // 천장등 자체는 어두워지지 않고 저녁일수록 따뜻하게 켜진 것처럼 보이게 한다.
+            float pulse = .9f + .1f * Mathf.Sin(Time.unscaledTime * 1.3f);
+            ceilingLamp.canvasRenderer.SetColor(Color.Lerp(tint, new Color(1.25f, 1.1f, .9f), Mathf.Max(.35f, weights.z) * pulse));
+        }
+        if (lampGlow != null)
+        {
+            float pulse = .85f + .15f * Mathf.Sin(Time.unscaledTime * 1.3f);
+            lampGlow.gameObject.SetActive(isStage3);
+            lampGlow.canvasRenderer.SetColor(new Color(1f, .82f, .58f, isStage3 ? (.08f + weights.z * stage3LampGlow) * pulse : 0f));
+        }
         bool visible = controller != null && frontView != null && worldCamera != null && worldCamera.orthographic &&
             (!Application.isPlaying || (controller.isActiveAndEnabled && controller.CurrentDayProgress != null && frontView.gameObject.activeInHierarchy));
         renderRoot.gameObject.SetActive(visible);
@@ -271,7 +331,8 @@ public sealed class WorldSceneView : MonoBehaviour
         if (frontView.rect.width <= 0 || frontView.rect.height <= 0) { renderRoot.gameObject.SetActive(false); Opacity = 0; return; }
         renderRoot.SetPositionAndRotation(origin, worldCamera.transform.rotation);
         renderRoot.localScale = new Vector3(localSize.x / frontView.rect.width, localSize.y / frontView.rect.height, 1);
-        PeopleTint = Color.Lerp(Color.white, new Color(peopleBrightness, peopleBrightness, peopleBrightness), weights.z);
+        float peopleNight = isStage3 ? weights.z * (1f - stage3NightLift) : weights.z;
+        PeopleTint = Color.Lerp(Color.white, new Color(peopleBrightness, peopleBrightness, peopleBrightness), peopleNight);
         if (layers == null) return;
         foreach (var layer in layers)
         {
@@ -282,7 +343,8 @@ public sealed class WorldSceneView : MonoBehaviour
             color.a *= phaseAlpha * Opacity;
             layer.Renderer.color = color;
         }
-        if (counterLight != null) counterLight.canvasRenderer.SetColor(new Color(1, 1, 1, weights.z * counterIntensity));
+        // 3단계에는 가판 위로 쏟아지는 바닥 조명 웅덩이를 쓰지 않는다.
+        if (counterLight != null) counterLight.canvasRenderer.SetColor(new Color(1, 1, 1, isStage3 ? 0f : weights.z * counterIntensity));
     }
 
     /// <summary>카메라 pixelRect를 고려해 화면 지점을 고정 depth의 월드 지점으로 변환한다.</summary>

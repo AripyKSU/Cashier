@@ -91,7 +91,7 @@ public sealed class FacilityItemView : MonoBehaviour
             return $"현재 단계 설비 {data.CompletedRegularCount}/{data.RequiredRegularCount} 구매 완료 · 모두 구매하면 진행할 수 있습니다.";
         return data.State == FacilityDisplayState.StageLocked
             ? $"요구 단계 {data.RequiredStoreStage} · 잠금"
-            : $"DAY {data.ActivationDisplayDay}부터 사용";
+            : $"{DayCountdownLabel.Format((int)data.ActivationDisplayDay)}부터 사용";
     }
 
     /// <summary>편의성 enum을 표시용 문자열로 변환합니다.</summary>

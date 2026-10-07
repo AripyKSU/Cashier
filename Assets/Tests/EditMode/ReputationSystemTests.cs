@@ -105,7 +105,9 @@ public sealed class ReputationSystemTests
     /// <param name="expectedGrade">예상 명성 거래 등급입니다.</param>
     [TestCase(99, 1200, ReputationTransactionGrade.Discount)]
     [TestCase(100, 1200, ReputationTransactionGrade.Regular)]
-    [TestCase(101, 1200, ReputationTransactionGrade.ModerateMarkup)]
+    [TestCase(101, 1200, ReputationTransactionGrade.Regular)]
+    [TestCase(110, 1200, ReputationTransactionGrade.Regular)]
+    [TestCase(111, 1200, ReputationTransactionGrade.ModerateMarkup)]
     [TestCase(121, 1200, ReputationTransactionGrade.ExtremeMarkup)]
     public void TransactionClassificationUsesPriceAndRefusalBoundaries(long offeredTotal, int tolerance,
         ReputationTransactionGrade expectedGrade)
@@ -166,6 +168,24 @@ public sealed class ReputationSystemTests
             Is.EqualTo((100, 10, 10, false)));
         Assert.That((extremes.SettlementScore, extremes.BaseDelta, extremes.FinalDelta, extremes.WasSmallSampleAdjusted),
             Is.EqualTo((0, -15, -15, false)));
+    }
+
+    /// <summary>줄에서 떠난 손님은 0점 거래로 집계되고 급한 손님은 세 사람분으로 계산되는지 확인합니다.</summary>
+    [Test]
+    public void AbandonedCustomersCountAsZeroScoreTransactions()
+    {
+        DailyReputationCalculator calculator = new DailyReputationCalculator(this.balanceTable, this.dispositionTable);
+        TransactionResult discount = makeTransaction(makeDisposition(CustomerDispositionType.Normal, 1200), 99);
+        CustomerDispositionType[] abandoned =
+        {
+            CustomerDispositionType.Normal, CustomerDispositionType.Normal, CustomerDispositionType.Hasty
+        };
+
+        DailyReputationCalculationResult result = calculator.Calculate(0, repeat(discount, 5), abandoned);
+
+        // 할인 5건(500점, 가중 5) + 이탈 평범 2명(가중 2) + 이탈 급함 1명(가중 3) = 500 / 10
+        Assert.That((result.ActualTransactionCount, result.SettlementScore, result.WasSmallSampleAdjusted),
+            Is.EqualTo((5, 50, false)));
     }
 
     /// <summary>Hasty 한 건이 세 사람분이며 정가도 100점으로 계산되는지 확인합니다.</summary>

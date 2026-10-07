@@ -169,7 +169,7 @@ public sealed class IntroDialogueController : MonoBehaviour
         if (dayLabelGroup != null) dayLabelGroup.alpha = 0f;
         if (remainingTimeCaptionText != null) remainingTimeCaptionText.text = remainingTimeCaption;
         if (remainingDaysText != null) remainingDaysText.text = $"{remainingDays}일";
-        if (dayLabelText != null) dayLabelText.text = $"DAY {startDayNumber}";
+        if (dayLabelText != null) dayLabelText.text = DayCountdownLabel.Format(startDayNumber);
         if (titleRoot != null) titleRoot.SetActive(false);
         setDialogueBoxVisible(false);
         foreach (IntroCut cut in cuts)
@@ -358,7 +358,7 @@ public sealed class IntroDialogueController : MonoBehaviour
     {
         if (remainingTimeCaptionText != null) remainingTimeCaptionText.text = remainingTimeCaption;
         if (remainingDaysText != null) remainingDaysText.text = $"{remainingDays}일";
-        if (dayLabelText != null) dayLabelText.text = $"DAY {startDayNumber}";
+        if (dayLabelText != null) dayLabelText.text = DayCountdownLabel.Format(startDayNumber);
 
         yield return fadeGroup(remainingTimeGroup, 0f, 1f, finalFadeSeconds);
         yield return hold(remainingTimeHoldSeconds);

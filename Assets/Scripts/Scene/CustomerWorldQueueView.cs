@@ -23,6 +23,13 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     [SerializeField] private Material reactionMaterial;
     /// <summary>거래 결과 순서: Satisfied, Delighted, Reluctant, Refused.</summary>
     [SerializeField] private Sprite[] tradeReactionSprites;
+    /// <summary>
+    /// 손님 성향 표시 아이콘. CustomerDispositionType 순서(Normal, Hasty, PriceSensitive, Wealthy, Poor)입니다.
+    /// 정확한 수치 대신 "어떤 손님인지"만 머리 옆에 보여 줍니다. 비어 있으면 표시하지 않습니다.
+    /// </summary>
+    [SerializeField] private Sprite[] traitSprites;
+    /// <summary>계산대 성인 기준 성향 아이콘 높이(전면 로컬 픽셀).</summary>
+    [SerializeField, Min(1)] private float traitIconPixels = 44f;
     /// <summary>계산대 성인 기준 높이·하단 가림 보정(전면 로컬 픽셀)과 이동 초.</summary>
     [SerializeField] private float heightPixels = 550, bottomCoverPixels = 12, moveSeconds = .65f;
     /// <summary>Child 외형의 성인 기준 표시 배율.</summary>
@@ -153,6 +160,7 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             visual.SpeechTMP.color = new Color(1, 1, 1, world.Opacity * (visual.Abandoned ? 1 : visual.Alpha));
             // 불만은 외형 퇴장 alpha와 독립된 3초 수명을 유지하되 손님의 현재 위치를 따른다.
             visual.SpeechTMP.transform.localPosition = position + new Vector3(0, visual.DisplayHeight + 4, 0);
+            updateTrait(visual, pair.Key, idle);
             updateReaction(visual, reactionDelta);
             if (visual.Leaving && visual.MotionProgress >= 1 && (!visual.Abandoned || !seen.Contains(pair.Key))) remove.Add(pair.Key);
         }
@@ -367,6 +375,47 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
             .OnComplete(() => visual.Reaction.gameObject.SetActive(false));
     }
 
+    /// <summary>
+    /// 손님 머리 옆에 성향 아이콘을 표시합니다. 퇴장 중에는 숨기고, 원근에 따라 크기를 줄입니다.
+    /// </summary>
+    /// <param name="visual">방문 표시 상태.</param>
+    /// <param name="visit">성향을 가진 방문.</param>
+    /// <param name="idle">이동을 마치고 서 있는지 여부. 걷는 동안에는 흔들림을 줄이려고 숨깁니다.</param>
+    private void updateTrait(Visual visual, CustomerVisit visit, bool idle)
+    {
+        int index = (int)visit.DispositionType - 1;
+        bool hasSprite = traitSprites != null && index >= 0 && index < traitSprites.Length && traitSprites[index] != null;
+        if (!hasSprite)
+        {
+            if (visual.Trait != null) visual.Trait.gameObject.SetActive(false);
+            return;
+        }
+
+        if (visual.Trait == null)
+        {
+            var traitObject = new GameObject("TraitIcon");
+            traitObject.transform.SetParent(visual.Root, false);
+            visual.Trait = traitObject.AddComponent<SpriteRenderer>();
+            visual.Trait.sharedMaterial = reactionMaterial;
+        }
+
+        bool visible = idle && !visual.Leaving;
+        visual.Trait.gameObject.SetActive(visible);
+        if (!visible) return;
+
+        visual.Trait.sprite = traitSprites[index];
+        visual.Trait.sortingLayerID = visual.Body.sortingLayerID;
+        // 다음 손님 몸(정렬 -1)과 같은 층이 되지 않도록 반응 이모지보다 한 칸 위에 그린다.
+        visual.Trait.sortingOrder = visual.Body.sortingOrder + 2;
+        // 뒤쪽 슬롯은 작아지지만 읽을 수 있도록 최소 크기를 둔다.
+        float iconPixels = Mathf.Max(22f, traitIconPixels * visual.DisplayHeight / heightPixels);
+        float scale = iconPixels / visual.Trait.sprite.bounds.size.y;
+        visual.Trait.transform.localScale = Vector3.one * scale;
+        // 머리 바로 위 약간 왼쪽에 둔다. 옆 손님 머리나 오른쪽 반응 이모지와 겹치지 않는 자리다.
+        visual.Trait.transform.localPosition = new Vector3(-visual.DisplayHeight * .06f, visual.DisplayHeight * 1.0f, 0);
+        visual.Trait.color = new Color(1, 1, 1, world.Opacity * visual.Alpha);
+    }
+
     /// <summary>1초 pop·상승·후반 fade를 표시 가능한 동안 진행합니다.</summary>
     /// <param name="visual">진행할 방문 표시.</param><param name="delta">표현 차단·전면 숨김을 제외한 표현 시간.</param>
     private void updateReaction(Visual visual, float delta)
@@ -422,6 +471,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
         visual.ReactionTween?.Kill();
         WorldVisit worldVisit = visual.Root == null ? null : visual.Root.GetComponent<WorldVisit>();
         WorldQueueSpeech worldQueueSpeech = visual.Speech;
+        // 성향 아이콘은 풀 대상이 아닌 방문별 임시 객체라 풀 반납 전에 제거한다.
+        if (visual.Trait != null) Destroy(visual.Trait.gameObject);
         visuals.Remove(visit);
         var pools = SimplePoolManager.Instance;
         if (pools == null) return;
@@ -457,6 +508,8 @@ public sealed class CustomerWorldQueueView : MonoBehaviour
     {
         public Transform Root, Target;
         public SpriteRenderer Body, Reaction;
+        /// <summary>성향 아이콘. 처음 표시할 때 만들고 방문 표시를 지울 때 제거합니다.</summary>
+        public SpriteRenderer Trait;
         public MaterialPropertyBlock BodyProperties;
         public WorldQueueSpeech Speech;
         public TextMeshPro SpeechTMP;

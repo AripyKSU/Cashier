@@ -561,7 +561,8 @@ public sealed class DayProgress
                 this.customerCatalog.Dispositions);
             this.dailyReputationResult = calculator.Calculate(
                 this.dayStartReputation,
-                this.aggregationResult.Value.Transactions);
+                this.aggregationResult.Value.Transactions,
+                this.queue?.AbandonedDispositions);
             this.daughterDialogueResult = this.session.SelectDaughterDialogue(checked((uint)this.day));
         }
         catch (Exception exception)

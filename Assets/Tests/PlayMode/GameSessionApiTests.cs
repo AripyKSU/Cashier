@@ -1234,14 +1234,13 @@ public sealed class GameSessionApiTests
         yield return waitForGameUi(ui);
         var progress = uiProgress(ui);
         Assert.That(progress.CurrentDayProgress.State, Is.EqualTo(DayProgressState.InspectorEvent));
-        Assert.That(cover.gameObject.activeSelf); Assert.That(cover.blocksRaycasts);
-        Assert.That(cover.transform.GetSiblingIndex(), Is.Zero);
+        // 감독관은 검은 덮개 대신 실제 가게 정면(계산대 앞)에서 말한다. 정면은 보이되 입력은 막힌다.
+        Assert.That(cover.gameObject.activeSelf, Is.False);
         Transform progressRoot = cover.transform.parent.Find("Root");
-        Assert.That(progressRoot.GetSiblingIndex(), Is.GreaterThan(cover.transform.GetSiblingIndex()));
         Transform legacyBackground = progressRoot.Find("Background");
         Assert.That(legacyBackground == null || !legacyBackground.gameObject.activeSelf, Is.True);
-        Assert.That(progressRoot.Find("OperatingPanel").gameObject.activeSelf, Is.False);
-        Assert.That(progressRoot.GetComponentsInChildren<UnityEngine.UI.Selectable>(false).All(control => !control.interactable),
+        Assert.That(progressRoot.Find("OperatingPanel").gameObject.activeSelf, Is.True);
+        Assert.That(progressRoot.GetComponentsInChildren<UnityEngine.UI.Selectable>(false).All(control => !control.IsInteractable()),
             Is.True, "Inspector 중 Root/CommonHUD는 입력을 받지 않아야 합니다.");
         Assert.Throws<InvalidOperationException>(progress.OpenBusiness);
         Assert.Throws<InvalidOperationException>(() => progress.TryPurchaseFacility(12001, out _));
@@ -1803,6 +1802,7 @@ public sealed class GameSessionApiTests
         typeof(DailySettlementLedgerView).GetField("pageIntervalSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(ledger, 0f);
         typeof(DaughterDialoguePresenter).GetField("charactersPerSecond", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(daughter, 100000f);
         typeof(DaughterDialoguePresenter).GetField("nodDurationSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(daughter, 0f);
+        typeof(DaughterDialoguePresenter).GetField("lineHoldSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(daughter, 0.01f);
         typeof(ReputationStampPresenter).GetField("durationSeconds", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(stamp, .01f);
     }
 
@@ -1810,7 +1810,8 @@ public sealed class GameSessionApiTests
     private static IEnumerator waitForSettlementReady(GameUIController ui)
     {
         var flow = uiReference<DailySettlementFlowController>(ui, "dailySettlementFlowController");
-        float deadline = Time.realtimeSinceStartup + 20;
+        // 1일차 밤에는 딸이 도장 전후로 여러 줄을 말한다. 줄 대기는 configureFastSettlement에서 줄인다.
+        float deadline = Time.realtimeSinceStartup + 30;
         while (flow.State != DailySettlementFlowController.FlowState.ReadyForInteraction && Time.realtimeSinceStartup < deadline)
             yield return null;
         Assert.That(flow.State, Is.EqualTo(DailySettlementFlowController.FlowState.ReadyForInteraction), "Settlement interaction readiness timed out");

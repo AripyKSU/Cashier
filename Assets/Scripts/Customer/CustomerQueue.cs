@@ -15,14 +15,18 @@ public sealed class CustomerQueue
     private readonly Random random;
     private readonly List<Entry> waiting = new List<Entry>();
     private readonly List<Entry> leaving = new List<Entry>();
+    // 현재 영업일에 인내 만료로 이탈한 손님의 성향. 명성 정산에서 0점 거래로 집계한다.
+    private readonly List<CustomerDispositionType> abandonedDispositions = new List<CustomerDispositionType>();
     private double now, nextArrival;
     private bool running;
     /// <summary>논리적 대기열. 외부는 방문 상태를 직접 변경하지 않는다.</summary>
     public IReadOnlyList<Entry> Waiting { get; }
     /// <summary>이미 이탈했지만 불만 대사를 3초 표시하는 기록.</summary>
     public IReadOnlyList<Entry> Leaving { get; }
-    /// <summary>현재 영업일에 인내 만료로 이탈한 수. 정산 시 벌칙 없이 통계만 제공한다.</summary>
+    /// <summary>현재 영업일에 인내 만료로 이탈한 수.</summary>
     public int AbandonedCount { get; private set; }
+    /// <summary>현재 영업일에 인내 만료로 이탈한 손님들의 성향. 명성 감점에 사용한다.</summary>
+    public IReadOnlyList<CustomerDispositionType> AbandonedDispositions => abandonedDispositions;
 
     /// <summary>기존 생성기와 성향 catalog를 연결한다.</summary>
     /// <param name="createVisit">입장 시점 현재가로 방문을 생성한다. 상품 후보가 없으면 null.</param>
@@ -46,6 +50,7 @@ public sealed class CustomerQueue
         if (running) throw new InvalidOperationException("대기열 영업 중입니다.");
         now = 0;
         AbandonedCount = 0;
+        abandonedDispositions.Clear();
         nextArrival = ArrivalSeconds;
         running = true;
     }
@@ -136,6 +141,7 @@ public sealed class CustomerQueue
             {
                 entry.Visit.LeaveQueue(true);
                 AbandonedCount = checked(AbandonedCount + 1);
+                abandonedDispositions.Add(entry.Visit.DispositionType);
                 entry.SpeechIdx = entry.LeaveTextIdx;
                 entry.SpeechUntil = frameEnd + SpeechSeconds;
                 leaving.Add(entry);

@@ -118,11 +118,16 @@ public sealed class StoreStagePresentation : MonoBehaviour
         frontTargets[5].sprite = visuals[1].images[5].sprite;
         frontTargets[6].sprite = stageAssets.Clock;
         StoreStageVisual.CopyRect(clockDigits, visuals[1].clockDigits);
+        // 시각은 좌상단 명패에서 보여 주므로 단계별 벽시계와 숫자는 숨긴다.
+        frontTargets[6].enabled = false;
+        clockDigits.gameObject.SetActive(false);
         workbench.sprite = visuals[2].images[0].sprite;
         workbench.color = visuals[2].images[0].color;
         // Workbench 자식의 물리·입력 영역과 시계/상자 버튼 인스턴스는 유지한다.
         this.rebuildFacilities(stageAssets.Facilities, visuals[1].facilityDrawOrder, isFacilityActive);
         world.SetStageGraphics(frontTargets, workbench, counterExtensions, facilityGraphics);
+        // frontTargets 순서상 4번이 천장등(Stage3CeilingLamp)이다.
+        world.SetStoreStage(stage, frontTargets.Length > 4 ? frontTargets[4] : null);
         world.SetStageSmoke(visuals[0].smokeAnchors);
         AppliedStage = stage;
         world.RefreshPresentation();
