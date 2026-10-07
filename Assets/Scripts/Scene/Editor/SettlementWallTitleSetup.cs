@@ -14,12 +14,14 @@ public static class SettlementWallTitleSetup
     private const string DaughterPanelPrefabPath = "Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab";
     private const string HubScenePath = "Assets/Scenes/HubScene.unity";
     private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
-    private const string DrawingPath = "Assets/Textures/UI/Dystopia/Settlement/FamilyDrawing.png";
     private const string BubblePath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubble.png";
     private const string BubbleTailPath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubbleTail.png";
     private const string TitleCoinPath = "Assets/Textures/UI/Hub/TitleCoin.png";
     private const string TextBlipPath = "Assets/Sounds/Intro/NineCut/TextBlip.ogg";
     private const string DrawingName = "FamilyDrawing";
+    private const string OriginalDrawingName = "Image";
+    // 원래 벽 그림(134x168)을 도장보다 크게 키우는 배율.
+    private const float DrawingScale = 1.72f;
     private const string DrawingTitleName = "ReputationTitle";
     private const string TailName = "BubbleTail";
     // 정산 화면 그림은 원본 1px이 UI 약 3.8px로 보인다.
@@ -27,6 +29,8 @@ public static class SettlementWallTitleSetup
     // 벽에 걸린 아빠·딸 그림 위치(정산 패널 중심 기준 UI 좌표)와 도장 크기.
     private static readonly Vector2 DrawingCenter = new Vector2(493f, 190f);
     private const float StampSize = 170f;
+    // 말풍선 종이색을 가계부 종이(약 145,103,79)에 가깝게 맞추는 곱셈 색.
+    private static readonly Color BubbleTint = new Color(.74f, .62f, .55f);
     // 딸 대사 한 줄의 최대 폭. 넘치면 다음 줄로 넘어간다.
     private const float DialogueWidth = 470f;
 
@@ -46,8 +50,6 @@ public static class SettlementWallTitleSetup
     /// </summary>
     private static void installWallDrawing()
     {
-        var drawing = AssetDatabase.LoadAssetAtPath<Sprite>(DrawingPath)
-            ?? throw new System.InvalidOperationException("아빠·딸 그림 이미지가 없습니다.");
         var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath)
             ?? throw new System.InvalidOperationException("폰트가 없습니다.");
         GameObject root = PrefabUtility.LoadPrefabContents(SettlementPanelPrefabPath);
@@ -56,20 +58,20 @@ public static class SettlementWallTitleSetup
             Transform stamp = findDeep(root.transform, "ReputationStamp")
                 ?? throw new System.InvalidOperationException("ReputationStamp를 찾을 수 없습니다.");
             Transform parent = stamp.parent;
+            // 따로 그렸던 그림 대신 원래 벽에 걸려 있던 아빠·딸 그림(Image, LedgerDrawing)을 크게 키워 쓴다.
             removeChild(parent, DrawingName);
-
-            var paper = new GameObject(DrawingName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            var paperRect = (RectTransform)paper.transform;
-            paperRect.SetParent(parent, false);
-            paperRect.SetSiblingIndex(stamp.GetSiblingIndex());
-            var paperImage = paper.GetComponent<Image>();
-            paperImage.sprite = drawing;
-            paperImage.raycastTarget = false;
+            Transform original = parent.Find(OriginalDrawingName)
+                ?? throw new System.InvalidOperationException("원래 벽 그림(Image)을 찾을 수 없습니다.");
+            removeChild(original, DrawingTitleName);
+            var paperRect = (RectTransform)original;
             paperRect.anchorMin = paperRect.anchorMax = new Vector2(.5f, .5f);
             paperRect.pivot = new Vector2(.5f, .5f);
-            paperRect.sizeDelta = new Vector2(drawing.rect.width, drawing.rect.height) * ScenePixelScale;
+            paperRect.sizeDelta = new Vector2(134f, 168f) * DrawingScale;
             paperRect.anchoredPosition = DrawingCenter;
-            paperRect.localRotation = Quaternion.Euler(0f, 0f, -2f);
+            paperRect.localRotation = Quaternion.identity;
+            // 원래는 벽에 비친 흐린 그림(반투명)이었다. 실제 종이처럼 보이도록 방 조명 톤으로만 살짝 어둡게 한다.
+            var paperImage = original.GetComponent<Image>();
+            if (paperImage != null) paperImage.color = new Color(.86f, .78f, .68f, 1f);
 
             var title = new GameObject(DrawingTitleName, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             var titleRect = (RectTransform)title.transform;
@@ -77,9 +79,9 @@ public static class SettlementWallTitleSetup
             titleRect.anchorMin = new Vector2(0f, 1f);
             titleRect.anchorMax = new Vector2(1f, 1f);
             titleRect.pivot = new Vector2(.5f, 1f);
-            // 테이프와 종이 윗선 아래, 그림 위 빈칸에 쓴다.
-            titleRect.anchoredPosition = new Vector2(0f, -20f);
-            titleRect.sizeDelta = new Vector2(-30f, 34f);
+            // 종이 윗부분에 쓴다.
+            titleRect.anchoredPosition = new Vector2(0f, -22f);
+            titleRect.sizeDelta = new Vector2(-40f, 34f);
             var titleText = title.GetComponent<TextMeshProUGUI>();
             titleText.font = font;
             titleText.fontSize = 21f;
@@ -120,6 +122,8 @@ public static class SettlementWallTitleSetup
             var bubbleImage = bubbleTransform.GetComponent<Image>();
             bubbleImage.sprite = bubble;
             bubbleImage.type = Image.Type.Sliced;
+            // 밝은 종이색이 튀지 않도록 가계부 종이처럼 어두운 갈색 톤으로 눌러 준다.
+            bubbleImage.color = BubbleTint;
             // 원본 1px이 장면의 다른 픽셀 그림과 같은 크기로 보이도록 테두리를 키운다.
             bubbleImage.pixelsPerUnitMultiplier = 1f / ScenePixelScale * (bubble.pixelsPerUnit / 100f);
 
@@ -170,8 +174,10 @@ public static class SettlementWallTitleSetup
             {
                 var portraitRect = (RectTransform)portraitTransform;
                 const float scale = 256f / 102f;
-                portraitRect.sizeDelta = new Vector2(144f, 108f) * scale;
-                portraitRect.anchoredPosition = new Vector2(14f - 23f * scale, -79.18515f - 1f * scale);
+                // 캔버스는 144x128(아래 20줄은 테이블 위로 쓰러지는 단계용 여백). 위쪽 기준 위치는 그대로 둔다.
+                portraitRect.sizeDelta = new Vector2(144f, 128f) * scale;
+                // 피벗이 세로 가운데라, 아래로 늘린 20줄의 절반만큼 내려야 그림 윗부분 위치가 유지된다.
+                portraitRect.anchoredPosition = new Vector2(14f - 23f * scale, -79.18515f - 1f * scale - 10f * scale);
             }
 
             removeChild(bubbleTransform, TailName);
@@ -187,6 +193,7 @@ public static class SettlementWallTitleSetup
             var tailImage = tailObject.GetComponent<Image>();
             tailImage.sprite = tail;
             tailImage.raycastTarget = false;
+            tailImage.color = BubbleTint;
 
             PrefabUtility.SaveAsPrefabAsset(root, DaughterPanelPrefabPath);
         }

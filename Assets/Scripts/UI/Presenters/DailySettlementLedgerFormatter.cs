@@ -42,8 +42,7 @@ public static class DailySettlementLedgerFormatter
         appendAmount(builder, "지침 벌금", viewData.GuidelinePenaltyAmount, false, true);
         builder.AppendLine("──────────");
         appendAmount(builder, "순이익", viewData.NetProfit, true);
-        builder.AppendLine();
-        appendAmount(builder, "현재 보유금", viewData.CurrentBalance);
+        // 현재 보유금은 화면 아래 가운데 별도 UI로 보여 준다(설비 창 위에서도 보이도록).
         return builder.ToString().TrimEnd();
     }
 

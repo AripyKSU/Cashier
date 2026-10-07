@@ -38,6 +38,8 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private ShopStatusHudPresenter shopStatusHud;
     /// <summary>영업 화면 안 감독관 안내 말풍선. 없으면 인게임 튜토리얼을 생략합니다.</summary>
     [SerializeField] private TutorialCoachPresenter tutorialCoach;
+    /// <summary>정산 화면 아래 가운데 현재 보유금 표시. 설비 창보다 위에 그려집니다. 없으면 표시하지 않습니다.</summary>
+    [SerializeField] private ShopStatusHudPresenter settlementBalance;
     [SerializeField] private CustomerPresenter customerPresenter;
     [SerializeField] private PriceInputPresenter priceInputPresenter;
     [SerializeField] private DailySettlementPresenter dailySettlementPresenter;
@@ -187,7 +189,7 @@ public sealed class GameUIController : MonoBehaviour
             if (this.tutorialCoach != null)
             {
                 this.tutorialDirector = new InGameTutorialDirector(this.tutorialCoach, this.saleSortingPanel,
-                    this.shopStatusHud != null ? (RectTransform)this.shopStatusHud.transform : null,
+                    this.shopStatusHud != null ? this.shopStatusHud.HighlightTarget : null,
                     idx => this.textData.Rows[idx].Text);
             }
 
@@ -1276,6 +1278,13 @@ public sealed class GameUIController : MonoBehaviour
                 BusinessHours.DurationMinutes * (1f - Mathf.Clamp01(normalizedTime))));
             // 보유금은 거래 접수 즉시 바뀌므로 매 프레임 비교해 변화량을 띄운다.
             this.shopStatusHud.SetBalance(this.economy.QueryService.CurrentBalance, !beforeOpening);
+        }
+        if (this.settlementBalance != null && this.economy != null)
+        {
+            // 정산 화면과 그 위 설비 창에서 현재 보유금이 늘 보이고, 설비를 사면 −가 뜬다.
+            bool settlementVisible = this.settlementPanel != null && this.settlementPanel.activeInHierarchy && !this.hasError;
+            this.settlementBalance.SetVisible(settlementVisible);
+            if (settlementVisible) this.settlementBalance.SetBalance(this.economy.QueryService.CurrentBalance, true);
         }
         this.businessTimerPresenter.UpdateView(new BusinessTimerViewData(
             this.subscribedDay.RemainingSeconds,

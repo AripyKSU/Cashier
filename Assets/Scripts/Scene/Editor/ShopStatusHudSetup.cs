@@ -14,10 +14,12 @@ public static class ShopStatusHudSetup
     private const string CustomerWorldPrefabPath = "Assets/Prefabs/World/CustomerWorld.prefab";
     private const string HudRootPath = "ProgressCanvas/Root";
     private const string HudName = "ShopStatusHud";
+    private const string SettlementBalanceName = "SettlementBalance";
     private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string ClockIconPath = "Assets/Textures/UI/Dystopia/Hud/HudClock.png";
     private const string CoinIconPath = "Assets/Textures/UI/Dystopia/Hud/HudCoin.png";
+    private const string GearIconPath = "Assets/Textures/UI/Dystopia/Hud/HudGear.png";
     private const string TraitFolder = "Assets/Textures/UI/Dystopia/CustomerTrait/";
     private const string SettlementPanelPrefabPath = "Assets/Prefabs/GameUI/SettlementPanel.prefab";
     private const string PenHandPath = "Assets/Textures/UI/Dystopia/Settlement/LedgerPenHand.png";
@@ -39,6 +41,7 @@ public static class ShopStatusHudSetup
     public static void Install()
     {
         installHud();
+        installSettlementBalance();
         installTraits();
         installPenHand();
         installTutorialCoach();
@@ -71,41 +74,48 @@ public static class ShopStatusHudSetup
             // 오류 패널보다는 아래, 영업 화면보다는 위에 둔다.
             Transform errorPanel = parent.Find("ErrorPanel");
             hudRect.SetSiblingIndex(errorPanel != null ? errorPanel.GetSiblingIndex() : parent.childCount - 1);
-            setRect(hudRect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -14), new Vector2(236, 66));
+            // 명패 루트는 화면 전체를 덮는 빈 영역이다. 왼쪽 위에 철판 명패, 오른쪽 위에 손님 성향·설정 버튼을 둔다.
+            stretch(hudRect);
+            var plateGroup = new GameObject("StatusPlate", typeof(RectTransform));
+            var plateRect = (RectTransform)plateGroup.transform;
+            plateRect.SetParent(hudRect, false);
+            setRect(plateRect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, -14), new Vector2(236, 66));
 
-            var plateImage = createImage("Plate", hudRect, plate);
+            var plateImage = createImage("Plate", plateRect, plate);
             plateImage.type = Image.Type.Sliced;
             plateImage.pixelsPerUnitMultiplier = 0.5f;
             stretch((RectTransform)plateImage.transform);
 
-            var clockImage = createImage("ClockIcon", hudRect, clockIcon);
+            var clockImage = createImage("ClockIcon", plateRect, clockIcon);
             setRect((RectTransform)clockImage.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(14, -10), new Vector2(20, 20));
-            var clockText = createText("Clock", hudRect, font, 20, TextAlignmentOptions.MidlineLeft);
+            var clockText = createText("Clock", plateRect, font, 20, TextAlignmentOptions.MidlineLeft);
             setRect(clockText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -8), new Vector2(80, 24));
             clockText.text = "09:00";
 
-            var dayText = createText("Day", hudRect, font, 20, TextAlignmentOptions.MidlineRight);
+            var dayText = createText("Day", plateRect, font, 20, TextAlignmentOptions.MidlineRight);
             setRect(dayText.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(-14, -8), new Vector2(90, 24));
             dayText.text = "D-19";
 
-            var coinImage = createImage("CoinIcon", hudRect, coinIcon);
+            var coinImage = createImage("CoinIcon", plateRect, coinIcon);
             setRect((RectTransform)coinImage.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(14, -36), new Vector2(20, 20));
-            var balanceText = createText("Balance", hudRect, font, 22, TextAlignmentOptions.MidlineLeft);
+            var balanceText = createText("Balance", plateRect, font, 22, TextAlignmentOptions.MidlineLeft);
             setRect(balanceText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -34), new Vector2(180, 26));
             balanceText.color = new Color(0.95f, 0.84f, 0.55f);
             balanceText.text = "0원";
 
-            var deltaText = createText("Delta", hudRect, font, 22, TextAlignmentOptions.MidlineLeft);
+            var deltaText = createText("Delta", plateRect, font, 22, TextAlignmentOptions.MidlineLeft);
             setRect(deltaText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -96), new Vector2(200, 26));
             deltaText.outlineWidth = 0.2f;
             deltaText.outlineColor = new Color32(20, 14, 10, 255);
             deltaText.text = string.Empty;
 
             var guide = createTraitGuide(hudRect, font, plate);
+            createOptions(hudRect, font, plate);
 
             var presenter = hud.GetComponent<ShopStatusHudPresenter>();
             var serializedPresenter = new SerializedObject(presenter);
             serializedPresenter.FindProperty("traitGuide").objectReferenceValue = guide;
+            serializedPresenter.FindProperty("plateRect").objectReferenceValue = plateRect;
             serializedPresenter.FindProperty("rootGroup").objectReferenceValue = hud.GetComponent<CanvasGroup>();
             serializedPresenter.FindProperty("dayText").objectReferenceValue = dayText;
             serializedPresenter.FindProperty("clockText").objectReferenceValue = clockText;
@@ -143,7 +153,8 @@ public static class ShopStatusHudSetup
         var guideObject = new GameObject("TraitGuide", typeof(RectTransform), typeof(CustomerTraitGuidePresenter));
         var guideRect = (RectTransform)guideObject.transform;
         guideRect.SetParent(hudRect, false);
-        setRect(guideRect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, 1), new Vector2(8, 0), new Vector2(110, 36));
+        // 화면 오른쪽 위, 설정(톱니바퀴) 버튼 바로 왼쪽.
+        setRect(guideRect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(-76, -18), new Vector2(110, 40));
 
         var buttonImage = createImage("Toggle", guideRect, plate);
         buttonImage.type = Image.Type.Sliced;
@@ -161,7 +172,7 @@ public static class ShopStatusHudSetup
         panelImage.pixelsPerUnitMultiplier = 0.5f;
         var panelRect = (RectTransform)panelImage.transform;
         const float rowHeight = 50f;
-        setRect(panelRect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, -42), new Vector2(430, rowHeight * TraitFiles.Length + 24));
+        setRect(panelRect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, -46), new Vector2(430, rowHeight * TraitFiles.Length + 24));
 
         var names = new TextMeshProUGUI[TraitFiles.Length];
         var descriptions = new TextMeshProUGUI[TraitFiles.Length];
@@ -196,6 +207,150 @@ public static class ShopStatusHudSetup
 
         serialized.ApplyModifiedPropertiesWithoutUndo();
         return presenter;
+    }
+
+    /// <summary>
+    /// 정산 화면 아래 가운데 현재 보유금 철판을 만듭니다. 설비 창(FacilityShopPanel)보다 뒤 형제로 두어 그 위에 그려지게 합니다.
+    /// </summary>
+    private static void installSettlementBalance()
+    {
+        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
+        var plate = AssetDatabase.LoadAssetAtPath<Sprite>(PlatePath);
+        var coinIcon = AssetDatabase.LoadAssetAtPath<Sprite>(CoinIconPath);
+        GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
+        try
+        {
+            Transform canvas = root.transform.Find("ProgressCanvas")
+                ?? throw new System.InvalidOperationException("ProgressCanvas를 찾을 수 없습니다.");
+            Transform old = canvas.Find(SettlementBalanceName);
+            if (old != null) Object.DestroyImmediate(old.gameObject);
+            Transform shop = canvas.Find("FacilityShopPanel")
+                ?? throw new System.InvalidOperationException("FacilityShopPanel을 찾을 수 없습니다.");
+
+            var balanceObject = new GameObject(SettlementBalanceName, typeof(RectTransform), typeof(CanvasGroup), typeof(ShopStatusHudPresenter));
+            var balanceRect = (RectTransform)balanceObject.transform;
+            balanceRect.SetParent(canvas, false);
+            balanceRect.SetSiblingIndex(shop.GetSiblingIndex() + 1);
+            setRect(balanceRect, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 14), new Vector2(240, 44));
+
+            var plateImage = createImage("Plate", balanceRect, plate);
+            plateImage.type = Image.Type.Sliced;
+            plateImage.pixelsPerUnitMultiplier = 0.5f;
+            stretch((RectTransform)plateImage.transform);
+            var coin = createImage("CoinIcon", balanceRect, coinIcon);
+            setRect((RectTransform)coin.transform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(16, 0), new Vector2(22, 22));
+            var balanceText = createText("Balance", balanceRect, font, 24, TextAlignmentOptions.Center);
+            setRect(balanceText.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(.5f, .5f), new Vector2(14, 0), new Vector2(-50, 0));
+            balanceText.color = new Color(0.95f, 0.84f, 0.55f);
+            balanceText.text = "0원";
+            var deltaText = createText("Delta", balanceRect, font, 22, TextAlignmentOptions.Center);
+            setRect(deltaText.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(.5f, 0), new Vector2(0, 4), new Vector2(0, 26));
+            deltaText.outlineWidth = 0.2f;
+            deltaText.outlineColor = new Color32(20, 14, 10, 255);
+            deltaText.text = string.Empty;
+
+            var presenter = balanceObject.GetComponent<ShopStatusHudPresenter>();
+            var serialized = new SerializedObject(presenter);
+            serialized.FindProperty("rootGroup").objectReferenceValue = balanceObject.GetComponent<CanvasGroup>();
+            serialized.FindProperty("balanceText").objectReferenceValue = balanceText;
+            serialized.FindProperty("deltaText").objectReferenceValue = deltaText;
+            serialized.FindProperty("plateRect").objectReferenceValue = balanceRect;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            var group = balanceObject.GetComponent<CanvasGroup>();
+            group.alpha = 0f;
+            group.blocksRaycasts = false;
+
+            var controller = root.GetComponentInChildren<GameUIController>(true);
+            var serializedController = new SerializedObject(controller);
+            serializedController.FindProperty("settlementBalance").objectReferenceValue = presenter;
+            serializedController.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    /// <summary>화면 오른쪽 위 톱니바퀴 설정 버튼과 볼륨 설정 창을 만듭니다.</summary>
+    /// <param name="hudRect">명패 루트(화면 전체)입니다.</param>
+    /// <param name="font">글꼴입니다.</param>
+    /// <param name="plate">철판 9-slice 이미지입니다.</param>
+    private static void createOptions(RectTransform hudRect, TMP_FontAsset font, Sprite plate)
+    {
+        var gear = AssetDatabase.LoadAssetAtPath<Sprite>(GearIconPath)
+            ?? throw new System.InvalidOperationException("톱니바퀴 아이콘이 없습니다.");
+        var optionsObject = new GameObject("Options", typeof(RectTransform), typeof(OptionsPanelPresenter));
+        var optionsRect = (RectTransform)optionsObject.transform;
+        optionsRect.SetParent(hudRect, false);
+        setRect(optionsRect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(-18, -18), new Vector2(48, 40));
+
+        var buttonImage = createImage("Gear", optionsRect, plate);
+        buttonImage.type = Image.Type.Sliced;
+        buttonImage.pixelsPerUnitMultiplier = 0.5f;
+        buttonImage.raycastTarget = true;
+        stretch((RectTransform)buttonImage.transform);
+        var button = buttonImage.gameObject.AddComponent<Button>();
+        button.targetGraphic = buttonImage;
+        var icon = createImage("Icon", buttonImage.transform, gear);
+        setRect((RectTransform)icon.transform, new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f), Vector2.zero, new Vector2(28, 28));
+
+        var panelImage = createImage("Panel", optionsRect, plate);
+        panelImage.type = Image.Type.Sliced;
+        panelImage.pixelsPerUnitMultiplier = 0.5f;
+        panelImage.raycastTarget = true;
+        var panelRect = (RectTransform)panelImage.transform;
+        setRect(panelRect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, -46), new Vector2(320, 200));
+
+        var title = createText("Title", panelRect, font, 20, TextAlignmentOptions.Center);
+        setRect(title.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(.5f, 1), new Vector2(0, -10), new Vector2(0, 26));
+        title.text = "설정";
+        title.color = new Color(0.95f, 0.84f, 0.55f);
+
+        string[] labels = { "전체 소리", "배경음", "효과음" };
+        var sliders = new Slider[labels.Length];
+        var resources = new DefaultControls.Resources();
+        for (int index = 0; index < labels.Length; index++)
+        {
+            float y = -50 - index * 42;
+            var label = createText("Label" + index, panelRect, font, 16, TextAlignmentOptions.MidlineLeft);
+            setRect(label.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(18, y), new Vector2(90, 24));
+            label.text = labels[index];
+            var sliderObject = DefaultControls.CreateSlider(resources);
+            sliderObject.name = "Slider" + index;
+            var sliderRect = (RectTransform)sliderObject.transform;
+            sliderRect.SetParent(panelRect, false);
+            setRect(sliderRect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(112, y - 4), new Vector2(186, 16));
+            sliders[index] = sliderObject.GetComponent<Slider>();
+            sliders[index].minValue = 0f;
+            sliders[index].maxValue = 1f;
+            sliders[index].value = 1f;
+            // 기본 흰 슬라이더를 녹슨 철판 톤으로 맞춘다.
+            foreach (var image in sliderObject.GetComponentsInChildren<Image>(true))
+                image.color = image.name == "Handle" ? new Color(0.95f, 0.84f, 0.55f) : image.name == "Fill"
+                    ? new Color(0.62f, 0.45f, 0.25f) : new Color(0.18f, 0.15f, 0.13f);
+        }
+
+        var closeImage = createImage("Close", panelRect, plate);
+        closeImage.type = Image.Type.Sliced;
+        closeImage.pixelsPerUnitMultiplier = 0.5f;
+        closeImage.raycastTarget = true;
+        setRect((RectTransform)closeImage.transform, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 12), new Vector2(90, 30));
+        var closeButton = closeImage.gameObject.AddComponent<Button>();
+        closeButton.targetGraphic = closeImage;
+        var closeLabel = createText("Label", closeImage.transform, font, 16, TextAlignmentOptions.Center);
+        stretch(closeLabel.rectTransform);
+        closeLabel.text = "닫기";
+
+        panelImage.gameObject.SetActive(false);
+        var serialized = new SerializedObject(optionsObject.GetComponent<OptionsPanelPresenter>());
+        serialized.FindProperty("toggleButton").objectReferenceValue = button;
+        serialized.FindProperty("panel").objectReferenceValue = panelImage.gameObject;
+        serialized.FindProperty("masterSlider").objectReferenceValue = sliders[0];
+        serialized.FindProperty("bgmSlider").objectReferenceValue = sliders[1];
+        serialized.FindProperty("sfxSlider").objectReferenceValue = sliders[2];
+        serialized.FindProperty("closeButton").objectReferenceValue = closeButton;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
     /// <summary>CustomerWorld.prefab의 대기열 표시에 성향 아이콘 다섯 개를 연결합니다.</summary>

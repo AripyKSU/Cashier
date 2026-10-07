@@ -29,6 +29,9 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     [Tooltip("보유금 변화량을 띄우는 텍스트. 평소에는 투명합니다.")]
     [SerializeField] private TextMeshProUGUI deltaText;
 
+    [Tooltip("왼쪽 위 철판 명패 영역. 튜토리얼에서 시계를 가리킬 때 강조합니다.")]
+    [SerializeField] private RectTransform plateRect;
+
     [Tooltip("손님 성향 설명표. 명패가 숨겨질 때 함께 닫습니다.")]
     [SerializeField] private CustomerTraitGuidePresenter traitGuide;
 
@@ -44,6 +47,9 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     private Vector2 deltaRestPosition;
     private Sequence deltaSequence;
     private Tween balancePunch;
+
+    /// <summary>튜토리얼 강조 대상. 철판 명패가 없으면 이 오브젝트 자체입니다.</summary>
+    public RectTransform HighlightTarget => this.plateRect != null ? this.plateRect : (RectTransform)this.transform;
 
     private void Awake()
     {
