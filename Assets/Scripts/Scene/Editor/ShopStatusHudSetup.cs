@@ -24,7 +24,6 @@ public static class ShopStatusHudSetup
     private const string PenHandName = "PenHand";
     private const string CoachName = "TutorialCoach";
     private const string DialogueFramePath = "Assets/Textures/art/UI/InspectorDialogueFrame.png";
-    private const string InspectorHeadPath = "Assets/Textures/Customer/Dystopia/Inspector.png";
     private const string InspectorPanelPrefabPath = "Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab";
     // 가계부 334px 원본이 1280 기준 화면을 채우므로 원본 1px ≈ UI 3.83px
     private const float LedgerPixelScale = 1280f / 334f;
@@ -102,8 +101,11 @@ public static class ShopStatusHudSetup
             deltaText.outlineColor = new Color32(20, 14, 10, 255);
             deltaText.text = string.Empty;
 
+            var guide = createTraitGuide(hudRect, font, plate);
+
             var presenter = hud.GetComponent<ShopStatusHudPresenter>();
             var serializedPresenter = new SerializedObject(presenter);
+            serializedPresenter.FindProperty("traitGuide").objectReferenceValue = guide;
             serializedPresenter.FindProperty("rootGroup").objectReferenceValue = hud.GetComponent<CanvasGroup>();
             serializedPresenter.FindProperty("dayText").objectReferenceValue = dayText;
             serializedPresenter.FindProperty("clockText").objectReferenceValue = clockText;
@@ -127,6 +129,73 @@ public static class ShopStatusHudSetup
         {
             PrefabUtility.UnloadPrefabContents(root);
         }
+    }
+
+    /// <summary>
+    /// 명패 오른쪽에 "손님 성향" 버튼과, 누르면 열리는 아이콘별 특징 설명표를 만듭니다. 수치는 쓰지 않습니다.
+    /// </summary>
+    /// <param name="hudRect">명패 루트입니다.</param>
+    /// <param name="font">글꼴입니다.</param>
+    /// <param name="plate">철판 9-slice 이미지입니다.</param>
+    /// <returns>연결된 설명표 Presenter입니다.</returns>
+    private static CustomerTraitGuidePresenter createTraitGuide(RectTransform hudRect, TMP_FontAsset font, Sprite plate)
+    {
+        var guideObject = new GameObject("TraitGuide", typeof(RectTransform), typeof(CustomerTraitGuidePresenter));
+        var guideRect = (RectTransform)guideObject.transform;
+        guideRect.SetParent(hudRect, false);
+        setRect(guideRect, new Vector2(1, 1), new Vector2(1, 1), new Vector2(0, 1), new Vector2(8, 0), new Vector2(110, 36));
+
+        var buttonImage = createImage("Toggle", guideRect, plate);
+        buttonImage.type = Image.Type.Sliced;
+        buttonImage.pixelsPerUnitMultiplier = 0.5f;
+        buttonImage.raycastTarget = true;
+        stretch((RectTransform)buttonImage.transform);
+        var button = buttonImage.gameObject.AddComponent<Button>();
+        button.targetGraphic = buttonImage;
+        var label = createText("Label", buttonImage.transform, font, 17, TextAlignmentOptions.Center);
+        stretch(label.rectTransform);
+        label.text = "손님 성향";
+
+        var panelImage = createImage("Panel", guideRect, plate);
+        panelImage.type = Image.Type.Sliced;
+        panelImage.pixelsPerUnitMultiplier = 0.5f;
+        var panelRect = (RectTransform)panelImage.transform;
+        const float rowHeight = 50f;
+        setRect(panelRect, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, -42), new Vector2(430, rowHeight * TraitFiles.Length + 24));
+
+        var names = new TextMeshProUGUI[TraitFiles.Length];
+        var descriptions = new TextMeshProUGUI[TraitFiles.Length];
+        for (int index = 0; index < TraitFiles.Length; index++)
+        {
+            float top = -12 - rowHeight * index;
+            var icon = createImage("Icon" + index, panelRect,
+                AssetDatabase.LoadAssetAtPath<Sprite>(TraitFolder + TraitFiles[index]));
+            setRect((RectTransform)icon.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(16, top - 4), new Vector2(40, 40));
+            names[index] = createText("Name" + index, panelRect, font, 18, TextAlignmentOptions.TopLeft);
+            setRect(names[index].rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(66, top), new Vector2(350, 22));
+            names[index].color = new Color(0.95f, 0.84f, 0.55f);
+            descriptions[index] = createText("Description" + index, panelRect, font, 15, TextAlignmentOptions.TopLeft);
+            setRect(descriptions[index].rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(66, top - 22), new Vector2(350, 22));
+        }
+
+        panelImage.gameObject.SetActive(false);
+        var presenter = guideObject.GetComponent<CustomerTraitGuidePresenter>();
+        var serialized = new SerializedObject(presenter);
+        serialized.FindProperty("toggleButton").objectReferenceValue = button;
+        serialized.FindProperty("toggleLabel").objectReferenceValue = label;
+        serialized.FindProperty("panel").objectReferenceValue = panelImage.gameObject;
+        SerializedProperty nameProperty = serialized.FindProperty("nameTexts");
+        SerializedProperty descriptionProperty = serialized.FindProperty("descriptionTexts");
+        nameProperty.arraySize = names.Length;
+        descriptionProperty.arraySize = descriptions.Length;
+        for (int index = 0; index < names.Length; index++)
+        {
+            nameProperty.GetArrayElementAtIndex(index).objectReferenceValue = names[index];
+            descriptionProperty.GetArrayElementAtIndex(index).objectReferenceValue = descriptions[index];
+        }
+
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        return presenter;
     }
 
     /// <summary>CustomerWorld.prefab의 대기열 표시에 성향 아이콘 다섯 개를 연결합니다.</summary>
@@ -203,8 +272,8 @@ public static class ShopStatusHudSetup
         Sprite frame = null;
         foreach (Object asset in AssetDatabase.LoadAllAssetsAtPath(DialogueFramePath))
             if (asset is Sprite sprite) { frame = sprite; break; }
-        var head = AssetDatabase.LoadAssetAtPath<Sprite>(InspectorHeadPath);
-        if (font == null || frame == null || head == null)
+
+        if (font == null || frame == null)
             throw new System.InvalidOperationException("안내 말풍선 리소스(폰트·대사틀·감독관 얼굴)를 찾을 수 없습니다.");
 
         GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
@@ -249,15 +318,12 @@ public static class ShopStatusHudSetup
             var boxRect = (RectTransform)box.transform;
             setRect(boxRect, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 18), new Vector2(860, 150));
 
-            var portrait = createImage("Portrait", boxRect, head);
-            portrait.preserveAspect = true;
-            // 전신 이미지의 상반신이 대사 상자 위로 올라오게 아래 기준으로 세운다.
-            setRect((RectTransform)portrait.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(.5f, 0), new Vector2(80, 6), new Vector2(120, 240));
 
             var line = createText("Line", boxRect, font, 22, TextAlignmentOptions.MidlineLeft);
             line.textWrappingMode = TextWrappingModes.Normal;
             setRect(line.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, .5f), Vector2.zero, Vector2.zero);
-            line.rectTransform.offsetMin = new Vector2(150, 18);
+            // 감독관 그림 없이 대사와 글자 소리만으로 감독관임을 알린다.
+            line.rectTransform.offsetMin = new Vector2(44, 18);
             line.rectTransform.offsetMax = new Vector2(-28, -18);
 
             var hint = createText("Hint", boxRect, font, 14, TextAlignmentOptions.BottomRight);

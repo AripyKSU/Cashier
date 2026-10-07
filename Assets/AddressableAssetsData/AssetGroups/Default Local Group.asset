@@ -181,6 +181,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 263226790671fe971bc682535ea581d1
+    m_Address: LedgerDaughterStage5
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 272990375374eaf4b8c2d2a2f4526e50
     m_Address: Stage2Clock
     m_ReadOnly: 0
@@ -445,6 +450,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 530e7ce71f797e379dc57b2dad67ca41
+    m_Address: LedgerDaughterStage1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 54190ba0ffe6b654f8c65cfde92d2c39
     m_Address: Inspector
     m_ReadOnly: 0
@@ -613,6 +623,16 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 72757092a9fffa8448b2e7aea84f0e12
     m_Address: MalePriceSensitive_01_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 72cedc5215b70fb17fa8d0d7acd93b89
+    m_Address: LedgerDaughterStage4
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 73735ba2c271218fc8a81bb276615983
+    m_Address: LedgerDaughterStage3
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -871,6 +891,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a8c6deca40ea052f667e376aed5c22b2
+    m_Address: LedgerDaughterStage2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a8d8112b1355f744395b4545061646a0
     m_Address: LedgerWriteLoop
     m_ReadOnly: 0
@@ -1049,6 +1074,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d32c02c9ee017d3f238a8cf7205990b1
+    m_Address: LedgerDaughterStage7
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d3ff24ae084dc3741b40269c39d206a5
     m_Address: MaleNormal_03
     m_ReadOnly: 0
@@ -1122,6 +1152,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e127d6c146ae35041bfe00f2e205a88d
     m_Address: Stage3PrecisionElectronicsVisual
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e167b3c045ecae479bf4e3ffd35713df
+    m_Address: LedgerDaughterStage6
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

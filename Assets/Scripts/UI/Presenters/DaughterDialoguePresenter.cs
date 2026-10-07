@@ -7,9 +7,13 @@ using UnityEngine.UI;
 /// <summary>정산 화면의 딸 대사와 이미지만 표시한다.</summary>
 public sealed class DaughterDialoguePresenter : MonoBehaviour
 {
-    private const float DialogueVoiceDurationSeconds = 0.35f;
-
     [SerializeField] private Image portrait;
+    /// <summary>인트로 하루 대사와 같은 글자 소리(TextBlip). 비어 있으면 소리 없이 출력합니다.</summary>
+    [SerializeField] private AudioClip textBlipClip;
+    /// <summary>글자 소리를 낼 AudioSource입니다.</summary>
+    [SerializeField] private AudioSource textBlipSource;
+    /// <summary>글자 소리 크기(인트로와 같은 0.4).</summary>
+    [SerializeField, Range(0f, 1f)] private float textBlipVolumeScale = 0.4f;
     [SerializeField] private Image speechBubble;
     [SerializeField] private TextMeshProUGUI dialogue;
     [SerializeField, Min(1f)] private float charactersPerSecond = 24f;
@@ -164,9 +168,6 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         dialogue.text = playingLines[playingLineIndex];
         dialogue.maxVisibleCharacters = 0;
         dialogue.ForceMeshUpdate(true, true);
-        SoundManager.Instance?.PlaySfxForDuration(
-            SoundKeys.DialogueVoice,
-            DialogueVoiceDurationSeconds);
         playPresentation();
     }
 
@@ -181,7 +182,6 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
             return;
         }
 
-        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         // 마지막 줄은 조금 더 오래 남겨 다음 연출(도장 등)과 겹치지 않게 한다.
         float holdSeconds = isLastLine ? lineHoldSeconds * 1.25f : lineHoldSeconds;
         holdTween = DOVirtual.DelayedCall(holdSeconds, () =>
@@ -208,7 +208,6 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     /// <summary>도장 뒤 대본 완료를 한 번만 알립니다.</summary>
     private void completeAfterStamp()
     {
-        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         restorePortrait();
         if (hasCompletedAfterStamp) return;
         hasCompletedAfterStamp = true;
@@ -230,7 +229,6 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     private void OnDisable()
     {
         stopPresentation();
-        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         restorePortrait();
     }
 
@@ -247,8 +245,10 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         presentationTween = DOTween.To(() => elapsedSeconds, value =>
             {
                 elapsedSeconds = value;
+                int previousVisible = dialogue.maxVisibleCharacters;
                 dialogue.maxVisibleCharacters = Mathf.Min(characterCount,
                     Mathf.FloorToInt(value * charactersPerSecond));
+                playTextBlip(previousVisible, dialogue.maxVisibleCharacters);
                 updatePortraitNod(value);
             }, duration, duration).SetEase(Ease.Linear).SetUpdate(true)
             .OnComplete(() =>
@@ -259,10 +259,26 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
             });
     }
 
+    /// <summary>
+    /// 인트로의 하루 대사와 같은 짧은 글자 소리를 새로 보인 글자마다 한 번 냅니다. 공백·기호는 건너뜁니다.
+    /// </summary>
+    /// <param name="from">이전까지 보인 글자 수입니다.</param>
+    /// <param name="to">이번에 보이는 글자 수입니다.</param>
+    private void playTextBlip(int from, int to)
+    {
+        if (textBlipClip == null || textBlipSource == null) return;
+        int end = Mathf.Min(to, dialogue.textInfo.characterCount);
+        for (int index = Mathf.Max(0, from); index < end; index++)
+        {
+            if (!char.IsLetterOrDigit(dialogue.textInfo.characterInfo[index].character)) continue;
+            textBlipSource.PlayOneShot(textBlipClip, textBlipVolumeScale);
+            return;
+        }
+    }
+
     /// <summary>타이핑 완료 시 자세·음성을 정리하고 완료를 한 번 통지합니다.</summary>
     private void completePresentation()
     {
-        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
         restorePortrait();
         presentationTween = null;
         if (hasCompleted) return;

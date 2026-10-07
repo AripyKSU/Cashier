@@ -26,7 +26,7 @@ public sealed class DaughterDialogueTests
         Assert.That(pending<DaughterDialogueDataTable, DaughterDialogueData>(dialogues).Values.SelectMany(row => row.TextIdxs),
             Is.EquivalentTo(Enumerable.Range(8183, 18).Select(value => (uint)value)));
         Assert.That(pending<DaughterAppearanceDataTable, DaughterAppearanceData>(appearances).Values.OrderBy(row => row.StartDay)
-            .Select(row => row.StartDay), Is.EqualTo(new[] { 1u, 11u, 21u }));
+            .Select(row => row.StartDay), Is.EqualTo(new[] { 1u, 4u, 7u, 10u, 13u, 16u, 19u }));
         var panel = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(
             "Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab");
         var font = panel.GetComponentInChildren<TMPro.TextMeshProUGUI>(true).font;

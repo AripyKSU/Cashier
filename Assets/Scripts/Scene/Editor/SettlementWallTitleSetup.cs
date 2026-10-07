@@ -18,6 +18,7 @@ public static class SettlementWallTitleSetup
     private const string BubblePath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubble.png";
     private const string BubbleTailPath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubbleTail.png";
     private const string TitleCoinPath = "Assets/Textures/UI/Hub/TitleCoin.png";
+    private const string TextBlipPath = "Assets/Sounds/Intro/NineCut/TextBlip.ogg";
     private const string DrawingName = "FamilyDrawing";
     private const string DrawingTitleName = "ReputationTitle";
     private const string TailName = "BubbleTail";
@@ -146,8 +147,31 @@ public static class SettlementWallTitleSetup
                 text.margin = Vector4.zero;
                 text.fontSize = 26f;
                 text.alignment = TextAlignmentOptions.MidlineLeft;
-                var element = dialogue.GetComponent<LayoutElement>() ?? dialogue.gameObject.AddComponent<LayoutElement>();
+                if (!dialogue.TryGetComponent(out LayoutElement element)) element = dialogue.gameObject.AddComponent<LayoutElement>();
                 element.preferredWidth = DialogueWidth;
+            }
+
+            // 인트로 하루 대사와 같은 글자 소리를 쓴다(감독관 목소리와 구분).
+            var presenter = root.GetComponentInChildren<DaughterDialoguePresenter>(true);
+            var blip = AssetDatabase.LoadAssetAtPath<AudioClip>(TextBlipPath)
+                ?? throw new System.InvalidOperationException("TextBlip 소리가 없습니다.");
+            if (!presenter.TryGetComponent(out AudioSource source)) source = presenter.gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.spatialBlend = 0f;
+            var serializedPresenter = new SerializedObject(presenter);
+            serializedPresenter.FindProperty("textBlipClip").objectReferenceValue = blip;
+            serializedPresenter.FindProperty("textBlipSource").objectReferenceValue = source;
+            serializedPresenter.ApplyModifiedPropertiesWithoutUndo();
+
+            // 날짜별 딸 이미지는 144x108 전체 캔버스 Sprite다. 기존 102x92 잘라낸 Sprite와 같은 배율(약 2.51배)과
+            // 같은 자리에 보이도록 초상 크기와 위치를 캔버스 기준으로 다시 잡는다.
+            Transform portraitTransform = findDeep(root.transform, "Portrait");
+            if (portraitTransform != null)
+            {
+                var portraitRect = (RectTransform)portraitTransform;
+                const float scale = 256f / 102f;
+                portraitRect.sizeDelta = new Vector2(144f, 108f) * scale;
+                portraitRect.anchoredPosition = new Vector2(14f - 23f * scale, -79.18515f - 1f * scale);
             }
 
             removeChild(bubbleTransform, TailName);
@@ -186,12 +210,36 @@ public static class SettlementWallTitleSetup
         }
 
         if (background == null) throw new System.InvalidOperationException("HubScene Background를 찾을 수 없습니다.");
-        var view = background.GetComponent<TitleCoinFallView>() ?? background.AddComponent<TitleCoinFallView>();
+        if (!background.TryGetComponent(out TitleCoinFallView view)) view = background.AddComponent<TitleCoinFallView>();
         var serialized = new SerializedObject(view);
         serialized.FindProperty("coinSprite").objectReferenceValue = coin;
         serialized.ApplyModifiedPropertiesWithoutUndo();
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
+    }
+
+    /// <summary>
+    /// 날짜별 딸 상태 이미지 7장을 Addressables 기본 그룹에 LedgerDaughterStage1~7 주소로 등록합니다.
+    /// ResourceData(4421~4427)와 DaughterAppearanceData(17001~17007)는 CSV에서 같은 주소를 가리킵니다.
+    /// </summary>
+    [MenuItem("Cashier/Setup/Register Daughter Stage Images")]
+    public static void RegisterDaughterStages()
+    {
+        var settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings
+            ?? throw new System.InvalidOperationException("Addressables 설정이 없습니다.");
+        var group = settings.DefaultGroup;
+        for (int stage = 1; stage <= 7; stage++)
+        {
+            string path = $"Assets/Textures/UI/Dystopia/Settlement/LedgerDaughterStage{stage}.png";
+            string guid = AssetDatabase.AssetPathToGUID(path);
+            if (string.IsNullOrEmpty(guid)) throw new System.InvalidOperationException($"딸 단계 이미지가 없습니다: {path}");
+            var entry = settings.CreateOrMoveEntry(guid, group, false, false);
+            entry.address = $"LedgerDaughterStage{stage}";
+        }
+
+        settings.SetDirty(UnityEditor.AddressableAssets.Settings.AddressableAssetSettings.ModificationEvent.EntryMoved, null, true, true);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SettlementWallTitleSetup] 딸 단계 이미지 7장 등록 완료");
     }
 
     private static Transform findDeep(Transform root, string name)

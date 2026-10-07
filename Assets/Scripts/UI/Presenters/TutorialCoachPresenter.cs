@@ -10,7 +10,11 @@ using UnityEngine.UI;
 public sealed class TutorialCoachPresenter : MonoBehaviour
 {
     /// <summary>새 줄이 뜬 직후 같은 클릭으로 바로 넘어가지 않도록 무시하는 시간(초).</summary>
-    private const float ClickGuardSeconds = 0.35f;
+    private const float ClickGuardSeconds = 0.2f;
+    /// <summary>감독관 대사 출력 속도(초당 글자).</summary>
+    private const float CharactersPerSecond = 40f;
+    /// <summary>감독관 목소리 크기. 영업 전 감독관 패널과 같다.</summary>
+    private const float VoiceVolumeScale = 0.75f;
 
     [Tooltip("안내가 떠 있는 동안 화면 입력을 막는 전체 CanvasGroup")]
     [SerializeField] private CanvasGroup rootGroup;
@@ -28,6 +32,7 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     private RectTransform[] targets = Array.Empty<RectTransform>();
     private int lineIndex;
     private float lineShownAt;
+    private bool isTyping;
     private Action finished;
 
     /// <summary>안내가 화면에 떠 있는지 여부입니다.</summary>
@@ -42,8 +47,34 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     {
         if (!IsShowing) return;
         updateHighlight();
+        updateTyping();
         if (Time.unscaledTime - lineShownAt < ClickGuardSeconds || !wasClickedThisFrame()) return;
+        // 글자가 아직 나오는 중이면 한 번 클릭으로 줄 전체를 먼저 보여 준다.
+        if (isTyping)
+        {
+            finishTyping();
+            return;
+        }
+
         Advance();
+    }
+
+    /// <summary>감독관 대사를 한 글자씩 보여 줍니다.</summary>
+    private void updateTyping()
+    {
+        if (!isTyping || lineText == null) return;
+        int total = lineText.textInfo.characterCount;
+        int visible = Mathf.Min(total, Mathf.FloorToInt((Time.unscaledTime - lineShownAt) * CharactersPerSecond));
+        lineText.maxVisibleCharacters = visible;
+        if (visible >= total) finishTyping();
+    }
+
+    /// <summary>줄 전체를 보이고 감독관 목소리를 멈춥니다.</summary>
+    private void finishTyping()
+    {
+        isTyping = false;
+        if (lineText != null) lineText.maxVisibleCharacters = int.MaxValue;
+        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
     }
 
     /// <summary>다음 줄로 넘깁니다. 마지막 줄이면 안내를 닫고 완료 콜백을 부릅니다.</summary>
@@ -90,7 +121,17 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     private void showLine()
     {
         lineShownAt = Time.unscaledTime;
-        if (lineText != null) lineText.text = lines[lineIndex];
+        if (lineText != null)
+        {
+            lineText.text = lines[lineIndex];
+            lineText.maxVisibleCharacters = 0;
+            lineText.ForceMeshUpdate(true, true);
+            isTyping = true;
+            // 영업 화면 감독관과 같은 목소리로 말해, 그림 없이도 감독관인 줄 알게 한다.
+            float seconds = lineText.textInfo.characterCount / CharactersPerSecond;
+            SoundManager.Instance?.PlaySfxForDuration(SoundKeys.DialogueVoice, seconds, VoiceVolumeScale);
+        }
+
         updateHighlight();
     }
 
@@ -129,6 +170,7 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     /// <summary>안내를 숨기고 입력 차단을 풉니다.</summary>
     private void hide()
     {
+        if (isTyping) finishTyping();
         IsShowing = false;
         finished = null;
         if (rootGroup != null)

@@ -29,6 +29,9 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     [Tooltip("보유금 변화량을 띄우는 텍스트. 평소에는 투명합니다.")]
     [SerializeField] private TextMeshProUGUI deltaText;
 
+    [Tooltip("손님 성향 설명표. 명패가 숨겨질 때 함께 닫습니다.")]
+    [SerializeField] private CustomerTraitGuidePresenter traitGuide;
+
     [Tooltip("변화량 문구가 위로 떠오르는 거리(UI 픽셀)")]
     [SerializeField, Min(0f)] private float deltaRisePixels = 16f;
 
@@ -65,8 +68,10 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     {
         if (this.rootGroup == null) return;
         this.rootGroup.alpha = isVisible ? 1f : 0f;
-        this.rootGroup.blocksRaycasts = false;
-        this.rootGroup.interactable = false;
+        // 명패의 이미지·글자는 클릭을 받지 않고, 안의 "손님 성향" 버튼만 영업 중에 눌린다.
+        this.rootGroup.blocksRaycasts = isVisible;
+        this.rootGroup.interactable = isVisible;
+        if (!isVisible && this.traitGuide != null) this.traitGuide.Close();
     }
 
     /// <summary>남은 날짜 문구를 갱신합니다.</summary>

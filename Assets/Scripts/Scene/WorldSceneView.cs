@@ -295,6 +295,8 @@ public sealed class WorldSceneView : MonoBehaviour
         if (isStage3) tint = Color.Lerp(tint, Color.white, weights.z * stage3NightLift);
         // 탑뷰 동안 전면 월드가 숨겨져도 작업대 색은 같은 영업 시계를 따른다.
         if (counterGraphics != null) foreach (var graphic in counterGraphics) if (graphic != null) graphic.canvasRenderer.SetColor(tint);
+        // 작업대 위 상품과 상자도 판과 같은 시간대 색을 따른다.
+        if (controller != null) controller.ApplySortingTint(tint);
         if (isStage3 && ceilingLamp != null)
         {
             // 천장등 자체는 어두워지지 않고 저녁일수록 따뜻하게 켜진 것처럼 보이게 한다.

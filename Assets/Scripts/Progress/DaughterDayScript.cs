@@ -7,7 +7,7 @@ using System;
 /// </summary>
 public static class DaughterDayScript
 {
-    private static readonly uint[] FirstNightBeforeStamp = { 8541, 8542, 8543, 8544 };
+    private static readonly uint[] FirstNightBeforeStamp = { 8563, 8541, 8542, 8543, 8544 };
     private static readonly uint[] FirstNightAfterStamp =
     {
         8545, 8546, 8547, 8548, 8549, 8550, 8551, 8552, 8553

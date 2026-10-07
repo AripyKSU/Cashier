@@ -165,6 +165,23 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>계산기가 입장을 완료하여 가격 입력을 허용하는지 나타냅니다.</summary>
     public bool IsCalculatorOpen => this.isCalculatorOpen;
 
+    /// <summary>
+    /// 작업대 위 상품과 상자에 영업 시계의 시간대 색을 곱합니다. 작업대 판과 같은 색조를 따라가게 합니다.
+    /// 매 프레임 호출되어 새로 쏟아진 상품도 바로 같은 색이 됩니다.
+    /// </summary>
+    /// <param name="tint">현재 시간대 환경색입니다.</param>
+    public void SetItemTint(Color tint)
+    {
+        foreach (SaleSortingItemView item in this.items)
+        {
+            if (item == null) continue;
+            var graphic = item.GetComponent<Graphic>();
+            if (graphic != null) graphic.canvasRenderer.SetColor(tint);
+        }
+
+        if (this.containerImage != null) this.containerImage.canvasRenderer.SetColor(tint);
+    }
+
     /// <summary>판매할 물건을 놓는 오른쪽 구역입니다. 튜토리얼 강조 위치로만 사용합니다.</summary>
     public RectTransform SaleZone => this.saleZone;
 

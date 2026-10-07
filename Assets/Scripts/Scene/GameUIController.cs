@@ -117,6 +117,13 @@ public sealed class GameUIController : MonoBehaviour
     public bool IsPresentationBlocked => this.hasError || !this.isActiveAndEnabled;
     /// <summary>월드 표시가 정렬·가시성만 관찰하는 기존 전면 UI 영역.</summary>
     public RectTransform FrontView => this.saleSortingPanel.FrontView;
+
+    /// <summary>작업대 상품·상자에 시간대 색을 적용합니다. 월드 표시가 매 프레임 같은 시계 색을 전달합니다.</summary>
+    /// <param name="tint">현재 시간대 환경색입니다.</param>
+    public void ApplySortingTint(Color tint)
+    {
+        if (this.saleSortingPanel != null) this.saleSortingPanel.SetItemTint(tint);
+    }
     /// <summary>진행 시간이 이미 반영된 표시 전용 시계.</summary>
     public BusinessClockController BusinessClock => this.businessClock;
 
