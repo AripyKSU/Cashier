@@ -24,7 +24,7 @@ public static class SettlementWallTitleSetup
     private const float DrawingScale = 1.72f;
     private const string ReputationDrawingPath = "Assets/Textures/UI/Dystopia/Settlement/LedgerDrawingReputation.png";
     // 명성용 그림 원본 픽셀 기준(왼쪽 위 원점)의 빈 도장 자리.
-    private static readonly Vector2 StampAreaCenter = new Vector2(76f, 72f);
+    private static readonly Vector2 StampAreaCenter = new Vector2(67f, 80f);
     private const float StampAreaDiameter = 80f;
     private const string DrawingTitleName = "ReputationTitle";
     private const string TailName = "BubbleTail";
@@ -92,7 +92,7 @@ public static class SettlementWallTitleSetup
             titleRect.anchorMax = new Vector2(1f, 1f);
             titleRect.pivot = new Vector2(.5f, 1f);
             // 종이 윗부분에 쓴다.
-            titleRect.anchoredPosition = new Vector2(0f, -22f);
+            titleRect.anchoredPosition = new Vector2(0f, -34f);
             titleRect.sizeDelta = new Vector2(-40f, 34f);
             var titleText = title.GetComponent<TextMeshProUGUI>();
             titleText.font = font;
@@ -106,7 +106,7 @@ public static class SettlementWallTitleSetup
             var stampRect = (RectTransform)stamp;
             stampRect.SetAsLastSibling();
             stampRect.anchorMin = stampRect.anchorMax = new Vector2(.5f, .5f);
-            // 그림 원본(134x168)의 빈 도장 자리 중심 (76,72), 지름 80px을 화면 좌표로 옮긴다.
+            // 그림 원본(134x168)의 가운데 (67,80), 지름 80px을 화면 좌표로 옮긴다. 아래 왼쪽 그림과 겹치지 않는다.
             float stampSize = StampAreaDiameter * DrawingScale;
             stampRect.sizeDelta = new Vector2(stampSize, stampSize);
             stampRect.anchoredPosition = DrawingCenter + new Vector2(StampAreaCenter.x - 67f, 84f - StampAreaCenter.y) * DrawingScale;
