@@ -17,7 +17,7 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     [Tooltip("명패 전체 표시 여부를 제어하는 CanvasGroup")]
     [SerializeField] private CanvasGroup rootGroup;
 
-    [Tooltip("남은 날짜 텍스트 (예: D-19)")]
+    [Tooltip("남은 날짜 텍스트 (예: D-20)")]
     [SerializeField] private TextMeshProUGUI dayText;
 
     [Tooltip("현재 영업 시각 텍스트 (예: 09:40)")]

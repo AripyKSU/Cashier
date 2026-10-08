@@ -221,7 +221,12 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                             }
                         }
                         else cardText.text = text;
+                        // value가 0보다 크면 그만큼의 초로 글자를 서서히 나타냈다가 사라지게 한다(검은 화면 카운트다운용).
+                        float cardFade = beat.index == 4 ? 0f : beat.value;
+                        if (cardFade > 0f) yield return fadeCard(0f, 1f, cardFade);
                         yield return hold(beat.seconds);
+                        if (cardFade > 0f) yield return fadeCard(1f, 0f, cardFade);
+                        cardText.alpha = 1f;
                         cardText.gameObject.SetActive(false);
                     }
                     break;
@@ -443,6 +448,24 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     private IEnumerator hold(float seconds)
     {
         while (seconds > 0f) { seconds -= playbackDelta; yield return null; }
+    }
+
+    /// <summary>검은 화면 글자(card)를 서서히 나타내거나 지운다. 확인창 중에는 멈춘다.</summary>
+    /// <param name="from">시작 투명도.</param>
+    /// <param name="to">끝 투명도.</param>
+    /// <param name="seconds">걸리는 시간.</param>
+    /// <returns>일시 정지 가능한 페이드.</returns>
+    private IEnumerator fadeCard(float from, float to, float seconds)
+    {
+        float elapsed = 0f;
+        cardText.alpha = from;
+        while (elapsed < seconds)
+        {
+            elapsed += playbackDelta;
+            cardText.alpha = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / seconds));
+            yield return null;
+        }
+        cardText.alpha = to;
     }
 
     /// <summary>잔잔한 반응부터 강한 충격까지 같은 감쇠 곡선으로 화면을 흔든다.</summary>

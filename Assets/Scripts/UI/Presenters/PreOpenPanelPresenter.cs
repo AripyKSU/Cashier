@@ -25,7 +25,7 @@ public class PreOpenPanelPresenter : MonoBehaviour
     }
 
     [Header("Day & Heading")]
-    [Tooltip("우측 상단 일자 텍스트 (예: D-19)")]
+    [Tooltip("우측 상단 일자 텍스트 (예: D-20)")]
     [SerializeField] private TextMeshProUGUI dayText;
 
     [Tooltip("상단 안내 제목 (영업 전, 가격을 기억하세요)")]

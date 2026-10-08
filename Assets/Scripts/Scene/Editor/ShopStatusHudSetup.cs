@@ -93,7 +93,7 @@ public static class ShopStatusHudSetup
 
             var dayText = createText("Day", plateRect, font, 20, TextAlignmentOptions.MidlineRight);
             setRect(dayText.rectTransform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(1, 1), new Vector2(-14, -8), new Vector2(90, 24));
-            dayText.text = "D-19";
+            dayText.text = "D-20";
 
             var coinImage = createImage("CoinIcon", plateRect, coinIcon);
             setRect((RectTransform)coinImage.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(14, -36), new Vector2(20, 20));
