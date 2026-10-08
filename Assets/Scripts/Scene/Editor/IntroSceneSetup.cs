@@ -21,7 +21,7 @@ public static class IntroSceneSetup
 {
     private const string ScenePath = "Assets/Scenes/IntroScene.unity";
     private const string ArtFolder = "Assets/Textures/art/Intro";
-    private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
+    private const string FontPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
     private static readonly Vector2 ReferenceResolution = new Vector2(1920f, 1080f);
 
     [MenuItem("Cashier/Intro/Build Intro Scene")]

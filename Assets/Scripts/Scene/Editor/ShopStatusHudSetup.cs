@@ -19,7 +19,7 @@ public static class ShopStatusHudSetup
     // 다음날 버튼 글자 색(크림)과 테두리 색(짙은 갈색).
     private static readonly Color PlankTextColor = new Color32(240, 202, 155, 255);
     private static readonly Color PlankOutlineColor = new Color32(9, 2, 1, 255);
-    private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
+    private const string FontPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string ClockIconPath = "Assets/Textures/UI/Dystopia/Hud/HudClock.png";
     private const string CoinIconPath = "Assets/Textures/UI/Dystopia/Hud/HudCoin.png";
@@ -104,8 +104,7 @@ public static class ShopStatusHudSetup
 
             var deltaText = createText("Delta", plateRect, font, 22, TextAlignmentOptions.MidlineLeft);
             setRect(deltaText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -96), new Vector2(200, 26));
-            deltaText.outlineWidth = 0.2f;
-            deltaText.outlineColor = new Color32(20, 14, 10, 255);
+            deltaText.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Delta Outline", new Color32(20, 14, 10, 255), 0.2f);
             deltaText.text = string.Empty;
 
             var guide = createTraitGuide(hudRect, font, plate);
@@ -245,13 +244,11 @@ public static class ShopStatusHudSetup
             setRect(balanceText.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(.5f, .5f), new Vector2(40, 0), new Vector2(-100, 0));
             // 다음날 글자처럼 크림색 글씨에 짙은 갈색 테두리.
             balanceText.color = PlankTextColor;
-            balanceText.outlineWidth = 0.25f;
-            balanceText.outlineColor = PlankOutlineColor;
+            balanceText.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Plank Outline", PlankOutlineColor, 0.3f);
             balanceText.text = "0원";
             var deltaText = createText("Delta", balanceRect, font, 22, TextAlignmentOptions.Center);
             setRect(deltaText.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(.5f, 0), new Vector2(0, 4), new Vector2(0, 26));
-            deltaText.outlineWidth = 0.2f;
-            deltaText.outlineColor = new Color32(20, 14, 10, 255);
+            deltaText.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Delta Outline", new Color32(20, 14, 10, 255), 0.2f);
             deltaText.text = string.Empty;
 
             var presenter = balanceObject.GetComponent<ShopStatusHudPresenter>();

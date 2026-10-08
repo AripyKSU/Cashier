@@ -15,6 +15,11 @@ public sealed class SettlementFacilityGuide
     private static readonly Rect MedicinePurchaseArea = new Rect(0.524f, 0.448f, 0.42f, 0.045f);
     // 분류 막대 제목과 막대 그림, 판매가 줄까지의 영역(0~1).
     private static readonly Rect SortingBarArea = new Rect(0.042f, 0.249f, 0.852f, 0.205f);
+    // 책상 위 팜플렛 종이는 왼쪽 변이 비스듬한 사다리꼴이다. 버튼 영역 안의 네 꼭짓점(왼쪽 아래부터 시계 방향).
+    private static readonly Vector2[] PamphletCorners =
+    {
+        new Vector2(0f, 0f), new Vector2(0.213f, 1f), new Vector2(1f, 1f), new Vector2(1f, 0f)
+    };
     // 설비 창을 말풍선 오른쪽으로 비켜 둘 때 둘 사이 간격(화면 너비 비율).
     private const float WindowGapRatio = 0.01f;
 
@@ -51,7 +56,7 @@ public sealed class SettlementFacilityGuide
     public void Run(Action onFinished)
     {
         finished = onFinished;
-        overlay.Show(new TutorialHighlightOverlay.Target(interaction.FacilityPamphletRect));
+        overlay.Show(new TutorialHighlightOverlay.Target(interaction.FacilityPamphletRect, PamphletCorners));
         daughter.Say(resolveTexts(DaughterDayScript.FacilityPointLines), true, () =>
         {
             isWaitingForShop = true;
