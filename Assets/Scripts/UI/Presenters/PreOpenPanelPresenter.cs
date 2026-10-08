@@ -55,6 +55,9 @@ public class PreOpenPanelPresenter : MonoBehaviour
     /// <summary>엔딩 전날부터 진행할 임시 테스트 버튼.</summary>
     [SerializeField] private Button debugDay30Button;
 
+    /// <summary>마지막으로 표시한 오늘의 지침 문구입니다. 영업 중 지침 팝업에서 다시 보여 줍니다.</summary>
+    public string CurrentGuidelineText { get; private set; } = "지침 없음.";
+
     /// <summary>영업 시작 버튼의 공개 참조입니다.</summary>
     public Button OpenBusinessButton => this.openBusinessButton;
 
@@ -180,6 +183,10 @@ public class PreOpenPanelPresenter : MonoBehaviour
         if (this.guidelineTexts == null) return;
 
         int guidelineCount = guidelines != null ? guidelines.Count : 0;
+        // 영업 중 "지침" 팝업이 같은 문구를 보여 주도록 오늘 지침을 줄바꿈으로 묶어 둔다.
+        var lines = new System.Text.StringBuilder();
+        for (int i = 0; i < guidelineCount; i++) lines.Append(i + 1).Append(". ").AppendLine(guidelines[i].Content);
+        CurrentGuidelineText = guidelineCount == 0 ? "지침 없음." : lines.ToString().TrimEnd();
         for (int i = 0; i < this.guidelineTexts.Length; i++)
         {
             TextMeshProUGUI guidelineText = this.guidelineTexts[i];

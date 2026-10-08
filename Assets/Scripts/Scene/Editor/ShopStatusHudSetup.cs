@@ -15,6 +15,10 @@ public static class ShopStatusHudSetup
     private const string HudRootPath = "ProgressCanvas/Root";
     private const string HudName = "ShopStatusHud";
     private const string SettlementBalanceName = "SettlementBalance";
+    private const string PlankPath = "Assets/Textures/UI/Dystopia/Settlement/PlankBlank.png";
+    // 다음날 버튼 글자 색(크림)과 테두리 색(짙은 갈색).
+    private static readonly Color PlankTextColor = new Color32(240, 202, 155, 255);
+    private static readonly Color PlankOutlineColor = new Color32(9, 2, 1, 255);
     private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string ClockIconPath = "Assets/Textures/UI/Dystopia/Hud/HudClock.png";
@@ -210,7 +214,6 @@ public static class ShopStatusHudSetup
     private static void installSettlementBalance()
     {
         var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
-        var plate = AssetDatabase.LoadAssetAtPath<Sprite>(PlatePath);
         var coinIcon = AssetDatabase.LoadAssetAtPath<Sprite>(CoinIconPath);
         GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
         try
@@ -226,17 +229,24 @@ public static class ShopStatusHudSetup
             var balanceRect = (RectTransform)balanceObject.transform;
             balanceRect.SetParent(canvas, false);
             balanceRect.SetSiblingIndex(shop.GetSiblingIndex() + 1);
-            setRect(balanceRect, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 14), new Vector2(240, 44));
+            // 다음날 버튼과 같은 나무 판자. 판자 높이에 맞춰 양 끝 못 박힌 부분 크기를 맞춘다.
+            var plank = AssetDatabase.LoadAssetAtPath<Sprite>(PlankPath)
+                ?? throw new System.InvalidOperationException("빈 판자 이미지가 없습니다.");
+            const float plankHeight = 62f;
+            setRect(balanceRect, new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(.5f, 0), new Vector2(0, 10), new Vector2(330, plankHeight));
 
-            var plateImage = createImage("Plate", balanceRect, plate);
+            var plateImage = createImage("Plate", balanceRect, plank);
             plateImage.type = Image.Type.Sliced;
-            plateImage.pixelsPerUnitMultiplier = 0.5f;
+            plateImage.pixelsPerUnitMultiplier = plank.rect.height / plankHeight * (100f / plank.pixelsPerUnit);
             stretch((RectTransform)plateImage.transform);
             var coin = createImage("CoinIcon", balanceRect, coinIcon);
-            setRect((RectTransform)coin.transform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(16, 0), new Vector2(22, 22));
-            var balanceText = createText("Balance", balanceRect, font, 24, TextAlignmentOptions.Center);
-            setRect(balanceText.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(.5f, .5f), new Vector2(14, 0), new Vector2(-50, 0));
-            balanceText.color = new Color(0.95f, 0.84f, 0.55f);
+            setRect((RectTransform)coin.transform, new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(0, .5f), new Vector2(44, 0), new Vector2(28, 28));
+            var balanceText = createText("Balance", balanceRect, font, 25, TextAlignmentOptions.MidlineLeft);
+            setRect(balanceText.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(.5f, .5f), new Vector2(40, 0), new Vector2(-100, 0));
+            // 다음날 글자처럼 크림색 글씨에 짙은 갈색 테두리.
+            balanceText.color = PlankTextColor;
+            balanceText.outlineWidth = 0.25f;
+            balanceText.outlineColor = PlankOutlineColor;
             balanceText.text = "0원";
             var deltaText = createText("Delta", balanceRect, font, 22, TextAlignmentOptions.Center);
             setRect(deltaText.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(.5f, 0), new Vector2(0, 4), new Vector2(0, 26));
@@ -250,6 +260,7 @@ public static class ShopStatusHudSetup
             serialized.FindProperty("balanceText").objectReferenceValue = balanceText;
             serialized.FindProperty("deltaText").objectReferenceValue = deltaText;
             serialized.FindProperty("plateRect").objectReferenceValue = balanceRect;
+            serialized.FindProperty("balanceLabel").stringValue = "소지금 ";
             serialized.ApplyModifiedPropertiesWithoutUndo();
             var group = balanceObject.GetComponent<CanvasGroup>();
             group.alpha = 0f;

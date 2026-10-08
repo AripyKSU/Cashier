@@ -26,6 +26,9 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     [Tooltip("현재 보유금 텍스트 (예: 12,300원)")]
     [SerializeField] private TextMeshProUGUI balanceText;
 
+    [Tooltip("보유금 앞에 붙일 말 (예: 소지금). 비우면 금액만 씁니다.")]
+    [SerializeField] private string balanceLabel = string.Empty;
+
     [Tooltip("보유금 변화량을 띄우는 텍스트. 평소에는 투명합니다.")]
     [SerializeField] private TextMeshProUGUI deltaText;
 
@@ -106,7 +109,7 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
     /// <param name="showDelta">변화량 연출을 보여 줄지 여부입니다. 하루 시작처럼 연출이 어색한 경우 false입니다.</param>
     public void SetBalance(long balance, bool showDelta)
     {
-        if (this.balanceText != null) this.balanceText.text = $"{balance:N0}원";
+        if (this.balanceText != null) this.balanceText.text = $"{this.balanceLabel}{balance:N0}원";
         if (this.hasBalance && balance != this.lastBalance && showDelta)
             this.playDelta(balance - this.lastBalance);
         this.lastBalance = balance;

@@ -1727,7 +1727,7 @@ public sealed class GameSessionApiTests
         var settlementBalance = uiReference<TMPro.TextMeshProUGUI>(uiReference<ShopStatusHudPresenter>(ui, "settlementBalance"), "balanceText");
         yield return null;
         Assert.That(leftPage.text, Does.Not.Contain("현재 보유금"));
-        Assert.That(settlementBalance.text, Is.EqualTo($"{openingBalance - 5000:N0}원"));
+        Assert.That(settlementBalance.text, Is.EqualTo($"소지금 {openingBalance - 5000:N0}원"));
         var next = uiReference<UnityEngine.UI.Button>(settlement, "nextStepButton");
         Assert.That(next.IsInteractable(), Is.False);
         UnityEngine.EventSystems.ExecuteEvents.Execute(next.gameObject, new UnityEngine.EventSystems.BaseEventData(null), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
@@ -1740,7 +1740,7 @@ public sealed class GameSessionApiTests
         Assert.That(session.FacilityActivationDays.Count, Is.EqualTo(1)); Assert.That(session.IsFacilityActive(12001), Is.False);
         Assert.That(uiReference<UnityEngine.UI.Image>(rows[0], "soldOutImage").gameObject.activeSelf);
         yield return null;
-        Assert.That(settlementBalance.text, Is.EqualTo($"{previous - purchasePrice:N0}원"));
+        Assert.That(settlementBalance.text, Is.EqualTo($"소지금 {previous - purchasePrice:N0}원"));
         session.Economy.FinanceService.TrySpend(session.Economy.QueryService.CurrentBalance, FinanceChangeReason.Maintenance, out _);
         Assert.That(uiReference<UnityEngine.UI.Button>(rows[1], "purchaseButton").interactable, Is.False);
         uiReference<UnityEngine.UI.Button>(panel, "outsideCloseButton").onClick.Invoke();

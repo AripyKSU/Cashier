@@ -22,13 +22,16 @@ public static class SettlementWallTitleSetup
     private const string OriginalDrawingName = "Image";
     // 원래 벽 그림(134x168)을 도장보다 크게 키우는 배율.
     private const float DrawingScale = 1.72f;
+    private const string ReputationDrawingPath = "Assets/Textures/UI/Dystopia/Settlement/LedgerDrawingReputation.png";
+    // 명성용 그림 원본 픽셀 기준(왼쪽 위 원점)의 빈 도장 자리.
+    private static readonly Vector2 StampAreaCenter = new Vector2(76f, 72f);
+    private const float StampAreaDiameter = 80f;
     private const string DrawingTitleName = "ReputationTitle";
     private const string TailName = "BubbleTail";
     // 정산 화면 그림은 원본 1px이 UI 약 3.8px로 보인다.
     private const float ScenePixelScale = 3.8f;
     // 벽에 걸린 아빠·딸 그림 위치(정산 패널 중심 기준 UI 좌표)와 도장 크기.
     private static readonly Vector2 DrawingCenter = new Vector2(493f, 190f);
-    private const float StampSize = 170f;
     // 말풍선 종이색을 가계부 종이(약 145,103,79)에 가깝게 맞추는 곱셈 색.
     private static readonly Color BubbleTint = new Color(.74f, .62f, .55f);
     // 딸 대사 한 줄의 최대 폭. 넘치면 다음 줄로 넘어간다.
@@ -74,7 +77,13 @@ public static class SettlementWallTitleSetup
             paperRect.localRotation = Quaternion.identity;
             // 원래는 벽에 비친 흐린 그림(반투명)이었다. 실제 종이처럼 보이도록 방 조명 톤으로만 살짝 어둡게 한다.
             var paperImage = original.GetComponent<Image>();
-            if (paperImage != null) paperImage.color = new Color(.86f, .78f, .68f, 1f);
+            if (paperImage != null)
+            {
+                // 해를 지우고 아빠·딸을 왼쪽 아래로 작게 옮긴 명성용 그림. 해가 있던 자리에 도장을 찍는다.
+                paperImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(ReputationDrawingPath)
+                    ?? throw new System.InvalidOperationException("명성용 벽 그림이 없습니다.");
+                paperImage.color = new Color(.86f, .78f, .68f, 1f);
+            }
 
             var title = new GameObject(DrawingTitleName, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
             var titleRect = (RectTransform)title.transform;
@@ -97,8 +106,10 @@ public static class SettlementWallTitleSetup
             var stampRect = (RectTransform)stamp;
             stampRect.SetAsLastSibling();
             stampRect.anchorMin = stampRect.anchorMax = new Vector2(.5f, .5f);
-            stampRect.sizeDelta = new Vector2(StampSize, StampSize);
-            stampRect.anchoredPosition = DrawingCenter + new Vector2(0f, -22f);
+            // 그림 원본(134x168)의 빈 도장 자리 중심 (76,72), 지름 80px을 화면 좌표로 옮긴다.
+            float stampSize = StampAreaDiameter * DrawingScale;
+            stampRect.sizeDelta = new Vector2(stampSize, stampSize);
+            stampRect.anchoredPosition = DrawingCenter + new Vector2(StampAreaCenter.x - 67f, 84f - StampAreaCenter.y) * DrawingScale;
 
             PrefabUtility.SaveAsPrefabAsset(root, SettlementPanelPrefabPath);
         }

@@ -140,7 +140,8 @@ public sealed class ProgressViewDataFactory
             day,
             products,
             guidelines,
-            "일일 지침은 영업 시작 후 다시 확인할 수 없습니다.",
+            // 지침서에는 이 안내 줄을 더 띄우지 않는다(GuidelineNotice 숨김). 계약상 빈 문구는 허용되지 않는다.
+            "영업 중에도 작업대의 지침 버튼으로 다시 볼 수 있습니다.",
             canOpenBusiness);
     }
 
