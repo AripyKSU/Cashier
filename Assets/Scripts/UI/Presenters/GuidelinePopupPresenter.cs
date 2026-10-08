@@ -18,11 +18,8 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
     [Tooltip("오늘 지침과 가격표를 가진 영업 전 지침서")]
     [SerializeField] private PreOpenPanelPresenter preOpenPanel;
 
-    [Tooltip("지침서가 나와 있을 때의 위치(부모 기준)")]
-    [SerializeField] private Vector2 openPosition;
-
-    [Tooltip("지침서 높이. 원본 지침서를 이 높이에 맞춰 줄여 보여 줍니다.")]
-    [SerializeField, Min(100f)] private float sheetHeight = 600f;
+    [Tooltip("지침서가 덮을 영역(물건을 놓는 판매 칸). 이 영역에 맞춰 줄여 가운데에 놓습니다.")]
+    [SerializeField] private RectTransform coverArea;
 
     [Tooltip("영업 화면에 맞춘 종이 색(곱하기)")]
     [SerializeField] private Color sceneTint = new Color(.84f, .78f, .7f, 1f);
@@ -33,6 +30,7 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
     private bool isOpen;
     private Tween slideTween;
     private GameObject copy;
+    private Vector2 openPosition;
     private Vector2 closedPosition;
 
     private void Awake()
@@ -41,8 +39,14 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         closeImmediately();
     }
 
+    private void OnEnable()
+    {
+        SaleSortingItemView.AnyDragStarted += closeOnPickup;
+    }
+
     private void OnDisable()
     {
+        SaleSortingItemView.AnyDragStarted -= closeOnPickup;
         // 작업대가 닫히면 지침서도 들어간 상태로 되돌린다.
         closeImmediately();
     }
@@ -51,6 +55,12 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
     {
         slideTween?.Kill();
         if (toggleButton != null) toggleButton.onClick.RemoveListener(toggle);
+    }
+
+    /// <summary>물건을 집는 순간 펼쳐 둔 지침서를 닫는다. 지침서를 편 채로는 장사를 이어갈 수 없다.</summary>
+    private void closeOnPickup()
+    {
+        if (isOpen) toggle();
     }
 
     /// <summary>지침서를 열거나 닫습니다. 열 때 오늘 지침서를 새로 복사합니다.</summary>
@@ -91,18 +101,34 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         if (openBorder != null) openBorder.gameObject.SetActive(false);
         copy.SetActive(true);
 
+        // 판매 칸 크기에 맞춰 비율을 지킨 채 줄이고, 판매 칸 가운데를 덮는다. 닫히면 화면 오른쪽 밖으로 빠진다.
+        var parent = (RectTransform)sheet.parent;
+        Rect area = coverArea != null ? rectIn(coverArea, parent) : parent.rect;
         Vector2 size = source.rect.size;
-        float scale = size.y > 0f ? sheetHeight / size.y : 1f;
+        float scale = size.x > 0f && size.y > 0f ? Mathf.Min(area.width / size.x, area.height / size.y) * .98f : 1f;
         var rect = (RectTransform)copy.transform;
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
         rect.sizeDelta = size;
         rect.anchoredPosition = Vector2.zero;
         rect.localScale = new Vector3(scale, scale, 1f);
+        sheet.anchorMin = sheet.anchorMax = sheet.pivot = new Vector2(.5f, .5f);
         sheet.sizeDelta = size * scale;
-        closedPosition = new Vector2(sheet.sizeDelta.x + 40f, openPosition.y);
+        Vector2 parentCenter = parent.rect.center;
+        openPosition = area.center - parentCenter;
+        closedPosition = new Vector2(parent.rect.width * .5f + sheet.sizeDelta.x * .5f + 20f, openPosition.y);
 
         foreach (var image in copy.GetComponentsInChildren<Image>(true))
             image.color *= sceneTint;
+    }
+
+    /// <summary>다른 RectTransform의 사각형을 부모 좌표로 옮깁니다.</summary>
+    private static Rect rectIn(RectTransform target, RectTransform parent)
+    {
+        var corners = new Vector3[4];
+        target.GetWorldCorners(corners);
+        Vector2 min = parent.InverseTransformPoint(corners[0]);
+        Vector2 max = parent.InverseTransformPoint(corners[2]);
+        return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
     }
 
     /// <summary>애니메이션 없이 지침서를 닫힌 상태로 둡니다.</summary>

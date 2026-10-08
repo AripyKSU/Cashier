@@ -10,9 +10,9 @@ using UnityEngine;
 public sealed class ShopStatusHudPresenter : MonoBehaviour
 {
     /// <summary>수입 문구 색입니다. 녹슨 화면에서 잘 보이는 탁한 초록입니다.</summary>
-    private static readonly Color IncomeColor = new Color(0.62f, 0.86f, 0.46f);
+    private static readonly Color IncomeColor = new Color(0.561f, 0.663f, 0.408f);
     /// <summary>지출 문구 색입니다.</summary>
-    private static readonly Color ExpenseColor = new Color(0.93f, 0.42f, 0.32f);
+    private static readonly Color ExpenseColor = new Color(0.827f, 0.541f, 0.447f);
 
     [Tooltip("명패 전체 표시 여부를 제어하는 CanvasGroup")]
     [SerializeField] private CanvasGroup rootGroup;
@@ -90,7 +90,7 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
         if (this.dayText == null) return;
         this.dayText.text = DayCountdownLabel.Format(displayDay);
         // 마지막 날은 붉게 강조해 압박감을 줍니다.
-        this.dayText.color = DayCountdownLabel.IsFinalDay(displayDay) ? ExpenseColor : Color.white;
+        this.dayText.color = DayCountdownLabel.IsFinalDay(displayDay) ? ExpenseColor : new Color(0.847f, 0.804f, 0.733f);
     }
 
     /// <summary>현재 영업 시각을 갱신합니다. 같은 분이면 문자열을 다시 만들지 않습니다.</summary>

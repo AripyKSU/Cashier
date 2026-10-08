@@ -203,8 +203,8 @@ MonoBehaviour:
     \uBBF8\uB0A9 \uC720\uC608\uAE30\uAC04\uC774 \uB05D\uB0AC\uC2B5\uB2C8\uB2E4.\n\uC0C8
     \uAC8C\uC784\uC5D0\uC11C \uB2E4\uC2DC \uC2DC\uC791\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 39d9d993928f49e428c9282b392905b1, type: 2}
-  m_sharedMaterial: {fileID: 7989953133441777090, guid: 39d9d993928f49e428c9282b392905b1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
+  m_sharedMaterial: {fileID: -5796793699638960705, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -418,8 +418,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: GAME OVER
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 39d9d993928f49e428c9282b392905b1, type: 2}
-  m_sharedMaterial: {fileID: 7989953133441777090, guid: 39d9d993928f49e428c9282b392905b1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
+  m_sharedMaterial: {fileID: -5796793699638960705, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -555,8 +555,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC0C8 \uAC8C\uC784"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 39d9d993928f49e428c9282b392905b1, type: 2}
-  m_sharedMaterial: {fileID: 7989953133441777090, guid: 39d9d993928f49e428c9282b392905b1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
+  m_sharedMaterial: {fileID: -5796793699638960705, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

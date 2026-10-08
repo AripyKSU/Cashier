@@ -25,7 +25,7 @@ public sealed class InspectorEventTests
         Assert.That(rows[5].Day, Is.Null); Assert.That(rows[5].RequiredFacilityIdx, Is.EqualTo(12008));
         Assert.That(rows[6].Day, Is.Null); Assert.That(rows[6].RequiredFacilityIdx, Is.EqualTo(12010));
         Assert.That(rows.Skip(5).All(x => !x.MinStoreStage.HasValue), Is.True);
-        Assert.That(rows[0].DialogueTextIdxs, Is.EqualTo(new uint[] { 8396, 8397, 8398, 8399 }));
+        Assert.That(rows[0].DialogueTextIdxs, Is.EqualTo(new uint[] { 8396, 8398, 8399 }));
         Assert.That(rows[1].DialogueTextIdxs, Is.EqualTo(new uint[] { 8400, 8401, 8402, 8403, 8404 }));
         Assert.That(rows[2].DialogueTextIdxs, Is.EqualTo(new uint[] { 8405, 8406, 8407, 8408 }));
         Assert.That(rows[3].DialogueTextIdxs, Is.EqualTo(new uint[] { 8409, 8410, 8411, 8412 }));

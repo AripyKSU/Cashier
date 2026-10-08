@@ -78,10 +78,11 @@ public static class IntroNineCutSetup
         var skipObject = new GameObject("NineCutSkip", typeof(RectTransform), typeof(Image), typeof(Button));
         skipObject.transform.SetParent(parent, false);
         rect((RectTransform)skipObject.transform, Vector2.one, Vector2.one, new Vector2(-125,-48), new Vector2(190,56));
-        skipObject.GetComponent<Image>().color = new Color(.04f,.045f,.06f,.8f);
+        skipObject.GetComponent<Image>().color = new Color(.06f,.055f,.05f,.8f);
         var skip = skipObject.GetComponent<Button>();
         skip.targetGraphic = skipObject.GetComponent<Image>();
         var skipLabel = text("Label", skip.transform, font, 25);
+        skipLabel.color = new Color(0.847f, 0.804f, 0.733f);
         rect(skipLabel.rectTransform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
         skipLabel.text = "건너뛰기";
         var player = controller.gameObject.AddComponent<IntroNineCutPlayer>();

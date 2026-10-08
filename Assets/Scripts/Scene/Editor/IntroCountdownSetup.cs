@@ -13,11 +13,12 @@ public static class IntroCountdownSetup
     private const string AfterLine = "돈부터 마련해.";
     private const string ChoiceLine = "선택은 자네 몫이야.";
     private const string CardLabel = "Countdown";
-    // 검은 화면 한 장에서 글자만 바뀐다: D-21 → -1 → D-20. "||"가 바뀌는 지점이다.
+    // 검은 화면 한 장에서 글자만 천천히 바뀐다: D-21 → -1 → D-20. "||"가 바뀌는 지점이다.
+    // 숫자 자리가 흔들리지 않도록 좌우에 보이지 않는 "-1"을 두고, -1만 어두운 붉은색으로 천천히 드러낸다.
     private const string CountdownText =
-        "하루에게 남은 날\n<size=160%>D-21</size>" +
-        "||하루에게 남은 날\n<size=160%>D-21 <color=#b3261e>-1</color></size>" +
-        "||하루에게 남은 날\n<size=160%><color=#e8c27a>D-20</color></size>";
+        "<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-21</color><color=#00000000> -1</color></mspace></size>" +
+        "||<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-21</color><color=#a8473b> -1</color></mspace></size>" +
+        "||<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-20</color><color=#00000000> -1</color></mspace></size>";
 
     /// <summary>대사와 카운트다운을 IntroScene에 넣고 저장합니다.</summary>
     [MenuItem("Cashier/Intro/Insert Doctor Line And Countdown")]

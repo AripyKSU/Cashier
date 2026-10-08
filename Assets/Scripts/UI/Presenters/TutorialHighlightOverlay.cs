@@ -110,7 +110,7 @@ public sealed class TutorialHighlightOverlay : MonoBehaviour
 
         // 감독관 강조처럼 금빛으로 깜빡이되, 밝은 종이 위에서도 보이게 덜 투명하게 한다.
         float alpha = .7f + .3f * Mathf.Sin(Time.unscaledTime * 5f);
-        foreach (var edge in edges) edge.color = new Color(1f, .78f, .25f, alpha);
+        foreach (var edge in edges) edge.color = new Color(.839f, .722f, .471f, alpha);
     }
 
     /// <summary>두 점을 잇는 두께 있는 선 하나를 놓습니다. 모서리가 비지 않게 양 끝을 두께만큼 늘립니다.</summary>
@@ -174,6 +174,10 @@ public sealed class TutorialHighlightOverlay : MonoBehaviour
         rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
         var image = edge.GetComponent<Image>();
         image.raycastTarget = false;
+        // 밝은 바닥에서도 보이도록 2px 어두운 테두리를 함께 그린다.
+        var outline = edge.AddComponent<Outline>();
+        outline.effectColor = new Color(.165f, .149f, .133f, 1f);
+        outline.effectDistance = new Vector2(2f, -2f);
         edges.Add(image);
     }
 

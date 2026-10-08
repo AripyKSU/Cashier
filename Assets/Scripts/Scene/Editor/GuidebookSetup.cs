@@ -11,13 +11,13 @@ public static class GuidebookSetup
 {
     private const string PreOpenPrefabPath = "Assets/Prefabs/GameUI/PreOpenPanel.prefab";
     private const string GameUiPrefabPath = "Assets/Prefabs/GameUI/GameUI.prefab";
-    private const string FontPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
+    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
     private const string DividerPath = "Assets/Textures/UI/Dystopia/Hud/InkDivider.png";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string PriceTitleName = "PriceTitle";
     private const string PopupName = "GuidelinePopup";
     // 구획 제목 색(빛바랜 붉은 잉크)과 가격표를 내릴 거리.
-    private static readonly Color SectionColor = new Color(.52f, .16f, .12f);
+    private static readonly Color SectionColor = new Color(.478f, .165f, .141f);
     private const float ProductShiftPixels = 26f;
 
     /// <summary>지침서 구획과 작업대 지침 버튼을 모두 설치합니다.</summary>
@@ -152,7 +152,7 @@ public static class GuidebookSetup
             labelText.font = font;
             labelText.fontSize = 19f;
             labelText.alignment = TextAlignmentOptions.Center;
-            labelText.color = Color.white;
+            labelText.color = new Color(0.847f, 0.804f, 0.733f);
             labelText.raycastTarget = false;
             labelText.text = "지침";
 
@@ -160,8 +160,9 @@ public static class GuidebookSetup
             serialized.FindProperty("toggleButton").objectReferenceValue = button.GetComponent<Button>();
             serialized.FindProperty("sheet").objectReferenceValue = sheet;
             serialized.FindProperty("preOpenPanel").objectReferenceValue = preOpen;
-            // 버튼 바로 왼쪽, 아래 끝을 맞춰 나오고, 닫히면 화면 오른쪽 밖으로 들어간다.
-            serialized.FindProperty("openPosition").vector2Value = new Vector2(-80f, 10f);
+            // 물건을 놓는 판매 칸을 덮도록 나오고, 닫히면 화면 오른쪽 밖으로 들어간다.
+            serialized.FindProperty("coverArea").objectReferenceValue = workbench.Find("ForSaleZone")
+                ?? throw new System.InvalidOperationException("판매 칸(ForSaleZone)을 찾을 수 없습니다.");
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);

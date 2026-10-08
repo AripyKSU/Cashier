@@ -28,6 +28,53 @@ public static class InspectorAndGuidebookLookSetup
         Debug.Log("[InspectorAndGuidebookLookSetup] 설치 완료");
     }
 
+    /// <summary>
+    /// 소지금 판자 글씨와 설비 창 가격·안내 글씨를 굵은 갈무리로 바꾼다. 소지금은 다음날 버튼처럼 두꺼운 테두리를 준다.
+    /// 판자를 새로 만들지 않고 글씨만 바꾸므로 다른 설정은 그대로다.
+    /// </summary>
+    [MenuItem("Cashier/Setup/Bold Balance Plank And Facility Prices")]
+    public static void InstallBoldPrices()
+    {
+        TMP_FontAsset bold = GalmuriFontSetup.EnsureBold();
+        var regular = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(GalmuriFontSetup.RegularAssetPath);
+        GameObject root = PrefabUtility.LoadPrefabContents("Assets/Prefabs/GameUI/GameUI.prefab");
+        try
+        {
+            Transform balance = null;
+            foreach (var transform in root.GetComponentsInChildren<Transform>(true))
+                if (transform.name == "Balance" && transform.parent != null && transform.parent.name == "SettlementBalance") { balance = transform; break; }
+            if (balance == null) throw new System.InvalidOperationException("SettlementBalance/Balance를 찾을 수 없습니다.");
+            var text = balance.GetComponent<TextMeshProUGUI>();
+            text.font = bold;
+            text.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Plank Outline", new Color32(9, 2, 1, 255), 0.42f, true);
+            PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/GameUI/GameUI.prefab");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+
+        root = PrefabUtility.LoadPrefabContents("Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab");
+        try
+        {
+            int count = 0;
+            foreach (var text in root.GetComponentsInChildren<TextMeshProUGUI>(true))
+            {
+                if (text.font != regular) continue;
+                text.font = bold;
+                text.fontSharedMaterial = bold.material;
+                count++;
+            }
+
+            PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/GameUI/Facility/FacilityShopPanel.prefab");
+            Debug.Log($"[InspectorAndGuidebookLookSetup] 소지금·설비 창 글씨 {count + 1}개 굵게");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
     private static void installInspector()
     {
         GameObject root = PrefabUtility.LoadPrefabContents(InspectorPrefabPath);

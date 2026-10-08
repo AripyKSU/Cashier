@@ -19,7 +19,7 @@ public static class ShopStatusHudSetup
     // 다음날 버튼 글자 색(크림)과 테두리 색(짙은 갈색).
     private static readonly Color PlankTextColor = new Color32(240, 202, 155, 255);
     private static readonly Color PlankOutlineColor = new Color32(9, 2, 1, 255);
-    private const string FontPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
+    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string ClockIconPath = "Assets/Textures/UI/Dystopia/Hud/HudClock.png";
     private const string CoinIconPath = "Assets/Textures/UI/Dystopia/Hud/HudCoin.png";
@@ -99,7 +99,7 @@ public static class ShopStatusHudSetup
             setRect((RectTransform)coinImage.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(14, -36), new Vector2(20, 20));
             var balanceText = createText("Balance", plateRect, font, 22, TextAlignmentOptions.MidlineLeft);
             setRect(balanceText.rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(40, -34), new Vector2(180, 26));
-            balanceText.color = new Color(0.95f, 0.84f, 0.55f);
+            balanceText.color = new Color(0.796f, 0.690f, 0.478f);
             balanceText.text = "0원";
 
             var deltaText = createText("Delta", plateRect, font, 22, TextAlignmentOptions.MidlineLeft);
@@ -182,8 +182,9 @@ public static class ShopStatusHudSetup
             setRect((RectTransform)icon.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(16, top - 4), new Vector2(40, 40));
             names[index] = createText("Name" + index, panelRect, font, 18, TextAlignmentOptions.TopLeft);
             setRect(names[index].rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(66, top), new Vector2(350, 22));
-            names[index].color = new Color(0.95f, 0.84f, 0.55f);
+            names[index].color = new Color(0.796f, 0.690f, 0.478f);
             descriptions[index] = createText("Description" + index, panelRect, font, 15, TextAlignmentOptions.TopLeft);
+            descriptions[index].color = new Color(0.749f, 0.706f, 0.639f);
             setRect(descriptions[index].rectTransform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(0, 1), new Vector2(66, top - 22), new Vector2(350, 22));
         }
 
@@ -244,7 +245,9 @@ public static class ShopStatusHudSetup
             setRect(balanceText.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(.5f, .5f), new Vector2(40, 0), new Vector2(-100, 0));
             // 다음날 글자처럼 크림색 글씨에 짙은 갈색 테두리.
             balanceText.color = PlankTextColor;
-            balanceText.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Plank Outline", PlankOutlineColor, 0.3f);
+            // 다음날 버튼 글자처럼 굵은 글씨에 두꺼운 테두리.
+            balanceText.font = GalmuriFontSetup.EnsureBold();
+            balanceText.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Plank Outline", PlankOutlineColor, 0.42f, true);
             balanceText.text = "0원";
             var deltaText = createText("Delta", balanceRect, font, 22, TextAlignmentOptions.Center);
             setRect(deltaText.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(.5f, 0), new Vector2(0, 4), new Vector2(0, 26));
@@ -308,7 +311,7 @@ public static class ShopStatusHudSetup
         var title = createText("Title", panelRect, font, 20, TextAlignmentOptions.Center);
         setRect(title.rectTransform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(.5f, 1), new Vector2(0, -10), new Vector2(0, 26));
         title.text = "설정";
-        title.color = new Color(0.95f, 0.84f, 0.55f);
+        title.color = new Color(0.796f, 0.690f, 0.478f);
 
         string[] labels = { "전체 소리", "배경음", "효과음" };
         var sliders = new Slider[labels.Length];
@@ -330,7 +333,7 @@ public static class ShopStatusHudSetup
             sliders[index].value = 1f;
             // 기본 흰 슬라이더를 녹슨 철판 톤으로 맞춘다.
             foreach (var image in sliderObject.GetComponentsInChildren<Image>(true))
-                image.color = image.name == "Handle" ? new Color(0.95f, 0.84f, 0.55f) : image.name == "Fill"
+                image.color = image.name == "Handle" ? new Color(0.796f, 0.690f, 0.478f) : image.name == "Fill"
                     ? new Color(0.62f, 0.45f, 0.25f) : new Color(0.18f, 0.15f, 0.13f);
         }
 
@@ -431,7 +434,7 @@ public static class ShopStatusHudSetup
                 edgeRect.anchorMax = horizontal ? new Vector2(1, index == 0 ? 1 : 0) : new Vector2(index == 2 ? 0 : 1, 1);
                 edgeRect.pivot = new Vector2(.5f, .5f);
                 edgeRect.anchoredPosition = Vector2.zero;
-                edgeRect.sizeDelta = horizontal ? new Vector2(0, 5) : new Vector2(5, 0);
+                edgeRect.sizeDelta = horizontal ? new Vector2(0, 6) : new Vector2(6, 0);
             }
 
             var box = createImage("Box", coachRect, frame);
@@ -449,7 +452,7 @@ public static class ShopStatusHudSetup
 
             var hint = createText("Hint", boxRect, font, 14, TextAlignmentOptions.BottomRight);
             setRect(hint.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(1, 0), new Vector2(-16, 8), new Vector2(200, 20));
-            hint.color = new Color(1f, 1f, 1f, .6f);
+            hint.color = new Color(0.847f, 0.804f, 0.733f, .7f);
             hint.text = "클릭해서 계속";
 
             var presenter = coach.GetComponent<TutorialCoachPresenter>();
@@ -530,7 +533,7 @@ public static class ShopStatusHudSetup
         text.alignment = alignment;
         text.raycastTarget = false;
         text.textWrappingMode = TextWrappingModes.NoWrap;
-        text.color = Color.white;
+        text.color = new Color(0.847f, 0.804f, 0.733f);
         return text;
     }
 

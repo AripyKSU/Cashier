@@ -13,7 +13,7 @@ public static class SettlementWallTitleSetup
     private const string SettlementPanelPrefabPath = "Assets/Prefabs/GameUI/SettlementPanel.prefab";
     private const string DaughterPanelPrefabPath = "Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab";
     private const string HubScenePath = "Assets/Scenes/HubScene.unity";
-    private const string FontPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
+    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
     private const string BubblePath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubble.png";
     private const string BubbleTailPath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubbleTail.png";
     private const string TitleCoinPath = "Assets/Textures/UI/Hub/TitleCoin.png";

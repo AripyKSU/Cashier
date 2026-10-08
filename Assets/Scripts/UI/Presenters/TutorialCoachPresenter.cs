@@ -40,6 +40,15 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
 
     private void Awake()
     {
+        // 밝은 바닥에서도 강조선이 보이도록 2px 어두운 테두리를 붙인다.
+        foreach (var edge in highlightEdges)
+            if (edge != null && edge.GetComponent<Outline>() == null)
+            {
+                var outline = edge.gameObject.AddComponent<Outline>();
+                outline.effectColor = new Color(.165f, .149f, .133f, 1f);
+                outline.effectDistance = new Vector2(2f, -2f);
+            }
+
         hide();
     }
 
@@ -164,7 +173,7 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
         highlight.sizeDelta = new Vector2(Mathf.Max(0f, right - left), Mathf.Max(0f, top - bottom));
         float alpha = .55f + .45f * Mathf.Sin(Time.unscaledTime * 5f);
         foreach (var edge in highlightEdges)
-            if (edge != null) edge.color = new Color(1f, .82f, .35f, alpha);
+            if (edge != null) edge.color = new Color(.839f, .722f, .471f, alpha);
     }
 
     /// <summary>안내를 숨기고 입력 차단을 풉니다.</summary>

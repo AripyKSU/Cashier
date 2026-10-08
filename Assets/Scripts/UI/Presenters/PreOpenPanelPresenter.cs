@@ -28,7 +28,7 @@ public class PreOpenPanelPresenter : MonoBehaviour
     [Tooltip("우측 상단 일자 텍스트 (예: D-20)")]
     [SerializeField] private TextMeshProUGUI dayText;
 
-    [Tooltip("상단 안내 제목 (영업 전, 가격을 기억하세요)")]
+    [Tooltip("상단 안내 제목. 지금은 쓰지 않아 숨긴다.")]
     [SerializeField] private TextMeshProUGUI headingText;
 
     [Tooltip("지침 소제목 (오늘의 지침)")]
@@ -96,7 +96,9 @@ public class PreOpenPanelPresenter : MonoBehaviour
 
         if (this.headingText != null)
         {
-            this.headingText.text = "영업 전, 가격을 기억하세요";
+            // 영업 중에도 "지침" 버튼으로 지침서를 다시 볼 수 있어 "가격을 기억하세요" 안내는 보이지 않는다.
+            this.headingText.text = string.Empty;
+            this.headingText.gameObject.SetActive(false);
         }
 
         if (this.ruleTitleText != null)

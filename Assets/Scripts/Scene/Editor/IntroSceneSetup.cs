@@ -21,7 +21,7 @@ public static class IntroSceneSetup
 {
     private const string ScenePath = "Assets/Scenes/IntroScene.unity";
     private const string ArtFolder = "Assets/Textures/art/Intro";
-    private const string FontPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
+    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
     private static readonly Vector2 ReferenceResolution = new Vector2(1920f, 1080f);
 
     [MenuItem("Cashier/Intro/Build Intro Scene")]
@@ -97,7 +97,7 @@ public static class IntroSceneSetup
         box.color = frame != null ? Color.white : new Color(0.16f, 0.17f, 0.18f, 0.96f);
         box.raycastTarget = false;
         setRect(box.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(320f, 80f));
-        TextMeshProUGUI bodyText = createText("Body", box.transform, font, 30f, TextAlignmentOptions.Center, new Color(0.9f, 0.9f, 0.88f));
+        TextMeshProUGUI bodyText = createText("Body", box.transform, font, 30f, TextAlignmentOptions.Center, new Color(0.847f, 0.816f, 0.761f));
         bodyText.overflowMode = TextOverflowModes.Overflow;
         bodyText.enableAutoSizing = false;
 

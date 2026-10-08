@@ -99,14 +99,14 @@ public static class IntroMealSetup
                 if(i==6)
                 {
                     rect(label.rectTransform,Vector2.one*.5f,Vector2.one*.5f,Vector2.zero,new Vector2(780,58));
-                    label.alignment=TextAlignmentOptions.Center; label.color=new Color(1,.93f,.79f);
+                    label.alignment=TextAlignmentOptions.Center; label.color=new Color(.847f,.804f,.733f);
                 }
                 else
                 {
                     var amount=text("Amount",row.transform,body.font,i==5?40:34,amounts[i]);
                     rect(amount.rectTransform,new Vector2(1,.5f),new Vector2(1,.5f),new Vector2(-145,0),new Vector2(290,58));
                     amount.alignment=TextAlignmentOptions.MidlineRight;
-                    amount.color=(i==0 || i==5)?new Color(.56f,.76f,.56f):new Color(.8f,.48f,.46f);
+                    amount.color=(i==0 || i==5)?new Color(.561f,.663f,.408f):new Color(.827f,.541f,.447f);
                 }
             }
             string sound=i==0?Sounds+"SettlementCoinSoft.wav":i==5?Sounds+"SettlementPachinko.ogg":i==6?Sounds+"SettlementWinJingle.ogg":i<4?Sounds+"LedgerTick.wav":null;

@@ -79,6 +79,9 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     /// <summary>드래그 시작 시 발생합니다.</summary>
     public event Action<SaleSortingItemView> DragStarted;
 
+    /// <summary>어느 물건이든 집어 올리기 시작했을 때 발생합니다. 지침서 창이 스스로 닫히는 데 씁니다.</summary>
+    public static event Action AnyDragStarted;
+
     /// <summary>드래그 이동 시 발생합니다.</summary>
     public event Action<SaleSortingItemView> Dragged;
 

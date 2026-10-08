@@ -36,7 +36,11 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     [SerializeField] private Image picture;
     [SerializeField] private CanvasGroup pictureGroup;
     /// <summary>"||"로 나눈 카드에서 중간 글자(예: -1)를 보여 주는 시간(초).</summary>
-    private const float CardStepSeconds = 1.1f;
+    private const float CardStepSeconds = 1.8f;
+    /// <summary>"||"로 나눈 카드에서 다음 글자로 천천히 넘어가는 시간(초).</summary>
+    private const float CardCrossfadeSeconds = 1.6f;
+    // 카드 글자를 바꿀 때 같은 자리에 겹쳐 쓰는 두 번째 글자(처음 쓸 때 만든다).
+    private TextMeshProUGUI cardTextNext;
     [SerializeField] private TextMeshProUGUI cardText;
     [SerializeField] private Button skipButton;
     [SerializeField] private IntroDialogueController controller;
@@ -232,10 +236,8 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                         yield return hold(beat.seconds);
                         for (int frame = 1; frame < frames.Length; frame++)
                         {
-                            cardText.text = frames[frame];
-                            if (clips[settlementTickClipIndex] != null)
-                                effects.PlayOneShot(clips[settlementTickClipIndex], .5f);
-                            yield return punchCard();
+                            // 글자 위치는 그대로 두고, 다음 글자를 천천히 겹쳐 나타낸다(무거운 분위기).
+                            yield return crossfadeCard(frames[frame], CardCrossfadeSeconds);
                             yield return hold(frame == frames.Length - 1 ? beat.seconds : CardStepSeconds);
                         }
                         if (cardFade > 0f) yield return fadeCard(1f, 0f, cardFade);
@@ -292,7 +294,8 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
             picture.rectTransform.anchoredPosition = picturePosition;
             picture.rectTransform.localScale = pictureScale;
         }
-        if (cardText != null) cardText.gameObject.SetActive(false);
+        if (cardText != null) { cardText.alpha = 1f; cardText.gameObject.SetActive(false); }
+        if (cardTextNext != null) cardTextNext.gameObject.SetActive(false);
     }
 
     /// <summary>대사 전체 크기를 먼저 확정하고 입력 한 번으로 완성, 다음 입력으로 진행한다.</summary>
@@ -481,20 +484,35 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
         cardText.alpha = to;
     }
 
-    /// <summary>카드 글자가 바뀔 때 살짝 커졌다 돌아오게 한다. 확인창 중에는 멈춘다.</summary>
+    /// <summary>
+    /// 같은 자리에 겹친 두 번째 카드 글자로 지금 글자에서 다음 글자로 천천히 넘어간다. 확인창 중에는 멈춘다.
+    /// </summary>
+    /// <param name="next">다음 글자.</param>
+    /// <param name="seconds">넘어가는 시간.</param>
     /// <returns>일시 정지 가능한 연출.</returns>
-    private IEnumerator punchCard()
+    private IEnumerator crossfadeCard(string next, float seconds)
     {
-        const float seconds = .25f;
+        if (cardTextNext == null)
+        {
+            cardTextNext = Instantiate(cardText, cardText.transform.parent);
+            cardTextNext.name = cardText.name + "Next";
+        }
+
+        cardTextNext.gameObject.SetActive(true);
+        cardTextNext.text = next;
         float elapsed = 0f;
         while (elapsed < seconds)
         {
             elapsed += playbackDelta;
-            float t = Mathf.Clamp01(elapsed / seconds);
-            cardText.rectTransform.localScale = Vector3.one * (1f + .12f * Mathf.Sin(t * Mathf.PI));
+            float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / seconds));
+            cardText.alpha = 1f - t;
+            cardTextNext.alpha = t;
             yield return null;
         }
-        cardText.rectTransform.localScale = Vector3.one;
+
+        cardText.text = next;
+        cardText.alpha = 1f;
+        cardTextNext.gameObject.SetActive(false);
     }
 
     /// <summary>잔잔한 반응부터 강한 충격까지 같은 감쇠 곡선으로 화면을 흔든다.</summary>
