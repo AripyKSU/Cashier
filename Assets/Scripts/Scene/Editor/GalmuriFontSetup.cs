@@ -13,22 +13,33 @@ public static class GalmuriFontSetup
 {
     public const string RegularFontPath = "Assets/Fonts/Galmuri/Galmuri11.ttf";
     public const string RegularAssetPath = "Assets/Fonts/Galmuri/Galmuri11 SDF.asset";
+    public const string BoldFontPath = "Assets/Fonts/Galmuri/Galmuri11-Bold.ttf";
+    public const string BoldAssetPath = "Assets/Fonts/Galmuri/Galmuri11-Bold SDF.asset";
     private const string TextDataPath = "Assets/Datas/TextData.csv";
 
     [MenuItem("Cashier/Setup/Create Galmuri Font Asset")]
-    public static void Create()
+    public static void Create() { ensure(RegularFontPath, RegularAssetPath, "Galmuri11 SDF"); }
+
+    /// <summary>얇아 보이는 곳(지침서 품목 등)에 쓸 굵은 갈무리11 에셋을 만듭니다.</summary>
+    [MenuItem("Cashier/Setup/Create Galmuri Bold Font Asset")]
+    public static void CreateBold() { EnsureBold(); }
+
+    /// <summary>굵은 갈무리11 에셋을 돌려줍니다. 없으면 만듭니다.</summary>
+    public static TMP_FontAsset EnsureBold() => ensure(BoldFontPath, BoldAssetPath, "Galmuri11-Bold SDF");
+
+    private static TMP_FontAsset ensure(string fontPath, string assetPath, string name)
     {
-        var font = AssetDatabase.LoadAssetAtPath<Font>(RegularFontPath)
-            ?? throw new System.InvalidOperationException($"{RegularFontPath}를 찾을 수 없습니다.");
-        var asset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(RegularAssetPath);
+        var font = AssetDatabase.LoadAssetAtPath<Font>(fontPath)
+            ?? throw new System.InvalidOperationException($"{fontPath}를 찾을 수 없습니다.");
+        var asset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
         if (asset == null)
         {
             asset = TMP_FontAsset.CreateFontAsset(font, 48, 5, GlyphRenderMode.SDFAA, 2048, 2048,
                 AtlasPopulationMode.Dynamic, true);
-            asset.name = "Galmuri11 SDF";
-            AssetDatabase.CreateAsset(asset, RegularAssetPath);
-            asset.atlasTexture.name = "Galmuri11 SDF Atlas";
-            asset.material.name = "Galmuri11 SDF Material";
+            asset.name = name;
+            AssetDatabase.CreateAsset(asset, assetPath);
+            asset.atlasTexture.name = name + " Atlas";
+            asset.material.name = name + " Material";
             AssetDatabase.AddObjectToAsset(asset.atlasTexture, asset);
             AssetDatabase.AddObjectToAsset(asset.material, asset);
         }
@@ -40,7 +51,8 @@ public static class GalmuriFontSetup
         asset.TryAddCharacters(unique, out string missing);
         EditorUtility.SetDirty(asset);
         AssetDatabase.SaveAssets();
-        Debug.Log($"[GalmuriFontSetup] 글자 {unique.Length}개 중 없는 글자: {(string.IsNullOrEmpty(missing) ? "없음" : missing)}");
+        Debug.Log($"[GalmuriFontSetup] {name}: 글자 {unique.Length}개 중 없는 글자: {(string.IsNullOrEmpty(missing) ? "없음" : missing)}");
+        return asset;
     }
 
     /// <summary>

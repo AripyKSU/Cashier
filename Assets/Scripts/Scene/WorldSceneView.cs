@@ -221,8 +221,6 @@ public sealed class WorldSceneView : MonoBehaviour
         if (!effectsInitialized)
         {
             effectsInitialized = true;
-            for (int i = 0; i < guards.Length; i++) { guards[i].NextShot = 3 + i * 3; guards[i].FlashUntil = 0; }
-            // 원본 idleSeconds처럼 씬 수명 동안 유지한다. 매일 초기화하면 30초 영업에서 경비병 발사가 불가능하다.
             deltaSeconds = 0;
         }
         bool canAdvance = Opacity > 0 && renderRoot != null && renderRoot.gameObject.activeInHierarchy && !controller.IsPresentationBlocked;
@@ -249,24 +247,85 @@ public sealed class WorldSceneView : MonoBehaviour
         {
             var guard = guards[i];
             if (guard.Root == null || guard.Flash == null) continue;
-            float turnPhase = effectSeconds * (.12f + i * .012f) + i * 1.7f;
-            float turn = Mathf.Sin(turnPhase);
-            float facing = Mathf.Sign(turn) * Mathf.Lerp(.12f, 1, Mathf.SmoothStep(0, 1, Mathf.Abs(turn)));
             float outward = i == 0 ? -1 : 1;
-            if (canAdvance && effectSeconds >= guard.NextShot && facing * outward > .9f)
-            {
-                guard.FlashUntil = effectSeconds + .12f;
-                guard.NextShot = effectSeconds + 9 + i * 3.7f;
-            }
-            bool firing = effectSeconds < guard.FlashUntil;
-            guard.Root.localScale = new Vector3(facing, 1, 1);
-            float bob = Mathf.Sin(effectSeconds * 2.6f + i * 1.3f) * .65f * Mathf.Abs(Mathf.Cos(turnPhase));
-            guard.Root.localPosition = guard.Origin + new Vector3(turn * 2 - (firing ? outward : 0), bob, 0);
-            guard.Flash.localPosition = guard.Root.localPosition + new Vector3(facing * (guard.WidthPixels * .5f + 3), -guard.HeightPixels * .35f, 0);
+            // 두 경비병이 같은 박자로 움직이지 않게 주기와 시작점을 조금 다르게 한다.
+            float cycle = GuardCycleSeconds + i * 2.3f;
+            float t = Mathf.Repeat(effectSeconds + i * 6.1f, cycle);
+            GuardPose pose = poseAt(t, cycle, outward);
+            bool firing = t >= GuardShotSecond && t < GuardShotSecond + .12f;
+            // 몸을 납작하게 눌러 도는 대신, 짧게 반쯤 돌아선 뒤 바로 방향을 바꾼다.
+            guard.Root.localScale = new Vector3(pose.Facing, 1, 1);
+            // 그림 격자가 흔들리지 않도록 정수 픽셀로만 움직인다.
+            var offset = new Vector3(Mathf.Round(pose.Step - (firing ? outward : 0)), Mathf.Round(pose.Bob), 0);
+            guard.Root.localPosition = guard.Origin + offset;
+            guard.Root.localRotation = Quaternion.Euler(0, 0, pose.Tilt);
+            guard.Flash.localPosition = guard.Root.localPosition + new Vector3(Mathf.Sign(pose.Facing) * (guard.WidthPixels * .5f + 3), -guard.HeightPixels * .35f, 0);
             guard.Flash.localScale = new Vector3(outward, 1, 1);
             guard.Flash.gameObject.SetActive(firing);
         }
     }
+
+    // 경비병 한 바퀴(초): 바깥 감시 → 돌아서기 → 안쪽으로 몇 걸음 → 둘러보기 → 돌아서기 → 제자리로 → 잠깐 멈춤.
+    private const float GuardCycleSeconds = 14f;
+    // 바깥을 겨누는 동안 한 번 쏘는 시각(초).
+    private const float GuardShotSecond = 4.5f;
+    private const float GuardTurnSeconds = .3f;
+    private const float GuardWalkPixels = 4f;
+
+    private struct GuardPose
+    {
+        public float Facing, Step, Bob, Tilt;
+    }
+
+    /// <summary>경비병 한 바퀴 안의 시각에 맞는 방향·걸음·흔들림을 정합니다. 같은 시각이면 늘 같은 자세입니다.</summary>
+    /// <param name="t">한 바퀴 안의 시각(초).</param>
+    /// <param name="cycle">한 바퀴 길이(초).</param>
+    /// <param name="outward">바깥 방향(-1 왼쪽, 1 오른쪽).</param>
+    private static GuardPose poseAt(float t, float cycle, float outward)
+    {
+        float inward = -outward;
+        var pose = new GuardPose { Facing = outward };
+        // 숨 쉬듯 아주 작게 오르내린다.
+        pose.Bob = Mathf.Sin(t * 1.6f) * .5f;
+        float turn1 = 6f, walkIn = turn1 + GuardTurnSeconds, look = walkIn + 2.4f, turn2 = look + 2.2f, walkOut = turn2 + GuardTurnSeconds, rest = walkOut + 2.4f;
+        if (t < turn1)
+        {
+            // 바깥을 겨누는 동안 총을 살짝 들어 올렸다 내린다.
+            pose.Tilt = t > GuardShotSecond - 1.2f && t < GuardShotSecond + .6f ? -3f * outward : 0f;
+        }
+        else if (t < walkIn) pose.Facing = halfTurn((t - turn1) / GuardTurnSeconds, outward, inward);
+        else if (t < look)
+        {
+            float k = (t - walkIn) / (look - walkIn);
+            pose.Facing = inward;
+            pose.Step = inward * GuardWalkPixels * k;
+            pose.Bob = -Mathf.Abs(Mathf.Sin(k * Mathf.PI * 4f)); // 걸음마다 한 픽셀씩 내려앉는다.
+        }
+        else if (t < turn2)
+        {
+            pose.Facing = inward;
+            pose.Step = inward * GuardWalkPixels;
+            // 안쪽을 둘러보며 고개(몸)를 아주 조금 기울인다.
+            pose.Tilt = Mathf.Sin((t - look) / (turn2 - look) * Mathf.PI) * 2f * inward;
+        }
+        else if (t < walkOut)
+        {
+            pose.Facing = halfTurn((t - turn2) / GuardTurnSeconds, inward, outward);
+            pose.Step = inward * GuardWalkPixels;
+        }
+        else if (t < rest)
+        {
+            float k = (t - walkOut) / (rest - walkOut);
+            pose.Step = inward * GuardWalkPixels * (1f - k);
+            pose.Bob = -Mathf.Abs(Mathf.Sin(k * Mathf.PI * 4f));
+        }
+
+        return pose;
+    }
+
+    /// <summary>돌아서는 동안: 앞 절반은 원래 방향으로 살짝 좁아지고, 뒤 절반은 새 방향으로 넓어진다. 0에 가깝게 납작해지지 않는다.</summary>
+    private static float halfTurn(float k, float from, float to) =>
+        k < .5f ? from * Mathf.Lerp(1f, .7f, k * 2f) : to * Mathf.Lerp(.7f, 1f, (k - .5f) * 2f);
 
     /// <summary>씬 조립 또는 테스트에서 이미 준비된 UI·카메라를 연결한다.</summary>
     /// <param name="ui">이미지 준비와 모델을 소유한 UI.</param><param name="camera">현재 orthographic 카메라.</param>
@@ -371,7 +430,6 @@ public sealed class WorldSceneView : MonoBehaviour
         public Transform Root, Flash;
         public Vector3 Origin;
         public float WidthPixels, HeightPixels;
-        [NonSerialized] public float NextShot, FlashUntil;
     }
     /// <summary>일회성 이관한 원본 Sprite·색·레이어 역할. UI Image 참조를 보관하지 않는다.</summary>
     [Serializable]

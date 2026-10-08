@@ -35,6 +35,8 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
     [SerializeField] private Sprite[] artwork;
     [SerializeField] private Image picture;
     [SerializeField] private CanvasGroup pictureGroup;
+    /// <summary>"||"로 나눈 카드에서 중간 글자(예: -1)를 보여 주는 시간(초).</summary>
+    private const float CardStepSeconds = 1.1f;
     [SerializeField] private TextMeshProUGUI cardText;
     [SerializeField] private Button skipButton;
     [SerializeField] private IntroDialogueController controller;
@@ -221,10 +223,21 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
                             }
                         }
                         else cardText.text = text;
+                        // "||"로 나눈 카드는 화면을 바꾸지 않고 글자만 차례로 바꾼다(D-21 → -1 → D-20).
+                        string[] frames = beat.index == 4 ? new[] { text } : text.Split(new[] { "||" }, System.StringSplitOptions.None);
+                        if (beat.index != 4) cardText.text = frames[0];
                         // value가 0보다 크면 그만큼의 초로 글자를 서서히 나타냈다가 사라지게 한다(검은 화면 카운트다운용).
                         float cardFade = beat.index == 4 ? 0f : beat.value;
                         if (cardFade > 0f) yield return fadeCard(0f, 1f, cardFade);
                         yield return hold(beat.seconds);
+                        for (int frame = 1; frame < frames.Length; frame++)
+                        {
+                            cardText.text = frames[frame];
+                            if (clips[settlementTickClipIndex] != null)
+                                effects.PlayOneShot(clips[settlementTickClipIndex], .5f);
+                            yield return punchCard();
+                            yield return hold(frame == frames.Length - 1 ? beat.seconds : CardStepSeconds);
+                        }
                         if (cardFade > 0f) yield return fadeCard(1f, 0f, cardFade);
                         cardText.alpha = 1f;
                         cardText.gameObject.SetActive(false);
@@ -466,6 +479,22 @@ public sealed class IntroNineCutPlayer : MonoBehaviour
             yield return null;
         }
         cardText.alpha = to;
+    }
+
+    /// <summary>카드 글자가 바뀔 때 살짝 커졌다 돌아오게 한다. 확인창 중에는 멈춘다.</summary>
+    /// <returns>일시 정지 가능한 연출.</returns>
+    private IEnumerator punchCard()
+    {
+        const float seconds = .25f;
+        float elapsed = 0f;
+        while (elapsed < seconds)
+        {
+            elapsed += playbackDelta;
+            float t = Mathf.Clamp01(elapsed / seconds);
+            cardText.rectTransform.localScale = Vector3.one * (1f + .12f * Mathf.Sin(t * Mathf.PI));
+            yield return null;
+        }
+        cardText.rectTransform.localScale = Vector3.one;
     }
 
     /// <summary>잔잔한 반응부터 강한 충격까지 같은 감쇠 곡선으로 화면을 흔든다.</summary>

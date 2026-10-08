@@ -13,6 +13,11 @@ public static class IntroCountdownSetup
     private const string AfterLine = "돈부터 마련해.";
     private const string ChoiceLine = "선택은 자네 몫이야.";
     private const string CardLabel = "Countdown";
+    // 검은 화면 한 장에서 글자만 바뀐다: D-21 → -1 → D-20. "||"가 바뀌는 지점이다.
+    private const string CountdownText =
+        "하루에게 남은 날\n<size=160%>D-21</size>" +
+        "||하루에게 남은 날\n<size=160%>D-21 <color=#b3261e>-1</color></size>" +
+        "||하루에게 남은 날\n<size=160%><color=#e8c27a>D-20</color></size>";
 
     /// <summary>대사와 카운트다운을 IntroScene에 넣고 저장합니다.</summary>
     [MenuItem("Cashier/Intro/Insert Doctor Line And Countdown")]
@@ -48,10 +53,19 @@ public static class IntroCountdownSetup
             int at = Mathf.Min(fade + 1, beats.arraySize);
             // value = 글자 페이드 시간, seconds = 다 보인 채 머무는 시간.
             insert(beats, at++, "Wait", IntroBeatKind.Wait, 0, "", "", 0.6f, 0f);
-            insert(beats, at++, CardLabel, IntroBeatKind.Card, 9, "", "주어진 하루\n<size=160%>D-21</size>", 1.4f, 0.8f);
-            insert(beats, at++, CardLabel, IntroBeatKind.Card, 9, "", "<size=200%><color=#b3261e>-1</color></size>", 0.8f, 0.6f);
-            insert(beats, at++, CardLabel, IntroBeatKind.Card, 9, "", "<size=160%>D-20</size>\n<size=70%>하루에게 남은 날</size>", 2.0f, 0.9f);
+            insert(beats, at++, CardLabel, IntroBeatKind.Card, 9, "", CountdownText, 1.6f, 0.8f);
             insert(beats, at, "Wait", IntroBeatKind.Wait, 0, "", "", 0.6f, 0f);
+        }
+        else
+        {
+            // 예전처럼 카드 여러 장으로 나뉘어 있으면 지우고, 첫 카드 자리에 한 장짜리를 다시 넣는다.
+            int first = findLabel(beats, CardLabel);
+            if (beats.GetArrayElementAtIndex(first).FindPropertyRelative("text").stringValue != CountdownText)
+            {
+                int card;
+                while ((card = findLabel(beats, CardLabel)) >= 0) beats.DeleteArrayElementAtIndex(card);
+                insert(beats, first, CardLabel, IntroBeatKind.Card, 9, "", CountdownText, 1.6f, 0.8f);
+            }
         }
 
         serialized.ApplyModifiedPropertiesWithoutUndo();

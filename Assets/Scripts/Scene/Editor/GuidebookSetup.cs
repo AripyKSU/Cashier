@@ -16,9 +16,6 @@ public static class GuidebookSetup
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string PriceTitleName = "PriceTitle";
     private const string PopupName = "GuidelinePopup";
-    // 영업 중 "지침" 버튼으로 여는 전용 클립보드 쪽지(100x124 픽셀아트, 3배로 표시).
-    private const string NotePath = "Assets/Textures/UI/Dystopia/Guideline/GuidelineNote.png";
-    private const float NoteScale = 3f;
     // 구획 제목 색(빛바랜 붉은 잉크)과 가격표를 내릴 거리.
     private static readonly Color SectionColor = new Color(.52f, .16f, .12f);
     private const float ProductShiftPixels = 26f;
@@ -42,20 +39,6 @@ public static class GuidebookSetup
         Debug.Log("[GuidebookSetup] 지침 쪽지 설치 완료");
     }
 
-    /// <summary>픽셀아트가 번지지 않도록 쪽지 그림의 가져오기 설정을 맞춥니다.</summary>
-    private static Sprite loadPixelSprite(string path)
-    {
-        var importer = (TextureImporter)AssetImporter.GetAtPath(path)
-            ?? throw new System.InvalidOperationException($"{path}를 찾을 수 없습니다.");
-        importer.textureType = TextureImporterType.Sprite;
-        importer.spriteImportMode = SpriteImportMode.Single;
-        importer.filterMode = FilterMode.Point;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
-        importer.mipmapEnabled = false;
-        importer.spritePixelsPerUnit = 100f;
-        importer.SaveAndReimport();
-        return AssetDatabase.LoadAssetAtPath<Sprite>(path);
-    }
 
     /// <summary>지침서 안에 구분선 두 줄과 "오늘의 가격표" 제목을 넣고, 영업 후 확인 불가 문구를 숨깁니다.</summary>
     private static void installSections()
@@ -113,7 +96,7 @@ public static class GuidebookSetup
     // 원래 프리팹의 가격표 세로 위치(중심 기준). 반복 실행해도 같은 자리에 오도록 고정값을 쓴다.
     private const float ProductBaseY = -74.827f;
 
-    /// <summary>작업대 오른쪽 아래에 "지침" 버튼과, 그날 지침만 담은 클립보드 쪽지를 만듭니다.</summary>
+    /// <summary>작업대 오른쪽 아래에 "지침" 버튼과, 영업 전 지침서 복사본이 들어갈 자리를 만듭니다.</summary>
     private static void installPopup()
     {
         var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
@@ -139,31 +122,12 @@ public static class GuidebookSetup
             popupRect.anchorMax = Vector2.one;
             popupRect.offsetMin = popupRect.offsetMax = Vector2.zero;
 
-            // 지침 쪽지: 지침서와 별개인 클립보드 픽셀아트에 그날 지침만 적는다. 닫히면 화면 오른쪽 밖으로 들어간다.
-            Sprite noteSprite = loadPixelSprite(NotePath);
-            var sheetObject = new GameObject("Sheet", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            // 지침서 자리: 열 때마다 영업 전 지침서를 그대로 복사해 넣는다(GuidelinePopupPresenter). 닫히면 화면 오른쪽 밖으로 들어간다.
+            var sheetObject = new GameObject("Sheet", typeof(RectTransform));
             var sheet = (RectTransform)sheetObject.transform;
             sheet.SetParent(popupRect, false);
             sheet.anchorMin = sheet.anchorMax = new Vector2(1f, 0f);
             sheet.pivot = new Vector2(1f, 0f);
-            sheet.sizeDelta = noteSprite.rect.size * NoteScale;
-            var sheetImage = sheetObject.GetComponent<Image>();
-            sheetImage.sprite = noteSprite;
-            sheetImage.preserveAspect = false;
-            sheetImage.raycastTarget = true;
-
-            // 종이 윗부분(빨간 밑줄 위)에 제목, 그 아래에 지침 본문. 위치는 그림 픽셀 기준 비율이다.
-            var titleText = createText("Title", sheet, font, 24f, new Vector2(.12f, .735f), new Vector2(.88f, .88f));
-            titleText.color = new Color(.45f, .13f, .1f);
-            titleText.alignment = TextAlignmentOptions.Center;
-            titleText.text = "오늘의 지침";
-
-            var bodyText = createText("Body", sheet, font, 20f, new Vector2(.14f, .1f), new Vector2(.86f, .69f));
-            bodyText.color = new Color(.18f, .14f, .11f);
-            bodyText.alignment = TextAlignmentOptions.TopLeft;
-            bodyText.lineSpacing = 12f;
-            bodyText.textWrappingMode = TextWrappingModes.Normal;
-            bodyText.text = "지침 없음.";
 
             var button = new GameObject("Toggle", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
             var buttonRect = (RectTransform)button.transform;
@@ -195,11 +159,9 @@ public static class GuidebookSetup
             var serialized = new SerializedObject(popup.GetComponent<GuidelinePopupPresenter>());
             serialized.FindProperty("toggleButton").objectReferenceValue = button.GetComponent<Button>();
             serialized.FindProperty("sheet").objectReferenceValue = sheet;
-            serialized.FindProperty("bodyText").objectReferenceValue = bodyText;
             serialized.FindProperty("preOpenPanel").objectReferenceValue = preOpen;
             // 버튼 바로 왼쪽, 아래 끝을 맞춰 나오고, 닫히면 화면 오른쪽 밖으로 들어간다.
             serialized.FindProperty("openPosition").vector2Value = new Vector2(-80f, 10f);
-            serialized.FindProperty("closedPosition").vector2Value = new Vector2(sheet.sizeDelta.x + 40f, 10f);
             serialized.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
@@ -210,22 +172,6 @@ public static class GuidebookSetup
         }
     }
 
-    /// <summary>부모 안의 비율 영역에 꽉 차는 TMP 글자를 만듭니다.</summary>
-    private static TextMeshProUGUI createText(string name, RectTransform parent, TMP_FontAsset font, float size,
-        Vector2 anchorMin, Vector2 anchorMax)
-    {
-        var textObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
-        var rect = (RectTransform)textObject.transform;
-        rect.SetParent(parent, false);
-        rect.anchorMin = anchorMin;
-        rect.anchorMax = anchorMax;
-        rect.offsetMin = rect.offsetMax = Vector2.zero;
-        var text = textObject.GetComponent<TextMeshProUGUI>();
-        text.font = font;
-        text.fontSize = size;
-        text.raycastTarget = false;
-        return text;
-    }
 
     /// <summary>기준 텍스트와 같은 폭·가로 위치로, 주어진 세로 위치에 잉크 구분선을 만듭니다.</summary>
     private static void createDivider(Transform parent, string name, RectTransform widthSource, float centerY, Sprite sprite)

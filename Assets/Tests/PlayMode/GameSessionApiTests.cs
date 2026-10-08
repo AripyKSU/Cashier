@@ -1131,7 +1131,8 @@ public sealed class GameSessionApiTests
             if (i > 0) world.AdvanceEffects(1.1f);
             Assert.That(smoke.sprite, Is.SameAs(settings.FindProperty("smokeFrames").GetArrayElementAtIndex(i).objectReferenceValue));
         }
-        world.AdvanceEffects(Mathf.PI * 1.5f / .12f - 3.3f);
+        // 왼쪽 경비병은 한 바퀴(14초) 안 4.5초에 바깥을 향해 한 번 쏜다.
+        world.AdvanceEffects(4.55f - 3.3f);
         Assert.That(flash.gameObject.activeSelf, Is.True);
         world.AdvanceEffects(.13f);
         Assert.That(flash.gameObject.activeSelf, Is.False);
