@@ -41,6 +41,12 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     private bool hasPrepared;
     private bool hasCompleted;
     private bool hasCachedPortraitTransform;
+    // 정산 연출과 별개로 안내 대사(설비 튜토리얼 등)를 말하는 중인지와 끝났을 때 부를 콜백.
+    private bool isGuiding;
+    private bool guideHoldsLast;
+    private Action guideDone;
+    private Canvas bubbleFrontCanvas;
+    private Canvas dialogueFrontCanvas;
 
     /// <summary>딸 대사의 모든 문자가 공개됐을 때 한 번 발생합니다.</summary>
     public event Action OnPresentationCompleted;
@@ -50,6 +56,9 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
 
     /// <summary>도장 뒤에 이어서 말할 대본이 준비됐는지 여부입니다.</summary>
     public bool HasAfterStampLines => afterStampLines.Length > 0 && !hasCompletedAfterStamp;
+
+    /// <summary>안내 중 다른 창이 말풍선을 가리지 않게 배치할 때 쓰는 말풍선 영역입니다.</summary>
+    public RectTransform BubbleRect => speechBubble.rectTransform;
 
     private void Awake()
     {
@@ -140,10 +149,53 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         playLine();
     }
 
+    /// <summary>
+    /// 정산 대본과 별개로 안내 대사를 말합니다. 줄은 클릭하거나 잠시 기다리면 넘어갑니다.
+    /// </summary>
+    /// <param name="lines">말할 줄들입니다.</param>
+    /// <param name="holdLast">true면 마지막 줄을 띄운 채 멈추고, 그 줄이 다 나오면 바로 완료를 부릅니다.</param>
+    /// <param name="onDone">마지막 줄까지 끝나면 호출됩니다.</param>
+    public void Say(string[] lines, bool holdLast, Action onDone)
+    {
+        ValidateReferences();
+        if (lines == null || lines.Length == 0) throw new ArgumentException("안내 대사가 비어 있습니다.", nameof(lines));
+        stopPresentation();
+        isPlayingAfterStamp = false;
+        isGuiding = true;
+        guideHoldsLast = holdLast;
+        guideDone = onDone;
+        playingLines = lines;
+        playingLineIndex = 0;
+        playLine();
+    }
+
+    /// <summary>
+    /// 말풍선을 모달 창(설비 창 등)보다 앞에 그리거나 원래 순서로 돌립니다.
+    /// </summary>
+    /// <param name="front">앞에 그릴지 여부입니다.</param>
+    /// <param name="sortingOrder">앞에 그릴 때 쓸 캔버스 정렬 순서입니다.</param>
+    public void SetBubbleInFront(bool front, int sortingOrder)
+    {
+        ValidateReferences();
+        if (bubbleFrontCanvas == null)
+        {
+            if (!front) return;
+            bubbleFrontCanvas = speechBubble.gameObject.AddComponent<Canvas>();
+            if (!dialogue.transform.IsChildOf(speechBubble.transform))
+                dialogueFrontCanvas = dialogue.gameObject.AddComponent<Canvas>();
+        }
+
+        bubbleFrontCanvas.overrideSorting = front;
+        bubbleFrontCanvas.sortingOrder = sortingOrder;
+        if (dialogueFrontCanvas == null) return;
+        dialogueFrontCanvas.overrideSorting = front;
+        dialogueFrontCanvas.sortingOrder = sortingOrder + 1;
+    }
+
     private void Update()
     {
         // 여러 줄 대본은 클릭으로 넘길 수 있다. 타이핑 중이면 한 줄을 바로 다 보여 준다.
-        if (playingLines.Length <= 1 && !isPlayingAfterStamp) return;
+        if (playingLines.Length <= 1 && !isPlayingAfterStamp && !isGuiding) return;
         if (!wasClickedThisFrame()) return;
         if (isTyping)
         {
@@ -175,15 +227,23 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     private void handleLineTyped()
     {
         bool isLastLine = playingLineIndex >= playingLines.Length - 1;
+        // 행동을 기다리는 안내 줄("눌러 봐")은 넘기지 않고 띄워 둔 채 완료를 알린다.
+        if (isGuiding && isLastLine && guideHoldsLast)
+        {
+            finishGuide();
+            return;
+        }
+
         // 기존 한 줄 대사는 예전처럼 타이핑이 끝나자마자 완료한다.
-        if (playingLines.Length == 1 && !isPlayingAfterStamp)
+        if (playingLines.Length == 1 && !isPlayingAfterStamp && !isGuiding)
         {
             completePresentation();
             return;
         }
 
-        // 마지막 줄은 조금 더 오래 남겨 다음 연출(도장 등)과 겹치지 않게 한다.
+        // 마지막 줄은 조금 더 오래 남겨 다음 연출(도장 등)과 겹치지 않게 한다. 안내 줄은 강조를 볼 시간을 더 준다.
         float holdSeconds = isLastLine ? lineHoldSeconds * 1.25f : lineHoldSeconds;
+        if (isGuiding) holdSeconds = lineHoldSeconds * 1.6f;
         holdTween = DOVirtual.DelayedCall(holdSeconds, () =>
         {
             holdTween = null;
@@ -201,8 +261,19 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
             return;
         }
 
-        if (isPlayingAfterStamp) completeAfterStamp();
+        if (isGuiding) finishGuide();
+        else if (isPlayingAfterStamp) completeAfterStamp();
         else completePresentation();
+    }
+
+    /// <summary>안내 대사가 끝났음을 한 번 알립니다. 마지막 줄은 말풍선에 남겨 둡니다.</summary>
+    private void finishGuide()
+    {
+        restorePortrait();
+        isGuiding = false;
+        Action callback = guideDone;
+        guideDone = null;
+        callback?.Invoke();
     }
 
     /// <summary>도장 뒤 대본 완료를 한 번만 알립니다.</summary>

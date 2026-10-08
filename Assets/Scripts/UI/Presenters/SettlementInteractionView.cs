@@ -40,6 +40,17 @@ public sealed class SettlementInteractionView : MonoBehaviour
         nextDayButton.interactable = enabled;
     }
 
+    /// <summary>튜토리얼이 "눌러 봐"를 기다리는 동안 팜플렛만 누를 수 있게 합니다.</summary>
+    public void SetFacilityOnlyEnabled()
+    {
+        ValidateReferences();
+        facilityPamphletButton.interactable = true;
+        nextDayButton.interactable = false;
+    }
+
+    /// <summary>튜토리얼 강조용 팜플렛 영역입니다.</summary>
+    public RectTransform FacilityPamphletRect => (RectTransform)facilityPamphletButton.transform;
+
     private void handleFacilityClicked() => OnFacilityRequested?.Invoke();
 
     private void handleNextDayClicked() => OnNextDayRequested?.Invoke();

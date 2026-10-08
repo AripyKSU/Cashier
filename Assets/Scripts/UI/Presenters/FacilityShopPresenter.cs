@@ -36,6 +36,15 @@ public sealed class FacilityShopPresenter : MonoBehaviour
     /// <summary>날짜 변경 없이 패널만 닫는 요청.</summary>
     public event Action OnCloseRequested;
 
+    /// <summary>튜토리얼 강조용 1단계 팸플릿 영역입니다.</summary>
+    public RectTransform Stage1PanelRect => stage1Panel != null ? (RectTransform)stage1Panel.transform : null;
+
+    /// <summary>튜토리얼 강조용 1단계 설비 슬롯입니다. 0·1은 위 두 설비, 2는 분류 막대입니다.</summary>
+    /// <param name="index">슬롯 순서입니다.</param>
+    /// <returns>없으면 null입니다.</returns>
+    public FacilityPamphletSlotView GetStage1Slot(int index) =>
+        stage1Slots != null && index >= 0 && index < stage1Slots.Length ? stage1Slots[index] : null;
+
     /// <summary>열린 수명에만 고정 슬롯과 팸플릿 버튼 요청을 구독한다.</summary>
     private void OnEnable()
     {

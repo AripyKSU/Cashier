@@ -27,6 +27,8 @@ public sealed class GameUIController : MonoBehaviour
     private PreOpenPanelPresenter preOpenPanelPresenter;
     // 인게임 감독관 튜토리얼 진행자. tutorialCoach가 연결된 경우에만 만든다.
     private InGameTutorialDirector tutorialDirector;
+    // 1일차 정산에서 딸이 설비 업그레이드를 열어 보게 하며 설명하는 진행자.
+    private SettlementFacilityGuide facilityGuide;
     // 직전 프레임에 감독관 안내가 떠 있었는지. 닫히는 순간 입력 상태를 복구하는 데 쓴다.
     private bool wasCoachShowing;
 
@@ -192,6 +194,11 @@ public sealed class GameUIController : MonoBehaviour
                     this.shopStatusHud != null ? this.shopStatusHud.HighlightTarget : null,
                     idx => this.textData.Rows[idx].Text);
             }
+
+            this.facilityGuide = new SettlementFacilityGuide(this.daughterDialoguePresenter,
+                this.dailySettlementFlowController, this.settlementInteractionView, this.facilityShopPresenter,
+                this.facilityShopPresenter.GetComponentInParent<Canvas>(true).rootCanvas, this.resolveTexts,
+                this.closeFacilityShop);
 
             IReadOnlyDictionary<uint, Sprite> productSprites = await this.loadDisplaySpritesAsync();
             this.viewDataFactory = new ProgressViewDataFactory(
@@ -759,6 +766,21 @@ public sealed class GameUIController : MonoBehaviour
         this.daughterDialoguePresenter.SetScript(
             this.resolveTexts(DaughterDayScript.GetBeforeStamp(this.subscribedDay.Day)),
             this.resolveTexts(DaughterDayScript.GetAfterStamp(this.subscribedDay.Day)));
+        // 1일차는 도장 뒤 대본 다음에 설비 업그레이드를 직접 열어 보게 하고, 창을 닫은 뒤 남은 대본을 잇는다.
+        int settlementDay = this.subscribedDay.Day;
+        this.dailySettlementFlowController.AfterStampGuide = DaughterDayScript.HasFacilityGuide(settlementDay)
+            ? finished => this.facilityGuide.Run(() => this.sayAfterFacility(settlementDay, finished))
+            : null;
+    }
+
+    /// <summary>설비 안내를 마친 뒤 이어서 말할 대본을 출력하고, 끝나면 정산 입력을 엽니다.</summary>
+    /// <param name="day">정산 중인 표시 일차입니다.</param>
+    /// <param name="finished">대본이 끝나면 부를 콜백입니다.</param>
+    private void sayAfterFacility(int day, Action finished)
+    {
+        string[] lines = this.resolveTexts(DaughterDayScript.GetAfterFacility(day));
+        if (lines.Length == 0) finished();
+        else this.daughterDialoguePresenter.Say(lines, false, finished);
     }
 
     /// <summary>TextData 키 목록을 표시 문자열로 바꿉니다.</summary>
@@ -815,6 +837,7 @@ public sealed class GameUIController : MonoBehaviour
             this.facilityShopPresenter.gameObject.SetActive(true);
             this.economy.FinanceService.BalanceChanged += this.handleFacilityBalanceChanged;
             this.refreshFacilityShop();
+            this.facilityGuide?.NotifyShopOpened();
         }
         catch (Exception exception) { this.dailySettlementFlowController.SetFailed(exception); }
     }

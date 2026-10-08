@@ -1817,8 +1817,14 @@ public sealed class GameSessionApiTests
         var flow = uiReference<DailySettlementFlowController>(ui, "dailySettlementFlowController");
         // 1일차 밤에는 딸이 도장 전후로 여러 줄을 말한다. 줄 대기는 configureFastSettlement에서 줄인다.
         float deadline = Time.realtimeSinceStartup + 30;
+        // 1일차는 딸이 설비 팜플렛을 "눌러 봐" 하고 기다린다. 버튼이 열리면 실제 클릭처럼 누른다.
+        var pamphlet = uiReference<UnityEngine.UI.Button>(uiReference<SettlementInteractionView>(ui, "settlementInteractionView"), "facilityPamphletButton");
         while (flow.State != DailySettlementFlowController.FlowState.ReadyForInteraction && Time.realtimeSinceStartup < deadline)
+        {
+            if (flow.State == DailySettlementFlowController.FlowState.GuidePresenting && pamphlet.interactable)
+                pamphlet.onClick.Invoke();
             yield return null;
+        }
         Assert.That(flow.State, Is.EqualTo(DailySettlementFlowController.FlowState.ReadyForInteraction), "Settlement interaction readiness timed out");
     }
 

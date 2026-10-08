@@ -16,6 +16,12 @@ public sealed class FacilityPamphletSlotView : MonoBehaviour
     /// <summary>사용자가 요청한 설비 PK. 화면 문자열이나 슬롯 순서를 식별자로 사용하지 않는다.</summary>
     public event Action<uint> PurchaseRequested;
 
+    /// <summary>튜토리얼 강조용 구매 버튼 영역입니다.</summary>
+    public RectTransform PurchaseButtonRect => purchaseButton != null ? (RectTransform)purchaseButton.transform : null;
+
+    /// <summary>튜토리얼 강조용 판매가 영역입니다.</summary>
+    public RectTransform PriceRect => priceText != null ? priceText.rectTransform : null;
+
     /// <summary>활성 수명에만 구매 버튼 요청을 구독한다.</summary>
     private void OnEnable()
     {

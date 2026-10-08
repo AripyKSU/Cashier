@@ -12,6 +12,8 @@ public sealed class DailySettlementFlowController : MonoBehaviour
         StampPresenting,
         /// <summary>도장 뒤 딸이 이어서 말하는 대본(1일차 명성 설명 등)을 출력하는 중입니다.</summary>
         DaughterAfterStampPresenting,
+        /// <summary>도장 뒤 대본 다음에 딸이 설비 업그레이드 등을 직접 보여 주며 안내하는 중입니다.</summary>
+        GuidePresenting,
         ReadyForInteraction,
         FacilityOpen,
         AdvancingDay,
@@ -24,6 +26,8 @@ public sealed class DailySettlementFlowController : MonoBehaviour
 
     private Action completeSettlement;
     private int activeDay = -1;
+    private bool guideAllowsFacility;
+    private bool isFacilityFromGuide;
 
     public FlowState State { get; private set; } = FlowState.Inactive;
     public int ActiveDay => activeDay;
@@ -32,6 +36,12 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     public event Action OnDayAdvanceRequested;
     public event Action OnDayAdvanceStarted;
     public event Action<Exception> OnFlowFailed;
+
+    /// <summary>
+    /// 도장 뒤 대본이 끝난 직후 한 번 실행할 안내입니다. 인자로 받은 완료 콜백을 부르면 정산 입력이 열립니다.
+    /// 실행되면 비워집니다.
+    /// </summary>
+    public Action<Action> AfterStampGuide { get; set; }
 
     private void Awake()
     {
@@ -94,6 +104,8 @@ public sealed class DailySettlementFlowController : MonoBehaviour
         }
 
         activeDay = day.Day;
+        guideAllowsFacility = false;
+        isFacilityFromGuide = false;
         completeSettlement = completeSettlementAction;
         interactionView.SetInteractionEnabled(false);
         try
@@ -120,6 +132,14 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     public void NotifyFacilityClosed()
     {
         if (State != FlowState.FacilityOpen) return;
+        if (isFacilityFromGuide)
+        {
+            // 안내 중에 연 창이면 안내로 돌아간다. 입력은 안내가 끝날 때 연다.
+            isFacilityFromGuide = false;
+            State = FlowState.GuidePresenting;
+            return;
+        }
+
         State = FlowState.ReadyForInteraction;
         interactionView.SetInteractionEnabled(true);
     }
@@ -128,6 +148,14 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     public void CancelFacilityOpen()
     {
         if (State != FlowState.FacilityOpen) return;
+        if (isFacilityFromGuide)
+        {
+            isFacilityFromGuide = false;
+            State = FlowState.GuidePresenting;
+            AllowGuideFacilityOpen();
+            return;
+        }
+
         State = FlowState.ReadyForInteraction;
         interactionView.SetInteractionEnabled(true);
     }
@@ -169,12 +197,47 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     private void handleDaughterAfterStampCompleted()
     {
         if (State != FlowState.DaughterAfterStampPresenting) return;
+        Action<Action> guide = AfterStampGuide;
+        AfterStampGuide = null;
+        if (guide != null)
+        {
+            runTransition(FlowState.GuidePresenting, () => guide(handleGuideCompleted));
+            return;
+        }
+
+        State = FlowState.ReadyForInteraction;
+        interactionView.SetInteractionEnabled(true);
+    }
+
+    /// <summary>안내가 "눌러 봐"를 기다리는 동안 팜플렛 하나만 누를 수 있게 합니다.</summary>
+    public void AllowGuideFacilityOpen()
+    {
+        if (State != FlowState.GuidePresenting) return;
+        guideAllowsFacility = true;
+        interactionView.SetFacilityOnlyEnabled();
+    }
+
+    /// <summary>안내가 끝나면 정산 입력을 엽니다.</summary>
+    private void handleGuideCompleted()
+    {
+        if (State != FlowState.GuidePresenting) return;
+        guideAllowsFacility = false;
         State = FlowState.ReadyForInteraction;
         interactionView.SetInteractionEnabled(true);
     }
 
     private void handleFacilityRequested()
     {
+        if (State == FlowState.GuidePresenting && guideAllowsFacility)
+        {
+            guideAllowsFacility = false;
+            isFacilityFromGuide = true;
+            State = FlowState.FacilityOpen;
+            interactionView.SetInteractionEnabled(false);
+            OnFacilityOpenRequested?.Invoke();
+            return;
+        }
+
         if (State != FlowState.ReadyForInteraction) return;
         State = FlowState.FacilityOpen;
         interactionView.SetInteractionEnabled(false);
