@@ -72,16 +72,22 @@ public sealed class EndingPresenter : MonoBehaviour
     {
         started = true;
         nextButton.onClick.AddListener(advance);
+        // 다른 대화처럼 화면을 클릭하면 넘어가므로 "다음" 버튼은 보이지 않게 둔다(진행 상태 관리용으로만 쓴다).
+        if (nextButton.targetGraphic != null) nextButton.targetGraphic.enabled = false;
+        foreach (var label in nextButton.GetComponentsInChildren<TMP_Text>(true)) label.enabled = false;
         newGameButton.gameObject.SetActive(false);
         loadPagesAsync().Forget();
     }
 
-    /// <summary>마우스와 같은 경로로 Enter를 처리하고 중복 넘김을 막는다.</summary>
+    /// <summary>화면 아무 곳이나 클릭하거나 Enter를 누르면 다음 문구로 넘긴다. 새 게임 버튼 위 클릭은 버튼에 맡긴다.</summary>
     private void Update()
     {
 #if ENABLE_INPUT_SYSTEM
         if (Keyboard.current != null && (Keyboard.current.enterKey.wasPressedThisFrame ||
             Keyboard.current.numpadEnterKey.wasPressedThisFrame)) advance();
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame && !newGameButton.gameObject.activeInHierarchy) advance();
+#else
+        if (Input.GetMouseButtonDown(0) && !newGameButton.gameObject.activeInHierarchy) advance();
 #endif
     }
 
@@ -314,6 +320,9 @@ public sealed class EndingPresenter : MonoBehaviour
     private void setPanelBackgroundVisible(bool visible)
     {
         dialoguePanelBackground.enabled = visible;
+        // 틀 뒤 어두운 판(Backing)도 함께 숨긴다.
+        foreach (var image in dialoguePanelBackground.GetComponentsInChildren<Image>(true))
+            if (image.name == "Backing") image.enabled = visible;
     }
 
     /// <summary>짧은 표시 페이드만 적용하고 페이지는 자동으로 넘기지 않는다.</summary>
