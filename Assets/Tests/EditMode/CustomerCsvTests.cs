@@ -205,7 +205,7 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 578)
+if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 583)
     throw new Exception($"Unexpected sample counts: appearances={valid.Appearances.GetDataCount()}, dispositions={valid.Dispositions.GetDataCount()}, categories={valid.Categories.GetDataCount()}, products={valid.Products.GetDataCount()}, texts={textTables[valid].GetDataCount()}");
 foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
 foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })

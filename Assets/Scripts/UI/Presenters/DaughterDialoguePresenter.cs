@@ -169,6 +169,14 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
         playLine();
     }
 
+    /// <summary>평소 자리의 딸 그림을 보이거나 숨깁니다(마지막 날 테이블에 쓰러진 그림으로 대신할 때).</summary>
+    /// <param name="visible">보일지 여부입니다.</param>
+    public void SetPortraitVisible(bool visible)
+    {
+        ValidateReferences();
+        portrait.enabled = visible;
+    }
+
     /// <summary>
     /// 말풍선을 모달 창(설비 창 등)보다 앞에 그리거나 원래 순서로 돌립니다.
     /// </summary>

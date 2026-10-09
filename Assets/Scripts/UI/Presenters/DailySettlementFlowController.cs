@@ -43,6 +43,12 @@ public sealed class DailySettlementFlowController : MonoBehaviour
     /// </summary>
     public Action<Action> AfterStampGuide { get; set; }
 
+    /// <summary>
+    /// "다음 날"을 누른 직후, 하루를 끝내기 전에 한 번 실행할 연출입니다(마지막 날 아빠 절규 등).
+    /// 인자로 받은 완료 콜백을 부르면 그때 하루를 끝냅니다. 실행되면 비워집니다.
+    /// </summary>
+    public Action<Action> BeforeDayAdvance { get; set; }
+
     private void Awake()
     {
         ValidateReferences();
@@ -249,6 +255,19 @@ public sealed class DailySettlementFlowController : MonoBehaviour
         if (State != FlowState.ReadyForInteraction) return;
         State = FlowState.AdvancingDay;
         interactionView.SetInteractionEnabled(false);
+        Action<Action> beforeAdvance = BeforeDayAdvance;
+        BeforeDayAdvance = null;
+        if (beforeAdvance != null)
+        {
+            beforeAdvance(advanceDay);
+            return;
+        }
+
+        advanceDay();
+    }
+
+    private void advanceDay()
+    {
         try
         {
             OnDayAdvanceRequested?.Invoke();

@@ -51,6 +51,8 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private DailySettlementPresenter dailySettlementPresenter;
     [SerializeField] private DaughterDialoguePresenter daughterDialoguePresenter;
     [SerializeField] private DailySettlementFlowController dailySettlementFlowController;
+    [Tooltip("마지막 날 테이블에 쓰러진 하루와 아빠 절규 연출")]
+    [SerializeField] private FinalDayCollapsePresenter finalDayCollapse;
     [SerializeField] private KeypadController keypadController;
     [SerializeField] private GameInputRouter gameInputRouter;
     [SerializeField] private SaleSortingPanel saleSortingPanel;
@@ -782,6 +784,19 @@ public sealed class GameUIController : MonoBehaviour
         int settlementDay = this.subscribedDay.Day;
         this.dailySettlementFlowController.AfterStampGuide = DaughterDayScript.HasFacilityGuide(settlementDay)
             ? finished => this.facilityGuide.Run(() => this.sayAfterFacility(settlementDay, finished))
+            : null;
+        // 마지막 날은 하루가 테이블에 쓰러져 있고, 시민권 없이 "다음 날"을 누르면 아빠가 절규한 뒤 엔딩으로 간다.
+        // 시민권을 사면 그 자리에서 좋은 엔딩으로 끝나므로 이 연출은 사지 못했을 때만 보인다.
+        bool isFinalDay = DayCountdownLabel.IsFinalDay(settlementDay);
+        if (this.finalDayCollapse == null) return;
+        this.finalDayCollapse.SetDaughterLying(isFinalDay);
+        this.daughterDialoguePresenter.SetPortraitVisible(!isFinalDay);
+        this.dailySettlementFlowController.BeforeDayAdvance = isFinalDay
+            ? advance =>
+            {
+                SoundManager.Instance?.StopBgm();
+                this.finalDayCollapse.Play(this.resolveTexts(DaughterDayScript.FatherScreamLines), advance);
+            }
             : null;
     }
 
