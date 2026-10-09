@@ -2966,8 +2966,7 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uCBE7\uCBE7\uCBE7\u2026 \uADF8\uB798\uC11C \uB538\uB0B4\uBBF8 \uBAA9\uC228\uC744
-      \uC0B4\uB9B4 \uC218 \uC788\uACA0\uB098?"
+    text: "\uCBE7\uCBE7\uCBE7\u2026 \uACBD\uBE44\uD55C\uD14C \uC190\uC744 \uB314\uC5B4? \uC6D0\uB798 \uAC19\uC73C\uBA74 \uC790\uB124\uB294 \uC9C0\uAE08 \uB04C\uB824\uAC00\uB294 \uAC70\uC57C."
     seconds: 0
     value: 0
     fadeMusic: 0
@@ -3002,10 +3001,8 @@ MonoBehaviour:
   - label: Line
     kind: 3
     index: 0
-    speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uC790\uB124, \uB9CC\uBB3C\uC0C1 \uCC28\uB7C9 \uB04C\uACE0 \uC5EC\uAE30\uC800\uAE30
-      \uC7A5\uC0AC\uD558\uB7EC \uB2E4\uB2C8\uB358 \uC0AC\uB78C\uC774\uC9C0? \uBA87
-      \uBC88 \uBCF8 \uC801 \uC788\uC5B4."
+    speaker: "\uC544\uBE60"
+    text: "\uC544\uC774\uAC00\u2026 \uC544\uC774\uAC00 \uC228\uC744 \uC81C\uB300\uB85C \uBABB \uC27D\uB2C8\uB2E4."
     seconds: 0
     value: 0
     fadeMusic: 0
@@ -3014,8 +3011,7 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uB9C8\uCE68 \uBC30\uAE09\uC18C \uAC00\uD310 \uD558\uB098\uAC00 \uBE44\uC5C8\uB294\uB370\u2026
-      \uD55C\uBC88 \uB9E1\uC544\uBCF4\uACA0\uB098?"
+    text: "\uC54C\uC544. \uADF8\uB7F0\uB370 \uADF8 \uBB38 \uB108\uBA38 \uBCD1\uC6D0\uC740 \uC2DC\uBBFC\uAD8C \uC5C6\uC774\uB294 \uBABB \uB4E4\uC5B4\uAC00. \uACBD\uBE44\uB97C \uBC31 \uBC88 \uB54C\uB824\uB3C4 \uB9C8\uCC2C\uAC00\uC9C0\uC57C."
     seconds: 0
     value: 0
     fadeMusic: 0
@@ -3024,9 +3020,25 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uB9E4\uC77C \uB0B4 \uBAAB\uB9CC \uBE60\uC9D0\uC5C6\uC774 \uAC00\uC838\uC640.
-      \uB098\uBA38\uC9C0\uB294 \uC790\uB124\uAC00 \uC5BC\uB9C8\uB97C \uCC59\uAE30\uB4E0
-      \uB208\uAC10\uC544\uC8FC\uC9C0."
+    text: "\uC624\uB298 \uC77C\uC740 \uB0B4\uAC00 \uBABB \uBCF8 \uAC78\uB85C \uD574 \uC8FC\uC9C0."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uAC10\uB3C5\uAD00"
+    text: "\uB300\uC2E0 \uBC30\uAE09\uC18C \uAC00\uD310 \uD558\uB098\uB97C \uB9E1\uC544. \uC0AC\uB78C\uC774 \uBAA8\uC790\uB77C\uC11C \uB9D0\uC774\uC57C."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uAC10\uB3C5\uAD00"
+    text: "\uB9E4\uC77C \uB0B4 \uBAAB\uB9CC \uBE60\uC9D0\uC5C6\uC774 \uAC00\uC838\uC640. \uB098\uBA38\uC9C0\uB294 \uC790\uB124\uAC00 \uC5BC\uB9C8\uB97C \uCC59\uAE30\uB4E0 \uB208\uAC10\uC544\uC8FC\uC9C0."
     seconds: 0
     value: 0
     fadeMusic: 0
@@ -3035,8 +3047,7 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uC544\uBE60"
-    text: "\u2026\uADF8\uB7EC\uBA74 \uC544\uC774\uB97C \uCE58\uB8CC\uBC1B\uAC8C \uD560
-      \uC218 \uC788\uC2B5\uB2C8\uAE4C?"
+    text: "\u2026\uC2EB\uB2E4\uBA74\uC694?"
     seconds: 0
     value: 0
     fadeMusic: 0
@@ -3045,7 +3056,16 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uB3C8\uBD80\uD130 \uB9C8\uB828\uD574."
+    text: "\uADF8\uB7FC \uC790\uB124\uB294 \uAC10\uC625, \uB538\uC740 \uC800\uAE30 \uAE38\uBC14\uB2E5\uC774\uC57C. \uB458 \uC911\uC5D0 \uACE0\uB974\uAC8C."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uC544\uBE60"
+    text: "\u2026\uAC00\uD310\uC744 \uB9E1\uC73C\uBA74, \uC544\uC774\uB97C \uCE58\uB8CC\uBC1B\uAC8C \uD560 \uC218 \uC788\uC2B5\uB2C8\uAE4C?"
     seconds: 0
     value: 0
     fadeMusic: 0
@@ -3054,20 +3074,25 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uC544\uAE4C \uC758\uC0AC\uD55C\uD14C \uC5BC\uD54F \uB4E4\uC5C8\uB294\uB370\u2026
-      \uC790\uB124 \uB538\uC544\uC774, \uAE38\uC5B4\uBD24\uC790 3\uC8FC \uC815\uB3C4\uBC16\uC5D0
-      \uC548 \uB0A8\uC558\uB2E4\uB354\uAD70."
+    text: "\uC790\uB124 \uAC19\uC740 \uB5A0\uB3CC\uC774\uD55C\uD14C \uC2DC\uBBFC\uAD8C\uC774 \uB098\uC62C \uC77C\uC740 \uC5C6\uC5B4. \uC6D0\uB798\uB294."
     seconds: 0
     value: 0
     fadeMusic: 0
-    musicTarget: 0
+    musicTarget: 0.15
   - label: Line
     kind: 3
     index: 0
     speaker: "\uAC10\uB3C5\uAD00"
-    text: "\uC2DC\uBBFC\uAD8C\uC774\uC57C \uC27D\uAC8C \uB098\uC624\uB294 \uBB3C\uAC74\uC740
-      \uC544\uB2C8\uC9C0\uB9CC\u2026 \uB0B4\uAC00 \uC5EC\uAE30\uC800\uAE30 \uB3C8
-      \uC880 \uCE60\uD558\uB2E4 \uBCF4\uBA74 \uAD6C\uD560 \uC218\uB3C4 \uC788\uC9C0."
+    text: "\uD558\uC9C0\uB9CC \uAC00\uD310\uC5D0\uC11C \uCDA9\uBD84\uD788 \uBC8C\uC5B4 \uC624\uBA74\u2026 \uC790\uB124\uB791 \uB538 \uBAAB, \uB450 \uC7A5. \uB0B4\uAC00 \uBAB0\uB798 \uAD6C\uD574\uB2E4 \uC8FC\uC9C0."
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uAC10\uB3C5\uAD00"
+    text: "\uC704\uC5D0 \uB3C8 \uC880 \uCE60\uD558\uACE0, \uC11C\uB958 \uC880 \uB9CC\uC9C0\uACE0. \uC774 \uB3D9\uB124\uC5D0\uC11C \uADF8\uAC78 \uD560 \uC218 \uC788\uB294 \uC0AC\uB78C\uC740 \uB098 \uD558\uB098\uC57C."
     seconds: 0
     value: 0
     fadeMusic: 0

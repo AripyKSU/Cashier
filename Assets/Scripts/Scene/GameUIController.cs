@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -768,6 +769,30 @@ public sealed class GameUIController : MonoBehaviour
     {
         if (!this.subscribedDay.DaughterDialogueResult.HasValue)
             throw new InvalidOperationException("정산 화면에 표시할 딸 대사 결과가 없습니다.");
+        // 마지막 날 총 자산이 시민권 가격에 못 미치면, 정산 전에 검은 화면으로 부족한 금액과 구매 실패를 먼저 보여 준다.
+        long citizenshipPrice = DataTableManager.Instance.GetDB<FacilityDataTable>(DataTableType.Facility).Rows.Values
+            .First(facility => facility.UpgradeKind == FacilityUpgradeKind.Citizenship).PurchasePrice;
+        long assets = this.economy.QueryService.CurrentBalance;
+        bool isCollapsed = this.finalDayCollapse != null
+            && DayCountdownLabel.IsFinalDay(this.subscribedDay.Day) && assets < citizenshipPrice;
+        if (!isCollapsed)
+        {
+            this.startSettlementFlow(result, false);
+            return;
+        }
+
+        this.finalDayCollapse.ShowShortfall(this.resolveTexts(DaughterDayScript.ShortfallLabels), citizenshipPrice, assets, () =>
+        {
+            try { this.startSettlementFlow(result, true); }
+            catch (Exception exception) { this.showError(exception); }
+        });
+    }
+
+    /// <summary>정산 연출을 시작합니다.</summary>
+    /// <param name="result">미납과 유예까지 확정된 최종 정산 결과입니다.</param>
+    /// <param name="isCollapsed">마지막 날 시민권을 살 돈이 모자라 하루가 쓰러진 경우 true입니다.</param>
+    private void startSettlementFlow(DailySettlementResult result, bool isCollapsed)
+    {
         SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
         this.dailySettlementFlowController.Begin(
             this.subscribedDay,
@@ -777,21 +802,17 @@ public sealed class GameUIController : MonoBehaviour
                 this.subscribedDay.DaughterDialogueResult.Value.ResourceIdx.HasValue ? null : this.getPlaceholderSprite()),
             this.gameProgress.CompleteSettlement);
         // 1일차 밤처럼 대본이 있는 날은 도장 전후로 여러 줄을 말한다. 가계부 연출 중이라 아직 대사 전이다.
+        // 쓰러진 하루는 말을 못 하고 "……"만 남는다.
         this.daughterDialoguePresenter.SetScript(
-            this.resolveTexts(DaughterDayScript.GetBeforeStamp(this.subscribedDay.Day)),
+            this.resolveTexts(isCollapsed ? DaughterDayScript.CollapsedLines : DaughterDayScript.GetBeforeStamp(this.subscribedDay.Day)),
             this.resolveTexts(DaughterDayScript.GetAfterStamp(this.subscribedDay.Day)));
         // 1일차는 도장 뒤 대본 다음에 설비 업그레이드를 직접 열어 보게 하고, 창을 닫은 뒤 남은 대본을 잇는다.
         int settlementDay = this.subscribedDay.Day;
         this.dailySettlementFlowController.AfterStampGuide = DaughterDayScript.HasFacilityGuide(settlementDay)
             ? finished => this.facilityGuide.Run(() => this.sayAfterFacility(settlementDay, finished))
             : null;
-        // 마지막 날은 하루가 테이블에 쓰러져 있고, 시민권 없이 "다음 날"을 누르면 아빠가 절규한 뒤 엔딩으로 간다.
-        // 시민권을 사면 그 자리에서 좋은 엔딩으로 끝나므로 이 연출은 사지 못했을 때만 보인다.
-        bool isFinalDay = DayCountdownLabel.IsFinalDay(settlementDay);
-        if (this.finalDayCollapse == null) return;
-        this.finalDayCollapse.SetDaughterLying(isFinalDay);
-        this.daughterDialoguePresenter.SetPortraitVisible(!isFinalDay);
-        this.dailySettlementFlowController.BeforeDayAdvance = isFinalDay
+        // 하루가 쓰러진 마지막 날은 "다음 날"을 누르면 아빠가 절규한 뒤 엔딩으로 간다.
+        this.dailySettlementFlowController.BeforeDayAdvance = isCollapsed
             ? advance =>
             {
                 SoundManager.Instance?.StopBgm();

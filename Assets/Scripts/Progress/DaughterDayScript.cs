@@ -11,10 +11,14 @@ public static class DaughterDayScript
     private static readonly uint[] FirstNightBeforeStamp = { 8563, 8541, 8542, 8543, 8544 };
     private static readonly uint[] FirstNightAfterStamp = { 8545, 8546, 8547, 8548, 8549 };
     private static readonly uint[] FirstNightAfterFacility = { 8550, 8551, 8552, 8553 };
-    // 마지막 날 하루는 테이블에 쓰러져 말을 못 한다.
-    private static readonly uint[] FinalDayBeforeStamp = { 8596 };
 
-    /// <summary>마지막 날 시민권 없이 "다음 날"을 누르면 아빠가 쓰러진 하루를 부르며 절규하는 줄입니다.</summary>
+    /// <summary>마지막 날 시민권 살 돈이 모자라 쓰러진 하루가 정산에서 남기는 줄("……")입니다.</summary>
+    public static readonly uint[] CollapsedLines = { 8596 };
+
+    /// <summary>시민권 구매 실패 검은 화면의 줄 이름: 시민권 가격, 총 자산, 부족한 금액, 구매 실패입니다.</summary>
+    public static readonly uint[] ShortfallLabels = { 8597, 8598, 8599, 8600 };
+
+    /// <summary>하루가 쓰러진 마지막 날 "다음 날"을 누르면 아빠가 하루를 부르며 절규하는 줄입니다.</summary>
     public static readonly uint[] FatherScreamLines = { 8592, 8593, 8594, 8595 };
 
     /// <summary>설비 안내: 팜플렛을 가리키는 줄과 "눌러 봐" 줄입니다.</summary>
@@ -32,8 +36,7 @@ public static class DaughterDayScript
     /// <summary>해당 날짜의 도장 전 대본 키를 반환합니다.</summary>
     /// <param name="day">1부터 시작하는 표시 일차입니다.</param>
     /// <returns>대본이 없으면 빈 배열입니다.</returns>
-    public static uint[] GetBeforeStamp(int day) => day == 1 ? FirstNightBeforeStamp
-        : day == GameSessionManager.FinalDay ? FinalDayBeforeStamp : Array.Empty<uint>();
+    public static uint[] GetBeforeStamp(int day) => day == 1 ? FirstNightBeforeStamp : Array.Empty<uint>();
 
     /// <summary>해당 날짜의 도장 뒤 대본 키를 반환합니다.</summary>
     /// <param name="day">1부터 시작하는 표시 일차입니다.</param>

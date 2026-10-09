@@ -4,20 +4,17 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 마지막 날 정산 화면에 "테이블에 쓰러진 하루" 그림과 아빠 절규 대사창을 만들고 GameUIController에 연결하는 도구.
+/// 마지막 날 시민권 살 돈이 모자랄 때 쓰는 "시민권 구매 실패" 검은 화면과 아빠 절규 대사창을 만들고 GameUIController에 연결하는 도구.
+/// 쓰러진 하루는 정산 화면 원래 자리의 딸 그림(19일차부터 7단계)을 그대로 쓴다.
 /// 대사창은 감독관·엔딩 대사창과 같은 녹슨 철판 틀을 쓴다. 여러 번 실행해도 같은 결과가 됩니다.
 /// </summary>
 public static class FinalDayCollapseSetup
 {
     private const string GameUiPrefabPath = "Assets/Prefabs/GameUI/GameUI.prefab";
     private const string InspectorPrefabPath = "Assets/Prefabs/GameUI/Inspector/InspectorPanel.prefab";
-    private const string LyingSpritePath = "Assets/Textures/UI/Dystopia/Settlement/LedgerDaughterStage7.png";
     private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
     private const string LyingName = "FinalDayDaughter";
     private const string OverlayName = "FinalDayCollapse";
-    // 정산 화면(1280x720 기준) 안에서 테이블 위 하루 자리와 크기 배율.
-    private static readonly Vector2 LyingPosition = new Vector2(-390f, -125f);
-    private const float LyingScale = 1f;
 
     [MenuItem("Cashier/Setup/Final Day Collapse")]
     public static void Install()
@@ -36,7 +33,6 @@ public static class FinalDayCollapseSetup
         }
 
         if (frame == null) throw new System.InvalidOperationException("감독관 대사창 틀 그림을 찾을 수 없습니다.");
-        var lyingSprite = AssetDatabase.LoadAssetAtPath<Sprite>(LyingSpritePath);
         var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
 
         GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
@@ -45,27 +41,10 @@ public static class FinalDayCollapseSetup
             var controller = root.GetComponent<GameUIController>();
             var controllerSerialized = new SerializedObject(controller);
             var settlementPanel = ((GameObject)controllerSerialized.FindProperty("settlementPanel").objectReferenceValue).transform;
-            var daughterPresenter = (DaughterDialoguePresenter)controllerSerialized.FindProperty("daughterDialoguePresenter").objectReferenceValue;
-            var portrait = (Image)new SerializedObject(daughterPresenter).FindProperty("portrait").objectReferenceValue;
 
+            // 예전에 테이블 위에 따로 두던 하루 그림은 지운다.
             removeChild(settlementPanel, LyingName);
             removeChild(settlementPanel.parent, OverlayName);
-
-            // 테이블 위 하루: 정산 화면 안, 딸 대사 패널 바로 뒤(말풍선보다 아래)에 둔다.
-            Transform daughterBranch = daughterPresenter.transform;
-            while (daughterBranch.parent != settlementPanel && daughterBranch.parent != null) daughterBranch = daughterBranch.parent;
-            var lying = new GameObject(LyingName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            var lyingRect = (RectTransform)lying.transform;
-            lyingRect.SetParent(settlementPanel, false);
-            lyingRect.SetSiblingIndex(daughterBranch.parent == settlementPanel ? daughterBranch.GetSiblingIndex() : settlementPanel.childCount - 1);
-            lyingRect.anchorMin = lyingRect.anchorMax = lyingRect.pivot = new Vector2(.5f, .5f);
-            float pixelScale = portrait.sprite != null ? portrait.rectTransform.rect.height / portrait.sprite.rect.height : 4f;
-            lyingRect.sizeDelta = lyingSprite.rect.size * pixelScale * LyingScale;
-            lyingRect.anchoredPosition = LyingPosition;
-            var lyingImage = lying.GetComponent<Image>();
-            lyingImage.sprite = lyingSprite;
-            lyingImage.raycastTarget = false;
-            lying.SetActive(false);
 
             // 절규 연출: 소지금 판처럼 따로 앞에 그려지는 장식까지 덮도록 자체 캔버스로 손 커서 바로 아래에 그린다.
             var overlay = new GameObject(OverlayName, typeof(RectTransform), typeof(CanvasGroup), typeof(FinalDayCollapsePresenter));
@@ -116,9 +95,34 @@ public static class FinalDayCollapseSetup
             dialogue.color = new Color(.92f, .86f, .8f);
             dialogue.text = "하… 하루야…?";
 
+            // 시민권 구매 실패 검은 화면: 가격·총 자산·부족한 금액을 가운데 정렬로 한 줄씩, 마지막에 붉은 실패 문구.
+            var shortfall = new GameObject("Shortfall", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(CanvasGroup));
+            var shortfallRect = (RectTransform)shortfall.transform;
+            shortfallRect.SetParent(overlayRect, false);
+            stretch(shortfallRect);
+            shortfall.GetComponent<Image>().color = Color.black;
+            var shortfallGroup = shortfall.GetComponent<CanvasGroup>();
+            shortfallGroup.alpha = 0f;
+            var shortfallLines = new TextMeshProUGUI[4];
+            float[] lineY = { 90f, 40f, -10f, -100f };
+            for (int index = 0; index < shortfallLines.Length; index++)
+            {
+                bool isVerdict = index == shortfallLines.Length - 1;
+                var line = text(isVerdict ? "Verdict" : $"Line{index + 1}", shortfallRect, font, isVerdict ? 44f : 26f,
+                    new Vector2(0f, lineY[index]), new Vector2(900f, isVerdict ? 70f : 44f));
+                line.alignment = TextAlignmentOptions.Center;
+                line.color = isVerdict ? new Color(.66f, .2f, .16f) : new Color(.85f, .8f, .73f);
+                line.alpha = 0f;
+                shortfallLines[index] = line;
+            }
+
             var presenter = overlay.GetComponent<FinalDayCollapsePresenter>();
             var serialized = new SerializedObject(presenter);
-            serialized.FindProperty("lyingDaughter").objectReferenceValue = lyingImage;
+            serialized.FindProperty("shortfallGroup").objectReferenceValue = shortfallGroup;
+            var linesProperty = serialized.FindProperty("shortfallLines");
+            linesProperty.arraySize = shortfallLines.Length;
+            for (int index = 0; index < shortfallLines.Length; index++)
+                linesProperty.GetArrayElementAtIndex(index).objectReferenceValue = shortfallLines[index];
             serialized.FindProperty("overlayGroup").objectReferenceValue = group;
             serialized.FindProperty("dim").objectReferenceValue = dim.GetComponent<Image>();
             serialized.FindProperty("dialogueBox").objectReferenceValue = boxRect;
@@ -130,7 +134,7 @@ public static class FinalDayCollapseSetup
             controllerSerialized.ApplyModifiedPropertiesWithoutUndo();
 
             PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
-            Debug.Log("[FinalDayCollapseSetup] 마지막 날 쓰러진 하루·아빠 절규 설치 완료");
+            Debug.Log("[FinalDayCollapseSetup] 시민권 구매 실패 화면·아빠 절규 설치 완료");
         }
         finally
         {
