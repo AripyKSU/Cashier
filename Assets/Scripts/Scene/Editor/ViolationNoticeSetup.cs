@@ -55,7 +55,6 @@ public static class ViolationNoticeSetup
             sheet.anchorMin = sheet.anchorMax = sheet.pivot = new Vector2(.5f, .5f);
             sheet.anchoredPosition = new Vector2(0f, 80f);
             sheet.sizeDelta = new Vector2(SheetHeight * paper.rect.width / paper.rect.height, SheetHeight);
-            sheet.localRotation = Quaternion.Euler(0f, 0f, -2f);
             sheetObject.GetComponent<Image>().sprite = paper;
 
             // 검은 머리띠의 비운 자리(지침서의 "일일 지침" 글씨 자리)에 제목.
