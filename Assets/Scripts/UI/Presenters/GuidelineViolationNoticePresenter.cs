@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 지침을 어긴 거래 직후 화면 가운데에 내려오는 "거래 위반 통지서" 종이.
-/// 어떤 지침을 어겼는지, 오늘 몇 번째인지, 정산 때 빠질 벌금 비율을 보여 줍니다. 클릭하면 닫힙니다.
+/// 어떤 지침을 어겼는지, 오늘 몇 번째인지, 벌금(1회 50%, 2회 100%) 또는 3회째 영업권 박탈을 보여 줍니다.
 /// 진행 판단은 하지 않고 표시만 합니다.
 /// </summary>
 public sealed class GuidelineViolationNoticePresenter : MonoBehaviour
@@ -48,21 +48,34 @@ public sealed class GuidelineViolationNoticePresenter : MonoBehaviour
         if (clicked) Close();
     }
 
-    /// <summary>통지서를 띄웁니다.</summary>
+    /// <summary>통지서를 띄웁니다. 오늘 위반 횟수에 따라 벌금(50%/100%) 또는 영업권 박탈을 적습니다.</summary>
     /// <param name="guidelineText">어긴 지침 문장입니다.</param>
     /// <param name="todayCount">오늘 누적 위반 횟수입니다.</param>
-    /// <param name="percentPerViolation">위반 1건당 벌금 비율(%)입니다.</param>
     /// <param name="closeOnClick">true면 클릭으로 닫습니다. false면 <see cref="Close"/>를 불러야 닫힙니다.</param>
     /// <param name="onClosed">닫힐 때 한 번 호출됩니다.</param>
-    public void Show(string guidelineText, int todayCount, int percentPerViolation, bool closeOnClick, Action onClosed)
+    public void Show(string guidelineText, int todayCount, bool closeOnClick, Action onClosed)
     {
-        int percent = Mathf.Min(100, todayCount * percentPerViolation);
+        string verdict;
+        string warning;
+        if (todayCount >= DayProgress.LicenseRevocationViolationCount)
+        {
+            verdict = "<b>처분</b>  <color=#7a2a24>영업권 박탈</color>";
+            warning = "오늘부로 배급소 운영 자격을 잃는다.";
+        }
+        else
+        {
+            verdict = $"<b>벌금</b>  오늘 판매 수입의 {DailyGuidelinePenaltyCalculator.GetPercent(todayCount)}%";
+            warning = todayCount == 1
+                ? "한 번 더 어기면 수입 전부, 세 번이면 영업권 박탈."
+                : "한 번 더 어기면 영업권 박탈.";
+        }
+
         bodyText.text =
             $"<b>위반 지침</b>\n{guidelineText}\n\n" +
-            $"<b>오늘 위반</b>  {todayCount}건\n" +
-            $"<b>벌금</b>  오늘 판매 수입의 {percent}%\n" +
-            "<size=85%>(정산 때 소지금에서 차감)</size>";
-        stampText.text = $"위반 {todayCount}";
+            $"<b>오늘 위반</b>  {todayCount}회 / 3회\n" +
+            $"{verdict}\n" +
+            $"<size=85%>{warning}</size>";
+        stampText.text = todayCount >= DayProgress.LicenseRevocationViolationCount ? "박탈" : $"위반 {todayCount}";
         closed = onClosed;
         this.closeOnClick = closeOnClick;
         shownAt = Time.unscaledTime;

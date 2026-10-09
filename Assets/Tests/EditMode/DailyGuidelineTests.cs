@@ -72,18 +72,17 @@ public sealed class DailyGuidelineTests
         Assert.That(guideline.AllowedQuantity, Is.EqualTo(1));
     }
 
-    /// <summary>당일 총 판매 금액에 위반당 5%를 적용하고 20회부터 100%로 제한합니다.</summary>
+    /// <summary>하루 1번 위반이면 판매 금액의 50%, 2번 이상이면 100%를 적용합니다.</summary>
     /// <param name="saleIncome">당일 총 판매 금액입니다.</param>
     /// <param name="violationCount">당일 총 위반 횟수입니다.</param>
     /// <param name="expectedPenalty">예상 패널티입니다.</param>
     [TestCase(1000L, 0, 0L)]
-    [TestCase(1000L, 1, 50L)]
-    [TestCase(1000L, 19, 950L)]
-    [TestCase(1000L, 20, 1000L)]
-    [TestCase(1000L, 21, 1000L)]
+    [TestCase(1000L, 1, 500L)]
+    [TestCase(1000L, 2, 1000L)]
+    [TestCase(1000L, 3, 1000L)]
     [TestCase(1L, 1, 0L)]
-    [TestCase(21L, 1, 1L)]
-    [TestCase(long.MaxValue, 20, long.MaxValue)]
+    [TestCase(3L, 1, 1L)]
+    [TestCase(long.MaxValue, 2, long.MaxValue)]
     public void DailyGuidelinePenaltyCalculator_UsesSalePercentageWithCap(
         long saleIncome,
         int violationCount,

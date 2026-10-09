@@ -66,10 +66,7 @@ public static class DailySettlementLedgerFormatter
         appendLine(builder, $"판매 성공  {viewData.SuccessfulSales}명", ref size);
         appendLine(builder, $"판매 거절  {viewData.RefusedCustomers}명", ref size);
         appendRule(builder, ref size);
-        int chargedViolationCount = System.Math.Min(
-            viewData.GuidelineViolationCount,
-            DailyGuidelinePenaltyCalculator.MaximumChargedViolationCount);
-        int penaltyPercent = chargedViolationCount * DailyGuidelinePenaltyCalculator.PercentPerViolation;
+        int penaltyPercent = DailyGuidelinePenaltyCalculator.GetPercent(viewData.GuidelineViolationCount);
         appendLine(builder, $"지침 위반  {viewData.GuidelineViolationCount}회 · {penaltyPercent}%", ref size,
             viewData.GuidelineViolationCount > 0 ? ExpenseColor : null);
         appendPaymentStatus(builder, viewData, ref size);

@@ -25,15 +25,22 @@ public readonly struct DailyGuidelineViolationSummary
     }
 }
 
-/// <summary>당일 총 판매 금액과 지침 위반 횟수로 정산 패널티를 계산합니다.</summary>
+/// <summary>
+/// 당일 총 판매 금액과 지침 위반 횟수로 정산 패널티를 계산합니다.
+/// 하루 1번 위반하면 그날 판매 수입의 50%, 2번이면 100%를 뗍니다. 3번이면 영업권 박탈이라 정산 금액과 별개로 게임이 끝납니다.
+/// </summary>
 public static class DailyGuidelinePenaltyCalculator
 {
-    /// <summary>위반 1회당 적용하는 판매 금액 비율입니다.</summary>
-    public const int PercentPerViolation = 5;
-    /// <summary>판매 금액의 100%에 도달하는 최대 유효 위반 횟수입니다.</summary>
-    public const int MaximumChargedViolationCount = 20;
+    /// <summary>위반 횟수별 판매 금액 대비 벌금 비율(%)을 돌려줍니다.</summary>
+    /// <param name="violationCount">음수가 아닌 당일 총 지침 위반 횟수입니다.</param>
+    /// <returns>0, 50 또는 100입니다.</returns>
+    public static int GetPercent(int violationCount)
+    {
+        if (violationCount < 0) throw new ArgumentOutOfRangeException(nameof(violationCount));
+        return violationCount == 0 ? 0 : violationCount == 1 ? 50 : 100;
+    }
 
-    /// <summary>총 판매 금액의 위반 횟수별 비율을 적용하고 1원 미만을 버린 패널티를 반환합니다.</summary>
+    /// <summary>총 판매 금액에 위반 횟수별 비율을 적용하고 1원 미만을 버린 패널티를 반환합니다.</summary>
     /// <param name="dailySaleIncome">음수가 아닌 당일 총 판매 금액입니다.</param>
     /// <param name="violationCount">음수가 아닌 당일 총 지침 위반 횟수입니다.</param>
     /// <returns>총 판매 금액 이하의 정산 패널티입니다.</returns>
@@ -41,12 +48,9 @@ public static class DailyGuidelinePenaltyCalculator
     public static long Calculate(long dailySaleIncome, int violationCount)
     {
         if (dailySaleIncome < 0) throw new ArgumentOutOfRangeException(nameof(dailySaleIncome));
-        if (violationCount < 0) throw new ArgumentOutOfRangeException(nameof(violationCount));
-
-        int chargedViolationCount = Math.Min(violationCount, MaximumChargedViolationCount);
-        if (chargedViolationCount == MaximumChargedViolationCount) return dailySaleIncome;
-
-        decimal penalty = dailySaleIncome * chargedViolationCount * PercentPerViolation / 100m;
+        int percent = GetPercent(violationCount);
+        if (percent == 100) return dailySaleIncome;
+        decimal penalty = dailySaleIncome * percent / 100m;
         return checked((long)decimal.Floor(penalty));
     }
 }

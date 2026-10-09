@@ -382,7 +382,8 @@ public sealed class GameProgress
             reputationResult,
             reputationData);
 
-        if (this.session.IsLastSettlementUnpaidGameOver)
+        // 미납 유예가 끝났거나, 오늘 지침을 세 번 어겨 영업권을 박탈당했으면 박탈 엔딩으로 끝낸다.
+        if (this.session.IsLastSettlementUnpaidGameOver || this.currentDayProgress.IsLicenseRevoked)
         {
             this.applyTerminatingDayReputation(this.currentDayProgress);
             this.session.FinalizeGame(EndingKind.GameOver, this.currentDayProgress.Day);

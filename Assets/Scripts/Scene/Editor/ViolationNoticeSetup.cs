@@ -13,8 +13,8 @@ public static class ViolationNoticeSetup
     private const string PaperPath = "Assets/Textures/UI/Dystopia/Notice/ViolationNotice.png";
     private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
     private const string NoticeName = "ViolationNotice";
-    // 종이 그림(120x150)을 3배로 보여 준다.
-    private const float PaperScale = 3f;
+    // 일일 지침서 종이(1122x1402)에서 머리글만 비운 그림을 지침서보다 작게 보여 준다.
+    private const float SheetHeight = 400f;
 
     [MenuItem("Cashier/Setup/Guideline Violation Notice")]
     public static void Install()
@@ -22,9 +22,7 @@ public static class ViolationNoticeSetup
         var importer = (TextureImporter)AssetImporter.GetAtPath(PaperPath);
         importer.textureType = TextureImporterType.Sprite;
         importer.spriteImportMode = SpriteImportMode.Single;
-        importer.filterMode = FilterMode.Point;
         importer.mipmapEnabled = false;
-        importer.textureCompression = TextureImporterCompression.Uncompressed;
         importer.SaveAndReimport();
         var paper = AssetDatabase.LoadAssetAtPath<Sprite>(PaperPath);
         var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
@@ -56,25 +54,25 @@ public static class ViolationNoticeSetup
             sheet.SetParent(rect, false);
             sheet.anchorMin = sheet.anchorMax = sheet.pivot = new Vector2(.5f, .5f);
             sheet.anchoredPosition = new Vector2(0f, 80f);
-            sheet.sizeDelta = paper.rect.size * PaperScale;
+            sheet.sizeDelta = new Vector2(SheetHeight * paper.rect.width / paper.rect.height, SheetHeight);
             sheet.localRotation = Quaternion.Euler(0f, 0f, -2f);
             sheetObject.GetComponent<Image>().sprite = paper;
 
-            // 빨간 머리띠(그림 y 8~24) 위 제목.
-            var title = text("Title", sheet, font, 30f, new Vector2(.05f, 1f - 24f / 150f), new Vector2(.95f, 1f - 8f / 150f));
-            title.alignment = TextAlignmentOptions.Center;
-            title.color = new Color(.91f, .86f, .78f);
-            title.text = "거래 위반 통지서";
+            // 검은 머리띠의 비운 자리(지침서의 "일일 지침" 글씨 자리)에 제목.
+            var title = text("Title", sheet, font, 34f, new Vector2(.14f, .815f), new Vector2(.62f, .925f));
+            title.alignment = TextAlignmentOptions.Left;
+            title.color = new Color(.9f, .86f, .79f);
+            title.text = "위반 통지";
 
-            var body = text("Body", sheet, font, 22f, new Vector2(.1f, .12f), new Vector2(.9f, 1f - 34f / 150f));
+            var body = text("Body", sheet, font, 17f, new Vector2(.14f, .1f), new Vector2(.86f, .76f));
             body.alignment = TextAlignmentOptions.TopLeft;
             body.color = new Color(.29f, .2f, .14f);
-            body.lineSpacing = 8f;
+            body.lineSpacing = 6f;
             body.textWrappingMode = TextWrappingModes.Normal;
             body.text = "위반 지침";
 
             // 오른쪽 아래 붉은 도장.
-            var stamp = text("Stamp", sheet, font, 26f, new Vector2(.58f, .03f), new Vector2(.96f, .16f));
+            var stamp = text("Stamp", sheet, font, 24f, new Vector2(.52f, .05f), new Vector2(.88f, .16f));
             stamp.alignment = TextAlignmentOptions.Center;
             stamp.color = new Color(.66f, .2f, .16f, .9f);
             stamp.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 12f);

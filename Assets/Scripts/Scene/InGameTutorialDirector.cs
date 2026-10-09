@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -15,8 +16,10 @@ public sealed class InGameTutorialDirector
     private static readonly uint[] CalculatorLines = { 8556 };
     private static readonly uint[] AfterFirstTradeLines = { 8557, 8558, 8559, 8560 };
     private static readonly uint[] GuidelineLines = { 8561, 8562 };
-    private static readonly uint[] GuidebookLines = { 8582, 8583 };
-    private static readonly uint[] FirstViolationLines = { 8584, 8585 };
+    private static readonly uint[] GuidebookLines = { 8582, 8583, 8589 };
+    private static readonly uint[] FirstViolationLines = { 8584, 8585, 8586 };
+    private static readonly uint[] SecondViolationLines = { 8587 };
+    private static readonly uint[] RevokedLines = { 8588 };
 
     private readonly TutorialCoachPresenter coach;
     private readonly SaleSortingPanel sortingPanel;
@@ -36,8 +39,20 @@ public sealed class InGameTutorialDirector
     private bool guidebookShown;
     private bool firstViolationExplained;
     private CustomerVisit noticedVisit;
-    private int violationDay;
-    private int todayViolations;
+    private int summonedDay;
+    private bool summonedAfterTutorial;
+
+    /// <summary>오늘 첫 손님을 아직 안 불렀거나, 1일차 안내가 막 끝난 뒤라면 손님을 바로 불러야 한다.</summary>
+    private bool needsCustomerNow(int displayDay)
+    {
+        if (summonedDay != displayDay) return true;
+        if (displayDay == 1 && dayOneFinished && !summonedAfterTutorial)
+        {
+            summonedAfterTutorial = true;
+            return true;
+        }
+        return false;
+    }
     private DayProgressState lastState;
 
     /// <summary>튜토리얼에 필요한 화면 요소를 연결합니다.</summary>
@@ -84,10 +99,18 @@ public sealed class InGameTutorialDirector
         bool trading = state == DayProgressState.Operating || state == DayProgressState.Sorting ||
             state == DayProgressState.TransactionResult;
 
+        // 영업 시작 직후나 안내가 끝난 직후 계산대가 비어 있으면 손님을 바로 부르고, 손님이 선 뒤에 시계를 푼다.
+        bool waitingFirstCustomer = false;
+        if (state == DayProgressState.Operating && day.CurrentVisit == null && !coach.IsShowing && needsCustomerNow(displayDay))
+        {
+            if (day.SummonCustomerNow()) summonedDay = displayDay;
+            else waitingFirstCustomer = true;
+        }
+
         if (displayDay == 1 && !dayOneFinished)
         {
             tickDayOne(state);
-            IsHoldingTime = trading && !dayOneFinished;
+            IsHoldingTime = trading && (!dayOneFinished || waitingFirstCustomer);
         }
         else
         {
@@ -96,7 +119,7 @@ public sealed class InGameTutorialDirector
                 guidebookGuideline != null && guidebookGuideline.gameObject.activeInHierarchy)
             {
                 guidebookShown = true;
-                coach.Show(texts(GuidebookLines), new[] { guidebookGuideline, guidebookGuideline }, null);
+                coach.Show(texts(GuidebookLines), new[] { guidebookGuideline, guidebookGuideline, guidebookGuideline }, null);
             }
 
             if (displayDay == 3 && !guidelineShown && state == DayProgressState.Sorting && sortingPanel.IsSorting && !coach.IsShowing)
@@ -106,20 +129,20 @@ public sealed class InGameTutorialDirector
             }
 
             tickViolation(day, displayDay, state);
-            IsHoldingTime = trading && (coach.IsShowing || (violationNotice != null && violationNotice.IsShowing));
+            IsHoldingTime = trading && (waitingFirstCustomer || coach.IsShowing || (violationNotice != null && violationNotice.IsShowing));
         }
 
         lastState = state;
     }
 
     /// <summary>
-    /// 거래 결과에 지침 위반이 있으면 통지서를 띄운다. 처음 위반이면 감독관이 통지서를 가리키며 벌금을 설명하고,
-    /// 설명이 끝나면 통지서도 닫힌다. 그 뒤로는 통지서만 띄우고 클릭으로 닫는다.
+    /// 거래 결과에 지침 위반이 있으면 통지서를 띄운다. 감독관이 통지서를 가리키며 말하고, 말이 끝나면 통지서도 닫힌다.
+    /// 처음 위반: 벌금 규칙(1회 50%, 2회 100%, 3회 박탈) 설명. 오늘 두 번째: 마지막 경고. 세 번째: 영업권 박탈 선언.
+    /// 이미 규칙을 들은 뒤의 첫 위반은 통지서만 띄우고 클릭으로 닫는다.
     /// </summary>
     private void tickViolation(DayProgress day, int displayDay, DayProgressState state)
     {
         if (violationNotice == null) return;
-        if (violationDay != displayDay) { violationDay = displayDay; todayViolations = 0; }
         if (state != DayProgressState.TransactionResult || coach.IsShowing || violationNotice.IsShowing) return;
         CustomerVisit visit = day.CurrentVisit;
         if (visit == null || ReferenceEquals(visit, noticedVisit) || !visit.Result.HasValue) return;
@@ -127,13 +150,16 @@ public sealed class InGameTutorialDirector
         var violations = visit.Result.Value.DailyGuidelineViolations;
         if (violations == null || violations.Count == 0) return;
 
-        todayViolations += violations.Count;
+        int todayCount = day.GuidelineViolationCount;
         string text = formatGuideline != null ? formatGuideline(violations[0].Guideline) : "오늘의 지침";
-        bool explain = !firstViolationExplained;
+        uint[] lines = todayCount >= DayProgress.LicenseRevocationViolationCount ? RevokedLines
+            : !firstViolationExplained ? FirstViolationLines
+            : todayCount == 2 ? SecondViolationLines
+            : null;
         firstViolationExplained = true;
-        violationNotice.Show(text, todayViolations, DailyGuidelinePenaltyCalculator.PercentPerViolation, !explain, null);
-        if (explain)
-            coach.Show(texts(FirstViolationLines), new[] { violationNotice.Sheet, violationNotice.Sheet }, violationNotice.Close);
+        violationNotice.Show(text, todayCount, lines == null, null);
+        if (lines != null)
+            coach.Show(texts(lines), Enumerable.Repeat(violationNotice.Sheet, lines.Length).ToArray(), violationNotice.Close);
     }
 
     /// <summary>1일차 첫 손님 동안 단계별 안내를 띄웁니다.</summary>

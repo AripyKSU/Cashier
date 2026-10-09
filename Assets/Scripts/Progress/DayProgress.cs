@@ -439,6 +439,13 @@ public sealed class DayProgress
             throw new InvalidOperationException("거래 결과 상태가 올바르지 않습니다.");
         }
 
+        // 영업권을 박탈당했으면 다음 손님을 받지 않고 바로 영업을 끝낸다.
+        if (this.IsLicenseRevoked)
+        {
+            this.beginClosing();
+            return;
+        }
+
         this.changeState(DayProgressState.Operating);
         this.startNextCustomer();
     }
@@ -459,6 +466,19 @@ public sealed class DayProgress
 
         this.changeState(DayProgressState.Completed);
         this.Completed?.Invoke(this);
+    }
+
+    /// <summary>
+    /// 계산대가 비어 있으면 시계를 흘리지 않고 바로 다음 손님을 계산대로 부릅니다.
+    /// 영업 시작 직후와 튜토리얼이 끝난 직후, 손님이 올 때까지 시간만 흐르는 것을 막는 데 씁니다.
+    /// </summary>
+    /// <returns>손님이 계산대에 섰으면 true입니다.</returns>
+    public bool SummonCustomerNow()
+    {
+        if (this.State != DayProgressState.Operating || this.currentVisit != null || this.remainingSeconds <= 0f) return false;
+        if (this.queue != null && this.queue.Waiting.Count == 0) this.queue.TryAdd();
+        this.startNextCustomer();
+        return this.currentVisit != null;
     }
 
     /// <summary>날짜에 등장할 수 있는 다음 손님을 생성하고 가격 제안 대기로 전환합니다.</summary>
@@ -515,6 +535,8 @@ public sealed class DayProgress
     }
 
     /// <summary>시간 만료를 확정하고 마지막 거래 마감 상태로 전환합니다.</summary>
+    private int guidelineViolationCount;
+
     private void beginClosing()
     {
         if (this.State == DayProgressState.Closing
@@ -604,7 +626,18 @@ public sealed class DayProgress
         {
             throw new InvalidOperationException("종료된 일일 집계에는 거래를 반영할 수 없습니다.");
         }
+
+        this.guidelineViolationCount = checked(this.guidelineViolationCount + transactionResult.DailyGuidelineViolationCount);
     }
+
+    /// <summary>오늘 지침 위반 누적 횟수입니다. 다음 날 0으로 시작합니다.</summary>
+    public int GuidelineViolationCount => this.guidelineViolationCount;
+
+    /// <summary>하루에 이 횟수만큼 지침을 어기면 영업권을 박탈당합니다.</summary>
+    public const int LicenseRevocationViolationCount = 3;
+
+    /// <summary>오늘 지침을 세 번 어겨 영업권을 박탈당했는지 여부입니다. 이 거래 결과를 확인하면 바로 영업을 끝냅니다.</summary>
+    public bool IsLicenseRevoked => this.guidelineViolationCount >= LicenseRevocationViolationCount;
 
     /// <summary>하루 진행 상태를 변경합니다.</summary>
     /// <param name="nextState">변경할 상태입니다.</param>
