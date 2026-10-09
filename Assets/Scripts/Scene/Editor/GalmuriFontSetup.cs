@@ -6,32 +6,38 @@ using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 
 /// <summary>
-/// 게임 한글 폰트(던파 비트비트체 v2, DNFBitBitv2) TMP 폰트 에셋을 만드는 도구. 처음엔 갈무리11이었다.
+/// 게임 폰트 도구. 대부분의 화면은 물마루(Mulmaru)를 쓰고, 저녁 정산 화면(가계부·딸 말풍선·설비 창·소지금 판자)만 던파 비트비트체 v2를 쓴다.
 /// 물마루와 같은 설정(샘플 48, 여백 5, SDFAA, 2048 아틀라스)으로 만들고, 게임 문구에 쓰이는 글자를 미리 채워 둔다.
 /// </summary>
 public static class GalmuriFontSetup
 {
-    public const string RegularFontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2.ttf";
-    public const string RegularAssetPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
-    // 비트비트체는 한 굵기뿐이라 "굵은 글씨"도 같은 에셋을 쓴다.
-    public const string BoldFontPath = RegularFontPath;
-    public const string BoldAssetPath = RegularAssetPath;
+    // 기본 글씨(물마루). 이미 만들어진 에셋을 그대로 쓴다.
+    public const string RegularAssetPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
+    // 정산 화면 글씨(비트비트체). 코드 곳곳에서 "굵은 글씨"로 부르던 자리다.
+    public const string BoldFontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2.ttf";
+    public const string BoldAssetPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
     private const string TextDataPath = "Assets/Datas/TextData.csv";
 
     [MenuItem("Cashier/Setup/Create Galmuri Font Asset")]
     public static void Create()
     {
-        ensure(RegularFontPath, RegularAssetPath, "DNFBitBitv2 SDF");
+        EnsureBold();
         refreshOutlineMaterials();
     }
 
-    /// <summary>이미 쓰이는 테두리 머티리얼들(Galmuri 폴더의 *.mat)을 테두리 색·두께는 그대로 두고 지금 폰트 아틀라스로 다시 채운다.</summary>
+    /// <summary>
+    /// 이미 쓰이는 테두리 머티리얼을 테두리 색·두께는 그대로 두고 알맞은 폰트 아틀라스로 다시 채운다.
+    /// 판자(Plank) 테두리는 정산 화면용 비트비트체, 나머지(Delta 등)는 물마루.
+    /// </summary>
     private static void refreshOutlineMaterials()
     {
-        var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(RegularAssetPath);
+        var regular = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(RegularAssetPath);
+        var bold = EnsureBold();
         foreach (string guid in AssetDatabase.FindAssets("t:Material", new[] { "Assets/Fonts/Galmuri" }))
         {
-            var material = AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var font = path.Contains("Plank") ? bold : regular;
+            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null || !material.IsKeywordEnabled("OUTLINE_ON")) continue;
             Color color = material.GetColor(ShaderUtilities.ID_OutlineColor);
             float width = material.GetFloat(ShaderUtilities.ID_OutlineWidth);
@@ -45,11 +51,7 @@ public static class GalmuriFontSetup
         AssetDatabase.SaveAssets();
     }
 
-    /// <summary>얇아 보이는 곳(지침서 품목 등)에 쓸 굵은 갈무리11 에셋을 만듭니다.</summary>
-    [MenuItem("Cashier/Setup/Create Galmuri Bold Font Asset")]
-    public static void CreateBold() { EnsureBold(); }
-
-    /// <summary>굵은 갈무리11 에셋을 돌려줍니다. 없으면 만듭니다.</summary>
+    /// <summary>정산 화면용 비트비트체 에셋을 돌려줍니다. 없으면 만듭니다.</summary>
     public static TMP_FontAsset EnsureBold() => ensure(BoldFontPath, BoldAssetPath, "DNFBitBitv2 SDF");
 
     private static TMP_FontAsset ensure(string fontPath, string assetPath, string name)
@@ -88,7 +90,7 @@ public static class GalmuriFontSetup
     /// <param name="color">테두리 색입니다.</param>
     /// <param name="width">테두리 두께(0~1)입니다.</param>
     /// <returns>저장된 머티리얼입니다.</returns>
-    /// <param name="bold">true면 굵은 갈무리 아틀라스로 만든다.</param>
+    /// <param name="bold">true면 정산 화면용 비트비트체 아틀라스로 만든다.</param>
     public static Material OutlineMaterial(string suffix, Color color, float width, bool bold = false)
     {
         var font = bold ? EnsureBold() : AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(RegularAssetPath)

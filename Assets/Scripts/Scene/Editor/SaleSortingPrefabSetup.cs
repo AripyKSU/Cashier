@@ -39,7 +39,7 @@ public static class SaleSortingPrefabSetup
     private const string DividerBarPath = "Assets/DystopiaPrototype/TopDownTest/Art/DividerBar.png";
     private const string HandsPath = "Assets/DystopiaPrototype/Art/Hands.png";
     private const string DialogueFramePath = "Assets/DystopiaPrototype/Art/DialogueFrame.png";
-    private const string KoreanFontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
+    private const string KoreanFontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
 
     /// <summary>현재 GameUI Prefab에 작업대 UI를 생성하거나 기존 구성을 갱신합니다.</summary>
     [MenuItem("Cashier/Setup Sale Sorting UI")]

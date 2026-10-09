@@ -11,7 +11,7 @@ public static class GuidebookSetup
 {
     private const string PreOpenPrefabPath = "Assets/Prefabs/GameUI/PreOpenPanel.prefab";
     private const string GameUiPrefabPath = "Assets/Prefabs/GameUI/GameUI.prefab";
-    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
+    private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
     private const string DividerPath = "Assets/Textures/UI/Dystopia/Hud/InkDivider.png";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string PriceTitleName = "PriceTitle";

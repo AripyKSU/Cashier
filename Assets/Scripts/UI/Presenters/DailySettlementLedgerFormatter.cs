@@ -35,8 +35,8 @@ public static class DailySettlementLedgerFormatter
     // 구획 제목·구분선·수입·지출 잉크 색. 갈색 종이에서 검은 글씨보다 눈에 잘 들어온다.
     private const string TitleColor = "#5a1a12";
     private const string RuleColor = "#5a3a28";
-    private const string IncomeColor = "#1f2e14";
-    private const string ExpenseColor = "#4a120c";
+    private const string IncomeColor = "#34502a";
+    private const string ExpenseColor = "#6e2418";
 
     /// <summary>왼쪽 페이지의 금액 결산 문구를 만듭니다.</summary>
     /// <param name="viewData">확정된 정산 스냅샷입니다.</param>

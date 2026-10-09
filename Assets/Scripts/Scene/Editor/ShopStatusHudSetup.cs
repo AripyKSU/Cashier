@@ -19,7 +19,7 @@ public static class ShopStatusHudSetup
     // 다음날 버튼 글자 색(크림)과 테두리 색(짙은 갈색).
     private static readonly Color PlankTextColor = new Color32(240, 202, 155, 255);
     private static readonly Color PlankOutlineColor = new Color32(9, 2, 1, 255);
-    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
+    private const string FontPath = "Assets/TextMesh Pro/Fonts/Mulmaru SDF.asset";
     private const string PlatePath = "Assets/Textures/UI/Dystopia/Hud/HudPlate.png";
     private const string ClockIconPath = "Assets/Textures/UI/Dystopia/Hud/HudClock.png";
     private const string CoinIconPath = "Assets/Textures/UI/Dystopia/Hud/HudCoin.png";

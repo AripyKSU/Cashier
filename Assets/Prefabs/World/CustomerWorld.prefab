@@ -670,7 +670,7 @@ MonoBehaviour:
   - {fileID: 8277630240922037447}
   middleSlotScale: 0.6181818
   rearSlotScale: 0.43636364
-  font: {fileID: 11400000, guid: ed532ce9d6bd07443ad09c9e3f7c7f5a, type: 2}
+  font: {fileID: 11400000, guid: 21967ff2222e4b449974e277bfa779ed, type: 2}
   bodyMaterial: {fileID: 2100000, guid: 819f3c753f3f4524b8bff9451fd345f0, type: 2}
   reactionMaterial: {fileID: 2100000, guid: cc7bbc5199031f64392025ac7ded5fdd, type: 2}
   tradeReactionSprites:

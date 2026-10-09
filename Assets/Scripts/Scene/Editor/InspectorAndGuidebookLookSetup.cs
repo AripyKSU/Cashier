@@ -40,13 +40,18 @@ public static class InspectorAndGuidebookLookSetup
         GameObject root = PrefabUtility.LoadPrefabContents("Assets/Prefabs/GameUI/GameUI.prefab");
         try
         {
-            Transform balance = null;
+            // 정산 화면 소지금 판자의 금액·증감 글씨: 비트비트체 + 판자 테두리.
+            Material plank = GalmuriFontSetup.OutlineMaterial("Plank Outline", new Color32(9, 2, 1, 255), 0.42f, true);
+            int plankTexts = 0;
             foreach (var transform in root.GetComponentsInChildren<Transform>(true))
-                if (transform.name == "Balance" && transform.parent != null && transform.parent.name == "SettlementBalance") { balance = transform; break; }
-            if (balance == null) throw new System.InvalidOperationException("SettlementBalance/Balance를 찾을 수 없습니다.");
-            var text = balance.GetComponent<TextMeshProUGUI>();
-            text.font = bold;
-            text.fontSharedMaterial = GalmuriFontSetup.OutlineMaterial("Plank Outline", new Color32(9, 2, 1, 255), 0.42f, true);
+            {
+                if (transform.parent == null || transform.parent.name != "SettlementBalance") continue;
+                if (!transform.TryGetComponent(out TextMeshProUGUI text)) continue;
+                text.font = bold;
+                text.fontSharedMaterial = plank;
+                plankTexts++;
+            }
+            if (plankTexts == 0) throw new System.InvalidOperationException("SettlementBalance 글씨를 찾을 수 없습니다.");
             PrefabUtility.SaveAsPrefabAsset(root, "Assets/Prefabs/GameUI/GameUI.prefab");
         }
         finally
@@ -122,9 +127,10 @@ public static class InspectorAndGuidebookLookSetup
             int count = 0;
             foreach (var text in root.GetComponentsInChildren<TextMeshProUGUI>(true))
             {
+                // 지침서는 다른 화면과 같은 물마루를 쓴다(정산 화면만 비트비트체).
                 if (text.font != regular && text.font != bold) continue;
-                text.font = bold;
-                text.fontSharedMaterial = bold.material;
+                text.font = regular;
+                text.fontSharedMaterial = regular.material;
                 count++;
             }
 
