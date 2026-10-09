@@ -393,6 +393,12 @@ public sealed class ProgressViewDataFactory
         return text.Text;
     }
 
+    /// <summary>일일지침을 화면 문장으로 바꿉니다. 거래 위반 통지서 등에서 씁니다.</summary>
+    /// <param name="guideline">검증된 일일지침입니다.</param>
+    /// <returns>손님 조건·상품·제한 유형이 포함된 문장입니다.</returns>
+    public string FormatGuideline(DailyGuideline guideline) =>
+        this.formatGuideline(guideline, this.getProductName(this.customerCatalog.Products.Rows[guideline.TargetProductIdx]));
+
     /// <summary>구조화된 일일지침을 영업 시작 화면의 완성 문구로 변환합니다.</summary>
     /// <param name="guideline">표시할 검증된 일일지침입니다.</param>
     /// <param name="productName">대상 상품 표시 이름입니다.</param>

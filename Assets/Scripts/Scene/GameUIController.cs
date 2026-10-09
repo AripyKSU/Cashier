@@ -40,6 +40,10 @@ public sealed class GameUIController : MonoBehaviour
     [SerializeField] private ShopStatusHudPresenter shopStatusHud;
     /// <summary>영업 화면 안 감독관 안내 말풍선. 없으면 인게임 튜토리얼을 생략합니다.</summary>
     [SerializeField] private TutorialCoachPresenter tutorialCoach;
+    /// <summary>지침을 어긴 거래 직후 띄우는 거래 위반 통지서. 없으면 통지를 생략한다.</summary>
+    [SerializeField] private GuidelineViolationNoticePresenter violationNotice;
+    // 통지서·안내를 닫은 클릭이 같은 프레임에 거래 결과까지 넘기지 않게, 직전 프레임에 떠 있었는지 기억한다.
+    private bool noticeShownLastFrame;
     /// <summary>정산 화면 아래 가운데 현재 보유금 표시. 설비 창보다 위에 그려집니다. 없으면 표시하지 않습니다.</summary>
     [SerializeField] private ShopStatusHudPresenter settlementBalance;
     [SerializeField] private CustomerPresenter customerPresenter;
@@ -192,7 +196,11 @@ public sealed class GameUIController : MonoBehaviour
             {
                 this.tutorialDirector = new InGameTutorialDirector(this.tutorialCoach, this.saleSortingPanel,
                     this.shopStatusHud != null ? this.shopStatusHud.HighlightTarget : null,
-                    idx => this.textData.Rows[idx].Text);
+                    idx => this.textData.Rows[idx].Text,
+                    this.preOpenPanel != null ? this.preOpenPanel.transform.Find("GuidelineSlot0") as RectTransform : null,
+                    this.saleSortingPanel.transform.Find("GuidelinePopup/Toggle") as RectTransform,
+                    this.violationNotice,
+                    guideline => this.viewDataFactory.FormatGuideline(guideline));
             }
 
             this.facilityGuide = new SettlementFacilityGuide(this.daughterDialoguePresenter,
@@ -274,7 +282,11 @@ public sealed class GameUIController : MonoBehaviour
                 this.wasCoachShowing = coachShowing;
                 if (this.tutorialDirector == null || !this.tutorialDirector.IsHoldingTime)
                     this.gameProgress.Tick(Time.deltaTime);
-                if (this.isTransactionResultAwaitingAdvance() && this.wasPointerClickThisFrame())
+                // 감독관 안내나 거래 위반 통지서를 닫는 클릭으로 결과가 함께 넘어가지 않게 한다.
+                bool noticeNow = coachShowing || (this.violationNotice != null && this.violationNotice.IsShowing);
+                bool noticeShowing = noticeNow || this.noticeShownLastFrame;
+                this.noticeShownLastFrame = noticeNow;
+                if (!noticeShowing && this.isTransactionResultAwaitingAdvance() && this.wasPointerClickThisFrame())
                 {
                     this.runProgressAction(this.gameProgress.CompleteTransactionResult);
                 }
