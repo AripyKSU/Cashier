@@ -63,7 +63,7 @@ public static class ViolationNoticeSetup
             title.color = new Color(.9f, .86f, .79f);
             title.text = "위반 통지";
 
-            var body = text("Body", sheet, font, 17f, new Vector2(.14f, .1f), new Vector2(.86f, .76f));
+            var body = text("Body", sheet, font, 16f, new Vector2(.2f, .12f), new Vector2(.8f, .75f));
             body.alignment = TextAlignmentOptions.TopLeft;
             body.color = new Color(.29f, .2f, .14f);
             body.lineSpacing = 6f;
