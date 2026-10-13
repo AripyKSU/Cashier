@@ -266,6 +266,7 @@ MonoBehaviour:
   pageGroup: {fileID: 6931364920081837538}
   blackCover: {fileID: 6958355562379530520}
   dialoguePanelBackground: {fileID: 5885060743493989242}
+  goodEndingStamp: {fileID: 21300000, guid: 667fa6f9bfa24fc39924220cf717b9c9, type: 3}
 --- !u!225 &6931364920081837538
 CanvasGroup:
   m_ObjectHideFlags: 0

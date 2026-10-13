@@ -24,6 +24,7 @@ public sealed class EndingPresenter : MonoBehaviour
     [SerializeField] private CanvasGroup pageGroup;
     [SerializeField] private Image blackCover;
     [SerializeField] private Image dialoguePanelBackground;
+    [SerializeField] private Sprite goodEndingStamp;
     private EndingPageData[] pages;
     private TextDataTable texts;
     private readonly Dictionary<uint, Sprite> backgrounds = new Dictionary<uint, Sprite>();
@@ -40,6 +41,9 @@ public sealed class EndingPresenter : MonoBehaviour
     private Tween pageFadeTween;
     private Tween blackFadeTween;
     private Tween pageDelayTween;
+    private Sequence stampSequence;
+    private Image stampImage;
+    private Vector2 rootRestPosition;
 
     /// <summary>활성 수명에 묶인 비동기 표시 취소 토큰을 준비한다.</summary>
     private void OnEnable()
@@ -58,6 +62,14 @@ public sealed class EndingPresenter : MonoBehaviour
         blackFadeTween?.Kill();
         pageDelayTween?.Kill();
         pageFadeTween = blackFadeTween = pageDelayTween = null;
+        if (stampSequence != null)
+        {
+            stampSequence.Kill();
+            stampSequence = null;
+            ((RectTransform)transform).anchoredPosition = rootRestPosition;
+        }
+        if (stampImage != null) Destroy(stampImage.gameObject);
+        stampImage = null;
         lifetime?.Dispose();
         lifetime = null;
         isLoading = false;
@@ -164,7 +176,8 @@ public sealed class EndingPresenter : MonoBehaviour
         if (++pageIndex < pages.Length)
         {
             stopPageSfx();
-            if (!pages[pageIndex].BackgroundResourceIdx.HasValue && currentBackground.HasValue) showBlackPageAsync().Forget();
+            if (shouldStampBeforeFinal()) playGoodEndingStampAsync().Forget();
+            else if (!pages[pageIndex].BackgroundResourceIdx.HasValue && currentBackground.HasValue) showBlackPageAsync().Forget();
             else showPageAsync().Forget();
             return;
         }
@@ -270,6 +283,87 @@ public sealed class EndingPresenter : MonoBehaviour
             currentBackground = null;
             await showPageAsync();
             blackCover.color = Color.black;
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested) { }
+        finally { if (this != null && !token.IsCancellationRequested) isLoading = false; }
+    }
+
+    /// <summary>좋은 엔딩의 마지막 그림 다음, 검은 마지막 페이지로 넘어가기 직전인지 확인한다.</summary>
+    /// <returns>도장 연출을 재생해야 하면 true.</returns>
+    private bool shouldStampBeforeFinal() =>
+        result.Kind == EndingKind.Good && goodEndingStamp != null && pageIndex == pages.Length - 1 &&
+        !pages[pageIndex].BackgroundResourceIdx.HasValue && currentBackground.HasValue;
+
+    /// <summary>"참 잘했어요" 도장을 화면 가운데에 크게 찍고(쿵·흔들림) 그림 위로 붙인 뒤, 그림을 유지한 채 마지막 문구를 띄운다.</summary>
+    /// <returns>도장 연출과 마지막 문구 표시 완료.</returns>
+    private async UniTask playGoodEndingStampAsync()
+    {
+        isLoading = true;
+        nextButton.interactable = false;
+        nextButton.gameObject.SetActive(false);
+        CancellationToken token = lifetime.Token;
+        try
+        {
+            heading.gameObject.SetActive(false);
+            speaker.gameObject.SetActive(false);
+            dialogue.gameObject.SetActive(false);
+            pageIndicator.gameObject.SetActive(false);
+            setPanelBackgroundVisible(false);
+
+            var area = (RectTransform)background.transform.parent;
+            var go = new GameObject("GoodEndingStamp", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(area, false);
+            go.transform.SetSiblingIndex(background.transform.GetSiblingIndex() + 1);
+            stampImage = go.GetComponent<Image>();
+            stampImage.sprite = goodEndingStamp;
+            stampImage.raycastTarget = false;
+            stampImage.preserveAspect = true;
+            RectTransform stamp = stampImage.rectTransform;
+            float size = Mathf.Min(area.rect.width, area.rect.height) * 0.9f;
+            stamp.anchorMin = stamp.anchorMax = stamp.pivot = new Vector2(0.5f, 0.5f);
+            stamp.sizeDelta = new Vector2(size, size);
+            stamp.anchoredPosition = Vector2.zero;
+            stamp.localScale = Vector3.one * 1.8f;
+            stamp.localRotation = Quaternion.Euler(0f, 0f, -18f);
+            stampImage.color = new Color(1f, 1f, 1f, 0f);
+
+            var root = (RectTransform)transform;
+            rootRestPosition = root.anchoredPosition;
+            // 그림 오른쪽 위, 대사 틀과 겹치지 않는 자리에 작게 붙는다.
+            var stickPosition = new Vector2(area.rect.width * 0.33f, area.rect.height * 0.24f);
+            stampSequence = DOTween.Sequence().SetUpdate(true)
+                .Append(stamp.DOScale(1f, 0.18f).SetEase(Ease.InQuad))
+                .Join(stamp.DOLocalRotate(new Vector3(0f, 0f, -8f), 0.18f).SetEase(Ease.InQuad))
+                .Join(DOTween.ToAlpha(() => stampImage.color, value => stampImage.color = value, 1f, 0.1f))
+                .AppendCallback(() =>
+                {
+                    SoundManager.Instance?.PlaySfx(SoundKeys.ReputationStamp);
+                    DOTween.Shake(() => (Vector3)root.anchoredPosition, value => root.anchoredPosition = value, 0.5f, 36f, 28, 90f, true, true)
+                        .SetUpdate(true)
+                        .OnComplete(() => root.anchoredPosition = rootRestPosition);
+                })
+                .Append(stamp.DOPunchScale(Vector3.one * -0.06f, 0.25f, 8, 0.6f))
+                .AppendInterval(0.7f)
+                .Append(DOTween.To(() => stamp.anchoredPosition, value => stamp.anchoredPosition = value, stickPosition, 0.5f)
+                    .SetEase(Ease.InOutCubic))
+                .Join(stamp.DOScale(0.32f, 0.5f).SetEase(Ease.InOutCubic))
+                .Join(stamp.DOLocalRotate(new Vector3(0f, 0f, -14f), 0.5f).SetEase(Ease.InOutCubic))
+                .AppendCallback(() => SoundManager.Instance?.PlaySfx(SoundKeys.ReputationStamp))
+                .Append(stamp.DOPunchScale(Vector3.one * 0.08f, 0.2f, 6, 0.5f))
+                .AppendInterval(0.4f);
+            Sequence sequence = stampSequence;
+            await UniTask.WaitUntil(() => !sequence.IsActive() || sequence.IsComplete(), cancellationToken: token);
+            token.ThrowIfCancellationRequested();
+            stampSequence = null;
+            root.anchoredPosition = rootRestPosition;
+
+            var page = pages[pageIndex];
+            speaker.gameObject.SetActive(false);
+            dialogue.text = page.TextIdx.HasValue ? texts.Rows[page.TextIdx.Value].Text : string.Empty;
+            dialogue.gameObject.SetActive(page.TextIdx.HasValue);
+            playPageSfx(page);
+            finishFinalPage();
+            setPanelBackgroundVisible(page.TextIdx.HasValue);
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { }
         finally { if (this != null && !token.IsCancellationRequested) isLoading = false; }
