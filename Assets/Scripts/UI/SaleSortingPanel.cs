@@ -30,6 +30,8 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private const int SaleAnchorRowSize = 3;
     private const float AutoSortingDurationSeconds = 0.15f;
     private const float ContainerLandingSeconds = 0.85f;
+    // 쏟기 연출에서 낙하가 끝나고 튕김이 시작되는 상품별 진행도입니다.
+    private const float SpillLandingProgress = 0.78f;
 
     [Header("Views")]
     [SerializeField] private GameObject frontView;
@@ -66,6 +68,24 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField, Min(0f)] private float pourSeconds = 0.65f;
     [SerializeField, Min(0f)] private float autoAdvanceDelaySeconds = 0.5f;
     [SerializeField] private TextMeshProUGUI sortingStatusText;
+
+    [Header("Spill Feedback")]
+    [Tooltip("상품이 하나씩 포물선으로 굴러 나와 튕기고 착지음을 내는 쏟기 연출입니다. 기본 꺼짐이며 별도 씬의 CheckoutFeedbackSwitch가 켭니다.")]
+    [SerializeField] private bool spillFeedbackEnabled;
+    /// <summary>상품 하나가 통 입구에서 작업대에 멈출 때까지의 시간(초)입니다.</summary>
+    [SerializeField, Min(0.05f)] private float spillItemSeconds = 0.42f;
+    /// <summary>다음 상품이 굴러 나오기 시작하는 간격(초)입니다.</summary>
+    [SerializeField, Min(0f)] private float spillStaggerSeconds = 0.06f;
+    /// <summary>통 입구에서 떨어질 때 위로 솟는 최대 높이(픽셀)입니다.</summary>
+    [SerializeField, Min(0f)] private float spillArcPixels = 70f;
+    /// <summary>착지 뒤 한 번 튀어 오르는 높이(픽셀)입니다. 0이면 튕기지 않습니다.</summary>
+    [SerializeField, Min(0f)] private float spillBouncePixels = 8f;
+    /// <summary>떨어지는 동안 상품이 도는 최대 각도(도)입니다. 착지 후 0도로 돌아옵니다.</summary>
+    [SerializeField, Range(0f, 45f)] private float spillSpinDegrees = 14f;
+    /// <summary>쏟는 동안 상자를 좌우로 터는 폭(픽셀)입니다. 0이면 털지 않습니다.</summary>
+    [SerializeField, Min(0f)] private float spillContainerShakePixels = 2f;
+    /// <summary>상품별 착지음 음량 배율입니다. 여러 개가 겹쳐 시끄럽지 않게 낮게 둡니다.</summary>
+    [SerializeField, Range(0f, 1f)] private float spillLandingVolume = 0.45f;
 
     [Header("Divider Bar")]
     [Tooltip("작업대에서 상품을 물리적으로 밀어내는 큰 밀대")]
@@ -653,6 +673,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         float pourProgress = 0f;
+        bool useSpillFeedback = this.spillFeedbackEnabled;
+        int spillUnitCount = getRequestedUnitCount(this.pendingBasket);
+        float spillTotalSeconds = this.getSpillTotalSeconds(spillUnitCount);
+        // 착지음은 상품마다 한 번만 내도록 이번 쏟기 동안만 기록합니다.
+        var spillLanded = new bool[Mathf.Max(1, spillUnitCount)];
         sequence.Append(DOTween.To(() => pourProgress, value =>
         {
             pourProgress = value;
@@ -661,6 +686,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
             {
                 this.containerImage.rectTransform.localRotation = Quaternion.Euler(
                     0f, 0f, Mathf.Lerp(-90f, -100f, value));
+                if (useSpillFeedback)
+                {
+                    this.containerImage.rectTransform.anchoredPosition =
+                        exitStartPosition + this.getSpillContainerShake(value);
+                }
             }
 
             for (int i = 0; i < this.items.Count; i++)
@@ -669,9 +699,21 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 if (item == null) continue;
 
                 Vector2 target = this.getInitialSpreadPosition(i, this.items.Count);
-                item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, value);
+                if (!useSpillFeedback)
+                {
+                    item.Position = Vector2.Lerp(this.getPourStartPosition(i), target, value);
+                    continue;
+                }
+
+                float itemProgress = this.getSpillItemProgress(i, value * spillTotalSeconds);
+                this.applySpillPose(item, i, this.getPourStartPosition(i), target, itemProgress);
+                if (itemProgress >= SpillLandingProgress && i < spillLanded.Length && !spillLanded[i])
+                {
+                    spillLanded[i] = true;
+                    SoundManager.Instance?.PlaySfx(SoundKeys.ItemPlace, this.spillLandingVolume);
+                }
             }
-        }, 1f, this.pourSeconds).SetEase(Ease.Linear));
+        }, 1f, useSpillFeedback ? spillTotalSeconds : this.pourSeconds).SetEase(Ease.Linear));
 
         if (this.containerImage != null)
         {
@@ -1458,6 +1500,86 @@ public sealed class SaleSortingPanel : MonoBehaviour
         this.handCursor.UpdatePresentation(visible, isHolding, pointerScreenPosition, deltaSeconds);
     }
 
+
+    /// <summary>별도 씬에서 상품 쏟기 손맛 연출을 켜거나 끕니다. 다음 손님의 쏟기부터 적용됩니다.</summary>
+    public bool SpillFeedbackEnabled
+    {
+        get => this.spillFeedbackEnabled;
+        set => this.spillFeedbackEnabled = value;
+    }
+
+    /// <summary>순차 쏟기 연출 전체 길이를 계산합니다.</summary>
+    /// <param name="unitCount">쏟을 상품 개수입니다.</param>
+    /// <returns>마지막 상품이 멈출 때까지의 시간(초)입니다.</returns>
+    private float getSpillTotalSeconds(int unitCount)
+    {
+        return Mathf.Max(0.05f, this.spillItemSeconds + (this.spillStaggerSeconds * Mathf.Max(0, unitCount - 1)));
+    }
+
+    /// <summary>쏟기 경과 시간에서 해당 상품의 0~1 비행 진행도를 구합니다.</summary>
+    /// <param name="index">쏟는 순번입니다.</param>
+    /// <param name="elapsedSeconds">쏟기 시작 후 경과 시간(초)입니다.</param>
+    /// <returns>0은 통 입구, 1은 작업대에 멈춘 상태입니다.</returns>
+    private float getSpillItemProgress(int index, float elapsedSeconds)
+    {
+        float startSeconds = this.spillStaggerSeconds * index;
+        return Mathf.Clamp01((elapsedSeconds - startSeconds) / Mathf.Max(0.05f, this.spillItemSeconds));
+    }
+
+    /// <summary>
+    /// 상품을 포물선 낙하 후 한 번 튕기는 자세로 배치합니다.
+    /// 위치는 정수 픽셀, 각도는 계단식으로 맞춰 픽셀 아트가 번지지 않게 하고 착지 후에는 회전을 0으로 되돌립니다.
+    /// </summary>
+    /// <param name="item">배치할 상품입니다.</param>
+    /// <param name="index">쏟는 순번입니다. 회전 방향과 크기를 상품마다 다르게 합니다.</param>
+    /// <param name="start">통 입구 위치입니다.</param>
+    /// <param name="target">작업대 최종 위치입니다.</param>
+    /// <param name="progress">상품별 0~1 비행 진행도입니다.</param>
+    private void applySpillPose(SaleSortingItemView item, int index, Vector2 start, Vector2 target, float progress)
+    {
+        Vector2 position;
+        float spin;
+        if (progress <= 0f)
+        {
+            // 아직 차례가 오지 않은 상품은 통 입구 안쪽에 겹쳐 둡니다.
+            position = start;
+            spin = 0f;
+        }
+        else if (progress < SpillLandingProgress)
+        {
+            float fall = progress / SpillLandingProgress;
+            // 가로는 감속, 세로는 위로 솟았다 떨어지는 포물선입니다.
+            float horizontal = 1f - ((1f - fall) * (1f - fall));
+            position = Vector2.Lerp(start, target, horizontal);
+            position.y += this.spillArcPixels * 4f * fall * (1f - fall);
+            float direction = index % 2 == 0 ? -1f : 1f;
+            spin = direction * this.spillSpinDegrees * (0.6f + 0.4f * ((index * 7) % 5) / 4f) * fall;
+        }
+        else
+        {
+            float bounce = (progress - SpillLandingProgress) / (1f - SpillLandingProgress);
+            position = target;
+            position.y += this.spillBouncePixels * 4f * bounce * (1f - bounce);
+            float direction = index % 2 == 0 ? -1f : 1f;
+            spin = direction * this.spillSpinDegrees * 0.5f * (1f - bounce);
+        }
+
+        item.Position = new Vector2(Mathf.Round(position.x), Mathf.Round(position.y));
+        item.transform.localRotation = progress >= 1f
+            ? Quaternion.identity
+            : Quaternion.Euler(0f, 0f, Mathf.Round(spin / 2f) * 2f);
+    }
+
+    /// <summary>쏟는 동안 상자를 좌우로 터는 정수 픽셀 오프셋을 계산합니다.</summary>
+    /// <param name="progress">쏟기 전체 0~1 진행도입니다.</param>
+    /// <returns>상자 기준 위치에 더할 오프셋입니다. 끝에서는 0입니다.</returns>
+    private Vector2 getSpillContainerShake(float progress)
+    {
+        if (this.spillContainerShakePixels <= 0f || progress >= 1f) return Vector2.zero;
+        // 앞부분에서 2~3번 털고 점점 잦아듭니다.
+        float wave = Mathf.Sin(progress * Mathf.PI * 6f) * (1f - progress);
+        return new Vector2(Mathf.Round(wave * this.spillContainerShakePixels), 0f);
+    }
 
     /// <summary>쏟기 연출의 통 입구 위치를 상품별로 조금씩 분산합니다.</summary>
     /// <param name="index">전체 상품 중 순번입니다.</param>
