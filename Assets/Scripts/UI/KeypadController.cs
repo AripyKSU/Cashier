@@ -27,6 +27,9 @@ public class KeypadController : MonoBehaviour
     [Tooltip("키보드 입력 허용 여부")]
     [SerializeField] private bool allowKeyboardInput = true;
 
+    [Tooltip("가격 확정 시 금전등록기 서랍 소리를 냅니다. 기본 꺼짐이며 별도 씬의 CheckoutFeedbackSwitch가 켭니다.")]
+    [SerializeField] private bool registerClunkEnabled;
+
 
     // =========================================================================
     // 2. EVENTS & PROPERTIES
@@ -40,6 +43,13 @@ public class KeypadController : MonoBehaviour
 
     /// <summary>현재 입력된 금액</summary>
     public long CurrentPrice => this.currentPrice;
+
+    /// <summary>별도 씬에서 가격 확정 금전등록기 소리를 켜거나 끕니다.</summary>
+    public bool RegisterClunkEnabled
+    {
+        get => this.registerClunkEnabled;
+        set => this.registerClunkEnabled = value;
+    }
 
 
     // =========================================================================
@@ -146,6 +156,7 @@ public class KeypadController : MonoBehaviour
 
         Debug.Log($"<color=cyan><b>[Keypad] 가격 확정 전송: {this.currentPrice:N0}원</b></color>");
         this.OnPriceConfirmed?.Invoke(this.currentPrice);
+        if (this.registerClunkEnabled) SoundManager.Instance?.PlaySfx(SoundKeys.RegisterClunk);
 
         // 결제 완료 후 입력창은 자동으로 0으로 비움
         this.currentPrice = 0;

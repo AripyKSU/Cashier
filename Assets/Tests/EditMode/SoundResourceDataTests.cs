@@ -12,14 +12,14 @@ using UnityEngine.TestTools;
 public sealed class SoundResourceDataTests
 {
     /// <summary>
-    /// 사운드 키 23개가 Resource 대역에서 고유하게 정의되었는지 확인한다.
+    /// 사운드 키 30개가 Resource 대역에서 고유하게 정의되었는지 확인한다.
     /// </summary>
     [Test]
     public void SoundKeysAreUniqueResourceIds()
     {
         Assert.That(SoundKeys.All, Is.Not.Null);
-        Assert.That(SoundKeys.All.Count, Is.EqualTo(23));
-        Assert.That(SoundKeys.All.Distinct().Count(), Is.EqualTo(23));
+        Assert.That(SoundKeys.All.Count, Is.EqualTo(30));
+        Assert.That(SoundKeys.All.Distinct().Count(), Is.EqualTo(30));
         foreach (uint resourceIdx in SoundKeys.All)
         {
             Assert.That(resourceIdx, Is.GreaterThan(4000u));
@@ -28,7 +28,7 @@ public sealed class SoundResourceDataTests
     }
 
     /// <summary>
-    /// 실제 ResourceData.csv의 23개 사운드 행이 각 address를 보존하는지 확인한다.
+    /// 실제 ResourceData.csv의 30개 사운드 행이 각 address를 보존하는지 확인한다.
     /// </summary>
     [Test]
     public void ResourceDataContainsAllSoundAddresses()
@@ -41,6 +41,8 @@ public sealed class SoundResourceDataTests
             [SoundKeys.TitleBgm] = "TitleBgm",
             [SoundKeys.GoodEndingBgm] = "GoodEndingBgm",
             [SoundKeys.BadEndingBgm] = "BadEndingBgm",
+            [SoundKeys.Reload] = "Reload",
+            [SoundKeys.Gunshot] = "Gunshot",
             [SoundKeys.TransactionSuccess] = "TransactionSuccess",
             [SoundKeys.TransactionFail] = "TransactionFail",
             [SoundKeys.CalculatorOpen] = "CalculatorOpen",
@@ -48,10 +50,15 @@ public sealed class SoundResourceDataTests
             [SoundKeys.ItemPickup] = "ItemPickup",
             [SoundKeys.ItemPlace] = "ItemPlace",
             [SoundKeys.ItemRemove] = "ItemRemove",
+            [SoundKeys.CanLand] = "CanLand",
+            [SoundKeys.WaterLand] = "WaterLand",
+            [SoundKeys.BatteryLand] = "BatteryLand",
             [SoundKeys.BoxItemDrop] = "BoxItemDrop",
             [SoundKeys.CustomerBoxDrop] = "CustomerBoxDrop",
             [SoundKeys.Vacuum] = "VacuumLoop",
             [SoundKeys.FacilityUpgrade] = "FacilityUpgrade",
+            [SoundKeys.RegisterClunk] = "RegisterClunk",
+            [SoundKeys.ReceiptPrint] = "ReceiptPrint",
             [SoundKeys.DailyGuideline] = "DailyGuideline",
             [SoundKeys.DayStart] = "DayStart",
             [SoundKeys.DayEnd] = "DayEnd",

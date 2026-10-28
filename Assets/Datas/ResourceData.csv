@@ -226,3 +226,8 @@ idx,path
 4425,LedgerDaughterStage5
 4426,LedgerDaughterStage6
 4427,LedgerDaughterStage7
+4428,CanLand
+4429,WaterLand
+4430,BatteryLand
+4431,RegisterClunk
+4432,ReceiptPrint

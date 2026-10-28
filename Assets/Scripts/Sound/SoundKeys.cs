@@ -30,12 +30,19 @@ public static class SoundKeys
     public const uint ItemPickup = 4264;
     public const uint ItemPlace = 4265;
     public const uint ItemRemove = 4266;
+    public const uint CanLand = 4428;
+    public const uint WaterLand = 4429;
+    public const uint BatteryLand = 4430;
     public const uint BoxItemDrop = 4267;
     public const uint CustomerBoxDrop = 4295;
 
     // 작업 / 설비
     public const uint Vacuum = 4268;
     public const uint FacilityUpgrade = 4269;
+
+    // 계산대
+    public const uint RegisterClunk = 4431;
+    public const uint ReceiptPrint = 4432;
 
     // 진행 연출
     public const uint DailyGuideline = 4270;
@@ -66,10 +73,15 @@ public static class SoundKeys
         ItemPickup,
         ItemPlace,
         ItemRemove,
+        CanLand,
+        WaterLand,
+        BatteryLand,
         BoxItemDrop,
         CustomerBoxDrop,
         Vacuum,
         FacilityUpgrade,
+        RegisterClunk,
+        ReceiptPrint,
         DailyGuideline,
         DayStart,
         DayEnd,

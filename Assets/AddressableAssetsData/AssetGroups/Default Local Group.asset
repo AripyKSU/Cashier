@@ -379,6 +379,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4449bdda813b88d46bebd76864e530b1
+    m_Address: WaterLand
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 447bd3f056867424383e73e02bdbfdb8
     m_Address: FacilityUpgrade
     m_ReadOnly: 0
@@ -391,6 +396,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 47d6251c8dcee0b4ba29b55b27857e90
     m_Address: HubScene
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 484b2d89e445ee4449415d19a4da1f5c
+    m_Address: ReceiptPrint
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -643,6 +653,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 744d6f35b5794b8449de96666e75a6e6
     m_Address: FemaleNormal_01_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7603650453136ca468f738055ad2449a
+    m_Address: BatteryLand
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -908,6 +923,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aaacaf8d844e36949878349a0841c9a4
     m_Address: FemalePriceSensitive_01_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: abd7644dce97ce14eb3be72f36d9f5d0
+    m_Address: CanLand
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -1296,6 +1316,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ff065281e6708db45bbdfbfd7b4c0a82
     m_Address: FemaleHasty_02_Normal
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff9ec9458c4439a4396f71431d164524
+    m_Address: RegisterClunk
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

@@ -32,6 +32,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private const float ContainerLandingSeconds = 0.85f;
     // 쏟기 연출에서 낙하가 끝나고 튕김이 시작되는 상품별 진행도입니다.
     private const float SpillLandingProgress = 0.78f;
+    // 쏟기 착지음을 재질별로 바꾸는 상품 ID입니다. 그 밖의 상품은 ItemPlace를 사용합니다.
+    private const uint DrinkingWaterProductId = 1001;
+    private const uint CannedFoodProductId = 1004;
+    private const uint DryBatteryProductId = 1010;
 
     [Header("Views")]
     [SerializeField] private GameObject frontView;
@@ -710,7 +714,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 if (itemProgress >= SpillLandingProgress && i < spillLanded.Length && !spillLanded[i])
                 {
                     spillLanded[i] = true;
-                    SoundManager.Instance?.PlaySfx(SoundKeys.ItemPlace, this.spillLandingVolume);
+                    SoundManager.Instance?.PlaySfx(getSpillLandingSound(item.ProductId), this.spillLandingVolume);
                 }
             }
         }, 1f, useSpillFeedback ? spillTotalSeconds : this.pourSeconds).SetEase(Ease.Linear));
@@ -1568,6 +1572,20 @@ public sealed class SaleSortingPanel : MonoBehaviour
         item.transform.localRotation = progress >= 1f
             ? Quaternion.identity
             : Quaternion.Euler(0f, 0f, Mathf.Round(spin / 2f) * 2f);
+    }
+
+    /// <summary>상품 재질에 맞는 쏟기 착지음을 고릅니다.</summary>
+    /// <param name="productId">착지한 상품 ID입니다.</param>
+    /// <returns>재생할 사운드 ResourceData ID입니다. 재질 전용음이 없으면 ItemPlace입니다.</returns>
+    private static uint getSpillLandingSound(uint productId)
+    {
+        switch (productId)
+        {
+            case CannedFoodProductId: return SoundKeys.CanLand;
+            case DrinkingWaterProductId: return SoundKeys.WaterLand;
+            case DryBatteryProductId: return SoundKeys.BatteryLand;
+            default: return SoundKeys.ItemPlace;
+        }
     }
 
     /// <summary>쏟는 동안 상자를 좌우로 터는 정수 픽셀 오프셋을 계산합니다.</summary>
