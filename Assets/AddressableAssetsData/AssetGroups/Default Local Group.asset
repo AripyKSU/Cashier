@@ -348,11 +348,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 3ff4d9a67e54ec94695bd7852ce1e438
-    m_Address: MaleNormal_09
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4071d61b90def654988de31d2cd72a52
     m_Address: TextData
     m_ReadOnly: 0
@@ -437,11 +432,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5222a50ecf2a3da4089907b4d87643ad
     m_Address: FemalePoor_02
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 524a81cf8ec13ad49babcdb1926ece18
-    m_Address: MaleNormal_09_Normal
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

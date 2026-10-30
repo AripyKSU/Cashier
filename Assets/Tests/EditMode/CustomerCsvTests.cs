@@ -205,14 +205,14 @@ var valid = load();
 if (valid.Products.GetDataCount() != 0) throw new Exception("Published before FK validation");
 valid.ValidateAndCommit(textTables[valid], loadResources(), facilities: loadFacilities());
 if (!valid.Appearances.TryGetData(5001, out _) || !valid.Dispositions.TryGetData(6001, out _) || !valid.Categories.TryGetData(7001, out _) || !valid.Products.TryGetData(1001, out var queriedProduct) || !object.ReferenceEquals(queriedProduct, valid.Products.Rows[1001]) || !textTables[valid].TryGetData(8001, out _) || valid.Products.TryGetData(0, out _)) throw new Exception("Concrete table lookup failed");
-if (valid.Appearances.GetDataCount() != 60 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 587)
+if (valid.Appearances.GetDataCount() != 59 || valid.Dispositions.GetDataCount() != 15 || valid.Categories.GetDataCount() != 7 || valid.Products.GetDataCount() != 16 || textTables[valid].GetDataCount() != 587)
     throw new Exception($"Unexpected sample counts: appearances={valid.Appearances.GetDataCount()}, dispositions={valid.Dispositions.GetDataCount()}, categories={valid.Categories.GetDataCount()}, products={valid.Products.GetDataCount()}, texts={textTables[valid].GetDataCount()}");
 foreach (CustomerAttributes gender in new[] { CustomerAttributes.Male, CustomerAttributes.Female })
 foreach (CustomerAttributes age in new[] { CustomerAttributes.Child, CustomerAttributes.Elderly, CustomerAttributes.Adult })
     Assert.That(valid.Appearances.Rows.Values.Any(row => row.Gender == gender && row.Age == age && row.DispositionType == CustomerDispositionType.Normal), Is.True, $"{gender}/{age}");
-Assert.That(valid.Appearances.Rows.Values.Count(row => row.Gender == CustomerAttributes.Male), Is.EqualTo(30));
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.Gender == CustomerAttributes.Male), Is.EqualTo(29));
 Assert.That(valid.Appearances.Rows.Values.Count(row => row.Gender == CustomerAttributes.Female), Is.EqualTo(30));
-Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Adult), Is.EqualTo(24));
+Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Adult), Is.EqualTo(23));
 Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Child), Is.EqualTo(6));
 Assert.That(valid.Appearances.Rows.Values.Count(row => row.DispositionType == CustomerDispositionType.Normal && row.Age == CustomerAttributes.Elderly), Is.EqualTo(6));
 foreach (CustomerDispositionType type in new[] { CustomerDispositionType.Hasty, CustomerDispositionType.PriceSensitive, CustomerDispositionType.Wealthy, CustomerDispositionType.Poor })
@@ -459,7 +459,7 @@ Func<CustomerCatalog> load = () => {
 var c=load();c.ValidateAndCommit(textTables[c], loadResources(), facilities: loadFacilities());
 LogAssert.Expect(LogType.Error,new Regex(@"^CustomerAppearanceData\.csv"));
 Assert.Catch(()=>c.Appearances.LoadData(appearance.Replace("5001,8001,4201,4318","5001,8001,0,4318")));
-Assert.That(c.Appearances.GetDataCount(),Is.EqualTo(60));
+Assert.That(c.Appearances.GetDataCount(),Is.EqualTo(59));
     }
     /// <summary>리소스 대역 검증 실패는 이전 공개 리소스를 보존한다.</summary>
     [Test]

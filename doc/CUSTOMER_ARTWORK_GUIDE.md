@@ -307,7 +307,6 @@ Unity MCP 연결이 직전 작업부터 시간 초과 상태여서, 본 문서�
 | [MaleNormal_06](../Assets/Textures/Customer/Dystopia/MaleNormal_06.png) | 610×925 | 65,45 | 460×880 |
 | [MaleNormal_07](../Assets/Textures/Customer/Dystopia/MaleNormal_07.png) | 610×925 | 15,25 | 580×900 |
 | [MaleNormal_08](../Assets/Textures/Customer/Dystopia/MaleNormal_08.png) | 610×925 | 70,15 | 500×910 |
-| [MaleNormal_09](../Assets/Textures/Customer/Dystopia/MaleNormal_09.png) | 610×925 | 50,35 | 545×890 |
 | [MaleNormal_10](../Assets/Textures/Customer/Dystopia/MaleNormal_10.png) | 610×925 | 25,25 | 580×900 |
 | [MaleNormal_11](../Assets/Textures/Customer/Dystopia/MaleNormal_11.png) | 610×925 | 65,55 | 490×870 |
 | [MaleNormal_12](../Assets/Textures/Customer/Dystopia/MaleNormal_12.png) | 610×925 | 95,30 | 460×895 |
