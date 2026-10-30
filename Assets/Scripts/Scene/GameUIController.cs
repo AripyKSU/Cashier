@@ -25,6 +25,8 @@ public sealed class GameUIController : MonoBehaviour
     private CustomerCatalog customerCatalog;
     private TextDataTable textData;
     private ProgressViewDataFactory viewDataFactory;
+    // 이 PC에 Claude API 키가 있을 때만 생성한다. null이면 기존 CSV 입장 대사를 그대로 쓴다.
+    private CustomerLineService customerLines;
     private PreOpenPanelPresenter preOpenPanelPresenter;
     // 인게임 감독관 튜토리얼 진행자. tutorialCoach가 연결된 경우에만 만든다.
     private InGameTutorialDirector tutorialDirector;
@@ -217,6 +219,7 @@ public sealed class GameUIController : MonoBehaviour
                 this.textData,
                 productSprites, GameSessionManager.Instance.IsFacilityActive, this.topViewSprites, this.appearanceSprites,
                 DataTableManager.Instance.GetDB<DailyGuidelineDataTable>(DataTableType.DailyGuideline));
+            this.customerLines = CustomerLineService.TryCreate(this.getProductName);
             this.preOpenPanelPresenter = this.preOpenPanel != null
                 ? this.preOpenPanel.GetComponentInChildren<PreOpenPanelPresenter>(true)
                 : null;
@@ -293,6 +296,7 @@ public sealed class GameUIController : MonoBehaviour
                 {
                     this.runProgressAction(this.gameProgress.CompleteTransactionResult);
                 }
+                this.prefetchCustomerLines();
                 this.refreshFrameViews();
             }
         }
@@ -414,6 +418,8 @@ public sealed class GameUIController : MonoBehaviour
         this.isSettlementPresentationPending = false;
         this.queueExitRemaining = 0;
         this.subscribedDay?.StopQueue();
+        this.customerLines?.Dispose();
+        this.customerLines = null;
         if (this.useCustomerQueue && this.saleSortingPanel != null) this.saleSortingPanel.SetPresentationBlockQuery(null);
         if (this.economy != null) this.economy.FinanceService.BalanceChanged -= this.handleFacilityBalanceChanged;
         this.unsubscribeProgress();
@@ -698,16 +704,72 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshAllViews();
     }
 
-    /// <summary>새 손님 데이터를 Presenter에 전달합니다.</summary>
+    /// <summary>새 손님 데이터를 Presenter에 전달합니다. Claude API 대사를 쓰면 응답이 올 때까지 말줄임표를 띄웁니다.</summary>
     /// <param name="visit">가격 입력을 기다리는 새 손님 방문입니다.</param>
     private void handleCustomerStarted(CustomerVisit visit)
     {
         CustomerViewData viewData = this.viewDataFactory.CreateCustomerViewData(visit);
+        if (this.customerLines != null)
+        {
+            viewData.DialogueText = "...";
+            this.showGeneratedEntryLineAsync(visit).Forget();
+        }
         this.customerPresenter.UpdateView(viewData);
         this.saleSortingPanel.BeginCustomer(viewData.Basket);
         this.transactionContinueButton.gameObject.SetActive(false);
         this.transactionStatusText.text = "Enter the total price for the basket.";
         this.refreshRuntimeViews();
+    }
+
+    /// <summary>API 또는 풀 대사를 받아 아직 같은 손님이 판정 전이면 입장 대사를 교체한다.</summary>
+    /// <param name="visit">계산대에 선 방문.</param>
+    /// <returns>대사 교체 또는 손님 변경으로 인한 생략 완료.</returns>
+    private async UniTaskVoid showGeneratedEntryLineAsync(CustomerVisit visit)
+    {
+        string line;
+        try
+        {
+            line = await this.customerLines.GetEntryLineAsync(visit, this.createCustomerLineContext());
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        // 기다리는 동안 손님이 바뀌었거나 판정이 끝났으면 결과 대사를 덮어쓰지 않는다.
+        if (this == null || this.subscribedDay?.CurrentVisit != visit || visit.Outcome != CustomerTradeOutcome.None) return;
+        CustomerViewData viewData = this.viewDataFactory.CreateCustomerViewData(visit);
+        if (!string.IsNullOrEmpty(line)) viewData.DialogueText = line;
+        this.customerPresenter.UpdateView(viewData);
+    }
+
+    /// <summary>줄에 선 손님의 대사 요청을 미리 시작해 계산대 도착 시 기다리지 않게 한다.</summary>
+    private void prefetchCustomerLines()
+    {
+        if (this.customerLines == null || this.subscribedDay == null) return;
+        IReadOnlyList<CustomerQueue.Entry> waiting = this.subscribedDay.WaitingCustomers;
+        if (waiting.Count == 0) return;
+        CustomerLineContext context = this.createCustomerLineContext();
+        for (int i = 0; i < waiting.Count; i++) this.customerLines.Prefetch(waiting[i].Visit, context);
+    }
+
+    /// <summary>손님 대사 선택에 쓰는 현재 진행 상황을 모읍니다.</summary>
+    /// <returns>일차, 가게 단계, 대기 손님 수와 영업 경과 비율.</returns>
+    private CustomerLineContext createCustomerLineContext()
+    {
+        int day = this.subscribedDay?.Day ?? 1;
+        float duration = this.subscribedDay?.BusinessDurationSeconds ?? 0f;
+        float progress = duration > 0f ? 1f - Mathf.Clamp01(this.subscribedDay.RemainingSeconds / duration) : 0f;
+        return new CustomerLineContext(day, DayCountdownLabel.IsFinalDay(day), this.gameProgress.CurrentStoreStage,
+            this.subscribedDay?.WaitingCustomers.Count ?? 0, progress);
+    }
+
+    /// <summary>상품 PK를 표시 이름으로 바꿉니다. 이름이 없으면 PK를 문자열로 씁니다.</summary>
+    /// <param name="productIdx">상품 PK.</param>
+    /// <returns>상품 표시 이름.</returns>
+    private string getProductName(uint productIdx)
+    {
+        return this.customerCatalog.Products.Rows.TryGetValue(productIdx, out ProductData product)
+            && this.textData.Rows.TryGetValue(product.NameIdx, out TextData text) ? text.Text : productIdx.ToString();
     }
 
     /// <summary>빈 계산대에서도 이전 외형·대사·박스·상품이 남지 않도록 정리한다.</summary>
