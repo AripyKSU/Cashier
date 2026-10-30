@@ -1,0 +1,34 @@
+# Store text as LF and check it out as LF on every PC, whatever core.autocrlf says.
+# Unity writes its YAML assets with LF, so this keeps git and Unity in agreement.
+* text=auto eol=lf
+
+# Windows scripts need CRLF to run
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binaries: never convert or diff
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.psd binary
+*.tga binary
+*.tif binary
+*.exr binary
+*.hdr binary
+*.gif binary
+*.fbx binary
+*.obj binary
+*.blend binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.mp4 binary
+*.ttf binary
+*.otf binary
+*.dll binary
+*.so binary
+*.a binary
+*.zip binary
+*.pdf binary
+*.docx binary
+*.unitypackage binary
