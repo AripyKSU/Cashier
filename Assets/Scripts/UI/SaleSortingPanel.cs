@@ -74,22 +74,47 @@ public sealed class SaleSortingPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI sortingStatusText;
 
     [Header("Spill Feedback")]
-    [Tooltip("상품이 하나씩 포물선으로 굴러 나와 튕기고 착지음을 내는 쏟기 연출입니다. 기본 꺼짐이며 별도 씬의 CheckoutFeedbackSwitch가 켭니다.")]
-    [SerializeField] private bool spillFeedbackEnabled;
+    [Tooltip("상품이 하나씩 포물선으로 굴러 나와 튕기고 착지음을 내는 쏟기 연출입니다. 이 브랜치에서는 체감 확인용으로 기본 켜짐이며 CheckoutFeedbackSwitch로 끌 수 있습니다.")]
+    [SerializeField] private bool spillFeedbackEnabled = true;
     /// <summary>상품 하나가 통 입구에서 작업대에 멈출 때까지의 시간(초)입니다.</summary>
     [SerializeField, Min(0.05f)] private float spillItemSeconds = 0.42f;
     /// <summary>다음 상품이 굴러 나오기 시작하는 간격(초)입니다.</summary>
     [SerializeField, Min(0f)] private float spillStaggerSeconds = 0.06f;
     /// <summary>통 입구에서 떨어질 때 위로 솟는 최대 높이(픽셀)입니다.</summary>
-    [SerializeField, Min(0f)] private float spillArcPixels = 70f;
+    [SerializeField, Min(0f)] private float spillArcPixels = 90f;
     /// <summary>착지 뒤 한 번 튀어 오르는 높이(픽셀)입니다. 0이면 튕기지 않습니다.</summary>
-    [SerializeField, Min(0f)] private float spillBouncePixels = 8f;
+    [SerializeField, Min(0f)] private float spillBouncePixels = 16f;
     /// <summary>떨어지는 동안 상품이 도는 최대 각도(도)입니다. 착지 후 0도로 돌아옵니다.</summary>
     [SerializeField, Range(0f, 45f)] private float spillSpinDegrees = 14f;
     /// <summary>쏟는 동안 상자를 좌우로 터는 폭(픽셀)입니다. 0이면 털지 않습니다.</summary>
-    [SerializeField, Min(0f)] private float spillContainerShakePixels = 2f;
+    [SerializeField, Min(0f)] private float spillContainerShakePixels = 4f;
     /// <summary>상품별 착지음 음량 배율입니다. 여러 개가 겹쳐 시끄럽지 않게 낮게 둡니다.</summary>
     [SerializeField, Range(0f, 1f)] private float spillLandingVolume = 0.45f;
+
+    /// <summary>쏟기 착지 순간 상품이 납작해지는 비율입니다. 0이면 찌그러지지 않습니다.</summary>
+    [SerializeField, Range(0f, 0.4f)] private float spillLandingSquash = 0.16f;
+    /// <summary>쏟기 착지마다 작업대를 흔드는 폭(픽셀)입니다. 0이면 흔들지 않습니다.</summary>
+    [SerializeField, Min(0f)] private float spillLandingShakePixels = 2f;
+
+    [Header("Drag Feedback")]
+    [Tooltip("상품 집기·끌기·놓기 손맛 연출(들림·그림자·지연·기울기·찌그러짐·히트스톱·작업대 흔들림)입니다. 이 브랜치에서는 체감 확인용으로 기본 켜짐입니다.")]
+    [SerializeField] private bool dragFeedbackEnabled = true;
+    /// <summary>집어 올린 동안의 상품 배율입니다.</summary>
+    [SerializeField, Range(1f, 1.4f)] private float dragLiftScale = 1.16f;
+    /// <summary>들린 상품 아래 그림자가 떨어지는 거리(픽셀)입니다.</summary>
+    [SerializeField, Min(0f)] private float dragShadowPixels = 8f;
+    /// <summary>상품이 마우스를 따라오는 빠르기입니다. 낮을수록 무겁게 늦게 따라옵니다.</summary>
+    [SerializeField, Range(4f, 60f)] private float dragFollowSharpness = 18f;
+    /// <summary>드래그 중 최대 기울기(도)입니다.</summary>
+    [SerializeField, Range(0f, 20f)] private float dragTiltDegrees = 10f;
+    /// <summary>내려놓을 때 찌그러지는 비율입니다.</summary>
+    [SerializeField, Range(0f, 0.4f)] private float dropSquash = 0.2f;
+    /// <summary>판매 구역에 놓았을 때 멈춰 있는 히트스톱 시간(초)입니다.</summary>
+    [SerializeField, Range(0f, 0.15f)] private float saleDropHitstopSeconds = 0.06f;
+    /// <summary>판매 구역 착지 때 작업대를 흔드는 폭(픽셀)입니다.</summary>
+    [SerializeField, Min(0f)] private float saleDropShakePixels = 4f;
+    /// <summary>폐기 구역 착지 때 작업대를 흔드는 폭(픽셀)입니다.</summary>
+    [SerializeField, Min(0f)] private float excludeDropShakePixels = 6f;
 
     [Header("Divider Bar")]
     [Tooltip("작업대에서 상품을 물리적으로 밀어내는 큰 밀대")]
@@ -111,6 +136,9 @@ public sealed class SaleSortingPanel : MonoBehaviour
     private bool vacuumAvailable;
     private bool layoutContractViolationLogged;
     private SaleSortingItemView draggedItem;
+    private Tween workShakeTween;
+    private Vector2 workShakeRestPosition;
+    private bool hasWorkShakeRestPosition;
     private Vector2 dragOffset;
     private Coroutine transitionRoutine;
     private SimplePool<SaleSortingItemView> itemPool;
@@ -330,6 +358,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
         }
 
         this.ensureLandingDustEffect();
+        SaleSortingItemView.UseMutedSaleTint = this.dragFeedbackEnabled;
         this.showFrontOnly();
     }
 
@@ -462,6 +491,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
     /// <summary>비활성화 중 계산기 연출과 열린 상자 상태를 남기지 않습니다.</summary>
     private void OnDisable()
     {
+        this.stopWorkShake();
         this.stopTransition();
         this.stopContainerArrival();
         this.stopAutoSorting();
@@ -715,6 +745,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 {
                     spillLanded[i] = true;
                     SoundManager.Instance?.PlaySfx(getSpillLandingSound(item.ProductId), this.spillLandingVolume);
+                    this.shakeWorkArea(this.spillLandingShakePixels, 0.08f);
                 }
             }
         }, 1f, useSpillFeedback ? spillTotalSeconds : this.pourSeconds).SetEase(Ease.Linear));
@@ -1177,6 +1208,11 @@ public sealed class SaleSortingPanel : MonoBehaviour
                 this.draggedItem.Manipulation = SaleSortingItemView.ManipulationState.PlayerDragging;
                 this.dragOffset = item.Position - pointerPosition;
                 SoundManager.Instance?.PlaySfx(SoundKeys.ItemPickup);
+                if (this.dragFeedbackEnabled)
+                {
+                    item.transform.SetAsLastSibling();
+                    item.PlayLift(this.dragLiftScale, this.dragShadowPixels);
+                }
             }
         }
 
@@ -1184,7 +1220,20 @@ public sealed class SaleSortingPanel : MonoBehaviour
         if (isPressed && RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 this.itemRoot, pointerScreenPosition, null, out Vector2 currentPointerPosition))
         {
-            this.draggedItem.Position = this.clampItemPosition(currentPointerPosition + this.dragOffset, this.draggedItem);
+            Vector2 target = this.clampItemPosition(currentPointerPosition + this.dragOffset, this.draggedItem);
+            if (this.dragFeedbackEnabled)
+            {
+                // 마우스에 딱 붙지 않고 살짝 늦게 따라와 물건 무게를 느끼게 합니다.
+                float deltaSeconds = Mathf.Clamp(Time.unscaledDeltaTime, MinimumDeltaSeconds, 0.05f);
+                Vector2 previous = this.draggedItem.Position;
+                Vector2 next = Vector2.Lerp(previous, target, 1f - Mathf.Exp(-this.dragFollowSharpness * deltaSeconds));
+                this.draggedItem.Position = next;
+                this.draggedItem.UpdateDragTilt((next.x - previous.x) / deltaSeconds, this.dragTiltDegrees, deltaSeconds);
+            }
+            else
+            {
+                this.draggedItem.Position = target;
+            }
         }
         else
         {
@@ -1239,6 +1288,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             releasedItem.State == SaleSortingItemView.SortingState.Excluded && previousState != releasedItem.State
                 ? SoundKeys.ItemRemove
                 : SoundKeys.ItemPlace);
+        if (this.dragFeedbackEnabled) this.playDropFeedback(releasedItem);
         this.requestAutoSort();
     }
 
@@ -1568,10 +1618,67 @@ public sealed class SaleSortingPanel : MonoBehaviour
             spin = direction * this.spillSpinDegrees * 0.5f * (1f - bounce);
         }
 
+        // 착지 직후 잠깐 납작해졌다가 튕기며 원래 모양으로 돌아옵니다.
+        float squashAmount = 0f;
+        if (progress >= SpillLandingProgress && progress < 1f)
+        {
+            float bounce = (progress - SpillLandingProgress) / (1f - SpillLandingProgress);
+            squashAmount = this.spillLandingSquash * Mathf.Clamp01(1f - bounce / 0.35f);
+        }
+        item.SetFeedbackScale(new Vector3(1f + squashAmount, 1f - squashAmount, 1f));
+
         item.Position = new Vector2(Mathf.Round(position.x), Mathf.Round(position.y));
         item.transform.localRotation = progress >= 1f
             ? Quaternion.identity
             : Quaternion.Euler(0f, 0f, Mathf.Round(spin / 2f) * 2f);
+    }
+
+    /// <summary>별도 씬에서 상품 집기·끌기·놓기 손맛 연출을 켜거나 끕니다. 판매 구역 황동색 틴트도 함께 바뀝니다.</summary>
+    public bool DragFeedbackEnabled
+    {
+        get => this.dragFeedbackEnabled;
+        set
+        {
+            this.dragFeedbackEnabled = value;
+            SaleSortingItemView.UseMutedSaleTint = value;
+        }
+    }
+
+    /// <summary>내려놓은 상품의 구역에 맞춰 찌그러짐·히트스톱·작업대 흔들림을 재생합니다.</summary>
+    /// <param name="item">방금 내려놓은 상품입니다.</param>
+    private void playDropFeedback(SaleSortingItemView item)
+    {
+        bool isForSale = item.State == SaleSortingItemView.SortingState.ForSale;
+        bool isExcluded = item.State == SaleSortingItemView.SortingState.Excluded;
+        item.PlayDrop(this.dropSquash, isForSale ? this.saleDropHitstopSeconds : 0f, isForSale);
+        if (isForSale) this.shakeWorkArea(this.saleDropShakePixels, 0.12f);
+        else if (isExcluded) this.shakeWorkArea(this.excludeDropShakePixels, 0.16f);
+    }
+
+    /// <summary>작업대 전체를 정수 픽셀 단위로 짧게 흔듭니다. 흔들기가 끝나면 원래 위치로 돌아옵니다.</summary>
+    /// <param name="pixels">최대 흔들림 폭(픽셀)입니다. 0 이하면 흔들지 않습니다.</param>
+    /// <param name="seconds">흔들리는 시간(초)입니다.</param>
+    private void shakeWorkArea(float pixels, float seconds)
+    {
+        if (pixels <= 0f || this.workArea == null) return;
+        this.stopWorkShake();
+        this.workShakeRestPosition = this.workArea.anchoredPosition;
+        this.hasWorkShakeRestPosition = true;
+        this.workShakeTween = this.workArea.DOShakePosition(seconds, new Vector3(pixels, pixels, 0f), 24, 90f, true, true)
+            .SetUpdate(true).SetTarget(this)
+            .OnKill(() => this.workShakeTween = null);
+    }
+
+    /// <summary>진행 중인 작업대 흔들기를 멈추고 흔들기 전 위치로 되돌립니다.</summary>
+    private void stopWorkShake()
+    {
+        if (this.workShakeTween != null && this.workShakeTween.IsActive()) this.workShakeTween.Kill(false);
+        this.workShakeTween = null;
+        if (this.hasWorkShakeRestPosition && this.workArea != null)
+        {
+            this.workArea.anchoredPosition = this.workShakeRestPosition;
+        }
+        this.hasWorkShakeRestPosition = false;
     }
 
     /// <summary>상품 재질에 맞는 쏟기 착지음을 고릅니다.</summary>
