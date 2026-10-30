@@ -1,0 +1,15 @@
+{
+    "pixelSize": 4.0,
+    "saturation": 0.699999988079071,
+    "contrast": 0.8500000238418579,
+    "warmth": 1.0,
+    "paletteLock": 1.0,
+    "outlineSoften": 1.0,
+    "soldierPixelSize": 4.0,
+    "crispDetails": true,
+    "stall": true,
+    "counter": true,
+    "crate": true,
+    "facility": true,
+    "soldier": true
+}
