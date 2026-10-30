@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -42,6 +43,16 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
     private Image itemImage;
     private RectTransform workArea;
     private bool isDragging;
+    // 손맛 연출이 켜졌을 때만 런타임에 붙이는 그림자입니다. 꺼진 상태에서는 만들지 않습니다.
+    private Shadow liftShadow;
+    private Tween feedbackTween;
+    private float dragTiltDegrees;
+
+    /// <summary>
+    /// 판매 구역 상품을 연두색 대신 바랜 황동색으로 표시할지 여부입니다.
+    /// 손맛 연출 스위치가 SaleSortingPanel을 통해 설정하며, 모든 작업대 상품에 공통으로 적용됩니다.
+    /// </summary>
+    public static bool UseMutedSaleTint { get; set; }
 
     /// <summary>상품 데이터 식별자입니다.</summary>
     public uint ProductId { get; private set; }
@@ -123,6 +134,7 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         this.rectTransform.sizeDelta = Vector2.one * sizePixels;
         this.transform.localScale = Vector3.one;
         this.transform.localRotation = Quaternion.identity;
+        this.ClearFeedback();
         this.itemImage.sprite = sprite;
         this.itemImage.preserveAspect = true;
         this.itemImage.raycastTarget = true;
@@ -140,6 +152,7 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
             this.itemImage = this.GetComponent<Image>();
         }
 
+        this.ClearFeedback();
         this.DragStarted = null;
         this.Dragged = null;
         this.DragEnded = null;
@@ -227,8 +240,10 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         switch (this.State)
         {
             case SortingState.ForSale:
-                // 판매 구역에 들어가면 산뜻한 연두색 틴트로 판매 등록 피드백 표시
-                this.itemImage.color = new Color(0.85f, 1.0f, 0.85f, 1f);
+                // 판매 구역 틴트입니다. 손맛 연출에서는 디스토피아 톤에 맞춰 바랜 황동색을 씁니다.
+                this.itemImage.color = UseMutedSaleTint
+                    ? new Color(1f, 0.9f, 0.68f, 1f)
+                    : new Color(0.85f, 1.0f, 0.85f, 1f);
                 break;
 
             case SortingState.Excluded:
@@ -242,4 +257,103 @@ public sealed class SaleSortingItemView : MonoBehaviour, IBeginDragHandler, IDra
         }
     }
 
+    /// <summary>집어 올린 상품을 살짝 키우고 아래에 그림자를 떨어뜨려 들린 느낌을 줍니다.</summary>
+    /// <param name="liftScale">들린 동안의 배율입니다.</param>
+    /// <param name="shadowPixels">그림자가 아래로 떨어지는 거리(픽셀)입니다.</param>
+    internal void PlayLift(float liftScale, float shadowPixels)
+    {
+        this.killFeedbackTween();
+        this.dragTiltDegrees = 0f;
+        Shadow shadow = this.ensureShadow();
+        shadow.enabled = true;
+        shadow.effectDistance = new Vector2(Mathf.Round(shadowPixels * 0.5f), -Mathf.Round(shadowPixels));
+        // 1프레임 눌렸다가 들리는 느낌을 위해 아주 짧게 작아졌다 커집니다.
+        this.transform.localScale = Vector3.one * 0.94f;
+        this.feedbackTween = this.transform.DOScale(liftScale, 0.08f)
+            .SetEase(Ease.OutQuad).SetUpdate(true).SetTarget(this);
+    }
+
+    /// <summary>드래그 중 좌우 이동 속도에 따라 상품을 계단식으로 기울입니다.</summary>
+    /// <param name="horizontalSpeed">작업대 로컬 좌표 기준 가로 속도(픽셀/초)입니다.</param>
+    /// <param name="maxDegrees">최대 기울기(도)입니다.</param>
+    /// <param name="deltaSeconds">이번 프레임 시간(초)입니다.</param>
+    internal void UpdateDragTilt(float horizontalSpeed, float maxDegrees, float deltaSeconds)
+    {
+        float target = Mathf.Clamp(-horizontalSpeed * 0.012f, -maxDegrees, maxDegrees);
+        this.dragTiltDegrees = Mathf.Lerp(this.dragTiltDegrees, target, 1f - Mathf.Exp(-14f * deltaSeconds));
+        // 픽셀 아트가 번지지 않도록 2도 단위로만 기울입니다.
+        this.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Round(this.dragTiltDegrees / 2f) * 2f);
+    }
+
+    /// <summary>
+    /// 내려놓은 상품을 잠깐 멈췄다가(히트스톱) 납작하게 찌그러뜨린 뒤 원래 모양으로 돌립니다.
+    /// 판매 구역이면 한 번 더 작게 튀어 올라 등록된 느낌을 줍니다.
+    /// </summary>
+    /// <param name="squash">찌그러지는 비율입니다. 0.18이면 가로 118%, 세로 82%입니다.</param>
+    /// <param name="hitstopSeconds">착지 직후 멈춰 있는 시간(초)입니다.</param>
+    /// <param name="isForSale">판매 구역에 놓였는지 여부입니다.</param>
+    internal void PlayDrop(float squash, float hitstopSeconds, bool isForSale)
+    {
+        this.killFeedbackTween();
+        if (this.liftShadow != null) this.liftShadow.enabled = false;
+        this.dragTiltDegrees = 0f;
+        this.transform.localRotation = Quaternion.identity;
+        this.transform.localScale = new Vector3(1f + squash, 1f - squash, 1f);
+
+        Sequence sequence = DOTween.Sequence().SetUpdate(true).SetTarget(this);
+        sequence.AppendInterval(Mathf.Max(0f, hitstopSeconds));
+        sequence.Append(this.transform.DOScale(new Vector3(1f - squash * 0.4f, 1f + squash * 0.4f, 1f), 0.06f).SetEase(Ease.OutQuad));
+        if (isForSale)
+        {
+            sequence.Append(this.transform.DOScale(Vector3.one * (1f + squash * 0.6f), 0.06f).SetEase(Ease.OutQuad));
+        }
+        sequence.Append(this.transform.DOScale(Vector3.one, 0.1f).SetEase(Ease.OutQuad));
+        this.feedbackTween = sequence;
+    }
+
+    /// <summary>쏟기 착지처럼 외부 연출이 지정한 배율을 그대로 적용합니다.</summary>
+    /// <param name="scale">적용할 배율입니다.</param>
+    internal void SetFeedbackScale(Vector3 scale)
+    {
+        this.transform.localScale = scale;
+    }
+
+    /// <summary>진행 중인 손맛 연출을 멈추고 크기·기울기·그림자를 기본값으로 돌립니다.</summary>
+    internal void ClearFeedback()
+    {
+        this.killFeedbackTween();
+        this.dragTiltDegrees = 0f;
+        if (this.liftShadow != null) this.liftShadow.enabled = false;
+        this.transform.localScale = Vector3.one;
+        this.transform.localRotation = Quaternion.identity;
+    }
+
+    /// <summary>오브젝트가 꺼질 때 남은 연출 tween을 정리합니다.</summary>
+    private void OnDisable()
+    {
+        this.killFeedbackTween();
+    }
+
+    /// <summary>현재 소유한 연출 tween을 종료합니다.</summary>
+    private void killFeedbackTween()
+    {
+        if (this.feedbackTween != null && this.feedbackTween.IsActive()) this.feedbackTween.Kill(false);
+        this.feedbackTween = null;
+    }
+
+    /// <summary>들림 그림자 컴포넌트를 처음 필요할 때 한 번만 붙입니다.</summary>
+    /// <returns>이 상품의 그림자 컴포넌트입니다.</returns>
+    private Shadow ensureShadow()
+    {
+        if (this.liftShadow == null)
+        {
+            this.liftShadow = this.GetComponent<Shadow>();
+            if (this.liftShadow == null) this.liftShadow = this.gameObject.AddComponent<Shadow>();
+            // 검은 그림자 대신 어두운 갈색 반투명으로 작업대 나무색에 묻히게 합니다.
+            this.liftShadow.effectColor = new Color(0.12f, 0.08f, 0.05f, 0.45f);
+            this.liftShadow.useGraphicAlpha = true;
+        }
+
+        return this.liftShadow;
+    }
 }

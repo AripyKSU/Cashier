@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
@@ -27,8 +28,14 @@ public class KeypadController : MonoBehaviour
     [Tooltip("키보드 입력 허용 여부")]
     [SerializeField] private bool allowKeyboardInput = true;
 
-    [Tooltip("가격 확정 시 금전등록기 서랍 소리를 냅니다. 기본 꺼짐이며 별도 씬의 CheckoutFeedbackSwitch가 켭니다.")]
-    [SerializeField] private bool registerClunkEnabled;
+    [Tooltip("가격 확정 시 금전등록기 서랍 소리를 냅니다. 이 브랜치에서는 체감 확인용으로 기본 켜짐입니다.")]
+    [SerializeField] private bool registerClunkEnabled = true;
+
+    [Tooltip("숫자 입력 시 금액 표시가 눌리듯 튀고, 확정 시 계산기가 흔들리는 손맛 연출입니다. 이 브랜치에서는 체감 확인용으로 기본 켜짐입니다.")]
+    [SerializeField] private bool pressFeedbackEnabled = true;
+
+    /// <summary>가격 확정 때 금액 표시를 흔드는 폭(픽셀)입니다.</summary>
+    [SerializeField, Min(0f)] private float confirmShakePixels = 6f;
 
 
     // =========================================================================
@@ -58,6 +65,9 @@ public class KeypadController : MonoBehaviour
 
     private long currentPrice = 0;
     private bool isInputEnabled;
+    private Tween displayPunchTween;
+    private Tween confirmShakeTween;
+    private Vector2 confirmShakeRestPosition;
 
 
     // =========================================================================
@@ -103,6 +113,7 @@ public class KeypadController : MonoBehaviour
         this.currentPrice = nextValue;
         this.updateDisplay();
         SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
+        this.playDisplayPunch();
     }
 
     /// <summary>
@@ -126,6 +137,7 @@ public class KeypadController : MonoBehaviour
         this.currentPrice = nextValue;
         this.updateDisplay();
         SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
+        this.playDisplayPunch();
     }
 
     /// <summary>Backspace(한 자리 지우기) 버튼 클릭 시 호출</summary>
@@ -137,6 +149,7 @@ public class KeypadController : MonoBehaviour
         this.currentPrice /= 10;
         this.updateDisplay();
         SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
+        this.playDisplayPunch();
     }
 
     /// <summary>전체 지우기 (Clear) 버튼 클릭 시 호출</summary>
@@ -157,10 +170,43 @@ public class KeypadController : MonoBehaviour
         Debug.Log($"<color=cyan><b>[Keypad] 가격 확정 전송: {this.currentPrice:N0}원</b></color>");
         this.OnPriceConfirmed?.Invoke(this.currentPrice);
         if (this.registerClunkEnabled) SoundManager.Instance?.PlaySfx(SoundKeys.RegisterClunk);
+        if (this.pressFeedbackEnabled) this.playConfirmShake();
 
         // 결제 완료 후 입력창은 자동으로 0으로 비움
         this.currentPrice = 0;
         this.updateDisplay();
+    }
+
+    /// <summary>별도 씬에서 키패드 눌림·확정 흔들림 연출을 켜거나 끕니다.</summary>
+    public bool PressFeedbackEnabled
+    {
+        get => this.pressFeedbackEnabled;
+        set => this.pressFeedbackEnabled = value;
+    }
+
+    /// <summary>금액 표시를 순간 작게 눌렀다가 원래 크기로 돌려 버튼이 눌린 느낌을 줍니다.</summary>
+    private void playDisplayPunch()
+    {
+        if (!this.pressFeedbackEnabled || this.priceDisplayText == null) return;
+        if (this.displayPunchTween != null && this.displayPunchTween.IsActive()) this.displayPunchTween.Kill(true);
+        Transform display = this.priceDisplayText.transform;
+        display.localScale = new Vector3(1.06f, 0.9f, 1f);
+        this.displayPunchTween = display.DOScale(Vector3.one, 0.09f).SetEase(Ease.OutQuad).SetUpdate(true).SetTarget(this);
+    }
+
+    /// <summary>
+    /// 확정 순간 금액 표시를 정수 픽셀로 짧게 흔들어 금전등록기가 닫히는 무게를 줍니다.
+    /// 계산기 패널 위치는 SaleSortingPanel이 슬라이드로 소유하므로 표시 텍스트만 흔듭니다.
+    /// </summary>
+    private void playConfirmShake()
+    {
+        if (this.confirmShakePixels <= 0f || this.priceDisplayText == null) return;
+        RectTransform rect = this.priceDisplayText.rectTransform;
+        if (this.confirmShakeTween != null && this.confirmShakeTween.IsActive()) this.confirmShakeTween.Kill(true);
+        this.confirmShakeRestPosition = rect.anchoredPosition;
+        this.confirmShakeTween = rect.DOShakePosition(0.18f, new Vector3(this.confirmShakePixels, this.confirmShakePixels, 0f), 26, 90f, true, true)
+            .SetUpdate(true).SetTarget(this)
+            .OnKill(() => rect.anchoredPosition = this.confirmShakeRestPosition);
     }
 
     /// <summary>'000' 버튼 클릭 시 현재 금액 뒤에 0을 세 개 추가합니다.</summary>
@@ -178,6 +224,7 @@ public class KeypadController : MonoBehaviour
         this.currentPrice = nextValue;
         this.updateDisplay();
         SoundManager.Instance?.PlaySfx(SoundKeys.CalculatorButton);
+        this.playDisplayPunch();
     }
 
     /// <summary>
