@@ -7,8 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public sealed class DayProgress
 {
-    /// <summary>20일 밸런싱의 기본 영업시간(초)입니다.</summary>
-    public const float DefaultBusinessDurationSeconds = 120f;
+    /// <summary>5분 시연판(4일)의 기본 영업시간(초)입니다.</summary>
+    public const float DefaultBusinessDurationSeconds = 50f;
 
     // 날짜·영업·현재가의 단일 소유자이며 경제 상태도 이 세션에서만 얻습니다.
     private readonly GameSessionManager session;

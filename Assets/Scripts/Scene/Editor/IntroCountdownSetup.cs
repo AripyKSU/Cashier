@@ -3,7 +3,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// 인트로 9컷 연출에 감독관의 "딸 수명 3주" 대사와, 마지막 검은 화면의 "주어진 하루 D-21 → -1 → D-20" 카운트다운을 넣는 도구.
+/// 인트로 9컷 연출에 감독관의 "딸 수명 3주" 대사와, 마지막 검은 화면의 "주어진 하루 D-5 → -1 → D-4" 카운트다운을 넣는 도구.
 /// 씬에 저장된 beats 배열을 직접 고친다. 이미 넣었으면 다시 넣지 않는다.
 /// </summary>
 public static class IntroCountdownSetup
@@ -13,12 +13,12 @@ public static class IntroCountdownSetup
     private const string AfterLine = "돈부터 마련해.";
     private const string ChoiceLine = "선택은 자네 몫이야.";
     private const string CardLabel = "Countdown";
-    // 검은 화면 한 장에서 글자만 천천히 바뀐다: D-21 → -1 → D-20. "||"가 바뀌는 지점이다.
+    // 검은 화면 한 장에서 글자만 천천히 바뀐다: D-5 → -1 → D-4. "||"가 바뀌는 지점이다.
     // 숫자 자리가 흔들리지 않도록 좌우에 보이지 않는 "-1"을 두고, -1만 어두운 붉은색으로 천천히 드러낸다.
     private const string CountdownText =
-        "<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-21</color><color=#00000000> -1</color></mspace></size>" +
-        "||<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-21</color><color=#a8473b> -1</color></mspace></size>" +
-        "||<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-20</color><color=#00000000> -1</color></mspace></size>";
+        "<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-5</color><color=#00000000> -1</color></mspace></size>" +
+        "||<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-5</color><color=#a8473b> -1</color></mspace></size>" +
+        "||<color=#b8b2aa>하루에게 남은 날</color>\n<size=160%><mspace=0.62em><color=#00000000>-1 </color><color=#d8d2c8>D-4</color><color=#00000000> -1</color></mspace></size>";
 
     /// <summary>대사와 카운트다운을 IntroScene에 넣고 저장합니다.</summary>
     [MenuItem("Cashier/Intro/Insert Doctor Line And Countdown")]

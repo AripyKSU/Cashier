@@ -13,7 +13,7 @@ using System.Linq;
 public sealed class CustomerCompositionSelector
 {
     /// <summary>초반 조작 학습을 위해 수량 상한을 적용하는 표시 일수입니다.</summary>
-    private const uint IntroQuantityLimitDisplayDays = 6;
+    private const uint IntroQuantityLimitDisplayDays = 1;
 
     /// <summary>초반 학습 구간의 상품 한 종류당 최대 수량입니다.</summary>
     private const int IntroMaxQuantityPerProduct = 2;
@@ -361,15 +361,15 @@ public sealed class CustomerCompositionSelector
         return total / row.PreferredProductTypes.Count;
     }
 
-    /// <summary>표시일1~9, 10~19, 20일 이후의 저가·중가·고가 상품군 가중치입니다.</summary>
+    /// <summary>표시일1~2, 3, 4일의 저가·중가·고가 상품군 가중치입니다.</summary>
     private static int preferenceTypeWeight(ProductType type, uint elapsedDays)
     {
         int band = type <= ProductType.DailyNecessities ? 0
             : type <= ProductType.ElectricalEquipment ? 1
             : 2;
-        if (elapsedDays < 9)
+        if (elapsedDays < 2)
             return band == 0 ? 160 : band == 1 ? 100 : 45;
-        if (elapsedDays < 19)
+        if (elapsedDays < 3)
             return band == 0 ? 100 : band == 1 ? 160 : 100;
         return band == 0 ? 100 : band == 1 ? 120 : 180;
     }

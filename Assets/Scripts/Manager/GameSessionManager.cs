@@ -7,7 +7,7 @@ using System.Linq;
 public sealed class GameSessionManager : Singleton<GameSessionManager>
 {
     /// <summary>한 세션의 마지막 영업일입니다.</summary>
-    public const int FinalDay = 20;
+    public const int FinalDay = 4;
 
     // 현재 게임 세션에서 사용하는 경제 런타임입니다.
     private EconomyRuntime economy;

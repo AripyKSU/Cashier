@@ -123,11 +123,11 @@ public sealed class DailyProductSelector
 
     /// <summary>게임 시작 후 경과 일수에 따른 일일 등장 상품 최대 종류 수를 반환합니다.</summary>
     /// <param name="elapsedDays">게임 시작일부터 경과한 0 이상의 일수입니다. 0은 1일차입니다.</param>
-    /// <returns>1~6일차 4종, 7~12일차 6종, 13일차 이후 8종입니다.</returns>
+    /// <returns>1일차 4종, 2일차 6종, 3일차 이후 8종입니다.</returns>
     public static int GetMaximumProductKinds(uint elapsedDays)
     {
-        if (elapsedDays >= 12) return 8;
-        if (elapsedDays >= 6) return 6;
+        if (elapsedDays >= 2) return 8;
+        if (elapsedDays >= 1) return 6;
         return 4;
     }
 
