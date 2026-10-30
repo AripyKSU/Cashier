@@ -44,7 +44,7 @@ public readonly struct CustomerLineContext
 public sealed class CustomerLineService : IDisposable
 {
     /// <summary>계산대 도착 후 API 응답을 기다리는 최대 시간(초). 넘으면 풀 대사를 쓴다.</summary>
-    public const float MaxWaitSeconds = 2f;
+    public const float MaxWaitSeconds = 1f;
     private const string Endpoint = "https://api.anthropic.com/v1/messages";
     private const string ApiVersion = "2026-10-21";
     private const string Model = "claude-haiku-5-5";
@@ -119,7 +119,7 @@ public sealed class CustomerLineService : IDisposable
         this.pending[visit] = new PendingLine(request, fallback, Time.realtimeSinceStartup);
     }
 
-    /// <summary>계산대에 선 손님의 입장 대사를 최대 2초 기다려 반환한다.</summary>
+    /// <summary>계산대에 선 손님의 입장 대사를 최대 1초 기다려 반환한다.</summary>
     /// <param name="visit">계산대에 선 방문.</param>
     /// <param name="context">현재 진행 상황. 미리 요청하지 않은 방문이면 이 값으로 요청한다.</param>
     /// <returns>API 대사, 늦으면 풀 대사, 둘 다 없으면 null(기존 CSV 대사 사용).</returns>
@@ -138,7 +138,7 @@ public sealed class CustomerLineService : IDisposable
             Debug.Log($"[CustomerLine] API 대사 (요청 후 {Time.realtimeSinceStartup - line.RequestedAt:0.00}초, 계산대 대기 {waited:0.00}초): {apiLine}");
             return apiLine;
         }
-        Debug.Log($"[CustomerLine] 풀 대사 사용 ({(hasApiResult ? "API 실패" : "2초 초과")}): {line.Fallback ?? "(CSV 기본 대사)"}");
+        Debug.Log($"[CustomerLine] 풀 대사 사용 ({(hasApiResult ? "API 실패" : "1초 초과")}): {line.Fallback ?? "(CSV 기본 대사)"}");
         return line.Fallback;
     }
 
