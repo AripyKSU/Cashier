@@ -288,6 +288,10 @@ public sealed class SaleSortingPanel : MonoBehaviour
         {
             this.calculatorOpenPosition = this.calculatorPanel.anchoredPosition;
             this.calculatorClosedPosition = this.getCalculatorClosedPosition();
+            // 다 올라온 계산기는 끌어서 옮길 수 있고, 다음에도 옮긴 자리로 올라온다.
+            UIDragMover calculatorMover = this.calculatorPanel.gameObject.AddComponent<UIDragMover>();
+            calculatorMover.CanDrag = () => this.isCalculatorOpen && this.calculatorSlideTween == null;
+            calculatorMover.Moved += () => this.calculatorOpenPosition = this.calculatorPanel.anchoredPosition;
         }
         this.hideCalculatorImmediately();
 
