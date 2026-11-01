@@ -141,6 +141,33 @@ public sealed class DaughterDialogueTests
             pending<DaughterAppearanceDataTable, DaughterAppearanceData>(appearances).Values, new System.Random(seed));
     }
 
+    /// <summary>보통 날 밤 대본은 몸 상태 한 줄로 시작하고, 행동 반응은 위반 > 도덕성 하락 > 상승 > 거절 순으로 하나만 붙는다.</summary>
+    [Test]
+    public void NightScriptStartsWithSymptomAndPicksOneReaction()
+    {
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(10, 0, 0m, 0), Is.EqualTo(new[] { 8607u }));
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(11, 0, 0m, 0), Is.EqualTo(new[] { 8608u }));
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(20, 0, 0m, 0)[0], Is.EqualTo(8613u));
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(4, 1, -20m, 5)[1], Is.EqualTo(8615u));
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(4, 0, -10m, 5)[1], Is.EqualTo(8617u));
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(4, 0, 8m, 5)[1], Is.EqualTo(8619u));
+        Assert.That(DaughterDayScript.GetNightBeforeStamp(4, 0, 0m, 3)[1], Is.EqualTo(8621u));
+        Assert.That(DaughterDayScript.GetNightAfterStamp(4, 2), Is.EqualTo(new[] { 8623u }));
+        Assert.That(DaughterDayScript.GetNightAfterStamp(4, -1), Is.EqualTo(new[] { 8625u }));
+        Assert.That(DaughterDayScript.GetNightAfterStamp(4, 0), Is.Empty);
+    }
+
+    /// <summary>보통 날 밤 대본이 쓰는 TextData 키가 모두 실제 CSV에 있다.</summary>
+    [Test]
+    public void NightScriptTextKeysExistInTextData()
+    {
+        var table = new TextDataTable();
+        table.LoadData(File.ReadAllText("Assets/Datas/TextData.csv"));
+        var rows = pending<TextDataTable, TextData>(table);
+        for (uint idx = 8601; idx <= 8626; idx++)
+            Assert.That(rows.ContainsKey(idx), Is.True, $"TextData {idx} 없음");
+    }
+
     private static DaughterDialogueDataTable loadDialogues(string csv)
     {
         var table = new DaughterDialogueDataTable();

@@ -30,12 +30,11 @@ public static class DailySettlementLedgerFormatter
         return new DailySettlementLedgerText(formatLeftPage(viewData), formatRightPage(viewData));
     }
 
-    // 진짜 가계부처럼 아래로 갈수록 글씨가 조금씩 커진다(종이도 아래로 넓어진다). 줄마다 이만큼 키운다.
-    private const int SizeStepPercent = 3;
-    // 구획 제목·구분선·수입·지출 잉크 색. 갈색 종이에서 검은 글씨보다 눈에 잘 들어온다.
+    // 공책 줄 간격(캔버스 단위). SettlementPixelLookSetup이 페이지에 까는 줄무늬와 같은 값이라 모든 줄이 줄무늬 위에 앉는다.
+    public const int LineHeight = 30;
+    // 구획 제목·수입·지출 잉크 색. 바랜 갈색 종이에 스며든 잉크처럼 채도를 낮춘다(녹슨 빨강·바랜 놋쇠).
     private const string TitleColor = "#5a1a12";
-    private const string RuleColor = "#5a3a28";
-    private const string IncomeColor = "#34502a";
+    private const string IncomeColor = "#5e4a1c";
     private const string ExpenseColor = "#6e2418";
 
     /// <summary>왼쪽 페이지의 금액 결산 문구를 만듭니다.</summary>
@@ -44,7 +43,7 @@ public static class DailySettlementLedgerFormatter
     private static string formatLeftPage(DailySettlementViewData viewData)
     {
         var builder = new StringBuilder(384);
-        int size = 88;
+        int size = 100;
         appendTitle(builder, DayCountdownLabel.Format(viewData.Day) + " 영업 결산");
         appendAmount(builder, "판매 수입", viewData.SaleIncome, ref size, true);
         appendAmount(builder, "유지비", viewData.MaintenanceAmount, ref size, false, true);
@@ -61,7 +60,7 @@ public static class DailySettlementLedgerFormatter
     private static string formatRightPage(DailySettlementViewData viewData)
     {
         var builder = new StringBuilder(384);
-        int size = 88;
+        int size = 100;
         appendTitle(builder, "손님 기록");
         appendLine(builder, $"판매 성공  {viewData.SuccessfulSales}명", ref size);
         appendLine(builder, $"판매 거절  {viewData.RefusedCustomers}명", ref size);
@@ -76,7 +75,7 @@ public static class DailySettlementLedgerFormatter
     /// <summary>납부·미납·유예 상태를 오른쪽 페이지에 추가합니다.</summary>
     /// <param name="builder">오른쪽 페이지 문자열 작성기입니다.</param>
     /// <param name="viewData">확정된 정산 스냅샷입니다.</param>
-    /// <param name="size">현재 줄 글씨 크기(%)입니다. 줄을 쓸 때마다 커집니다.</param>
+    /// <param name="size">현재 줄 글씨 크기(%)입니다.</param>
     private static void appendPaymentStatus(StringBuilder builder, DailySettlementViewData viewData, ref int size)
     {
         if (viewData.GracePeriodEndDay.HasValue)
@@ -86,25 +85,24 @@ public static class DailySettlementLedgerFormatter
         }
     }
 
-    /// <summary>페이지 맨 위 구획 제목과 그 아래 작은 여백을 추가합니다.</summary>
+    /// <summary>줄 간격을 공책 줄에 고정하고 페이지 맨 위 구획 제목을 추가합니다.</summary>
     /// <param name="builder">페이지 문자열 작성기입니다.</param>
     /// <param name="title">제목 문구입니다.</param>
     private static void appendTitle(StringBuilder builder, string title)
     {
+        builder.Append("<line-height=").Append(LineHeight).Append('>');
         builder.Append("<size=108%><color=").Append(TitleColor).Append('>').Append(title).AppendLine("</color></size>");
-        builder.AppendLine("<size=45%> </size>");
     }
 
-    /// <summary>구획을 나누는 잉크 줄을 추가합니다.</summary>
+    /// <summary>구획 사이에 공책 줄 한 칸을 비웁니다. 줄무늬가 구분선 역할을 하므로 따로 잉크 줄을 긋지 않습니다.</summary>
     /// <param name="builder">페이지 문자열 작성기입니다.</param>
     /// <param name="size">현재 줄 글씨 크기(%)입니다.</param>
     private static void appendRule(StringBuilder builder, ref int size)
     {
-        builder.Append("<size=").Append(size).Append("%><color=").Append(RuleColor).AppendLine(">──────────</color></size>");
-        size += SizeStepPercent;
+        builder.Append("<size=").Append(size).AppendLine("%> </size>");
     }
 
-    /// <summary>글씨 크기와 (선택) 잉크 색을 입힌 한 줄을 추가하고 다음 줄 크기를 키웁니다.</summary>
+    /// <summary>글씨 크기와 (선택) 잉크 색을 입힌 한 줄을 추가합니다.</summary>
     /// <param name="builder">페이지 문자열 작성기입니다.</param>
     /// <param name="text">줄 내용입니다.</param>
     /// <param name="size">현재 줄 글씨 크기(%)입니다.</param>
@@ -117,10 +115,9 @@ public static class DailySettlementLedgerFormatter
         builder.Append(text);
         if (color != null) builder.Append("</color>");
         builder.AppendLine("</size>");
-        size += SizeStepPercent;
     }
 
-    /// <summary>라벨과 금액을 가계부 한 줄로 추가합니다. 들어온 돈은 초록, 나간 돈은 붉은 잉크로 씁니다.</summary>
+    /// <summary>라벨과 금액을 가계부 한 줄로 추가합니다. 들어온 돈은 놋쇠빛, 나간 돈은 붉은 잉크로 씁니다.</summary>
     /// <param name="builder">페이지 문자열 작성기입니다.</param>
     /// <param name="label">금액 항목 이름입니다.</param>
     /// <param name="amount">표시할 금액입니다.</param>
