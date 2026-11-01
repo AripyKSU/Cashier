@@ -39,7 +39,7 @@ public readonly struct CustomerLineContext
 /// <summary>
 /// 손님 입장 대사를 Claude API로 만들고, 응답이 늦거나 실패하면 미리 만든 풀에서 같은 주제의 대사를 고른다.
 /// 손님이 줄에 서는 순간 요청을 시작해 계산대 도착 시 대부분 응답이 준비되어 있게 한다.
-/// API 키 파일 또는 ANTHROPIC_API_KEY 환경 변수가 있을 때만 생성되며, 없으면 기존 CSV 입장 대사가 그대로 쓰인다.
+/// API 키 파일 또는 ANTHROPIC_API_KEY 환경 변수가 없으면 API 요청 없이 풀 대사만 쓰는 풀 전용 모드로 동작한다.
 /// </summary>
 public sealed class CustomerLineService : IDisposable
 {
@@ -75,8 +75,11 @@ public sealed class CustomerLineService : IDisposable
     private readonly HashSet<string> usedPoolLines = new HashSet<string>();
     private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
 
+    /// <summary>API 키가 없어 풀 대사만 쓰는 모드인지 여부. 이때는 기다림 없이 바로 대사를 고른다.</summary>
+    public bool IsPoolOnly => this.apiKey == null;
+
     /// <summary>API 키와 상품 이름 조회 함수로 서비스를 만든다.</summary>
-    /// <param name="apiKey">Anthropic API 키. 로그에 남기지 않는다.</param>
+    /// <param name="apiKey">Anthropic API 키. null이면 풀 전용 모드. 로그에 남기지 않는다.</param>
     /// <param name="getProductName">상품 PK를 표시 이름으로 바꾸는 함수.</param>
     private CustomerLineService(string apiKey, Func<uint, string> getProductName)
     {
@@ -89,7 +92,7 @@ public sealed class CustomerLineService : IDisposable
     /// 또는 ANTHROPIC_API_KEY 환경 변수이며, 저장소와 빌드에는 키를 넣지 않는다.
     /// </summary>
     /// <param name="getProductName">상품 PK를 표시 이름으로 바꾸는 함수.</param>
-    /// <returns>키가 있으면 서비스, 없으면 null.</returns>
+    /// <returns>키가 있으면 API 서비스, 없으면 풀 전용 서비스.</returns>
     public static CustomerLineService TryCreate(Func<uint, string> getProductName)
     {
         string key = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY");
@@ -98,7 +101,11 @@ public sealed class CustomerLineService : IDisposable
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), KeyFolderName, KeyFileName);
             if (File.Exists(path)) key = File.ReadAllText(path);
         }
-        if (string.IsNullOrWhiteSpace(key)) return null;
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            Debug.Log("[CustomerLine] API 키 없음, 미리 만든 풀 대사만 사용");
+            return new CustomerLineService(null, getProductName);
+        }
         Debug.Log($"[CustomerLine] Claude API 손님 대사 사용 ({Model}, 최대 대기 {MaxWaitSeconds}초)");
         return new CustomerLineService(key.Trim(), getProductName);
     }
@@ -115,8 +122,22 @@ public sealed class CustomerLineService : IDisposable
         List<Topic> topics = this.collectTopics(visit, context);
         Topic topic = topics.Count > 0 ? topics[this.random.Next(topics.Count)] : null;
         string fallback = topic != null ? this.takePoolLine(topic.Lines) : null;
-        UniTask<string> request = this.requestLineAsync(this.buildPrompt(visit, context, topic), this.lifetime.Token).Preserve();
+        UniTask<string> request = this.IsPoolOnly
+            ? UniTask.FromResult<string>(null)
+            : this.requestLineAsync(this.buildPrompt(visit, context, topic), this.lifetime.Token).Preserve();
         this.pending[visit] = new PendingLine(request, fallback, Time.realtimeSinceStartup);
+    }
+
+    /// <summary>미리 골라 둔 풀 대사를 기다림 없이 꺼낸다. 풀 전용 모드에서 쓴다.</summary>
+    /// <param name="visit">계산대에 선 방문.</param>
+    /// <param name="context">현재 진행 상황. 미리 고르지 않은 방문이면 이 값으로 고른다.</param>
+    /// <returns>풀 대사, 맞는 주제가 없으면 null(기존 CSV 대사 사용).</returns>
+    public string TakePoolEntryLine(CustomerVisit visit, CustomerLineContext context)
+    {
+        this.Prefetch(visit, context);
+        string line = this.pending[visit].Fallback;
+        this.pending.Remove(visit);
+        return line;
     }
 
     /// <summary>계산대에 선 손님의 입장 대사를 최대 2초 기다려 반환한다.</summary>
@@ -125,6 +146,7 @@ public sealed class CustomerLineService : IDisposable
     /// <returns>API 대사, 늦으면 풀 대사, 둘 다 없으면 null(기존 CSV 대사 사용).</returns>
     public async UniTask<string> GetEntryLineAsync(CustomerVisit visit, CustomerLineContext context)
     {
+        if (this.IsPoolOnly) return this.TakePoolEntryLine(visit, context);
         this.Prefetch(visit, context);
         PendingLine line = this.pending[visit];
         this.pending.Remove(visit);
