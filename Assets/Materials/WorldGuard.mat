@@ -32,6 +32,6 @@ Material:
     - _Brightness: 0.65
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _PixelGrid: {r: 20, g: 15, b: 0, a: 0}
+    - _PixelGrid: {r: 26, g: 20, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
