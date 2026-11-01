@@ -27,12 +27,14 @@ public sealed class Dev3SandboxTester : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoBootstrap()
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (FindFirstObjectByType<Dev3SandboxTester>() == null)
         {
             GameObject debugGo = new GameObject("[Dev3DebugMenu]");
             debugGo.AddComponent<Dev3SandboxTester>();
             DontDestroyOnLoad(debugGo);
         }
+#endif
     }
 
     private void Update()
