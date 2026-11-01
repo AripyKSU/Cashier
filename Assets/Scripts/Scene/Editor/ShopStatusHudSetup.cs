@@ -205,7 +205,56 @@ public static class ShopStatusHudSetup
         }
 
         serialized.ApplyModifiedPropertiesWithoutUndo();
+        attachCurrentTraitIcon(presenter);
         return presenter;
+    }
+
+    /// <summary>이미 설치된 GameUI.prefab의 손님 성향 버튼 오른쪽에 지금 손님 성향 아이콘만 추가합니다.</summary>
+    [MenuItem("Cashier/Setup/Current Customer Trait Icon")]
+    public static void InstallCurrentTraitIcon()
+    {
+        GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
+        try
+        {
+            var guide = root.GetComponentInChildren<CustomerTraitGuidePresenter>(true)
+                ?? throw new System.InvalidOperationException("CustomerTraitGuidePresenter를 찾을 수 없습니다.");
+            attachCurrentTraitIcon(guide);
+            PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+        Debug.Log("[ShopStatusHudSetup] 지금 손님 성향 아이콘 설치 완료");
+    }
+
+    /// <summary>
+    /// 손님 성향 버튼을 왼쪽으로 옮기고, 버튼과 설정(톱니바퀴) 버튼 사이에 작은 성향 아이콘을 만듭니다.
+    /// </summary>
+    /// <param name="guide">손님 성향 버튼 Presenter입니다.</param>
+    private static void attachCurrentTraitIcon(CustomerTraitGuidePresenter guide)
+    {
+        const string iconName = "CurrentTrait";
+        const float iconSize = 28f;
+        var guideRect = (RectTransform)guide.transform;
+        Transform old = guideRect.Find(iconName);
+        if (old != null) Object.DestroyImmediate(old.gameObject);
+        // 설정 버튼 바로 왼쪽(-76)에서 아이콘 자리만큼 비켜 선다.
+        guideRect.anchoredPosition = new Vector2(-76 - iconSize - 12, guideRect.anchoredPosition.y);
+
+        var icon = createImage(iconName, guideRect, null);
+        icon.preserveAspect = true;
+        setRect((RectTransform)icon.transform, new Vector2(1, .5f), new Vector2(1, .5f), new Vector2(0, .5f), new Vector2(6, 0), new Vector2(iconSize, iconSize));
+        icon.gameObject.SetActive(false);
+
+        var serialized = new SerializedObject(guide);
+        serialized.FindProperty("currentTraitIcon").objectReferenceValue = icon;
+        SerializedProperty sprites = serialized.FindProperty("traitSprites");
+        sprites.arraySize = TraitFiles.Length;
+        for (int index = 0; index < TraitFiles.Length; index++)
+            sprites.GetArrayElementAtIndex(index).objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(TraitFolder + TraitFiles[index])
+                ?? throw new System.InvalidOperationException($"성향 아이콘이 없습니다: {TraitFiles[index]}");
+        serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 
     /// <summary>
@@ -447,11 +496,11 @@ public static class ShopStatusHudSetup
             line.textWrappingMode = TextWrappingModes.Normal;
             setRect(line.rectTransform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, .5f), Vector2.zero, Vector2.zero);
             // 감독관 그림 없이 대사와 글자 소리만으로 감독관임을 알린다.
-            line.rectTransform.offsetMin = new Vector2(44, 18);
+            line.rectTransform.offsetMin = new Vector2(44, 30);
             line.rectTransform.offsetMax = new Vector2(-28, -18);
 
             var hint = createText("Hint", boxRect, font, 14, TextAlignmentOptions.BottomRight);
-            setRect(hint.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(1, 0), new Vector2(-16, 8), new Vector2(200, 20));
+            setRect(hint.rectTransform, new Vector2(1, 0), new Vector2(1, 0), new Vector2(1, 0), new Vector2(-40, 30), new Vector2(200, 20));
             hint.color = new Color(0.847f, 0.804f, 0.733f, .7f);
             hint.text = "클릭해서 계속";
 

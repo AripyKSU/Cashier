@@ -861,18 +861,34 @@ public sealed class GameUIController : MonoBehaviour
     private void startSettlementFlow(DailySettlementResult result, bool isCollapsed)
     {
         SoundManager.Instance?.PlayBgm(SoundKeys.SettlementBgm, SettlementBgmVolumeScale);
+        DailySettlementViewData settlementViewData = this.createSettlementViewData(result);
+        DaughterDialogueViewData daughterViewData = this.viewDataFactory.CreateDaughterDialogueViewData(
+            this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites,
+            this.subscribedDay.DaughterDialogueResult.Value.ResourceIdx.HasValue ? null : this.getPlaceholderSprite());
         this.dailySettlementFlowController.Begin(
             this.subscribedDay,
-            this.createSettlementViewData(result),
-            this.viewDataFactory.CreateDaughterDialogueViewData(
-                this.subscribedDay.DaughterDialogueResult.Value, this.daughterSprites,
-                this.subscribedDay.DaughterDialogueResult.Value.ResourceIdx.HasValue ? null : this.getPlaceholderSprite()),
+            settlementViewData,
+            daughterViewData,
             this.gameProgress.CompleteSettlement);
         // 1일차 밤처럼 대본이 있는 날은 도장 전후로 여러 줄을 말한다. 가계부 연출 중이라 아직 대사 전이다.
         // 쓰러진 하루는 말을 못 하고 "……"만 남는다.
-        this.daughterDialoguePresenter.SetScript(
-            this.resolveTexts(isCollapsed ? DaughterDayScript.CollapsedLines : DaughterDayScript.GetBeforeStamp(this.subscribedDay.Day)),
-            this.resolveTexts(DaughterDayScript.GetAfterStamp(this.subscribedDay.Day)));
+        int scriptDay = this.subscribedDay.Day;
+        if (isCollapsed || DaughterDayScript.GetBeforeStamp(scriptDay).Length > 0)
+        {
+            this.daughterDialoguePresenter.SetScript(
+                this.resolveTexts(isCollapsed ? DaughterDayScript.CollapsedLines : DaughterDayScript.GetBeforeStamp(scriptDay)),
+                this.resolveTexts(DaughterDayScript.GetAfterStamp(scriptDay)));
+        }
+        else
+        {
+            // 보통 날 밤: 몸 상태와 오늘 행동 반응 → 도장 → 명성 반응과 도덕성 구간 한 마디.
+            decimal moralityDelta = this.subscribedDay.AggregationResult?.MoralityDelta ?? 0m;
+            string[] afterStamp = this.resolveTexts(DaughterDayScript.GetNightAfterStamp(scriptDay, settlementViewData.ReputationDelta));
+            this.daughterDialoguePresenter.SetScript(
+                this.resolveTexts(DaughterDayScript.GetNightBeforeStamp(scriptDay, settlementViewData.GuidelineViolationCount,
+                    moralityDelta, settlementViewData.RefusedCustomers)),
+                afterStamp.Append(daughterViewData.Text).ToArray());
+        }
         // 1일차는 도장 뒤 대본 다음에 설비 업그레이드를 직접 열어 보게 하고, 창을 닫은 뒤 남은 대본을 잇는다.
         int settlementDay = this.subscribedDay.Day;
         this.dailySettlementFlowController.AfterStampGuide = DaughterDayScript.HasFacilityGuide(settlementDay)
@@ -1416,6 +1432,11 @@ public sealed class GameUIController : MonoBehaviour
                 BusinessHours.DurationMinutes * (1f - Mathf.Clamp01(normalizedTime))));
             // 보유금은 거래 접수 즉시 바뀌므로 매 프레임 비교해 변화량을 띄운다.
             this.shopStatusHud.SetBalance(this.economy.QueryService.CurrentBalance, !beforeOpening);
+            // 작업대(계산 키패드) 화면에서는 손님 얼굴이 안 보이므로 손님 성향 버튼 옆에 성향 아이콘을 띄운다.
+            CustomerVisit visit = this.subscribedDay.CurrentVisit;
+            this.shopStatusHud.SetCurrentTrait(visit != null && this.saleSortingPanel != null
+                && (this.saleSortingPanel.IsSorting || this.saleSortingPanel.IsCalculatorOpen)
+                ? visit.DispositionType : CustomerDispositionType.None);
         }
         if (this.settlementBalance != null && this.economy != null)
         {

@@ -110,3 +110,7 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Machine-local: the MCP Unity bridge is installed per PC as an embedded package
+/[Pp]ackages/mcp-unity/
+/[Pp]roject[Ss]ettings/McpUnitySettings.json

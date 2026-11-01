@@ -7,7 +7,7 @@ using UnityEngine.TextCore.LowLevel;
 
 /// <summary>
 /// 게임 폰트 도구. 대부분의 화면은 물마루(Mulmaru)를 쓰고, 저녁 정산 화면(가계부·딸 말풍선·설비 창·소지금 판자)만 던파 비트비트체 v2를 쓴다.
-/// 물마루와 같은 설정(샘플 48, 여백 5, SDFAA, 2048 아틀라스)으로 만들고, 게임 문구에 쓰이는 글자를 미리 채워 둔다.
+/// 비트비트체는 작은 샘플(16)과 Point 필터로 만들어 도트 글씨로 보이게 하고, 게임 문구에 쓰이는 글자를 미리 채워 둔다.
 /// </summary>
 public static class GalmuriFontSetup
 {
@@ -17,6 +17,11 @@ public static class GalmuriFontSetup
     public const string BoldFontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2.ttf";
     public const string BoldAssetPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
     private const string TextDataPath = "Assets/Datas/TextData.csv";
+    // 정산 화면 비트비트체는 작은 샘플(1em = 16텍셀)로 만들고 Point 필터로 읽어 글자가 도트로 보이게 한다.
+    // 패딩 3은 소지금 판자의 테두리·그림자가 들어갈 자리다.
+    public const int PixelSamplingSize = 16;
+    public const int PixelPadding = 3;
+    public const int PixelAtlasSize = 1024;
 
     [MenuItem("Cashier/Setup/Create Galmuri Font Asset")]
     public static void Create()
@@ -52,17 +57,36 @@ public static class GalmuriFontSetup
     }
 
     /// <summary>정산 화면용 비트비트체 에셋을 돌려줍니다. 없으면 만듭니다.</summary>
-    public static TMP_FontAsset EnsureBold() => ensure(BoldFontPath, BoldAssetPath, "DNFBitBitv2 SDF");
+    public static TMP_FontAsset EnsureBold() => ensure(BoldFontPath, BoldAssetPath, "DNFBitBitv2 SDF", true);
 
-    private static TMP_FontAsset ensure(string fontPath, string assetPath, string name)
+    /// <summary>비트비트체 아틀라스를 Point 필터로, 글자 가장자리를 가장 날카롭게 둔다(텍셀이 그대로 도트가 된다).</summary>
+    /// <param name="asset">정산 화면 비트비트체 에셋입니다.</param>
+    public static void ApplyPixelLook(TMP_FontAsset asset)
+    {
+        foreach (Texture2D atlas in asset.atlasTextures)
+        {
+            if (atlas == null) continue;
+            atlas.filterMode = FilterMode.Point;
+            EditorUtility.SetDirty(atlas);
+        }
+
+        asset.material.SetFloat(ShaderUtilities.ID_Sharpness, 1f);
+        EditorUtility.SetDirty(asset.material);
+        EditorUtility.SetDirty(asset);
+    }
+
+    private static TMP_FontAsset ensure(string fontPath, string assetPath, string name, bool pixel = false)
     {
         var font = AssetDatabase.LoadAssetAtPath<Font>(fontPath)
             ?? throw new System.InvalidOperationException($"{fontPath}를 찾을 수 없습니다.");
         var asset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
         if (asset == null)
         {
-            asset = TMP_FontAsset.CreateFontAsset(font, 36, 4, GlyphRenderMode.SDFAA, 4096, 4096,
-                AtlasPopulationMode.Dynamic, true);
+            asset = pixel
+                ? TMP_FontAsset.CreateFontAsset(font, PixelSamplingSize, PixelPadding, GlyphRenderMode.SDFAA,
+                    PixelAtlasSize, PixelAtlasSize, AtlasPopulationMode.Dynamic, false)
+                : TMP_FontAsset.CreateFontAsset(font, 36, 4, GlyphRenderMode.SDFAA, 4096, 4096,
+                    AtlasPopulationMode.Dynamic, true);
             asset.name = name;
             AssetDatabase.CreateAsset(asset, assetPath);
             asset.atlasTexture.name = name + " Atlas";
@@ -76,6 +100,7 @@ public static class GalmuriFontSetup
             + " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~…·×→←↑↓★☆♥※○●◆■□원일차명성소지금";
         string unique = new string(characters.Where(c => !char.IsControl(c)).Distinct().ToArray());
         asset.TryAddCharacters(unique, out string missing);
+        if (pixel) ApplyPixelLook(asset);
         EditorUtility.SetDirty(asset);
         AssetDatabase.SaveAssets();
         Debug.Log($"[GalmuriFontSetup] {name}: 글자 {unique.Length}개 중 없는 글자: {(string.IsNullOrEmpty(missing) ? "없음" : missing)}");

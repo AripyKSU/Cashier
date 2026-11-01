@@ -5,37 +5,48 @@ using UnityEngine.UI;
 /// <summary>
 /// 작업대 오른쪽 아래 "지침" 버튼으로 여닫는 오늘의 지침서.
 /// 열 때마다 영업 전 일일 지침서(지침과 가격표)를 그대로 복사해 보여 주고, 색만 영업 화면에 맞게 살짝 어둡게 한다.
-/// 누르면 작업대 안쪽으로 미끄러져 나오고, 다시 누르면 화면 오른쪽 밖으로 들어갑니다. 영업 시간은 그대로 흐릅니다.
+/// 누르면 버튼 자리에서 펼쳐지고, 다시 누르면 버튼 쪽으로 접힙니다. 영업 시간은 그대로 흐릅니다.
+/// 펼친 종이는 끌어서 옮길 수 있고, 버튼은 종이 오른쪽 아래 모서리에 붙어 함께 움직입니다.
 /// </summary>
 public sealed class GuidelinePopupPresenter : MonoBehaviour
 {
     [Tooltip("지침서를 여닫는 버튼")]
     [SerializeField] private Button toggleButton;
 
-    [Tooltip("미끄러져 나오는 지침서 자리")]
+    [Tooltip("펼쳐지는 지침서 자리")]
     [SerializeField] private RectTransform sheet;
 
     [Tooltip("오늘 지침과 가격표를 가진 영업 전 지침서")]
     [SerializeField] private PreOpenPanelPresenter preOpenPanel;
 
-    [Tooltip("지침서가 덮을 영역(물건을 놓는 판매 칸). 이 영역에 맞춰 줄여 가운데에 놓습니다.")]
+    [Tooltip("지침서 크기의 기준 영역(물건을 놓는 판매 칸). 이 영역에 맞춰 줄입니다.")]
     [SerializeField] private RectTransform coverArea;
 
     [Tooltip("영업 화면에 맞춘 종이 색(곱하기)")]
     [SerializeField] private Color sceneTint = new Color(.84f, .78f, .7f, 1f);
 
-    [Tooltip("나오고 들어가는 시간(초)")]
+    [Tooltip("펼치고 접는 시간(초)")]
     [SerializeField, Min(0.05f)] private float slideSeconds = 0.25f;
 
     private bool isOpen;
     private Tween slideTween;
     private GameObject copy;
-    private Vector2 openPosition;
-    private Vector2 closedPosition;
+    private UIDragMover sheetMover;
 
     private void Awake()
     {
         if (toggleButton != null) toggleButton.onClick.AddListener(toggle);
+        if (sheet != null && toggleButton != null)
+        {
+            // 종이 오른쪽 아래 모서리를 버튼 오른쪽 아래 모서리에 맞춘다. 처음 펼칠 때는 버튼이 있던 자리에서 나온다.
+            var buttonRect = (RectTransform)toggleButton.transform;
+            sheet.anchorMin = sheet.anchorMax = sheet.pivot = new Vector2(1f, 0f);
+            buttonRect.anchorMin = buttonRect.anchorMax = buttonRect.pivot = new Vector2(1f, 0f);
+            sheet.anchoredPosition = buttonRect.anchoredPosition;
+            sheetMover = sheet.gameObject.AddComponent<UIDragMover>();
+            sheetMover.CanDrag = () => isOpen && slideTween == null;
+            sheetMover.Moved += followSheet;
+        }
         closeImmediately();
     }
 
@@ -47,7 +58,7 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
     private void OnDisable()
     {
         SaleSortingItemView.AnyDragStarted -= closeOnPickup;
-        // 작업대가 닫히면 지침서도 들어간 상태로 되돌린다.
+        // 작업대가 닫히면 지침서도 접힌 상태로 되돌린다.
         closeImmediately();
     }
 
@@ -63,7 +74,7 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         if (isOpen) toggle();
     }
 
-    /// <summary>지침서를 열거나 닫습니다. 열 때 오늘 지침서를 새로 복사합니다.</summary>
+    /// <summary>지침서를 펼치거나 접습니다. 펼칠 때 오늘 지침서를 새로 복사합니다.</summary>
     private void toggle()
     {
         if (sheet == null) return;
@@ -71,17 +82,31 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         if (isOpen)
         {
             rebuildCopy();
-            sheet.anchoredPosition = closedPosition;
+            // 화면 크기가 바뀌었어도 펼친 종이가 작업대 밖으로 나가지 않게 한다.
+            sheet.localScale = Vector3.one;
             sheet.gameObject.SetActive(true);
+            sheetMover?.ClampToParent();
+            followSheet();
+            sheet.localScale = Vector3.zero;
         }
 
         slideTween?.Kill();
         bool opening = isOpen;
-        slideTween = DOTween.To(() => sheet.anchoredPosition, value => sheet.anchoredPosition = value,
-                opening ? openPosition : closedPosition, slideSeconds)
+        // 오른쪽 아래 모서리(버튼 자리)를 기준으로 펼치고 접는다.
+        slideTween = sheet.DOScale(opening ? Vector3.one : Vector3.zero, slideSeconds)
             .SetEase(opening ? Ease.OutCubic : Ease.InCubic)
             .SetUpdate(true)
-            .OnComplete(() => { if (!opening) sheet.gameObject.SetActive(false); });
+            .OnComplete(() =>
+            {
+                slideTween = null;
+                if (!opening) sheet.gameObject.SetActive(false);
+            });
+    }
+
+    /// <summary>버튼을 종이 오른쪽 아래 모서리에 붙입니다.</summary>
+    private void followSheet()
+    {
+        if (toggleButton != null) ((RectTransform)toggleButton.transform).anchoredPosition = sheet.anchoredPosition;
     }
 
     /// <summary>
@@ -101,7 +126,7 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         if (openBorder != null) openBorder.gameObject.SetActive(false);
         copy.SetActive(true);
 
-        // 판매 칸 크기에 맞춰 비율을 지킨 채 줄이고, 판매 칸 가운데를 덮는다. 닫히면 화면 오른쪽 밖으로 빠진다.
+        // 판매 칸 크기에 맞춰 비율을 지킨 채 줄인다. 위치는 종이를 옮긴 자리를 그대로 쓴다.
         var parent = (RectTransform)sheet.parent;
         Rect area = coverArea != null ? rectIn(coverArea, parent) : parent.rect;
         Vector2 size = source.rect.size;
@@ -111,11 +136,7 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         rect.sizeDelta = size;
         rect.anchoredPosition = Vector2.zero;
         rect.localScale = new Vector3(scale, scale, 1f);
-        sheet.anchorMin = sheet.anchorMax = sheet.pivot = new Vector2(.5f, .5f);
         sheet.sizeDelta = size * scale;
-        Vector2 parentCenter = parent.rect.center;
-        openPosition = area.center - parentCenter;
-        closedPosition = new Vector2(parent.rect.width * .5f + sheet.sizeDelta.x * .5f + 20f, openPosition.y);
 
         foreach (var image in copy.GetComponentsInChildren<Image>(true))
             image.color *= sceneTint;
@@ -131,13 +152,14 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
     }
 
-    /// <summary>애니메이션 없이 지침서를 닫힌 상태로 둡니다.</summary>
+    /// <summary>애니메이션 없이 지침서를 접힌 상태로 둡니다. 옮겨 둔 자리는 그대로 둡니다.</summary>
     private void closeImmediately()
     {
         slideTween?.Kill();
+        slideTween = null;
         isOpen = false;
         if (sheet == null) return;
-        sheet.anchoredPosition = closedPosition;
+        sheet.localScale = Vector3.zero;
         sheet.gameObject.SetActive(false);
     }
 }
