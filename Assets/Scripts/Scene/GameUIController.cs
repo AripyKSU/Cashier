@@ -1349,9 +1349,10 @@ public sealed class GameUIController : MonoBehaviour
                 BusinessHours.DurationMinutes * (1f - Mathf.Clamp01(normalizedTime))));
             // 보유금은 거래 접수 즉시 바뀌므로 매 프레임 비교해 변화량을 띄운다.
             this.shopStatusHud.SetBalance(this.economy.QueryService.CurrentBalance, !beforeOpening);
-            // 계산(키패드) 화면에서는 손님 성향 버튼 옆에 지금 손님의 성향 아이콘을 띄운다.
+            // 작업대(계산 키패드) 화면에서는 손님 얼굴이 안 보이므로 손님 성향 버튼 옆에 성향 아이콘을 띄운다.
             CustomerVisit visit = this.subscribedDay.CurrentVisit;
-            this.shopStatusHud.SetCurrentTrait(visit != null && this.saleSortingPanel != null && this.saleSortingPanel.IsCalculatorOpen
+            this.shopStatusHud.SetCurrentTrait(visit != null && this.saleSortingPanel != null
+                && (this.saleSortingPanel.IsSorting || this.saleSortingPanel.IsCalculatorOpen)
                 ? visit.DispositionType : CustomerDispositionType.None);
         }
         if (this.settlementBalance != null && this.economy != null)
