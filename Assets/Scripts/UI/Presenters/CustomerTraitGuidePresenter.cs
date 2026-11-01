@@ -32,12 +32,19 @@ public sealed class CustomerTraitGuidePresenter : MonoBehaviour
     [Tooltip("버튼 글자 TextData 키")]
     [SerializeField] private uint toggleTextIdx = 8574;
 
+    [Tooltip("버튼 오른쪽에 지금 손님의 성향을 보여 주는 작은 아이콘")]
+    [SerializeField] private Image currentTraitIcon;
+
+    [Tooltip("성향 아이콘 (Normal, Hasty, PriceSensitive, Wealthy, Poor 순서)")]
+    [SerializeField] private Sprite[] traitSprites = new Sprite[0];
+
     private bool hasText;
 
     private void Awake()
     {
         if (toggleButton != null) toggleButton.onClick.AddListener(toggle);
         if (panel != null) panel.SetActive(false);
+        SetCurrentTrait(CustomerDispositionType.None);
     }
 
     private void OnDestroy()
@@ -49,6 +56,17 @@ public sealed class CustomerTraitGuidePresenter : MonoBehaviour
     public void Close()
     {
         if (panel != null) panel.SetActive(false);
+    }
+
+    /// <summary>버튼 오른쪽 아이콘을 지금 손님의 성향으로 바꿉니다. None이면 숨깁니다.</summary>
+    /// <param name="type">계산 중인 손님의 성향입니다.</param>
+    public void SetCurrentTrait(CustomerDispositionType type)
+    {
+        if (currentTraitIcon == null) return;
+        int index = (int)type - 1;
+        bool visible = index >= 0 && index < traitSprites.Length && traitSprites[index] != null;
+        if (visible) currentTraitIcon.sprite = traitSprites[index];
+        currentTraitIcon.gameObject.SetActive(visible);
     }
 
     /// <summary>설명표를 열거나 닫습니다. 처음 열 때 TextData에서 문구를 채웁니다.</summary>

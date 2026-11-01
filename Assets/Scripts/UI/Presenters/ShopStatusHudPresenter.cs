@@ -83,6 +83,13 @@ public sealed class ShopStatusHudPresenter : MonoBehaviour
         if (!isVisible && this.traitGuide != null) this.traitGuide.Close();
     }
 
+    /// <summary>손님 성향 버튼 옆 아이콘을 갱신합니다. None이면 숨깁니다.</summary>
+    /// <param name="type">계산 중인 손님의 성향입니다.</param>
+    public void SetCurrentTrait(CustomerDispositionType type)
+    {
+        if (this.traitGuide != null) this.traitGuide.SetCurrentTrait(type);
+    }
+
     /// <summary>남은 날짜 문구를 갱신합니다.</summary>
     /// <param name="displayDay">1부터 시작하는 표시 일차입니다.</param>
     public void SetDay(int displayDay)
