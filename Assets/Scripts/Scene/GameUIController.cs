@@ -25,7 +25,7 @@ public sealed class GameUIController : MonoBehaviour
     private CustomerCatalog customerCatalog;
     private TextDataTable textData;
     private ProgressViewDataFactory viewDataFactory;
-    // 이 PC에 Claude API 키가 있을 때만 생성한다. null이면 기존 CSV 입장 대사를 그대로 쓴다.
+    // 입장 대사 서비스. 이 PC에 Claude API 키가 없으면 미리 만든 풀 대사만 쓰는 모드로 생성된다.
     private CustomerLineService customerLines;
     private PreOpenPanelPresenter preOpenPanelPresenter;
     // 인게임 감독관 튜토리얼 진행자. tutorialCoach가 연결된 경우에만 만든다.
@@ -704,12 +704,17 @@ public sealed class GameUIController : MonoBehaviour
         this.refreshAllViews();
     }
 
-    /// <summary>새 손님 데이터를 Presenter에 전달합니다. Claude API 대사를 쓰면 응답이 올 때까지 말줄임표를 띄웁니다.</summary>
+    /// <summary>새 손님 데이터를 Presenter에 전달합니다. 풀 전용이면 바로 풀 대사를, Claude API 대사를 쓰면 응답이 올 때까지 말줄임표를 띄웁니다.</summary>
     /// <param name="visit">가격 입력을 기다리는 새 손님 방문입니다.</param>
     private void handleCustomerStarted(CustomerVisit visit)
     {
         CustomerViewData viewData = this.viewDataFactory.CreateCustomerViewData(visit);
-        if (this.customerLines != null)
+        if (this.customerLines != null && this.customerLines.IsPoolOnly)
+        {
+            string line = this.customerLines.TakePoolEntryLine(visit, this.createCustomerLineContext());
+            if (!string.IsNullOrEmpty(line)) viewData.DialogueText = line;
+        }
+        else if (this.customerLines != null)
         {
             viewData.DialogueText = "...";
             this.showGeneratedEntryLineAsync(visit).Forget();
