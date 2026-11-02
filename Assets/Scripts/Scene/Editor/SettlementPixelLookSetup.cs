@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 저녁 정산 화면을 도트 느낌으로 맞추는 에디터 도구입니다.
 /// 비트비트체를 작은 해상도·Point 필터로 다시 만들어 글자가 픽셀로 보이게 하고, 가계부 양쪽 페이지에 공책 줄을 긋고,
-/// 소지금 판자 글씨를 다음날 버튼 그림 글씨처럼 각진 굵은 글꼴·위에서 아래로 짙어지는 크림색·검은 테두리·아래 그림자로 바꿉니다.
+/// 소지금 판자 글씨를 다음날 버튼 그림 글씨처럼 위에서 아래로 짙어지는 크림색·검은 테두리·아래 그림자로 바꿉니다.
 /// 여러 번 실행해도 같은 결과입니다.
 /// </summary>
 public static class SettlementPixelLookSetup
@@ -22,20 +22,15 @@ public static class SettlementPixelLookSetup
     private const float LedgerFontSize = 20f;
     // 글자 아래 끝(기준선)에서 줄 윗면까지의 거리(UI 단위). 글자 도트 2칸만큼 줄 위에 살짝 떠 앉는다.
     private const float RuleBelowBaseline = 2.5f;
-    // 소지금 글씨. 다음날 글씨(NextDay.png에 그려진 글자)처럼 각진 갈무리 굵은체를 쓴다.
-    // 크기 24는 갈무리 12px 격자의 2배라 글자 도트가 UI 2단위로 고르게 떨어진다.
-    private const string PlankFontPath = "Assets/Fonts/Galmuri/Galmuri11-Bold SDF.asset";
-    private const string PlankMaterialPath = "Assets/Fonts/Galmuri/Galmuri11-Bold SDF Plank Outline.mat";
-    private const float PlankFontSize = 24f;
     // 다음날 글씨에서 뽑은 색: 위쪽 밝은 크림 → 아래쪽 짙은 황갈색, 검은 테두리, 아래로 떨어지는 짙은 갈색 그림자.
     private static readonly Color PlankTopColor = new Color32(251, 230, 190, 255);
     private static readonly Color PlankBottomColor = new Color32(221, 175, 128, 255);
     private static readonly Color PlankOutlineColor = new Color32(6, 4, 3, 255);
     private static readonly Color PlankShadowColor = new Color32(30, 13, 8, 255);
     // 테두리 두께와 그림자 위치(SDF 패딩 비율). 그림자는 테두리보다 조금 굵게, 아래로 크게·오른쪽으로 조금 밀린다.
-    private const float PlankOutlineWidth = 0.3f;
+    private const float PlankOutlineWidth = 0.25f;
     private static readonly Vector2 PlankShadowOffset = new Vector2(0.6f, -1f);
-    private const float PlankShadowDilate = 0.5f;
+    private const float PlankShadowDilate = 0.35f;
 
     [MenuItem("Cashier/Setup/Settlement Pixel Look")]
     public static void Install()
@@ -191,7 +186,7 @@ public static class SettlementPixelLookSetup
     }
 
     /// <summary>
-    /// 소지금 판자 글씨를 다음날 버튼 글씨와 같게 만든다: 각진 굵은 글꼴, 글자마다 위에서 아래로 짙어지는 크림색,
+    /// 소지금 판자 글씨(비트비트체)를 다음날 버튼 글씨와 같게 만든다: 글자마다 위에서 아래로 짙어지는 크림색,
     /// 검은 테두리, 아래(조금 오른쪽)로 떨어지는 짙은 갈색 그림자.
     /// </summary>
     private static void restylePlankText()
@@ -202,20 +197,9 @@ public static class SettlementPixelLookSetup
             Transform balance = findDeep(root.transform, "SettlementBalance")
                 ?? throw new System.InvalidOperationException("SettlementBalance를 찾을 수 없습니다.");
             var text = balance.Find("Balance").GetComponent<TextMeshProUGUI>();
-            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PlankFontPath)
-                ?? throw new System.InvalidOperationException("갈무리 굵은체 에셋이 없습니다.");
-            var material = AssetDatabase.LoadAssetAtPath<Material>(PlankMaterialPath);
-            if (material == null)
-            {
-                material = new Material(font.material);
-                AssetDatabase.CreateAsset(material, PlankMaterialPath);
-            }
-
-            material.CopyPropertiesFromMaterial(font.material);
-            material.SetFloat(ShaderUtilities.ID_Sharpness, 1f);
-            material.EnableKeyword(ShaderUtilities.Keyword_Outline);
-            material.SetColor(ShaderUtilities.ID_OutlineColor, PlankOutlineColor);
-            material.SetFloat(ShaderUtilities.ID_OutlineWidth, PlankOutlineWidth);
+            text.font = GalmuriFontSetup.EnsureBold();
+            text.fontSize = 22f;
+            Material material = GalmuriFontSetup.OutlineMaterial("Plank Outline", PlankOutlineColor, PlankOutlineWidth, true);
             material.EnableKeyword(ShaderUtilities.Keyword_Underlay);
             material.SetColor(ShaderUtilities.ID_UnderlayColor, PlankShadowColor);
             material.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, PlankShadowOffset.x);
@@ -224,10 +208,7 @@ public static class SettlementPixelLookSetup
             material.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0f);
             EditorUtility.SetDirty(material);
 
-            text.font = font;
             text.fontSharedMaterial = material;
-            text.fontSize = PlankFontSize;
-            text.fontStyle = FontStyles.Normal;
             text.color = Color.white;
             text.enableVertexGradient = true;
             text.colorGradient = new VertexGradient(PlankTopColor, PlankTopColor, PlankBottomColor, PlankBottomColor);
