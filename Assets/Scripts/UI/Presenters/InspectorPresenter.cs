@@ -7,7 +7,8 @@ using UnityEngine.UI;
 /// <summary>독립 감독관 패널의 대사·입력·검은 틴트 페이드만 담당한다. 진행 이력은 세션 소유다.</summary>
 public sealed class InspectorPresenter : MonoBehaviour
 {
-    private const float DialogueVoiceDurationSeconds = 2.5f;
+    /// <summary>감독관 대사 출력 속도(초당 글자). 영업 중 안내 말풍선과 같다.</summary>
+    private const float CharactersPerSecond = 40f;
     private const float DialogueVoiceVolumeScale = 0.75f;
 
     /// <summary>감독관 초상 표시.</summary>
@@ -27,6 +28,8 @@ public sealed class InspectorPresenter : MonoBehaviour
     private bool entered;
     private bool exiting;
     private bool canReveal;
+    private bool isTyping;
+    private float typingElapsed;
     private Color originalColor;
 
     /// <summary>현재 줄에 대한 입력 요청. 날짜·이벤트·줄 번호를 함께 전달한다.</summary>
@@ -52,15 +55,17 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <summary>LateUpdate 트윈이 진행되기 전에 모델의 표현 차단을 반영한다.</summary>
     private void Update()
     {
+        bool blocked = isPresentationBlocked?.Invoke() == true;
         if (presentationTween != null)
-            presentationTween.timeScale = isPresentationBlocked?.Invoke() == true ? 0f : 1f;
+            presentationTween.timeScale = blocked ? 0f : 1f;
+        if (!blocked) updateTyping();
     }
 
     /// <summary>패널을 숨기면 진행 중 연출과 늦은 완료 콜백을 취소한다.</summary>
     private void OnDisable()
     {
         cancelPresentation();
-        stopDialogueVoice();
+        finishTyping();
         hasPresentation = false;
         entered = false;
         exiting = false;
@@ -70,7 +75,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void OnDestroy()
     {
         cancelPresentation();
-        stopDialogueVoice();
+        finishTyping();
         if (nextButton != null) nextButton.onClick.RemoveListener(handleNext);
     }
 
@@ -113,13 +118,15 @@ public sealed class InspectorPresenter : MonoBehaviour
             nextButton.interactable = false;
         }
         dialogue.text = text;
+        // 등장 연출이 시작되기 전에는 글자를 숨겨 두었다가 한 글자씩 보여 준다.
+        if (newEvent) dialogue.maxVisibleCharacters = 0;
         if (!reveal || !isActiveAndEnabled) return;
-        if (newDialogueLine) playDialogueVoice();
+        if (newDialogueLine) startTyping();
         if (snapshot.Phase == InspectorEventPhase.AwaitingExit)
         {
             if (exiting) return;
             cancelPresentation();
-            stopDialogueVoice();
+            finishTyping();
             exiting = true;
             nextButton.interactable = false;
             startFade(false, snapshot);
@@ -132,6 +139,13 @@ public sealed class InspectorPresenter : MonoBehaviour
     private void handleNext()
     {
         if (!entered || exiting || !nextButton.interactable || (isPresentationBlocked?.Invoke() ?? false)) return;
+        // 글자가 아직 나오는 중이면 첫 클릭은 줄 전체를 보여 주기만 한다.
+        if (isTyping)
+        {
+            finishTyping();
+            return;
+        }
+
         nextButton.interactable = false;
         NextRequested?.Invoke(current);
     }
@@ -141,7 +155,7 @@ public sealed class InspectorPresenter : MonoBehaviour
     /// <param name="snapshot">연출 시작 상태.</param>
     private void startFade(bool entering, InspectorEventSnapshot snapshot)
     {
-        if (entering) playDialogueVoice();
+        if (entering) startTyping();
         presentationTween = DOTween.Sequence().SetUpdate(UpdateType.Late)
             .Append(DOTween.To(() => portrait.color, value => portrait.color = value,
                 entering ? originalColor : Color.clear, fadeSeconds).SetEase(Ease.Linear))
@@ -172,18 +186,35 @@ public sealed class InspectorPresenter : MonoBehaviour
         presentationTween = null;
     }
 
-    /// <summary>감독관 대화가 끝나거나 화면 수명이 종료되면 대화 음성을 즉시 정지한다.</summary>
-    private void stopDialogueVoice()
+    /// <summary>현재 줄을 처음부터 한 글자씩 보여 주고, 다 나올 때까지 목소리를 약하게 재생한다.</summary>
+    private void startTyping()
     {
-        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
-    }
-
-    /// <summary>현재 감독관 대사 단위에 한정된 음성을 약한 볼륨으로 재생한다.</summary>
-    private void playDialogueVoice()
-    {
+        dialogue.maxVisibleCharacters = 0;
+        dialogue.ForceMeshUpdate(true, true);
+        typingElapsed = 0f;
+        isTyping = true;
         SoundManager.Instance?.PlaySfxForDuration(
             SoundKeys.DialogueVoice,
-            DialogueVoiceDurationSeconds,
+            dialogue.textInfo.characterCount / CharactersPerSecond,
             DialogueVoiceVolumeScale);
+    }
+
+    /// <summary>보이는 글자 수를 출력 속도만큼 늘린다. 다 나오면 출력을 끝낸다.</summary>
+    private void updateTyping()
+    {
+        if (!isTyping) return;
+        typingElapsed += Time.unscaledDeltaTime;
+        int total = dialogue.textInfo.characterCount;
+        int visible = Mathf.Min(total, Mathf.FloorToInt(typingElapsed * CharactersPerSecond));
+        dialogue.maxVisibleCharacters = visible;
+        if (visible >= total) finishTyping();
+    }
+
+    /// <summary>줄 전체를 보이고 감독관 목소리를 멈춘다.</summary>
+    private void finishTyping()
+    {
+        isTyping = false;
+        if (dialogue != null) dialogue.maxVisibleCharacters = int.MaxValue;
+        SoundManager.Instance?.StopSfxForDuration(SoundKeys.DialogueVoice);
     }
 }
