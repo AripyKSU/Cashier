@@ -32,7 +32,7 @@ public static class GalmuriFontSetup
 
     /// <summary>
     /// 이미 쓰이는 테두리 머티리얼을 테두리 색·두께는 그대로 두고 알맞은 폰트 아틀라스로 다시 채운다.
-    /// 판자(Plank) 테두리는 정산 화면용 비트비트체, 나머지(Delta 등)는 물마루. 갈무리 굵은체 머티리얼은 건드리지 않는다.
+    /// 판자(Plank) 테두리는 정산 화면용 비트비트체, 나머지(Delta 등)는 물마루.
     /// </summary>
     private static void refreshOutlineMaterials()
     {
@@ -41,8 +41,6 @@ public static class GalmuriFontSetup
         foreach (string guid in AssetDatabase.FindAssets("t:Material", new[] { "Assets/Fonts/Galmuri" }))
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
-            // 갈무리 굵은체 소지금 머티리얼은 SettlementPixelLookSetup이 자기 글꼴로 따로 채운다.
-            if (path.Contains("Galmuri11-Bold")) continue;
             var font = path.Contains("Plank") ? bold : regular;
             var material = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (material == null || !material.IsKeywordEnabled("OUTLINE_ON")) continue;
