@@ -34,7 +34,7 @@ public static class DailySettlementLedgerFormatter
     public const int LineHeight = 30;
     // 구획 제목·수입·지출 잉크 색. 바랜 갈색 종이에 스며든 잉크처럼 채도를 낮춘다(녹슨 빨강·바랜 놋쇠).
     private const string TitleColor = "#5a1a12";
-    private const string IncomeColor = "#5e4a1c";
+    private const string IncomeColor = "#24401e";
     private const string ExpenseColor = "#6e2418";
 
     /// <summary>왼쪽 페이지의 금액 결산 문구를 만듭니다.</summary>
@@ -117,7 +117,7 @@ public static class DailySettlementLedgerFormatter
         builder.AppendLine("</size>");
     }
 
-    /// <summary>라벨과 금액을 가계부 한 줄로 추가합니다. 들어온 돈은 놋쇠빛, 나간 돈은 붉은 잉크로 씁니다.</summary>
+    /// <summary>라벨과 금액을 가계부 한 줄로 추가합니다. 들어온 돈은 짙은 솔잎빛, 나간 돈은 붉은 잉크로 씁니다.</summary>
     /// <param name="builder">페이지 문자열 작성기입니다.</param>
     /// <param name="label">금액 항목 이름입니다.</param>
     /// <param name="amount">표시할 금액입니다.</param>
