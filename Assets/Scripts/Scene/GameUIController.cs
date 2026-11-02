@@ -1257,6 +1257,8 @@ public sealed class GameUIController : MonoBehaviour
     /// <summary>거래 결과 확인 요청을 하루 진행에 전달합니다.</summary>
     private void handleTransactionContinueClicked()
     {
+        // 화면 아무 곳 클릭으로 이미 넘어간 결과를 버튼(마우스 업)이나 키 입력이 다시 넘기지 않게 한다.
+        if (!this.isTransactionResultAwaitingAdvance()) return;
         this.runProgressAction(this.gameProgress.CompleteTransactionResult);
     }
 
