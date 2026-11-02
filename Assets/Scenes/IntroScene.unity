@@ -2099,9 +2099,9 @@ MonoBehaviour:
   - {fileID: 88001004}
   - {fileID: 88002004}
   beats:
-  - label: Scene 02 (demo opening)
+  - label: Scene 01
     kind: 0
-    index: 1
+    index: 0
     speaker: 
     text: 
     seconds: 0
@@ -2153,6 +2153,33 @@ MonoBehaviour:
     value: 0
     fadeMusic: 0
     musicTarget: 0.15
+  - label: Fade
+    kind: 1
+    index: 0
+    speaker: 
+    text: 
+    seconds: 0.6
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Scene 02
+    kind: 0
+    index: 1
+    speaker: 
+    text: 
+    seconds: 0
+    value: 0
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Fade
+    kind: 1
+    index: 0
+    speaker: 
+    text: 
+    seconds: 0.6
+    value: 1
+    fadeMusic: 0
+    musicTarget: 0.15
   - label: Effect
     kind: 4
     index: 5
@@ -2160,6 +2187,15 @@ MonoBehaviour:
     text: 
     seconds: 0
     value: 0.7
+    fadeMusic: 0
+    musicTarget: 0.15
+  - label: Line
+    kind: 3
+    index: 0
+    speaker: "\uD558\uB8E8"
+    text: "\uC6B0\uB9B0 \uD56D\uC0C1 \uAC00\uB09C\uD558\uC9C0\uB9CC\u2026 \uC544\uBE60\uB294 \uC138\uC0C1\uC5D0\uC11C \uC81C\uC77C \uCC29\uD55C \uC0AC\uB78C\uC774\uC5D0\uC694."
+    seconds: 0
+    value: 0
     fadeMusic: 0
     musicTarget: 0.15
   - label: Line
@@ -2175,7 +2211,7 @@ MonoBehaviour:
     kind: 3
     index: 0
     speaker: "\uD558\uB8E8"
-    text: "\uC6B0\uB9B0 \uD56D\uC0C1 \uAC00\uB09C\uD558\uC9C0\uB9CC\u2026 \uC544\uBE60\uB294 \uC138\uC0C1\uC5D0\uC11C \uC81C\uC77C \uCC29\uD55C \uC0AC\uB78C\uC774\uC5D0\uC694."
+    text: "\uCF5C\uB85D\u2026 \uCF5C\uB85D\u2026"
     seconds: 0
     value: 0
     fadeMusic: 0
