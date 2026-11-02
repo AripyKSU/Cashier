@@ -790,11 +790,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9549518417d8b104a8e5759095c43d49
-    m_Address: nomoneyending5
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 965dc884f32f1514c8fa36b64a8c93cb
     m_Address: FacilityData
     m_ReadOnly: 0
@@ -1198,11 +1193,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eb04300ab2186e646a76c1742a3d2bf0
     m_Address: DryBattery
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: eb22dab5f183d924aaef430a3ab28e9b
-    m_Address: norentending5
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
