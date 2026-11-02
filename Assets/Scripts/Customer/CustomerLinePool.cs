@@ -9,7 +9,7 @@ public static class CustomerLinePool
     {
         /// <summary>대사 축(품목 사연, 바깥 소식 등).</summary>
         public readonly string Axis;
-        /// <summary>축 안의 조건 키(상품 PK와 이름, N일차, 성향 이름 등).</summary>
+        /// <summary>축 안의 조건 키(상품 PK와 이름, N일차·마지막 날, 성향 이름 등).</summary>
         public readonly string Key;
         /// <summary>성향 이름. any는 모든 성향.</summary>
         public readonly string Disposition;
@@ -91,10 +91,10 @@ public static class CustomerLinePool
         new Line("바깥 소식", "3일차", "any", "adult", "입장", "남쪽 구역이 봉쇄됐대요. 이유는 아무도 몰라요."),
         new Line("바깥 소식", "3일차", "any", "adult", "입장", "라디오에서 또 '안정적'이래요. 매번 그 말이죠."),
         new Line("바깥 소식", "3일차", "any", "child", "입장", "비 오면 밖에 나가지 말래요."),
-        new Line("바깥 소식", "4일차", "any", "adult", "입장", "담장 안에서 시민권 발표가 있대요. 소문만 무성해요."),
-        new Line("바깥 소식", "4일차", "any", "adult", "입장", "오늘 위병소 앞 줄이 골목까지 나왔어요."),
-        new Line("바깥 소식", "4일차", "any", "adult", "입장", "누구는 오늘 담장 안으로 들어간다더군요. 부럽네요."),
-        new Line("바깥 소식", "4일차", "any", "child", "입장", "담장 안에는 매일 고기 먹는대요. 진짜예요?"),
+        new Line("바깥 소식", "마지막 날", "any", "adult", "입장", "담장 안에서 시민권 발표가 있대요. 소문만 무성해요."),
+        new Line("바깥 소식", "마지막 날", "any", "adult", "입장", "오늘 위병소 앞 줄이 골목까지 나왔어요."),
+        new Line("바깥 소식", "마지막 날", "any", "adult", "입장", "누구는 오늘 담장 안으로 들어간다더군요. 부럽네요."),
+        new Line("바깥 소식", "마지막 날", "any", "child", "입장", "담장 안에는 매일 고기 먹는대요. 진짜예요?"),
         new Line("이웃", "하루 안부", "any", "adult", "입장", "하루는 좀 어때요? 기침은 덜하고요?"),
         new Line("이웃", "하루 안부", "any", "adult", "입장", "하루 열은 좀 내렸어요?"),
         new Line("이웃", "하루 안부", "any", "adult", "입장", "요즘 하루가 창가에 안 보이던데요."),

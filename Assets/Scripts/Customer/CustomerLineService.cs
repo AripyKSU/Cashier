@@ -193,7 +193,8 @@ public sealed class CustomerLineService : IDisposable
             string prefix = item.ProductIdx + " ";
             add($"{this.getProductName(item.ProductIdx)}을(를) 사는 이유나 쓸 곳", x => x.Axis == "품목 사연" && x.Key.StartsWith(prefix));
         }
-        string dayKey = context.Day + "일차";
+        // 마지막 영업일 소식(시민권 발표 소문)은 일차 번호가 아니라 실제 마지막 날에 맞춘다.
+        string dayKey = context.IsFinalDay ? "마지막 날" : context.Day + "일차";
         add($"오늘 바깥 소식: {getDayNews(context)}", x => x.Axis == "바깥 소식" && x.Key == dayKey);
         string disposition = getDispositionName(visit.DispositionType);
         add($"손님 자신의 사정 (손님 성향: {disposition})", x => x.Axis == "손님 사연" && x.Disposition == disposition);
@@ -303,7 +304,7 @@ public sealed class CustomerLineService : IDisposable
         return line;
     }
 
-    /// <summary>시연판 1~4일차의 바깥 분위기. 풀의 바깥 소식 축과 같은 설정이다.</summary>
+    /// <summary>1~3일차와 마지막 날의 바깥 분위기. 풀의 바깥 소식 축과 같은 설정이다.</summary>
     /// <param name="context">진행 상황.</param><returns>그날 분위기 설명.</returns>
     private static string getDayNews(CustomerLineContext context)
     {
