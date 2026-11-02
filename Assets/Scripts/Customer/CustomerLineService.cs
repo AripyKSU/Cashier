@@ -53,6 +53,8 @@ public sealed class CustomerLineService : IDisposable
     private const int RequestTimeoutSeconds = 10;
     private const int MaxLineLength = 60;
     private const int MaxPendingVisits = 32;
+    // 손님 한 명이 딸 안부 주제를 후보로 가질 확률.
+    private const double NeighborTopicChance = 0.1;
     private const string KeyFolderName = ".cashier";
     private const string KeyFileName = "anthropic_api_key.txt";
     // 세계관과 말투 규칙. 손님마다 바뀌는 정보는 사용자 메시지로 보낸다.
@@ -64,7 +66,7 @@ public sealed class CustomerLineService : IDisposable
         "- 35자 안팎, 길어도 두 문장. 담담하고 지친 말투. 밝거나 과장된 감탄은 쓰지 않는다.\n" +
         "- 어른은 존댓말. 아이는 가게 주인을 '아저씨'라 부르고 아이다운 짧은 말투.\n" +
         "- 가격, 할인, 흥정 이야기는 하지 않는다. 주어진 주제에 집중한다.\n" +
-        "- 하루는 이웃만 안다. 이웃 주제가 아니면 하루를 언급하지 않는다.";
+        "- 딸은 이웃만 안다. 이웃 주제가 아니면 딸 이야기를 하지 않는다. 이웃 주제여도 '하루'라는 이름은 거의 부르지 말고 '따님', '그 애'처럼 말한다.";
 
     private readonly string apiKey;
     private readonly Func<uint, string> getProductName;
@@ -195,7 +197,8 @@ public sealed class CustomerLineService : IDisposable
         add($"오늘 바깥 소식: {getDayNews(context)}", x => x.Axis == "바깥 소식" && x.Key == dayKey);
         string disposition = getDispositionName(visit.DispositionType);
         add($"손님 자신의 사정 (손님 성향: {disposition})", x => x.Axis == "손님 사연" && x.Disposition == disposition);
-        add("가게 주인의 딸 하루(아파서 집에 누워 있음)의 안부를 묻는 이웃", x => x.Axis == "이웃");
+        // 딸 안부는 자주 들으면 무게가 빠지므로 드물게만 후보에 넣는다.
+        if (this.random.NextDouble() < NeighborTopicChance) add("가게 주인의 아픈 딸(집에 누워 있음)의 안부를 묻는 이웃", x => x.Axis == "이웃");
         if (context.StoreStage >= 2)
         {
             string stageKey = context.StoreStage + "단계 확장";
