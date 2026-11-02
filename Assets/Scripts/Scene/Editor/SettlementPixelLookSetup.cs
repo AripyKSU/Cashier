@@ -1,14 +1,14 @@
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.TextCore;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
 
 /// <summary>
 /// 저녁 정산 화면을 도트 느낌으로 맞추는 에디터 도구입니다.
 /// 비트비트체를 작은 해상도·Point 필터로 다시 만들어 글자가 픽셀로 보이게 하고, 가계부 양쪽 페이지에 공책 줄을 긋고,
-/// 소지금 판자 글씨를 다음날 버튼처럼 얇은 테두리와 그림자로 바꿉니다. 여러 번 실행해도 같은 결과입니다.
+/// 소지금 판자 글씨를 다음날 버튼 그림 글씨처럼 각진 굵은 글꼴·위에서 아래로 짙어지는 크림색·검은 테두리·아래 그림자로 바꿉니다.
+/// 여러 번 실행해도 같은 결과입니다.
 /// </summary>
 public static class SettlementPixelLookSetup
 {
@@ -20,10 +20,22 @@ public static class SettlementPixelLookSetup
     private const float RuledPixelUnits = 1.25f;
     // 가계부 본문 글씨 크기. 줄 간격(DailySettlementLedgerFormatter.LineHeight) 안에 들어가는 크기입니다.
     private const float LedgerFontSize = 20f;
-    // 글자 아래 끝(기준선)에서 줄까지의 거리(UI 단위).
-    private const float RuleBelowBaseline = 1.5f;
-    private static readonly Color PlankTextColor = new Color32(240, 202, 155, 255);
-    private static readonly Color PlankOutlineColor = new Color32(9, 2, 1, 255);
+    // 글자 아래 끝(기준선)에서 줄 윗면까지의 거리(UI 단위). 글자 도트 2칸만큼 줄 위에 살짝 떠 앉는다.
+    private const float RuleBelowBaseline = 2.5f;
+    // 소지금 글씨. 다음날 글씨(NextDay.png에 그려진 글자)처럼 각진 갈무리 굵은체를 쓴다.
+    // 크기 24는 갈무리 12px 격자의 2배라 글자 도트가 UI 2단위로 고르게 떨어진다.
+    private const string PlankFontPath = "Assets/Fonts/Galmuri/Galmuri11-Bold SDF.asset";
+    private const string PlankMaterialPath = "Assets/Fonts/Galmuri/Galmuri11-Bold SDF Plank Outline.mat";
+    private const float PlankFontSize = 24f;
+    // 다음날 글씨에서 뽑은 색: 위쪽 밝은 크림 → 아래쪽 짙은 황갈색, 검은 테두리, 아래로 떨어지는 짙은 갈색 그림자.
+    private static readonly Color PlankTopColor = new Color32(251, 230, 190, 255);
+    private static readonly Color PlankBottomColor = new Color32(221, 175, 128, 255);
+    private static readonly Color PlankOutlineColor = new Color32(6, 4, 3, 255);
+    private static readonly Color PlankShadowColor = new Color32(30, 13, 8, 255);
+    // 테두리 두께와 그림자 위치(SDF 패딩 비율). 그림자는 테두리보다 조금 굵게, 아래로 크게·오른쪽으로 조금 밀린다.
+    private const float PlankOutlineWidth = 0.3f;
+    private static readonly Vector2 PlankShadowOffset = new Vector2(0.6f, -1f);
+    private const float PlankShadowDilate = 0.5f;
 
     [MenuItem("Cashier/Setup/Settlement Pixel Look")]
     public static void Install()
@@ -122,11 +134,8 @@ public static class SettlementPixelLookSetup
         boxRect.localRotation = textRect.localRotation;
         boxRect.localScale = textRect.localScale;
 
-        // 둘째 줄(본문 첫 줄) 기준선. 위 정렬이라 첫 줄 기준선은 위 여백 + 제목(108%) 글꼴의 윗선 높이이고,
-        // <line-height>로 고정한 간격만큼 한 줄씩 내려간다. 프리팹 편집 중에는 TMP 배치 정보가 비어 있어 글꼴 수치로 계산한다.
-        FaceInfo face = text.font.faceInfo;
-        float titleScale = text.fontSize * 1.08f / face.pointSize;
-        float baseline = textRect.rect.yMax - text.margin.y - face.ascentLine * titleScale - DailySettlementLedgerFormatter.LineHeight;
+        // 둘째 줄(본문 첫 줄) 기준선. 이후 줄은 <line-height>로 고정한 간격만큼 한 줄씩 내려간다.
+        float baseline = measureBodyBaseline(text);
 
         // 반복 이미지는 아래쪽부터 타일을 깐다. 맨 아래 타일의 바닥 줄이 어느 기준선 바로 아래에 오도록 아래 끝을 맞춘다.
         Rect rect = textRect.rect;
@@ -151,7 +160,40 @@ public static class SettlementPixelLookSetup
         image.raycastTarget = false;
     }
 
-    /// <summary>소지금 판자 금액 글씨를 다음날 버튼 글씨처럼 조금 작게, 얇은 짙은 테두리와 오른쪽 아래 그림자로 바꾼다.</summary>
+    /// <summary>
+    /// 페이지 글씨를 실제로 배치해 본문 첫 줄 기준선의 높이(글씨 상자 좌표)를 잰다.
+    /// 프리팹 편집 중에는 TMP가 배치하지 않으므로 같은 글씨를 현재 씬의 숨은 임시 캔버스에 복제해 정산 문구로 배치한다.
+    /// </summary>
+    /// <param name="text">가계부 한쪽 페이지 글씨입니다.</param>
+    /// <returns>글씨 상자 좌표의 본문 첫 줄 기준선 y입니다.</returns>
+    private static float measureBodyBaseline(TextMeshProUGUI text)
+    {
+        var canvas = new GameObject("LedgerBaselineProbe", typeof(Canvas)) { hideFlags = HideFlags.HideAndDontSave };
+        try
+        {
+            var probe = Object.Instantiate(text.gameObject, canvas.transform, false).GetComponent<TextMeshProUGUI>();
+            Rect rect = text.rectTransform.rect;
+            probe.rectTransform.anchorMin = probe.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            probe.rectTransform.pivot = text.rectTransform.pivot;
+            probe.rectTransform.sizeDelta = rect.size;
+            var sample = new DailySettlementViewData(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                System.Array.Empty<SettlementGuidelineViolationViewData>(), 0, 0, 0, 0, null, 0, false);
+            probe.text = DailySettlementLedgerFormatter.Format(sample).LeftPage;
+            probe.ForceMeshUpdate(true, true);
+            if (probe.textInfo.lineCount < 2)
+                throw new System.InvalidOperationException($"{text.name} 기준선을 잴 수 없습니다.");
+            return probe.textInfo.lineInfo[1].baseline - probe.rectTransform.rect.yMax + rect.yMax;
+        }
+        finally
+        {
+            Object.DestroyImmediate(canvas);
+        }
+    }
+
+    /// <summary>
+    /// 소지금 판자 글씨를 다음날 버튼 글씨와 같게 만든다: 각진 굵은 글꼴, 글자마다 위에서 아래로 짙어지는 크림색,
+    /// 검은 테두리, 아래(조금 오른쪽)로 떨어지는 짙은 갈색 그림자.
+    /// </summary>
     private static void restylePlankText()
     {
         GameObject root = PrefabUtility.LoadPrefabContents(GameUiPrefabPath);
@@ -160,17 +202,35 @@ public static class SettlementPixelLookSetup
             Transform balance = findDeep(root.transform, "SettlementBalance")
                 ?? throw new System.InvalidOperationException("SettlementBalance를 찾을 수 없습니다.");
             var text = balance.Find("Balance").GetComponent<TextMeshProUGUI>();
-            text.fontSize = 22f;
-            text.color = PlankTextColor;
-            Material material = GalmuriFontSetup.OutlineMaterial("Plank Outline", PlankOutlineColor, 0.25f, true);
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(PlankFontPath)
+                ?? throw new System.InvalidOperationException("갈무리 굵은체 에셋이 없습니다.");
+            var material = AssetDatabase.LoadAssetAtPath<Material>(PlankMaterialPath);
+            if (material == null)
+            {
+                material = new Material(font.material);
+                AssetDatabase.CreateAsset(material, PlankMaterialPath);
+            }
+
+            material.CopyPropertiesFromMaterial(font.material);
+            material.SetFloat(ShaderUtilities.ID_Sharpness, 1f);
+            material.EnableKeyword(ShaderUtilities.Keyword_Outline);
+            material.SetColor(ShaderUtilities.ID_OutlineColor, PlankOutlineColor);
+            material.SetFloat(ShaderUtilities.ID_OutlineWidth, PlankOutlineWidth);
             material.EnableKeyword(ShaderUtilities.Keyword_Underlay);
-            material.SetColor(ShaderUtilities.ID_UnderlayColor, PlankOutlineColor);
-            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, 0.7f);
-            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, -0.7f);
-            material.SetFloat(ShaderUtilities.ID_UnderlayDilate, 0.25f);
+            material.SetColor(ShaderUtilities.ID_UnderlayColor, PlankShadowColor);
+            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetX, PlankShadowOffset.x);
+            material.SetFloat(ShaderUtilities.ID_UnderlayOffsetY, PlankShadowOffset.y);
+            material.SetFloat(ShaderUtilities.ID_UnderlayDilate, PlankShadowDilate);
             material.SetFloat(ShaderUtilities.ID_UnderlaySoftness, 0f);
             EditorUtility.SetDirty(material);
+
+            text.font = font;
             text.fontSharedMaterial = material;
+            text.fontSize = PlankFontSize;
+            text.fontStyle = FontStyles.Normal;
+            text.color = Color.white;
+            text.enableVertexGradient = true;
+            text.colorGradient = new VertexGradient(PlankTopColor, PlankTopColor, PlankBottomColor, PlankBottomColor);
             PrefabUtility.SaveAsPrefabAsset(root, GameUiPrefabPath);
         }
         finally
