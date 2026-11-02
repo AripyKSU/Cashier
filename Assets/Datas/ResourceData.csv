@@ -18,7 +18,6 @@ idx,path
 4217,FemalePriceSensitive_02
 4218,FemalePriceSensitive_03
 4219,FemaleWealthy_01
-4220,FemaleWealthy_02
 4221,FemaleWealthy_03
 4222,FemalePoor_01
 4223,FemalePoor_02
@@ -134,7 +133,6 @@ idx,path
 4334,FemalePriceSensitive_02_Normal
 4335,FemalePriceSensitive_03_Normal
 4336,FemaleWealthy_01_Normal
-4337,FemaleWealthy_02_Normal
 4338,FemaleWealthy_03_Normal
 4339,FemalePoor_01_Normal
 4340,FemalePoor_02_Normal

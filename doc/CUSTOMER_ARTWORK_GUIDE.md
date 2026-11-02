@@ -347,7 +347,6 @@ Unity MCP 연결이 직전 작업부터 시간 초과 상태여서, 본 문서�
 | [FemalePriceSensitive_02](../Assets/Textures/Customer/Dystopia/FemalePriceSensitive_02.png) | 1150×1770 | 60,100 | 1060×1670 |
 | [FemalePriceSensitive_03](../Assets/Textures/Customer/Dystopia/FemalePriceSensitive_03.png) | 744×1086 | 42,78 | 654×1008 |
 | [FemaleWealthy_01](../Assets/Textures/Customer/Dystopia/FemaleWealthy_01.png) | 1165×1350 | 25,17 | 1123×1305 |
-| [FemaleWealthy_02](../Assets/Textures/Customer/Dystopia/FemaleWealthy_02.png) | 972×1134 | 36,18 | 912×1116 |
 | [FemaleWealthy_03](../Assets/Textures/Customer/Dystopia/FemaleWealthy_03.png) | 1128×1280 | 88,24 | 1000×1232 |
 | [FemalePoor_01](../Assets/Textures/Customer/Dystopia/FemalePoor_01.png) | 1044×1386 | 156,48 | 732×1338 |
 | [FemalePoor_02](../Assets/Textures/Customer/Dystopia/FemalePoor_02.png) | 870×1155 | 100,20 | 685×1135 |
