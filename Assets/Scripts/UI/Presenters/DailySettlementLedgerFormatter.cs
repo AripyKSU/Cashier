@@ -33,9 +33,9 @@ public static class DailySettlementLedgerFormatter
     // 공책 줄 간격(캔버스 단위). SettlementPixelLookSetup이 페이지에 까는 줄무늬와 같은 값이라 모든 줄이 줄무늬 위에 앉는다.
     public const int LineHeight = 30;
     // 구획 제목·수입·지출 잉크 색. 바랜 갈색 종이에 스며든 잉크처럼 채도를 낮춘다(녹슨 빨강·바랜 놋쇠).
-    private const string TitleColor = "#5a1a12";
-    private const string IncomeColor = "#24401e";
-    private const string ExpenseColor = "#6e2418";
+    private const string TitleColor = "#4a140e";
+    private const string IncomeColor = "#1f3a1a";
+    private const string ExpenseColor = "#7a2418";
 
     /// <summary>왼쪽 페이지의 금액 결산 문구를 만듭니다.</summary>
     /// <param name="viewData">확정된 정산 스냅샷입니다.</param>
