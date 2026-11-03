@@ -18,7 +18,6 @@ public sealed class EndingPresenter : MonoBehaviour
     [SerializeField] private TextMeshProUGUI heading;
     [SerializeField] private TextMeshProUGUI speaker;
     [SerializeField] private TextMeshProUGUI dialogue;
-    [SerializeField] private TextMeshProUGUI pageIndicator;
     [SerializeField] private Button nextButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private CanvasGroup pageGroup;
@@ -112,7 +111,6 @@ public sealed class EndingPresenter : MonoBehaviour
         CancellationToken token = lifetime.Token;
         nextButton.gameObject.SetActive(true);
         newGameButton.gameObject.SetActive(false);
-        pageIndicator.gameObject.SetActive(true);
         nextButton.interactable = false;
         try
         {
@@ -201,7 +199,6 @@ public sealed class EndingPresenter : MonoBehaviour
         dialogue.text = page.TextIdx.HasValue ? texts.Rows[page.TextIdx.Value].Text : string.Empty;
         dialogue.gameObject.SetActive(!isPageDelaying && page.TextIdx.HasValue);
         setPanelBackgroundVisible(!isPageDelaying && page.TextIdx.HasValue);
-        pageIndicator.gameObject.SetActive(!isPageDelaying);
         nextButton.gameObject.SetActive(true);
         bool startedFade = false;
         if (page.BackgroundResourceIdx.HasValue)
@@ -244,11 +241,9 @@ public sealed class EndingPresenter : MonoBehaviour
             speaker.gameObject.SetActive(page.SpeakerNameIdx.HasValue);
             dialogue.gameObject.SetActive(page.TextIdx.HasValue);
             setPanelBackgroundVisible(page.TextIdx.HasValue);
-            pageIndicator.gameObject.SetActive(true);
             if (!startedFade || pageGroup.alpha >= 1) nextButton.interactable = true;
         }
 
-        pageIndicator.text = $"{pageIndex + 1} / {pages.Length}";
         nextButton.GetComponentInChildren<TMP_Text>().text = pageIndex + 1 == pages.Length ? "마무리" : "다음";
         if (!startedFade && !isPageDelaying) nextButton.interactable = true;
         nextInputTime = Time.unscaledTime + 0.2f;
@@ -269,7 +264,6 @@ public sealed class EndingPresenter : MonoBehaviour
             heading.gameObject.SetActive(false);
             speaker.gameObject.SetActive(false);
             dialogue.gameObject.SetActive(false);
-            pageIndicator.gameObject.SetActive(false);
             setPanelBackgroundVisible(false);
             blackFadeTween?.Kill();
             blackFadeTween = DOTween.ToAlpha(() => blackCover.color, value => blackCover.color = value, 1f, 0.6f)
@@ -307,7 +301,6 @@ public sealed class EndingPresenter : MonoBehaviour
             heading.gameObject.SetActive(false);
             speaker.gameObject.SetActive(false);
             dialogue.gameObject.SetActive(false);
-            pageIndicator.gameObject.SetActive(false);
             setPanelBackgroundVisible(false);
 
             var area = (RectTransform)background.transform.parent;
@@ -373,7 +366,6 @@ public sealed class EndingPresenter : MonoBehaviour
     private void finishFinalPage()
     {
         setPanelBackgroundVisible(false);
-        pageIndicator.gameObject.SetActive(false);
         nextButton.gameObject.SetActive(false);
         newGameButton.gameObject.SetActive(true);
         SoundManager.Instance?.StopBgm();

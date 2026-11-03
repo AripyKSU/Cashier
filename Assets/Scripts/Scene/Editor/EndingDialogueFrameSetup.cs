@@ -40,8 +40,9 @@ public static class EndingDialogueFrameSetup
             panelImage.pixelsPerUnitMultiplier = multiplier;
             panelImage.color = Color.white;
             var panelRect = (RectTransform)panel;
-            panelRect.anchoredPosition = new Vector2(0f, -330f);
-            panelRect.sizeDelta = new Vector2(1440f, 300f);
+            // 그림을 가리지 않도록 작게, 화면(1600×900) 아래 끝 안쪽에 둔다.
+            panelRect.anchoredPosition = new Vector2(0f, -345f);
+            panelRect.sizeDelta = new Vector2(1000f, 180f);
 
             // 틀 그림 안쪽이 비쳐 배경이 보이므로, 틀 뒤에 어두운 철판색 판을 깐다.
             Transform oldBacking = panel.Find("Backing");
@@ -60,26 +61,23 @@ public static class EndingDialogueFrameSetup
 
             // 화자 이름: 틀 안 왼쪽 위, 바랜 황동색.
             var speaker = find(panel, "Speaker").GetComponent<TextMeshProUGUI>();
-            speaker.rectTransform.anchoredPosition = new Vector2(0f, 92f);
-            speaker.rectTransform.sizeDelta = new Vector2(1240f, 44f);
+            speaker.rectTransform.anchoredPosition = new Vector2(0f, 56f);
+            speaker.rectTransform.sizeDelta = new Vector2(860f, 40f);
             speaker.alignment = TextAlignmentOptions.Left;
             speaker.color = new Color(.8f, .69f, .48f);
-            speaker.fontSize = 28f;
+            speaker.fontSize = 26f;
 
-            // 대사: 틀 가운데, 하얀색 대신 바랜 미색.
+            // 대사: 화자 이름 유무와 관계없이 틀 정가운데, 하얀색 대신 바랜 미색.
             var dialogue = find(panel, "Dialogue").GetComponent<TextMeshProUGUI>();
-            dialogue.rectTransform.anchoredPosition = new Vector2(0f, -8f);
-            dialogue.rectTransform.sizeDelta = new Vector2(1240f, 160f);
+            dialogue.rectTransform.anchoredPosition = new Vector2(0f, 0f);
+            dialogue.rectTransform.sizeDelta = new Vector2(860f, 96f);
+            dialogue.fontSize = 30f;
             dialogue.alignment = TextAlignmentOptions.Center;
             dialogue.color = new Color(.87f, .83f, .76f);
 
-            // 쪽 번호는 틀 오른쪽 아래에 작게.
-            var page = find(panel, "Page").GetComponent<TextMeshProUGUI>();
-            page.rectTransform.anchoredPosition = new Vector2(560f, -112f);
-            page.rectTransform.sizeDelta = new Vector2(200f, 32f);
-            page.alignment = TextAlignmentOptions.Right;
-            page.fontSize = 20f;
-            page.color = new Color(.75f, .69f, .6f, .7f);
+            // 쪽 번호는 쓰지 않는다.
+            Transform page = find(panel, "Page");
+            if (page != null) Object.DestroyImmediate(page.gameObject);
 
             PrefabUtility.SaveAsPrefabAsset(root, EndingPrefabPath);
             Debug.Log("[EndingDialogueFrameSetup] 엔딩 대사창 틀 적용 완료");
