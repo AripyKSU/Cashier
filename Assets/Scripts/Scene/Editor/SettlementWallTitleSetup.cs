@@ -13,7 +13,7 @@ public static class SettlementWallTitleSetup
     private const string SettlementPanelPrefabPath = "Assets/Prefabs/GameUI/SettlementPanel.prefab";
     private const string DaughterPanelPrefabPath = "Assets/Prefabs/GameUI/Daughter/DaughterDialoguePanel.prefab";
     private const string HubScenePath = "Assets/Scenes/HubScene.unity";
-    private const string FontPath = "Assets/Fonts/DNFBitBit/DNFBitBitv2 SDF.asset";
+    private const string FontPath = SettlementPixelLookSetup.NeoDgmAssetPath;
     private const string BubblePath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubble.png";
     private const string BubbleTailPath = "Assets/Textures/UI/Dystopia/Settlement/DaughterBubbleTail.png";
     private const string TitleCoinPath = "Assets/Textures/UI/Hub/TitleCoin.png";
@@ -96,7 +96,7 @@ public static class SettlementWallTitleSetup
             titleRect.sizeDelta = new Vector2(-40f, 34f);
             var titleText = title.GetComponent<TextMeshProUGUI>();
             titleText.font = font;
-            titleText.fontSize = 21f;
+            titleText.fontSize = SettlementPixelLookSetup.TextSize;
             titleText.alignment = TextAlignmentOptions.Center;
             titleText.color = new Color(.25f, .15f, .1f);
             titleText.raycastTarget = false;
@@ -163,7 +163,7 @@ public static class SettlementWallTitleSetup
                 var text = dialogue.GetComponent<TextMeshProUGUI>();
                 text.textWrappingMode = TextWrappingModes.Normal;
                 text.margin = Vector4.zero;
-                text.fontSize = 26f;
+                text.fontSize = SettlementPixelLookSetup.TextSize;
                 text.alignment = TextAlignmentOptions.MidlineLeft;
                 if (!dialogue.TryGetComponent(out LayoutElement element)) element = dialogue.gameObject.AddComponent<LayoutElement>();
                 element.preferredWidth = DialogueWidth;

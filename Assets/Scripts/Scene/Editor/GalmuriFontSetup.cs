@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.TextCore.LowLevel;
 
 /// <summary>
-/// 게임 폰트 도구. 대부분의 화면은 물마루(Mulmaru)를 쓰고, 저녁 정산 화면(가계부·딸 말풍선·설비 창·소지금 판자)만 던파 비트비트체 v2를 쓴다.
+/// 게임 폰트 도구. 대부분의 화면은 물마루(Mulmaru)를 쓰고, 설비 창·감독관 화면은 던파 비트비트체 v2를 쓴다(정산 화면 글씨는 SettlementPixelLookSetup의 Neo둥근모).
 /// 비트비트체는 작은 샘플(16)과 Point 필터로 만들어 도트 글씨로 보이게 하고, 게임 문구에 쓰이는 글자를 미리 채워 둔다.
 /// </summary>
 public static class GalmuriFontSetup
@@ -95,16 +95,25 @@ public static class GalmuriFontSetup
             AssetDatabase.AddObjectToAsset(asset.material, asset);
         }
 
-        // 게임 문구와 기본 기호를 미리 아틀라스에 넣어 첫 표시 때 글자가 늦게 뜨지 않게 한다.
-        string characters = File.ReadAllText(TextDataPath)
-            + " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~…·×→←↑↓★☆♥※○●◆■□원일차명성소지금";
-        string unique = new string(characters.Where(c => !char.IsControl(c)).Distinct().ToArray());
+        string unique = GameCharacters();
         asset.TryAddCharacters(unique, out string missing);
         if (pixel) ApplyPixelLook(asset);
         EditorUtility.SetDirty(asset);
         AssetDatabase.SaveAssets();
         Debug.Log($"[GalmuriFontSetup] {name}: 글자 {unique.Length}개 중 없는 글자: {(string.IsNullOrEmpty(missing) ? "없음" : missing)}");
         return asset;
+    }
+
+    /// <summary>
+    /// 게임 문구(TextData)와 기본 기호에 쓰이는 글자를 중복 없이 돌려줍니다.
+    /// 아틀라스에 미리 넣어 첫 표시 때 글자가 늦게 뜨지 않게 할 때 쓴다.
+    /// </summary>
+    /// <returns>제어 문자를 뺀 고유 글자 문자열입니다.</returns>
+    public static string GameCharacters()
+    {
+        string characters = File.ReadAllText(TextDataPath)
+            + " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~…·×→←↑↓★☆♥※○●◆■□원일차명성소지금";
+        return new string(characters.Where(c => !char.IsControl(c)).Distinct().ToArray());
     }
 
     /// <summary>
