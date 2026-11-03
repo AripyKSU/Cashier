@@ -8,6 +8,10 @@ using UnityEngine.UI;
 public sealed class DaughterDialoguePresenter : MonoBehaviour
 {
     [SerializeField] private Image portrait;
+    /// <summary>배경 책상 윗부분을 딸 이미지 앞에 다시 그려 끄덕일 때 몸이 책상 위로 넘지 않게 가립니다.</summary>
+    [SerializeField] private Image deskFront;
+    /// <summary>책상 위에 엎드린 단계처럼 책상 앞면을 덮으면 안 되는 딸 이미지 이름입니다.</summary>
+    [SerializeField] private string[] onDeskSpriteNames = Array.Empty<string>();
     /// <summary>인트로 하루 대사와 같은 글자 소리(TextBlip). 비어 있으면 소리 없이 출력합니다.</summary>
     [SerializeField] private AudioClip textBlipClip;
     /// <summary>글자 소리를 낼 AudioSource입니다.</summary>
@@ -80,6 +84,8 @@ public sealed class DaughterDialoguePresenter : MonoBehaviour
     {
         ValidateReferences();
         portrait.sprite = viewData.Sprite;
+        if (deskFront != null)
+            deskFront.enabled = viewData.Sprite == null || Array.IndexOf(onDeskSpriteNames, viewData.Sprite.name) < 0;
         if (presentedDay == viewData.Day && hasCompleted)
         {
             dialogue.text = viewData.Text;
