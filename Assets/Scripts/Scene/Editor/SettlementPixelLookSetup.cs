@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// 저녁 정산 화면을 도트 느낌으로 맞추는 에디터 도구입니다.
-/// 정산 화면 글씨(딸 말풍선·가계부 양쪽 페이지·명성 포스터 제목·다음날 글씨·소지금 판자)를 Neo둥근모로 바꾸고,
+/// 정산 화면 글씨 중 딸 말풍선·가계부 양쪽 페이지·명성 포스터 제목은 갈무리11 굵게로, 다음날 글씨·소지금 판자는 Neo둥근모로 바꾸고,
 /// 가계부 양쪽 페이지에 공책 줄을 긋고, 소지금 판자 글씨를 다음날 버튼 그림 글씨처럼 위에서 아래로 짙어지는
 /// 크림색·검은 테두리·아래 그림자로 바꿉니다. 여러 번 실행해도 같은 결과입니다.
 /// </summary>
@@ -17,6 +17,11 @@ public static class SettlementPixelLookSetup
     private const string GameUiPrefabPath = "Assets/Prefabs/GameUI/GameUI.prefab";
     private const string RuledLinePath = "Assets/Textures/UI/Dystopia/Settlement/LedgerRuledLine.png";
     private const string NeoDgmFontPath = "Assets/Fonts/NeoDGM/neodgm.ttf";
+    private const string GalmuriBoldFontPath = "Assets/Fonts/Galmuri/Galmuri11-Bold.ttf";
+    // 가계부·딸 말풍선·명성 포스터 제목용 갈무리11 굵게 래스터 아틀라스. 획이 굵어 배경 그림 도트와 어울린다.
+    public const string TextFontAssetPath = "Assets/Fonts/Galmuri/Galmuri11-Bold Raster.asset";
+    // 갈무리11 원본 글자는 1em = 12px로 그려져 있다.
+    private const int GalmuriPixelSize = 12;
     // 테두리가 필요 없는 정산 글씨용. 흑백 래스터 아틀라스라 글자 도트가 그대로 찍힌다.
     public const string NeoDgmAssetPath = "Assets/Fonts/NeoDGM/NeoDGM Raster.asset";
     // 소지금 판자용. 테두리·그림자를 넣으려고 같은 크기의 SDF로 만들고 Point 필터로 읽는다.
@@ -27,13 +32,15 @@ public static class SettlementPixelLookSetup
     private const int RasterPadding = 2;
     private const int OutlinePadding = 3;
     private const int AtlasSize = 1024;
-    // 캔버스 기준 1280x720이 1920x1080 화면에서 1.5배로 보인다. 글씨 크기 21.333(= 32 / 1.5)이면 화면에서 정확히 32px,
-    // 글꼴 1px이 화면 2px로 찍혀 도트 크기가 고르게 맞는다.
-    public const float TextSize = 32f / 1.5f;
+    // 캔버스 기준 1280x720이 1920x1080 화면에서 1.5배로 보인다. 글씨 크기 24(= 36 / 1.5)이면 화면에서 정확히 36px,
+    // 갈무리 1px이 화면 3px로 찍혀 배경 그림의 굵은 도트에 가깝게 보인다.
+    public const float TextSize = 36f / 1.5f;
+    // 다음날 글씨·소지금 판자의 Neo둥근모 크기. 화면에서 32px, 글꼴 1px = 화면 2px.
+    private const float NeoDgmTextSize = 32f / 1.5f;
     // 줄무늬 그림 1px이 UI 몇 단위인지. 줄무늬 그림 높이 24px × 1.25 = 줄 간격 30.
     private const float RuledPixelUnits = 1.25f;
-    // 글자 아래 끝(기준선)에서 줄 윗면까지의 거리(UI 단위). 글자 도트 2칸만큼 줄 위에 살짝 떠 앉는다.
-    private const float RuleBelowBaseline = 2.5f;
+    // 글자 아래 끝(기준선)에서 줄 윗면까지의 거리(UI 단위). 화면 1~2px만큼 줄 위에 살짝 떠 앉는다.
+    private const float RuleBelowBaseline = 1f;
     // 다음날 글씨에서 뽑은 색: 위쪽 밝은 크림 → 아래쪽 짙은 황갈색, 검은 테두리, 아래로 떨어지는 짙은 갈색 그림자.
     private static readonly Color PlankTopColor = new Color32(251, 230, 190, 255);
     private static readonly Color PlankBottomColor = new Color32(221, 175, 128, 255);
@@ -51,32 +58,48 @@ public static class SettlementPixelLookSetup
     [MenuItem("Cashier/Setup/Settlement Pixel Look")]
     public static void Install()
     {
-        TMP_FontAsset raster = ensureFont(NeoDgmAssetPath, "NeoDGM Raster", GlyphRenderMode.RASTER, RasterPadding);
-        TMP_FontAsset outline = ensureFont(NeoDgmOutlineAssetPath, "NeoDGM SDF", GlyphRenderMode.SDFAA, OutlinePadding);
-        installSettlementPanel(raster);
-        installDaughterDialogue(raster);
+        InstallText();
+        TMP_FontAsset outline = ensureFont(NeoDgmFontPath, NeoDgmOutlineAssetPath, "NeoDGM SDF", GlyphRenderMode.SDFAA,
+            OutlinePadding, NativePixelSize);
         restylePlankText(outline);
         AssetDatabase.SaveAssets();
-        Debug.Log("[SettlementPixelLookSetup] 정산 화면 Neo둥근모·공책 줄·소지금 글씨 설치 완료");
+        Debug.Log("[SettlementPixelLookSetup] 정산 화면 글씨·공책 줄·소지금 글씨 설치 완료");
+    }
+
+    /// <summary>소지금 판자는 건드리지 않고 가계부·포스터 제목·다음날 글씨·딸 말풍선 글씨와 공책 줄만 다시 설치합니다.</summary>
+    [MenuItem("Cashier/Setup/Settlement Pixel Text")]
+    public static void InstallText()
+    {
+        TMP_FontAsset text = ensureFont(GalmuriBoldFontPath, TextFontAssetPath, "Galmuri11-Bold Raster", GlyphRenderMode.RASTER,
+            RasterPadding, GalmuriPixelSize);
+        TMP_FontAsset label = ensureFont(NeoDgmFontPath, NeoDgmAssetPath, "NeoDGM Raster", GlyphRenderMode.RASTER,
+            RasterPadding, NativePixelSize);
+        installSettlementPanel(text, label);
+        installDaughterDialogue(text);
+        AssetDatabase.SaveAssets();
+        Debug.Log("[SettlementPixelLookSetup] 정산 화면 갈무리11 굵게 글씨·공책 줄 설치 완료");
     }
 
     /// <summary>
-    /// Neo둥근모 폰트 에셋을 돌려줍니다. 없으면 원본 크기(16)로 만들고, 게임 문구 글자를 채우고, 아틀라스를 Point 필터로 둔다.
+    /// 도트 폰트 에셋을 돌려줍니다. 없으면 원본 크기로 만들고, 게임 문구 글자를 채우고, 아틀라스를 Point 필터로 둔다.
     /// 글꼴 1px이 아틀라스 1텍셀이므로 화면에서 정수 배로 키우면 도트가 흐려지지 않는다.
     /// </summary>
+    /// <param name="fontPath">원본 글꼴(ttf) 경로입니다.</param>
     /// <param name="assetPath">폰트 에셋 경로입니다.</param>
     /// <param name="name">에셋·아틀라스·머티리얼 이름입니다.</param>
     /// <param name="renderMode">RASTER는 테두리 없는 글씨, SDFAA는 테두리·그림자가 필요한 글씨에 쓴다.</param>
     /// <param name="padding">글자 사이 여백(텍셀)입니다. SDF는 테두리·그림자가 들어갈 만큼 둔다.</param>
+    /// <param name="nativePixelSize">글꼴 원본 1em의 픽셀 수. 샘플 크기로 써서 글꼴 1px = 아틀라스 1텍셀이 되게 한다.</param>
     /// <returns>저장된 폰트 에셋입니다.</returns>
-    private static TMP_FontAsset ensureFont(string assetPath, string name, GlyphRenderMode renderMode, int padding)
+    private static TMP_FontAsset ensureFont(string fontPath, string assetPath, string name, GlyphRenderMode renderMode,
+        int padding, int nativePixelSize)
     {
-        var font = AssetDatabase.LoadAssetAtPath<Font>(NeoDgmFontPath)
-            ?? throw new System.InvalidOperationException($"{NeoDgmFontPath}를 찾을 수 없습니다.");
+        var font = AssetDatabase.LoadAssetAtPath<Font>(fontPath)
+            ?? throw new System.InvalidOperationException($"{fontPath}를 찾을 수 없습니다.");
         var asset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(assetPath);
         if (asset == null)
         {
-            asset = TMP_FontAsset.CreateFontAsset(font, NativePixelSize, padding, renderMode, AtlasSize, AtlasSize,
+            asset = TMP_FontAsset.CreateFontAsset(font, nativePixelSize, padding, renderMode, AtlasSize, AtlasSize,
                 AtlasPopulationMode.Dynamic, false);
             asset.name = name;
             AssetDatabase.CreateAsset(asset, assetPath);
@@ -103,11 +126,12 @@ public static class SettlementPixelLookSetup
     }
 
     /// <summary>
-    /// 가계부 양쪽 페이지·명성 포스터 제목·다음날 글씨를 Neo둥근모로 바꾸고, 페이지 글씨 뒤에 공책 줄을 다시 깐다.
+    /// 가계부 양쪽 페이지·명성 포스터 제목을 갈무리11 굵게로, 다음날 글씨를 Neo둥근모로 바꾸고, 페이지 글씨 뒤에 공책 줄을 다시 깐다.
     /// 페이지 글씨의 기울기는 없앤다. 도트 글씨를 1도만 돌려도 글자 도트가 계단처럼 어긋나 보이기 때문이다.
     /// </summary>
-    /// <param name="font">정산 화면 Neo둥근모 래스터 에셋입니다.</param>
-    private static void installSettlementPanel(TMP_FontAsset font)
+    /// <param name="font">가계부·포스터 제목용 갈무리11 굵게 래스터 에셋입니다.</param>
+    /// <param name="labelFont">다음날 글씨용 Neo둥근모 래스터 에셋입니다.</param>
+    private static void installSettlementPanel(TMP_FontAsset font, TMP_FontAsset labelFont)
     {
         var importer = (TextureImporter)AssetImporter.GetAtPath(RuledLinePath)
             ?? throw new System.InvalidOperationException("공책 줄 이미지가 없습니다.");
@@ -128,16 +152,16 @@ public static class SettlementPixelLookSetup
             {
                 var text = findDeep(root.transform, name)?.GetComponent<TextMeshProUGUI>()
                     ?? throw new System.InvalidOperationException($"{name}을 찾을 수 없습니다.");
-                applyFont(text, font);
+                applyFont(text, font, TextSize);
                 text.lineSpacing = 0f;
                 text.rectTransform.localRotation = Quaternion.identity;
                 installLines(text, ruled);
             }
 
             applyFont(findDeep(root.transform, "ReputationTitle")?.GetComponent<TextMeshProUGUI>()
-                ?? throw new System.InvalidOperationException("ReputationTitle을 찾을 수 없습니다."), font);
+                ?? throw new System.InvalidOperationException("ReputationTitle을 찾을 수 없습니다."), font, TextSize);
             applyFont(findDeep(root.transform, "SettlementNext")?.Find("Label")?.GetComponent<TextMeshProUGUI>()
-                ?? throw new System.InvalidOperationException("SettlementNext/Label을 찾을 수 없습니다."), font);
+                ?? throw new System.InvalidOperationException("SettlementNext/Label을 찾을 수 없습니다."), labelFont, NeoDgmTextSize);
             PrefabUtility.SaveAsPrefabAsset(root, SettlementPanelPrefabPath);
         }
         finally
@@ -146,15 +170,15 @@ public static class SettlementPixelLookSetup
         }
     }
 
-    /// <summary>딸 말풍선 대사를 Neo둥근모로 바꾼다. 말풍선은 줄 수만큼 자라므로 크기만 맞추면 넘치지 않는다.</summary>
-    /// <param name="font">정산 화면 Neo둥근모 래스터 에셋입니다.</param>
+    /// <summary>딸 말풍선 대사를 갈무리11 굵게로 바꾼다. 말풍선은 줄 수만큼 자라므로 크기만 맞추면 넘치지 않는다.</summary>
+    /// <param name="font">갈무리11 굵게 래스터 에셋입니다.</param>
     private static void installDaughterDialogue(TMP_FontAsset font)
     {
         GameObject root = PrefabUtility.LoadPrefabContents(DaughterPanelPrefabPath);
         try
         {
             applyFont(findDeep(root.transform, "Dialogue")?.GetComponent<TextMeshProUGUI>()
-                ?? throw new System.InvalidOperationException("Dialogue를 찾을 수 없습니다."), font);
+                ?? throw new System.InvalidOperationException("Dialogue를 찾을 수 없습니다."), font, TextSize);
             PrefabUtility.SaveAsPrefabAsset(root, DaughterPanelPrefabPath);
         }
         finally
@@ -163,15 +187,16 @@ public static class SettlementPixelLookSetup
         }
     }
 
-    /// <summary>글씨를 Neo둥근모·기본 머티리얼·고정 크기로 바꾼다. 자동 크기는 도트 배율을 깨므로 끈다.</summary>
+    /// <summary>글씨를 도트 글꼴·기본 머티리얼·고정 크기로 바꾼다. 자동 크기는 도트 배율을 깨므로 끈다.</summary>
     /// <param name="text">바꿀 글씨입니다.</param>
-    /// <param name="font">Neo둥근모 에셋입니다.</param>
-    private static void applyFont(TextMeshProUGUI text, TMP_FontAsset font)
+    /// <param name="font">도트 글꼴 에셋입니다.</param>
+    /// <param name="size">글꼴 1px이 화면 정수 px이 되는 글씨 크기입니다.</param>
+    private static void applyFont(TextMeshProUGUI text, TMP_FontAsset font, float size)
     {
         text.font = font;
         text.fontSharedMaterial = font.material;
         text.enableAutoSizing = false;
-        text.fontSize = TextSize;
+        text.fontSize = size;
         text.fontStyle = FontStyles.Normal;
     }
 
@@ -291,7 +316,7 @@ public static class SettlementPixelLookSetup
             {
                 var text = balance.Find(name)?.GetComponent<TextMeshProUGUI>()
                     ?? throw new System.InvalidOperationException($"SettlementBalance/{name}을 찾을 수 없습니다.");
-                applyFont(text, font);
+                applyFont(text, font, NeoDgmTextSize);
                 text.fontSharedMaterial = material;
             }
 
