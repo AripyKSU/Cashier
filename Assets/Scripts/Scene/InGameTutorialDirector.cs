@@ -25,7 +25,7 @@ public sealed class InGameTutorialDirector
     private readonly SaleSortingPanel sortingPanel;
     private readonly RectTransform hud;
     private readonly Func<uint, string> getText;
-    private readonly RectTransform guidebookGuideline;
+    private readonly RectTransform[] guidebookGuidelines;
     private readonly RectTransform guidelineButton;
     private readonly GuidelineViolationNoticePresenter violationNotice;
     private readonly Func<DailyGuideline, string> formatGuideline;
@@ -61,15 +61,15 @@ public sealed class InGameTutorialDirector
     /// <param name="hud">시각·보유금 명패. 없으면 시계 강조를 생략합니다.</param>
     /// <param name="getText">TextData 키를 문자열로 바꾸는 함수입니다.</param>
     /// <exception cref="ArgumentNullException">필수 인자가 null인 경우 발생합니다.</exception>
-    /// <param name="guidebookGuideline">영업 전 지침서의 오늘의 지침 칸. 없으면 지침서 설명을 생략합니다.</param>
+    /// <param name="guidebookGuidelines">영업 전 지침서의 오늘의 지침 줄들. 보이는 줄을 모두 한 테두리로 감싸며, 없으면 지침서 설명을 생략합니다.</param>
     /// <param name="guidelineButton">작업대의 "지침" 버튼. 없으면 강조를 생략합니다.</param>
     /// <param name="violationNotice">거래 위반 통지서. 없으면 통지를 생략합니다.</param>
     /// <param name="formatGuideline">일일지침을 화면 문장으로 바꾸는 함수입니다.</param>
     public InGameTutorialDirector(TutorialCoachPresenter coach, SaleSortingPanel sortingPanel, RectTransform hud,
-        Func<uint, string> getText, RectTransform guidebookGuideline = null, RectTransform guidelineButton = null,
+        Func<uint, string> getText, RectTransform[] guidebookGuidelines = null, RectTransform guidelineButton = null,
         GuidelineViolationNoticePresenter violationNotice = null, Func<DailyGuideline, string> formatGuideline = null)
     {
-        this.guidebookGuideline = guidebookGuideline;
+        this.guidebookGuidelines = guidebookGuidelines ?? Array.Empty<RectTransform>();
         this.guidelineButton = guidelineButton;
         this.violationNotice = violationNotice;
         this.formatGuideline = formatGuideline;
@@ -116,10 +116,10 @@ public sealed class InGameTutorialDirector
         {
             // 3일차 영업 전: 지침서가 보이면 오늘의 지침 칸을 강조하며 설명한다.
             if (displayDay == 3 && !guidebookShown && state == DayProgressState.PreOpen && !coach.IsShowing &&
-                guidebookGuideline != null && guidebookGuideline.gameObject.activeInHierarchy)
+                guidebookGuidelines.Any(line => line != null && line.gameObject.activeInHierarchy))
             {
                 guidebookShown = true;
-                coach.Show(texts(GuidebookLines), new[] { guidebookGuideline, guidebookGuideline, guidebookGuideline }, null);
+                coach.Show(texts(GuidebookLines), new[] { guidebookGuidelines, guidebookGuidelines, guidebookGuidelines }, null);
             }
 
             if (displayDay == 3 && !guidelineShown && state == DayProgressState.Sorting && sortingPanel.IsSorting && !coach.IsShowing)

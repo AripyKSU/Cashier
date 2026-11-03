@@ -59,6 +59,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
 
     [Header("Calculator")]
     [SerializeField] private RectTransform calculatorPanel;
+    private GuidelinePopupPresenter guidelinePopup;
     /// <summary>계산기가 화면 밖과 도착 위치 사이를 완전히 이동하는 시간(초)입니다.</summary>
     [SerializeField, Min(0.01f)] private float calculatorSlideSeconds = 1f;
 
@@ -410,7 +411,7 @@ public sealed class SaleSortingPanel : MonoBehaviour
             return;
         }
 
-        bool allowNewInteraction = !this.isPointerOverCalculator();
+        bool allowNewInteraction = !this.isPointerOverCalculator() && !this.isPointerOverGuideline();
         this.drainVacuumItems();
         bool wasVacuumBusy = this.vacuum != null && this.vacuum.IsBusy;
         bool wasVacuumHolding = this.vacuum != null && this.vacuum.IsHolding;
@@ -1530,6 +1531,14 @@ public sealed class SaleSortingPanel : MonoBehaviour
     {
         return this.calculatorPanel != null && this.calculatorPanel.gameObject.activeSelf
             && RectTransformUtility.RectangleContainsScreenPoint(this.calculatorPanel, this.getPointerScreenPosition());
+    }
+
+    /// <summary>펼친 지침서와 지침 버튼 위의 조작을 상품 물리 입력에서 제외합니다.</summary>
+    /// <returns>현재 포인터가 지침서 종이나 지침 버튼 위에 있으면 true입니다.</returns>
+    private bool isPointerOverGuideline()
+    {
+        if (this.guidelinePopup == null) this.guidelinePopup = this.GetComponentInChildren<GuidelinePopupPresenter>(true);
+        return this.guidelinePopup != null && this.guidelinePopup.IsPointerOver(this.getPointerScreenPosition());
     }
 
     /// <summary>활성 입력 시스템에서 현재 포인터 화면 위치를 반환합니다.</summary>
