@@ -41,14 +41,19 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
 
     private void Awake()
     {
-        // 밝은 바닥에서도 강조선이 보이도록 2px 어두운 테두리를 붙인다.
+        // 네 변이 모서리에서 겹치거나 그림자가 붙으면 띠 여러 개를 포갠 것처럼 보이므로,
+        // 세로 변을 가로 변 사이로 줄이고 그림자 없이 하나의 테두리로 그린다.
         foreach (var edge in highlightEdges)
-            if (edge != null && edge.GetComponent<Outline>() == null)
-            {
-                var outline = edge.gameObject.AddComponent<Outline>();
-                outline.effectColor = new Color(.165f, .149f, .133f, 1f);
-                outline.effectDistance = new Vector2(2f, -2f);
-            }
+        {
+            if (edge == null) continue;
+            var shadow = edge.GetComponent<Shadow>();
+            if (shadow != null) Destroy(shadow);
+            var edgeRect = edge.rectTransform;
+            bool vertical = Mathf.Approximately(edgeRect.anchorMin.y, 0f) && Mathf.Approximately(edgeRect.anchorMax.y, 1f);
+            if (!vertical) continue;
+            float thickness = edgeRect.sizeDelta.x;
+            edgeRect.sizeDelta = new Vector2(thickness, -2f * thickness);
+        }
 
         // prefab에 저장된 대사창 높이를 최소 높이로 쓰고, 줄이 많으면 위로 늘린다.
         if (lineText != null) minBoxHeight = ((RectTransform)lineText.rectTransform.parent).rect.height;
