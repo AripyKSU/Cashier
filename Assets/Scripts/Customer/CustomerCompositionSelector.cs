@@ -54,6 +54,7 @@ public sealed class CustomerCompositionSelector
     /// <param name="currentPrices">구성 시점의 상품 현재가 snapshot입니다.</param>
     /// <param name="elapsedDays">게임 시작 후 경과 일수입니다.</param>
     /// <param name="isFacilityActive">설비 활성 조회입니다. null이면 설비 상품을 잠급니다.</param>
+    /// <param name="requiredGuideline">지정하면 이 지침의 대상 손님이 대상 상품을 허용 수량보다 많이 가져오게 합니다.</param>
     /// <returns>판매 가능 상품이 없으면 null, 아니면 생성에 필요한 불변 구성입니다.</returns>
     /// <exception cref="ArgumentNullException">필수 입력이 null인 경우 발생합니다.</exception>
     /// <exception cref="ArgumentException">후보 PK·상품 FK·현재가·행 설정이 잘못된 경우 발생합니다.</exception>
@@ -65,12 +66,13 @@ public sealed class CustomerCompositionSelector
         ReputationBalanceData reputationBalance,
         IReadOnlyDictionary<uint, uint> currentPrices,
         uint elapsedDays = 0,
-        Func<uint, bool> isFacilityActive = null)
+        Func<uint, bool> isFacilityActive = null,
+        DailyGuideline? requiredGuideline = null)
     {
         if (reputationBalance == null)
             throw new ArgumentNullException(nameof(reputationBalance));
         return this.selectComposition(appearances, dispositions, products, currentPrices,
-            reputationBalance, elapsedDays, isFacilityActive);
+            reputationBalance, elapsedDays, isFacilityActive, requiredGuideline);
     }
 
     /// <summary>명성 데이터가 아직 연결되지 않은 호환 호출을 위해 타입을 균등 선택합니다.</summary>
@@ -103,7 +105,8 @@ public sealed class CustomerCompositionSelector
         IReadOnlyDictionary<uint, uint> currentPrices,
         ReputationBalanceData reputationBalance,
         uint elapsedDays,
-        Func<uint, bool> isFacilityActive)
+        Func<uint, bool> isFacilityActive,
+        DailyGuideline? requiredGuideline = null)
     {
         if (appearances == null || appearances.Count == 0)
             throw new ArgumentException("외형 후보가 필요합니다.", nameof(appearances));
@@ -125,7 +128,28 @@ public sealed class CustomerCompositionSelector
             ? selectUniformDisposition(sortedDispositions, elapsedDays)
             : selectWeightedDisposition(sortedDispositions, reputationBalance, elapsedDays);
         CustomerAttributes selectedGender = this.selectNextGender();
-        CustomerAttributes selectedAge = this.selectAge(sortedAppearances, selectedGender, disposition.DispositionType);
+        CustomerAttributes? requiredAge = null;
+        if (requiredGuideline.HasValue)
+        {
+            // 지침 대상이 성별이면 그 성별로, 연령이면 그 연령 외형이 있는 성향으로 맞춘다.
+            CustomerAttributes target = requiredGuideline.Value.RequiredAttributes;
+            if ((target & CustomerAttributes.Male) != 0) selectedGender = CustomerAttributes.Male;
+            else if ((target & CustomerAttributes.Female) != 0) selectedGender = CustomerAttributes.Female;
+            if ((target & CustomerAttributes.Child) != 0) requiredAge = CustomerAttributes.Child;
+            else if ((target & CustomerAttributes.Adult) != 0) requiredAge = CustomerAttributes.Adult;
+            else if ((target & CustomerAttributes.Elderly) != 0) requiredAge = CustomerAttributes.Elderly;
+            if (requiredAge.HasValue && !hasAppearance(sortedAppearances, selectedGender, requiredAge.Value, disposition.DispositionType))
+            {
+                CustomerAttributes gender = selectedGender;
+                CustomerAttributes age = requiredAge.Value;
+                CustomerDispositionData[] fits = sortedDispositions
+                    .Where(row => hasAppearance(sortedAppearances, gender, age, row.DispositionType)).ToArray();
+                if (fits.Length > 0) disposition = fits[this.random.Next(fits.Length)];
+                else requiredAge = null;
+            }
+        }
+
+        CustomerAttributes selectedAge = requiredAge ?? this.selectAge(sortedAppearances, selectedGender, disposition.DispositionType);
         CustomerAttributes attributes = selectedGender | selectedAge | CustomerAttributes.Normal;
         CustomerProfileValidation.ValidateCompleteAttributes(attributes);
         List<CustomerAppearanceData> matchingAppearances = sortedAppearances.Where(appearance =>
@@ -135,6 +159,8 @@ public sealed class CustomerCompositionSelector
             throw new InvalidDataException($"gender={selectedGender}, age={selectedAge}, disposition_type={disposition.DispositionType} 외형 후보 누락");
         uint appearanceIdx = matchingAppearances[this.random.Next(matchingAppearances.Count)].Idx;
         List<CustomerOrderItem> items = selectItems(disposition, availableProducts, currentPrices, elapsedDays);
+        if (requiredGuideline.HasValue && availableProducts.ContainsKey(requiredGuideline.Value.TargetProductIdx))
+            includeGuidelineProduct(items, requiredGuideline.Value, currentPrices);
         CustomerComposition composition = new CustomerComposition(
             appearanceIdx,
             disposition.Idx,
@@ -424,6 +450,27 @@ public sealed class CustomerCompositionSelector
         }
 
         return items;
+    }
+
+    /// <summary>지침 대상 상품을 허용 수량보다 하나 많게 주문에 넣습니다. 종류 수가 늘지 않게 마지막 상품과 바꿉니다.</summary>
+    private static void includeGuidelineProduct(List<CustomerOrderItem> items, DailyGuideline guideline,
+        IReadOnlyDictionary<uint, uint> currentPrices)
+    {
+        uint productIdx = guideline.TargetProductIdx;
+        int index = items.FindIndex(item => item.ProductIdx == productIdx);
+        int quantity = Math.Max(guideline.AllowedQuantity + 1, index >= 0 ? items[index].Quantity : 0);
+        var item = new CustomerOrderItem(productIdx, quantity, currentPrices[productIdx]);
+        if (index >= 0) items[index] = item;
+        else if (items.Count > 0) items[items.Count - 1] = item;
+        else items.Add(item);
+    }
+
+    /// <summary>성별·연령·성향이 모두 맞는 외형이 있는지 확인합니다.</summary>
+    private static bool hasAppearance(IReadOnlyList<CustomerAppearanceData> appearances, CustomerAttributes gender,
+        CustomerAttributes age, CustomerDispositionType dispositionType)
+    {
+        return appearances.Any(appearance => appearance.Gender == gender && appearance.Age == age &&
+            appearance.DispositionType == dispositionType);
     }
 
     /// <summary>대사 후보에서 하나의 TextData FK를 선택합니다.</summary>

@@ -29,11 +29,12 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     [SerializeField] private Image[] highlightEdges = Array.Empty<Image>();
 
     private string[] lines = Array.Empty<string>();
-    private RectTransform[] targets = Array.Empty<RectTransform>();
+    private RectTransform[][] targets = Array.Empty<RectTransform[]>();
     private int lineIndex;
     private float lineShownAt;
     private bool isTyping;
     private Action finished;
+    private float minBoxHeight;
 
     /// <summary>안내가 화면에 떠 있는지 여부입니다.</summary>
     public bool IsShowing { get; private set; }
@@ -49,6 +50,8 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
                 outline.effectDistance = new Vector2(2f, -2f);
             }
 
+        // prefab에 저장된 대사창 높이를 최소 높이로 쓰고, 줄이 많으면 위로 늘린다.
+        if (lineText != null) minBoxHeight = ((RectTransform)lineText.rectTransform.parent).rect.height;
         hide();
     }
 
@@ -110,9 +113,20 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     /// <param name="onFinished">마지막 줄을 넘긴 뒤 호출됩니다.</param>
     public void Show(string[] newLines, RectTransform[] newTargets, Action onFinished)
     {
+        Show(newLines, newTargets == null ? null : Array.ConvertAll(newTargets, target => new[] { target }), onFinished);
+    }
+
+    /// <summary>
+    /// 여러 줄 안내를 띄웁니다. 줄마다 여러 영역을 한 테두리로 묶어 강조할 수 있습니다.
+    /// </summary>
+    /// <param name="newLines">감독관 대사 줄들입니다.</param>
+    /// <param name="newTargets">줄과 같은 순서의 강조 대상 묶음. 보이는 대상들을 모두 감싸는 테두리 하나를 그립니다.</param>
+    /// <param name="onFinished">마지막 줄을 넘긴 뒤 호출됩니다.</param>
+    public void Show(string[] newLines, RectTransform[][] newTargets, Action onFinished)
+    {
         if (newLines == null || newLines.Length == 0) throw new ArgumentException("안내 대사가 비어 있습니다.", nameof(newLines));
         lines = newLines;
-        targets = newTargets ?? Array.Empty<RectTransform>();
+        targets = newTargets ?? Array.Empty<RectTransform[]>();
         finished = onFinished;
         lineIndex = 0;
         IsShowing = true;
@@ -134,6 +148,11 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
         {
             lineText.text = lines[lineIndex];
             lineText.maxVisibleCharacters = 0;
+            // 위아래 여백(글씨 영역 offset)은 그대로 두고 줄 수만큼 대사창을 늘린다.
+            var box = (RectTransform)lineText.rectTransform.parent;
+            float padding = -lineText.rectTransform.sizeDelta.y;
+            float textHeight = lineText.GetPreferredValues(lineText.text, lineText.rectTransform.rect.width, 0f).y;
+            box.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(minBoxHeight, textHeight + padding));
             lineText.ForceMeshUpdate(true, true);
             isTyping = true;
             // 영업 화면 감독관과 같은 목소리로 말해, 그림 없이도 감독관인 줄 알게 한다.
@@ -148,25 +167,46 @@ public sealed class TutorialCoachPresenter : MonoBehaviour
     private void updateHighlight()
     {
         if (highlight == null) return;
-        RectTransform target = lineIndex < targets.Length ? targets[lineIndex] : null;
-        bool visible = target != null && target.gameObject.activeInHierarchy;
+        RectTransform[] group = lineIndex < targets.Length ? targets[lineIndex] : null;
+        // 묶음 안에서 보이는 대상들의 사각형을 테두리 부모 좌표로 옮겨 하나로 합친다. 대상이 다른 캔버스여도 같은 방식이다.
+        var parent = (RectTransform)highlight.parent;
+        var corners = new Vector3[4];
+        Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+        Vector2 max = new Vector2(float.MinValue, float.MinValue);
+        bool visible = false;
+        if (group != null)
+            foreach (var target in group)
+            {
+                if (target == null || !target.gameObject.activeInHierarchy) continue;
+                visible = true;
+                target.GetWorldCorners(corners);
+                // 긴 지침이 줄바꿈되어 칸 밖으로 넘친 글씨도 테두리 안에 넣는다.
+                if (target.TryGetComponent(out TMP_Text text) && text.textInfo.characterCount > 0)
+                {
+                    Bounds textBounds = text.textBounds;
+                    corners[0] = Vector3.Min(corners[0], target.TransformPoint(textBounds.min));
+                    corners[2] = Vector3.Max(corners[2], target.TransformPoint(textBounds.max));
+                }
+
+                foreach (var corner in new[] { corners[0], corners[2] })
+                {
+                    Vector2 local = parent.InverseTransformPoint(corner);
+                    min = Vector2.Min(min, local);
+                    max = Vector2.Max(max, local);
+                }
+            }
+
         highlight.gameObject.SetActive(visible);
         if (!visible) return;
 
-        // 대상의 화면 사각형을 테두리 부모 좌표로 옮긴다. 대상이 다른 캔버스여도 같은 방식이다.
-        var corners = new Vector3[4];
-        target.GetWorldCorners(corners);
-        var parent = (RectTransform)highlight.parent;
-        Vector3 min = parent.InverseTransformPoint(corners[0]);
-        Vector3 max = parent.InverseTransformPoint(corners[2]);
         const float padding = 8f;
         const float screenInset = 10f;
         // 화면 끝까지 닿는 구역도 네 변이 모두 보이도록 화면 안쪽으로 잘라 낸다.
         Rect bounds = parent.rect;
-        float left = Mathf.Max(Mathf.Min(min.x, max.x) - padding, bounds.xMin + screenInset);
-        float right = Mathf.Min(Mathf.Max(min.x, max.x) + padding, bounds.xMax - screenInset);
-        float bottom = Mathf.Max(Mathf.Min(min.y, max.y) - padding, bounds.yMin + screenInset);
-        float top = Mathf.Min(Mathf.Max(min.y, max.y) + padding, bounds.yMax - screenInset);
+        float left = Mathf.Max(min.x - padding, bounds.xMin + screenInset);
+        float right = Mathf.Min(max.x + padding, bounds.xMax - screenInset);
+        float bottom = Mathf.Max(min.y - padding, bounds.yMin + screenInset);
+        float top = Mathf.Min(max.y + padding, bounds.yMax - screenInset);
         highlight.anchorMin = highlight.anchorMax = new Vector2(.5f, .5f);
         highlight.pivot = new Vector2(.5f, .5f);
         highlight.localPosition = new Vector3((left + right) * .5f, (bottom + top) * .5f, 0f);

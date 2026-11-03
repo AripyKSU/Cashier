@@ -202,7 +202,9 @@ public sealed class GameUIController : MonoBehaviour
                 this.tutorialDirector = new InGameTutorialDirector(this.tutorialCoach, this.saleSortingPanel,
                     this.shopStatusHud != null ? this.shopStatusHud.HighlightTarget : null,
                     idx => this.textData.Rows[idx].Text,
-                    this.preOpenPanel != null ? this.preOpenPanel.transform.Find("GuidelineSlot0") as RectTransform : null,
+                    this.preOpenPanel != null
+                        ? new[] { "GuidelineSlot0", "GuidelineSlot1" }.Select(slot => this.preOpenPanel.transform.Find(slot) as RectTransform).ToArray()
+                        : null,
                     this.saleSortingPanel.transform.Find("GuidelinePopup/Toggle") as RectTransform,
                     this.violationNotice,
                     guideline => this.viewDataFactory.FormatGuideline(guideline));

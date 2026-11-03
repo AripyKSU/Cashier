@@ -28,7 +28,12 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
     [Tooltip("펼치고 접는 시간(초)")]
     [SerializeField, Min(0.05f)] private float slideSeconds = 0.25f;
 
+    [Tooltip("펼친 종이에서 버튼 오른쪽 아래를 둘 안쪽 여백(그려진 종이 폭·높이 비율). 찢긴 가장자리 안쪽에 오게 한다.")]
+    [SerializeField] private Vector2 paperCornerInset = new Vector2(.14f, .08f);
+
     private bool isOpen;
+    // 펼쳤을 때 종이 오른쪽 아래 모서리에서 버튼 자리까지의 거리(부모 좌표).
+    private Vector2 openButtonOffset;
     private Tween slideTween;
     private GameObject copy;
     private UIDragMover sheetMover;
@@ -68,6 +73,17 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         if (toggleButton != null) toggleButton.onClick.RemoveListener(toggle);
     }
 
+    /// <summary>펼친 종이나 지침 버튼 위를 가리키는지 확인합니다. 그 아래 상품은 집지 않게 하는 데 씁니다.</summary>
+    /// <param name="screenPoint">화면 픽셀 좌표.</param>
+    /// <returns>종이나 버튼 위면 true입니다.</returns>
+    public bool IsPointerOver(Vector2 screenPoint)
+    {
+        if (toggleButton != null && toggleButton.gameObject.activeInHierarchy &&
+            RectTransformUtility.RectangleContainsScreenPoint((RectTransform)toggleButton.transform, screenPoint)) return true;
+        return isOpen && sheet != null && sheet.gameObject.activeInHierarchy &&
+            RectTransformUtility.RectangleContainsScreenPoint(sheet, screenPoint);
+    }
+
     /// <summary>물건을 집는 순간 펼쳐 둔 지침서를 닫는다. 지침서를 편 채로는 장사를 이어갈 수 없다.</summary>
     private void closeOnPickup()
     {
@@ -89,6 +105,7 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
             followSheet();
             sheet.localScale = Vector3.zero;
         }
+        else followSheet();
 
         slideTween?.Kill();
         bool opening = isOpen;
@@ -103,10 +120,13 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
             });
     }
 
-    /// <summary>버튼을 종이 오른쪽 아래 모서리에 붙입니다.</summary>
+    /// <summary>버튼을 종이 오른쪽 아래 모서리에 붙입니다. 펼쳐 있으면 종이 위, 찢긴 가장자리 안쪽에 올립니다.</summary>
     private void followSheet()
     {
-        if (toggleButton != null) ((RectTransform)toggleButton.transform).anchoredPosition = sheet.anchoredPosition;
+        if (toggleButton == null) return;
+        var buttonRect = (RectTransform)toggleButton.transform;
+        buttonRect.anchoredPosition = sheet.anchoredPosition + (isOpen ? openButtonOffset : Vector2.zero);
+        if (isOpen) buttonRect.SetAsLastSibling();
     }
 
     /// <summary>
@@ -119,11 +139,13 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         var source = (RectTransform)preOpenPanel.transform;
         copy = Instantiate(preOpenPanel.gameObject, sheet, false);
         copy.name = "GuidebookCopy";
-        // 복사본은 보여 주기만 한다. 원본 Presenter와 버튼 입력은 쓰지 않는다.
-        Destroy(copy.GetComponent<PreOpenPanelPresenter>());
-        foreach (var button in copy.GetComponentsInChildren<Button>(true)) button.gameObject.SetActive(false);
+        // 복사본은 종이만 보여 준다. 원본 Presenter는 켜질 때 디버그 날짜 버튼을 다시 켜므로 활성화 전에 바로 없애고,
+        // 영업 시작·디버그 버튼처럼 종이 밖에 있는 것들은 지워서 종이를 끌 때 따라 움직이지 않게 한다.
+        DestroyImmediate(copy.GetComponent<PreOpenPanelPresenter>());
+        foreach (var button in copy.GetComponentsInChildren<Button>(true))
+            if (button != null) DestroyImmediate(button.gameObject);
         Transform openBorder = copy.transform.Find("OpenShopBorder");
-        if (openBorder != null) openBorder.gameObject.SetActive(false);
+        if (openBorder != null) DestroyImmediate(openBorder.gameObject);
         copy.SetActive(true);
 
         // 판매 칸 크기에 맞춰 비율을 지킨 채 줄인다. 위치는 종이를 옮긴 자리를 그대로 쓴다.
@@ -137,6 +159,18 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         rect.anchoredPosition = Vector2.zero;
         rect.localScale = new Vector3(scale, scale, 1f);
         sheet.sizeDelta = size * scale;
+
+        // 종이 그림은 비율을 지켜 가운데 그려지므로, 실제 그려진 종이 모서리에서 안쪽 여백만큼 들어간 자리를 구한다.
+        Vector2 paper = size;
+        var paperImage = copy.GetComponent<Image>();
+        if (paperImage != null && paperImage.sprite != null && paperImage.preserveAspect)
+        {
+            Vector2 sprite = paperImage.sprite.rect.size;
+            float fit = Mathf.Min(size.x / sprite.x, size.y / sprite.y);
+            paper = sprite * fit;
+        }
+        openButtonOffset = new Vector2(-((size.x - paper.x) * .5f + paper.x * paperCornerInset.x),
+            (size.y - paper.y) * .5f + paper.y * paperCornerInset.y) * scale;
 
         foreach (var image in copy.GetComponentsInChildren<Image>(true))
             image.color *= sceneTint;
@@ -161,5 +195,6 @@ public sealed class GuidelinePopupPresenter : MonoBehaviour
         if (sheet == null) return;
         sheet.localScale = Vector3.zero;
         sheet.gameObject.SetActive(false);
+        followSheet();
     }
 }

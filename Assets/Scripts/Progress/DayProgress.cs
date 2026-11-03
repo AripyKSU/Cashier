@@ -497,12 +497,20 @@ public sealed class DayProgress
         this.CustomerStarted?.Invoke(this.currentVisit);
     }
 
+    /// <summary>오늘 지침에 걸리는 물건을 들려 보낸 손님 수입니다.</summary>
+    private int guidelineCustomersCreated;
+
     /// <summary>하루 시작 명성·현재가·설비 상태로 구성을 선택하고 방문 객체를 생성합니다.</summary>
     private CustomerVisit createCustomer()
     {
         if (checked((uint)(this.day - 1)) != this.session.ElapsedDays)
             throw new InvalidOperationException("하루 진행 날짜와 세션 날짜가 다릅니다.");
         DailyPriceState dailyPrices = this.session.EnsureDailyPrices();
+        // 오늘 지침마다 첫 손님들 중 한 명은 그 지침에 걸리는 물건을 가져와, 지침이 늘 실제로 쓰이게 한다.
+        IReadOnlyList<DailyGuideline> guidelines = this.session.DailyGuidelines;
+        DailyGuideline? requiredGuideline = this.guidelineCustomersCreated < guidelines.Count
+            ? guidelines[this.guidelineCustomersCreated]
+            : (DailyGuideline?)null;
         CustomerComposition composition = this.customerCompositionSelector.SelectComposition(
             this.appearances,
             this.dispositions,
@@ -510,7 +518,9 @@ public sealed class DayProgress
             this.reputationBalance,
             dailyPrices.Prices,
             this.session.ElapsedDays,
-            this.session.IsFacilityActive);
+            this.session.IsFacilityActive,
+            requiredGuideline);
+        if (composition != null && requiredGuideline.HasValue) this.guidelineCustomersCreated++;
 
         CustomerVisit visit = composition == null
             ? null
