@@ -48,6 +48,8 @@ public class DailySettlementPresenter : MonoBehaviour
 
     private void OnDestroy()
     {
+        // 정산 화면이 열린 채 씬이 바뀌어도 연필 커서가 남지 않게 되돌린다.
+        GameCursor.SetLedgerMode(false);
         if (this.ledgerView != null)
         {
             this.ledgerView.OnPresentationCompleted -= this.handleLedgerPresentationCompleted;
@@ -67,6 +69,8 @@ public class DailySettlementPresenter : MonoBehaviour
         {
             this.panelRoot.SetActive(true);
         }
+        // 가계부를 보는 동안에는 기본 화살표 대신 몽당연필 커서를 쓴다.
+        GameCursor.SetLedgerMode(true);
 
         if (this.ledgerView != null)
         {
@@ -96,6 +100,7 @@ public class DailySettlementPresenter : MonoBehaviour
         {
             this.panelRoot.SetActive(false);
         }
+        GameCursor.SetLedgerMode(false);
     }
 
     /// <summary>딸 대사 완료 뒤 준비된 명성 도장 연출을 시작합니다.</summary>
