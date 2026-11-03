@@ -50,13 +50,12 @@ public static class EndingAssetSetup
             speaker.color = new Color(0.86f, 0.76f, 0.51f);
             var dialogue = label("Dialogue", panel.transform, "엔딩 대사를 불러오는 중입니다.", 32, new Vector2(0, 20), new Vector2(1300, 180));
             dialogue.alignment = TextAlignmentOptions.Center;
-            var indicator = label("Page", panel.transform, "1 / 4 · 임시 이미지", 21, new Vector2(-390, -130), new Vector2(440, 40));
             var next = button("Next", panel.transform, "다음", new Vector2(520, -125), new Vector2(250, 62));
             var restart = button("NewGame", panel.transform, "새 게임", new Vector2(520, -125), new Vector2(250, 62));
             restart.gameObject.AddComponent<NewGameButton>();
             restart.gameObject.SetActive(false);
             bind(presenter, ("background", background), ("heading", heading), ("speaker", speaker),
-                ("dialogue", dialogue), ("pageIndicator", indicator), ("nextButton", next),
+                ("dialogue", dialogue), ("nextButton", next),
                 ("newGameButton", restart), ("pageGroup", group));
             PrefabUtility.SaveAsPrefabAsset(root, EndingPrefab);
             UnityEngine.Object.DestroyImmediate(root);
