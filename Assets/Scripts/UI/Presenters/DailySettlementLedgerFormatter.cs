@@ -49,7 +49,7 @@ public static class DailySettlementLedgerFormatter
         appendAmount(builder, "유지비", viewData.MaintenanceAmount, ref size, false, true);
         appendAmount(builder, "지침 벌금", viewData.GuidelinePenaltyAmount, ref size, false, true);
         appendRule(builder, ref size);
-        appendAmount(builder, "순이익", viewData.NetProfit, ref size, true, false, 6);
+        appendAmount(builder, "순이익", viewData.NetProfit, ref size, true);
         // 현재 보유금은 화면 아래 가운데 별도 UI로 보여 준다(설비 창 위에서도 보이도록).
         return builder.ToString().TrimEnd();
     }
@@ -91,7 +91,8 @@ public static class DailySettlementLedgerFormatter
     private static void appendTitle(StringBuilder builder, string title)
     {
         builder.Append("<line-height=").Append(LineHeight).Append('>');
-        builder.Append("<size=108%><color=").Append(TitleColor).Append('>').Append(title).AppendLine("</color></size>");
+        // 도트 글씨는 글씨 크기가 정수 배일 때만 고르게 찍히므로 제목도 본문과 같은 크기로 두고 잉크 색으로만 구분한다.
+        builder.Append("<color=").Append(TitleColor).Append('>').Append(title).AppendLine("</color>");
     }
 
     /// <summary>구획 사이에 공책 줄 한 칸을 비웁니다. 줄무늬가 구분선 역할을 하므로 따로 잉크 줄을 긋지 않습니다.</summary>
@@ -107,10 +108,9 @@ public static class DailySettlementLedgerFormatter
     /// <param name="text">줄 내용입니다.</param>
     /// <param name="size">현재 줄 글씨 크기(%)입니다.</param>
     /// <param name="color">잉크 색. null이면 기본 글씨 색입니다.</param>
-    /// <param name="extraSizePercent">이 줄만 더 키울 크기(%)입니다. 합계 줄 강조에 씁니다.</param>
-    private static void appendLine(StringBuilder builder, string text, ref int size, string color = null, int extraSizePercent = 0)
+    private static void appendLine(StringBuilder builder, string text, ref int size, string color = null)
     {
-        builder.Append("<size=").Append(size + extraSizePercent).Append("%>");
+        builder.Append("<size=").Append(size).Append("%>");
         if (color != null) builder.Append("<color=").Append(color).Append('>');
         builder.Append(text);
         if (color != null) builder.Append("</color>");
@@ -124,15 +124,13 @@ public static class DailySettlementLedgerFormatter
     /// <param name="size">현재 줄 글씨 크기(%)입니다.</param>
     /// <param name="showPositiveSign">양수에 더하기 기호를 표시할지 여부입니다.</param>
     /// <param name="showAsExpense">양수를 지출로 표시할지 여부입니다.</param>
-    /// <param name="extraSizePercent">이 줄만 더 키울 크기(%)입니다.</param>
     private static void appendAmount(
         StringBuilder builder,
         string label,
         long amount,
         ref int size,
         bool showPositiveSign = false,
-        bool showAsExpense = false,
-        int extraSizePercent = 0)
+        bool showAsExpense = false)
     {
         var line = new StringBuilder(label).Append("  ");
         if (amount > 0)
@@ -143,7 +141,7 @@ public static class DailySettlementLedgerFormatter
 
         line.Append(amount.ToString("N0")).Append("원");
         string color = amount == 0 ? null : (showAsExpense || amount < 0) ? ExpenseColor : IncomeColor;
-        appendLine(builder, line.ToString(), ref size, color, extraSizePercent);
+        appendLine(builder, line.ToString(), ref size, color);
     }
 
     /// <summary>정수 변화량에 양수 부호를 포함해 표시합니다.</summary>
