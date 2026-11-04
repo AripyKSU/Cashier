@@ -16,7 +16,6 @@ using UnityEngine.InputSystem;
 public sealed class GameUIController : MonoBehaviour
 {
     private const float SettlementBgmVolumeScale = 1.5f;
-    private const float DayEndSfxVolumeScale = 0.65f;
     private const float TransactionSuccessSfxVolumeScale = 1.35f;
 
     private GameProgress gameProgress;
@@ -700,8 +699,8 @@ public sealed class GameUIController : MonoBehaviour
         }
         else if (state == DayProgressState.Closing)
         {
-            // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다.
-            SoundManager.Instance?.PlaySfx(SoundKeys.DayEnd, DayEndSfxVolumeScale);
+            // Closing은 21:00에 영업 화면을 유지한 채 진입하므로, 정산 화면 진입음과 분리한다. 영업 시작과 같은 경고음을 쓴다.
+            SoundManager.Instance?.PlaySfx(SoundKeys.DayStart);
         }
         this.refreshAllViews();
     }
